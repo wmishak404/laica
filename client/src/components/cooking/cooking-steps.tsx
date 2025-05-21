@@ -22,10 +22,21 @@ export default function CookingSteps({ recipeName, onStepChange }: CookingStepsP
         setIsLoading(true);
         const response = await fetchCookingSteps(recipeName);
         if (response.steps && Array.isArray(response.steps)) {
-          setSteps(response.steps);
-          setProgress((1 / response.steps.length) * 100);
+          // Transform the steps if they have a complex structure
+          const formattedSteps = response.steps.map(step => {
+            if (typeof step === 'string') {
+              return step;
+            } else if (typeof step === 'object') {
+              // If step is an object with instruction property, extract it
+              return step.instruction || step.step || JSON.stringify(step);
+            }
+            return String(step);
+          });
+          
+          setSteps(formattedSteps);
+          setProgress((1 / formattedSteps.length) * 100);
           if (onStepChange) {
-            onStepChange(1, response.steps.length);
+            onStepChange(1, formattedSteps.length);
           }
         } else {
           // Fallback steps if API call fails

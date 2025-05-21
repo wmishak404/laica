@@ -84,7 +84,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-white/20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-white/70 text-sm mb-4 md:mb-0">© 2023 CulinaryAI. All rights reserved.</p>
+          <p className="text-white/70 text-sm mb-4 md:mb-0">© {new Date().getFullYear()} CulinaryAI. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#" className="text-white/70 text-sm hover:text-primary transition">Terms of Service</a>
             <a href="#" className="text-white/70 text-sm hover:text-primary transition">Privacy Policy</a>
