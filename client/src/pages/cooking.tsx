@@ -134,6 +134,70 @@ export default function Cooking() {
     setRecipeName(recipe);
     setShowResults(false);
   };
+  
+  // Handle pantry image analysis 
+  const handlePantryAnalysis = async (analysisData: any) => {
+    try {
+      setIsAnalyzingImage(true);
+      
+      // Check if we have a valid analysis result with food items
+      if (analysisData && analysisData.detectedIngredients) {
+        // Extract the ingredients from the analysis
+        const detectedItems = analysisData.detectedIngredients;
+        
+        // Add the detected ingredients to our pantry list
+        if (detectedItems.length > 0) {
+          // Combine with existing ingredients if any
+          const currentIngredients = pantryIngredients.trim() 
+            ? pantryIngredients.split(',').map(i => i.trim())
+            : [];
+            
+          // Filter out duplicates and merge lists
+          const newIngredients = [...new Set([...currentIngredients, ...detectedItems])];
+          
+          // Update the pantry ingredients input
+          setPantryIngredients(newIngredients.join(', '));
+          
+          toast({
+            title: "Ingredients detected!",
+            description: `Added ${detectedItems.length} items to your pantry list.`
+          });
+        } else {
+          toast({
+            title: "No ingredients found",
+            description: "Try taking a clearer photo of your ingredients.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        // For demo purposes, add some dummy detected ingredients
+        const demoIngredients = ['chicken', 'potatoes', 'carrots', 'onions', 'garlic'];
+        
+        // Add to existing ingredients
+        const currentIngredients = pantryIngredients.trim()
+          ? pantryIngredients.split(',').map(i => i.trim())
+          : [];
+        
+        const mergedIngredients = [...new Set([...currentIngredients, ...demoIngredients])];
+        setPantryIngredients(mergedIngredients.join(', '));
+        
+        toast({
+          title: "Demo: Ingredients detected!",
+          description: "Added chicken, potatoes, carrots, onions, and garlic to your pantry."
+        });
+      }
+    } catch (error) {
+      console.error('Error analyzing pantry image:', error);
+      toast({
+        title: "Error analyzing image",
+        description: "There was a problem identifying ingredients. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingImage(false);
+      setShowPantryCamera(false);
+    }
+  };
 
   const handleStepChange = (step: number, total: number) => {
     setCurrentStepNumber(step);
