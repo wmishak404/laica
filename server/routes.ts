@@ -21,6 +21,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to get recipe suggestions' });
     }
   });
+  
+  // Pantry-based recipe suggestions endpoint
+  app.post('/api/recipes/pantry', async (req, res) => {
+    try {
+      const schema = z.object({
+        ingredients: z.array(z.string()),
+        preferences: z.string().optional(),
+        timeAvailable: z.string().optional()
+      });
+      
+      const { ingredients, preferences, timeAvailable } = schema.parse(req.body);
+      // Convert timeAvailable to a preference string if provided
+      const enhancedPreferences = preferences 
+        ? (timeAvailable ? `${preferences}, ready in ${timeAvailable}` : preferences)
+        : (timeAvailable ? `Ready in ${timeAvailable}` : '');
+        
+      const suggestions = await getRecipeSuggestions(enhancedPreferences, ingredients);
+      res.json(suggestions);
+    } catch (error) {
+      console.error('Error in pantry recipe suggestions:', error);
+      res.status(500).json({ error: 'Failed to get pantry-based recipe suggestions' });
+    }
+  });
 
   // Cooking steps endpoint
   app.post('/api/cooking/steps', async (req, res) => {

@@ -16,7 +16,11 @@ import { Loader2, Search } from 'lucide-react';
 export default function Cooking() {
   const [location, setLocation] = useLocation();
   const [recipeName, setRecipeName] = useState('');
-  const [recipeSearch, setRecipeSearch] = useState('');
+  const [pantryIngredients, setPantryIngredients] = useState('');
+  const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [recipeOptions, setRecipeOptions] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState('');
   const [currentStepNumber, setCurrentStepNumber] = useState(1);
@@ -39,22 +43,91 @@ export default function Cooking() {
     }
   }, [location]);
 
-  const handleStartCooking = () => {
-    if (!recipeSearch.trim()) {
+  const handleDietaryChange = (preference: string) => {
+    setDietaryPreferences(prev => 
+      prev.includes(preference) 
+        ? prev.filter(p => p !== preference) 
+        : [...prev, preference]
+    );
+  };
+  
+  const handleTimeSelect = (time: string) => {
+    setSelectedTime(prev => prev === time ? null : time);
+  };
+  
+  const handleFindMeals = async () => {
+    if (!pantryIngredients.trim()) {
       toast({
-        title: "Recipe name required",
-        description: "Please enter a recipe name to start cooking",
+        title: "Ingredients required",
+        description: "Please enter some ingredients from your pantry",
         variant: "destructive"
       });
       return;
     }
     
     setIsLoading(true);
-    // Simulating a loading delay
-    setTimeout(() => {
-      setRecipeName(recipeSearch);
+    
+    try {
+      // Convert comma-separated ingredients to array
+      const ingredients = pantryIngredients
+        .split(',')
+        .map(item => item.trim())
+        .filter(item => item.length > 0);
+      
+      // Format dietary preferences as a string
+      const preferences = dietaryPreferences.length > 0 
+        ? dietaryPreferences.join(', ') 
+        : '';
+      
+      // For demonstration, we'll use mock data
+      // In a production app, you would use fetchPantryRecipes() API call
+      setTimeout(() => {
+        // Example recipe results
+        const mockResults = [
+          {
+            name: "Quick Veggie Stir Fry",
+            description: "A delicious stir fry using whatever vegetables you have on hand",
+            difficulty: "Easy",
+            cookTime: 20,
+            pantryIngredientsUsed: ingredients.slice(0, 3),
+            additionalIngredientsNeeded: ["soy sauce", "sesame oil"]
+          },
+          {
+            name: "Pantry Pasta",
+            description: "Simple pasta dish with minimal ingredients",
+            difficulty: "Easy",
+            cookTime: 15,
+            pantryIngredientsUsed: ingredients.slice(0, 2),
+            additionalIngredientsNeeded: ["dried herbs"]
+          },
+          {
+            name: "Kitchen Sink Frittata",
+            description: "Use up vegetables and proteins in a simple egg dish",
+            difficulty: "Medium",
+            cookTime: 25,
+            pantryIngredientsUsed: ingredients.slice(0, 4),
+            additionalIngredientsNeeded: ["cheese"]
+          }
+        ];
+        
+        setRecipeOptions(mockResults);
+        setShowResults(true);
+        setIsLoading(false);
+      }, 1500);
+    } catch (error) {
+      console.error('Error finding meal ideas:', error);
+      toast({
+        title: "Error finding recipes",
+        description: "There was a problem suggesting meals. Please try again.",
+        variant: "destructive"
+      });
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+  
+  const handleSelectRecipe = (recipe: string) => {
+    setRecipeName(recipe);
+    setShowResults(false);
   };
 
   const handleStepChange = (step: number, total: number) => {
@@ -103,8 +176,8 @@ export default function Cooking() {
                         <Input
                           placeholder="Enter ingredients separated by commas (e.g., chicken, rice, onions, garlic)"
                           className="pl-10"
-                          value={recipeSearch}
-                          onChange={(e) => setRecipeSearch(e.target.value)}
+                          value={pantryIngredients}
+                          onChange={(e) => setPantryIngredients(e.target.value)}
                         />
                       </div>
                     </div>
