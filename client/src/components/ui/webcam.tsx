@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { analyzeImage } from '@/lib/openai';
-import { Camera, RefreshCw } from 'lucide-react';
+import { Camera, RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface WebcamProps {
   onAnalysis: (data: any) => void;
@@ -11,6 +12,8 @@ interface WebcamProps {
 export function Webcam({ onAnalysis, isAnalyzing = false }: WebcamProps) {
   const [isCapturing, setIsCapturing] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -27,7 +30,13 @@ export function Webcam({ onAnalysis, isAnalyzing = false }: WebcamProps) {
   }, [isCapturing]);
 
   const startCamera = async () => {
+    setError(null);
     try {
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera access is not supported in your browser');
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }
       });
@@ -35,8 +44,21 @@ export function Webcam({ onAnalysis, isAnalyzing = false }: WebcamProps) {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-    } catch (err) {
+      setPermissionDenied(false);
+    } catch (err: any) {
       console.error('Error accessing camera:', err);
+      
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setPermissionDenied(true);
+        setError('Camera access was denied. Please allow camera access in your browser settings and try again.');
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setError('No camera detected on your device.');
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        setError('Your camera is already in use by another application.');
+      } else {
+        setError(`Camera error: ${err.message || 'Unknown error'}`);
+      }
+      setIsCapturing(false);
     }
   };
 

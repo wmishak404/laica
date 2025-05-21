@@ -9,6 +9,7 @@ import IngredientList from '@/components/cooking/ingredient-list';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Search } from 'lucide-react';
 
@@ -91,18 +92,44 @@ export default function Cooking() {
             {!recipeName ? (
               <Card className="max-w-2xl mx-auto">
                 <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-4">Start Cooking</h2>
-                  <p className="mb-6 text-gray-600">Enter a recipe name or dish you'd like to cook</p>
+                  <h2 className="text-2xl font-bold mb-4">What's in Your Kitchen?</h2>
+                  <p className="mb-6 text-gray-600">Tell us what ingredients you have, and we'll suggest what you can make</p>
                   
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                      <Input
-                        placeholder="e.g., Spaghetti Carbonara, Chicken Stir Fry, etc."
-                        className="pl-10"
-                        value={recipeSearch}
-                        onChange={(e) => setRecipeSearch(e.target.value)}
-                      />
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-md font-semibold mb-2">Your Pantry Ingredients</h3>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                        <Input
+                          placeholder="Enter ingredients separated by commas (e.g., chicken, rice, onions, garlic)"
+                          className="pl-10"
+                          value={recipeSearch}
+                          onChange={(e) => setRecipeSearch(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-md font-semibold mb-2">Dietary Preferences (Optional)</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free'].map(pref => (
+                          <div key={pref} className="flex items-center space-x-2">
+                            <Checkbox id={`pref-${pref.toLowerCase()}`} />
+                            <label htmlFor={`pref-${pref.toLowerCase()}`} className="text-sm">{pref}</label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-md font-semibold mb-2">Time Available</h3>
+                      <div className="flex space-x-2">
+                        {['15 min', '30 min', '45 min', '60+ min'].map(time => (
+                          <Button key={time} variant="outline" size="sm" className="flex-1">
+                            {time}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
                     
                     <Button 
@@ -113,10 +140,10 @@ export default function Cooking() {
                       {isLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Loading...
+                          Finding Meals...
                         </>
                       ) : (
-                        'Start Cooking'
+                        'Find Meals I Can Make'
                       )}
                     </Button>
                   </div>

@@ -175,8 +175,8 @@ export default function CookingDemo() {
                   </div>
                 </div>
                 <img 
-                  src="https://images.unsplash.com/photo-1551462147-ff29053bfc14?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-                  alt="Cooking pasta in boiling water" 
+                  src="https://images.unsplash.com/photo-1590794056487-9d874b6c744f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                  alt="Cooking in a home kitchen" 
                   className="w-full h-64 object-cover" 
                 />
                 

@@ -28,13 +28,13 @@ export default function HeroSection() {
           </div>
           <div className="md:w-1/2 relative">
             <img 
-              src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-              alt="Beautiful cooking presentation" 
+              src="https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+              alt="Home cooking with smartphone guidance" 
               className="rounded-xl shadow-lg w-full h-auto" 
             />
             <div className="absolute -bottom-4 -left-4 bg-white p-3 rounded-lg shadow-md border-l-4 border-secondary hidden md:block">
               <p className="text-sm font-semibold">CulinaryAI detected:</p>
-              <p className="text-xs">Mediterranean dish with roasted vegetables</p>
+              <p className="text-xs">Using up pantry ingredients for a quick meal</p>
             </div>
           </div>
         </div>
