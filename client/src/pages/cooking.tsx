@@ -163,65 +163,141 @@ export default function Cooking() {
         <section className="py-8 md:py-12 bg-white">
           <div className="container mx-auto px-4">
             {!recipeName ? (
-              <Card className="max-w-2xl mx-auto">
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-4">What's in Your Kitchen?</h2>
-                  <p className="mb-6 text-gray-600">Tell us what ingredients you have, and we'll suggest what you can make</p>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-md font-semibold mb-2">Your Pantry Ingredients</h3>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                        <Input
-                          placeholder="Enter ingredients separated by commas (e.g., chicken, rice, onions, garlic)"
-                          className="pl-10"
-                          value={pantryIngredients}
-                          onChange={(e) => setPantryIngredients(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-md font-semibold mb-2">Dietary Preferences (Optional)</h3>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free'].map(pref => (
-                          <div key={pref} className="flex items-center space-x-2">
-                            <Checkbox id={`pref-${pref.toLowerCase()}`} />
-                            <label htmlFor={`pref-${pref.toLowerCase()}`} className="text-sm">{pref}</label>
+              <div>
+                {!showResults ? (
+                  <Card className="max-w-2xl mx-auto">
+                    <CardContent className="p-6">
+                      <h2 className="text-2xl font-bold mb-4">What's in Your Kitchen?</h2>
+                      <p className="mb-6 text-gray-600">Tell us what ingredients you have, and we'll suggest what you can make</p>
+                      
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-md font-semibold mb-2">Your Pantry Ingredients</h3>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                            <Input
+                              placeholder="Enter ingredients separated by commas (e.g., chicken, rice, onions, garlic)"
+                              className="pl-10"
+                              value={pantryIngredients}
+                              onChange={(e) => setPantryIngredients(e.target.value)}
+                            />
                           </div>
-                        ))}
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-md font-semibold mb-2">Dietary Preferences (Optional)</h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free'].map(pref => (
+                              <div key={pref} className="flex items-center space-x-2">
+                                <Checkbox 
+                                  id={`pref-${pref.toLowerCase()}`} 
+                                  checked={dietaryPreferences.includes(pref)}
+                                  onCheckedChange={() => handleDietaryChange(pref)}
+                                />
+                                <label htmlFor={`pref-${pref.toLowerCase()}`} className="text-sm">{pref}</label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-md font-semibold mb-2">Time Available</h3>
+                          <div className="flex space-x-2">
+                            {['15 min', '30 min', '45 min', '60+ min'].map(time => (
+                              <Button 
+                                key={time} 
+                                variant={selectedTime === time ? "default" : "outline"} 
+                                size="sm" 
+                                className={`flex-1 ${selectedTime === time ? 'bg-secondary text-white' : ''}`}
+                                onClick={() => handleTimeSelect(time)}
+                              >
+                                {time}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          onClick={handleFindMeals} 
+                          className="w-full bg-primary text-white"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Finding Meals...
+                            </>
+                          ) : (
+                            'Find Meals I Can Make'
+                          )}
+                        </Button>
                       </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="max-w-4xl mx-auto">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-2xl font-bold">Meals You Can Make</h2>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowResults(false)}
+                      >
+                        Change Ingredients
+                      </Button>
                     </div>
                     
-                    <div>
-                      <h3 className="text-md font-semibold mb-2">Time Available</h3>
-                      <div className="flex space-x-2">
-                        {['15 min', '30 min', '45 min', '60+ min'].map(time => (
-                          <Button key={time} variant="outline" size="sm" className="flex-1">
-                            {time}
-                          </Button>
-                        ))}
-                      </div>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {recipeOptions.map((recipe, index) => (
+                        <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+                          <div className="aspect-video bg-gray-100 relative flex items-center justify-center">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+                            <div className="absolute bottom-3 left-3 z-20">
+                              <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
+                                {recipe.difficulty} • {recipe.cookTime} min
+                              </span>
+                            </div>
+                          </div>
+                          <CardContent className="p-5">
+                            <h3 className="font-bold text-lg mb-2">{recipe.name}</h3>
+                            <p className="text-gray-600 text-sm mb-3 line-clamp-2">{recipe.description}</p>
+                            
+                            <div className="mb-3">
+                              <h4 className="text-xs font-semibold text-gray-500 mb-1">Using from your pantry:</h4>
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {recipe.pantryIngredientsUsed.map((ing, i) => (
+                                  <span key={i} className="bg-secondary/10 text-secondary text-xs px-2 py-0.5 rounded-full">
+                                    {ing}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {recipe.additionalIngredientsNeeded.length > 0 && (
+                              <div className="mb-4">
+                                <h4 className="text-xs font-semibold text-gray-500 mb-1">You'll also need:</h4>
+                                <div className="flex flex-wrap gap-1">
+                                  {recipe.additionalIngredientsNeeded.map((ing, i) => (
+                                    <span key={i} className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full">
+                                      {ing}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            <Button 
+                              onClick={() => handleSelectRecipe(recipe.name)}
+                              className="w-full mt-2"
+                            >
+                              Start Cooking
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                    
-                    <Button 
-                      onClick={handleStartCooking} 
-                      className="w-full bg-primary text-white"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Finding Meals...
-                        </>
-                      ) : (
-                        'Find Meals I Can Make'
-                      )}
-                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
             ) : (
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left side - Recipe and Steps */}
