@@ -133,7 +133,34 @@ export function Webcam({ onAnalysis, isAnalyzing = false }: WebcamProps) {
         </div>
         
         <div className="relative aspect-[4/3] bg-gray-100">
-          {isCapturing ? (
+          {error ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+              <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
+              <p className="text-center text-red-500 font-medium mb-1">{error}</p>
+              
+              {permissionDenied && (
+                <div className="text-sm text-gray-600 mt-2 mb-4 max-w-xs">
+                  <p className="font-medium text-center mb-1">To enable camera access:</p>
+                  <ol className="list-decimal pl-5 space-y-1">
+                    <li>Click the camera/lock icon in your browser's address bar</li>
+                    <li>Select "Allow" for camera access</li>
+                    <li>Click "Try Again" below</li>
+                  </ol>
+                </div>
+              )}
+              
+              <Button 
+                onClick={() => {
+                  setError(null);
+                  setIsCapturing(true);
+                }}
+                className="mt-3 bg-primary text-white"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Button>
+            </div>
+          ) : isCapturing ? (
             <>
               <video 
                 ref={videoRef}
@@ -162,8 +189,9 @@ export function Webcam({ onAnalysis, isAnalyzing = false }: WebcamProps) {
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-                  <p className="text-gray-500">No image captured</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200 p-4">
+                  <Camera className="h-12 w-12 text-gray-400 mb-3" />
+                  <p className="text-gray-500 text-center">Enable camera to get live cooking guidance</p>
                 </div>
               )}
             </>

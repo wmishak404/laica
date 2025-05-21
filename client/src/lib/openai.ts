@@ -22,6 +22,31 @@ export async function fetchRecipeSuggestions(preferences: string, ingredients?: 
   }
 }
 
+export async function fetchPantryRecipes(pantryIngredients: string[], preferences?: string, timeAvailable?: string) {
+  try {
+    const response = await fetch('/api/recipes/pantry', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ingredients: pantryIngredients,
+        preferences,
+        timeAvailable
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch pantry-based recipe suggestions');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
 export async function fetchCookingSteps(recipeName: string) {
   try {
     const response = await fetch('/api/cooking/steps', {
