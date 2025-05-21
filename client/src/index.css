@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222 14.3% 19.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 14.3% 19.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 14.3% 19.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --primary: 0 80% 71%; /* Warm coral #FF6B6B */
+  --primary-foreground: 211 100% 99%;
+  --secondary: 174 60% 56%; /* Culinary teal #4ECDC4 */
+  --secondary-foreground: 222 14.3% 19.1%;
+  --accent: 43 100% 71%; /* Butter yellow #FFE66D */
+  --accent-foreground: 222 14.3% 19.1%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 20 14.3% 19.1%;
+  --radius: 0.5rem;
+  --sidebar-background: 222 14.3% 19.1%; /* Charcoal #2D3436 */
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 0 80% 71%;
+  --sidebar-primary-foreground: 211 100% 99%;
+  --sidebar-accent: 43 100% 71%;
+  --sidebar-accent-foreground: 222 14.3% 19.1%;
+  --sidebar-border: 220 13% 28%;
+  --sidebar-ring: 240 4.9% 83.9%;
+  --chart-1: 0 80% 71%;
+  --chart-2: 174 60% 56%;
+  --chart-3: 43 100% 71%;
+  --chart-4: 231 91% 64%;
+  --chart-5: 327 73% 57%;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 0 80% 71%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 174 60% 56%;
+  --secondary-foreground: 222 14.3% 19.1%;
+  --accent: 43 100% 71%;
+  --accent-foreground: 222 14.3% 19.1%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'SF Pro Display', 'Source Sans Pro', sans-serif;
+  }
+  
+  .recipe-title {
+    font-family: 'Merriweather', serif;
+  }
+  
+  .step-progression {
+    transition: all 0.3s ease;
+  }
+  
+  .ai-message {
+    border-radius: 18px 18px 18px 4px;
+  }
+  
+  .user-message {
+    border-radius: 18px 18px 4px 18px;
+  }
+}
