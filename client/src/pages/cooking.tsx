@@ -6,12 +6,15 @@ import CookingSteps from '@/components/cooking/cooking-steps';
 import VisualGuidance from '@/components/cooking/visual-guidance';
 import AIAssistant from '@/components/cooking/ai-assistant';
 import IngredientList from '@/components/cooking/ingredient-list';
+import { Webcam } from '@/components/ui/webcam';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, Search, Camera, X } from 'lucide-react';
+import { analyzeImage } from '@/lib/openai';
 
 export default function Cooking() {
   const [location, setLocation] = useLocation();
@@ -21,6 +24,8 @@ export default function Cooking() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [recipeOptions, setRecipeOptions] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [showPantryCamera, setShowPantryCamera] = useState(false);
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState('');
   const [currentStepNumber, setCurrentStepNumber] = useState(1);
@@ -159,6 +164,40 @@ export default function Cooking() {
             <p className="text-lg mb-4">Follow step-by-step guidance with your AI cooking companion</p>
           </div>
         </section>
+        
+        {/* Pantry Scanner Dialog */}
+        <Dialog open={showPantryCamera} onOpenChange={setShowPantryCamera}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Scan Your Pantry Items</DialogTitle>
+              <DialogDescription>
+                Take a photo of your ingredients and we'll automatically identify them
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-4">
+              <Webcam 
+                onAnalysis={handlePantryAnalysis} 
+                isAnalyzing={isAnalyzingImage}
+              />
+              
+              {isAnalyzingImage && (
+                <div className="text-center mt-4">
+                  <p className="text-sm text-muted-foreground">Analyzing ingredients...</p>
+                </div>
+              )}
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowPantryCamera(false)}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <section className="py-8 md:py-12 bg-white">
           <div className="container mx-auto px-4">
@@ -173,6 +212,18 @@ export default function Cooking() {
                       <div className="space-y-6">
                         <div>
                           <h3 className="text-md font-semibold mb-2">Your Pantry Ingredients</h3>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setShowPantryCamera(true)}
+                              className="flex items-center gap-1"
+                            >
+                              <span><Camera className="h-4 w-4 mr-1" /></span>
+                              Scan Pantry
+                            </Button>
+                            <p className="text-xs text-gray-500">Take a photo of your ingredients</p>
+                          </div>
                           <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                             <Input
