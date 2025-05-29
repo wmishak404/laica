@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Recipes from "@/pages/recipes";
-import Cooking from "@/pages/cooking";
+import Cooking from "@/pages/cooking-new";
 import GroceryList from "@/pages/grocery-list";
 
 function Router() {

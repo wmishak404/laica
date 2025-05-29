@@ -2,34 +2,43 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import CookingSteps from '@/components/cooking/cooking-steps';
-import VisualGuidance from '@/components/cooking/visual-guidance';
-import AIAssistant from '@/components/cooking/ai-assistant';
-import IngredientList from '@/components/cooking/ingredient-list';
-import { Webcam } from '@/components/ui/webcam';
+import UserProfiling from '@/components/cooking/user-profiling';
+import MealPlanning from '@/components/cooking/meal-planning';
+import LiveCooking from '@/components/cooking/live-cooking';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, Camera, X } from 'lucide-react';
-import { analyzeImage } from '@/lib/openai';
+import { ChefHat, Users, Clock } from 'lucide-react';
+
+interface UserProfile {
+  cookingSkill: string;
+  dietaryRestrictions: string[];
+  weeklyTime: string;
+  pantryIngredients: string[];
+  kitchenEquipment: string[];
+  favoriteChefs: string[];
+}
+
+interface RecipeRecommendation {
+  id: string;
+  name: string;
+  description: string;
+  cookTime: number;
+  difficulty: string;
+  cuisine: string;
+  pantryMatch: number;
+  missingIngredients: string[];
+}
+
+type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking';
 
 export default function Cooking() {
   const [location, setLocation] = useLocation();
-  const [recipeName, setRecipeName] = useState('');
-  const [pantryIngredients, setPantryIngredients] = useState('');
-  const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [recipeOptions, setRecipeOptions] = useState<any[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const [showPantryCamera, setShowPantryCamera] = useState(false);
-  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState('');
-  const [currentStepNumber, setCurrentStepNumber] = useState(1);
-  const [totalSteps, setTotalSteps] = useState(5);
+  const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
+  const [scheduledTime, setScheduledTime] = useState<string>('');
+  const [isReturningUser, setIsReturningUser] = useState(false);
   const { toast } = useToast();
 
   // Extract recipe ID from URL if present
