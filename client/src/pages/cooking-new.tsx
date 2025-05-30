@@ -5,6 +5,7 @@ import Footer from '@/components/layout/footer';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
 import LiveCooking from '@/components/cooking/live-cooking';
+import UserSettings from '@/components/cooking/user-settings';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +32,7 @@ interface RecipeRecommendation {
   missingIngredients: string[];
 }
 
-type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking';
+type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings';
 
 export default function Cooking() {
   const [location, setLocation] = useLocation();
@@ -85,6 +86,11 @@ export default function Cooking() {
     setSelectedMeal(null);
     setScheduledTime('');
     localStorage.removeItem('cookingProfile');
+  };
+
+  const handleProfileUpdate = (updatedProfile: UserProfile) => {
+    setUserProfile(updatedProfile);
+    localStorage.setItem('cookingProfile', JSON.stringify(updatedProfile));
   };
 
   const renderWelcomeScreen = () => (
@@ -153,9 +159,9 @@ export default function Cooking() {
                 Plan a New Meal
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button variant="outline" onClick={() => setCurrentPhase('profiling')}>
+              <Button variant="outline" onClick={() => setCurrentPhase('settings')}>
                 <Settings className="mr-2 h-4 w-4" />
-                Update Profile
+                Kitchen & Settings
               </Button>
             </div>
           </div>
@@ -209,6 +215,15 @@ export default function Cooking() {
           />
         ) : null;
 
+      case 'settings':
+        return userProfile ? (
+          <UserSettings 
+            userProfile={userProfile}
+            onProfileUpdate={handleProfileUpdate}
+            onBackToPlanning={() => setCurrentPhase('planning')}
+          />
+        ) : null;
+
       default:
         return renderWelcomeScreen();
     }
@@ -232,6 +247,7 @@ export default function Cooking() {
                     {currentPhase === 'profiling' && 'Setting Up Profile'}
                     {currentPhase === 'planning' && 'Planning Meal'}
                     {currentPhase === 'cooking' && 'Live Cooking'}
+                    {currentPhase === 'settings' && 'Kitchen & Settings'}
                   </Badge>
                   <Button 
                     variant="ghost" 
