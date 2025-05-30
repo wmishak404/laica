@@ -173,15 +173,7 @@ export default function Cooking() {
         )}
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="font-semibold text-blue-900 mb-2">Perfect for busy urban professionals who:</h3>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Spend too much on delivery apps like DoorDash and UberEats</li>
-          <li>• Want to save money while eating better food</li>
-          <li>• Need cooking confidence for entertaining guests</li>
-          <li>• Want to reduce food waste and use pantry ingredients effectively</li>
-        </ul>
-      </div>
+
     </div>
   );
 
