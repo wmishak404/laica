@@ -25,6 +25,7 @@ interface UserProfilingProps {
 
 export default function UserProfiling({ onProfileComplete }: UserProfilingProps) {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showKitchenSettings, setShowKitchenSettings] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     cookingSkill: '',
     dietaryRestrictions: [],

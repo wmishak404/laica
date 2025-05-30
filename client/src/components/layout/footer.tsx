@@ -35,27 +35,20 @@ export default function Footer() {
             <h4 className="text-white font-bold mb-4">Features</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/recipes">
-                  <a className="text-white/70 hover:text-primary transition">Meal Planning</a>
-                </Link>
-              </li>
-              <li>
                 <Link href="/cooking">
-                  <a className="text-white/70 hover:text-primary transition">Cooking Guidance</a>
+                  <a className="text-white/70 hover:text-primary transition">AI Cooking Assistant</a>
                 </Link>
               </li>
               <li>
                 <Link href="/grocery-list">
-                  <a className="text-white/70 hover:text-primary transition">Grocery Lists</a>
+                  <a className="text-white/70 hover:text-primary transition">Smart Grocery Lists</a>
                 </Link>
               </li>
               <li>
-                <Link href="/recipes">
-                  <a className="text-white/70 hover:text-primary transition">Recipe Database</a>
-                </Link>
+                <a href="#" className="text-white/70 hover:text-primary transition">Pantry Management</a>
               </li>
               <li>
-                <a href="#" className="text-white/70 hover:text-primary transition">Visual Recognition</a>
+                <a href="#" className="text-white/70 hover:text-primary transition">Visual Cooking Guidance</a>
               </li>
             </ul>
           </div>

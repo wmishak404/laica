@@ -30,19 +30,9 @@ export default function Header() {
               Home
             </a>
           </Link>
-          <Link href="/recipes">
-            <a className={`text-foreground hover:text-primary transition ${location === '/recipes' ? 'text-primary' : ''}`}>
-              Recipes
-            </a>
-          </Link>
           <Link href="/cooking">
             <a className={`text-foreground hover:text-primary transition ${location === '/cooking' ? 'text-primary' : ''}`}>
-              Cooking
-            </a>
-          </Link>
-          <Link href="/grocery-list">
-            <a className={`text-foreground hover:text-primary transition ${location === '/grocery-list' ? 'text-primary' : ''}`}>
-              My Kitchen
+              Start Cooking
             </a>
           </Link>
         </nav>
