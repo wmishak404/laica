@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Webcam } from '@/components/ui/webcam';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User } from 'lucide-react';
+import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload } from 'lucide-react';
 
 interface UserProfile {
   cookingSkill: string;
@@ -34,6 +34,8 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
   const [showEquipmentCamera, setShowEquipmentCamera] = useState(false);
   const [newIngredient, setNewIngredient] = useState('');
   const [newEquipment, setNewEquipment] = useState('');
+  const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
+  const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
   const [notifications, setNotifications] = useState({
     mealReminders: true,
     groceryAlerts: true,
@@ -84,22 +86,118 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     });
   };
 
-  const handlePantryImageCapture = (imageData: string) => {
-    // In a real implementation, this would analyze the image using AI
-    toast({
-      title: "Pantry scan complete",
-      description: "Your pantry items have been updated."
-    });
-    setShowPantryCamera(false);
+  const handlePantryImageAnalysis = async (imageData: string) => {
+    setIsAnalyzingPantry(true);
+    try {
+      // Use OpenAI vision API to analyze pantry image
+      const response = await fetch('/api/vision/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          image: imageData
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze image');
+      }
+
+      const result = await response.json();
+      
+      if (result.ingredients && result.ingredients.length > 0) {
+        // Add detected ingredients to profile
+        const newIngredients = [...new Set([...profile.pantryIngredients, ...result.ingredients])];
+        setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
+        
+        toast({
+          title: "Pantry scan complete",
+          description: `Found ${result.ingredients.length} ingredients: ${result.ingredients.slice(0, 3).join(', ')}${result.ingredients.length > 3 ? '...' : ''}`
+        });
+      } else {
+        toast({
+          title: "No ingredients detected",
+          description: "Try taking a clearer photo or add items manually.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error analyzing pantry image:', error);
+      toast({
+        title: "Analysis failed",
+        description: "Unable to analyze image. Please check your connection and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingPantry(false);
+      setShowPantryCamera(false);
+    }
   };
 
-  const handleEquipmentImageCapture = (imageData: string) => {
-    // In a real implementation, this would analyze the image using AI
-    toast({
-      title: "Kitchen scan complete", 
-      description: "Your equipment list has been updated."
-    });
-    setShowEquipmentCamera(false);
+  const handleEquipmentImageAnalysis = async (imageData: string) => {
+    setIsAnalyzingEquipment(true);
+    try {
+      const response = await fetch('/api/analyze-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          image: imageData, 
+          type: 'kitchen',
+          prompt: 'Identify all kitchen equipment, appliances, and cooking tools visible in this image. Return a JSON array of equipment names.'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze image');
+      }
+
+      const result = await response.json();
+      
+      if (result.equipment && result.equipment.length > 0) {
+        const newEquipment = [...new Set([...profile.kitchenEquipment, ...result.equipment])];
+        setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+        
+        toast({
+          title: "Kitchen scan complete",
+          description: `Found ${result.equipment.length} items: ${result.equipment.slice(0, 3).join(', ')}${result.equipment.length > 3 ? '...' : ''}`
+        });
+      } else {
+        toast({
+          title: "No equipment detected",
+          description: "Try taking a clearer photo or add items manually.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error analyzing kitchen image:', error);
+      toast({
+        title: "Analysis failed",
+        description: "Unable to analyze image. Please check your connection and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingEquipment(false);
+      setShowEquipmentCamera(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Convert file to base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      if (type === 'pantry') {
+        handlePantryImageAnalysis(base64);
+      } else {
+        handleEquipmentImageAnalysis(base64);
+      }
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    event.target.value = '';
   };
 
   return (
@@ -149,15 +247,38 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button 
                     variant="outline" 
                     onClick={() => setShowPantryCamera(true)}
                     className="flex items-center gap-2"
+                    disabled={isAnalyzingPantry}
                   >
                     <Camera className="h-4 w-4" />
-                    Scan Pantry
+                    Take Photo
                   </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById('pantry-upload')?.click()}
+                    className="flex items-center gap-2"
+                    disabled={isAnalyzingPantry}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Image
+                  </Button>
+                  <input
+                    id="pantry-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, 'pantry')}
+                    className="hidden"
+                  />
+                  {isAnalyzingPantry && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      Analyzing image...
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex gap-2">
@@ -197,15 +318,38 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button 
                     variant="outline" 
                     onClick={() => setShowEquipmentCamera(true)}
                     className="flex items-center gap-2"
+                    disabled={isAnalyzingEquipment}
                   >
                     <Camera className="h-4 w-4" />
-                    Scan Kitchen
+                    Take Photo
                   </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById('equipment-upload')?.click()}
+                    className="flex items-center gap-2"
+                    disabled={isAnalyzingEquipment}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Image
+                  </Button>
+                  <input
+                    id="equipment-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, 'kitchen')}
+                    className="hidden"
+                  />
+                  {isAnalyzingEquipment && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      Analyzing image...
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex gap-2">
