@@ -33,7 +33,7 @@ export default function HeroSection() {
               className="rounded-xl shadow-lg w-full h-auto" 
             />
             <div className="absolute -bottom-4 -left-4 bg-white p-3 rounded-lg shadow-md border-l-4 border-secondary hidden md:block">
-              <p className="text-sm font-semibold">CulinaryAI detected:</p>
+              <p className="text-sm font-semibold">LAICA detected:</p>
               <p className="text-xs">Using up pantry ingredients for a quick meal</p>
             </div>
           </div>

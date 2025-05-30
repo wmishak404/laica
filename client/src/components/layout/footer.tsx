@@ -10,7 +10,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center mb-4">
               <UtensilsCrossed className="h-8 w-8 text-primary" />
-              <h3 className="ml-2 text-xl font-bold text-white">CulinaryAI</h3>
+              <h3 className="ml-2 text-xl font-bold text-white">LAICA</h3>
             </div>
             <p className="text-white/70 mb-4">
               Your AI-powered cooking assistant that makes home cooking easy, fun, and affordable.
@@ -84,7 +84,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-white/20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-white/70 text-sm mb-4 md:mb-0">© {new Date().getFullYear()} CulinaryAI. All rights reserved.</p>
+          <p className="text-white/70 text-sm mb-4 md:mb-0">© {new Date().getFullYear()} LAICA. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#" className="text-white/70 text-sm hover:text-primary transition">Terms of Service</a>
             <a href="#" className="text-white/70 text-sm hover:text-primary transition">Privacy Policy</a>
