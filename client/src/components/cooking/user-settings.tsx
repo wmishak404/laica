@@ -104,14 +104,19 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       const result = await response.json();
       
-      if (result.ingredients && result.ingredients.length > 0) {
-        // Add detected ingredients to profile
-        const newIngredients = [...new Set([...profile.pantryIngredients, ...result.ingredients])];
+      // Parse the AI response to extract ingredients
+      const detectedIngredients = result.analysis || result.description || '';
+      const ingredientList = detectedIngredients.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+      
+      if (ingredientList.length > 0) {
+        // Remove duplicates and add to profile
+        const uniqueIngredients = [...new Set(ingredientList.map(i => i.toLowerCase()))];
+        const newIngredients = [...new Set([...profile.pantryIngredients, ...uniqueIngredients])];
         setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
         
         toast({
           title: "Pantry scan complete",
-          description: `Found ${result.ingredients.length} ingredients: ${result.ingredients.slice(0, 3).join(', ')}${result.ingredients.length > 3 ? '...' : ''}`
+          description: `Found ${uniqueIngredients.length} ingredients: ${uniqueIngredients.slice(0, 3).join(', ')}${uniqueIngredients.length > 3 ? '...' : ''}`
         });
       } else {
         toast({
@@ -136,13 +141,11 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
   const handleEquipmentImageAnalysis = async (imageData: string) => {
     setIsAnalyzingEquipment(true);
     try {
-      const response = await fetch('/api/analyze-image', {
+      const response = await fetch('/api/vision/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          image: imageData, 
-          type: 'kitchen',
-          prompt: 'Identify all kitchen equipment, appliances, and cooking tools visible in this image. Return a JSON array of equipment names.'
+          image: imageData
         })
       });
 
@@ -152,13 +155,18 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       const result = await response.json();
       
-      if (result.equipment && result.equipment.length > 0) {
-        const newEquipment = [...new Set([...profile.kitchenEquipment, ...result.equipment])];
+      // Parse the AI response to extract kitchen equipment
+      const detectedEquipment = result.analysis || result.description || '';
+      const equipmentList = detectedEquipment.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+      
+      if (equipmentList.length > 0) {
+        const uniqueEquipment = [...new Set(equipmentList.map(e => e.toLowerCase()))];
+        const newEquipment = [...new Set([...profile.kitchenEquipment, ...uniqueEquipment])];
         setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
         
         toast({
           title: "Kitchen scan complete",
-          description: `Found ${result.equipment.length} items: ${result.equipment.slice(0, 3).join(', ')}${result.equipment.length > 3 ? '...' : ''}`
+          description: `Found ${uniqueEquipment.length} items: ${uniqueEquipment.slice(0, 3).join(', ')}${uniqueEquipment.length > 3 ? '...' : ''}`
         });
       } else {
         toast({
