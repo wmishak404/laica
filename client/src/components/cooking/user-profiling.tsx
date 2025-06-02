@@ -444,23 +444,64 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 Take a photo or upload an image of your pantry, or add ingredients manually below
               </p>
               
-              <Textarea
-                placeholder="Enter ingredients separated by commas (e.g., onions, garlic, pasta, olive oil...)"
-                value={profile.pantryIngredients.join(', ')}
-                onChange={(e) => setProfile(prev => ({
-                  ...prev,
-                  pantryIngredients: e.target.value.split(',').map(i => i.trim()).filter(i => i.length > 0)
-                }))}
-                rows={4}
-              />
+              {/* Manual ingredient entry */}
+              <div className="mt-4">
+                <Label htmlFor="manual-ingredients">Add ingredients manually:</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    id="manual-ingredients"
+                    placeholder="Type ingredients separated by commas (e.g., onions, garlic)"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const input = document.getElementById('manual-ingredients') as HTMLInputElement;
+                      if (input && input.value.trim()) {
+                        const newIngredients = input.value.split(',').map(i => i.trim()).filter(i => i.length > 0);
+                        setProfile(prev => ({
+                          ...prev,
+                          pantryIngredients: [...prev.pantryIngredients, ...newIngredients]
+                        }));
+                        input.value = '';
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Add single ingredients or multiple separated by commas
+                </p>
+              </div>
               
+              {/* Show added ingredients */}
               {profile.pantryIngredients.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {profile.pantryIngredients.map((ingredient, index) => (
-                    <span key={index} className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">
-                      {ingredient}
-                    </span>
-                  ))}
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Ingredients added:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.pantryIngredients.map((ingredient, index) => (
+                      <span 
+                        key={index} 
+                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                      >
+                        {ingredient}
+                        <button
+                          onClick={() => {
+                            setProfile(prev => ({
+                              ...prev,
+                              pantryIngredients: prev.pantryIngredients.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          className="text-secondary/60 hover:text-secondary text-xs"
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -508,18 +549,69 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Take a photo or upload an image of your kitchen, or list equipment manually below
+                Take a photo or upload an image of your kitchen, or add equipment manually below
               </p>
               
-              <Textarea
-                placeholder="Enter equipment separated by commas (e.g., stove, oven, blender, cutting board...)"
-                value={profile.kitchenEquipment.join(', ')}
-                onChange={(e) => setProfile(prev => ({
-                  ...prev,
-                  kitchenEquipment: e.target.value.split(',').map(i => i.trim()).filter(i => i.length > 0)
-                }))}
-                rows={4}
-              />
+              {/* Manual equipment entry */}
+              <div className="mt-4">
+                <Label htmlFor="manual-equipment">Add equipment manually:</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    id="manual-equipment"
+                    placeholder="Type equipment separated by commas (e.g., stove, oven, blender)"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const input = document.getElementById('manual-equipment') as HTMLInputElement;
+                      if (input && input.value.trim()) {
+                        const newEquipment = input.value.split(',').map(i => i.trim()).filter(i => i.length > 0);
+                        setProfile(prev => ({
+                          ...prev,
+                          kitchenEquipment: [...prev.kitchenEquipment, ...newEquipment]
+                        }));
+                        input.value = '';
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Add single equipment or multiple separated by commas
+                </p>
+              </div>
+              
+              {/* Show added equipment */}
+              {profile.kitchenEquipment.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Equipment added:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.kitchenEquipment.map((equipment, index) => (
+                      <span 
+                        key={index} 
+                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                      >
+                        {equipment}
+                        <button
+                          onClick={() => {
+                            setProfile(prev => ({
+                              ...prev,
+                              kitchenEquipment: prev.kitchenEquipment.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          className="text-secondary/60 hover:text-secondary text-xs"
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         );
@@ -545,26 +637,25 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
               </div>
               
               <div className="mt-4">
-                <Label htmlFor="other-chefs">Other chefs or cooking styles:</Label>
+                <Label htmlFor="other-chefs">Add chefs or cooking styles manually:</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="other-chefs"
-                    placeholder="Type name and press Enter (e.g., Fallow, Julia Child)"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                        handleChefChange(e.currentTarget.value.trim());
-                        e.currentTarget.value = '';
-                      }
-                    }}
+                    placeholder="Type chefs separated by commas (e.g., Fallow, Julia Child)"
                     className="flex-1"
                   />
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={(e) => {
+                    onClick={() => {
                       const input = document.getElementById('other-chefs') as HTMLInputElement;
                       if (input && input.value.trim()) {
-                        handleChefChange(input.value.trim());
+                        const newChefs = input.value.split(',').map(c => c.trim()).filter(c => c.length > 0);
+                        newChefs.forEach(chef => {
+                          if (!profile.favoriteChefs.includes(chef)) {
+                            handleChefChange(chef);
+                          }
+                        });
                         input.value = '';
                       }
                     }}
@@ -573,33 +664,33 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Add multiple entries one at a time. Press Enter or click Add after each name.
+                  Add single chefs or multiple separated by commas
                 </p>
-                
-                {/* Show added custom chefs */}
-                {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-xs font-medium text-gray-600 mb-1">Added:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).map((chef, index) => (
-                        <span 
-                          key={index} 
-                          className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                        >
-                          {chef}
-                          <button
-                            onClick={() => handleChefChange(chef)}
-                            className="text-primary/60 hover:text-primary text-xs"
-                            type="button"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
+                
+              {/* Show added custom chefs */}
+              {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Chefs added:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).map((chef, index) => (
+                      <span 
+                        key={index} 
+                        className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                      >
+                        {chef}
+                        <button
+                          onClick={() => handleChefChange(chef)}
+                          className="text-primary/60 hover:text-primary text-xs"
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         );
