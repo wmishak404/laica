@@ -92,34 +92,48 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+      
       const img = new Image();
       
       img.onload = () => {
-        const maxWidth = 800;
-        const maxHeight = 600;
-        let { width, height } = img;
-        
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
+        try {
+          const maxWidth = 800;
+          const maxHeight = 600;
+          let { width, height } = img;
+          
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
           }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          const base64Data = compressedDataUrl.split(',')[1];
+          
+          // Clean up
+          URL.revokeObjectURL(img.src);
+          
+          resolve(base64Data);
+        } catch (error) {
+          reject(error);
         }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        ctx?.drawImage(img, 0, 0, width, height);
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        resolve(compressedDataUrl.split(',')[1]);
       };
       
-      img.onerror = reject;
+      img.onerror = () => reject(new Error('Failed to load image'));
       img.src = URL.createObjectURL(file);
     });
   };
@@ -129,11 +143,18 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     try {
       const result = await analyzeImage(imageData);
       
-      if (result && result.analysis) {
-        const ingredientList = result.analysis.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+      if (result) {
+        // Handle different response formats from the API
+        const analysisText = result.analysis || result.description || JSON.stringify(result);
+        const ingredientList = analysisText.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
         
-        if (ingredientList.length > 0) {
-          const uniqueIngredients: string[] = Array.from(new Set(ingredientList.map((i: string) => i.toLowerCase())));
+        // Also check if the result has an 'ingredients' array directly
+        const directIngredients = result.ingredients || [];
+        
+        const allIngredients = [...ingredientList, ...directIngredients];
+        
+        if (allIngredients.length > 0) {
+          const uniqueIngredients: string[] = Array.from(new Set(allIngredients.map((i: string) => i.toLowerCase())));
           const newIngredients: string[] = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
           setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
         }
@@ -151,11 +172,18 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     try {
       const result = await analyzeImage(imageData);
       
-      if (result && result.analysis) {
-        const equipmentList = result.analysis.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+      if (result) {
+        // Handle different response formats from the API
+        const analysisText = result.analysis || result.description || JSON.stringify(result);
+        const equipmentList = analysisText.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
         
-        if (equipmentList.length > 0) {
-          const uniqueEquipment: string[] = Array.from(new Set(equipmentList.map((e: string) => e.toLowerCase())));
+        // Also check if the result has an 'equipment' array directly
+        const directEquipment = result.equipment || [];
+        
+        const allEquipment = [...equipmentList, ...directEquipment];
+        
+        if (allEquipment.length > 0) {
+          const uniqueEquipment: string[] = Array.from(new Set(allEquipment.map((e: string) => e.toLowerCase())));
           const newEquipment: string[] = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment]));
           setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
         }
@@ -181,6 +209,18 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
       }
     } catch (error) {
       console.error('Error compressing image:', error);
+      // Fallback: use original file without compression
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        const base64Data = base64.split(',')[1]; // Remove data:image/... prefix
+        if (type === 'pantry') {
+          handlePantryImageAnalysis(base64Data);
+        } else {
+          handleEquipmentImageAnalysis(base64Data);
+        }
+      };
+      reader.readAsDataURL(file);
     }
     
     event.target.value = '';
