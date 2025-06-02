@@ -7,13 +7,15 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 
+import MobileApp from "@/pages/app";
 import Cooking from "@/pages/cooking-new";
 import GroceryList from "@/pages/grocery-list";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={MobileApp} />
+      <Route path="/website" component={Home} />
       <Route path="/cooking" component={Cooking} />
       <Route path="/grocery-list" component={GroceryList} />
       <Route component={NotFound} />
