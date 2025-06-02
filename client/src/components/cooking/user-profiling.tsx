@@ -450,7 +450,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="manual-ingredients"
-                    placeholder="e.g., onions OR onions, garlic, pasta"
+                    placeholder="e.g., onions"
                     className="flex-1"
                   />
                   <Button
@@ -472,7 +472,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Enter one ingredient or multiple separated by commas
+                  You may enter "onions" or multiple ingredients separated by a comma (e.g. apples, oranges)
                 </p>
               </div>
               
@@ -558,7 +558,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="manual-equipment"
-                    placeholder="e.g., stove OR stove, oven, blender"
+                    placeholder="e.g., stove"
                     className="flex-1"
                   />
                   <Button
@@ -580,7 +580,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Enter one item or multiple separated by commas
+                  You may enter "stove" or multiple equipment separated by a comma (e.g. oven, blender)
                 </p>
               </div>
               
@@ -641,7 +641,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="other-chefs"
-                    placeholder="e.g., Fallow OR Fallow, Julia Child"
+                    placeholder="e.g., Fallow"
                     className="flex-1"
                   />
                   <Button
@@ -664,7 +664,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Enter one chef or multiple separated by commas
+                  You may enter "Fallow" or multiple chefs separated by a comma (e.g. Julia Child, Gordon Ramsay)
                 </p>
               </div>
                 
