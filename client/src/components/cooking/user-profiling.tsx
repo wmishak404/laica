@@ -36,6 +36,8 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
   });
   const [showPantryCamera, setShowPantryCamera] = useState(false);
   const [showEquipmentCamera, setShowEquipmentCamera] = useState(false);
+  const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
+  const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
 
   const skillLevels = [
     { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes like pasta or sandwiches' },
@@ -85,24 +87,81 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     }));
   };
 
-  const handlePantryAnalysis = (data: any) => {
-    // For demo - user would need to provide vision API access for real implementation
-    const detectedIngredients = data?.detectedIngredients || [];
-    setProfile(prev => ({
-      ...prev,
-      pantryIngredients: [...new Set([...prev.pantryIngredients, ...detectedIngredients])]
-    }));
-    setShowPantryCamera(false);
+  const handlePantryImageAnalysis = async (imageData: string) => {
+    setIsAnalyzingPantry(true);
+    try {
+      const response = await fetch('/api/vision/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze image');
+      }
+
+      const result = await response.json();
+      const detectedIngredients = result.analysis || result.description || '';
+      const ingredientList = detectedIngredients.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+      
+      if (ingredientList.length > 0) {
+        const uniqueIngredients = Array.from(new Set(ingredientList.map(i => i.toLowerCase())));
+        const newIngredients = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
+        setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
+      }
+    } catch (error) {
+      console.error('Error analyzing pantry image:', error);
+    } finally {
+      setIsAnalyzingPantry(false);
+      setShowPantryCamera(false);
+    }
   };
 
-  const handleEquipmentAnalysis = (data: any) => {
-    // For demo - user would need to provide vision API access for real implementation
-    const detectedEquipment = data?.detectedEquipment || [];
-    setProfile(prev => ({
-      ...prev,
-      kitchenEquipment: [...new Set([...prev.kitchenEquipment, ...detectedEquipment])]
-    }));
-    setShowEquipmentCamera(false);
+  const handleEquipmentImageAnalysis = async (imageData: string) => {
+    setIsAnalyzingEquipment(true);
+    try {
+      const response = await fetch('/api/vision/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze image');
+      }
+
+      const result = await response.json();
+      const detectedEquipment = result.analysis || result.description || '';
+      const equipmentList = detectedEquipment.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+      
+      if (equipmentList.length > 0) {
+        const uniqueEquipment = Array.from(new Set(equipmentList.map(e => e.toLowerCase())));
+        const newEquipment = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment]));
+        setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+      }
+    } catch (error) {
+      console.error('Error analyzing kitchen image:', error);
+    } finally {
+      setIsAnalyzingEquipment(false);
+      setShowEquipmentCamera(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      if (type === 'pantry') {
+        handlePantryImageAnalysis(base64);
+      } else {
+        handleEquipmentImageAnalysis(base64);
+      }
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
   };
 
   const renderStep = () => {
@@ -182,19 +241,42 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
               <CardTitle>What ingredients do you have in your pantry?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button 
                   variant="outline" 
                   onClick={() => setShowPantryCamera(true)}
                   className="flex items-center gap-2"
+                  disabled={isAnalyzingPantry}
                 >
                   <Camera className="h-4 w-4" />
-                  Scan Pantry
+                  Take Photo
                 </Button>
-                <span className="text-sm text-muted-foreground self-center">
-                  Or add ingredients manually below
-                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('pantry-upload-profile')?.click()}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingPantry}
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Image
+                </Button>
+                <input
+                  id="pantry-upload-profile"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'pantry')}
+                  className="hidden"
+                />
+                {isAnalyzingPantry && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Analyzing image...
+                  </div>
+                )}
               </div>
+              <p className="text-sm text-muted-foreground">
+                Take a photo or upload an image of your pantry, or add ingredients manually below
+              </p>
               
               <Textarea
                 placeholder="Enter ingredients separated by commas (e.g., onions, garlic, pasta, olive oil...)"
@@ -226,19 +308,42 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
               <CardTitle>What kitchen equipment do you have?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button 
                   variant="outline" 
                   onClick={() => setShowEquipmentCamera(true)}
                   className="flex items-center gap-2"
+                  disabled={isAnalyzingEquipment}
                 >
                   <Camera className="h-4 w-4" />
-                  Scan Kitchen
+                  Take Photo
                 </Button>
-                <span className="text-sm text-muted-foreground self-center">
-                  Or list equipment manually below
-                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('equipment-upload-profile')?.click()}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingEquipment}
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Image
+                </Button>
+                <input
+                  id="equipment-upload-profile"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'kitchen')}
+                  className="hidden"
+                />
+                {isAnalyzingEquipment && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Analyzing image...
+                  </div>
+                )}
               </div>
+              <p className="text-sm text-muted-foreground">
+                Take a photo or upload an image of your kitchen, or list equipment manually below
+              </p>
               
               <Textarea
                 placeholder="Enter equipment separated by commas (e.g., stove, oven, blender, cutting board...)"
@@ -397,7 +502,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
           <DialogHeader>
             <DialogTitle>Scan Your Pantry</DialogTitle>
           </DialogHeader>
-          <Webcam onAnalysis={handlePantryAnalysis} />
+          <Webcam onImageCapture={handlePantryImageAnalysis} />
         </DialogContent>
       </Dialog>
 
