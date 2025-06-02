@@ -450,7 +450,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="manual-ingredients"
-                    placeholder="Type ingredients separated by commas (e.g., onions, garlic)"
+                    placeholder="e.g., onions OR onions, garlic, pasta"
                     className="flex-1"
                   />
                   <Button
@@ -472,7 +472,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Add single ingredients or multiple separated by commas
+                  Enter one ingredient or multiple separated by commas
                 </p>
               </div>
               
@@ -558,7 +558,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="manual-equipment"
-                    placeholder="Type equipment separated by commas (e.g., stove, oven, blender)"
+                    placeholder="e.g., stove OR stove, oven, blender"
                     className="flex-1"
                   />
                   <Button
@@ -580,7 +580,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Add single equipment or multiple separated by commas
+                  Enter one item or multiple separated by commas
                 </p>
               </div>
               
@@ -641,7 +641,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 <div className="flex gap-2 mt-1">
                   <Input
                     id="other-chefs"
-                    placeholder="Type chefs separated by commas (e.g., Fallow, Julia Child)"
+                    placeholder="e.g., Fallow OR Fallow, Julia Child"
                     className="flex-1"
                   />
                   <Button
@@ -664,7 +664,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   </Button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Add single chefs or multiple separated by commas
+                  Enter one chef or multiple separated by commas
                 </p>
               </div>
                 
