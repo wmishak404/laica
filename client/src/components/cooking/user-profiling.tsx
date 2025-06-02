@@ -304,6 +304,106 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     event.target.value = '';
   };
 
+  const handleMultipleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const processedFiles = Array.from(files).filter(file => {
+      const fileType = file.type.toLowerCase();
+      const fileName = file.name.toLowerCase();
+      const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+      return supportedTypes.includes(fileType) || isHEIC;
+    });
+
+    if (processedFiles.length === 0) {
+      alert('Please upload JPEG, PNG, GIF, WebP, or HEIC image files.');
+      event.target.value = '';
+      return;
+    }
+
+    if (processedFiles.length !== files.length) {
+      alert(`${files.length - processedFiles.length} files were skipped (unsupported format). Processing ${processedFiles.length} images.`);
+    }
+
+    // Set analyzing state
+    if (type === 'pantry') {
+      setIsAnalyzingPantry(true);
+    } else {
+      setIsAnalyzingEquipment(true);
+    }
+
+    try {
+      // Process files sequentially to avoid overwhelming the API
+      for (let i = 0; i < processedFiles.length; i++) {
+        const file = processedFiles[i];
+        const fileType = file.type.toLowerCase();
+        const fileName = file.name.toLowerCase();
+        const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+
+        try {
+          if (isHEIC) {
+            // Handle HEIC files
+            const reader = new FileReader();
+            await new Promise<void>((resolve, reject) => {
+              reader.onload = async (e) => {
+                try {
+                  const base64 = e.target?.result as string;
+                  const base64Data = base64.split(',')[1];
+                  
+                  if (type === 'pantry') {
+                    const result = await analyzeImage(base64Data, true);
+                    await processIngredientResults(result);
+                  } else {
+                    const result = await analyzeImage(base64Data, true);
+                    await processEquipmentResults(result);
+                  }
+                  resolve();
+                } catch (error) {
+                  reject(error);
+                }
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+          } else {
+            // Handle regular image files
+            const compressedBase64 = await compressImage(file);
+            if (type === 'pantry') {
+              const result = await analyzeImage(compressedBase64, false);
+              await processIngredientResults(result);
+            } else {
+              const result = await analyzeImage(compressedBase64, false);
+              await processEquipmentResults(result);
+            }
+          }
+          
+          // Small delay between processing images to avoid overwhelming the API
+          if (i < processedFiles.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        } catch (error) {
+          console.error(`Error processing image ${i + 1}:`, error);
+          // Continue processing other images even if one fails
+        }
+      }
+    } catch (error) {
+      console.error('Error processing multiple images:', error);
+      alert('Some images could not be processed. Please try again or use individual uploads.');
+    } finally {
+      // Reset analyzing state
+      if (type === 'pantry') {
+        setIsAnalyzingPantry(false);
+        setShowPantryCamera(false);
+      } else {
+        setIsAnalyzingEquipment(false);
+        setShowEquipmentCamera(false);
+      }
+    }
+    
+    event.target.value = '';
+  };
+
   const handlePantryImageAnalysisWithHEIC = async (imageData: string, isHEIC: boolean) => {
     setIsAnalyzingPantry(true);
     try {
@@ -424,13 +524,14 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   disabled={isAnalyzingPantry}
                 >
                   <Upload className="h-4 w-4" />
-                  Upload Image
+                  Upload Images
                 </Button>
                 <input
                   id="pantry-upload-profile"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'pantry')}
+                  multiple
+                  onChange={(e) => handleMultipleImageUpload(e, 'pantry')}
                   className="hidden"
                 />
                 {isAnalyzingPantry && (
@@ -441,7 +542,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Take a photo or upload an image of your pantry, or add ingredients manually below
+                Take a photo or upload multiple images of your pantry, or add ingredients manually below
               </p>
               
               {/* Manual ingredient entry */}
@@ -532,13 +633,14 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                   disabled={isAnalyzingEquipment}
                 >
                   <Upload className="h-4 w-4" />
-                  Upload Image
+                  Upload Images
                 </Button>
                 <input
                   id="equipment-upload-profile"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'kitchen')}
+                  multiple
+                  onChange={(e) => handleMultipleImageUpload(e, 'kitchen')}
                   className="hidden"
                 />
                 {isAnalyzingEquipment && (
@@ -549,7 +651,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Take a photo or upload an image of your kitchen, or add equipment manually below
+                Take a photo or upload multiple images of your kitchen, or add equipment manually below
               </p>
               
               {/* Manual equipment entry */}
