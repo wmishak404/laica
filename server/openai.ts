@@ -215,8 +215,13 @@ export async function analyzeIngredientImage(base64Image: string) {
           
           For ingredients/food: Look for raw ingredients, prepared foods, spices, condiments, beverages, etc.
           For kitchen equipment: Look carefully for all cookware, appliances, and kitchen tools including:
-          - Pots and pans of all sizes (small pots, large pots, saucepans, skillets, frying pans)
-          - Dutch ovens (any color including red, blue, black, etc.)
+          - Pots and pans with size estimates when possible:
+            * Saucepans (estimate: 1qt, 2qt, 2.5qt, 3qt, 3.5qt, 4qt, etc.)
+            * Skillets/Frying pans (estimate: 8-inch, 10-inch, 12-inch, etc.)
+            * Stock pots (estimate: 6qt, 8qt, 12qt, etc.)
+            * Sauté pans (estimate: 3qt, 5qt, etc.)
+            * Cast iron pans (estimate size when visible)
+          - Dutch ovens with size estimates (3.5qt, 5.5qt, 7qt, etc.) and colors (red, blue, black, etc.)
           - Appliances (coffee machines, blenders, mixers, toasters, ovens, microwaves, refrigerators)
           - Knives: Be specific with knife types as this helps with cooking technique later:
             * Gyutou (Japanese chef's knife, often with wooden handles)
@@ -239,7 +244,7 @@ export async function analyzeIngredientImage(base64Image: string) {
           content: [
             {
               type: "text",
-              text: "Carefully examine this image and identify ALL kitchen equipment, cookware, appliances, and food ingredients you can see. Be thorough and specific about sizes, colors, and types of items."
+              text: "Carefully examine this image and identify ALL kitchen equipment, cookware, appliances, and food ingredients you can see. For pots and pans, estimate their sizes based on visual cues like relative proportions, handles, and comparison to other items. Be thorough and specific about sizes, colors, and types of items."
             },
             {
               type: "image_url",
