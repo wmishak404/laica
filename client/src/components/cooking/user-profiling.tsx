@@ -142,21 +142,33 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     setIsAnalyzingPantry(true);
     try {
       const result = await analyzeImage(imageData);
+      console.log('Image analysis result:', result);
       
       if (result) {
-        // Handle different response formats from the API
-        const analysisText = result.analysis || result.description || JSON.stringify(result);
-        const ingredientList = analysisText.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+        let detectedIngredients: string[] = [];
         
-        // Also check if the result has an 'ingredients' array directly
-        const directIngredients = result.ingredients || [];
+        // Check if result has ingredients array with objects that have name property
+        if (result.ingredients && Array.isArray(result.ingredients)) {
+          detectedIngredients = result.ingredients.map((item: any) => 
+            typeof item === 'string' ? item : item.name || item.ingredient || String(item)
+          );
+        }
         
-        const allIngredients = [...ingredientList, ...directIngredients];
+        // Also try to extract from text fields
+        const analysisText = result.analysis || result.description || result.detected_items || '';
+        if (analysisText) {
+          const textIngredients = analysisText.match(/\b(?:meat|chicken|beef|pork|fish|salmon|tuna|shrimp|flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+          detectedIngredients = [...detectedIngredients, ...textIngredients];
+        }
         
-        if (allIngredients.length > 0) {
-          const uniqueIngredients: string[] = Array.from(new Set(allIngredients.map((i: string) => i.toLowerCase())));
+        if (detectedIngredients.length > 0) {
+          const cleanIngredients: string[] = detectedIngredients
+            .map(i => i.toLowerCase().trim())
+            .filter(i => i && i.length > 1);
+          const uniqueIngredients: string[] = Array.from(new Set(cleanIngredients));
           const newIngredients: string[] = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
           setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
+          console.log('Added ingredients:', uniqueIngredients);
         }
       }
     } catch (error) {
