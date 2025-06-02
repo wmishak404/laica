@@ -1,6 +1,6 @@
 {
-  "name": "LAICA - AI Cooking Assistant",
-  "short_name": "LAICA",
+  "name": "Laica - AI Cooking Assistant",
+  "short_name": "Laica",
   "description": "Your AI-powered cooking companion for meal planning and interactive cooking guidance",
   "start_url": "/",
   "display": "standalone",

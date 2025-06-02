@@ -3,7 +3,7 @@ import App from "./App";
 import "./index.css";
 
 // Set document title
-document.title = "LAICA - Your AI Cooking Assistant";
+document.title = "Laica - Your AI Cooking Assistant";
 
 // Add meta description for SEO
 const metaDescription = document.createElement('meta');

@@ -17,7 +17,7 @@ export default function Header() {
         <div className="flex items-center">
           <UtensilsCrossed className="h-7 w-7 text-primary" />
           <Link href="/">
-            <h1 className="ml-2 text-xl md:text-2xl font-bold text-primary cursor-pointer">LAICA</h1>
+            <h1 className="ml-2 text-xl md:text-2xl font-bold text-primary cursor-pointer">Laica</h1>
           </Link>
         </div>
 

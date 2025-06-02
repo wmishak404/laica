@@ -9,7 +9,7 @@ export default function CTASection() {
           Ready to Transform Your Cooking Experience?
         </h2>
         <p className="text-white/90 max-w-2xl mx-auto mb-8 text-lg">
-          Join LAICA today and start cooking with confidence. Your personal AI chef is just a click away.
+          Join Laica today and start cooking with confidence. Your personal AI chef is just a click away.
         </p>
         
         <div className="flex flex-col sm:flex-row justify-center gap-4">
