@@ -220,23 +220,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 ))}
               </div>
 
-              {mealPrefs.cuisinePreference.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Selected cuisines:</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {mealPrefs.cuisinePreference.map((cuisine) => (
-                      <Badge 
-                        key={cuisine} 
-                        variant="secondary"
-                        className="bg-[#4ECDC4] text-white hover:bg-[#4ECDC4]/80"
-                      >
-                        {cuisine}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => setCurrentStep(1)}>
                   Back
