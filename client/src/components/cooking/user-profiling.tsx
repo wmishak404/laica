@@ -133,8 +133,8 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
         const ingredientList = result.analysis.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
         
         if (ingredientList.length > 0) {
-          const uniqueIngredients = Array.from(new Set(ingredientList.map((i: any) => i.toLowerCase())));
-          const newIngredients = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
+          const uniqueIngredients: string[] = Array.from(new Set(ingredientList.map((i: string) => i.toLowerCase())));
+          const newIngredients: string[] = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
           setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
         }
       }
@@ -149,24 +149,16 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
   const handleEquipmentImageAnalysis = async (imageData: string) => {
     setIsAnalyzingEquipment(true);
     try {
-      const response = await fetch('/api/vision/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: imageData })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to analyze image');
-      }
-
-      const result = await response.json();
-      const detectedEquipment = result.analysis || result.description || '';
-      const equipmentList = detectedEquipment.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+      const result = await analyzeImage(imageData);
       
-      if (equipmentList.length > 0) {
-        const uniqueEquipment = Array.from(new Set(equipmentList.map(e => e.toLowerCase())));
-        const newEquipment = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment]));
-        setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+      if (result && result.analysis) {
+        const equipmentList = result.analysis.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+        
+        if (equipmentList.length > 0) {
+          const uniqueEquipment: string[] = Array.from(new Set(equipmentList.map((e: string) => e.toLowerCase())));
+          const newEquipment: string[] = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment]));
+          setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+        }
       }
     } catch (error) {
       console.error('Error analyzing kitchen image:', error);
@@ -180,16 +172,17 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
+    try {
+      const compressedBase64 = await compressImage(file);
       if (type === 'pantry') {
-        handlePantryImageAnalysis(base64);
+        handlePantryImageAnalysis(compressedBase64);
       } else {
-        handleEquipmentImageAnalysis(base64);
+        handleEquipmentImageAnalysis(compressedBase64);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error compressing image:', error);
+    }
+    
     event.target.value = '';
   };
 
