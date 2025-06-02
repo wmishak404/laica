@@ -502,7 +502,13 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
           <DialogHeader>
             <DialogTitle>Scan Your Pantry</DialogTitle>
           </DialogHeader>
-          <Webcam onImageCapture={handlePantryImageAnalysis} />
+          <Webcam onAnalysis={(data) => {
+            if (data && data.detectedIngredients) {
+              const ingredients = Array.from(new Set([...profile.pantryIngredients, ...data.detectedIngredients]));
+              setProfile(prev => ({ ...prev, pantryIngredients: ingredients }));
+            }
+            setShowPantryCamera(false);
+          }} />
         </DialogContent>
       </Dialog>
 
@@ -511,7 +517,13 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
           <DialogHeader>
             <DialogTitle>Scan Your Kitchen Equipment</DialogTitle>
           </DialogHeader>
-          <Webcam onAnalysis={handleEquipmentAnalysis} />
+          <Webcam onAnalysis={(data) => {
+            if (data && data.detectedEquipment) {
+              const equipment = Array.from(new Set([...profile.kitchenEquipment, ...data.detectedEquipment]));
+              setProfile(prev => ({ ...prev, kitchenEquipment: equipment }));
+            }
+            setShowEquipmentCamera(false);
+          }} />
         </DialogContent>
       </Dialog>
     </div>
