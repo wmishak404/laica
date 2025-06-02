@@ -211,14 +211,26 @@ export async function analyzeIngredientImage(base64Image: string) {
       messages: [
         {
           role: "system",
-          content: "You are a vision system that identifies ingredients and food in images. Respond with JSON that includes the detected items and any useful information about them."
+          content: `You are a kitchen vision system that identifies ingredients, food items, and kitchen equipment in images. 
+          
+          For ingredients/food: Look for raw ingredients, prepared foods, spices, condiments, beverages, etc.
+          For kitchen equipment: Look carefully for all cookware, appliances, and kitchen tools including:
+          - Pots and pans of all sizes (small pots, large pots, saucepans, skillets, frying pans)
+          - Dutch ovens (any color including red, blue, black, etc.)
+          - Appliances (coffee machines, blenders, mixers, toasters, ovens, microwaves, refrigerators)
+          - Knives and cutting tools
+          - Measuring equipment
+          - Baking equipment
+          - Any other kitchen implements
+          
+          Respond with JSON containing separate arrays for "ingredients" and "equipment" with detailed item names.`
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Identify the ingredients or food in this image. Provide details about what you see."
+              text: "Carefully examine this image and identify ALL kitchen equipment, cookware, appliances, and food ingredients you can see. Be thorough and specific about sizes, colors, and types of items."
             },
             {
               type: "image_url",

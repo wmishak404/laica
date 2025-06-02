@@ -191,21 +191,46 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     setIsAnalyzingEquipment(true);
     try {
       const result = await analyzeImage(imageData);
+      console.log('Equipment analysis result:', result);
       
       if (result) {
-        // Handle different response formats from the API
-        const analysisText = result.analysis || result.description || JSON.stringify(result);
-        const equipmentList = analysisText.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+        let detectedEquipment: string[] = [];
         
-        // Also check if the result has an 'equipment' array directly
-        const directEquipment = result.equipment || [];
+        // Check if result has equipment array with objects that have name property
+        if (result.equipment && Array.isArray(result.equipment)) {
+          detectedEquipment = result.equipment.map((item: any) => 
+            typeof item === 'string' ? item : item.name || item.item || String(item)
+          );
+        }
         
-        const allEquipment = [...equipmentList, ...directEquipment];
+        // Also check for detected_items that might be equipment
+        if (result.detected_items && Array.isArray(result.detected_items)) {
+          const equipmentItems = result.detected_items
+            .map((item: any) => item.item || item.name || String(item))
+            .filter((item: string) => {
+              const itemLower = item.toLowerCase();
+              return itemLower.includes('pot') || itemLower.includes('pan') || itemLower.includes('oven') ||
+                     itemLower.includes('coffee') || itemLower.includes('blender') || itemLower.includes('mixer') ||
+                     itemLower.includes('knife') || itemLower.includes('appliance') || itemLower.includes('machine');
+            });
+          detectedEquipment = [...detectedEquipment, ...equipmentItems];
+        }
         
-        if (allEquipment.length > 0) {
-          const uniqueEquipment: string[] = Array.from(new Set(allEquipment.map((e: string) => e.toLowerCase())));
+        // Also try to extract from text fields with expanded pattern matching
+        const analysisText = result.analysis || result.description || '';
+        if (analysisText) {
+          const textEquipment = analysisText.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|coffee machine|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|frying pan|pan|pot|small pot|large pot|saucepan|stockpot|dutch oven|red dutch oven|blue dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+          detectedEquipment = [...detectedEquipment, ...textEquipment];
+        }
+        
+        if (detectedEquipment.length > 0) {
+          const cleanEquipment: string[] = detectedEquipment
+            .map(e => e.toLowerCase().trim())
+            .filter(e => e && e.length > 1);
+          const uniqueEquipment: string[] = Array.from(new Set(cleanEquipment));
           const newEquipment: string[] = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment]));
           setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+          console.log('Added equipment:', uniqueEquipment);
         }
       }
     } catch (error) {
