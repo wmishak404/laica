@@ -101,10 +101,11 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
       
       img.onload = () => {
         try {
-          const maxWidth = 800;
-          const maxHeight = 600;
+          const maxWidth = 1024;
+          const maxHeight = 1024;
           let { width, height } = img;
           
+          // Calculate new dimensions while maintaining aspect ratio
           if (width > height) {
             if (width > maxWidth) {
               height = (height * maxWidth) / width;
@@ -121,7 +122,8 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
           canvas.height = height;
           
           ctx.drawImage(img, 0, 0, width, height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          // Always convert to JPEG format for OpenAI compatibility
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
           const base64Data = compressedDataUrl.split(',')[1];
           
           // Clean up
@@ -134,7 +136,13 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
       };
       
       img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = URL.createObjectURL(file);
+      
+      // Create object URL that works with all formats including HEIC
+      try {
+        img.src = URL.createObjectURL(file);
+      } catch (error) {
+        reject(new Error('Unsupported file format'));
+      }
     });
   };
 
@@ -212,6 +220,25 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Check file type and warn about HEIC
+    const fileType = file.type.toLowerCase();
+    const fileName = file.name.toLowerCase();
+    const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+    
+    if (isHEIC) {
+      alert('HEIC images from iPhones are not supported. Please convert to JPEG first or take a photo using your camera instead.');
+      event.target.value = '';
+      return;
+    }
+
+    // Check for supported formats
+    const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!supportedTypes.includes(fileType)) {
+      alert('Please upload a JPEG, PNG, GIF, or WebP image file.');
+      event.target.value = '';
+      return;
+    }
+
     try {
       const compressedBase64 = await compressImage(file);
       if (type === 'pantry') {
@@ -220,19 +247,8 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
         handleEquipmentImageAnalysis(compressedBase64);
       }
     } catch (error) {
-      console.error('Error compressing image:', error);
-      // Fallback: use original file without compression
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64 = e.target?.result as string;
-        const base64Data = base64.split(',')[1]; // Remove data:image/... prefix
-        if (type === 'pantry') {
-          handlePantryImageAnalysis(base64Data);
-        } else {
-          handleEquipmentImageAnalysis(base64Data);
-        }
-      };
-      reader.readAsDataURL(file);
+      console.error('Error processing image:', error);
+      alert('Error processing image. Please try a different image or use the camera option.');
     }
     
     event.target.value = '';
