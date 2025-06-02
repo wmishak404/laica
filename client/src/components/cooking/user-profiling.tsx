@@ -333,6 +333,10 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
       setIsAnalyzingEquipment(true);
     }
 
+    // Collect all results first, then update state once
+    let allNewIngredients: string[] = [];
+    let allNewEquipment: string[] = [];
+
     try {
       // Process files sequentially to avoid overwhelming the API
       for (let i = 0; i < processedFiles.length; i++) {
@@ -342,23 +346,17 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
         const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
 
         try {
+          let result;
           if (isHEIC) {
             // Handle HEIC files
             const reader = new FileReader();
-            await new Promise<void>((resolve, reject) => {
+            result = await new Promise<any>((resolve, reject) => {
               reader.onload = async (e) => {
                 try {
                   const base64 = e.target?.result as string;
                   const base64Data = base64.split(',')[1];
-                  
-                  if (type === 'pantry') {
-                    const result = await analyzeImage(base64Data, true);
-                    await processIngredientResults(result);
-                  } else {
-                    const result = await analyzeImage(base64Data, true);
-                    await processEquipmentResults(result);
-                  }
-                  resolve();
+                  const analysisResult = await analyzeImage(base64Data, true);
+                  resolve(analysisResult);
                 } catch (error) {
                   reject(error);
                 }
@@ -369,12 +367,41 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
           } else {
             // Handle regular image files
             const compressedBase64 = await compressImage(file);
-            if (type === 'pantry') {
-              const result = await analyzeImage(compressedBase64, false);
-              await processIngredientResults(result);
-            } else {
-              const result = await analyzeImage(compressedBase64, false);
-              await processEquipmentResults(result);
+            result = await analyzeImage(compressedBase64, false);
+          }
+
+          // Extract ingredients or equipment from this image
+          if (type === 'pantry' && result) {
+            let detectedIngredients: string[] = [];
+            
+            if (result.ingredients && Array.isArray(result.ingredients)) {
+              detectedIngredients = result.ingredients.map((item: any) => 
+                typeof item === 'string' ? item : item.name || item.ingredient || String(item)
+              );
+            }
+            
+            if (detectedIngredients.length > 0) {
+              const cleanIngredients = detectedIngredients
+                .map(i => i.toLowerCase().trim())
+                .filter(i => i && i.length > 1);
+              allNewIngredients = [...allNewIngredients, ...cleanIngredients];
+              console.log('Added ingredients:', cleanIngredients);
+            }
+          } else if (type === 'kitchen' && result) {
+            let detectedEquipment: string[] = [];
+            
+            if (result.equipment && Array.isArray(result.equipment)) {
+              detectedEquipment = result.equipment.map((item: any) => 
+                typeof item === 'string' ? item : item.name || item.item || String(item)
+              );
+            }
+            
+            if (detectedEquipment.length > 0) {
+              const cleanEquipment = detectedEquipment
+                .map(e => e.toLowerCase().trim())
+                .filter(e => e && e.length > 1);
+              allNewEquipment = [...allNewEquipment, ...cleanEquipment];
+              console.log('Added equipment:', cleanEquipment);
             }
           }
           
@@ -386,6 +413,23 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
           console.error(`Error processing image ${i + 1}:`, error);
           // Continue processing other images even if one fails
         }
+      }
+
+      // Update state once with all accumulated results
+      if (type === 'pantry' && allNewIngredients.length > 0) {
+        const uniqueNewIngredients = Array.from(new Set(allNewIngredients));
+        setProfile(prev => ({
+          ...prev,
+          pantryIngredients: Array.from(new Set([...prev.pantryIngredients, ...uniqueNewIngredients]))
+        }));
+        console.log('Total unique ingredients added:', uniqueNewIngredients);
+      } else if (type === 'kitchen' && allNewEquipment.length > 0) {
+        const uniqueNewEquipment = Array.from(new Set(allNewEquipment));
+        setProfile(prev => ({
+          ...prev,
+          kitchenEquipment: Array.from(new Set([...prev.kitchenEquipment, ...uniqueNewEquipment]))
+        }));
+        console.log('Total unique equipment added:', uniqueNewEquipment);
       }
     } catch (error) {
       console.error('Error processing multiple images:', error);
