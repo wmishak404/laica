@@ -218,12 +218,21 @@ export async function analyzeIngredientImage(base64Image: string) {
           - Pots and pans of all sizes (small pots, large pots, saucepans, skillets, frying pans)
           - Dutch ovens (any color including red, blue, black, etc.)
           - Appliances (coffee machines, blenders, mixers, toasters, ovens, microwaves, refrigerators)
-          - Knives and cutting tools
+          - Knives: Be specific with knife types as this helps with cooking technique later:
+            * Gyutou (Japanese chef's knife, often with wooden handles)
+            * Santoku (Japanese all-purpose knife, usually shorter with flat edge)
+            * Nakiri (Japanese vegetable knife, rectangular blade)
+            * Petty knife (small utility knife)
+            * Bread knife (serrated edge)
+            * Cleaver (heavy, rectangular blade)
+            * Paring knife (small, pointed blade)
+            * Boning knife (thin, flexible blade)
           - Measuring equipment
           - Baking equipment
           - Any other kitchen implements
           
-          Respond with JSON containing separate arrays for "ingredients" and "equipment" with detailed item names.`
+          IMPORTANT: For equipment items, always return simple string names, never object references.
+          Respond with JSON containing separate arrays for "ingredients" and "equipment" with detailed item names as strings.`
         },
         {
           role: "user",

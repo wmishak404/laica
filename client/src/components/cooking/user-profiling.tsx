@@ -186,9 +186,15 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
       
       // Check if result has equipment array with objects that have name property
       if (result.equipment && Array.isArray(result.equipment)) {
-        detectedEquipment = result.equipment.map((item: any) => 
-          typeof item === 'string' ? item : item.name || item.item || String(item)
-        );
+        detectedEquipment = result.equipment.map((item: any) => {
+          if (typeof item === 'string') {
+            return item;
+          } else if (typeof item === 'object' && item !== null) {
+            return item.name || item.item || item.equipment || item.description || '';
+          } else {
+            return '';
+          }
+        }).filter(item => item && typeof item === 'string' && item.trim().length > 0);
       }
       
       // Also check for detected_items that might be equipment
@@ -391,9 +397,15 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
             let detectedEquipment: string[] = [];
             
             if (result.equipment && Array.isArray(result.equipment)) {
-              detectedEquipment = result.equipment.map((item: any) => 
-                typeof item === 'string' ? item : item.name || item.item || String(item)
-              );
+              detectedEquipment = result.equipment.map((item: any) => {
+                if (typeof item === 'string') {
+                  return item;
+                } else if (typeof item === 'object' && item !== null) {
+                  return item.name || item.item || item.equipment || item.description || '';
+                } else {
+                  return '';
+                }
+              }).filter(item => item && typeof item === 'string' && item.trim().length > 0);
             }
             
             if (detectedEquipment.length > 0) {
