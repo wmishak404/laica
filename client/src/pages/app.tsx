@@ -122,7 +122,7 @@ export default function MobileApp() {
         <div className="bg-[#FF6B6B] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
           <ChefHat className="h-10 w-10 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to LAICA</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Laica</h1>
         <p className="text-lg text-gray-600 mb-8">Your AI Cooking Assistant</p>
         
         <Card className="max-w-sm mx-auto">
