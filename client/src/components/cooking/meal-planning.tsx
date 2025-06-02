@@ -206,15 +206,16 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {cuisineOptions.map((cuisine) => (
-                  <div key={cuisine} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={cuisine}
-                      checked={mealPrefs.cuisinePreference.includes(cuisine)}
-                      onCheckedChange={() => toggleCuisine(cuisine)}
-                    />
-                    <Label htmlFor={cuisine} className="cursor-pointer text-sm">
-                      {cuisine}
-                    </Label>
+                  <div 
+                    key={cuisine} 
+                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                      mealPrefs.cuisinePreference.includes(cuisine)
+                        ? 'border-[#FF6B6B] bg-[#FF6B6B]/10 text-[#FF6B6B]'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => toggleCuisine(cuisine)}
+                  >
+                    <span className="text-sm font-medium">{cuisine}</span>
                   </div>
                 ))}
               </div>
