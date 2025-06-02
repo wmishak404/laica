@@ -546,16 +546,59 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
               
               <div className="mt-4">
                 <Label htmlFor="other-chefs">Other chefs or cooking styles:</Label>
-                <Input
-                  id="other-chefs"
-                  placeholder="Enter other influences..."
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                      handleChefChange(e.currentTarget.value.trim());
-                      e.currentTarget.value = '';
-                    }
-                  }}
-                />
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    id="other-chefs"
+                    placeholder="Type name and press Enter (e.g., Fallow, Julia Child)"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                        handleChefChange(e.currentTarget.value.trim());
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={(e) => {
+                      const input = document.getElementById('other-chefs') as HTMLInputElement;
+                      if (input && input.value.trim()) {
+                        handleChefChange(input.value.trim());
+                        input.value = '';
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Add multiple entries one at a time. Press Enter or click Add after each name.
+                </p>
+                
+                {/* Show added custom chefs */}
+                {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-gray-600 mb-1">Added:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).map((chef, index) => (
+                        <span 
+                          key={index} 
+                          className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                        >
+                          {chef}
+                          <button
+                            onClick={() => handleChefChange(chef)}
+                            className="text-primary/60 hover:text-primary text-xs"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
