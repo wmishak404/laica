@@ -196,7 +196,20 @@ export default function Cooking() {
             onMealSelected={handleMealSelected}
             onBackToProfile={() => setCurrentPhase('welcome')}
           />
-        ) : null;
+        ) : (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Let's Set Up Your Profile First</h2>
+              <p className="text-muted-foreground mb-6">
+                I need to know about your cooking preferences and kitchen setup to recommend the best meals for you.
+              </p>
+              <Button onClick={() => setCurrentPhase('profiling')} size="lg">
+                Set Up My Profile
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        );
 
       case 'cooking':
         return selectedMeal ? (
