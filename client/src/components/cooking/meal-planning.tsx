@@ -208,14 +208,14 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 {cuisineOptions.map((cuisine) => (
                   <div 
                     key={cuisine} 
-                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all active:scale-95 min-h-[48px] flex items-center justify-center ${
                       mealPrefs.cuisinePreference.includes(cuisine)
                         ? 'border-[#FF6B6B] bg-[#FF6B6B]/10 text-[#FF6B6B]'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-gray-200 hover:border-gray-300 active:bg-gray-50'
                     }`}
                     onClick={() => toggleCuisine(cuisine)}
                   >
-                    <span className="text-sm font-medium">{cuisine}</span>
+                    <span className="text-sm font-medium text-center">{cuisine}</span>
                   </div>
                 ))}
               </div>
@@ -421,12 +421,12 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">Plan Your Meal</h1>
-          <div className="text-sm text-gray-500">
-            Step {currentStep} of 4
+    <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50">
+      <div className="mb-4 md:mb-6 bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Plan Your Meal</h1>
+          <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            {currentStep} of 4
           </div>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
