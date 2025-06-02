@@ -86,6 +86,14 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     });
   };
 
+  const handlePantryImageCapture = async (imageData: string) => {
+    await handlePantryImageAnalysis(imageData);
+  };
+
+  const handleEquipmentImageCapture = async (imageData: string) => {
+    await handleEquipmentImageAnalysis(imageData);
+  };
+
   const handlePantryImageAnalysis = async (imageData: string) => {
     setIsAnalyzingPantry(true);
     try {
