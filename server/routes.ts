@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
 import { z } from "zod";
+import heicConvert from "heic-convert";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Recipe suggestions endpoint
@@ -111,15 +112,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image analysis endpoint
+  // Image analysis endpoint with HEIC conversion support
   app.post('/api/vision/analyze', async (req, res) => {
     try {
       const schema = z.object({
-        image: z.string()
+        image: z.string(),
+        isHEIC: z.boolean().optional()
       });
       
-      const { image } = schema.parse(req.body);
-      const analysis = await analyzeIngredientImage(image);
+      const { image, isHEIC } = schema.parse(req.body);
+      let processedImage = image;
+      
+      // Convert HEIC to JPEG if needed
+      if (isHEIC) {
+        try {
+          const imageBuffer = Buffer.from(image, 'base64');
+          const outputBuffer = await heicConvert({
+            buffer: imageBuffer,
+            format: 'JPEG',
+            quality: 0.8
+          });
+          processedImage = outputBuffer.toString('base64');
+        } catch (conversionError) {
+          console.error('HEIC conversion failed:', conversionError);
+          return res.status(400).json({ error: 'Failed to convert HEIC image. Please try a different format.' });
+        }
+      }
+      
+      const analysis = await analyzeIngredientImage(processedImage);
       res.json(analysis);
     } catch (error) {
       console.error('Error in image analysis:', error);

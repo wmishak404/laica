@@ -141,7 +141,7 @@ export async function fetchCookingAssistance(step: string, question?: string) {
   }
 }
 
-export async function analyzeImage(imageData: string) {
+export async function analyzeImage(imageData: string, isHEIC?: boolean) {
   try {
     const response = await fetch('/api/vision/analyze', {
       method: 'POST',
@@ -149,7 +149,8 @@ export async function analyzeImage(imageData: string) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        image: imageData
+        image: imageData,
+        isHEIC: isHEIC
       }),
     });
 

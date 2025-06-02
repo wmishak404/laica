@@ -146,39 +146,88 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     });
   };
 
+  const processIngredientResults = async (result: any) => {
+    console.log('Image analysis result:', result);
+    
+    if (result) {
+      let detectedIngredients: string[] = [];
+      
+      // Check if result has ingredients array with objects that have name property
+      if (result.ingredients && Array.isArray(result.ingredients)) {
+        detectedIngredients = result.ingredients.map((item: any) => 
+          typeof item === 'string' ? item : item.name || item.ingredient || String(item)
+        );
+      }
+      
+      // Also try to extract from text fields
+      const analysisText = result.analysis || result.description || result.detected_items || '';
+      if (analysisText) {
+        const textIngredients = analysisText.match(/\b(?:meat|chicken|beef|pork|fish|salmon|tuna|shrimp|flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+        detectedIngredients = [...detectedIngredients, ...textIngredients];
+      }
+      
+      if (detectedIngredients.length > 0) {
+        const cleanIngredients: string[] = detectedIngredients
+          .map(i => i.toLowerCase().trim())
+          .filter(i => i && i.length > 1);
+        const uniqueIngredients: string[] = Array.from(new Set(cleanIngredients));
+        const newIngredients: string[] = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
+        setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
+        console.log('Added ingredients:', uniqueIngredients);
+      }
+    }
+  };
+
+  const processEquipmentResults = async (result: any) => {
+    console.log('Equipment analysis result:', result);
+    
+    if (result) {
+      let detectedEquipment: string[] = [];
+      
+      // Check if result has equipment array with objects that have name property
+      if (result.equipment && Array.isArray(result.equipment)) {
+        detectedEquipment = result.equipment.map((item: any) => 
+          typeof item === 'string' ? item : item.name || item.item || String(item)
+        );
+      }
+      
+      // Also check for detected_items that might be equipment
+      if (result.detected_items && Array.isArray(result.detected_items)) {
+        const equipmentItems = result.detected_items
+          .map((item: any) => item.item || item.name || String(item))
+          .filter((item: string) => {
+            const itemLower = item.toLowerCase();
+            return itemLower.includes('pot') || itemLower.includes('pan') || itemLower.includes('oven') ||
+                   itemLower.includes('coffee') || itemLower.includes('blender') || itemLower.includes('mixer') ||
+                   itemLower.includes('knife') || itemLower.includes('appliance') || itemLower.includes('machine');
+          });
+        detectedEquipment = [...detectedEquipment, ...equipmentItems];
+      }
+      
+      // Also try to extract from text fields with expanded pattern matching
+      const analysisText = result.analysis || result.description || '';
+      if (analysisText) {
+        const textEquipment = analysisText.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|coffee machine|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|frying pan|pan|pot|small pot|large pot|saucepan|stockpot|dutch oven|red dutch oven|blue dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+        detectedEquipment = [...detectedEquipment, ...textEquipment];
+      }
+      
+      if (detectedEquipment.length > 0) {
+        const cleanEquipment: string[] = detectedEquipment
+          .map(e => e.toLowerCase().trim())
+          .filter(e => e && e.length > 1);
+        const uniqueEquipment: string[] = Array.from(new Set(cleanEquipment));
+        const newEquipment: string[] = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment]));
+        setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+        console.log('Added equipment:', uniqueEquipment);
+      }
+    }
+  };
+
   const handlePantryImageAnalysis = async (imageData: string) => {
     setIsAnalyzingPantry(true);
     try {
       const result = await analyzeImage(imageData);
-      console.log('Image analysis result:', result);
-      
-      if (result) {
-        let detectedIngredients: string[] = [];
-        
-        // Check if result has ingredients array with objects that have name property
-        if (result.ingredients && Array.isArray(result.ingredients)) {
-          detectedIngredients = result.ingredients.map((item: any) => 
-            typeof item === 'string' ? item : item.name || item.ingredient || String(item)
-          );
-        }
-        
-        // Also try to extract from text fields
-        const analysisText = result.analysis || result.description || result.detected_items || '';
-        if (analysisText) {
-          const textIngredients = analysisText.match(/\b(?:meat|chicken|beef|pork|fish|salmon|tuna|shrimp|flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
-          detectedIngredients = [...detectedIngredients, ...textIngredients];
-        }
-        
-        if (detectedIngredients.length > 0) {
-          const cleanIngredients: string[] = detectedIngredients
-            .map(i => i.toLowerCase().trim())
-            .filter(i => i && i.length > 1);
-          const uniqueIngredients: string[] = Array.from(new Set(cleanIngredients));
-          const newIngredients: string[] = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
-          setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
-          console.log('Added ingredients:', uniqueIngredients);
-        }
-      }
+      await processIngredientResults(result);
     } catch (error) {
       console.error('Error analyzing pantry image:', error);
     } finally {
@@ -191,48 +240,7 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     setIsAnalyzingEquipment(true);
     try {
       const result = await analyzeImage(imageData);
-      console.log('Equipment analysis result:', result);
-      
-      if (result) {
-        let detectedEquipment: string[] = [];
-        
-        // Check if result has equipment array with objects that have name property
-        if (result.equipment && Array.isArray(result.equipment)) {
-          detectedEquipment = result.equipment.map((item: any) => 
-            typeof item === 'string' ? item : item.name || item.item || String(item)
-          );
-        }
-        
-        // Also check for detected_items that might be equipment
-        if (result.detected_items && Array.isArray(result.detected_items)) {
-          const equipmentItems = result.detected_items
-            .map((item: any) => item.item || item.name || String(item))
-            .filter((item: string) => {
-              const itemLower = item.toLowerCase();
-              return itemLower.includes('pot') || itemLower.includes('pan') || itemLower.includes('oven') ||
-                     itemLower.includes('coffee') || itemLower.includes('blender') || itemLower.includes('mixer') ||
-                     itemLower.includes('knife') || itemLower.includes('appliance') || itemLower.includes('machine');
-            });
-          detectedEquipment = [...detectedEquipment, ...equipmentItems];
-        }
-        
-        // Also try to extract from text fields with expanded pattern matching
-        const analysisText = result.analysis || result.description || '';
-        if (analysisText) {
-          const textEquipment = analysisText.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|coffee machine|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|frying pan|pan|pot|small pot|large pot|saucepan|stockpot|dutch oven|red dutch oven|blue dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
-          detectedEquipment = [...detectedEquipment, ...textEquipment];
-        }
-        
-        if (detectedEquipment.length > 0) {
-          const cleanEquipment: string[] = detectedEquipment
-            .map(e => e.toLowerCase().trim())
-            .filter(e => e && e.length > 1);
-          const uniqueEquipment: string[] = Array.from(new Set(cleanEquipment));
-          const newEquipment: string[] = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment]));
-          setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
-          console.log('Added equipment:', uniqueEquipment);
-        }
-      }
+      await processEquipmentResults(result);
     } catch (error) {
       console.error('Error analyzing kitchen image:', error);
     } finally {
@@ -245,21 +253,38 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file type and warn about HEIC
+    // Check file type
     const fileType = file.type.toLowerCase();
     const fileName = file.name.toLowerCase();
     const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
     
+    // Handle HEIC files by reading them as base64 and sending to server for conversion
     if (isHEIC) {
-      alert('HEIC images from iPhones are not supported. Please convert to JPEG first or take a photo using your camera instead.');
+      try {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const base64 = e.target?.result as string;
+          const base64Data = base64.split(',')[1]; // Remove data:image/... prefix
+          
+          if (type === 'pantry') {
+            await handlePantryImageAnalysisWithHEIC(base64Data, true);
+          } else {
+            await handleEquipmentImageAnalysisWithHEIC(base64Data, true);
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('Error processing HEIC image:', error);
+        alert('Error processing HEIC image. Please try a different image or use the camera option.');
+      }
       event.target.value = '';
       return;
     }
 
-    // Check for supported formats
+    // Check for other supported formats
     const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!supportedTypes.includes(fileType)) {
-      alert('Please upload a JPEG, PNG, GIF, or WebP image file.');
+      alert('Please upload a JPEG, PNG, GIF, WebP, or HEIC image file.');
       event.target.value = '';
       return;
     }
@@ -267,9 +292,9 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     try {
       const compressedBase64 = await compressImage(file);
       if (type === 'pantry') {
-        handlePantryImageAnalysis(compressedBase64);
+        await handlePantryImageAnalysisWithHEIC(compressedBase64, false);
       } else {
-        handleEquipmentImageAnalysis(compressedBase64);
+        await handleEquipmentImageAnalysisWithHEIC(compressedBase64, false);
       }
     } catch (error) {
       console.error('Error processing image:', error);
@@ -277,6 +302,32 @@ export default function UserProfiling({ onProfileComplete }: UserProfilingProps)
     }
     
     event.target.value = '';
+  };
+
+  const handlePantryImageAnalysisWithHEIC = async (imageData: string, isHEIC: boolean) => {
+    setIsAnalyzingPantry(true);
+    try {
+      const result = await analyzeImage(imageData, isHEIC);
+      await processIngredientResults(result);
+    } catch (error) {
+      console.error('Error analyzing pantry image:', error);
+    } finally {
+      setIsAnalyzingPantry(false);
+      setShowPantryCamera(false);
+    }
+  };
+
+  const handleEquipmentImageAnalysisWithHEIC = async (imageData: string, isHEIC: boolean) => {
+    setIsAnalyzingEquipment(true);
+    try {
+      const result = await analyzeImage(imageData, isHEIC);
+      await processEquipmentResults(result);
+    } catch (error) {
+      console.error('Error analyzing equipment image:', error);
+    } finally {
+      setIsAnalyzingEquipment(false);
+      setShowEquipmentCamera(false);
+    }
   };
 
   const renderStep = () => {
