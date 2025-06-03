@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import MobileApp from "@/pages/app";
 import Cooking from "@/pages/cooking-new";
 import GroceryList from "@/pages/grocery-list";
+import GroceryListMobile from "@/pages/grocery-list-mobile";
 
 function Router() {
   return (
@@ -17,7 +18,7 @@ function Router() {
       <Route path="/" component={MobileApp} />
       <Route path="/website" component={Home} />
       <Route path="/cooking" component={Cooking} />
-      <Route path="/grocery-list" component={GroceryList} />
+      <Route path="/grocery-list" component={GroceryListMobile} />
       <Route component={NotFound} />
     </Switch>
   );
