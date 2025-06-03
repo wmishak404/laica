@@ -1,6 +1,9 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const PROMPTS_DIR = join(__dirname, '.');
 
 function loadPrompt(category: 'atoms' | 'molecules' | 'organisms', name: string): string {

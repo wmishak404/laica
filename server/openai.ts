@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { compositions } from "./prompts/composer";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
@@ -211,40 +212,14 @@ export async function analyzeIngredientImage(base64Image: string) {
       messages: [
         {
           role: "system",
-          content: `You are a kitchen vision system that identifies ingredients, food items, and kitchen equipment in images. 
-          
-          For ingredients/food: Look for raw ingredients, prepared foods, spices, condiments, beverages, etc.
-          For kitchen equipment: Look carefully for all cookware, appliances, and kitchen tools including:
-          - Pots and pans with size estimates when possible:
-            * Saucepans (estimate: 1qt, 2qt, 2.5qt, 3qt, 3.5qt, 4qt, etc.)
-            * Skillets/Frying pans (estimate: 8-inch, 10-inch, 12-inch, etc.)
-            * Stock pots (estimate: 6qt, 8qt, 12qt, etc.)
-            * Sauté pans (estimate: 3qt, 5qt, etc.)
-            * Cast iron pans (estimate size when visible)
-          - Dutch ovens with size estimates (3.5qt, 5.5qt, 7qt, etc.) and colors (red, blue, black, etc.)
-          - Appliances (coffee machines, blenders, mixers, toasters, ovens, microwaves, refrigerators)
-          - Knives: Be specific with knife types as this helps with cooking technique later:
-            * Gyutou (Japanese chef's knife, often with wooden handles)
-            * Santoku (Japanese all-purpose knife, usually shorter with flat edge)
-            * Nakiri (Japanese vegetable knife, rectangular blade)
-            * Petty knife (small utility knife)
-            * Bread knife (serrated edge)
-            * Cleaver (heavy, rectangular blade)
-            * Paring knife (small, pointed blade)
-            * Boning knife (thin, flexible blade)
-          - Measuring equipment
-          - Baking equipment
-          - Any other kitchen implements
-          
-          IMPORTANT: For equipment items, always return simple string names, never object references.
-          Respond with JSON containing separate arrays for "ingredients" and "equipment" with detailed item names as strings.`
+          content: compositions.equipmentAnalysis.system()
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Carefully examine this image and identify ALL kitchen equipment, cookware, appliances, and food ingredients you can see. For pots and pans, estimate their sizes based on visual cues like relative proportions, handles, and comparison to other items. Be thorough and specific about sizes, colors, and types of items."
+              text: compositions.equipmentAnalysis.user()
             },
             {
               type: "image_url",
