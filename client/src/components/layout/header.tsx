@@ -40,38 +40,60 @@ export default function Header() {
   };
 
   const getUserInitials = () => {
-    const firstName = (user as any)?.firstName;
-    const lastName = (user as any)?.lastName;
-    const email = (user as any)?.email;
-    const username = (user as any)?.username;
-
-    if (firstName && lastName) {
-      return `${firstName[0]}${lastName[0]}`;
+    if (!user) return 'U';
+    
+    // Check if it's an AuthUser (external auth)
+    if ('firstName' in user && 'lastName' in user) {
+      const firstName = user.firstName;
+      const lastName = user.lastName;
+      if (firstName && lastName) {
+        return `${firstName[0]}${lastName[0]}`;
+      }
     }
+    
+    // Check if it's a User (local auth)
+    if ('username' in user) {
+      const username = user.username;
+      if (username) {
+        return username[0].toUpperCase();
+      }
+    }
+    
+    // Fall back to email for both types
+    const email = user.email;
     if (email) {
       return email[0].toUpperCase();
     }
-    if (username) {
-      return username[0].toUpperCase();
-    }
+    
     return 'U';
   };
 
   const getUserDisplayName = () => {
-    const firstName = (user as any)?.firstName;
-    const lastName = (user as any)?.lastName;
-    const email = (user as any)?.email;
-    const username = (user as any)?.username;
-
-    if (firstName && lastName) {
-      return `${firstName} ${lastName}`;
+    if (!user) return 'User';
+    
+    // Check if it's an AuthUser (external auth)
+    if ('firstName' in user && 'lastName' in user) {
+      const firstName = user.firstName;
+      const lastName = user.lastName;
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      }
     }
-    if (username) {
-      return username;
+    
+    // Check if it's a User (local auth)
+    if ('username' in user) {
+      const username = user.username;
+      if (username) {
+        return username;
+      }
     }
+    
+    // Fall back to email for both types
+    const email = user.email;
     if (email) {
       return email;
     }
+    
     return 'User';
   };
 
@@ -126,7 +148,7 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.profileImageUrl || undefined} alt={getUserDisplayName()} />
+                    <AvatarImage src={user && 'profileImageUrl' in user ? user.profileImageUrl || undefined : undefined} alt={getUserDisplayName()} />
                     <AvatarFallback>{getUserInitials()}</AvatarFallback>
                   </Avatar>
                 </Button>

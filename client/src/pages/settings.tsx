@@ -41,11 +41,11 @@ export default function Settings() {
 
     if (user) {
       setProfile({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
+        firstName: ('firstName' in user && user.firstName) || '',
+        lastName: ('lastName' in user && user.lastName) || '',
         email: user.email || '',
-        username: user.username || '',
-        profileImageUrl: user.profileImageUrl || '',
+        username: ('username' in user && user.username) || '',
+        profileImageUrl: ('profileImageUrl' in user && user.profileImageUrl) || '',
       });
     }
   }, [user, isAuthenticated, isLoading, toast]);
@@ -188,7 +188,7 @@ export default function Settings() {
                     value={profile.email || ''}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                     placeholder="Enter your email address"
-                    disabled={user?.id && typeof user.id === 'string'} // Disable for external auth users
+                    disabled={!!(user?.id && typeof user.id === 'string')} // Disable for external auth users
                   />
                   {user?.id && typeof user.id === 'string' && (
                     <p className="text-xs text-muted-foreground">
@@ -197,7 +197,7 @@ export default function Settings() {
                   )}
                 </div>
 
-                {user?.username && (
+                {('username' in user && user.username) && (
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
                     <Input
@@ -206,7 +206,7 @@ export default function Settings() {
                       value={profile.username || ''}
                       onChange={(e) => setProfile({ ...profile, username: e.target.value })}
                       placeholder="Enter your username"
-                      disabled={user?.id && typeof user.id === 'string'} // Disable for external auth users
+                      disabled={!!(user?.id && typeof user.id === 'string')} // Disable for external auth users
                     />
                     {user?.id && typeof user.id === 'string' && (
                       <p className="text-xs text-muted-foreground">
