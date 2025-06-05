@@ -12,12 +12,19 @@ export default function Landing() {
           <ChefHat className="h-6 w-6 text-orange-600 dark:text-orange-400" />
           <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">AI Cooking Assistant</span>
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto flex space-x-2">
+          <Button 
+            variant="outline"
+            onClick={() => window.location.href = '/login'}
+            className="border-orange-600 text-orange-600 hover:bg-orange-50"
+          >
+            Sign In
+          </Button>
           <Button 
             onClick={() => window.location.href = '/api/login'}
             className="bg-orange-600 hover:bg-orange-700 text-white"
           >
-            Sign In
+            External Login
           </Button>
         </div>
       </header>
@@ -39,7 +46,7 @@ export default function Landing() {
             <div className="space-x-4">
               <Button 
                 size="lg" 
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => window.location.href = '/login'}
                 className="bg-orange-600 hover:bg-orange-700 text-white"
               >
                 Get Started Free

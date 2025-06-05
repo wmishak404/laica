@@ -104,24 +104,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Check Replit auth
-      const authCheck = await new Promise<boolean>((resolve) => {
-        isAuthenticated(req, res, () => resolve(true));
-        res.on('finish', () => resolve(false));
-      });
-      
-      if (authCheck && req.user?.claims?.sub) {
-        const userId = req.user.claims.sub;
-        const user = await storage.getUser(userId);
-        if (user) {
-          return res.json({ ...user, authType: 'oauth' });
+      // Check Replit auth using middleware pattern
+      return isAuthenticated(req, res, async () => {
+        if (req.user?.claims?.sub) {
+          const userId = req.user.claims.sub;
+          const user = await storage.getUser(userId);
+          if (user) {
+            return res.json({ ...user, authType: 'oauth' });
+          }
         }
-      }
-      
-      return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: "Unauthorized" });
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      if (!res.headersSent) {
+        res.status(500).json({ message: "Failed to fetch user" });
+      }
     }
   });
 

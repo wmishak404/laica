@@ -219,7 +219,20 @@ export default function MobileApp() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.location.href = '/api/logout'}
+            onClick={async () => {
+              // Handle logout for both local and OAuth users
+              if (user?.authType === 'local') {
+                try {
+                  await fetch('/api/auth/local-logout', { method: 'POST' });
+                  window.location.reload();
+                } catch (error) {
+                  console.error('Local logout error:', error);
+                  window.location.reload();
+                }
+              } else {
+                window.location.href = '/api/logout';
+              }
+            }}
             className="text-gray-500 hover:text-gray-700"
           >
             <LogOut className="h-4 w-4" />
