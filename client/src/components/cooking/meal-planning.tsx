@@ -58,7 +58,9 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [newMeal, setNewMeal] = useState('');
+  const { toast } = useToast();
 
   const timeOptions = [
     { value: '30', label: '30 minutes' },
@@ -181,6 +183,87 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generateMoreRecommendations = async () => {
+    setIsLoadingMore(true);
+    
+    try {
+      // Build preferences string from user inputs
+      const preferenceParts = [];
+      
+      if (mealPrefs.timeAvailable) {
+        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
+      }
+      
+      if (mealPrefs.cuisinePreference.length > 0) {
+        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
+      }
+      
+      if (userProfile.dietaryRestrictions.length > 0) {
+        preferenceParts.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
+      }
+      
+      if (userProfile.cookingSkill) {
+        preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
+      }
+      
+      if (mealPrefs.avoidToday) {
+        preferenceParts.push(`Avoid today: ${mealPrefs.avoidToday}`);
+      }
+      
+      if (mealPrefs.previousMeals.length > 0) {
+        preferenceParts.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
+      }
+      
+      // Add existing recommendations to avoid duplicates
+      if (recommendations.length > 0) {
+        preferenceParts.push(`Please suggest different recipes, not: ${recommendations.map(r => r.name).join(', ')}`);
+      }
+      
+      const preferences = preferenceParts.join('. ');
+      
+      // Call OpenAI API with user's actual pantry ingredients and preferences
+      const aiResponse = await fetchPantryRecipes(
+        userProfile.pantryIngredients,
+        preferences,
+        mealPrefs.timeAvailable
+      );
+      
+      // Transform AI response to match our interface
+      const aiRecommendations: RecipeRecommendation[] = [];
+      
+      if (aiResponse.recipes) {
+        aiResponse.recipes.forEach((recipe: any, index: number) => {
+          aiRecommendations.push({
+            id: `ai-more-${Date.now()}-${index}`,
+            name: recipe.name || 'Unnamed Recipe',
+            description: recipe.description || 'Delicious meal using your pantry ingredients',
+            cookTime: recipe.cookTime || 30,
+            difficulty: recipe.difficulty || 'Medium',
+            cuisine: recipe.cuisine || 'International',
+            pantryMatch: Math.round(((userProfile.pantryIngredients.length - (recipe.additionalIngredientsNeeded?.length || 0)) / userProfile.pantryIngredients.length) * 100),
+            missingIngredients: recipe.additionalIngredientsNeeded || []
+          });
+        });
+      }
+      
+      if (aiRecommendations.length === 0) {
+        throw new Error('No new recipes generated');
+      }
+      
+      // Add new recommendations to existing ones
+      setRecommendations(prev => [...prev, ...aiRecommendations]);
+    } catch (error) {
+      console.error('Error generating more recommendations:', error);
+      toast({
+        title: "Failed to Load More",
+        description: "Unable to generate additional recipes. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -404,6 +487,26 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+              )}
+
+              {recommendations.length > 0 && !isLoading && (
+                <div className="flex justify-center mt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={generateMoreRecommendations}
+                    disabled={isLoadingMore}
+                    className="border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      'More suggestions'
+                    )}
+                  </Button>
                 </div>
               )}
 
