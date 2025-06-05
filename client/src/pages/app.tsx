@@ -8,6 +8,14 @@ import UserSettings from '@/components/cooking/user-settings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ChefHat, Settings, Home, ShoppingCart, LogOut, User } from 'lucide-react';
 
 interface UserProfile {
@@ -45,6 +53,81 @@ export default function MobileApp() {
   });
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
+
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    
+    // Check if it's an AuthUser (external auth)
+    if ('firstName' in user && 'lastName' in user) {
+      const firstName = user.firstName;
+      const lastName = user.lastName;
+      if (firstName && lastName) {
+        return `${firstName[0]}${lastName[0]}`;
+      }
+    }
+    
+    // Check if it's a User (local auth)
+    if ('username' in user) {
+      const username = user.username;
+      if (username) {
+        return username[0].toUpperCase();
+      }
+    }
+    
+    // Fall back to email for both types
+    const email = user.email;
+    if (email) {
+      return email[0].toUpperCase();
+    }
+    
+    return 'U';
+  };
+
+  const getUserDisplayName = () => {
+    if (!user) return 'User';
+    
+    // Check if it's an AuthUser (external auth)
+    if ('firstName' in user && 'lastName' in user) {
+      const firstName = user.firstName;
+      const lastName = user.lastName;
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      }
+    }
+    
+    // Check if it's a User (local auth)
+    if ('username' in user) {
+      const username = user.username;
+      if (username) {
+        return username;
+      }
+    }
+    
+    // Fall back to email for both types
+    const email = user.email;
+    if (email) {
+      return email;
+    }
+    
+    return 'User';
+  };
+
+  const handleLogout = () => {
+    // For Replit Auth users, redirect to logout endpoint
+    if (user?.id && typeof user.id === 'string') {
+      window.location.href = '/api/logout';
+    } else {
+      // For local users, make a logout request
+      fetch('/api/auth/logout', { method: 'POST' })
+        .then(() => {
+          window.location.href = '/';
+        })
+        .catch((error) => {
+          console.error('Logout error:', error);
+          window.location.href = '/';
+        });
+    }
+  };
 
   const handleProfileComplete = (profile: UserProfile) => {
     setUserProfile(profile);
@@ -203,40 +286,42 @@ export default function MobileApp() {
         
         <div className="flex items-center space-x-2">
           {user && (
-            <div className="flex items-center space-x-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user.profileImageUrl || ''} alt={user.firstName || 'User'} />
-                <AvatarFallback>
-                  <User className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm text-gray-700 hidden sm:block">
-                {user.firstName || user.email}
-              </span>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage 
+                      src={user && 'profileImageUrl' in user ? user.profileImageUrl || undefined : undefined} 
+                      alt="User avatar" 
+                    />
+                    <AvatarFallback>
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.email || 'No email'}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setCurrentPhase('settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              // Handle logout for both local and OAuth users
-              if (user?.authType === 'local') {
-                try {
-                  await fetch('/api/auth/local-logout', { method: 'POST' });
-                  window.location.reload();
-                } catch (error) {
-                  console.error('Local logout error:', error);
-                  window.location.reload();
-                }
-              } else {
-                window.location.href = '/api/logout';
-              }
-            }}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </div>
