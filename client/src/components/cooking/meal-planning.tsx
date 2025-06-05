@@ -8,6 +8,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Clock, ChefHat, Users, Calendar, Plus } from 'lucide-react';
+import { fetchPantryRecipes } from '@/lib/openai';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
   cookingSkill: string;
@@ -109,46 +111,77 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   const generateRecommendations = async () => {
     setIsLoading(true);
     
-    // This would connect to your LLM API with the user's preferences
-    // For now, showing the structure with realistic examples
-    setTimeout(() => {
-      const mockRecommendations: RecipeRecommendation[] = [
-        {
-          id: '1',
-          name: 'Garlic Butter Pasta with Herbs',
-          description: 'Simple pasta using your pantry staples with fresh herbs for flavor',
-          cookTime: 25,
-          difficulty: 'Easy',
-          cuisine: 'Italian',
-          pantryMatch: 85,
-          missingIngredients: ['fresh herbs', 'parmesan cheese']
-        },
-        {
-          id: '2',
-          name: 'Quick Vegetable Stir Fry',
-          description: 'Healthy stir fry using available vegetables and pantry sauces',
-          cookTime: 20,
-          difficulty: 'Easy',
-          cuisine: 'Asian',
-          pantryMatch: 90,
-          missingIngredients: ['soy sauce']
-        },
-        {
-          id: '3',
-          name: 'One-Pan Chicken and Rice',
-          description: 'Complete meal cooked in one pan for easy cleanup',
-          cookTime: 45,
-          difficulty: 'Medium',
-          cuisine: 'Mediterranean',
-          pantryMatch: 75,
-          missingIngredients: ['chicken thighs', 'lemon']
-        }
-      ];
+    try {
+      // Build preferences string from user inputs
+      const preferenceParts = [];
       
-      setRecommendations(mockRecommendations);
-      setIsLoading(false);
+      if (mealPrefs.timeAvailable) {
+        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
+      }
+      
+      if (mealPrefs.cuisinePreference.length > 0) {
+        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
+      }
+      
+      if (userProfile.dietaryRestrictions.length > 0) {
+        preferenceParts.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
+      }
+      
+      if (userProfile.cookingSkill) {
+        preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
+      }
+      
+      if (mealPrefs.avoidToday) {
+        preferenceParts.push(`Avoid today: ${mealPrefs.avoidToday}`);
+      }
+      
+      if (mealPrefs.previousMeals.length > 0) {
+        preferenceParts.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
+      }
+      
+      const preferences = preferenceParts.join('. ');
+      
+      // Call OpenAI API with user's actual pantry ingredients and preferences
+      const aiResponse = await fetchPantryRecipes(
+        userProfile.pantryIngredients,
+        preferences,
+        mealPrefs.timeAvailable
+      );
+      
+      // Transform AI response to match our interface
+      const aiRecommendations: RecipeRecommendation[] = [];
+      
+      if (aiResponse.recipes) {
+        aiResponse.recipes.forEach((recipe: any, index: number) => {
+          aiRecommendations.push({
+            id: `ai-${index}`,
+            name: recipe.name || 'Unnamed Recipe',
+            description: recipe.description || 'Delicious meal using your pantry ingredients',
+            cookTime: recipe.cookTime || 30,
+            difficulty: recipe.difficulty || 'Medium',
+            cuisine: recipe.cuisine || 'International',
+            pantryMatch: Math.round(((userProfile.pantryIngredients.length - (recipe.additionalIngredientsNeeded?.length || 0)) / userProfile.pantryIngredients.length) * 100),
+            missingIngredients: recipe.additionalIngredientsNeeded || []
+          });
+        });
+      }
+      
+      if (aiRecommendations.length === 0) {
+        throw new Error('No recipes generated');
+      }
+      
+      setRecommendations(aiRecommendations);
       setCurrentStep(4);
-    }, 1500);
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      toast({
+        title: "Recipe Generation Failed",
+        description: "Unable to generate personalized recipes. Please check your OpenAI API configuration.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const canProceedFromStep1 = mealPrefs.timeAvailable !== '';
