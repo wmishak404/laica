@@ -197,7 +197,7 @@ export default function Settings() {
                   )}
                 </div>
 
-                {('username' in user && user.username) && (
+                {(user && 'username' in user && user.username) && (
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
                     <Input
