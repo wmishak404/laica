@@ -13,6 +13,7 @@ import MobileApp from "@/pages/app";
 import Cooking from "@/pages/cooking-new";
 import GroceryList from "@/pages/grocery-list";
 import GroceryListMobile from "@/pages/grocery-list-mobile";
+import Settings from "@/pages/settings";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -41,6 +42,7 @@ function Router() {
           <Route path="/website" component={Home} />
           <Route path="/cooking" component={Cooking} />
           <Route path="/grocery-list" component={GroceryListMobile} />
+          <Route path="/settings" component={Settings} />
         </>
       )}
       <Route component={NotFound} />
