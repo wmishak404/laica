@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
 import LiveCooking from '@/components/cooking/live-cooking';
 import UserSettings from '@/components/cooking/user-settings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChefHat, Settings, Home, ShoppingCart } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ChefHat, Settings, Home, ShoppingCart, LogOut, User } from 'lucide-react';
 
 interface UserProfile {
   cookingSkill: string;
@@ -31,6 +33,7 @@ interface RecipeRecommendation {
 type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings';
 
 export default function MobileApp() {
+  const { user } = useAuth();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
   const [userProfile, setUserProfile] = useState<UserProfile>({
     cookingSkill: '',
@@ -190,8 +193,45 @@ export default function MobileApp() {
     }
   };
 
+  const renderHeader = () => (
+    <div className="fixed top-0 left-0 right-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+      <div className="flex items-center justify-between max-w-md mx-auto">
+        <div className="flex items-center space-x-3">
+          <ChefHat className="h-6 w-6 text-[#FF6B6B]" />
+          <span className="font-semibold text-gray-900">AI Cooking Assistant</span>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {user && (
+            <div className="flex items-center space-x-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user.profileImageUrl || ''} alt={user.firstName || 'User'} />
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm text-gray-700 hidden sm:block">
+                {user.firstName || user.email}
+              </span>
+            </div>
+          )}
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.location.href = '/api/logout'}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16">
+      {renderHeader()}
       {renderCurrentPhase()}
       {renderBottomNav()}
     </div>
