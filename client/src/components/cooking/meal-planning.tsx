@@ -419,9 +419,17 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 </Button>
                 <Button 
                   onClick={generateRecommendations}
-                  className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+                  disabled={isLoading}
+                  className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white disabled:opacity-50"
                 >
-                  Get Meal Recommendations
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Generating recommendations...
+                    </>
+                  ) : (
+                    'Get Meal Recommendations'
+                  )}
                 </Button>
               </div>
             </CardContent>
