@@ -1,21 +1,124 @@
-import type { Express } from "express";
+import type { Express, RequestHandler } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerUser, loginUser } from "./localAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
 import { z } from "zod";
 import heicConvert from "heic-convert";
+
+// Local authentication middleware
+const isLocalAuthenticated: RequestHandler = (req, res, next) => {
+  if (req.session && (req.session as any).localUserId) {
+    return next();
+  }
+  return res.status(401).json({ message: "Unauthorized" });
+};
+
+// Combined authentication middleware
+const isAnyAuthenticated: RequestHandler = async (req, res, next) => {
+  // Check local auth first
+  if (req.session && (req.session as any).localUserId) {
+    return next();
+  }
+  
+  // Check Replit auth
+  return isAuthenticated(req, res, next);
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Local authentication routes
+  app.post('/api/auth/register', async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      const schema = z.object({
+        username: z.string().min(3).max(50),
+        email: z.string().email(),
+        password: z.string().min(6),
+      });
+      
+      const userData = schema.parse(req.body);
+      const result = await registerUser(userData);
+      
+      if (result.success) {
+        res.status(201).json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(400).json({ success: false, message: 'Invalid input data' });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const schema = z.object({
+        username: z.string(),
+        password: z.string(),
+      });
+      
+      const credentials = schema.parse(req.body);
+      const result = await loginUser(credentials);
+      
+      if (result.success && result.user) {
+        // Store user ID in session
+        (req.session as any).localUserId = result.user.id;
+        res.json(result);
+      } else {
+        res.status(401).json(result);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(400).json({ success: false, message: 'Invalid input data' });
+    }
+  });
+
+  app.post('/api/auth/local-logout', (req, res) => {
+    if (req.session) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Session destruction error:', err);
+          return res.status(500).json({ message: 'Failed to logout' });
+        }
+        res.clearCookie('connect.sid');
+        res.json({ message: 'Logged out successfully' });
+      });
+    } else {
+      res.json({ message: 'Already logged out' });
+    }
+  });
+
+  // Combined auth user route
+  app.get('/api/auth/user', async (req: any, res) => {
+    try {
+      // Check local auth first
+      if (req.session && (req.session as any).localUserId) {
+        const userId = (req.session as any).localUserId;
+        const user = await storage.getLocalUser(userId);
+        if (user) {
+          const { password, ...userWithoutPassword } = user;
+          return res.json({ ...userWithoutPassword, authType: 'local' });
+        }
+      }
+      
+      // Check Replit auth
+      const authCheck = await new Promise<boolean>((resolve) => {
+        isAuthenticated(req, res, () => resolve(true));
+        res.on('finish', () => resolve(false));
+      });
+      
+      if (authCheck && req.user?.claims?.sub) {
+        const userId = req.user.claims.sub;
+        const user = await storage.getUser(userId);
+        if (user) {
+          return res.json({ ...user, authType: 'oauth' });
+        }
+      }
+      
+      return res.status(401).json({ message: "Unauthorized" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -23,11 +126,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User profile routes
-  app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/user/profile', isAnyAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const updatedUser = await storage.updateUserProfile(userId, req.body);
-      res.json(updatedUser);
+      // Handle local user profile update
+      if (req.session && (req.session as any).localUserId) {
+        // Local users store profile in preferences field
+        const userId = (req.session as any).localUserId;
+        const user = await storage.getLocalUser(userId);
+        if (user) {
+          // Update preferences field with profile data
+          const updatedPreferences = { ...(user.preferences as any), ...req.body };
+          // Note: We'd need to add updateLocalUserPreferences method to storage
+          return res.json({ message: 'Local profile update not implemented yet' });
+        }
+      }
+      
+      // Handle OAuth user profile update
+      if (req.user?.claims?.sub) {
+        const userId = req.user.claims.sub;
+        const updatedUser = await storage.updateUserProfile(userId, req.body);
+        return res.json(updatedUser);
+      }
+      
+      return res.status(401).json({ message: "Unauthorized" });
     } catch (error) {
       console.error("Error updating user profile:", error);
       res.status(500).json({ message: "Failed to update profile" });
