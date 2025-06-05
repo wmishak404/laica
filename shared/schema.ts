@@ -14,8 +14,18 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
+// Legacy users table (keeping existing structure)
 export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  email: text("email").notNull().unique(),
+  preferences: jsonb("preferences"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// New auth users table for Replit Auth
+export const authUsers = pgTable("auth_users", {
   id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
@@ -58,7 +68,8 @@ export const ingredients = pgTable("ingredients", {
 
 export const groceryLists = pgTable("grocery_lists", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull(),
+  userId: integer("user_id").notNull(),
+  authUserId: varchar("auth_user_id"),
   name: text("name").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });

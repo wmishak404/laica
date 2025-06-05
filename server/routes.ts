@@ -1,11 +1,38 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
 import { z } from "zod";
 import heicConvert from "heic-convert";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // User profile routes
+  app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const updatedUser = await storage.updateUserProfile(userId, req.body);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
   // Recipe suggestions endpoint
   app.post('/api/recipes/suggestions', async (req, res) => {
     try {
@@ -147,36 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Recipe endpoints
-  app.get('/api/recipes', async (req, res) => {
-    try {
-      const recipes = await storage.getRecipes();
-      res.json(recipes);
-    } catch (error) {
-      console.error('Error fetching recipes:', error);
-      res.status(500).json({ error: 'Failed to fetch recipes' });
-    }
-  });
 
-  app.get('/api/recipes/:id', async (req, res) => {
-    try {
-      const schema = z.object({
-        id: z.string().transform(val => parseInt(val, 10))
-      });
-      
-      const { id } = schema.parse(req.params);
-      const recipe = await storage.getRecipe(id);
-      
-      if (!recipe) {
-        return res.status(404).json({ error: 'Recipe not found' });
-      }
-      
-      res.json(recipe);
-    } catch (error) {
-      console.error('Error fetching recipe:', error);
-      res.status(500).json({ error: 'Failed to fetch recipe' });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;

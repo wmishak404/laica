@@ -1,6 +1,6 @@
 import {
-  users,
-  type User,
+  authUsers,
+  type AuthUser,
   type UpsertUser,
 } from "@shared/schema";
 import { db } from "./db";
@@ -9,24 +9,24 @@ import { eq } from "drizzle-orm";
 // Interface for storage operations
 export interface IStorage {
   // User operations for Replit Auth
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  updateUserProfile(id: string, profile: Partial<User>): Promise<User>;
+  getUser(id: string): Promise<AuthUser | undefined>;
+  upsertUser(user: UpsertUser): Promise<AuthUser>;
+  updateUserProfile(id: string, profile: Partial<AuthUser>): Promise<AuthUser>;
 }
 
 export class DatabaseStorage implements IStorage {
   // User operations for Replit Auth
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+  async getUser(id: string): Promise<AuthUser | undefined> {
+    const [user] = await db.select().from(authUsers).where(eq(authUsers.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async upsertUser(userData: UpsertUser): Promise<AuthUser> {
     const [user] = await db
-      .insert(users)
+      .insert(authUsers)
       .values(userData)
       .onConflictDoUpdate({
-        target: users.id,
+        target: authUsers.id,
         set: {
           ...userData,
           updatedAt: new Date(),
@@ -36,14 +36,14 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserProfile(id: string, profile: Partial<User>): Promise<User> {
+  async updateUserProfile(id: string, profile: Partial<AuthUser>): Promise<AuthUser> {
     const [user] = await db
-      .update(users)
+      .update(authUsers)
       .set({
         ...profile,
         updatedAt: new Date(),
       })
-      .where(eq(users.id, id))
+      .where(eq(authUsers.id, id))
       .returning();
     return user;
   }
