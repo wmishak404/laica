@@ -132,7 +132,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+                  Or sign in with
                 </span>
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
               className="w-full mt-4"
               onClick={() => (window.location.href = "/api/login")}
             >
-              Sign in with External Provider
+              External Account
             </Button>
           </div>
 
