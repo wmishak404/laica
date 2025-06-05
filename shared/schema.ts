@@ -90,6 +90,10 @@ export const usersRelations = relations(users, ({ many }) => ({
   groceryLists: many(groceryLists),
 }));
 
+export const authUsersRelations = relations(authUsers, ({ many }) => ({
+  groceryLists: many(groceryLists),
+}));
+
 export const recipesRelations = relations(recipes, ({ many }) => ({
   ingredients: many(ingredients),
 }));
@@ -106,6 +110,10 @@ export const groceryListsRelations = relations(groceryLists, ({ one, many }) => 
     fields: [groceryLists.userId],
     references: [users.id],
   }),
+  authUser: one(authUsers, {
+    fields: [groceryLists.authUserId],
+    references: [authUsers.id],
+  }),
   items: many(groceryItems),
 }));
 
@@ -119,7 +127,7 @@ export const groceryItemsRelations = relations(groceryItems, ({ one }) => ({
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users);
 
-export const upsertUserSchema = createInsertSchema(users).pick({
+export const upsertUserSchema = createInsertSchema(authUsers).pick({
   id: true,
   email: true,
   firstName: true,
@@ -164,6 +172,7 @@ export const insertGroceryItemSchema = createInsertSchema(groceryItems).pick({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type AuthUser = typeof authUsers.$inferSelect;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 
 export type Recipe = typeof recipes.$inferSelect;
