@@ -1,15 +1,37 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
 
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User storage table for Replit Auth
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  email: text("email").notNull().unique(),
-  preferences: jsonb("preferences"),
+  id: varchar("id").primaryKey().notNull(),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  
+  // Cooking app specific fields
+  cookingSkill: varchar("cooking_skill"),
+  dietaryRestrictions: text("dietary_restrictions").array(),
+  weeklyTime: varchar("weekly_time"),
+  pantryIngredients: text("pantry_ingredients").array(),
+  kitchenEquipment: text("kitchen_equipment").array(),
+  favoriteChefs: text("favorite_chefs").array(),
+  
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const recipes = pgTable("recipes", {
@@ -36,7 +58,7 @@ export const ingredients = pgTable("ingredients", {
 
 export const groceryLists = pgTable("grocery_lists", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull(),
   name: text("name").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -84,11 +106,14 @@ export const groceryItemsRelations = relations(groceryItems, ({ one }) => ({
 }));
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users);
+
+export const upsertUserSchema = createInsertSchema(users).pick({
+  id: true,
   email: true,
-  preferences: true,
+  firstName: true,
+  lastName: true,
+  profileImageUrl: true,
 });
 
 export const insertRecipeSchema = createInsertSchema(recipes).pick({
@@ -128,6 +153,7 @@ export const insertGroceryItemSchema = createInsertSchema(groceryItems).pick({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpsertUser = z.infer<typeof upsertUserSchema>;
 
 export type Recipe = typeof recipes.$inferSelect;
 export type InsertRecipe = z.infer<typeof insertRecipeSchema>;
