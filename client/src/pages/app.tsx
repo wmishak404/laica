@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
 import LiveCooking from '@/components/cooking/live-cooking';
@@ -42,6 +43,7 @@ type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'setting
 
 export default function MobileApp() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
   const [userProfile, setUserProfile] = useState<UserProfile>({
     cookingSkill: '',
@@ -131,6 +133,24 @@ export default function MobileApp() {
 
   const handleProfileComplete = (profile: UserProfile) => {
     setUserProfile(profile);
+    
+    // Show confirmation toast with link to settings
+    toast({
+      title: "Profile Updated Successfully",
+      description: (
+        <div>
+          Your cooking profile has been saved. Ready to find your perfect meal?{' '}
+          <button 
+            onClick={() => setCurrentPhase('settings')}
+            className="underline text-blue-600 hover:text-blue-800"
+          >
+            Make changes here
+          </button>
+        </div>
+      ),
+      duration: 5000,
+    });
+    
     setCurrentPhase('planning');
   };
 
@@ -163,6 +183,23 @@ export default function MobileApp() {
       updatedProfile.pantryIngredients.length > 0;
     
     if (isProfileComplete) {
+      // Show confirmation toast with link to settings
+      toast({
+        title: "Profile Updated Successfully",
+        description: (
+          <div>
+            Your cooking profile has been updated. Ready to find your perfect meal?{' '}
+            <button 
+              onClick={() => setCurrentPhase('settings')}
+              className="underline text-blue-600 hover:text-blue-800"
+            >
+              Make changes here
+            </button>
+          </div>
+        ),
+        duration: 5000,
+      });
+      
       setCurrentPhase('planning');
     } else {
       setCurrentPhase('profiling');
