@@ -286,7 +286,7 @@ export default function MobileApp() {
             <UserSettings
               userProfile={userProfile}
               onProfileUpdate={handleProfileUpdate}
-              onBackToPlanning={() => setCurrentPhase('planning')}
+              onBackToPlanning={handleBackToPlanning}
             />
           </div>
         );
