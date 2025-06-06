@@ -559,7 +559,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           
           <Webcam
             onCapture={handlePantryImageCapture}
-            onError={(error) => {
+            onError={(error: string) => {
               console.error('Camera error:', error);
               toast({
                 title: "Camera Error",
@@ -589,7 +589,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           
           <Webcam
             onCapture={handleEquipmentImageCapture}
-            onError={(error) => {
+            onError={(error: string) => {
               console.error('Camera error:', error);
               toast({
                 title: "Camera Error",
