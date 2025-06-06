@@ -123,8 +123,8 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       
       if (ingredientList.length > 0) {
         // Remove duplicates and add to profile
-        const uniqueIngredients = [...new Set(ingredientList.map(i => i.toLowerCase()))];
-        const newIngredients = [...new Set([...profile.pantryIngredients, ...uniqueIngredients])];
+        const uniqueIngredients = Array.from(new Set(ingredientList.map((i: string) => i.toLowerCase()))) as string[];
+        const newIngredients = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients])) as string[];
         setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
         
         toast({
@@ -154,16 +154,21 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
   const handleEquipmentImageAnalysis = async (imageData: string) => {
     setIsAnalyzingEquipment(true);
     try {
+      // Detect if image is HEIC format
+      const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
+      
       const response = await fetch('/api/vision/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          image: imageData
+          image: imageData,
+          isHEIC: isHEIC
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to analyze image');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to analyze image');
       }
 
       const result = await response.json();
@@ -173,8 +178,8 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       const equipmentList = detectedEquipment.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
       
       if (equipmentList.length > 0) {
-        const uniqueEquipment = [...new Set(equipmentList.map(e => e.toLowerCase()))];
-        const newEquipment = [...new Set([...profile.kitchenEquipment, ...uniqueEquipment])];
+        const uniqueEquipment = Array.from(new Set(equipmentList.map((e: string) => e.toLowerCase()))) as string[];
+        const newEquipment = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment])) as string[];
         setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
         
         toast({
