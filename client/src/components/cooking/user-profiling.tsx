@@ -22,12 +22,13 @@ interface UserProfile {
 
 interface UserProfilingProps {
   onProfileComplete: (profile: UserProfile) => void;
+  existingProfile?: UserProfile;
 }
 
-export default function UserProfiling({ onProfileComplete }: UserProfilingProps) {
+export default function UserProfiling({ onProfileComplete, existingProfile }: UserProfilingProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showKitchenSettings, setShowKitchenSettings] = useState(false);
-  const [profile, setProfile] = useState<UserProfile>({
+  const [profile, setProfile] = useState<UserProfile>(existingProfile || {
     cookingSkill: '',
     dietaryRestrictions: [],
     weeklyTime: '',

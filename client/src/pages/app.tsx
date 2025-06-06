@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -55,6 +55,44 @@ export default function MobileApp() {
   });
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+  // Load existing profile on mount
+  useEffect(() => {
+    if (user?.id) {
+      const savedProfile = localStorage.getItem(`cookingProfile_${user.id}`);
+      if (savedProfile) {
+        try {
+          const parsedProfile = JSON.parse(savedProfile);
+          setUserProfile(parsedProfile);
+          
+          // Check if profile is complete
+          const isProfileComplete = parsedProfile.cookingSkill && 
+            parsedProfile.weeklyTime && 
+            parsedProfile.pantryIngredients.length > 0;
+          
+          if (isProfileComplete) {
+            setCurrentPhase('planning');
+          } else {
+            setCurrentPhase('profiling');
+          }
+        } catch (error) {
+          console.error('Error loading saved profile:', error);
+          setCurrentPhase('welcome');
+        }
+      } else {
+        setCurrentPhase('welcome');
+      }
+    }
+    setIsLoadingProfile(false);
+  }, [user?.id]);
+
+  // Save profile whenever it changes
+  const saveProfile = (profile: UserProfile) => {
+    if (user?.id) {
+      localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profile));
+    }
+  };
 
   const getUserInitials = () => {
     if (!user) return 'U';
@@ -133,6 +171,7 @@ export default function MobileApp() {
 
   const handleProfileComplete = (profile: UserProfile) => {
     setUserProfile(profile);
+    saveProfile(profile);
     
     // Show confirmation toast with link to settings
     toast({
@@ -176,6 +215,7 @@ export default function MobileApp() {
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile);
+    saveProfile(updatedProfile);
     
     // Check if profile is complete before going to planning
     const isProfileComplete = updatedProfile.cookingSkill && 
@@ -285,6 +325,25 @@ export default function MobileApp() {
     </div>
   );
 
+  // Check if user has an existing profile
+  const hasExistingProfile = () => {
+    return userProfile.cookingSkill && 
+           userProfile.weeklyTime && 
+           userProfile.pantryIngredients.length > 0;
+  };
+
+  if (isLoadingProfile) {
+    return (
+      <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B6B] mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold mb-2">Loading Your Profile</h2>
+          <p className="text-gray-600">Setting up your personalized cooking experience...</p>
+        </Card>
+      </div>
+    );
+  }
+
   const renderCurrentPhase = () => {
     switch (currentPhase) {
       case 'welcome':
@@ -293,7 +352,10 @@ export default function MobileApp() {
       case 'profiling':
         return (
           <div className="pb-20">
-            <UserProfiling onProfileComplete={handleProfileComplete} />
+            <UserProfiling 
+              onProfileComplete={handleProfileComplete}
+              existingProfile={hasExistingProfile() ? userProfile : undefined}
+            />
           </div>
         );
         
@@ -303,7 +365,7 @@ export default function MobileApp() {
             <MealPlanning 
               userProfile={userProfile}
               onMealSelected={handleMealSelected}
-              onBackToProfile={() => setCurrentPhase('profiling')}
+              onBackToProfile={() => setCurrentPhase('settings')}
             />
           </div>
         );
