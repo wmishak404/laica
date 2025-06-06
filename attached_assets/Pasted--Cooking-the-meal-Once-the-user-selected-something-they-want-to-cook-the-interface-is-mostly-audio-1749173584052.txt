@@ -1,0 +1,41 @@
+<Cooking the meal>
+Once the user selected something they want to cook, the interface is mostly audio with visual as aid. Audio experience in a sense where you, the Live AI Assistant, is conversational and interfacing with the user as if they are in a phone call with their mom or grandmom teaching them a family recipe. The visual part is showing the camera feed and closed captioning from what the AI chatted. Please refer to the User Interface section for more guidelines.
+
+## Workflow
+A couple User Stories below will help build this portion of the product.
+- As a user, I will not be looking at a phone screen all the time because I am cooking, so primarily I want to interact with the live cooking assistant via audio in and out. Visual aids are optional, should the user be willing to use the front camera mode.
+- As a user, I want to be guided on Step 1 to Step N for the recipe one step at a time, so that I can go at my own pace and pause if there are unexpected occurences during the cooking process. 
+- As a user, I want to be told if I not doing the process correctly (such as prep work, size of vegetables, heat is too high), so that I can ensure my results are what I expected and things taste good.
+- As a user, I want to be reminded to taste the cooking as I go along, so that I can ensure correct quality as well as monitoring the cooking to my taste.
+
+### Modes 
+There are two modes in this stage of the product, all dependent on whether the user wants to use the "rear camera" or the "front camera" for wider angles. 
+- For "front camera option", the screen will be facing the user doing the cooking, so show all "UI visual elements".
+- For "back camera option", only show a limited set of <live camera feed> and only show it for the purposes of the user calibrating the camera angle view. Specifically, show only when the user taps the screen to resume live camera feed, and set a timeout for 10s. Also indicate the user that they can tap to show live camera feed when its timed-out.
+
+### Other features
+- If the user is stuck and needs demonstration, lookup some reputable YouTube videos to the exact timestamp on how to perform the task (for example, how to chop an onion). Override the UI of <Live camera feed> as well as <Closed Captioning> when this is operating. If you find irrelevant videos, do not suggest.
+
+
+### User Interface Visual Elements
+- <Closed Captioning>. Since this is primarily done without the user looking at screen, but rather interacting with you via voice like a phone call, put closed captioning of what you're saying at the bottom of the screen like subtitles. Make this font size configurable as well for less visually capable people.
+- <Live Camera Feed>. If the user does not opt out, show the live camera feed as the visual of what you're ingesting. Convert the feed into picture-in-picture at a corner of the screen when needing to show other visual content such as instructional videos. This also shows that what you're processing visually has the correct angles. This is optional because we might want to preserve the phone battery.
+- <Demonstration Videos> If the user is stuck and needs demonstration, lookup some reputable YouTube videos to the exact timestamp on how to perform the task (for example, how to chop an onion). Replace camera feed as well as Closed Captioning when this is operating. If you find irrelevant videos, do not suggest.
+- <Overlay UI for Processing States> When you are thinking and processing, show user that you are processing info versus hanging them dry. This shows that you are processing info.
+
+## Rules on guiding the user:
+• Safety and food-borne-illness risks = **critical**  
+• Flavor or texture flaws that noticeably change the outcome = **important**  
+• Cosmetic or labour-saving issues = **minor**  
+
+### Non-negotiables:
+1. Classify each observation as critical / important / minor. 
+2. Never criticize “minor” issues; simply note them as acceptable variations.  
+3. Keep tone encouraging and action-oriented (“Try X next time”).
+
+(note about my notation on “Day 2”: this is where the user is finally using the app after first time setup)
+
+## Examples
+1. I am trying to cook Spaghetti Aglio e Olio, which includes garlic, fresh chillies, and olive oil. Upon checking the ingredients list, if the user does not have fresh chillies, ask if they have chili pepper flakes or togarashi as alternatives. Use your judgment as well if chilies are not needed by looking at if this ingredient is required for this recipe from credible online sources.
+2. If a user has selected Gluten-free as their dietary restriction, still recommend pasta dishes but substitute with gluten-free pasta.
+3. If a user has selected low level of effort and complexity of the meals, recommend low effort meals.
