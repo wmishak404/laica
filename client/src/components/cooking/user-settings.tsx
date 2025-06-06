@@ -97,17 +97,22 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
   const handlePantryImageAnalysis = async (imageData: string) => {
     setIsAnalyzingPantry(true);
     try {
+      // Detect if image is HEIC format
+      const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
+      
       // Use OpenAI vision API to analyze pantry image
       const response = await fetch('/api/vision/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          image: imageData
+          image: imageData,
+          isHEIC: isHEIC
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to analyze image');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to analyze image');
       }
 
       const result = await response.json();

@@ -269,10 +269,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { image, isHEIC } = schema.parse(req.body);
       let processedImage = image;
       
+      // Remove data URL prefix if present
+      if (processedImage.includes('data:image')) {
+        processedImage = processedImage.split(',')[1];
+      }
+      
+      // Validate base64 format
+      if (!processedImage || processedImage.length === 0) {
+        return res.status(400).json({ error: 'Invalid image data provided' });
+      }
+      
       // Convert HEIC to JPEG if needed
       if (isHEIC) {
         try {
-          const imageBuffer = Buffer.from(image, 'base64');
+          const imageBuffer = Buffer.from(processedImage, 'base64');
           const outputBuffer = await heicConvert({
             buffer: imageBuffer,
             format: 'JPEG',
@@ -283,6 +293,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error('HEIC conversion failed:', conversionError);
           return res.status(400).json({ error: 'Failed to convert HEIC image. Please try a different format.' });
         }
+      }
+      
+      // Validate base64 after processing
+      try {
+        Buffer.from(processedImage, 'base64');
+      } catch (base64Error) {
+        console.error('Invalid base64 format:', base64Error);
+        return res.status(400).json({ error: 'Invalid image format. Please upload a valid image file.' });
       }
       
       const analysis = await analyzeIngredientImage(processedImage);

@@ -207,6 +207,23 @@ export async function getCookingAssistance(step: string, question?: string) {
 
 export async function analyzeIngredientImage(base64Image: string) {
   try {
+    // Detect image format from base64 data
+    let mimeType = 'image/jpeg'; // default
+    
+    // Check the first few bytes to determine format
+    const imageBuffer = Buffer.from(base64Image, 'base64');
+    const header = imageBuffer.toString('hex', 0, 4).toLowerCase();
+    
+    if (header.startsWith('ffd8')) {
+      mimeType = 'image/jpeg';
+    } else if (header.startsWith('8950')) {
+      mimeType = 'image/png';
+    } else if (header.startsWith('4749')) {
+      mimeType = 'image/gif';
+    } else if (header.startsWith('5249')) {
+      mimeType = 'image/webp';
+    }
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -224,7 +241,7 @@ export async function analyzeIngredientImage(base64Image: string) {
             {
               type: "image_url",
               image_url: {
-                url: `data:image/jpeg;base64,${base64Image}`
+                url: `data:${mimeType};base64,${base64Image}`
               }
             }
           ]

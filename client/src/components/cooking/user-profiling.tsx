@@ -195,7 +195,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           } else {
             return '';
           }
-        }).filter(item => item && typeof item === 'string' && item.trim().length > 0);
+        }).filter((item: string) => item && typeof item === 'string' && item.trim().length > 0);
       }
       
       // Also check for detected_items that might be equipment
@@ -406,7 +406,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                 } else {
                   return '';
                 }
-              }).filter(item => item && typeof item === 'string' && item.trim().length > 0);
+              }).filter((item: string) => item && typeof item === 'string' && item.trim().length > 0);
             }
             
             if (detectedEquipment.length > 0) {
