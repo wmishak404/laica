@@ -219,7 +219,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setIsProcessing(true);
     try {
       const response = await fetchCookingAssistance(currentStep.instruction, question);
-      setAiResponse(response.advice || "I'm here to help! Can you tell me more about what you're having trouble with?");
+      // Handle response from API - it may be a string or object
+      setAiResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
     } catch (error) {
       console.error('Error getting cooking assistance:', error);
       setAiResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");

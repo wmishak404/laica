@@ -141,12 +141,32 @@ export default function MobileApp() {
   };
 
   const handleBackToPlanning = () => {
-    setCurrentPhase('planning');
+    // Check if profile is complete before allowing access to planning
+    const isProfileComplete = userProfile.cookingSkill && 
+      userProfile.weeklyTime && 
+      userProfile.pantryIngredients.length > 0;
+    
+    if (isProfileComplete) {
+      setCurrentPhase('planning');
+    } else {
+      // If profile is incomplete, go back to profiling step
+      setCurrentPhase('profiling');
+    }
   };
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile);
-    setCurrentPhase('planning');
+    
+    // Check if profile is complete before going to planning
+    const isProfileComplete = updatedProfile.cookingSkill && 
+      updatedProfile.weeklyTime && 
+      updatedProfile.pantryIngredients.length > 0;
+    
+    if (isProfileComplete) {
+      setCurrentPhase('planning');
+    } else {
+      setCurrentPhase('profiling');
+    }
   };
 
   const renderBottomNav = () => {

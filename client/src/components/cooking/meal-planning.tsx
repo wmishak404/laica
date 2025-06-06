@@ -111,6 +111,25 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   };
 
   const generateRecommendations = async () => {
+    // Check if user profile is complete before generating recommendations
+    if (!userProfile.pantryIngredients || userProfile.pantryIngredients.length === 0) {
+      toast({
+        title: "Profile Incomplete",
+        description: "Please add pantry ingredients to your profile before getting meal recommendations.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!userProfile.cookingSkill || !userProfile.weeklyTime) {
+      toast({
+        title: "Profile Incomplete", 
+        description: "Please complete your cooking profile before getting meal recommendations.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -187,6 +206,16 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   };
 
   const generateMoreRecommendations = async () => {
+    // Check if user profile is complete before generating more recommendations
+    if (!userProfile.pantryIngredients || userProfile.pantryIngredients.length === 0) {
+      toast({
+        title: "Profile Incomplete",
+        description: "Please add pantry ingredients to your profile before getting meal recommendations.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoadingMore(true);
     
     try {
