@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChefHat, Users, Shield, Clock, Smartphone, Camera } from "lucide-react";
+import { ChefHat, Users, Clock, Smartphone, Camera } from "lucide-react";
 
 export default function Landing() {
   return (
@@ -104,28 +104,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Privacy & Security Section */}
-      <section className="w-full py-12 md:py-24 bg-gray-50 dark:bg-gray-900">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="text-center mb-12">
-            <Shield className="h-12 w-12 text-orange-600 dark:text-orange-400 mx-auto mb-4" />
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-900 dark:text-white">
-              Your Privacy Matters
-            </h2>
-            <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              We take data privacy seriously. Your cooking preferences and personal information are encrypted 
-              and never shared with third parties.
-            </p>
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-4">
-            <Badge variant="secondary" className="px-4 py-2">End-to-End Encryption</Badge>
-            <Badge variant="secondary" className="px-4 py-2">GDPR Compliant</Badge>
-            <Badge variant="secondary" className="px-4 py-2">Secure Authentication</Badge>
-            <Badge variant="secondary" className="px-4 py-2">Data Minimization</Badge>
-          </div>
-        </div>
-      </section>
+
 
       {/* CTA Section */}
       <section className="w-full py-12 md:py-24">
