@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Webcam } from '@/components/ui/webcam';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload } from 'lucide-react';
 
@@ -557,16 +558,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             </DialogDescription>
           </DialogHeader>
           
-          <Webcam
-            onCapture={handlePantryImageCapture}
+          <NativeCamera
+            onImageCapture={handlePantryImageCapture}
             onError={(error: string) => {
               console.error('Camera error:', error);
               toast({
                 title: "Camera Error",
-                description: "Unable to access camera. Please add ingredients manually.",
+                description: error,
                 variant: "destructive"
               });
             }}
+            title="Take Photo of Pantry"
           />
           
           <DialogFooter>
@@ -587,16 +589,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             </DialogDescription>
           </DialogHeader>
           
-          <Webcam
-            onCapture={handleEquipmentImageCapture}
+          <NativeCamera
+            onImageCapture={handleEquipmentImageCapture}
             onError={(error: string) => {
               console.error('Camera error:', error);
               toast({
                 title: "Camera Error",
-                description: "Unable to access camera. Please add equipment manually.",
+                description: error,
                 variant: "destructive"
               });
             }}
+            title="Take Photo of Kitchen"
           />
           
           <DialogFooter>

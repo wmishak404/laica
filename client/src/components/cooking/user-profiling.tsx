@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Webcam } from '@/components/ui/webcam';
+import { NativeCamera } from '@/components/ui/native-camera';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Camera, Upload } from 'lucide-react';
 import { analyzeImage } from '@/lib/openai';
@@ -961,13 +961,25 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           <DialogHeader>
             <DialogTitle>Scan Your Pantry</DialogTitle>
           </DialogHeader>
-          <Webcam onAnalysis={(data) => {
-            if (data && data.detectedIngredients) {
-              const ingredients = Array.from(new Set([...profile.pantryIngredients, ...data.detectedIngredients]));
-              setProfile(prev => ({ ...prev, pantryIngredients: ingredients }));
-            }
-            setShowPantryCamera(false);
-          }} />
+          <NativeCamera
+            onImageCapture={async (imageData) => {
+              try {
+                const analysis = await analyzeImage(imageData);
+                if (analysis && analysis.detectedIngredients) {
+                  const ingredients = Array.from(new Set([...profile.pantryIngredients, ...analysis.detectedIngredients]));
+                  setProfile(prev => ({ ...prev, pantryIngredients: ingredients }));
+                }
+                setShowPantryCamera(false);
+              } catch (error) {
+                console.error('Error analyzing pantry image:', error);
+              }
+            }}
+            onError={(error) => {
+              console.error('Camera error:', error);
+              setShowPantryCamera(false);
+            }}
+            title="Take Photo of Pantry"
+          />
         </DialogContent>
       </Dialog>
 
@@ -976,13 +988,25 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           <DialogHeader>
             <DialogTitle>Scan Your Kitchen Equipment</DialogTitle>
           </DialogHeader>
-          <Webcam onAnalysis={(data) => {
-            if (data && data.detectedEquipment) {
-              const equipment = Array.from(new Set([...profile.kitchenEquipment, ...data.detectedEquipment]));
-              setProfile(prev => ({ ...prev, kitchenEquipment: equipment }));
-            }
-            setShowEquipmentCamera(false);
-          }} />
+          <NativeCamera
+            onImageCapture={async (imageData) => {
+              try {
+                const analysis = await analyzeImage(imageData);
+                if (analysis && analysis.detectedEquipment) {
+                  const equipment = Array.from(new Set([...profile.kitchenEquipment, ...analysis.detectedEquipment]));
+                  setProfile(prev => ({ ...prev, kitchenEquipment: equipment }));
+                }
+                setShowEquipmentCamera(false);
+              } catch (error) {
+                console.error('Error analyzing kitchen image:', error);
+              }
+            }}
+            onError={(error) => {
+              console.error('Camera error:', error);
+              setShowEquipmentCamera(false);
+            }}
+            title="Take Photo of Kitchen"
+          />
         </DialogContent>
       </Dialog>
     </div>
