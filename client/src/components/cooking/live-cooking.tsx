@@ -362,7 +362,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         // Check if initial delay has passed
         const currentTime = Date.now();
         if (!initialDelayComplete) {
-          if (currentTime - mediaRecorderRef.current?.startTime < INITIAL_DELAY) {
+          if (currentTime - (mediaRecorderRef.current as any)?.startTime < INITIAL_DELAY) {
             setTimeout(checkAudioLevel, 100);
             return;
           }
@@ -430,7 +430,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       mediaRecorderRef.current.start();
       // Store start time for initial delay
-      mediaRecorderRef.current.startTime = Date.now();
+      (mediaRecorderRef.current as any).startTime = Date.now();
       checkAudioLevel(); // Start silence detection
       
       // Auto-stop after 10 seconds as fallback
