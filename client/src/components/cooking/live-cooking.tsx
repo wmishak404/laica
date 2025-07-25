@@ -89,6 +89,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       if (steps && steps.length > 0) {
         setLoadedRecipeSteps(steps);
+        // Reset audio state and set initial welcome message
+        setAudioJustEnabled(false);
         setAssistantResponse(`Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`);
       } else {
         // Fallback to basic steps
@@ -110,6 +112,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             safetyLevel: 'important'
           }
         ]);
+        setAudioJustEnabled(false);
         setAssistantResponse(`I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`);
       }
       
@@ -230,11 +233,24 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   };
 
   // Speak assistant response when it changes (only if audio is enabled)
+  // Don't speak if audio was just turned back on (to avoid repeating current step)
+  const [audioJustEnabled, setAudioJustEnabled] = useState(false);
+  
   useEffect(() => {
-    if (assistantResponse && isAudioEnabled) {
+    if (assistantResponse && isAudioEnabled && !audioJustEnabled) {
       speakText(assistantResponse);
     }
-  }, [assistantResponse, isAudioEnabled]);
+    if (audioJustEnabled) {
+      setAudioJustEnabled(false);
+    }
+  }, [assistantResponse, isAudioEnabled, audioJustEnabled]);
+
+  // Track when audio is enabled to prevent immediate replay
+  useEffect(() => {
+    if (isAudioEnabled) {
+      setAudioJustEnabled(true);
+    }
+  }, [isAudioEnabled]);
 
   const nextStep = () => {
     if (currentStepIndex < currentRecipeSteps.length - 1) {
@@ -244,9 +260,13 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       setTimer(nextStepData?.duration || 0);
       setIsTimerRunning(false);
       
+      // Reset the audioJustEnabled flag when moving to next step
+      setAudioJustEnabled(false);
+      
       const stepText = `Step ${newStepIndex + 1}: ${nextStepData.instruction}. ${nextStepData.tips}`;
       setAssistantResponse(stepText);
     } else {
+      setAudioJustEnabled(false);
       setAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy!");
     }
   };
@@ -258,6 +278,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       const prevStepData = currentRecipeSteps[newStepIndex];
       setTimer(prevStepData?.duration || 0);
       setIsTimerRunning(false);
+      
+      // Reset the audioJustEnabled flag when moving to previous step
+      setAudioJustEnabled(false);
       
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
       setAssistantResponse(stepText);
@@ -280,6 +303,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const repeatStepInstructions = () => {
     if (!currentStep) return;
     
+    // Reset audioJustEnabled to ensure repeat step plays even if audio was just unmuted
+    setAudioJustEnabled(false);
     const stepText = `Step ${currentStepIndex + 1}: ${currentStep.instruction}. ${currentStep.tips}`;
     setAssistantResponse(stepText);
   };
@@ -762,23 +787,28 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
             {/* Large Mute/Unmute Button */}
             <Button
-              variant={isAudioEnabled ? "default" : "destructive"}
-              onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-              className={`px-6 py-3 text-lg font-medium ${
+              onClick={() => {
+                if (isAudioEnabled) {
+                  // When muting, stop any current audio
+                  stopAudio();
+                }
+                setIsAudioEnabled(!isAudioEnabled);
+              }}
+              className={`px-6 py-3 font-medium ${
                 isAudioEnabled 
-                  ? 'bg-green-600 hover:bg-green-700 text-white' 
-                  : 'bg-red-600 hover:bg-red-700 text-white'
+                  ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' 
+                  : 'bg-red-600 hover:bg-red-700 text-white border-red-600'
               }`}
               size="lg"
             >
               {isAudioEnabled ? (
                 <>
-                  <Volume2 className="h-5 w-5 mr-2" />
+                  <Volume2 className="h-4 w-4 mr-2" />
                   Audio On
                 </>
               ) : (
                 <>
-                  <VolumeX className="h-5 w-5 mr-2" />
+                  <VolumeX className="h-4 w-4 mr-2" />
                   Muted
                 </>
               )}
