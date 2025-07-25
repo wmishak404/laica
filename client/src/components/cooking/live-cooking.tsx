@@ -91,7 +91,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         setLoadedRecipeSteps(steps);
         // Reset audio state and set initial welcome message
         setAudioJustEnabled(false);
-        setAssistantResponse(`Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`);
+        setLastSpokenResponse(''); // Clear last spoken to allow new message
+        const welcomeMessage = `Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`;
+        setAssistantResponse(welcomeMessage);
       } else {
         // Fallback to basic steps
         setLoadedRecipeSteps([
@@ -113,7 +115,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           }
         ]);
         setAudioJustEnabled(false);
-        setAssistantResponse(`I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`);
+        setLastSpokenResponse(''); // Clear last spoken to allow new message
+        const fallbackMessage = `I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`;
+        setAssistantResponse(fallbackMessage);
       }
       
       setIsLoadingSteps(false);
@@ -180,7 +184,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   // Enhanced text-to-speech using ElevenLabs or browser fallback
   const speakText = async (text: string) => {
-    if (!isAudioEnabled || !text) return;
+    if (!isAudioEnabled || !text || isSpeaking) return;
     
     // Stop any current audio before starting new one
     stopAudio();
@@ -235,15 +239,17 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   // Speak assistant response when it changes (only if audio is enabled)
   // Don't speak if audio was just turned back on (to avoid repeating current step)
   const [audioJustEnabled, setAudioJustEnabled] = useState(false);
+  const [lastSpokenResponse, setLastSpokenResponse] = useState<string>('');
   
   useEffect(() => {
-    if (assistantResponse && isAudioEnabled && !audioJustEnabled) {
+    if (assistantResponse && isAudioEnabled && !audioJustEnabled && assistantResponse !== lastSpokenResponse) {
       speakText(assistantResponse);
+      setLastSpokenResponse(assistantResponse);
     }
     if (audioJustEnabled) {
       setAudioJustEnabled(false);
     }
-  }, [assistantResponse, isAudioEnabled, audioJustEnabled]);
+  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse]);
 
   // Track when audio is enabled to prevent immediate replay
   useEffect(() => {
@@ -262,11 +268,13 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       // Reset the audioJustEnabled flag when moving to next step
       setAudioJustEnabled(false);
+      setLastSpokenResponse(''); // Clear to allow new step message
       
       const stepText = `Step ${newStepIndex + 1}: ${nextStepData.instruction}. ${nextStepData.tips}`;
       setAssistantResponse(stepText);
     } else {
       setAudioJustEnabled(false);
+      setLastSpokenResponse(''); // Clear to allow completion message
       setAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy!");
     }
   };
@@ -281,6 +289,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       // Reset the audioJustEnabled flag when moving to previous step
       setAudioJustEnabled(false);
+      setLastSpokenResponse(''); // Clear to allow previous step message
       
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
       setAssistantResponse(stepText);
@@ -305,6 +314,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     
     // Reset audioJustEnabled to ensure repeat step plays even if audio was just unmuted
     setAudioJustEnabled(false);
+    setLastSpokenResponse(''); // Clear to force repeat step to play
     const stepText = `Step ${currentStepIndex + 1}: ${currentStep.instruction}. ${currentStep.tips}`;
     setAssistantResponse(stepText);
   };
