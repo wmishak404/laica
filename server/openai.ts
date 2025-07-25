@@ -259,6 +259,13 @@ export async function analyzeIngredientImage(base64Image: string) {
       mimeType = 'image/webp';
     }
 
+    console.log("\n=== OpenAI Vision API Call ===");
+    console.log(`Image MIME Type: ${mimeType}`);
+    console.log(`Image Size: ${Math.round(base64Image.length / 1024)}KB`);
+    console.log(`System Prompt: ${compositions.equipmentAnalysis.system()}`);
+    console.log(`User Prompt: ${compositions.equipmentAnalysis.user()}`);
+    console.log("============================\n");
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -285,7 +292,14 @@ export async function analyzeIngredientImage(base64Image: string) {
       response_format: { type: "json_object" }
     });
 
-    return JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    
+    console.log("\n=== OpenAI Vision API Response ===");
+    console.log(`Raw Response: ${response.choices[0].message.content}`);
+    console.log(`Parsed Result:`, result);
+    console.log("==================================\n");
+
+    return result;
   } catch (error) {
     console.error("Error analyzing ingredient image:", error);
     throw new Error("Failed to analyze ingredient image");
