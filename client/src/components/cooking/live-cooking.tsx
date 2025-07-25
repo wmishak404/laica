@@ -6,8 +6,10 @@ import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Camera, CameraOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Monitor, Smartphone, Clock, ArrowLeft } from 'lucide-react';
+import { Mic, MicOff, Camera, CameraOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Monitor, Smartphone, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
@@ -60,10 +62,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [userQuestion, setUserQuestion] = useState('');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
+  const currentAudioRef = useRef<AudioBufferSourceNode | null>(null);
 
   // Load recipe steps when component mounts
   useEffect(() => {
@@ -155,16 +159,49 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
   }, [cameraMode, showCameraFeed]);
 
+  // Stop any current audio playback
+  const stopAudio = () => {
+    // Stop ElevenLabs audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.stop();
+      currentAudioRef.current = null;
+    }
+    
+    // Stop browser TTS
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+    
+    setIsSpeaking(false);
+  };
+
   // Enhanced text-to-speech using ElevenLabs or browser fallback
   const speakText = async (text: string) => {
-    if (!isAudioEnabled || !text || isSpeaking) return;
+    if (!isAudioEnabled || !text) return;
+    
+    // Stop any current audio before starting new one
+    stopAudio();
     
     setIsSpeaking(true);
     
     try {
       if (useElevenLabs) {
         // Use ElevenLabs for high-quality voice
-        await elevenLabsClient.speakText(text, voiceSettings);
+        const audioBuffer = await elevenLabsClient.synthesizeSpeech(text, voiceSettings);
+        const audioContext = new AudioContext();
+        const audioData = await audioContext.decodeAudioData(audioBuffer);
+        const source = audioContext.createBufferSource();
+        source.buffer = audioData;
+        source.connect(audioContext.destination);
+        
+        currentAudioRef.current = source;
+        
+        source.onended = () => {
+          setIsSpeaking(false);
+          currentAudioRef.current = null;
+        };
+        
+        source.start();
       } else {
         // Fallback to browser TTS
         await browserTTSClient.speak(text, {
@@ -172,6 +209,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           pitch: 1.0,
           volume: 0.8,
         });
+        setIsSpeaking(false);
       }
     } catch (error) {
       console.error('Speech synthesis error:', error);
@@ -187,7 +225,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           console.error('Browser TTS fallback failed:', fallbackError);
         }
       }
-    } finally {
       setIsSpeaking(false);
     }
   };
@@ -233,22 +270,46 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setAssistantResponse(`Timer set for ${minutes} minutes. I'll let you know when time is up!`);
   };
 
-  const toggleListening = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
-      setAssistantResponse("I'm listening! You can ask me questions about the current step or tell me how things are going.");
-    } else {
-      setAssistantResponse("Okay, I've stopped listening. Tap the microphone when you need help!");
-    }
+  // Clean up audio on component unmount or page navigation
+  useEffect(() => {
+    return () => {
+      stopAudio();
+    };
+  }, []);
+
+  const repeatStepInstructions = () => {
+    if (!currentStep) return;
+    
+    const stepText = `Step ${currentStepIndex + 1}: ${currentStep.instruction}. ${currentStep.tips}`;
+    setAssistantResponse(stepText);
   };
 
-  const askForHelp = async (question?: string) => {
-    if (!currentStep) return;
+  const askForHelp = async () => {
+    if (!currentStep || !userQuestion.trim()) {
+      setAssistantResponse("What would you like help with? Ask me anything about this cooking step!");
+      return;
+    }
     
     setIsProcessing(true);
     
+    // Create a detailed context for the AI about the current step and future steps
+    const futureSteps = currentRecipeSteps.slice(currentStepIndex + 1, currentStepIndex + 3);
+    const futureStepsText = futureSteps.length > 0 
+      ? `Upcoming steps: ${futureSteps.map((step, idx) => `${idx + currentStepIndex + 2}. ${step.instruction}`).join(' ')}`
+      : '';
+    
+    const contextualPrompt = `Current cooking step: "${currentStep.instruction}" 
+    Tips for this step: "${currentStep.tips}"
+    Visual cues: "${currentStep.visualCues}"
+    Common mistakes: "${currentStep.commonMistakes}"
+    ${futureStepsText}
+    
+    User question: "${userQuestion}"
+    
+    Please provide a helpful, contextual answer that relates specifically to this step and mentions how this connects to future steps when relevant. Keep the response conversational and encouraging.`;
+    
     const response = await withDemoErrorHandling(async () => {
-      return await fetchCookingAssistance(currentStep.instruction, question);
+      return await fetchCookingAssistance(contextualPrompt, userQuestion);
     }, 'cooking assistance');
     
     if (response) {
@@ -257,6 +318,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       setAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
     }
     
+    setUserQuestion(''); // Clear the question after asking
     setIsProcessing(false);
   };
 
@@ -600,40 +662,68 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
       {/* Audio Controls */}
       <Card className="bg-black/70 border-gray-600 mb-4">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              variant={isListening ? "destructive" : "default"}
-              onClick={toggleListening}
-              className="flex-1 max-w-xs"
-            >
-              {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-              {isListening ? 'Stop Listening' : 'Ask for Help'}
-            </Button>
-            
+        <CardContent className="p-4 space-y-4">
+          {/* Audio and Repeat Controls */}
+          <div className="flex items-center justify-center gap-3">
             <Button
               variant="outline"
-              onClick={() => askForHelp()}
-              disabled={isProcessing}
+              onClick={repeatStepInstructions}
               className="flex-1 max-w-xs"
             >
-              {isProcessing ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                  Processing...
-                </>
-              ) : (
-                'Get Guidance'
-              )}
+              <Repeat className="h-4 w-4 mr-2" />
+              Repeat Step
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={stopAudio}
+              disabled={!isSpeaking}
+              className="text-white"
+              title="Stop audio"
+            >
+              <StopCircle className="h-4 w-4" />
             </Button>
 
             <Button
               variant="ghost"
               onClick={() => setIsAudioEnabled(!isAudioEnabled)}
               className="text-white"
+              title="Toggle audio"
             >
               {isAudioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </Button>
+          </div>
+
+          {/* Ask for Help Section */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <MessageCircle className="h-4 w-4 text-white" />
+              <span className="text-white text-sm font-medium">Ask for Help</span>
+            </div>
+            <div className="flex space-x-2">
+              <Input
+                value={userQuestion}
+                onChange={(e) => setUserQuestion(e.target.value)}
+                placeholder="Ask me anything about this step..."
+                className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !isProcessing) {
+                    askForHelp();
+                  }
+                }}
+              />
+              <Button
+                onClick={askForHelp}
+                disabled={isProcessing || !userQuestion.trim()}
+                className="px-4"
+              >
+                {isProcessing ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                ) : (
+                  'Ask'
+                )}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

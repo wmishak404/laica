@@ -107,3 +107,8 @@ The app includes progressive web app features with offline capability considerat
 - **Performance**: Uses Turbo v2.5 model for optimal balance of quality and latency
 - **Demo Mode Handling**: Implemented graceful rate limit handling that redirects users to home page with demo notification instead of error messages
 - **Fallback Systems**: ElevenLabs TTS automatically falls back to browser speech synthesis when API limits are reached
+- **Enhanced Live Cooking Interface**: 
+  - Added audio stop button that works across page navigation
+  - Replaced "Get Guidance" with "Repeat Step Instructions" 
+  - Improved "Ask for Help" with chat-like input field and contextual AI responses
+  - AI responses now include step context and foreshadowing of future steps
