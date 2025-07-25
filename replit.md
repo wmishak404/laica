@@ -108,7 +108,10 @@ The app includes progressive web app features with offline capability considerat
 - **Demo Mode Handling**: Implemented graceful rate limit handling that redirects users to home page with demo notification instead of error messages
 - **Fallback Systems**: ElevenLabs TTS automatically falls back to browser speech synthesis when API limits are reached
 - **Enhanced Live Cooking Interface**: 
-  - Added audio stop button that works across page navigation
-  - Replaced "Get Guidance" with "Repeat Step Instructions" 
-  - Improved "Ask for Help" with chat-like input field and contextual AI responses
-  - AI responses now include step context and foreshadowing of future steps
+  - Voice-based "Ask for Help" system with microphone recording (10-second auto-stop)
+  - Large, prominent mute button (green when on, red when muted) for clear audio control
+  - Removed duplicate audio controls, consolidated into single mute button
+  - "Repeat Step Instructions" functionality replaces generic guidance
+  - AI responses include current step context and foreshadowing of future steps
+  - Assistant responses display in transcript box for accessibility when muted
+  - Audio automatically stops when navigating away from cooking page

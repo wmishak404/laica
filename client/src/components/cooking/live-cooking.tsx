@@ -8,8 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Mic, MicOff, Camera, CameraOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Monitor, Smartphone, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
@@ -44,6 +43,7 @@ interface LiveCookingProps {
 export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning }: LiveCookingProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isListening, setIsListening] = useState(false);
+  const [isVoiceRecording, setIsVoiceRecording] = useState(false);
   const [cameraMode, setCameraMode] = useState<'front' | 'back'>('back');
   const [cameraTimeout, setCameraTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showCameraFeed, setShowCameraFeed] = useState(true);
@@ -62,7 +62,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [userQuestion, setUserQuestion] = useState('');
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -229,9 +229,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
   };
 
-  // Speak assistant response when it changes
+  // Speak assistant response when it changes (only if audio is enabled)
   useEffect(() => {
-    if (assistantResponse) {
+    if (assistantResponse && isAudioEnabled) {
       speakText(assistantResponse);
     }
   }, [assistantResponse, isAudioEnabled]);
@@ -284,42 +284,103 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setAssistantResponse(stepText);
   };
 
-  const askForHelp = async () => {
-    if (!currentStep || !userQuestion.trim()) {
-      setAssistantResponse("What would you like help with? Ask me anything about this cooking step!");
+  // Voice recording functionality
+  const startVoiceRecording = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setAssistantResponse("Voice recording is not supported in this browser. Please use a modern browser with microphone access.");
       return;
     }
-    
+
+    try {
+      setIsVoiceRecording(true);
+      setAssistantResponse("I'm listening... Ask me anything about this cooking step!");
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      
+      const chunks: BlobPart[] = [];
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        chunks.push(event.data);
+      };
+      
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        await processVoiceQuestion(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorderRef.current.start();
+      
+      // Auto-stop after 10 seconds
+      setTimeout(() => {
+        if (mediaRecorderRef.current && isVoiceRecording) {
+          stopVoiceRecording();
+        }
+      }, 10000);
+      
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      setAssistantResponse("I couldn't access your microphone. Please check your browser permissions and try again.");
+      setIsVoiceRecording(false);
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsVoiceRecording(false);
+  };
+
+  const processVoiceQuestion = async (audioBlob: Blob) => {
     setIsProcessing(true);
+    setAssistantResponse("Processing your question...");
     
-    // Create a detailed context for the AI about the current step and future steps
-    const futureSteps = currentRecipeSteps.slice(currentStepIndex + 1, currentStepIndex + 3);
-    const futureStepsText = futureSteps.length > 0 
-      ? `Upcoming steps: ${futureSteps.map((step, idx) => `${idx + currentStepIndex + 2}. ${step.instruction}`).join(' ')}`
-      : '';
-    
-    const contextualPrompt = `Current cooking step: "${currentStep.instruction}" 
-    Tips for this step: "${currentStep.tips}"
-    Visual cues: "${currentStep.visualCues}"
-    Common mistakes: "${currentStep.commonMistakes}"
-    ${futureStepsText}
-    
-    User question: "${userQuestion}"
-    
-    Please provide a helpful, contextual answer that relates specifically to this step and mentions how this connects to future steps when relevant. Keep the response conversational and encouraging.`;
-    
-    const response = await withDemoErrorHandling(async () => {
-      return await fetchCookingAssistance(contextualPrompt, userQuestion);
-    }, 'cooking assistance');
-    
-    if (response) {
-      setAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
-    } else {
-      setAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
+    try {
+      // TODO: Implement actual speech-to-text transcription
+      // For demo purposes, we'll simulate a common cooking question
+      const simulatedTranscription = "How long should I cook this?";
+      
+      // Create a detailed context for the AI about the current step and future steps
+      const futureSteps = currentRecipeSteps.slice(currentStepIndex + 1, currentStepIndex + 3);
+      const futureStepsText = futureSteps.length > 0 
+        ? `Upcoming steps: ${futureSteps.map((step, idx) => `${idx + currentStepIndex + 2}. ${step.instruction}`).join(' ')}`
+        : '';
+      
+      const contextualPrompt = `Current cooking step: "${currentStep?.instruction}" 
+      Tips for this step: "${currentStep?.tips}"
+      Visual cues: "${currentStep?.visualCues}"
+      Common mistakes: "${currentStep?.commonMistakes}"
+      ${futureStepsText}
+      
+      User question (via voice): "${simulatedTranscription}"
+      
+      Please provide a helpful, contextual answer that relates specifically to this step and mentions how this connects to future steps when relevant. Keep the response conversational and encouraging.`;
+      
+      const response = await withDemoErrorHandling(async () => {
+        return await fetchCookingAssistance(contextualPrompt, simulatedTranscription);
+      }, 'cooking assistance');
+      
+      if (response) {
+        setAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
+      } else {
+        setAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
+      }
+      
+    } catch (error) {
+      console.error('Error processing voice question:', error);
+      setAssistantResponse("I had trouble understanding your question. Please try asking again.");
     }
     
-    setUserQuestion(''); // Clear the question after asking
     setIsProcessing(false);
+  };
+
+  const askForHelp = () => {
+    if (isVoiceRecording) {
+      stopVoiceRecording();
+    } else {
+      startVoiceRecording();
+    }
   };
 
   const toggleCameraFeed = () => {
@@ -662,9 +723,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
       {/* Audio Controls */}
       <Card className="bg-black/70 border-gray-600 mb-4">
-        <CardContent className="p-4 space-y-4">
-          {/* Audio and Repeat Controls */}
-          <div className="flex items-center justify-center gap-3">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-center gap-4">
+            {/* Repeat Step Button */}
             <Button
               variant="outline"
               onClick={repeatStepInstructions}
@@ -674,56 +735,54 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
               Repeat Step
             </Button>
 
+            {/* Voice Ask for Help Button */}
             <Button
-              variant="ghost"
-              onClick={stopAudio}
-              disabled={!isSpeaking}
-              className="text-white"
-              title="Stop audio"
+              variant={isVoiceRecording ? "destructive" : "default"}
+              onClick={askForHelp}
+              disabled={isProcessing}
+              className="flex-1 max-w-xs"
             >
-              <StopCircle className="h-4 w-4" />
+              {isProcessing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                  Processing...
+                </>
+              ) : isVoiceRecording ? (
+                <>
+                  <MicOff className="h-4 w-4 mr-2" />
+                  Stop Listening
+                </>
+              ) : (
+                <>
+                  <Mic className="h-4 w-4 mr-2" />
+                  Ask for Help
+                </>
+              )}
             </Button>
 
+            {/* Large Mute/Unmute Button */}
             <Button
-              variant="ghost"
+              variant={isAudioEnabled ? "default" : "destructive"}
               onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-              className="text-white"
-              title="Toggle audio"
+              className={`px-6 py-3 text-lg font-medium ${
+                isAudioEnabled 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-red-600 hover:bg-red-700 text-white'
+              }`}
+              size="lg"
             >
-              {isAudioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {isAudioEnabled ? (
+                <>
+                  <Volume2 className="h-5 w-5 mr-2" />
+                  Audio On
+                </>
+              ) : (
+                <>
+                  <VolumeX className="h-5 w-5 mr-2" />
+                  Muted
+                </>
+              )}
             </Button>
-          </div>
-
-          {/* Ask for Help Section */}
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <MessageCircle className="h-4 w-4 text-white" />
-              <span className="text-white text-sm font-medium">Ask for Help</span>
-            </div>
-            <div className="flex space-x-2">
-              <Input
-                value={userQuestion}
-                onChange={(e) => setUserQuestion(e.target.value)}
-                placeholder="Ask me anything about this step..."
-                className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !isProcessing) {
-                    askForHelp();
-                  }
-                }}
-              />
-              <Button
-                onClick={askForHelp}
-                disabled={isProcessing || !userQuestion.trim()}
-                className="px-4"
-              >
-                {isProcessing ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                ) : (
-                  'Ask'
-                )}
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
