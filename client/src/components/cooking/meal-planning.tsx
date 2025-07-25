@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Clock, ChefHat, Users, Calendar, Plus } from 'lucide-react';
 import { fetchPantryRecipes } from '@/lib/openai';
+import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
@@ -132,7 +133,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
 
     setIsLoading(true);
     
-    try {
+    const result = await withDemoErrorHandling(async () => {
       // Build preferences string from user inputs
       const preferenceParts = [];
       
@@ -191,18 +192,15 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
         throw new Error('No recipes generated');
       }
       
-      setRecommendations(newRecommendations);
+      return newRecommendations;
+    }, 'meal recommendations');
+
+    if (result) {
+      setRecommendations(result);
       setCurrentStep(4);
-    } catch (error) {
-      console.error('Error generating recommendations:', error);
-      toast({
-        title: "Recipe Generation Failed",
-        description: "Unable to generate personalized recipes. Please try again later.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   const generateMoreRecommendations = async () => {

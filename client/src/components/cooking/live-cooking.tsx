@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Mic, MicOff, Camera, CameraOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Monitor, Smartphone, Clock, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
+import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 
 interface RecipeStep {
@@ -68,9 +69,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   useEffect(() => {
     const loadRecipeSteps = async () => {
       setIsLoadingSteps(true);
-      try {
+      
+      const steps = await withDemoErrorHandling(async () => {
         const response = await fetchCookingSteps(selectedMeal.name);
-        const steps: RecipeStep[] = response.steps?.map((step: any, index: number) => ({
+        return response.steps?.map((step: any, index: number) => ({
           id: index + 1,
           instruction: step.instruction || '',
           duration: step.duration,
@@ -79,14 +81,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           commonMistakes: step.commonMistakes || '',
           safetyLevel: step.safetyLevel || 'minor'
         })) || [];
+      }, 'cooking steps');
+      
+      if (steps && steps.length > 0) {
         setLoadedRecipeSteps(steps);
-        
-        // Set initial assistant response
-        if (steps.length > 0) {
-          setAssistantResponse(`Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`);
-        }
-      } catch (error) {
-        console.error('Error loading recipe steps:', error);
+        setAssistantResponse(`Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`);
+      } else {
         // Fallback to basic steps
         setLoadedRecipeSteps([
           {
@@ -107,9 +107,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           }
         ]);
         setAssistantResponse(`I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`);
-      } finally {
-        setIsLoadingSteps(false);
       }
+      
+      setIsLoadingSteps(false);
     };
 
     loadRecipeSteps();
@@ -246,16 +246,18 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     if (!currentStep) return;
     
     setIsProcessing(true);
-    try {
-      const response = await fetchCookingAssistance(currentStep.instruction, question);
-      // Handle response from API - it may be a string or object
+    
+    const response = await withDemoErrorHandling(async () => {
+      return await fetchCookingAssistance(currentStep.instruction, question);
+    }, 'cooking assistance');
+    
+    if (response) {
       setAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
-    } catch (error) {
-      console.error('Error getting cooking assistance:', error);
+    } else {
       setAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
-    } finally {
-      setIsProcessing(false);
     }
+    
+    setIsProcessing(false);
   };
 
   const toggleCameraFeed = () => {

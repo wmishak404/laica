@@ -1,4 +1,5 @@
 import { apiRequest } from './queryClient';
+import { isRateLimitError, isAPIError } from './rateLimitHandler';
 
 export interface VoiceSettings {
   voiceId?: string;
@@ -31,27 +32,23 @@ export class ElevenLabsClient {
   }
 
   async synthesizeSpeech(text: string, settings: VoiceSettings = {}): Promise<ArrayBuffer> {
-    try {
-      const response = await fetch('/api/speech/synthesize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-          ...settings,
-        }),
-      });
+    const response = await fetch('/api/speech/synthesize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text,
+        ...settings,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`Speech synthesis failed: ${response.statusText}`);
-      }
-
-      return await response.arrayBuffer();
-    } catch (error) {
-      console.error('ElevenLabs synthesis error:', error);
-      throw error;
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`${response.status}: ${errorText}`);
     }
+
+    return await response.arrayBuffer();
   }
 
   async playAudio(audioBuffer: ArrayBuffer): Promise<void> {
@@ -86,19 +83,22 @@ export class ElevenLabsClient {
       const audioBuffer = await this.synthesizeSpeech(text, settings);
       await this.playAudio(audioBuffer);
     } catch (error) {
-      console.error('Text-to-speech error:', error);
+      console.error('ElevenLabs TTS error:', error);
+      
+      // Check if it's a rate limit error and fall back to browser TTS
+      if (isRateLimitError(error as Error) || isAPIError(error as Error)) {
+        console.log('Falling back to browser TTS due to API limits');
+        await browserTTSClient.speak(text);
+        return;
+      }
+      
       throw error;
     }
   }
 
   async getVoices(): Promise<VoicesResponse> {
-    try {
-      const response = await apiRequest('GET', '/api/speech/voices');
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching voices:', error);
-      throw error;
-    }
+    const response = await apiRequest('GET', '/api/speech/voices');
+    return await response.json();
   }
 }
 

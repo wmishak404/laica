@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { fetchIngredientAlternatives } from '@/lib/openai';
+import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { MoreHorizontal, Check, X } from 'lucide-react';
 import {
   Popover,
@@ -24,30 +25,25 @@ export default function GroceryItem({ id, name, price, category, onCheck, checke
   const [isLoadingAlternatives, setIsLoadingAlternatives] = useState(false);
 
   const handleGetAlternatives = async (reason: string) => {
-    try {
-      setIsLoadingAlternatives(true);
-      const response = await fetchIngredientAlternatives(name, reason);
-      if (response && response.alternatives && Array.isArray(response.alternatives)) {
-        setAlternatives(response.alternatives);
-      } else {
-        // Fallback alternatives
-        setAlternatives([
-          `Cheaper ${name.toLowerCase()}`,
-          `Seasonal alternative to ${name.toLowerCase()}`,
-          `Healthier version of ${name.toLowerCase()}`
-        ]);
-      }
-    } catch (error) {
-      console.error('Error fetching alternatives:', error);
+    setIsLoadingAlternatives(true);
+    
+    const response = await withDemoErrorHandling(async () => {
+      return await fetchIngredientAlternatives(name, reason);
+    }, 'ingredient alternatives');
+    
+    if (response && response.alternatives && Array.isArray(response.alternatives)) {
+      setAlternatives(response.alternatives);
+    } else {
+      // Fallback alternatives
       setAlternatives([
         `Cheaper ${name.toLowerCase()}`,
         `Seasonal alternative to ${name.toLowerCase()}`,
         `Healthier version of ${name.toLowerCase()}`
       ]);
-    } finally {
-      setIsLoadingAlternatives(false);
-      setShowAlternatives(true);
     }
+    
+    setIsLoadingAlternatives(false);
+    setShowAlternatives(true);
   };
 
   return (

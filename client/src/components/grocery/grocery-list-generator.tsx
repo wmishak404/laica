@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { fetchGroceryList } from '@/lib/openai';
+import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { Loader2 } from 'lucide-react';
 
 interface GroceryListGeneratorProps {
@@ -27,16 +28,18 @@ export default function GroceryListGenerator({ onGenerateList }: GroceryListGene
     setError('');
     setIsLoading(true);
     
-    try {
-      const recipeList = recipes.split('\n').filter(r => r.trim());
-      const response = await fetchGroceryList(recipeList);
+    const recipeList = recipes.split('\n').filter(r => r.trim());
+    const response = await withDemoErrorHandling(async () => {
+      return await fetchGroceryList(recipeList);
+    }, 'grocery list generation');
+    
+    if (response) {
       onGenerateList(response);
-    } catch (error) {
-      console.error('Error generating grocery list:', error);
+    } else {
       setError('Failed to generate grocery list. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   return (
