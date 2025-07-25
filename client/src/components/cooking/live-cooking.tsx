@@ -350,39 +350,46 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let silenceStart = Date.now();
       let hasDetectedSound = false;
       let isCurrentlyListening = true;
-      const SILENCE_THRESHOLD = 15; // Adjusted threshold for better detection
+      const SILENCE_THRESHOLD = 10; // Lower threshold for better detection
       const SILENCE_DURATION = 1000; // 1 second of silence
       
       const checkAudioLevel = () => {
-        if (!isCurrentlyListening || !isVoiceRecording) return;
+        if (!isCurrentlyListening) return;
         
-        analyser.getByteFrequencyData(dataArray);
-        // Get RMS (root mean square) for better audio level detection
+        analyser.getByteTimeDomainData(dataArray);
+        
+        // Calculate volume using time domain data (more reliable for speech)
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
-          sum += dataArray[i] * dataArray[i];
+          const sample = (dataArray[i] - 128) / 128; // Convert to -1 to 1 range
+          sum += sample * sample;
         }
-        const rms = Math.sqrt(sum / bufferLength);
+        const volume = Math.sqrt(sum / bufferLength) * 100;
         
-        if (rms > SILENCE_THRESHOLD) {
+        console.log(`Audio level: ${volume.toFixed(2)}, Has detected sound: ${hasDetectedSound}`);
+        
+        if (volume > SILENCE_THRESHOLD) {
           // Sound detected
-          hasDetectedSound = true;
+          if (!hasDetectedSound) {
+            hasDetectedSound = true;
+            setAssistantResponse("I'm listening... I can hear you speaking.");
+          }
           silenceStart = Date.now();
-          setAssistantResponse("I'm listening... I can hear you speaking.");
         } else if (hasDetectedSound) {
           // Silence detected after sound was heard
-          if (Date.now() - silenceStart > SILENCE_DURATION) {
-            // 1 second of silence after speaking, auto-process
-            isCurrentlyListening = false; // Stop the loop
+          const silenceDuration = Date.now() - silenceStart;
+          console.log(`Silence duration: ${silenceDuration}ms`);
+          
+          if (silenceDuration > SILENCE_DURATION) {
+            console.log('Auto-processing due to silence');
+            isCurrentlyListening = false;
             stopVoiceRecording();
             return;
           }
         }
         
-        // Continue checking if we're still listening
-        if (isCurrentlyListening) {
-          requestAnimationFrame(checkAudioLevel);
-        }
+        // Continue checking
+        setTimeout(checkAudioLevel, 100); // Check every 100ms for better responsiveness
       };
       
       const chunks: BlobPart[] = [];
@@ -411,8 +418,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       // Auto-stop after 10 seconds as fallback
       const timeout = setTimeout(() => {
-        if (mediaRecorderRef.current && isVoiceRecording) {
-          isCurrentlyListening = false; // Stop audio level checking
+        console.log('Auto-stopping due to 10s timeout');
+        isCurrentlyListening = false;
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
           stopVoiceRecording();
         }
       }, 10000);
@@ -426,6 +434,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   };
 
   const stopVoiceRecording = () => {
+    console.log('Stopping voice recording');
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
     }
