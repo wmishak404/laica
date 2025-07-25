@@ -42,7 +42,7 @@ export default function CookingDemo() {
     if (question.trim()) {
       setMessages([...messages, { role: 'user', content: question }]);
       
-      // Mock AI response - in a real app, this would call the backend
+      // Mock response - in a real app, this would call the backend
       setTimeout(() => {
         setMessages(prev => [...prev, { 
           role: 'ai', 
@@ -57,9 +57,9 @@ export default function CookingDemo() {
   return (
     <section className="py-12 md:py-16 bg-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-4">Experience AI-Guided Cooking</h2>
+        <h2 className="text-3xl font-bold text-center mb-4">Experience Smart Cooking Guidance</h2>
         <p className="text-center text-gray-500 max-w-2xl mx-auto mb-12">
-          See how CulinaryAI guides you through each step of the cooking process with real-time feedback and automatic progression.
+          See how Laica guides you through each step of the cooking process with real-time feedback and automatic progression.
         </p>
         
         <div className="bg-gray-50 rounded-xl p-6 md:p-8 max-w-4xl mx-auto">
@@ -116,7 +116,7 @@ export default function CookingDemo() {
                 </CardContent>
               </Card>
               
-              {/* AI Conversation UI */}
+              {/* Assistant Conversation UI */}
               <Card>
                 <CardContent className="p-5">
                   <h4 className="font-bold mb-3 flex items-center">
@@ -184,7 +184,7 @@ export default function CookingDemo() {
                   <Alert className="bg-accent/10 mb-4">
                     <div className="flex items-center mb-1">
                       <Camera className="text-accent mr-2 h-4 w-4" />
-                      <h4 className="font-bold text-sm">AI Detection</h4>
+                      <h4 className="font-bold text-sm">Smart Detection</h4>
                     </div>
                     <AlertDescription className="text-xs text-gray-500">
                       I can see the pasta is cooking in properly boiling water. The bubbles are the right size, indicating good temperature.

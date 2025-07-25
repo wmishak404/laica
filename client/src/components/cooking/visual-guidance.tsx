@@ -72,7 +72,7 @@ export default function VisualGuidance({ currentStep }: VisualGuidanceProps) {
         <Alert className="bg-accent/10 mb-4">
           <div className="flex items-center mb-1">
             <Camera className="text-accent mr-2 h-4 w-4" />
-            <h4 className="font-bold text-sm">AI Detection</h4>
+            <h4 className="font-bold text-sm">Smart Detection</h4>
           </div>
           <AlertDescription className="text-xs text-gray-500">
             {isAnalyzing ? 

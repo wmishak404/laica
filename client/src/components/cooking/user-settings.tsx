@@ -101,7 +101,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      // Use OpenAI vision API to analyze pantry image
+      // Use vision API to analyze pantry image
       const response = await fetch('/api/vision/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -118,7 +118,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       const result = await response.json();
       
-      // Parse the AI response to extract ingredients
+      // Parse the response to extract ingredients
       const detectedIngredients = result.analysis || result.description || '';
       const ingredientList = detectedIngredients.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
       
@@ -174,7 +174,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       const result = await response.json();
       
-      // Parse the AI response to extract kitchen equipment
+      // Parse the response to extract kitchen equipment
       const detectedEquipment = result.analysis || result.description || '';
       const equipmentList = detectedEquipment.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
       

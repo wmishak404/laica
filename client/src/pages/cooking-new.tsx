@@ -96,7 +96,7 @@ export default function Cooking() {
   const renderWelcomeScreen = () => (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900">Your AI Cooking Assistant</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Your Live Cooking Assistant</h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
           Save money on takeout while learning to cook delicious meals with ingredients you already have at home
         </p>
@@ -242,7 +242,7 @@ export default function Cooking() {
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">AI Cooking Assistant</h1>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">Live Cooking Assistant</h1>
                 <p className="text-lg mb-4">Your personal guide to better, cheaper home cooking</p>
               </div>
               

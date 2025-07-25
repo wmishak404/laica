@@ -13,7 +13,7 @@ export default function Footer() {
               <h3 className="ml-2 text-xl font-bold text-white">Laica</h3>
             </div>
             <p className="text-white/70 mb-4">
-              Your AI-powered cooking assistant that makes home cooking easy, fun, and affordable.
+              Your intelligent cooking assistant that makes home cooking easy, fun, and affordable.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-white/70 hover:text-primary transition">
@@ -36,7 +36,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/cooking">
-                  <a className="text-white/70 hover:text-primary transition">AI Cooking Assistant</a>
+                  <a className="text-white/70 hover:text-primary transition">Cooking Assistant</a>
                 </Link>
               </li>
               <li>

@@ -43,7 +43,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [cameraMode, setCameraMode] = useState<'front' | 'back'>('back');
   const [cameraTimeout, setCameraTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showCameraFeed, setShowCameraFeed] = useState(true);
-  const [aiResponse, setAiResponse] = useState<string>('Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.');
+  const [assistantResponse, setAssistantResponse] = useState<string>('Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [timer, setTimer] = useState<number>(0);
@@ -60,7 +60,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
 
-  // Load recipe steps from AI when component mounts
+  // Load recipe steps when component mounts
   useEffect(() => {
     const loadRecipeSteps = async () => {
       setIsLoadingSteps(true);
@@ -77,9 +77,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         })) || [];
         setLoadedRecipeSteps(steps);
         
-        // Set initial AI response
+        // Set initial assistant response
         if (steps.length > 0) {
-          setAiResponse(`Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`);
+          setAssistantResponse(`Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`);
         }
       } catch (error) {
         console.error('Error loading recipe steps:', error);
@@ -102,7 +102,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             safetyLevel: 'important'
           }
         ]);
-        setAiResponse(`I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`);
+        setAssistantResponse(`I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`);
       } finally {
         setIsLoadingSteps(false);
       }
@@ -163,12 +163,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
   };
 
-  // Speak AI response when it changes
+  // Speak assistant response when it changes
   useEffect(() => {
-    if (aiResponse) {
-      speakText(aiResponse);
+    if (assistantResponse) {
+      speakText(assistantResponse);
     }
-  }, [aiResponse, isAudioEnabled]);
+  }, [assistantResponse, isAudioEnabled]);
 
   const nextStep = () => {
     if (currentStepIndex < currentRecipeSteps.length - 1) {
@@ -179,9 +179,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       setIsTimerRunning(false);
       
       const stepText = `Step ${newStepIndex + 1}: ${nextStepData.instruction}. ${nextStepData.tips}`;
-      setAiResponse(stepText);
+      setAssistantResponse(stepText);
     } else {
-      setAiResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy!");
+      setAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy!");
     }
   };
 
@@ -194,22 +194,22 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       setIsTimerRunning(false);
       
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
-      setAiResponse(stepText);
+      setAssistantResponse(stepText);
     }
   };
 
   const startTimer = (minutes: number) => {
     setTimer(minutes * 60);
     setIsTimerRunning(true);
-    setAiResponse(`Timer set for ${minutes} minutes. I'll let you know when time is up!`);
+    setAssistantResponse(`Timer set for ${minutes} minutes. I'll let you know when time is up!`);
   };
 
   const toggleListening = () => {
     setIsListening(!isListening);
     if (!isListening) {
-      setAiResponse("I'm listening! You can ask me questions about the current step or tell me how things are going.");
+      setAssistantResponse("I'm listening! You can ask me questions about the current step or tell me how things are going.");
     } else {
-      setAiResponse("Okay, I've stopped listening. Tap the microphone when you need help!");
+      setAssistantResponse("Okay, I've stopped listening. Tap the microphone when you need help!");
     }
   };
 
@@ -220,10 +220,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     try {
       const response = await fetchCookingAssistance(currentStep.instruction, question);
       // Handle response from API - it may be a string or object
-      setAiResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
+      setAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
     } catch (error) {
       console.error('Error getting cooking assistance:', error);
-      setAiResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
+      setAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
     } finally {
       setIsProcessing(false);
     }
@@ -567,7 +567,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
               className="text-white leading-relaxed"
               style={{ fontSize: `${captionSize}px` }}
             >
-              {aiResponse}
+              {assistantResponse}
             </p>
           </div>
         </CardContent>

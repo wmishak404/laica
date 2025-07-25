@@ -3,7 +3,7 @@ import { Star, StarHalf } from 'lucide-react';
 const testimonials = [
   {
     id: 1,
-    text: "I was spending over $400 a month on takeout. With CulinaryAI, I've cut that in half and actually enjoy cooking now!",
+    text: "I was spending over $400 a month on takeout. With Laica, I've cut that in half and actually enjoy cooking now!",
     name: "Sarah T.",
     location: "Seattle, WA",
     rating: 5

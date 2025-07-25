@@ -8,10 +8,10 @@ export default function HeroSection() {
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-8 md:mb-0 md:pr-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              Your AI-Powered <span className="text-primary">Cooking Assistant</span>
+              Your Smart <span className="text-primary">Cooking Assistant</span>
             </h1>
             <p className="text-xl mb-6">
-              Learn to cook with step-by-step AI guidance, smart meal planning, and personalized grocery lists.
+              Learn to cook with step-by-step guidance, smart meal planning, and personalized grocery lists.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/cooking">

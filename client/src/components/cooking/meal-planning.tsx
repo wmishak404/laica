@@ -162,20 +162,20 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       
       const preferences = preferenceParts.join('. ');
       
-      // Call OpenAI API with user's actual pantry ingredients and preferences
-      const aiResponse = await fetchPantryRecipes(
+      // Call recipe API with user's actual pantry ingredients and preferences
+      const recipeResponse = await fetchPantryRecipes(
         userProfile.pantryIngredients,
         preferences,
         mealPrefs.timeAvailable
       );
       
-      // Transform AI response to match our interface
-      const aiRecommendations: RecipeRecommendation[] = [];
+      // Transform response to match our interface
+      const newRecommendations: RecipeRecommendation[] = [];
       
-      if (aiResponse.recipes) {
-        aiResponse.recipes.forEach((recipe: any, index: number) => {
-          aiRecommendations.push({
-            id: `ai-${index}`,
+      if (recipeResponse.recipes) {
+        recipeResponse.recipes.forEach((recipe: any, index: number) => {
+          newRecommendations.push({
+            id: `recipe-${index}`,
             name: recipe.name || 'Unnamed Recipe',
             description: recipe.description || 'Delicious meal using your pantry ingredients',
             cookTime: recipe.cookTime || 30,
@@ -187,17 +187,17 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
         });
       }
       
-      if (aiRecommendations.length === 0) {
+      if (newRecommendations.length === 0) {
         throw new Error('No recipes generated');
       }
       
-      setRecommendations(aiRecommendations);
+      setRecommendations(newRecommendations);
       setCurrentStep(4);
     } catch (error) {
       console.error('Error generating recommendations:', error);
       toast({
         title: "Recipe Generation Failed",
-        description: "Unable to generate personalized recipes. Please check your OpenAI API configuration.",
+        description: "Unable to generate personalized recipes. Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -253,20 +253,20 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       
       const preferences = preferenceParts.join('. ');
       
-      // Call OpenAI API with user's actual pantry ingredients and preferences
-      const aiResponse = await fetchPantryRecipes(
+      // Call recipe API with user's actual pantry ingredients and preferences
+      const recipeResponse = await fetchPantryRecipes(
         userProfile.pantryIngredients,
         preferences,
         mealPrefs.timeAvailable
       );
       
-      // Transform AI response to match our interface
-      const aiRecommendations: RecipeRecommendation[] = [];
+      // Transform response to match our interface
+      const newRecommendations: RecipeRecommendation[] = [];
       
-      if (aiResponse.recipes) {
-        aiResponse.recipes.forEach((recipe: any, index: number) => {
-          aiRecommendations.push({
-            id: `ai-more-${Date.now()}-${index}`,
+      if (recipeResponse.recipes) {
+        recipeResponse.recipes.forEach((recipe: any, index: number) => {
+          newRecommendations.push({
+            id: `recipe-more-${Date.now()}-${index}`,
             name: recipe.name || 'Unnamed Recipe',
             description: recipe.description || 'Delicious meal using your pantry ingredients',
             cookTime: recipe.cookTime || 30,
@@ -278,12 +278,12 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
         });
       }
       
-      if (aiRecommendations.length === 0) {
+      if (newRecommendations.length === 0) {
         throw new Error('No new recipes generated');
       }
       
       // Add new recommendations to existing ones
-      setRecommendations(prev => [...prev, ...aiRecommendations]);
+      setRecommendations(prev => [...prev, ...newRecommendations]);
     } catch (error) {
       console.error('Error generating more recommendations:', error);
       toast({

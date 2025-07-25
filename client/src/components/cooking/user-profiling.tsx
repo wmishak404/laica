@@ -123,7 +123,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           canvas.height = height;
           
           ctx.drawImage(img, 0, 0, width, height);
-          // Always convert to JPEG format for OpenAI compatibility
+          // Always convert to JPEG format for API compatibility
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
           const base64Data = compressedDataUrl.split(',')[1];
           

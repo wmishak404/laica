@@ -10,7 +10,7 @@ export default function Landing() {
       <header className="px-4 lg:px-6 h-14 flex items-center border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
         <div className="flex items-center justify-center">
           <ChefHat className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-          <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">AI Cooking Assistant</span>
+          <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Laica Cooking Assistant</span>
         </div>
         <div className="ml-auto">
           <Button 
@@ -28,11 +28,11 @@ export default function Landing() {
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-gray-900 dark:text-white">
-                Your Personal AI
+                Your Personal
                 <span className="text-orange-600 dark:text-orange-400"> Cooking Assistant</span>
               </h1>
               <p className="mx-auto max-w-[700px] text-gray-600 dark:text-gray-300 md:text-xl">
-                Transform your cooking experience with AI-powered meal planning, real-time guidance, 
+                Transform your cooking experience with intelligent meal planning, real-time guidance, 
                 and personalized recipe recommendations tailored to your preferences and pantry.
               </p>
             </div>
@@ -84,7 +84,7 @@ export default function Landing() {
                 </div>
                 <CardTitle className="text-gray-900 dark:text-white">Smart Pantry Recognition</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300">
-                  Upload photos of your pantry and kitchen equipment for AI-powered ingredient recognition.
+                  Upload photos of your pantry and kitchen equipment for smart ingredient recognition.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -136,10 +136,10 @@ export default function Landing() {
           <div className="flex flex-col items-center space-y-4">
             <div className="flex items-center">
               <ChefHat className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-              <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">AI Cooking Assistant</span>
+              <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Laica Cooking Assistant</span>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              © 2024 AI Cooking Assistant. Enhancing your culinary journey with artificial intelligence.
+              © 2024 Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
             </p>
           </div>
         </div>

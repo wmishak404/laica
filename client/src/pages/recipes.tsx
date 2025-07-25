@@ -85,7 +85,7 @@ export default function Recipes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [preferences, setPreferences] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
+  const [recipeSuggestions, setRecipeSuggestions] = useState<any[]>([]);
   const { toast } = useToast();
 
   const { data: recipes, isLoading } = useQuery<Recipe[]>({
@@ -112,7 +112,7 @@ export default function Recipes() {
     try {
       const response = await fetchRecipeSuggestions(preferences);
       if (response && response.recipes && Array.isArray(response.recipes)) {
-        setAiSuggestions(response.recipes);
+        setRecipeSuggestions(response.recipes);
       } else {
         throw new Error("Invalid response format");
       }
@@ -124,7 +124,7 @@ export default function Recipes() {
         variant: "destructive"
       });
       // Set some fallback suggestions
-      setAiSuggestions([
+      setRecipeSuggestions([
         {
           name: "Mediterranean Quinoa Bowl",
           description: "A protein-packed bowl with quinoa, roasted vegetables, and feta cheese.",
@@ -184,7 +184,7 @@ export default function Recipes() {
               <div className="flex justify-between items-center mb-6">
                 <TabsList>
                   <TabsTrigger value="all">All Recipes</TabsTrigger>
-                  <TabsTrigger value="ai">AI Suggestions</TabsTrigger>
+                  <TabsTrigger value="suggestions">Smart Suggestions</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -210,9 +210,9 @@ export default function Recipes() {
                 )}
               </TabsContent>
 
-              <TabsContent value="ai">
+              <TabsContent value="suggestions">
                 <div className="bg-gray-50 p-6 rounded-lg mb-8">
-                  <h2 className="text-xl font-bold mb-3">Get AI Recipe Suggestions</h2>
+                  <h2 className="text-xl font-bold mb-3">Get Smart Recipe Suggestions</h2>
                   <p className="mb-4 text-gray-600">Tell us what you're looking for, your dietary preferences, or ingredients you'd like to use</p>
                   
                   <div className="flex flex-col md:flex-row gap-3">
@@ -239,9 +239,9 @@ export default function Recipes() {
                   </div>
                 </div>
 
-                {aiSuggestions.length > 0 && (
+                {recipeSuggestions.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {aiSuggestions.map((suggestion, idx) => (
+                    {recipeSuggestions.map((suggestion, idx) => (
                       <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
                         <div className="p-5">
                           <div className="flex justify-between items-start mb-3">

@@ -62,7 +62,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
-            Sign in to your AI Cooking Assistant account
+            Sign in to your Cooking Assistant account
           </CardDescription>
         </CardHeader>
         <CardContent>

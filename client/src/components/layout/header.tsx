@@ -103,7 +103,7 @@ export default function Header() {
         <div className="flex items-center">
           <UtensilsCrossed className="h-7 w-7 text-primary" />
           <Link href="/">
-            <h1 className="ml-2 text-xl md:text-2xl font-bold text-primary cursor-pointer">AI Cooking Assistant</h1>
+            <h1 className="ml-2 text-xl md:text-2xl font-bold text-primary cursor-pointer">Cooking Assistant</h1>
           </Link>
         </div>
 

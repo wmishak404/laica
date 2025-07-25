@@ -306,7 +306,7 @@ export default function MobileApp() {
           <ChefHat className="h-10 w-10 text-white" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Laica</h1>
-        <p className="text-lg text-gray-600 mb-8">Your Live AI Cooking Assistant</p>
+        <p className="text-lg text-gray-600 mb-8">Your Live Cooking Assistant</p>
         
         <Card className="max-w-sm mx-auto">
           <CardContent className="p-6">
@@ -400,7 +400,7 @@ export default function MobileApp() {
       <div className="flex items-center justify-between max-w-md mx-auto">
         <div className="flex items-center space-x-3">
           <ChefHat className="h-6 w-6 text-[#FF6B6B]" />
-          <span className="font-semibold text-gray-900">AI Cooking Assistant</span>
+          <span className="font-semibold text-gray-900">Cooking Assistant</span>
         </div>
         
         <div className="flex items-center space-x-2">

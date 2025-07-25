@@ -6,16 +6,16 @@ import { Bot, Layers } from 'lucide-react';
 import { fetchCookingAssistance } from '@/lib/openai';
 
 interface Message {
-  role: 'user' | 'ai';
+  role: 'user' | 'assistant';
   content: string;
 }
 
-interface AIAssistantProps {
+interface CookingAssistantProps {
   currentStep: string;
   isStepChanging?: boolean;
 }
 
-export default function AIAssistant({ currentStep, isStepChanging = false }: AIAssistantProps) {
+export default function CookingAssistant({ currentStep, isStepChanging = false }: CookingAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [question, setQuestion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,14 +29,14 @@ export default function AIAssistant({ currentStep, isStepChanging = false }: AIA
         .then(response => {
           setMessages(prev => [
             ...prev, 
-            { role: 'ai', content: response || `Now let's focus on: ${currentStep}` }
+            { role: 'assistant', content: response || `Now let's focus on: ${currentStep}` }
           ]);
         })
         .catch(error => {
           console.error('Error getting assistant response:', error);
           setMessages(prev => [
             ...prev, 
-            { role: 'ai', content: `Now let's focus on: ${currentStep}` }
+            { role: 'assistant', content: `Now let's focus on: ${currentStep}` }
           ]);
         })
         .finally(() => {
@@ -63,13 +63,13 @@ export default function AIAssistant({ currentStep, isStepChanging = false }: AIA
       
       try {
         const response = await fetchCookingAssistance(currentStep, userQuestion);
-        setMessages(prev => [...prev, { role: 'ai', content: response }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
       } catch (error) {
         console.error('Error getting assistant response:', error);
         setMessages(prev => [
           ...prev, 
           { 
-            role: 'ai', 
+            role: 'assistant', 
             content: "I'm sorry, I'm having trouble answering that question right now. Please try again later." 
           }
         ]);
@@ -94,8 +94,8 @@ export default function AIAssistant({ currentStep, isStepChanging = false }: AIA
             >
               <div 
                 className={`p-3 max-w-[85%] ${
-                  message.role === 'ai' 
-                    ? 'bg-secondary/10 ai-message' 
+                  message.role === 'assistant' 
+                    ? 'bg-secondary/10 assistant-message' 
                     : 'bg-primary/10 user-message'
                 }`}
               >
@@ -105,7 +105,7 @@ export default function AIAssistant({ currentStep, isStepChanging = false }: AIA
           ))}
           {isLoading && (
             <div className="flex">
-              <div className="bg-secondary/10 ai-message p-3 max-w-[85%]">
+              <div className="bg-secondary/10 assistant-message p-3 max-w-[85%]">
                 <div className="flex space-x-1">
                   <div className="h-2 w-2 bg-secondary rounded-full animate-bounce"></div>
                   <div className="h-2 w-2 bg-secondary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

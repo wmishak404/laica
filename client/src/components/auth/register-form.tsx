@@ -113,7 +113,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
           </div>
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>
-            Join AI Cooking Assistant and start your culinary journey
+            Join Cooking Assistant and start your culinary journey
           </CardDescription>
         </CardHeader>
         <CardContent>
