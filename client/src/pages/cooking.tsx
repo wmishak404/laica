@@ -233,7 +233,7 @@ export default function Cooking() {
       <main>
         <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-6 md:py-8">
           <div className="container mx-auto px-4">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Cooking Assistant</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Laica</h1>
             <p className="text-lg mb-4">Follow step-by-step guidance with your AI cooking companion</p>
           </div>
         </section>

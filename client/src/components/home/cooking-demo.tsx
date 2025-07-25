@@ -120,7 +120,7 @@ export default function CookingDemo() {
               <Card>
                 <CardContent className="p-5">
                   <h4 className="font-bold mb-3 flex items-center">
-                    <Bot className="text-secondary mr-2 h-5 w-5" /> Cooking Assistant
+                    <Bot className="text-secondary mr-2 h-5 w-5" /> Laica
                   </h4>
                   
                   <div className="space-y-4 mb-4 h-56 overflow-y-auto p-2">

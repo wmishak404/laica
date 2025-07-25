@@ -400,7 +400,7 @@ export default function MobileApp() {
       <div className="flex items-center justify-between max-w-md mx-auto">
         <div className="flex items-center space-x-3">
           <ChefHat className="h-6 w-6 text-[#FF6B6B]" />
-          <span className="font-semibold text-gray-900">Cooking Assistant</span>
+          <span className="font-semibold text-gray-900">Laica</span>
         </div>
         
         <div className="flex items-center space-x-2">
