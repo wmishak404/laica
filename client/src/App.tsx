@@ -4,8 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import { useAuth } from "@/hooks/useAuth";
-import AuthWrapper from "@/components/auth/auth-wrapper";
+// Authentication removed for demo mode
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
@@ -16,35 +15,15 @@ import GroceryListMobile from "@/pages/grocery-list-mobile";
 import Settings from "@/pages/settings";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Demo mode - skip authentication
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <>
-          <Route path="/login" component={() => <AuthWrapper onSuccess={() => window.location.reload()} />} />
-          <Route path="/" component={Landing} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={MobileApp} />
-          <Route path="/website" component={Home} />
-          <Route path="/cooking" component={Cooking} />
-          <Route path="/grocery-list" component={GroceryListMobile} />
-          <Route path="/settings" component={Settings} />
-        </>
-      )}
+      <Route path="/landing" component={Landing} />
+      <Route path="/" component={MobileApp} />
+      <Route path="/website" component={Home} />
+      <Route path="/cooking" component={Cooking} />
+      <Route path="/grocery-list" component={GroceryListMobile} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );

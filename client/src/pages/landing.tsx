@@ -14,10 +14,10 @@ export default function Landing() {
         </div>
         <div className="ml-auto">
           <Button 
-            onClick={() => window.location.href = '/login'}
+            onClick={() => window.location.href = '/'}
             className="bg-orange-600 hover:bg-orange-700 text-white"
           >
-            Sign In
+            Try Demo
           </Button>
         </div>
       </header>
@@ -39,10 +39,10 @@ export default function Landing() {
             <div className="space-x-4">
               <Button 
                 size="lg" 
-                onClick={() => window.location.href = '/login'}
+                onClick={() => window.location.href = '/'}
                 className="bg-orange-600 hover:bg-orange-700 text-white"
               >
-                Get Started Free
+                Try Demo
               </Button>
               <Button variant="outline" size="lg" className="border-orange-600 text-orange-600 hover:bg-orange-50 dark:border-orange-400 dark:text-orange-400">
                 Learn More
@@ -120,11 +120,11 @@ export default function Landing() {
             </div>
             <Button 
               size="lg" 
-              onClick={() => window.location.href = '/login'}
+              onClick={() => window.location.href = '/'}
               className="bg-orange-600 hover:bg-orange-700 text-white"
             >
               <Smartphone className="mr-2 h-4 w-4" />
-              Start Cooking Smarter Today
+              Try Demo Now
             </Button>
           </div>
         </div>
