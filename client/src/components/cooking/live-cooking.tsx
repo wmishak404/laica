@@ -331,7 +331,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
     try {
       setIsVoiceRecording(true);
-      setAssistantResponse("I'm listening... Ask me anything about this cooking step!");
+      // Remove voice feedback to avoid recording assistant voice
+      setAssistantResponse("Listening for your question...");
       
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
@@ -350,11 +351,24 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let silenceStart = Date.now();
       let hasDetectedSound = false;
       let isCurrentlyListening = true;
+      let initialDelayComplete = false;
       const SILENCE_THRESHOLD = 10; // Lower threshold for better detection
       const SILENCE_DURATION = 1000; // 1 second of silence
+      const INITIAL_DELAY = 1500; // 1.5 second delay before starting silence detection
       
       const checkAudioLevel = () => {
         if (!isCurrentlyListening) return;
+        
+        // Check if initial delay has passed
+        const currentTime = Date.now();
+        if (!initialDelayComplete) {
+          if (currentTime - mediaRecorderRef.current?.startTime < INITIAL_DELAY) {
+            setTimeout(checkAudioLevel, 100);
+            return;
+          }
+          initialDelayComplete = true;
+          console.log('Initial delay complete, starting silence detection');
+        }
         
         analyser.getByteTimeDomainData(dataArray);
         
@@ -366,17 +380,18 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         }
         const volume = Math.sqrt(sum / bufferLength) * 100;
         
-        console.log(`Audio level: ${volume.toFixed(2)}, Has detected sound: ${hasDetectedSound}`);
+        console.log(`Audio level: ${volume.toFixed(2)}, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
         
         if (volume > SILENCE_THRESHOLD) {
           // Sound detected
           if (!hasDetectedSound) {
             hasDetectedSound = true;
-            setAssistantResponse("I'm listening... I can hear you speaking.");
+            // Remove voice feedback to avoid recording it
+            setAssistantResponse("Recording your question...");
           }
           silenceStart = Date.now();
-        } else if (hasDetectedSound) {
-          // Silence detected after sound was heard
+        } else if (hasDetectedSound && initialDelayComplete) {
+          // Silence detected after sound was heard and initial delay passed
           const silenceDuration = Date.now() - silenceStart;
           console.log(`Silence duration: ${silenceDuration}ms`);
           
@@ -414,6 +429,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       };
       
       mediaRecorderRef.current.start();
+      // Store start time for initial delay
+      mediaRecorderRef.current.startTime = Date.now();
       checkAudioLevel(); // Start silence detection
       
       // Auto-stop after 10 seconds as fallback
