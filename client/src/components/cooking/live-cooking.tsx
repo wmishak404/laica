@@ -46,6 +46,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
   const [voiceProcessingTimeout, setVoiceProcessingTimeout] = useState<NodeJS.Timeout | null>(null);
   const [silenceTimeout, setSilenceTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [shouldProcessRecording, setShouldProcessRecording] = useState(true);
   const [cameraMode, setCameraMode] = useState<'front' | 'back'>('back');
   const [cameraTimeout, setCameraTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showCameraFeed, setShowCameraFeed] = useState(true);
@@ -348,11 +349,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       let silenceStart = Date.now();
       let hasDetectedSound = false;
-      const SILENCE_THRESHOLD = 20; // Lower threshold for better detection
-      const SILENCE_DURATION = 3000; // 3 seconds of silence
+      let isCurrentlyListening = true;
+      const SILENCE_THRESHOLD = 15; // Adjusted threshold for better detection
+      const SILENCE_DURATION = 1000; // 1 second of silence
       
       const checkAudioLevel = () => {
-        if (!isVoiceRecording) return;
+        if (!isCurrentlyListening || !isVoiceRecording) return;
         
         analyser.getByteFrequencyData(dataArray);
         // Get RMS (root mean square) for better audio level detection
@@ -370,13 +372,17 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         } else if (hasDetectedSound) {
           // Silence detected after sound was heard
           if (Date.now() - silenceStart > SILENCE_DURATION) {
-            // 3 seconds of silence after speaking, auto-process
+            // 1 second of silence after speaking, auto-process
+            isCurrentlyListening = false; // Stop the loop
             stopVoiceRecording();
             return;
           }
         }
         
-        requestAnimationFrame(checkAudioLevel);
+        // Continue checking if we're still listening
+        if (isCurrentlyListening) {
+          requestAnimationFrame(checkAudioLevel);
+        }
       };
       
       const chunks: BlobPart[] = [];
@@ -384,14 +390,14 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         chunks.push(event.data);
       };
       
-      let shouldProcess = true; // Flag to control processing
+      setShouldProcessRecording(true); // Reset processing flag
       
       mediaRecorderRef.current.onstop = async () => {
         stream.getTracks().forEach(track => track.stop());
         audioContext.close();
         
         // Check the shouldProcess flag at processing time
-        if (mediaRecorderRef.current?.shouldProcess !== false && chunks.length > 0) {
+        if (shouldProcessRecording && chunks.length > 0) {
           setIsProcessing(true);
           setAssistantResponse("Processing your question...");
           
@@ -400,15 +406,13 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         }
       };
       
-      // Initialize shouldProcess flag
-      mediaRecorderRef.current.shouldProcess = true;
-      
       mediaRecorderRef.current.start();
       checkAudioLevel(); // Start silence detection
       
       // Auto-stop after 10 seconds as fallback
       const timeout = setTimeout(() => {
         if (mediaRecorderRef.current && isVoiceRecording) {
+          isCurrentlyListening = false; // Stop audio level checking
           stopVoiceRecording();
         }
       }, 10000);
@@ -438,9 +442,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   const cancelVoiceRecording = () => {
     // Cancel without processing
+    setShouldProcessRecording(false); // Set flag to prevent processing
+    
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      // Set flag to prevent processing
-      mediaRecorderRef.current.shouldProcess = false;
       mediaRecorderRef.current.stop();
     }
     if (voiceProcessingTimeout) {
@@ -453,6 +457,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
     setIsVoiceRecording(false);
     setIsProcessing(false);
+    setLastSpokenResponse(''); // Clear to allow new response
     setAssistantResponse("Ready to help! Press 'Ask for Help' if you need assistance with this cooking step.");
   };
 
