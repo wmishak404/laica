@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { registerUser, loginUser } from "./localAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
+import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
 import { z } from "zod";
 import heicConvert from "heic-convert";
 
@@ -311,7 +312,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ElevenLabs voice synthesis routes
+  app.post('/api/speech/synthesize', async (req, res) => {
+    try {
+      const schema = z.object({
+        text: z.string().min(1),
+        voiceId: z.string().optional(),
+        stability: z.number().min(0).max(1).optional(),
+        similarityBoost: z.number().min(0).max(1).optional(),
+        style: z.number().min(0).max(1).optional(),
+        useSpeakerBoost: z.boolean().optional(),
+      });
+      
+      const { text, voiceId, stability, similarityBoost, style, useSpeakerBoost } = schema.parse(req.body);
+      
+      const audioBuffer = await synthesizeSpeech(text, {
+        voiceId,
+        stability,
+        similarityBoost,
+        style,
+        useSpeakerBoost,
+      });
+      
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': audioBuffer.length.toString(),
+        'Cache-Control': 'public, max-age=31536000',
+      });
+      
+      res.send(audioBuffer);
+    } catch (error) {
+      console.error('Error in speech synthesis:', error);
+      res.status(500).json({ error: 'Failed to synthesize speech' });
+    }
+  });
 
+  // Get available voices
+  app.get('/api/speech/voices', async (req, res) => {
+    try {
+      res.json({
+        cookingVoices: COOKING_VOICES,
+        allVoices: await getAvailableVoices(),
+      });
+    } catch (error) {
+      console.error('Error fetching voices:', error);
+      res.status(500).json({ error: 'Failed to fetch voices' });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

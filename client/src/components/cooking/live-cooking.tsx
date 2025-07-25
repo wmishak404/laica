@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Mic, MicOff, Camera, CameraOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Monitor, Smartphone, Clock, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
+import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 
 interface RecipeStep {
   id: number;
@@ -55,6 +56,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
   const [isLoadingSteps, setIsLoadingSteps] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [useElevenLabs, setUseElevenLabs] = useState(true);
+  const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -151,15 +155,40 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
   }, [cameraMode, showCameraFeed]);
 
-  // Text-to-speech function
-  const speakText = (text: string) => {
-    if (isAudioEnabled && speechSynthesisRef.current) {
-      speechSynthesisRef.current.cancel(); // Stop any current speech
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
-      speechSynthesisRef.current.speak(utterance);
+  // Enhanced text-to-speech using ElevenLabs or browser fallback
+  const speakText = async (text: string) => {
+    if (!isAudioEnabled || !text || isSpeaking) return;
+    
+    setIsSpeaking(true);
+    
+    try {
+      if (useElevenLabs) {
+        // Use ElevenLabs for high-quality voice
+        await elevenLabsClient.speakText(text, voiceSettings);
+      } else {
+        // Fallback to browser TTS
+        await browserTTSClient.speak(text, {
+          rate: 0.9,
+          pitch: 1.0,
+          volume: 0.8,
+        });
+      }
+    } catch (error) {
+      console.error('Speech synthesis error:', error);
+      // Fallback to browser TTS if ElevenLabs fails
+      if (useElevenLabs) {
+        try {
+          await browserTTSClient.speak(text, {
+            rate: 0.9,
+            pitch: 1.0,
+            volume: 0.8,
+          });
+        } catch (fallbackError) {
+          console.error('Browser TTS fallback failed:', fallbackError);
+        }
+      }
+    } finally {
+      setIsSpeaking(false);
     }
   };
 
@@ -304,7 +333,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       {showSettings && (
         <Card className="mb-4 bg-black/70 border-gray-600">
           <CardHeader>
-            <CardTitle className="text-white">Camera & Audio Settings</CardTitle>
+            <CardTitle className="text-white">Camera & Voice Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
@@ -338,6 +367,54 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                 onCheckedChange={setIsAudioEnabled}
               />
             </div>
+
+            {isAudioEnabled && (
+              <>
+                <div className="flex items-center justify-between">
+                  <Label className="text-white">High-Quality Voice</Label>
+                  <Switch
+                    checked={useElevenLabs}
+                    onCheckedChange={setUseElevenLabs}
+                  />
+                </div>
+                
+                {useElevenLabs && (
+                  <div className="space-y-3 border border-gray-600 p-3 rounded-lg">
+                    <div className="space-y-2">
+                      <Label className="text-white text-sm">Voice Stability: {(voiceSettings.stability || 0.6).toFixed(1)}</Label>
+                      <Slider
+                        value={[voiceSettings.stability || 0.6]}
+                        onValueChange={([value]) => setVoiceSettings(prev => ({ ...prev, stability: value }))}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <div className="text-xs text-gray-400">More stable = less expressive</div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-white text-sm">Voice Clarity: {(voiceSettings.similarityBoost || 0.7).toFixed(1)}</Label>
+                      <Slider
+                        value={[voiceSettings.similarityBoost || 0.7]}
+                        onValueChange={([value]) => setVoiceSettings(prev => ({ ...prev, similarityBoost: value }))}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <div className="text-xs text-gray-400">Higher = clearer pronunciation</div>
+                    </div>
+
+                    {isSpeaking && (
+                      <div className="flex items-center justify-center text-white text-sm">
+                        <div className="animate-pulse">🎤 Speaking...</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
             
             <div className="space-y-2">
               <Label className="text-white">Caption Size: {captionSize}px</Label>

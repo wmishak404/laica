@@ -34,7 +34,7 @@ The application follows a modern full-stack architecture with separate client an
 ### User Workflow Components
 1. **User Profiling** (`user-profiling.tsx`): Collects cooking skill, dietary restrictions, available time, pantry ingredients, and kitchen equipment
 2. **Meal Planning** (`meal-planning.tsx`): Suggests recipes based on user profile and preferences
-3. **Live Cooking** (`live-cooking.tsx`): Provides step-by-step cooking guidance with visual/audio feedback
+3. **Live Cooking** (`live-cooking.tsx`): Provides step-by-step cooking guidance with enhanced voice synthesis via ElevenLabs and visual feedback
 4. **Grocery List Generation** (`grocery-list-generator.tsx`): Creates smart shopping lists with alternatives
 
 ### Core Features
@@ -58,6 +58,7 @@ The application follows a modern full-stack architecture with separate client an
 ### AI Services
 - **OpenAI GPT-4o**: Primary AI engine for recipe suggestions, cooking guidance, and ingredient analysis
 - **Anthropic Claude**: Secondary AI service (@anthropic-ai/sdk) for additional AI capabilities
+- **ElevenLabs**: High-quality text-to-speech synthesis for enhanced live cooking voice guidance
 
 ### Database & Storage
 - **Neon PostgreSQL**: Serverless PostgreSQL database
@@ -86,7 +87,21 @@ The application is designed for Replit deployment with:
 - **Environment Variables**: 
   - `DATABASE_URL`: PostgreSQL connection string
   - `OPENAI_API_KEY`: OpenAI API access
+  - `ELEVENLABS_API_KEY`: ElevenLabs text-to-speech API access
   - `SESSION_SECRET`: Session encryption key
   - `ISSUER_URL`: Replit OAuth configuration
 
-The app includes progressive web app features with offline capability considerations and mobile-optimized UI components. The cooking interface is specifically designed for hands-free operation with voice commands and visual feedback during active cooking sessions.
+The app includes progressive web app features with offline capability considerations and mobile-optimized UI components. The cooking interface is specifically designed for hands-free operation with high-quality voice synthesis (ElevenLabs with browser TTS fallback), voice commands, and visual feedback during active cooking sessions.
+
+## Recent Changes (Latest Update)
+
+### ElevenLabs Voice Integration (January 2025)
+- **Enhanced Audio Experience**: Integrated ElevenLabs API for professional-quality text-to-speech during cooking sessions
+- **Voice Settings**: Added configurable voice stability and clarity controls in live cooking settings
+- **Dual TTS System**: Implemented ElevenLabs as primary TTS with browser speechSynthesis as fallback
+- **API Infrastructure**: 
+  - New backend endpoints: `/api/speech/synthesize` and `/api/speech/voices`
+  - Client library: `client/src/lib/elevenlabs.ts` for audio handling
+  - Server integration: `server/elevenlabs.ts` with ElevenLabsClient
+- **UI Enhancements**: Added voice quality toggle and real-time speaking indicators in cooking interface
+- **Performance**: Uses Turbo v2.5 model for optimal balance of quality and latency
