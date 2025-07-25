@@ -44,6 +44,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
+  const [voiceProcessingTimeout, setVoiceProcessingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [silenceTimeout, setSilenceTimeout] = useState<NodeJS.Timeout | null>(null);
   const [cameraMode, setCameraMode] = useState<'front' | 'back'>('back');
   const [cameraTimeout, setCameraTimeout] = useState<NodeJS.Timeout | null>(null);
   const [showCameraFeed, setShowCameraFeed] = useState(true);
@@ -319,7 +321,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setAssistantResponse(stepText);
   };
 
-  // Voice recording functionality
+  // Voice recording functionality with silence detection
   const startVoiceRecording = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setAssistantResponse("Voice recording is not supported in this browser. Please use a modern browser with microphone access.");
@@ -333,25 +335,66 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
       
+      // Set up audio context for silence detection
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      const microphone = audioContext.createMediaStreamSource(stream);
+      microphone.connect(analyser);
+      
+      analyser.fftSize = 512;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      let silenceStart = Date.now();
+      const SILENCE_THRESHOLD = 30; // Adjust as needed
+      const SILENCE_DURATION = 3000; // 3 seconds of silence
+      
+      const checkAudioLevel = () => {
+        if (!isVoiceRecording) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+        
+        if (average < SILENCE_THRESHOLD) {
+          // Silence detected
+          if (Date.now() - silenceStart > SILENCE_DURATION) {
+            // 3 seconds of silence, auto-process
+            stopVoiceRecording();
+            return;
+          }
+        } else {
+          // Sound detected, reset silence timer
+          silenceStart = Date.now();
+        }
+        
+        requestAnimationFrame(checkAudioLevel);
+      };
+      
       const chunks: BlobPart[] = [];
       mediaRecorderRef.current.ondataavailable = (event) => {
         chunks.push(event.data);
       };
       
       mediaRecorderRef.current.onstop = async () => {
+        setIsProcessing(true);
+        setAssistantResponse("Processing your question...");
+        
         const audioBlob = new Blob(chunks, { type: 'audio/wav' });
         await processVoiceQuestion(audioBlob);
         stream.getTracks().forEach(track => track.stop());
+        audioContext.close();
       };
       
       mediaRecorderRef.current.start();
+      checkAudioLevel(); // Start silence detection
       
-      // Auto-stop after 10 seconds
-      setTimeout(() => {
+      // Auto-stop after 10 seconds as fallback
+      const timeout = setTimeout(() => {
         if (mediaRecorderRef.current && isVoiceRecording) {
           stopVoiceRecording();
         }
       }, 10000);
+      setVoiceProcessingTimeout(timeout);
       
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -364,13 +407,36 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
     }
+    if (voiceProcessingTimeout) {
+      clearTimeout(voiceProcessingTimeout);
+      setVoiceProcessingTimeout(null);
+    }
+    if (silenceTimeout) {
+      clearTimeout(silenceTimeout);
+      setSilenceTimeout(null);
+    }
     setIsVoiceRecording(false);
   };
 
+  const cancelVoiceRecording = () => {
+    // Cancel without processing
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    if (voiceProcessingTimeout) {
+      clearTimeout(voiceProcessingTimeout);
+      setVoiceProcessingTimeout(null);
+    }
+    if (silenceTimeout) {
+      clearTimeout(silenceTimeout);
+      setSilenceTimeout(null);
+    }
+    setIsVoiceRecording(false);
+    setIsProcessing(false);
+    setAssistantResponse("Ready to help! Press 'Ask for Help' if you need assistance with this cooking step.");
+  };
+
   const processVoiceQuestion = async (audioBlob: Blob) => {
-    setIsProcessing(true);
-    setAssistantResponse("Processing your question...");
-    
     try {
       // TODO: Implement actual speech-to-text transcription
       // For demo purposes, we'll simulate a common cooking question
@@ -397,13 +463,16 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       }, 'cooking assistance');
       
       if (response) {
+        setLastSpokenResponse(''); // Clear to allow new response
         setAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
       } else {
+        setLastSpokenResponse(''); // Clear to allow new response
         setAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
       }
       
     } catch (error) {
       console.error('Error processing voice question:', error);
+      setLastSpokenResponse(''); // Clear to allow new response
       setAssistantResponse("I had trouble understanding your question. Please try asking again.");
     }
     
@@ -412,7 +481,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   const askForHelp = () => {
     if (isVoiceRecording) {
-      stopVoiceRecording();
+      cancelVoiceRecording();
     } else {
       startVoiceRecording();
     }
@@ -774,10 +843,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             <Button
               variant={isVoiceRecording ? "destructive" : "default"}
               onClick={askForHelp}
-              disabled={isProcessing}
+              disabled={isProcessing && !isVoiceRecording}
               className="flex-1 max-w-xs"
             >
-              {isProcessing ? (
+              {isProcessing && !isVoiceRecording ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
                   Processing...
@@ -785,7 +854,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
               ) : isVoiceRecording ? (
                 <>
                   <MicOff className="h-4 w-4 mr-2" />
-                  Stop Listening
+                  Cancel
                 </>
               ) : (
                 <>
