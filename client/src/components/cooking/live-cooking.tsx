@@ -489,9 +489,27 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   const processVoiceQuestion = async (audioBlob: Blob) => {
     try {
-      // TODO: Implement actual speech-to-text transcription
-      // For demo purposes, we'll simulate a common cooking question
-      const simulatedTranscription = "How long should I cook this?";
+      // Use OpenAI Whisper API to transcribe the actual user's voice
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.wav');
+      
+      console.log('Sending audio for transcription...');
+      const transcriptionResponse = await fetch('/api/speech/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!transcriptionResponse.ok) {
+        throw new Error(`Transcription failed: ${transcriptionResponse.statusText}`);
+      }
+      
+      const { transcription, success } = await transcriptionResponse.json();
+      
+      if (!success || !transcription?.trim()) {
+        throw new Error('No transcription received');
+      }
+      
+      console.log('Transcription received:', transcription);
       
       // Create a detailed context for the AI about the current step and future steps
       const futureSteps = currentRecipeSteps.slice(currentStepIndex + 1, currentStepIndex + 3);
@@ -505,12 +523,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       Common mistakes: "${currentStep?.commonMistakes}"
       ${futureStepsText}
       
-      User question (via voice): "${simulatedTranscription}"
+      User question (via voice): "${transcription}"
       
       Please provide a helpful, contextual answer that relates specifically to this step and mentions how this connects to future steps when relevant. Keep the response conversational and encouraging.`;
       
       const response = await withDemoErrorHandling(async () => {
-        return await fetchCookingAssistance(contextualPrompt, simulatedTranscription);
+        return await fetchCookingAssistance(contextualPrompt, transcription);
       }, 'cooking assistance');
       
       if (response) {
@@ -524,7 +542,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     } catch (error) {
       console.error('Error processing voice question:', error);
       setLastSpokenResponse(''); // Clear to allow new response
-      setAssistantResponse("I had trouble understanding your question. Please try asking again.");
+      setAssistantResponse("I had trouble understanding your question. Please try asking again, speaking clearly near your microphone.");
     }
     
     setIsProcessing(false);

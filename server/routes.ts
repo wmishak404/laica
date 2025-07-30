@@ -7,6 +7,19 @@ import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlt
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
 import { z } from "zod";
 import heicConvert from "heic-convert";
+import multer from "multer";
+import fs from "fs/promises";
+import fsSync from "fs";
+import OpenAI from "openai";
+
+// OpenAI client for transcription
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Multer for handling file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit for audio files
+});
 
 // Local authentication middleware
 const isLocalAuthenticated: RequestHandler = (req, res, next) => {
@@ -288,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             buffer: imageBuffer,
             format: 'JPEG',
             quality: 0.8
-          });
+          } as any);
           processedImage = outputBuffer.toString('base64');
         } catch (conversionError) {
           console.error('HEIC conversion failed:', conversionError);
@@ -357,6 +370,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching voices:', error);
       res.status(500).json({ error: 'Failed to fetch voices' });
+    }
+  });
+
+  // Speech transcription route using OpenAI Whisper
+  app.post('/api/speech/transcribe', upload.single('audio'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Audio file is required' });
+      }
+
+      console.log('Received audio file for transcription:', {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      });
+
+      // Create a temporary file from the uploaded audio
+      const tempFilePath = `/tmp/audio_${Date.now()}.wav`;
+      await fs.writeFile(tempFilePath, req.file.buffer);
+
+      try {
+        // Use OpenAI Whisper API for transcription
+        const transcription = await openai.audio.transcriptions.create({
+          file: fsSync.createReadStream(tempFilePath) as any,
+          model: "whisper-1",
+          language: "en", // Can be made configurable
+          response_format: "text"
+        });
+
+        console.log('Transcription result:', transcription);
+
+        res.json({ 
+          transcription: transcription.trim(),
+          success: true 
+        });
+
+      } finally {
+        // Clean up temp file
+        await fs.unlink(tempFilePath).catch(console.warn);
+      }
+
+    } catch (error) {
+      console.error('Transcription error:', error);
+      res.status(500).json({ 
+        error: 'Failed to transcribe audio',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
