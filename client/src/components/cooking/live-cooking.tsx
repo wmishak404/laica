@@ -244,20 +244,26 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
   };
 
-  // Speak assistant response when it changes (only if audio is enabled)
+  // Speak assistant response when it changes (only if audio is enabled and not recording)
   // Don't speak if audio was just turned back on (to avoid repeating current step)
+  // Don't speak while voice recording to prevent contamination
   const [audioJustEnabled, setAudioJustEnabled] = useState(false);
   const [lastSpokenResponse, setLastSpokenResponse] = useState<string>('');
   
   useEffect(() => {
-    if (assistantResponse && isAudioEnabled && !audioJustEnabled && assistantResponse !== lastSpokenResponse) {
-      speakText(assistantResponse);
-      setLastSpokenResponse(assistantResponse);
+    if (assistantResponse && isAudioEnabled && !audioJustEnabled && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
+      // Add longer delay to ensure captioning has time to display fully
+      setTimeout(() => {
+        if (!isVoiceRecording) { // Double-check we're still not recording
+          speakText(assistantResponse);
+          setLastSpokenResponse(assistantResponse);
+        }
+      }, 800); // 800ms delay to ensure caption displays fully
     }
     if (audioJustEnabled) {
       setAudioJustEnabled(false);
     }
-  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse]);
+  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording]);
 
   // Track when audio is enabled to prevent immediate replay
   useEffect(() => {
@@ -357,8 +363,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let isCurrentlyListening = true;
       let initialDelayComplete = false;
       let recordingStartTime = Date.now();
-      const SILENCE_THRESHOLD = 10; // Lower threshold for better detection
-      const SILENCE_DURATION = 1000; // 1 second of silence
+      const SILENCE_THRESHOLD = 8; // Lower threshold for better speech detection
+      const SILENCE_DURATION = 1500; // 1.5 seconds of silence (increased for better detection)
       const INITIAL_DELAY = 1500; // 1.5 second delay before starting silence detection
       const MAX_RECORDING_TIME = 30000; // 30 seconds maximum recording
       const MIN_RECORDING_TIME = 1000; // 1 second minimum for valid recording
@@ -414,16 +420,19 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         } else if (hasDetectedSound && initialDelayComplete) {
           // Silence detected after sound was heard and initial delay passed
           const silenceDuration = Date.now() - silenceStart;
-          console.log(`Silence duration: ${silenceDuration}ms`);
+          console.log(`Silence duration: ${silenceDuration}ms, threshold: ${SILENCE_DURATION}ms`);
           
-          if (silenceDuration > SILENCE_DURATION) {
-            console.log('Auto-processing due to silence');
+          if (silenceDuration >= SILENCE_DURATION) {
+            console.log('Auto-processing due to silence detection');
             isCurrentlyListening = false;
             const totalRecordingTime = Date.now() - recordingStartTime;
-            if (totalRecordingTime > MIN_RECORDING_TIME) {
+            console.log(`Total recording time: ${totalRecordingTime}ms, minimum: ${MIN_RECORDING_TIME}ms`);
+            
+            if (totalRecordingTime >= MIN_RECORDING_TIME) {
               // Don't set assistant response to avoid audio feedback
               stopVoiceRecording();
             } else {
+              console.log('Recording too short, cancelling');
               // Don't set assistant response to avoid audio feedback
               cancelVoiceRecording();
             }
@@ -446,13 +455,18 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         stream.getTracks().forEach(track => track.stop());
         audioContext.close();
         
-        // Check the shouldProcess flag at processing time
+        console.log('Recording stopped. shouldProcessRecording:', shouldProcessRecording, 'chunks.length:', chunks.length);
+        
+        // Check the shouldProcess flag at processing time - this prevents cancelled recordings from processing
         if (shouldProcessRecording && chunks.length > 0) {
           setIsProcessing(true);
           // Don't set assistant response to avoid audio feedback
           
           const audioBlob = new Blob(chunks, { type: 'audio/wav' });
           await processVoiceQuestion(audioBlob);
+        } else {
+          console.log('Recording not processed - either cancelled or no audio data');
+          setIsProcessing(false);
         }
       };
       
@@ -508,9 +522,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   };
 
   const cancelVoiceRecording = () => {
-    // Cancel without processing
-    setShouldProcessRecording(false); // Set flag to prevent processing
+    console.log('Cancelling voice recording - will NOT process');
     
+    // Cancel without processing - set flag BEFORE stopping recorder
+    setShouldProcessRecording(false);
+    
+    // Stop all recording processes
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
     }
@@ -526,11 +543,15 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       clearInterval(recordingTimer);
       setRecordingTimer(null);
     }
+    
+    // Reset all states
     setIsVoiceRecording(false);
     setIsProcessing(false);
     setRecordingDuration(0);
-    setLastSpokenResponse(''); // Clear to allow new response
-    setAssistantResponse("Ready to help! Press 'Ask for Help' if you need assistance with this cooking step.");
+    
+    // Clear any pending responses and set ready state
+    setLastSpokenResponse(''); 
+    setAssistantResponse("Recording cancelled. Press 'Ask for Help' if you need assistance with this cooking step.");
   };
 
   const processVoiceQuestion = async (audioBlob: Blob) => {

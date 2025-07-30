@@ -127,3 +127,8 @@ The app includes progressive web app features with offline capability considerat
   - Automatic usage limit enforcement prevents overage with graceful error messages
   - localStorage-based usage tracking with automatic daily/weekly/monthly counter resets
   - **Audio Feedback Fix**: Removed all assistant voice responses during recording to prevent contamination of user speech input
+  - **Voice Interface Reliability Fixes (January 30, 2025)**:
+    * Fixed caption timeout issue by adding 800ms delay before audio playback to ensure captions display fully
+    * Improved silence detection: increased threshold to 1.5 seconds and lowered sensitivity for better speech recognition
+    * Fixed Cancel button to truly cancel recordings instead of processing them - sets processing flag before stopping recorder
+    * Added comprehensive logging for debugging voice recording states and silence detection
