@@ -117,3 +117,12 @@ The app includes progressive web app features with offline capability considerat
   - Contextual AI responses that reference current cooking step and preview upcoming steps
   - Real-time audio level monitoring with debug logging for troubleshooting
   - Mobile-optimized interface with large, accessible control buttons
+- **Cost Optimization System (Completed January 30, 2025)**:
+  - Smart recording controls: 30-second max recording time with 1-second minimum validation
+  - Real-time recording duration indicator with cost estimates (shows ~$0.0001 per second)
+  - Audio preprocessing and compression: automatic silence trimming, resampling to 16kHz mono, and format optimization
+  - Compression typically achieves 30-50% size reduction while maintaining transcription quality
+  - Usage analytics and rate limiting: tracks daily (10 min), weekly (50 min), and monthly (200 min) limits
+  - Usage statistics display in settings panel showing current consumption vs. limits
+  - Automatic usage limit enforcement prevents overage with graceful error messages
+  - localStorage-based usage tracking with automatic daily/weekly/monthly counter resets

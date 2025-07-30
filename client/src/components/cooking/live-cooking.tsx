@@ -12,6 +12,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
+import { AudioProcessor } from '@/lib/audioUtils';
+import { UsageTracker } from '@/lib/usageTracker';
 
 interface RecipeStep {
   id: number;
@@ -65,6 +67,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(null);
+  const [usageStats, setUsageStats] = useState(UsageTracker.getUsageStats());
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -352,9 +357,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let hasDetectedSound = false;
       let isCurrentlyListening = true;
       let initialDelayComplete = false;
+      let recordingStartTime = Date.now();
       const SILENCE_THRESHOLD = 10; // Lower threshold for better detection
       const SILENCE_DURATION = 1000; // 1 second of silence
       const INITIAL_DELAY = 1500; // 1.5 second delay before starting silence detection
+      const MAX_RECORDING_TIME = 30000; // 30 seconds maximum recording
+      const MIN_RECORDING_TIME = 1000; // 1 second minimum for valid recording
       
       const checkAudioLevel = () => {
         if (!isCurrentlyListening) return;
@@ -379,8 +387,23 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           sum += sample * sample;
         }
         const volume = Math.sqrt(sum / bufferLength) * 100;
+        const recordingTime = Date.now() - recordingStartTime;
         
-        console.log(`Audio level: ${volume.toFixed(2)}, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
+        console.log(`Audio level: ${volume.toFixed(2)}, Recording time: ${(recordingTime/1000).toFixed(1)}s, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
+        
+        // Check for maximum recording time limit
+        if (recordingTime > MAX_RECORDING_TIME) {
+          console.log('Auto-stopping due to 30-second maximum recording limit');
+          isCurrentlyListening = false;
+          if (hasDetectedSound && recordingTime > MIN_RECORDING_TIME) {
+            setAssistantResponse("Recording complete. Processing your question...");
+            stopVoiceRecording();
+          } else {
+            setAssistantResponse("Recording was too long. Please keep questions under 30 seconds.");
+            cancelVoiceRecording();
+          }
+          return;
+        }
         
         if (volume > SILENCE_THRESHOLD) {
           // Sound detected
@@ -398,7 +421,14 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           if (silenceDuration > SILENCE_DURATION) {
             console.log('Auto-processing due to silence');
             isCurrentlyListening = false;
-            stopVoiceRecording();
+            const totalRecordingTime = Date.now() - recordingStartTime;
+            if (totalRecordingTime > MIN_RECORDING_TIME) {
+              setAssistantResponse("Processing your question...");
+              stopVoiceRecording();
+            } else {
+              setAssistantResponse("Recording was too short. Please speak clearly for at least 1 second.");
+              cancelVoiceRecording();
+            }
             return;
           }
         }
@@ -431,16 +461,25 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       mediaRecorderRef.current.start();
       // Store start time for initial delay
       (mediaRecorderRef.current as any).startTime = Date.now();
+      
+      // Start recording duration timer
+      setRecordingDuration(0);
+      const durationTimer = setInterval(() => {
+        setRecordingDuration(prev => prev + 0.1);
+      }, 100);
+      setRecordingTimer(durationTimer);
+      
       checkAudioLevel(); // Start silence detection
       
-      // Auto-stop after 10 seconds as fallback
+      // Auto-stop after 35 seconds as final safety fallback (5s buffer beyond max recording)
       const timeout = setTimeout(() => {
-        console.log('Auto-stopping due to 10s timeout');
+        console.log('Auto-stopping due to 35s safety timeout');
         isCurrentlyListening = false;
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-          stopVoiceRecording();
+          setAssistantResponse("Recording timed out. Please try asking your question again, keeping it under 30 seconds.");
+          cancelVoiceRecording();
         }
-      }, 10000);
+      }, 35000);
       setVoiceProcessingTimeout(timeout);
       
     } catch (error) {
@@ -463,6 +502,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       clearTimeout(silenceTimeout);
       setSilenceTimeout(null);
     }
+    if (recordingTimer) {
+      clearInterval(recordingTimer);
+      setRecordingTimer(null);
+    }
     setIsVoiceRecording(false);
   };
 
@@ -481,19 +524,50 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       clearTimeout(silenceTimeout);
       setSilenceTimeout(null);
     }
+    if (recordingTimer) {
+      clearInterval(recordingTimer);
+      setRecordingTimer(null);
+    }
     setIsVoiceRecording(false);
     setIsProcessing(false);
+    setRecordingDuration(0);
     setLastSpokenResponse(''); // Clear to allow new response
     setAssistantResponse("Ready to help! Press 'Ask for Help' if you need assistance with this cooking step.");
   };
 
   const processVoiceQuestion = async (audioBlob: Blob) => {
     try {
-      // Use OpenAI Whisper API to transcribe the actual user's voice
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.wav');
+      // Check usage limits before processing
+      const usageLimits = UsageTracker.checkUsageLimits();
       
-      console.log('Sending audio for transcription...');
+      if (!usageLimits.withinLimits) {
+        const exceeded = usageLimits.limitsExceeded.join(', ');
+        setAssistantResponse(`Voice questions are temporarily limited. You've reached your ${exceeded} limit. Remaining usage: ${usageLimits.remainingUsage.dailyMinutes.toFixed(1)} min today.`);
+        setIsProcessing(false);
+        return;
+      }
+      
+      // Show warnings if approaching limits
+      if (usageLimits.warnings.length > 0) {
+        console.warn('Usage warnings:', usageLimits.warnings);
+      }
+      
+      // Compress and optimize audio before sending for transcription
+      console.log('Compressing audio for cost optimization...');
+      const audioProcessingResult = await AudioProcessor.compressAudio(audioBlob);
+      
+      console.log('Audio compression results:', {
+        originalSize: audioProcessingResult.originalSize,
+        compressedSize: audioProcessingResult.compressedSize,
+        compressionRatio: audioProcessingResult.compressionRatio.toFixed(2),
+        duration: audioProcessingResult.duration.toFixed(2) + 's'
+      });
+      
+      // Use compressed audio for transcription
+      const formData = new FormData();
+      formData.append('audio', audioProcessingResult.blob, 'recording.wav');
+      
+      console.log('Sending optimized audio for transcription...');
       const transcriptionResponse = await fetch('/api/speech/transcribe', {
         method: 'POST',
         body: formData,
@@ -510,6 +584,21 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       }
       
       console.log('Transcription received:', transcription);
+      
+      // Record usage for analytics and cost tracking
+      const newUsageStats = UsageTracker.recordUsage(
+        audioProcessingResult.duration, 
+        audioProcessingResult.compressionRatio
+      );
+      
+      // Update local state to reflect new usage
+      setUsageStats(newUsageStats);
+      
+      console.log('Current usage stats:', {
+        totalTranscriptions: newUsageStats.totalTranscriptions,
+        dailyUsage: `${newUsageStats.dailyUsage.toFixed(2)} min`,
+        totalCost: `$${newUsageStats.totalCost.toFixed(4)}`
+      });
       
       // Create a detailed context for the AI about the current step and future steps
       const futureSteps = currentRecipeSteps.slice(currentStepIndex + 1, currentStepIndex + 3);
@@ -725,6 +814,33 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                 className="w-full"
               />
             </div>
+            
+            {/* Usage Statistics */}
+            <div className="space-y-2">
+              <Label className="text-white">Voice Usage Statistics</Label>
+              <div className="bg-gray-800 p-3 rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-300">Today:</span>
+                  <span className="text-white">{usageStats.dailyUsage.toFixed(1)} / 10.0 min</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-300">This Week:</span>
+                  <span className="text-white">{usageStats.weeklyUsage.toFixed(1)} / 50.0 min</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-300">This Month:</span>
+                  <span className="text-white">{usageStats.monthlyUsage.toFixed(1)} / 200.0 min</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-300">Total Cost:</span>
+                  <span className="text-white">${usageStats.totalCost.toFixed(4)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-300">Total Questions:</span>
+                  <span className="text-white">{usageStats.totalTranscriptions}</span>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -909,29 +1025,47 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             </Button>
 
             {/* Voice Ask for Help Button */}
-            <Button
-              variant={isVoiceRecording ? "destructive" : "default"}
-              onClick={askForHelp}
-              disabled={isProcessing && !isVoiceRecording}
-              className="flex-1 max-w-xs"
-            >
-              {isProcessing && !isVoiceRecording ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                  Processing...
-                </>
-              ) : isVoiceRecording ? (
-                <>
-                  <MicOff className="h-4 w-4 mr-2" />
-                  Cancel
-                </>
-              ) : (
-                <>
-                  <Mic className="h-4 w-4 mr-2" />
-                  Ask for Help
-                </>
+            <div className="flex-1 max-w-xs">
+              <Button
+                variant={isVoiceRecording ? "destructive" : "default"}
+                onClick={askForHelp}
+                disabled={isProcessing && !isVoiceRecording}
+                className="w-full"
+              >
+                {isProcessing && !isVoiceRecording ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                    Processing...
+                  </>
+                ) : isVoiceRecording ? (
+                  <>
+                    <MicOff className="h-4 w-4 mr-2" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Mic className="h-4 w-4 mr-2" />
+                    Ask for Help
+                  </>
+                )}
+              </Button>
+              
+              {/* Recording Duration Indicator */}
+              {isVoiceRecording && (
+                <div className="mt-2 text-center">
+                  <div className="text-sm text-white bg-red-600 px-2 py-1 rounded-full inline-flex items-center gap-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    {recordingDuration.toFixed(1)}s
+                    {recordingDuration > 30 && (
+                      <span className="text-xs">(Max: 30s)</span>
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-300 mt-1">
+                    Cost: ~${(recordingDuration * 0.0001).toFixed(4)}
+                  </div>
+                </div>
               )}
-            </Button>
+            </div>
 
             {/* Large Mute/Unmute Button */}
             <Button
