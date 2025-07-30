@@ -126,3 +126,4 @@ The app includes progressive web app features with offline capability considerat
   - Usage statistics display in settings panel showing current consumption vs. limits
   - Automatic usage limit enforcement prevents overage with graceful error messages
   - localStorage-based usage tracking with automatic daily/weekly/monthly counter resets
+  - **Audio Feedback Fix**: Removed all assistant voice responses during recording to prevent contamination of user speech input

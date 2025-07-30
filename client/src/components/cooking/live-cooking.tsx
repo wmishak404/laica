@@ -336,8 +336,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
     try {
       setIsVoiceRecording(true);
-      // Remove voice feedback to avoid recording assistant voice
-      setAssistantResponse("Listening for your question...");
+      // Don't set any assistant response to avoid audio feedback during recording
       
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
@@ -396,10 +395,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           console.log('Auto-stopping due to 30-second maximum recording limit');
           isCurrentlyListening = false;
           if (hasDetectedSound && recordingTime > MIN_RECORDING_TIME) {
-            setAssistantResponse("Recording complete. Processing your question...");
+            // Don't set assistant response to avoid audio feedback
             stopVoiceRecording();
           } else {
-            setAssistantResponse("Recording was too long. Please keep questions under 30 seconds.");
+            // Don't set assistant response to avoid audio feedback
             cancelVoiceRecording();
           }
           return;
@@ -409,8 +408,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           // Sound detected
           if (!hasDetectedSound) {
             hasDetectedSound = true;
-            // Remove voice feedback to avoid recording it
-            setAssistantResponse("Recording your question...");
+            // Don't set any assistant response to avoid audio feedback during recording
           }
           silenceStart = Date.now();
         } else if (hasDetectedSound && initialDelayComplete) {
@@ -423,10 +421,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             isCurrentlyListening = false;
             const totalRecordingTime = Date.now() - recordingStartTime;
             if (totalRecordingTime > MIN_RECORDING_TIME) {
-              setAssistantResponse("Processing your question...");
+              // Don't set assistant response to avoid audio feedback
               stopVoiceRecording();
             } else {
-              setAssistantResponse("Recording was too short. Please speak clearly for at least 1 second.");
+              // Don't set assistant response to avoid audio feedback
               cancelVoiceRecording();
             }
             return;
@@ -451,7 +449,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         // Check the shouldProcess flag at processing time
         if (shouldProcessRecording && chunks.length > 0) {
           setIsProcessing(true);
-          setAssistantResponse("Processing your question...");
+          // Don't set assistant response to avoid audio feedback
           
           const audioBlob = new Blob(chunks, { type: 'audio/wav' });
           await processVoiceQuestion(audioBlob);
