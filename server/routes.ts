@@ -5,6 +5,11 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { registerUser, loginUser } from "./localAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
+import { 
+  updateUserProfileSchema, 
+  insertUserSettingsSchema, 
+  insertCookingSessionSchema,
+} from "@shared/schema";
 import { z } from "zod";
 import heicConvert from "heic-convert";
 import multer from "multer";
@@ -301,8 +306,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             buffer: imageBuffer,
             format: 'JPEG',
             quality: 0.8
-          } as any);
-          processedImage = outputBuffer.toString('base64');
+          });
+          processedImage = (outputBuffer as Buffer).toString('base64');
         } catch (conversionError) {
           console.error('HEIC conversion failed:', conversionError);
           return res.status(400).json({ error: 'Failed to convert HEIC image. Please try a different format.' });
@@ -417,6 +422,199 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: 'Failed to transcribe audio',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
+    }
+  });
+
+  // User Profile Management Routes
+  
+  // Get user profile with settings and cooking history
+  app.get('/api/user/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get user data
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Get user settings
+      const settings = await storage.getUserSettings(userId);
+      
+      // Get recent cooking sessions
+      const sessions = await storage.getUserCookingSessions(userId, 5);
+      
+      res.json({
+        user,
+        settings,
+        recentSessions: sessions
+      });
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Failed to fetch user profile" });
+    }
+  });
+
+  // Update user profile (pantry, equipment, preferences)
+  app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profileData = updateUserProfileSchema.parse(req.body);
+      
+      const updatedUser = await storage.updateUserProfile(userId, profileData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ message: "Failed to update user profile" });
+    }
+  });
+
+  // Update user settings (voice, camera, etc.)
+  app.put('/api/user/settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settingsData = insertUserSettingsSchema.partial().parse(req.body);
+      
+      const updatedSettings = await storage.upsertUserSettings({
+        authUserId: userId,
+        ...settingsData
+      });
+      res.json(updatedSettings);
+    } catch (error) {
+      console.error("Error updating user settings:", error);
+      res.status(500).json({ message: "Failed to update user settings" });
+    }
+  });
+
+  // Cooking Session Management Routes
+  
+  // Start a new cooking session
+  app.post('/api/cooking/session/start', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const schema = z.object({
+        recipeName: z.string(),
+        recipeDescription: z.string().optional(),
+        ingredientsUsed: z.array(z.string()),
+        totalSteps: z.number(),
+      });
+      
+      const sessionData = schema.parse(req.body);
+      
+      const session = await storage.createCookingSession({
+        authUserId: userId,
+        ...sessionData,
+        completedSteps: 0,
+        completed: false,
+      });
+      
+      res.json(session);
+    } catch (error) {
+      console.error("Error starting cooking session:", error);
+      res.status(500).json({ message: "Failed to start cooking session" });
+    }
+  });
+
+  // Update cooking session progress
+  app.put('/api/cooking/session/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const schema = z.object({
+        completedSteps: z.number().optional(),
+        completed: z.boolean().optional(),
+        ingredientsRemaining: z.array(z.string()).optional(),
+        cookingDuration: z.number().optional(),
+        userRating: z.number().min(1).max(5).optional(),
+        userNotes: z.string().optional(),
+      });
+      
+      const updateData = schema.parse(req.body);
+      
+      const session = await storage.updateCookingSession(sessionId, updateData);
+      res.json(session);
+    } catch (error) {
+      console.error("Error updating cooking session:", error);
+      res.status(500).json({ message: "Failed to update cooking session" });
+    }
+  });
+
+  // Complete cooking session and update pantry
+  app.post('/api/cooking/session/:id/complete', isAuthenticated, async (req: any, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      const schema = z.object({
+        ingredientsRemaining: z.array(z.string()),
+        userRating: z.number().min(1).max(5).optional(),
+        userNotes: z.string().optional(),
+        cookingDuration: z.number(),
+        completedSteps: z.number(),
+      });
+      
+      const completionData = schema.parse(req.body);
+      
+      // Update session as completed
+      const session = await storage.updateCookingSession(sessionId, {
+        ...completionData,
+        completed: true,
+      });
+      
+      // Update user's pantry with remaining ingredients
+      await storage.updateUserProfile(userId, {
+        pantryIngredients: completionData.ingredientsRemaining,
+      });
+      
+      res.json(session);
+    } catch (error) {
+      console.error("Error completing cooking session:", error);
+      res.status(500).json({ message: "Failed to complete cooking session" });
+    }
+  });
+
+  // Get user's cooking session history
+  app.get('/api/cooking/sessions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      const sessions = await storage.getUserCookingSessions(userId, limit);
+      res.json(sessions);
+    } catch (error) {
+      console.error("Error fetching cooking sessions:", error);
+      res.status(500).json({ message: "Failed to fetch cooking sessions" });
+    }
+  });
+
+  // Get active cooking session (if any)
+  app.get('/api/cooking/session/active', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const session = await storage.getActiveCookingSession(userId);
+      res.json(session || null);
+    } catch (error) {
+      console.error("Error fetching active cooking session:", error);
+      res.status(500).json({ message: "Failed to fetch active cooking session" });
+    }
+  });
+
+  // Clear/reset user pantry (for pantry rescan)
+  app.post('/api/user/pantry/reset', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Clear pantry ingredients
+      const updatedUser = await storage.updateUserProfile(userId, {
+        pantryIngredients: [],
+      });
+      
+      res.json({ 
+        message: "Pantry reset successfully", 
+        pantryIngredients: updatedUser.pantryIngredients 
+      });
+    } catch (error) {
+      console.error("Error resetting pantry:", error);
+      res.status(500).json({ message: "Failed to reset pantry" });
     }
   });
 

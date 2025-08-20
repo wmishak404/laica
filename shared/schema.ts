@@ -85,13 +85,49 @@ export const groceryItems = pgTable("grocery_items", {
   purchased: boolean("purchased").default(false),
 });
 
+// Cooking sessions table to track user cooking history
+export const cookingSessions = pgTable("cooking_sessions", {
+  id: serial("id").primaryKey(),
+  authUserId: varchar("auth_user_id").notNull(),
+  recipeName: text("recipe_name").notNull(),
+  recipeDescription: text("recipe_description"),
+  ingredientsUsed: text("ingredients_used").array(),
+  ingredientsRemaining: text("ingredients_remaining").array(),
+  cookingDuration: integer("cooking_duration"), // in minutes
+  completedSteps: integer("completed_steps"),
+  totalSteps: integer("total_steps"),
+  completed: boolean("completed").default(false),
+  userRating: integer("user_rating"), // 1-5 stars
+  userNotes: text("user_notes"),
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
+// User settings table for preferences and app settings
+export const userSettings = pgTable("user_settings", {
+  id: serial("id").primaryKey(),
+  authUserId: varchar("auth_user_id").notNull().unique(),
+  voiceEnabled: boolean("voice_enabled").default(true),
+  useElevenLabs: boolean("use_eleven_labs").default(true),
+  voiceStability: integer("voice_stability").default(60), // 0-100
+  voiceSimilarity: integer("voice_similarity").default(70), // 0-100
+  captionSize: integer("caption_size").default(16), // pixels
+  cameraMode: varchar("camera_mode").default('front'), // 'front' or 'back'
+  lastActiveRecipe: text("last_active_recipe"),
+  lastActiveStep: integer("last_active_step"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   groceryLists: many(groceryLists),
 }));
 
-export const authUsersRelations = relations(authUsers, ({ many }) => ({
+export const authUsersRelations = relations(authUsers, ({ many, one }) => ({
   groceryLists: many(groceryLists),
+  cookingSessions: many(cookingSessions),
+  settings: one(userSettings),
 }));
 
 export const recipesRelations = relations(recipes, ({ many }) => ({
@@ -121,6 +157,20 @@ export const groceryItemsRelations = relations(groceryItems, ({ one }) => ({
   list: one(groceryLists, {
     fields: [groceryItems.listId],
     references: [groceryLists.id],
+  }),
+}));
+
+export const cookingSessionsRelations = relations(cookingSessions, ({ one }) => ({
+  authUser: one(authUsers, {
+    fields: [cookingSessions.authUserId],
+    references: [authUsers.id],
+  }),
+}));
+
+export const userSettingsRelations = relations(userSettings, ({ one }) => ({
+  authUser: one(authUsers, {
+    fields: [userSettings.authUserId],
+    references: [authUsers.id],
   }),
 }));
 
@@ -169,6 +219,41 @@ export const insertGroceryItemSchema = createInsertSchema(groceryItems).pick({
   purchased: true,
 });
 
+export const insertCookingSessionSchema = createInsertSchema(cookingSessions).pick({
+  authUserId: true,
+  recipeName: true,
+  recipeDescription: true,
+  ingredientsUsed: true,
+  ingredientsRemaining: true,
+  cookingDuration: true,
+  completedSteps: true,
+  totalSteps: true,
+  completed: true,
+  userRating: true,
+  userNotes: true,
+});
+
+export const insertUserSettingsSchema = createInsertSchema(userSettings).pick({
+  authUserId: true,
+  voiceEnabled: true,
+  useElevenLabs: true,
+  voiceStability: true,
+  voiceSimilarity: true,
+  captionSize: true,
+  cameraMode: true,
+  lastActiveRecipe: true,
+  lastActiveStep: true,
+});
+
+export const updateUserProfileSchema = createInsertSchema(authUsers).pick({
+  cookingSkill: true,
+  dietaryRestrictions: true,
+  weeklyTime: true,
+  pantryIngredients: true,
+  kitchenEquipment: true,
+  favoriteChefs: true,
+}).partial();
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -186,3 +271,11 @@ export type InsertGroceryList = z.infer<typeof insertGroceryListSchema>;
 
 export type GroceryItem = typeof groceryItems.$inferSelect;
 export type InsertGroceryItem = z.infer<typeof insertGroceryItemSchema>;
+
+export type CookingSession = typeof cookingSessions.$inferSelect;
+export type InsertCookingSession = z.infer<typeof insertCookingSessionSchema>;
+
+export type UserSettings = typeof userSettings.$inferSelect;
+export type InsertUserSettings = z.infer<typeof insertUserSettingsSchema>;
+
+export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;

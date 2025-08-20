@@ -93,6 +93,32 @@ The application is designed for Replit deployment with:
 
 The app includes progressive web app features with offline capability considerations and mobile-optimized UI components. The cooking interface is specifically designed for hands-free operation with high-quality voice synthesis (ElevenLabs with browser TTS fallback), voice commands, and visual feedback during active cooking sessions.
 
+## User Authentication & Profile Management
+
+The application now features comprehensive user authentication and profile management system:
+
+### Database Schema
+- **auth_users**: Main user profiles with cooking preferences, pantry ingredients, and kitchen equipment
+- **user_settings**: Voice settings, camera preferences, and app configuration
+- **cooking_sessions**: Complete cooking session history with ingredients used/remaining and user ratings
+- **Sessions isolation**: Each user's data is completely separate - users cannot see other users' data
+
+### Key Features
+- **Persistent User Data**: All user preferences, pantry ingredients, and cooking history are saved
+- **Cooking Session Tracking**: Every cooking session is recorded with ingredients used and remaining
+- **Automatic Pantry Updates**: After each cooking session, user's pantry is updated with remaining ingredients
+- **Profile Management**: Users can edit pantry and equipment at any point during app usage
+- **Pantry Reset Feature**: Users can completely rescan and replace their pantry ingredients
+- **Settings Persistence**: Voice settings, camera mode, and other preferences are saved per user
+- **Session Continuity**: Users can return to active cooking sessions after logout/login
+
+### API Endpoints
+- `GET /api/user/profile` - Fetch complete user profile with settings and recent sessions
+- `PUT /api/user/profile` - Update user profile (pantry, equipment, preferences)
+- `PUT /api/user/settings` - Update voice and app settings
+- `POST /api/user/pantry/reset` - Clear and reset pantry for fresh scanning
+- Cooking session management endpoints for tracking cooking progress and completion
+
 ## Recent Changes (Latest Update)
 
 ### Enhanced Voice Interface & Live Cooking Experience (January 2025)
@@ -132,3 +158,12 @@ The app includes progressive web app features with offline capability considerat
     * Improved silence detection: increased threshold to 1.5 seconds and lowered sensitivity for better speech recognition
     * Fixed Cancel button to truly cancel recordings instead of processing them - sets processing flag before stopping recorder
     * Added comprehensive logging for debugging voice recording states and silence detection
+- **User Authentication & Profile System (Completed January 30, 2025)**:
+  * Implemented full user authentication with Replit OAuth integration
+  * Added comprehensive user profile management with persistent pantry and equipment data
+  * Created cooking session tracking system that records ingredients used and remaining after each session
+  * Implemented automatic pantry updates after cooking completion
+  * Added user settings persistence for voice preferences, camera mode, and app configuration
+  * Created pantry reset functionality for users to completely rescan their ingredients
+  * Ensured complete data isolation between users - no cross-user data visibility
+  * Built session continuity so users can resume cooking sessions after logout/login
