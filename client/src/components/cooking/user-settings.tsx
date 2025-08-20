@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useResetPantry, useUpdateUserProfile } from '@/hooks/useAuth';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { NativeCamera } from '@/components/ui/native-camera';
@@ -60,6 +61,31 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       ...prev,
       pantryIngredients: prev.pantryIngredients.filter(i => i !== ingredient)
     }));
+  };
+
+  const resetPantryMutation = useResetPantry();
+  const updateProfileMutation = useUpdateUserProfile();
+
+  const handleResetPantry = async () => {
+    if (window.confirm('Are you sure you want to completely reset your pantry? This will remove all current ingredients and cannot be undone.')) {
+      try {
+        await resetPantryMutation.mutateAsync();
+        setProfile(prev => ({
+          ...prev,
+          pantryIngredients: []
+        }));
+        toast({
+          title: "Pantry Reset",
+          description: "Your pantry has been completely cleared. You can now rescan or add ingredients fresh.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to reset pantry. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const addEquipment = () => {
@@ -319,6 +345,33 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
+
+                {profile.pantryIngredients.length > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <p className="text-sm text-amber-800 mb-2">
+                      <strong>Pantry not accurate?</strong> If the system doesn't match your real pantry, you can completely reset and start fresh.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleResetPantry}
+                      disabled={resetPantryMutation.isPending}
+                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      {resetPantryMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
+                          Resetting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Reset Entire Pantry
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
 
                 <div className="max-h-60 overflow-y-auto space-y-2">
                   {profile.pantryIngredients.map((ingredient, index) => (

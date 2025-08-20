@@ -637,7 +637,23 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
               {/* Show added ingredients */}
               {profile.pantryIngredients.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-600 mb-2">Ingredients added:</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-600">Ingredients added:</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setProfile(prev => ({
+                          ...prev,
+                          pantryIngredients: []
+                        }));
+                      }}
+                      className="text-xs h-7 px-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      Reset Pantry
+                    </Button>
+                  </div>
                   <div className="flex flex-wrap gap-1">
                     {profile.pantryIngredients.map((ingredient, index) => (
                       <span 
@@ -660,6 +676,9 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                       </span>
                     ))}
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Having trouble with accuracy? Use "Reset Pantry" to clear everything and start fresh.
+                  </p>
                 </div>
               )}
             </CardContent>

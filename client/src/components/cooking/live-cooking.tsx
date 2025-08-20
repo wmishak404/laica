@@ -14,6 +14,8 @@ import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 import { AudioProcessor } from '@/lib/audioUtils';
 import { UsageTracker } from '@/lib/usageTracker';
+import { useStartCookingSession, useUpdateCookingSession, useCompleteCookingSession } from '@/hooks/useCookingSession';
+import { useToast } from '@/hooks/use-toast';
 
 interface RecipeStep {
   id: number;
@@ -70,6 +72,13 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(null);
   const [usageStats, setUsageStats] = useState(UsageTracker.getUsageStats());
+  const [cookingSessionId, setCookingSessionId] = useState<number | null>(null);
+  const [cookingStartTime, setCookingStartTime] = useState<Date | null>(null);
+
+  const { toast } = useToast();
+  const startSessionMutation = useStartCookingSession();
+  const updateSessionMutation = useUpdateCookingSession();
+  const completeSessionMutation = useCompleteCookingSession();
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -102,6 +111,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         setLastSpokenResponse(''); // Clear last spoken to allow new message
         const welcomeMessage = `Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`;
         setAssistantResponse(welcomeMessage);
+        
+        // Note: cooking session will be started when component mounts
       } else {
         // Fallback to basic steps
         setLoadedRecipeSteps([
@@ -138,6 +149,70 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       speechSynthesisRef.current = window.speechSynthesis;
     }
   }, [selectedMeal.name]);
+
+  // Cooking session management functions
+  const startCookingSession = async (totalSteps: number) => {
+    try {
+      const sessionData = {
+        recipeName: selectedMeal.name,
+        recipeDescription: selectedMeal.description,
+        ingredientsUsed: selectedMeal.missingIngredients || [],
+        totalSteps,
+      };
+      
+      const session = await startSessionMutation.mutateAsync(sessionData);
+      setCookingSessionId(session.id);
+      setCookingStartTime(new Date());
+    } catch (error) {
+      console.error('Failed to start cooking session:', error);
+    }
+  };
+
+  const updateCookingProgress = async (completedSteps: number) => {
+    if (cookingSessionId) {
+      try {
+        await updateSessionMutation.mutateAsync({
+          sessionId: cookingSessionId,
+          updateData: { completedSteps }
+        });
+      } catch (error) {
+        console.error('Failed to update cooking progress:', error);
+      }
+    }
+  };
+
+  const completeCookingSession = async (rating?: number, notes?: string) => {
+    if (cookingSessionId && cookingStartTime) {
+      try {
+        const duration = Math.floor((Date.now() - cookingStartTime.getTime()) / 1000 / 60); // in minutes
+        
+        await completeSessionMutation.mutateAsync({
+          sessionId: cookingSessionId,
+          completionData: {
+            ingredientsRemaining: [], // This could be enhanced to ask user for remaining ingredients
+            userRating: rating || 5,
+            userNotes: notes || '',
+            cookingDuration: duration,
+            completedSteps: loadedRecipeSteps.length,
+          }
+        });
+        
+        toast({
+          title: "Cooking Session Complete!",
+          description: `Great job cooking ${selectedMeal.name}! Your pantry has been updated.`,
+        });
+      } catch (error) {
+        console.error('Failed to complete cooking session:', error);
+      }
+    }
+  };
+
+  // Start cooking session when steps are loaded
+  useEffect(() => {
+    if (loadedRecipeSteps.length > 0 && !cookingSessionId) {
+      startCookingSession(loadedRecipeSteps.length);
+    }
+  }, [loadedRecipeSteps, cookingSessionId]);
 
   // Use loaded steps
   const currentRecipeSteps = loadedRecipeSteps;
@@ -286,10 +361,16 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       const stepText = `Step ${newStepIndex + 1}: ${nextStepData.instruction}. ${nextStepData.tips}`;
       setAssistantResponse(stepText);
+      
+      // Update cooking progress
+      updateCookingProgress(newStepIndex + 1);
     } else {
       setAudioJustEnabled(false);
       setLastSpokenResponse(''); // Clear to allow completion message
-      setAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy!");
+      setAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy! How did it turn out?");
+      
+      // Complete cooking session with default rating
+      completeCookingSession(5, "Cooking completed successfully");
     }
   };
 
