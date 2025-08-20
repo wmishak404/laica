@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-// Authentication removed for demo mode
+import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
@@ -15,15 +15,21 @@ import GroceryListMobile from "@/pages/grocery-list-mobile";
 import Settings from "@/pages/settings";
 
 function Router() {
-  // Demo mode - skip authentication
+  const { isAuthenticated, isLoading } = useAuth();
+
   return (
     <Switch>
-      <Route path="/landing" component={Landing} />
-      <Route path="/" component={MobileApp} />
-      <Route path="/website" component={Home} />
-      <Route path="/cooking" component={Cooking} />
-      <Route path="/grocery-list" component={GroceryListMobile} />
-      <Route path="/settings" component={Settings} />
+      {isLoading || !isAuthenticated ? (
+        <Route path="/" component={Landing} />
+      ) : (
+        <>
+          <Route path="/" component={MobileApp} />
+          <Route path="/website" component={Home} />
+          <Route path="/cooking" component={Cooking} />
+          <Route path="/grocery-list" component={GroceryListMobile} />
+          <Route path="/settings" component={Settings} />
+        </>
+      )}
       <Route component={NotFound} />
     </Switch>
   );

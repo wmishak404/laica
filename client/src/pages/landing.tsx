@@ -14,10 +14,10 @@ export default function Landing() {
         </div>
         <div className="ml-auto">
           <Button 
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/api/login'}
             className="bg-orange-600 hover:bg-orange-700 text-white"
           >
-            Try Demo
+            Sign In
           </Button>
         </div>
       </header>
@@ -39,10 +39,10 @@ export default function Landing() {
             <div className="space-x-4">
               <Button 
                 size="lg" 
-                onClick={() => window.location.href = '/'}
+                onClick={() => window.location.href = '/api/login'}
                 className="bg-orange-600 hover:bg-orange-700 text-white"
               >
-                Try Demo
+                Sign In with Replit
               </Button>
               <Button variant="outline" size="lg" className="border-orange-600 text-orange-600 hover:bg-orange-50 dark:border-orange-400 dark:text-orange-400">
                 Learn More
