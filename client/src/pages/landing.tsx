@@ -120,7 +120,7 @@ export default function Landing() {
             </div>
             <Button 
               size="lg" 
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.href = '/api/login'}
               className="bg-orange-600 hover:bg-orange-700 text-white"
             >
               <Smartphone className="mr-2 h-4 w-4" />
