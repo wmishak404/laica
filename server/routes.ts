@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { registerUser, loginUser } from "./localAuth";
+import { verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
 import { 
@@ -41,6 +42,12 @@ const isAnyAuthenticated: RequestHandler = async (req, res, next) => {
     return next();
   }
   
+  // Check Firebase auth
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return verifyFirebaseToken(req, res, next);
+  }
+  
   // Check Replit auth
   return isAuthenticated(req, res, next);
 };
@@ -48,6 +55,30 @@ const isAnyAuthenticated: RequestHandler = async (req, res, next) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Firebase/Google authentication routes
+  app.post('/api/auth/google', verifyFirebaseToken, async (req: any, res) => {
+    try {
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      
+      // Create or update user in our database
+      const userData = {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        firstName: firebaseUser.displayName?.split(' ')[0] || '',
+        lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+        profileImageUrl: firebaseUser.photoURL || '',
+        authProvider: 'google',
+        firebaseUid: firebaseUser.uid,
+      };
+      
+      const user = await storage.upsertUser(userData);
+      res.json(user);
+    } catch (error) {
+      console.error("Error with Google authentication:", error);
+      res.status(500).json({ message: "Failed to authenticate with Google" });
+    }
+  });
 
   // Local authentication routes
   app.post('/api/auth/register', async (req, res) => {
@@ -113,7 +144,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Combined auth user route
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // Check local auth first
+      // Check Firebase auth first (if Authorization header present)
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        return verifyFirebaseToken(req, res, async () => {
+          const firebaseUser: FirebaseUser = req.firebaseUser;
+          const user = await storage.getUser(firebaseUser.uid);
+          if (user) {
+            return res.json({ ...user, authType: 'google' });
+          }
+          return res.status(404).json({ message: "User not found" });
+        });
+      }
+      
+      // Check local auth
       if (req.session && (req.session as any).localUserId) {
         const userId = (req.session as any).localUserId;
         const user = await storage.getLocalUser(userId);

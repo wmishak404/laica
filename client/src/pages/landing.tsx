@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChefHat, Users, Clock, Smartphone, Camera } from "lucide-react";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 export default function Landing() {
   return (
@@ -36,16 +37,18 @@ export default function Landing() {
                 and personalized recipe recommendations tailored to your preferences and pantry.
               </p>
             </div>
-            <div className="space-x-4">
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <GoogleSignInButton 
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white min-w-[240px]"
+              />
+              <div className="text-gray-400">or</div>
               <Button 
                 size="lg" 
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-orange-600 hover:bg-orange-700 text-white"
+                className="bg-orange-600 hover:bg-orange-700 text-white min-w-[200px]"
               >
                 Sign In with Replit
-              </Button>
-              <Button variant="outline" size="lg" className="border-orange-600 text-orange-600 hover:bg-orange-50 dark:border-orange-400 dark:text-orange-400">
-                Learn More
               </Button>
             </div>
           </div>

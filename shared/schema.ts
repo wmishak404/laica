@@ -31,6 +31,8 @@ export const authUsers = pgTable("auth_users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  authProvider: varchar("auth_provider").default("replit"), // "replit", "google", "local"
+  firebaseUid: varchar("firebase_uid"), // Firebase UID for Google auth users
   
   // Cooking app specific fields
   cookingSkill: varchar("cooking_skill"),
