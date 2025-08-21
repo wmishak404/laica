@@ -141,9 +141,7 @@ export default function Header() {
             pageName={pageName} 
             variant="ghost" 
             className="text-foreground hover:text-primary transition font-medium p-0 h-auto"
-          >
-            Feedback
-          </FeedbackButton>
+          />
         </nav>
 
         {/* Mobile Navigation - Dropdown menu */}
@@ -175,9 +173,7 @@ export default function Header() {
             pageName={pageName} 
             variant="ghost" 
             className="text-foreground hover:text-primary transition font-medium p-0 h-auto text-left"
-          >
-            Feedback
-          </FeedbackButton>
+          />
         </nav>
 
         <div className="flex items-center space-x-4">
