@@ -180,4 +180,6 @@ The application now features comprehensive user authentication and profile manag
   * Fixed logout functionality to properly clear Firebase authentication state
   * Simplified backend authentication middleware to only handle Firebase tokens
   * Updated landing page to focus on single Google sign-in option
+  * Removed all legacy /api/login and /api/logout route references from frontend
   * All cooking app features (pantry management, voice interface, sessions) work seamlessly with Google accounts
+  * Authentication flow fully functional: users can login, logout, and repeat the cycle without errors
