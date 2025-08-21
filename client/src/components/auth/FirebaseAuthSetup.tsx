@@ -24,10 +24,13 @@ export function FirebaseAuthSetup() {
 
         <div className="space-y-4">
           <div>
-            <h4 className="font-semibold mb-2">Current Domain to Add:</h4>
+            <h4 className="font-semibold mb-2">Exact Domain to Add:</h4>
             <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
               {currentDomain}
             </code>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Note: Firebase doesn't support wildcard domains. You must add the exact domain above.
+            </p>
           </div>
 
           <div>
@@ -55,9 +58,19 @@ export function FirebaseAuthSetup() {
 
           <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              <strong>Note:</strong> You may also need to add additional domains when you deploy to production 
-              (like your .replit.app domain or custom domain).
+              <strong>Important:</strong> Firebase requires exact domains, not wildcards. 
+              When you deploy to production, you'll need to add your specific .replit.app domain 
+              (e.g., "your-app-name.username.replit.app") separately.
             </p>
+          </div>
+
+          <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+            <h5 className="font-medium text-amber-800 dark:text-amber-200 mb-2">Common Domains to Add:</h5>
+            <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
+              <li>• <code>localhost</code> (for local testing)</li>
+              <li>• Your current dev domain: <code>{currentDomain}</code></li>
+              <li>• Your deployed app domain (when you deploy)</li>
+            </ul>
           </div>
         </div>
       </CardContent>
