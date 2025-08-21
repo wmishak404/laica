@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChefHat, Settings, Home, ShoppingCart, LogOut, User } from 'lucide-react';
+import FeedbackButton from '@/components/feedback/FeedbackButton';
+import { usePageName } from '@/hooks/usePageName';
 
 interface UserProfile {
   cookingSkill: string;
@@ -44,6 +46,7 @@ type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'setting
 export default function MobileApp() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const pageName = usePageName();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
   const [userProfile, setUserProfile] = useState<UserProfile>({
     cookingSkill: '',
@@ -406,6 +409,11 @@ export default function MobileApp() {
         </div>
         
         <div className="flex items-center space-x-2">
+          <FeedbackButton 
+            pageName={pageName} 
+            variant="ghost" 
+            className="h-8 w-8 p-0"
+          />
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
