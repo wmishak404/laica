@@ -26,32 +26,39 @@ export default function Header() {
     try {
       console.log('User object for logout:', user);
       
-      // Always try Firebase logout first for string IDs (Google auth uses Firebase UIDs)
-      if (user?.id && typeof user.id === 'string') {
-        console.log('Detected string ID, attempting Firebase logout');
+      // For Google authenticated users, use Firebase logout directly
+      // Firebase UIDs are always strings starting with letters/numbers
+      if (user?.id && typeof user.id === 'string' && user.id.length > 20) {
+        console.log('Detected Firebase UID, using Firebase logout');
+        const { FirebaseAuthService } = await import('@/lib/firebase');
         try {
-          const { FirebaseAuthService } = await import('@/lib/firebase');
           await FirebaseAuthService.signOut();
-          console.log('Firebase logout successful');
-          window.location.href = '/';
+          console.log('Firebase logout successful, redirecting...');
+          // Clear any cached authentication and redirect
+          window.location.replace('/');
           return;
         } catch (firebaseError) {
-          console.log('Firebase logout failed, trying Replit logout');
-          window.location.href = '/api/logout';
-          return;
+          console.error('Firebase logout failed:', firebaseError);
         }
-      } else {
-        // Local users (numeric ID)
-        console.log('Detected numeric ID, attempting local logout');
-        fetch('/api/auth/local-logout', { method: 'POST' })
-          .then(() => {
-            window.location.href = '/';
-          })
-          .catch((error) => {
-            console.error('Logout error:', error);
-            window.location.href = '/';
-          });
       }
+      
+      // For Replit Auth or other string IDs
+      if (user?.id && typeof user.id === 'string') {
+        console.log('Detected Replit Auth, using /api/logout');
+        window.location.href = '/api/logout';
+        return;
+      }
+      
+      // For local users (numeric ID)
+      console.log('Detected local auth, using local logout');
+      fetch('/api/auth/local-logout', { method: 'POST' })
+        .then(() => {
+          window.location.href = '/';
+        })
+        .catch((error) => {
+          console.error('Local logout error:', error);
+          window.location.href = '/';
+        });
     } catch (error) {
       console.error('Logout error:', error);
       window.location.href = '/';
