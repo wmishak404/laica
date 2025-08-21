@@ -13,9 +13,14 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-// Configure Google provider for additional scopes
+// Configure Google provider for additional scopes and account selection
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
+
+// Force account selection prompt - allows users to choose different accounts
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export interface FirebaseAuthUser {
   uid: string;
