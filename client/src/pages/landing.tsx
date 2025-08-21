@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ChefHat, Users, Clock, Smartphone, Camera } from "lucide-react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import FeedbackButton from '@/components/feedback/FeedbackButton';
 
 export default function Landing() {
   return (
@@ -114,9 +115,12 @@ export default function Landing() {
               <ChefHat className="h-6 w-6 text-orange-600 dark:text-orange-400" />
               <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Laica Cooking Assistant</span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              © 2024 Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
-            </p>
+            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                © {new Date().getFullYear()} Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
+              </p>
+              <FeedbackButton pageName="landing" variant="outline" className="border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-800 dark:text-orange-300 dark:hover:bg-orange-900" />
+            </div>
           </div>
         </div>
       </footer>
