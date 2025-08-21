@@ -86,9 +86,21 @@ export function useFirebaseAuth() {
       }
     } catch (error: any) {
       console.error('Google sign-in error:', error);
+      
+      let errorMessage = "Failed to sign in with Google. Please try again.";
+      
+      // Check for common Firebase auth errors
+      if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = "Domain not authorized. Please add your current domain to Firebase's authorized domains list.";
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Sign-in Failed",
-        description: error.message || "Failed to sign in with Google. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

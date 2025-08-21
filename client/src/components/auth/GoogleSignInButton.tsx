@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
+import { FirebaseAuthSetup } from './FirebaseAuthSetup';
 
 interface GoogleSignInButtonProps {
   variant?: "default" | "outline";
@@ -15,6 +17,7 @@ export function GoogleSignInButton({
   onSuccess 
 }: GoogleSignInButtonProps) {
   const { signInWithGoogle, isLoading } = useFirebaseAuth();
+  const [showSetup, setShowSetup] = useState(false);
 
   const handleSignIn = async () => {
     try {
@@ -23,10 +26,19 @@ export function GoogleSignInButton({
       
       await signInWithGoogle(!isMobile);
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign-in failed:', error);
+      
+      // Show setup instructions for domain authorization errors
+      if (error.code === 'auth/unauthorized-domain') {
+        setShowSetup(true);
+      }
     }
   };
+
+  if (showSetup) {
+    return <FirebaseAuthSetup />;
+  }
 
   return (
     <Button 
