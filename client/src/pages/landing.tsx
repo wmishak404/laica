@@ -102,25 +102,7 @@ export default function Landing() {
 
 
 
-      {/* CTA Section */}
-      <section className="w-full py-12 md:py-24">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="flex flex-col items-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-900 dark:text-white">
-                Ready to Transform Your Cooking?
-              </h2>
-              <p className="mx-auto max-w-[600px] text-gray-600 dark:text-gray-300 md:text-xl">
-                Join thousands of home cooks who have already improved their culinary skills with our AI assistant.
-              </p>
-            </div>
-            <GoogleSignInButton 
-              size="lg"
-              className="bg-orange-600 hover:bg-orange-700 text-white min-w-[200px]"
-            />
-          </div>
-        </div>
-      </section>
+
 
 
 
