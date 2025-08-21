@@ -39,11 +39,7 @@ export default function Footer() {
                   <a className="text-white/70 hover:text-primary transition">Cooking Assistant</a>
                 </Link>
               </li>
-              <li>
-                <Link href="/grocery-list">
-                  <a className="text-white/70 hover:text-primary transition">Smart Grocery Lists</a>
-                </Link>
-              </li>
+
               <li>
                 <a href="#" className="text-white/70 hover:text-primary transition">Pantry Management</a>
               </li>
