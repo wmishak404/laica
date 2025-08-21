@@ -152,20 +152,22 @@ export default function MobileApp() {
     return 'User';
   };
 
-  const handleLogout = () => {
-    // For Replit Auth users, redirect to logout endpoint
-    if (user?.id && typeof user.id === 'string') {
-      window.location.href = '/api/logout';
-    } else {
-      // For local users, make a logout request
-      fetch('/api/auth/logout', { method: 'POST' })
-        .then(() => {
-          window.location.href = '/';
-        })
-        .catch((error) => {
-          console.error('Logout error:', error);
-          window.location.href = '/';
-        });
+  const handleLogout = async () => {
+    try {
+      console.log('Logging out with Google/Firebase authentication');
+      
+      // Use Firebase authentication to sign out
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      await FirebaseAuthService.signOut();
+      
+      console.log('Firebase logout successful - redirecting to home');
+      
+      // Clear any cached data and redirect
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force redirect even if logout fails
+      window.location.href = '/';
     }
   };
 
