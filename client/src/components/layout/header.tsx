@@ -10,13 +10,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { UtensilsCrossed, Search, Menu, X, Settings, LogOut, User } from 'lucide-react';
+import { UtensilsCrossed, Search, Menu, X, Settings, LogOut, User, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import FeedbackButton from '@/components/feedback/FeedbackButton';
+import { usePageName } from '@/hooks/usePageName';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const pageName = usePageName();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -136,6 +139,13 @@ export default function Header() {
               Grocery List
             </a>
           </Link>
+          <FeedbackButton 
+            pageName={pageName} 
+            variant="ghost" 
+            className="text-foreground hover:text-primary transition font-medium p-0 h-auto"
+          >
+            Feedback
+          </FeedbackButton>
         </nav>
 
         <div className="flex items-center space-x-4">
