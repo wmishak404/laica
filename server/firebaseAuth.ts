@@ -34,24 +34,35 @@ export const verifyFirebaseToken: RequestHandler = async (req, res, next) => {
   try {
     // For development, we'll decode the JWT payload manually
     // Note: This is not secure for production - you should verify the signature
-    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    console.log('Received token:', idToken.substring(0, 50) + '...');
     
-    console.log('Firebase token payload:', payload);
+    const tokenParts = idToken.split('.');
+    if (tokenParts.length !== 3) {
+      console.log('Invalid token format - not a JWT');
+      return res.status(401).json({ message: 'Invalid token format' });
+    }
     
-    // Firebase ID tokens use 'sub' for user ID, not 'uid'
-    if (!payload.sub) {
-      return res.status(401).json({ message: 'Invalid token payload - missing sub' });
+    const payload = JSON.parse(atob(tokenParts[1]));
+    
+    console.log('Firebase token payload:', JSON.stringify(payload, null, 2));
+    
+    // Check for required fields (Firebase ID tokens have different structure)
+    const userId = payload.sub || payload.user_id || payload.uid;
+    if (!userId) {
+      console.log('No user ID found in token payload');
+      return res.status(401).json({ message: 'Invalid token payload - missing user ID' });
     }
 
     // Add Firebase user info to request
     (req as any).firebaseUser = {
-      uid: payload.sub,
+      uid: userId,
       email: payload.email || null,
       displayName: payload.name || null,
       photoURL: payload.picture || null,
       emailVerified: payload.email_verified || false,
     };
 
+    console.log('Firebase user extracted:', (req as any).firebaseUser);
     next();
   } catch (error) {
     console.error('Firebase token verification failed:', error);
