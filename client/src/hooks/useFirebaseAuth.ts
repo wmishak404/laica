@@ -49,7 +49,12 @@ export function useFirebaseAuth() {
   const syncWithBackend = async (firebaseUser: FirebaseAuthUser) => {
     try {
       const idToken = await FirebaseAuthService.getIdToken();
-      if (!idToken) return;
+      if (!idToken) {
+        console.log('No ID token available');
+        return;
+      }
+
+      console.log('Syncing with backend for user:', firebaseUser.email);
 
       const response = await fetch('/api/auth/google', {
         method: 'POST',
@@ -61,7 +66,11 @@ export function useFirebaseAuth() {
 
       if (response.ok) {
         const userData = await response.json();
+        console.log('Backend sync successful:', userData);
         queryClient.setQueryData(["/api/auth/user"], userData);
+      } else {
+        const errorData = await response.text();
+        console.error('Backend sync failed:', response.status, errorData);
       }
     } catch (error) {
       console.error('Error syncing with backend:', error);

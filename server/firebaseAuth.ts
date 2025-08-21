@@ -32,21 +32,21 @@ export const verifyFirebaseToken: RequestHandler = async (req, res, next) => {
   const idToken = authHeader.substring(7);
 
   try {
-    // For development, we'll trust the client-side token verification
-    // In production, you should verify the token server-side
-    
-    // For now, we'll decode the token manually (not secure for production)
-    // This is just for development testing
+    // For development, we'll decode the JWT payload manually
+    // Note: This is not secure for production - you should verify the signature
     const payload = JSON.parse(atob(idToken.split('.')[1]));
     
-    if (!payload.uid || !payload.email) {
-      return res.status(401).json({ message: 'Invalid token payload' });
+    console.log('Firebase token payload:', payload);
+    
+    // Firebase ID tokens use 'sub' for user ID, not 'uid'
+    if (!payload.sub) {
+      return res.status(401).json({ message: 'Invalid token payload - missing sub' });
     }
 
     // Add Firebase user info to request
     (req as any).firebaseUser = {
-      uid: payload.uid,
-      email: payload.email,
+      uid: payload.sub,
+      email: payload.email || null,
       displayName: payload.name || null,
       photoURL: payload.picture || null,
       emailVerified: payload.email_verified || false,
