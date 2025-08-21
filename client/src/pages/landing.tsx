@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ChefHat, Users, Clock, Smartphone, Camera } from "lucide-react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { DomainInfo } from "@/components/auth/DomainInfo";
 
 export default function Landing() {
   return (
@@ -130,6 +131,21 @@ export default function Landing() {
               Try Demo Now
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Domain Setup Section */}
+      <section className="w-full py-12 bg-gray-50 dark:bg-gray-900">
+        <div className="container px-4 md:px-6 mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Need to Set Up Google Sign-In?
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Copy your current domain to add to Firebase authorized domains
+            </p>
+          </div>
+          <DomainInfo />
         </div>
       </section>
 
