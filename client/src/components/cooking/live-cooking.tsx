@@ -314,18 +314,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       }
     } catch (error) {
       console.error('Speech synthesis error:', error);
-      // Fallback to browser TTS if ElevenLabs fails
-      if (useElevenLabs) {
-        try {
-          await browserTTSClient.speak(text, {
-            rate: 0.9,
-            pitch: 1.0,
-            volume: 0.8,
-          });
-        } catch (fallbackError) {
-          console.error('Browser TTS fallback failed:', fallbackError);
-        }
-      }
+      // No fallback to browser TTS - only use the selected voice option
       setIsSpeaking(false);
     }
   };
