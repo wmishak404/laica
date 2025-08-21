@@ -183,3 +183,14 @@ The application now features comprehensive user authentication and profile manag
   * Removed all legacy /api/login and /api/logout route references from frontend
   * All cooking app features (pantry management, voice interface, sessions) work seamlessly with Google accounts
   * Authentication flow fully functional: users can login, logout, and repeat the cycle without errors
+- **UI Refinements and Audio Fixes (Completed January 31, 2025)**:
+  * Removed "Ready to Transform Your Cooking?" CTA section from landing page for cleaner design
+  * Removed "Smart Grocery Lists" from footer Features section (reserved for future release)
+  * Added Google OAuth account selection prompt - users now see account picker every time they sign in
+  * Fixed database upsert errors when switching between different Google accounts
+  * Implemented multiple layers of double audio prevention during cooking session initialization:
+    - Component-level debouncing with speech timeout management
+    - Enhanced duplicate prevention with text comparison checks  
+    - Client-side throttling in ElevenLabs API to block duplicate synthesis requests within 1 second
+  * Removed automatic fallback to browser TTS when ElevenLabs credits run out - maintains silent experience instead of quality degradation
+  * Google OAuth consent screen branding requires configuration in Google Cloud Console to replace project ID with "Laica Cooking Assistant"
