@@ -25,15 +25,22 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       console.log('Logging out with Google/Firebase authentication');
+      
+      // Import and use the Firebase auth hook
+      const { useFirebaseAuth } = await import('@/hooks/useFirebaseAuth');
+      
+      // We can't use the hook directly here, so use the service
       const { FirebaseAuthService } = await import('@/lib/firebase');
       await FirebaseAuthService.signOut();
-      console.log('Firebase logout successful');
-      // Force redirect to clear authentication state
-      window.location.replace('/');
+      
+      console.log('Firebase logout successful - redirecting to home');
+      
+      // Clear any cached data and redirect
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
       // Force redirect even if logout fails
-      window.location.replace('/');
+      window.location.href = '/';
     }
   };
 
