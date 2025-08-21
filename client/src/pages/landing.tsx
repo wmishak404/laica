@@ -39,9 +39,9 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <GoogleSignInButton 
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white min-w-[240px]"
+                className="bg-orange-600 hover:bg-orange-700 text-white min-w-[240px]"
               >
-                Sign in to Try Demo
+                Try Demo
               </GoogleSignInButton>
             </div>
           </div>
