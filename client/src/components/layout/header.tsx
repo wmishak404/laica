@@ -115,8 +115,40 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className={`md:flex space-x-6 ${isMenuOpen 
-          ? 'absolute top-14 right-4 bg-white dark:bg-gray-900 p-4 shadow-xl rounded-lg flex-col space-y-4 z-50 border dark:border-gray-700' 
+        {/* Desktop Navigation - Always visible on md+ screens */}
+        <nav className="hidden md:flex space-x-6">
+          <Link href="/">
+            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/' ? 'text-primary' : ''}`}>
+              Home
+            </a>
+          </Link>
+          <Link href="/cooking">
+            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/cooking' ? 'text-primary' : ''}`}>
+              Start Cooking
+            </a>
+          </Link>
+          <Link href="/recipes">
+            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/recipes' ? 'text-primary' : ''}`}>
+              Recipes
+            </a>
+          </Link>
+          <Link href="/grocery-list">
+            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/grocery-list' ? 'text-primary' : ''}`}>
+              Grocery List
+            </a>
+          </Link>
+          <FeedbackButton 
+            pageName={pageName} 
+            variant="ghost" 
+            className="text-foreground hover:text-primary transition font-medium p-0 h-auto"
+          >
+            Feedback
+          </FeedbackButton>
+        </nav>
+
+        {/* Mobile Navigation - Dropdown menu */}
+        <nav className={`md:hidden ${isMenuOpen 
+          ? 'absolute top-14 right-4 bg-white dark:bg-gray-900 p-4 shadow-xl rounded-lg flex flex-col space-y-4 z-50 border dark:border-gray-700' 
           : 'hidden'}`}
         >
           <Link href="/">
@@ -142,7 +174,7 @@ export default function Header() {
           <FeedbackButton 
             pageName={pageName} 
             variant="ghost" 
-            className="text-foreground hover:text-primary transition font-medium p-0 h-auto"
+            className="text-foreground hover:text-primary transition font-medium p-0 h-auto text-left"
           >
             Feedback
           </FeedbackButton>
