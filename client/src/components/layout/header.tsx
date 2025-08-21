@@ -10,16 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { UtensilsCrossed, Search, Menu, X, Settings, LogOut, User, MessageSquare } from 'lucide-react';
+import { UtensilsCrossed, Search, Menu, X, Settings, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import FeedbackButton from '@/components/feedback/FeedbackButton';
-import { usePageName } from '@/hooks/usePageName';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
-  const pageName = usePageName();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -115,38 +112,8 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Desktop Navigation - Always visible on md+ screens */}
-        <nav className="hidden md:flex space-x-6">
-          <Link href="/">
-            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/' ? 'text-primary' : ''}`}>
-              Home
-            </a>
-          </Link>
-          <Link href="/cooking">
-            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/cooking' ? 'text-primary' : ''}`}>
-              Start Cooking
-            </a>
-          </Link>
-          <Link href="/recipes">
-            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/recipes' ? 'text-primary' : ''}`}>
-              Recipes
-            </a>
-          </Link>
-          <Link href="/grocery-list">
-            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/grocery-list' ? 'text-primary' : ''}`}>
-              Grocery List
-            </a>
-          </Link>
-          <FeedbackButton 
-            pageName={pageName} 
-            variant="ghost" 
-            className="text-foreground hover:text-primary transition font-medium p-0 h-auto"
-          />
-        </nav>
-
-        {/* Mobile Navigation - Dropdown menu */}
-        <nav className={`md:hidden ${isMenuOpen 
-          ? 'absolute top-14 right-4 bg-white dark:bg-gray-900 p-4 shadow-xl rounded-lg flex flex-col space-y-4 z-50 border dark:border-gray-700' 
+        <nav className={`md:flex space-x-6 ${isMenuOpen 
+          ? 'absolute top-14 right-4 bg-white dark:bg-gray-900 p-4 shadow-xl rounded-lg flex-col space-y-4 z-50 border dark:border-gray-700' 
           : 'hidden'}`}
         >
           <Link href="/">
@@ -169,11 +136,6 @@ export default function Header() {
               Grocery List
             </a>
           </Link>
-          <FeedbackButton 
-            pageName={pageName} 
-            variant="ghost" 
-            className="text-foreground hover:text-primary transition font-medium p-0 h-auto text-left"
-          />
         </nav>
 
         <div className="flex items-center space-x-4">

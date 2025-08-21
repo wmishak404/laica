@@ -115,7 +115,7 @@ export default function Landing() {
               <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Laica Cooking Assistant</span>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              © {new Date().getFullYear()} Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
+              © 2024 Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
             </p>
           </div>
         </div>

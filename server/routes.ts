@@ -8,7 +8,6 @@ import {
   updateUserProfileSchema, 
   insertUserSettingsSchema, 
   insertCookingSessionSchema,
-  insertUserFeedbackSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import heicConvert from "heic-convert";
@@ -401,59 +400,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating user settings:", error);
       res.status(500).json({ message: "Failed to update user settings" });
-    }
-  });
-
-  // User Feedback Routes
-  
-  // Submit feedback
-  app.post('/api/feedback', isAuthenticated, async (req: any, res) => {
-    try {
-      const firebaseUser: FirebaseUser = req.firebaseUser;
-      const feedbackData = insertUserFeedbackSchema.parse(req.body);
-      
-      const feedback = await storage.createUserFeedback({
-        authUserId: firebaseUser.uid,
-        pageName: feedbackData.pageName,
-        feedbackText: feedbackData.feedbackText,
-        category: feedbackData.category || 'general',
-        userEmail: feedbackData.userEmail || firebaseUser.email,
-        userName: feedbackData.userName || firebaseUser.displayName,
-      });
-      
-      // Also log to file for LLM prompt refinement analysis
-      const logEntry = {
-        id: feedback.id,
-        timestamp: new Date().toISOString(),
-        userId: firebaseUser.uid,
-        userEmail: firebaseUser.email,
-        userName: firebaseUser.displayName,
-        page: feedbackData.pageName,
-        category: feedbackData.category || 'general',
-        feedback: feedbackData.feedbackText,
-      };
-      
-      // Append to feedback log file
-      const logPath = './feedback-log.jsonl';
-      const logLine = JSON.stringify(logEntry) + '\n';
-      await require('fs').promises.appendFile(logPath, logLine, 'utf8');
-      
-      res.json({ success: true, feedback });
-    } catch (error) {
-      console.error("Error submitting feedback:", error);
-      res.status(500).json({ message: "Failed to submit feedback" });
-    }
-  });
-
-  // Get user feedback (admin/development use)
-  app.get('/api/feedback', isAuthenticated, async (req: any, res) => {
-    try {
-      const firebaseUser: FirebaseUser = req.firebaseUser;
-      const feedback = await storage.getUserFeedback(firebaseUser.uid);
-      res.json(feedback);
-    } catch (error) {
-      console.error("Error fetching feedback:", error);
-      res.status(500).json({ message: "Failed to fetch feedback" });
     }
   });
 

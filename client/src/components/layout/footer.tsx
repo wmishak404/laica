@@ -1,11 +1,8 @@
 import { Link } from 'wouter';
 import { UtensilsCrossed } from 'lucide-react';
 import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
-import FeedbackButton from '@/components/feedback/FeedbackButton';
-import { usePageName } from '@/hooks/usePageName';
 
 export default function Footer() {
-  const pageName = usePageName();
   return (
     <footer className="bg-[#2D3436] py-12">
       <div className="container mx-auto px-4">
@@ -76,10 +73,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-white/20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mb-4 md:mb-0">
-            <p className="text-white/70 text-sm">© {new Date().getFullYear()} Laica. All rights reserved.</p>
-            <FeedbackButton pageName={pageName} variant="ghost" className="text-white/70 hover:text-white" />
-          </div>
+          <p className="text-white/70 text-sm mb-4 md:mb-0">© {new Date().getFullYear()} Laica. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#" className="text-white/70 text-sm hover:text-primary transition">Terms of Service</a>
             <a href="#" className="text-white/70 text-sm hover:text-primary transition">Privacy Policy</a>

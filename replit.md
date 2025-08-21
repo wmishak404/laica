@@ -183,14 +183,3 @@ The application now features comprehensive user authentication and profile manag
   * Removed all legacy /api/login and /api/logout route references from frontend
   * All cooking app features (pantry management, voice interface, sessions) work seamlessly with Google accounts
   * Authentication flow fully functional: users can login, logout, and repeat the cycle without errors
-- **User Feedback System (Completed January 30, 2025)**:
-  * Added comprehensive feedback collection system with database storage and file logging
-  * Created FeedbackButton component with category selection (general, UI, functionality, suggestion, bug report)  
-  * Feedback button appears in footer of every page with automatic page detection
-  * Database schema: userFeedback table stores all feedback with user context and timestamps
-  * API endpoints: POST /api/feedback for submission, GET /api/feedback for retrieval
-  * Dual logging: Database storage + JSONL file (feedback-log.jsonl) for LLM prompt refinement
-  * Each feedback entry includes: user ID, email, name, page context, category, timestamp, and content
-  * Designed for future AI/LLM analysis to improve app functionality and user experience
-  * Modal interface with 1000-character limit and real-time character counter
-  * Toast notifications for successful submission and error handling
