@@ -29,8 +29,8 @@ export function GoogleSignInButton({
     } catch (error: any) {
       console.error('Sign-in failed:', error);
       
-      // Show setup instructions for domain authorization errors
-      if (error.code === 'auth/unauthorized-domain') {
+      // Show setup instructions for common configuration errors
+      if (error.code === 'auth/unauthorized-domain' || error.code === 'auth/operation-not-allowed') {
         setShowSetup(true);
       }
     }

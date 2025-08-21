@@ -90,7 +90,9 @@ export function useFirebaseAuth() {
       let errorMessage = "Failed to sign in with Google. Please try again.";
       
       // Check for common Firebase auth errors
-      if (error.code === 'auth/unauthorized-domain') {
+      if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = "Google sign-in is not enabled in Firebase. Please enable Google authentication in Firebase Console.";
+      } else if (error.code === 'auth/unauthorized-domain') {
         errorMessage = "Domain not authorized. Please add your current domain to Firebase's authorized domains list.";
       } else if (error.code === 'auth/popup-blocked') {
         errorMessage = "Popup was blocked. Please allow popups for this site and try again.";

@@ -44,7 +44,7 @@ export function DomainInfo() {
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-          <h5 className="font-medium mb-2">Steps to add to Firebase:</h5>
+          <h5 className="font-medium mb-2">Complete Firebase Setup:</h5>
           <ol className="list-decimal list-inside space-y-2 text-sm">
             <li>
               Go to{' '}
@@ -58,12 +58,23 @@ export function DomainInfo() {
               </a>
             </li>
             <li>Select your project</li>
+            <li>Go to <strong>Authentication</strong> → <strong>Sign-in method</strong></li>
+            <li>Find <strong>"Google"</strong> and click <strong>"Enable"</strong></li>
+            <li>Add a support email if prompted</li>
+            <li>Click <strong>"Save"</strong></li>
             <li>Go to <strong>Authentication</strong> → <strong>Settings</strong> → <strong>Authorized domains</strong></li>
             <li>Click <strong>"Add domain"</strong></li>
             <li>Paste: <code className="bg-white dark:bg-gray-800 px-1 rounded">{currentDomain}</code></li>
             <li>Click <strong>"Add"</strong></li>
             <li>Return here and try Google sign-in again</li>
           </ol>
+        </div>
+
+        <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+          <h5 className="font-medium mb-2 text-red-700 dark:text-red-300">Getting "Operation not allowed" error?</h5>
+          <p className="text-sm text-red-600 dark:text-red-400">
+            This usually means Google sign-in method is not enabled in Firebase. Make sure you complete step 4 above to enable Google authentication.
+          </p>
         </div>
 
         <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
