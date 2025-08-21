@@ -66,7 +66,8 @@ The application follows a modern full-stack architecture with separate client an
 - **connect-pg-simple**: PostgreSQL session store
 
 ### Authentication & Security
-- **Replit OAuth**: External authentication provider
+- **Multi-Provider Authentication**: Supports Replit OAuth, Google sign-in via Firebase, and local authentication
+- **Firebase Authentication**: Google sign-in integration with proper domain authorization
 - **bcrypt**: Password hashing for local authentication
 - **express-session**: Session management
 
@@ -174,3 +175,11 @@ The application now features comprehensive user authentication and profile manag
   * Enhanced cooking session tracking integration with automatic pantry updates after completion
   * Fixed "Try Demo Now" button on landing page to properly redirect to sign-in instead of home page
   * Implemented complete cooking session lifecycle tracking with progress updates during cooking
+- **Google Sign-In Integration (Completed January 30, 2025)**:
+  * Implemented Firebase Authentication alongside existing Replit OAuth and local authentication
+  * Added Google sign-in button with official branding to landing page
+  * Created comprehensive domain authorization setup with automatic domain detection
+  * Extended database schema to track authentication providers (replit, google, local)
+  * Modified API request layer to automatically include Firebase tokens
+  * Built domain-specific setup guides for Firebase authorized domains configuration
+  * Ensured full feature compatibility (pantry management, cooking sessions) across all auth providers
