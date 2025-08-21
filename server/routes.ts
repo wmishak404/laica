@@ -1,8 +1,6 @@
 import type { Express, RequestHandler } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { registerUser, loginUser } from "./localAuth";
 import { verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
@@ -27,35 +25,16 @@ const upload = multer({
   limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit for audio files
 });
 
-// Local authentication middleware
-const isLocalAuthenticated: RequestHandler = (req, res, next) => {
-  if (req.session && (req.session as any).localUserId) {
-    return next();
-  }
-  return res.status(401).json({ message: "Unauthorized" });
-};
-
-// Combined authentication middleware
-const isAnyAuthenticated: RequestHandler = async (req, res, next) => {
-  // Check local auth first
-  if (req.session && (req.session as any).localUserId) {
-    return next();
-  }
-  
-  // Check Firebase auth
+// Firebase/Google authentication middleware only
+const isAuthenticated: RequestHandler = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     return verifyFirebaseToken(req, res, next);
   }
-  
-  // Check Replit auth
-  return isAuthenticated(req, res, next);
+  return res.status(401).json({ message: "Unauthorized" });
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-
   // Firebase/Google authentication routes
   app.post('/api/auth/google', verifyFirebaseToken, async (req: any, res) => {
     try {
@@ -80,136 +59,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Local authentication routes
-  app.post('/api/auth/register', async (req, res) => {
-    try {
-      const schema = z.object({
-        username: z.string().min(3).max(50),
-        email: z.string().email(),
-        password: z.string().min(6),
-      });
-      
-      const userData = schema.parse(req.body);
-      const result = await registerUser(userData);
-      
-      if (result.success) {
-        res.status(201).json(result);
-      } else {
-        res.status(400).json(result);
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      res.status(400).json({ success: false, message: 'Invalid input data' });
-    }
-  });
 
-  app.post('/api/auth/login', async (req, res) => {
-    try {
-      const schema = z.object({
-        username: z.string(),
-        password: z.string(),
-      });
-      
-      const credentials = schema.parse(req.body);
-      const result = await loginUser(credentials);
-      
-      if (result.success && result.user) {
-        // Store user ID in session
-        (req.session as any).localUserId = result.user.id;
-        res.json(result);
-      } else {
-        res.status(401).json(result);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(400).json({ success: false, message: 'Invalid input data' });
-    }
-  });
 
-  app.post('/api/auth/local-logout', (req, res) => {
-    if (req.session) {
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Session destruction error:', err);
-          return res.status(500).json({ message: 'Failed to logout' });
-        }
-        res.clearCookie('connect.sid');
-        res.json({ message: 'Logged out successfully' });
-      });
-    } else {
-      res.json({ message: 'Already logged out' });
-    }
-  });
-
-  // Combined auth user route
-  app.get('/api/auth/user', async (req: any, res) => {
+  // Auth user route (Google only)
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      // Check Firebase auth first (if Authorization header present)
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        return verifyFirebaseToken(req, res, async () => {
-          const firebaseUser: FirebaseUser = req.firebaseUser;
-          const user = await storage.getUser(firebaseUser.uid);
-          if (user) {
-            return res.json({ ...user, authType: 'google' });
-          }
-          return res.status(404).json({ message: "User not found" });
-        });
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const user = await storage.getUser(firebaseUser.uid);
+      if (user) {
+        return res.json(user);
       }
-      
-      // Check local auth
-      if (req.session && (req.session as any).localUserId) {
-        const userId = (req.session as any).localUserId;
-        const user = await storage.getLocalUser(userId);
-        if (user) {
-          const { password, ...userWithoutPassword } = user;
-          return res.json({ ...userWithoutPassword, authType: 'local' });
-        }
-      }
-      
-      // Check Replit auth using middleware pattern
-      return isAuthenticated(req, res, async () => {
-        if (req.user?.claims?.sub) {
-          const userId = req.user.claims.sub;
-          const user = await storage.getUser(userId);
-          if (user) {
-            return res.json({ ...user, authType: 'oauth' });
-          }
-        }
-        return res.status(401).json({ message: "Unauthorized" });
-      });
+      return res.status(404).json({ message: "User not found" });
     } catch (error) {
       console.error("Error fetching user:", error);
-      if (!res.headersSent) {
-        res.status(500).json({ message: "Failed to fetch user" });
-      }
+      res.status(500).json({ message: "Failed to fetch user" });
     }
   });
 
   // User profile routes
-  app.patch('/api/user/profile', isAnyAuthenticated, async (req: any, res) => {
+  app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {
-      // Handle local user profile update
-      if (req.session && (req.session as any).localUserId) {
-        // Local users store profile in preferences field
-        const userId = (req.session as any).localUserId;
-        const user = await storage.getLocalUser(userId);
-        if (user) {
-          // Update preferences field with profile data
-          const updatedPreferences = { ...(user.preferences as any), ...req.body };
-          // Note: We'd need to add updateLocalUserPreferences method to storage
-          return res.json({ message: 'Local profile update not implemented yet' });
-        }
-      }
-      
-      // Handle OAuth user profile update
-      if (req.user?.claims?.sub) {
-        const userId = req.user.claims.sub;
-        const updatedUser = await storage.updateUserProfile(userId, req.body);
-        return res.json(updatedUser);
-      }
-      
-      return res.status(401).json({ message: "Unauthorized" });
+      // Handle Google user profile update
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const updatedUser = await storage.updateUserProfile(firebaseUser.uid, req.body);
+      return res.json(updatedUser);
     } catch (error) {
       console.error("Error updating user profile:", error);
       res.status(500).json({ message: "Failed to update profile" });

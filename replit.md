@@ -66,10 +66,9 @@ The application follows a modern full-stack architecture with separate client an
 - **connect-pg-simple**: PostgreSQL session store
 
 ### Authentication & Security
-- **Multi-Provider Authentication**: Supports Replit OAuth, Google sign-in via Firebase, and local authentication
-- **Firebase Authentication**: Google sign-in integration with proper domain authorization
-- **bcrypt**: Password hashing for local authentication
-- **express-session**: Session management
+- **Firebase Authentication**: Google sign-in only - streamlined authentication flow
+- **Domain Authorization**: Proper Firebase domain setup for Google OAuth
+- **Session Management**: Firebase handles all authentication state
 
 ### Development Tools
 - **Replit Integration**: Built-in development environment support with cartographer and runtime error overlay
@@ -175,11 +174,10 @@ The application now features comprehensive user authentication and profile manag
   * Enhanced cooking session tracking integration with automatic pantry updates after completion
   * Fixed "Try Demo Now" button on landing page to properly redirect to sign-in instead of home page
   * Implemented complete cooking session lifecycle tracking with progress updates during cooking
-- **Google Sign-In Integration (Completed January 30, 2025)**:
-  * Implemented Firebase Authentication alongside existing Replit OAuth and local authentication
-  * Added Google sign-in button with official branding to landing page
-  * Created comprehensive domain authorization setup with automatic domain detection
-  * Extended database schema to track authentication providers (replit, google, local)
-  * Modified API request layer to automatically include Firebase tokens
-  * Built domain-specific setup guides for Firebase authorized domains configuration
-  * Ensured full feature compatibility (pantry management, cooking sessions) across all auth providers
+- **Simplified Google-Only Authentication (Completed January 30, 2025)**:
+  * Removed Replit OAuth and local authentication - now Google sign-in only
+  * Streamlined authentication flow for better user experience and reduced complexity
+  * Fixed logout functionality to properly clear Firebase authentication state
+  * Simplified backend authentication middleware to only handle Firebase tokens
+  * Updated landing page to focus on single Google sign-in option
+  * All cooking app features (pantry management, voice interface, sessions) work seamlessly with Google accounts

@@ -24,44 +24,16 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      console.log('User object for logout:', user);
-      
-      // For Google authenticated users, use Firebase logout directly
-      // Firebase UIDs are always strings starting with letters/numbers
-      if (user?.id && typeof user.id === 'string' && user.id.length > 20) {
-        console.log('Detected Firebase UID, using Firebase logout');
-        const { FirebaseAuthService } = await import('@/lib/firebase');
-        try {
-          await FirebaseAuthService.signOut();
-          console.log('Firebase logout successful, redirecting...');
-          // Clear any cached authentication and redirect
-          window.location.replace('/');
-          return;
-        } catch (firebaseError) {
-          console.error('Firebase logout failed:', firebaseError);
-        }
-      }
-      
-      // For Replit Auth or other string IDs
-      if (user?.id && typeof user.id === 'string') {
-        console.log('Detected Replit Auth, using /api/logout');
-        window.location.href = '/api/logout';
-        return;
-      }
-      
-      // For local users (numeric ID)
-      console.log('Detected local auth, using local logout');
-      fetch('/api/auth/local-logout', { method: 'POST' })
-        .then(() => {
-          window.location.href = '/';
-        })
-        .catch((error) => {
-          console.error('Local logout error:', error);
-          window.location.href = '/';
-        });
+      console.log('Logging out with Google/Firebase authentication');
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      await FirebaseAuthService.signOut();
+      console.log('Firebase logout successful');
+      // Force redirect to clear authentication state
+      window.location.replace('/');
     } catch (error) {
       console.error('Logout error:', error);
-      window.location.href = '/';
+      // Force redirect even if logout fails
+      window.location.replace('/');
     }
   };
 

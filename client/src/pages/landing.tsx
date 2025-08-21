@@ -122,14 +122,10 @@ export default function Landing() {
                 Join thousands of home cooks who have already improved their culinary skills with our AI assistant.
               </p>
             </div>
-            <Button 
-              size="lg" 
-              onClick={() => window.location.href = '/api/login'}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
-            >
-              <Smartphone className="mr-2 h-4 w-4" />
-              Try Demo Now
-            </Button>
+            <GoogleSignInButton 
+              size="lg"
+              className="bg-orange-600 hover:bg-orange-700 text-white min-w-[200px]"
+            />
           </div>
         </div>
       </section>
