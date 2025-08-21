@@ -23,6 +23,9 @@ export interface VoicesResponse {
 
 export class ElevenLabsClient {
   private audioContext: AudioContext | null = null;
+  private lastSynthesisText: string = '';
+  private lastSynthesisTime: number = 0;
+  private synthesisThrottleMs: number = 1000; // Prevent duplicate calls within 1 second
   
   constructor() {
     // Initialize AudioContext on first use for better browser compatibility
@@ -32,6 +35,16 @@ export class ElevenLabsClient {
   }
 
   async synthesizeSpeech(text: string, settings: VoiceSettings = {}): Promise<ArrayBuffer> {
+    const now = Date.now();
+    
+    // Prevent duplicate synthesis calls for the same text within throttle window
+    if (text === this.lastSynthesisText && (now - this.lastSynthesisTime) < this.synthesisThrottleMs) {
+      throw new Error('Duplicate synthesis request throttled');
+    }
+    
+    this.lastSynthesisText = text;
+    this.lastSynthesisTime = now;
+    
     const response = await fetch('/api/speech/synthesize', {
       method: 'POST',
       headers: {

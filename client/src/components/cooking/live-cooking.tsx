@@ -277,6 +277,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const speakText = async (text: string) => {
     if (!isAudioEnabled || !text || isSpeaking) return;
     
+    // Prevent duplicate calls for the same text
+    if (text === lastSpokenResponse && isSpeaking) return;
+    
     // Stop any current audio before starting new one
     stopAudio();
     
@@ -332,21 +335,39 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   // Don't speak while voice recording to prevent contamination
   const [audioJustEnabled, setAudioJustEnabled] = useState(false);
   const [lastSpokenResponse, setLastSpokenResponse] = useState<string>('');
+  const [speechTimeoutId, setSpeechTimeoutId] = useState<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     if (assistantResponse && isAudioEnabled && !audioJustEnabled && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
+      // Clear any pending speech to prevent duplicates
+      if (speechTimeoutId) {
+        clearTimeout(speechTimeoutId);
+      }
+      
       // Add longer delay to ensure captioning has time to display fully
-      setTimeout(() => {
-        if (!isVoiceRecording) { // Double-check we're still not recording
+      const timeoutId = setTimeout(() => {
+        if (!isVoiceRecording && assistantResponse === assistantResponse) { // Double-check we're still not recording and message hasn't changed
           speakText(assistantResponse);
           setLastSpokenResponse(assistantResponse);
         }
+        setSpeechTimeoutId(null);
       }, 800); // 800ms delay to ensure caption displays fully
+      
+      setSpeechTimeoutId(timeoutId);
     }
     if (audioJustEnabled) {
       setAudioJustEnabled(false);
     }
   }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording]);
+  
+  // Clean up speech timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (speechTimeoutId) {
+        clearTimeout(speechTimeoutId);
+      }
+    };
+  }, [speechTimeoutId]);
 
   // Track when audio is enabled to prevent immediate replay
   useEffect(() => {
