@@ -314,7 +314,18 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       }
     } catch (error) {
       console.error('Speech synthesis error:', error);
-      // No fallback to browser TTS - only use the selected voice option
+      // Fallback to browser TTS if ElevenLabs fails (but only during cooking, not for general app usage)
+      if (useElevenLabs) {
+        try {
+          await browserTTSClient.speak(text, {
+            rate: 0.9,
+            pitch: 1.0,
+            volume: 0.8,
+          });
+        } catch (fallbackError) {
+          console.error('Browser TTS fallback failed:', fallbackError);
+        }
+      }
       setIsSpeaking(false);
     }
   };
@@ -328,47 +339,29 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [isInitializing, setIsInitializing] = useState(true);
   
   useEffect(() => {
-    // Don't speak during initial loading phase to prevent double audio
-    if (isLoadingSteps) {
-      setIsInitializing(true);
-      return;
-    }
-    
-    // Mark initialization complete after steps are loaded
-    if (isInitializing && !isLoadingSteps) {
-      setIsInitializing(false);
-      // Add extra delay after initialization to ensure no duplicate speech
-      setTimeout(() => {
-        if (assistantResponse && isAudioEnabled && !isVoiceRecording) {
-          speakText(assistantResponse);
-          setLastSpokenResponse(assistantResponse);
-        }
-      }, 1200); // Longer delay for initial speech
-      return;
-    }
-    
-    // Normal speech handling after initialization
-    if (!isInitializing && assistantResponse && isAudioEnabled && !audioJustEnabled && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
+    // Simple speech handling with basic duplicate prevention
+    if (assistantResponse && isAudioEnabled && !audioJustEnabled && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
       // Clear any pending speech to prevent duplicates
       if (speechTimeoutId) {
         clearTimeout(speechTimeoutId);
       }
       
-      // Add longer delay to ensure captioning has time to display fully
+      // Shorter delay for better responsiveness, longer only during loading
+      const delay = isLoadingSteps ? 1200 : 800;
       const timeoutId = setTimeout(() => {
-        if (!isVoiceRecording && assistantResponse === assistantResponse) { // Double-check we're still not recording and message hasn't changed
+        if (!isVoiceRecording && assistantResponse) { // Double-check we're still not recording
           speakText(assistantResponse);
           setLastSpokenResponse(assistantResponse);
         }
         setSpeechTimeoutId(null);
-      }, 800); // 800ms delay to ensure caption displays fully
+      }, delay);
       
       setSpeechTimeoutId(timeoutId);
     }
     if (audioJustEnabled) {
       setAudioJustEnabled(false);
     }
-  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording, isLoadingSteps, isInitializing]);
+  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording, isLoadingSteps]);
   
   // Clean up speech timeout on unmount
   useEffect(() => {

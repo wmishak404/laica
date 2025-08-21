@@ -25,7 +25,7 @@ export class ElevenLabsClient {
   private audioContext: AudioContext | null = null;
   private lastSynthesisText: string = '';
   private lastSynthesisTime: number = 0;
-  private synthesisThrottleMs: number = 2000; // Prevent duplicate calls within 2 seconds (increased for initialization)
+  private synthesisThrottleMs: number = 1000; // Prevent duplicate calls within 1 second
   private pendingSynthesis: Map<string, Promise<ArrayBuffer>> = new Map(); // Track pending synthesis requests
   
   constructor() {
