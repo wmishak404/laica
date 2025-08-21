@@ -25,7 +25,8 @@ export class ElevenLabsClient {
   private audioContext: AudioContext | null = null;
   private lastSynthesisText: string = '';
   private lastSynthesisTime: number = 0;
-  private synthesisThrottleMs: number = 1000; // Prevent duplicate calls within 1 second
+  private synthesisThrottleMs: number = 2000; // Prevent duplicate calls within 2 seconds (increased for initialization)
+  private pendingSynthesis: Map<string, Promise<ArrayBuffer>> = new Map(); // Track pending synthesis requests
   
   constructor() {
     // Initialize AudioContext on first use for better browser compatibility
@@ -36,6 +37,12 @@ export class ElevenLabsClient {
 
   async synthesizeSpeech(text: string, settings: VoiceSettings = {}): Promise<ArrayBuffer> {
     const now = Date.now();
+    const synthesisKey = `${text}_${JSON.stringify(settings)}`;
+    
+    // Check if this exact synthesis is already pending
+    if (this.pendingSynthesis.has(synthesisKey)) {
+      return this.pendingSynthesis.get(synthesisKey)!;
+    }
     
     // Prevent duplicate synthesis calls for the same text within throttle window
     if (text === this.lastSynthesisText && (now - this.lastSynthesisTime) < this.synthesisThrottleMs) {
@@ -45,6 +52,21 @@ export class ElevenLabsClient {
     this.lastSynthesisText = text;
     this.lastSynthesisTime = now;
     
+    // Create and track the synthesis promise
+    const synthesisPromise = this.performSynthesis(text, settings);
+    this.pendingSynthesis.set(synthesisKey, synthesisPromise);
+    
+    try {
+      const result = await synthesisPromise;
+      this.pendingSynthesis.delete(synthesisKey);
+      return result;
+    } catch (error) {
+      this.pendingSynthesis.delete(synthesisKey);
+      throw error;
+    }
+  }
+  
+  private async performSynthesis(text: string, settings: VoiceSettings): Promise<ArrayBuffer> {
     const response = await fetch('/api/speech/synthesize', {
       method: 'POST',
       headers: {

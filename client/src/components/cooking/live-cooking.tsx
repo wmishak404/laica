@@ -325,9 +325,30 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [audioJustEnabled, setAudioJustEnabled] = useState(false);
   const [lastSpokenResponse, setLastSpokenResponse] = useState<string>('');
   const [speechTimeoutId, setSpeechTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
   
   useEffect(() => {
-    if (assistantResponse && isAudioEnabled && !audioJustEnabled && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
+    // Don't speak during initial loading phase to prevent double audio
+    if (isLoadingSteps) {
+      setIsInitializing(true);
+      return;
+    }
+    
+    // Mark initialization complete after steps are loaded
+    if (isInitializing && !isLoadingSteps) {
+      setIsInitializing(false);
+      // Add extra delay after initialization to ensure no duplicate speech
+      setTimeout(() => {
+        if (assistantResponse && isAudioEnabled && !isVoiceRecording) {
+          speakText(assistantResponse);
+          setLastSpokenResponse(assistantResponse);
+        }
+      }, 1200); // Longer delay for initial speech
+      return;
+    }
+    
+    // Normal speech handling after initialization
+    if (!isInitializing && assistantResponse && isAudioEnabled && !audioJustEnabled && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
       // Clear any pending speech to prevent duplicates
       if (speechTimeoutId) {
         clearTimeout(speechTimeoutId);
@@ -347,7 +368,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     if (audioJustEnabled) {
       setAudioJustEnabled(false);
     }
-  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording]);
+  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording, isLoadingSteps, isInitializing]);
   
   // Clean up speech timeout on unmount
   useEffect(() => {
