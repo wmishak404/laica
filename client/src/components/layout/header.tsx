@@ -22,20 +22,48 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogout = () => {
-    // For Replit Auth users, redirect to logout endpoint
-    if (user?.id && typeof user.id === 'string') {
-      window.location.href = '/api/logout';
-    } else {
-      // For local users, make a logout request
-      fetch('/api/auth/logout', { method: 'POST' })
-        .then(() => {
+  const handleLogout = async () => {
+    try {
+      // Check authentication provider
+      if (user && 'authProvider' in user) {
+        if (user.authProvider === 'google') {
+          // Firebase/Google logout
+          const { FirebaseAuthService } = await import('@/lib/firebase');
+          await FirebaseAuthService.signOut();
           window.location.href = '/';
-        })
-        .catch((error) => {
-          console.error('Logout error:', error);
+          return;
+        } else if (user.authProvider === 'replit') {
+          // Replit Auth logout
+          window.location.href = '/api/logout';
+          return;
+        }
+      }
+      
+      // Fall back: determine by user ID type
+      if (user?.id && typeof user.id === 'string') {
+        // Could be Replit Auth or Firebase - try Firebase first
+        try {
+          const { FirebaseAuthService } = await import('@/lib/firebase');
+          await FirebaseAuthService.signOut();
           window.location.href = '/';
-        });
+        } catch (firebaseError) {
+          // If Firebase fails, try Replit logout
+          window.location.href = '/api/logout';
+        }
+      } else {
+        // Local users (numeric ID)
+        fetch('/api/auth/local-logout', { method: 'POST' })
+          .then(() => {
+            window.location.href = '/';
+          })
+          .catch((error) => {
+            console.error('Logout error:', error);
+            window.location.href = '/';
+          });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/';
     }
   };
 
