@@ -106,11 +106,15 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       if (steps && steps.length > 0) {
         setLoadedRecipeSteps(steps);
-        // Reset audio state and set initial welcome message
+        // Reset audio state and set initial welcome message - but only once
         setAudioJustEnabled(false);
         setLastSpokenResponse(''); // Clear last spoken to allow new message
-        const welcomeMessage = `Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`;
-        setAssistantResponse(welcomeMessage);
+        
+        // Only set welcome message if we don't already have one to prevent duplicates
+        if (assistantResponse === 'Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.') {
+          const welcomeMessage = `Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`;
+          setAssistantResponse(welcomeMessage);
+        }
         
         // Note: cooking session will be started when component mounts
       } else {
@@ -135,8 +139,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         ]);
         setAudioJustEnabled(false);
         setLastSpokenResponse(''); // Clear last spoken to allow new message
-        const fallbackMessage = `I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`;
-        setAssistantResponse(fallbackMessage);
+        
+        // Only set fallback message if we don't already have a custom welcome message
+        if (assistantResponse === 'Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.') {
+          const fallbackMessage = `I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`;
+          setAssistantResponse(fallbackMessage);
+        }
       }
       
       setIsLoadingSteps(false);
