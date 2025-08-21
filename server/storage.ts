@@ -50,32 +50,22 @@ export class DatabaseStorage implements IStorage {
 
   async upsertUser(userData: UpsertUser): Promise<AuthUser> {
     try {
-      // First try to update by email for existing users
-      const existingUser = await db
-        .select()
-        .from(authUsers)
-        .where(eq(authUsers.email, userData.email!))
-        .limit(1);
-
-      if (existingUser.length > 0) {
-        // Update existing user
-        const [updatedUser] = await db
-          .update(authUsers)
-          .set({
-            ...userData,
+      // Use Drizzle's onConflictDoUpdate for proper upsert with Firebase user ID
+      const [user] = await db
+        .insert(authUsers)
+        .values(userData)
+        .onConflictDoUpdate({
+          target: authUsers.id,
+          set: {
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            profileImageUrl: userData.profileImageUrl,
             updatedAt: new Date(),
-          })
-          .where(eq(authUsers.email, userData.email!))
-          .returning();
-        return updatedUser;
-      } else {
-        // Insert new user
-        const [newUser] = await db
-          .insert(authUsers)
-          .values(userData)
-          .returning();
-        return newUser;
-      }
+          },
+        })
+        .returning();
+      return user;
     } catch (error) {
       console.error('Upsert user error:', error);
       throw error;
