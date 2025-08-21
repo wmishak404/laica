@@ -24,34 +24,25 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      // Check authentication provider
-      if (user && 'authProvider' in user) {
-        if (user.authProvider === 'google') {
-          // Firebase/Google logout
-          const { FirebaseAuthService } = await import('@/lib/firebase');
-          await FirebaseAuthService.signOut();
-          window.location.href = '/';
-          return;
-        } else if (user.authProvider === 'replit') {
-          // Replit Auth logout
-          window.location.href = '/api/logout';
-          return;
-        }
-      }
+      console.log('User object for logout:', user);
       
-      // Fall back: determine by user ID type
+      // Always try Firebase logout first for string IDs (Google auth uses Firebase UIDs)
       if (user?.id && typeof user.id === 'string') {
-        // Could be Replit Auth or Firebase - try Firebase first
+        console.log('Detected string ID, attempting Firebase logout');
         try {
           const { FirebaseAuthService } = await import('@/lib/firebase');
           await FirebaseAuthService.signOut();
+          console.log('Firebase logout successful');
           window.location.href = '/';
+          return;
         } catch (firebaseError) {
-          // If Firebase fails, try Replit logout
+          console.log('Firebase logout failed, trying Replit logout');
           window.location.href = '/api/logout';
+          return;
         }
       } else {
         // Local users (numeric ID)
+        console.log('Detected numeric ID, attempting local logout');
         fetch('/api/auth/local-logout', { method: 'POST' })
           .then(() => {
             window.location.href = '/';
