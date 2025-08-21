@@ -121,6 +121,18 @@ export const userSettings = pgTable("user_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User feedback table for collecting app feedback and LLM prompt refinement
+export const userFeedback = pgTable("user_feedback", {
+  id: serial("id").primaryKey(),
+  authUserId: varchar("auth_user_id").notNull(),
+  pageName: text("page_name").notNull(), // e.g., "landing", "cooking", "meal-planning"
+  feedbackText: text("feedback_text").notNull(),
+  category: varchar("category").default("general"), // "general", "ui", "functionality", "suggestion"
+  userEmail: text("user_email"), // Store user email for follow-up
+  userName: text("user_name"), // Display name for context
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   groceryLists: many(groceryLists),
@@ -130,6 +142,7 @@ export const authUsersRelations = relations(authUsers, ({ many, one }) => ({
   groceryLists: many(groceryLists),
   cookingSessions: many(cookingSessions),
   settings: one(userSettings),
+  feedback: many(userFeedback),
 }));
 
 export const recipesRelations = relations(recipes, ({ many }) => ({
@@ -172,6 +185,13 @@ export const cookingSessionsRelations = relations(cookingSessions, ({ one }) => 
 export const userSettingsRelations = relations(userSettings, ({ one }) => ({
   authUser: one(authUsers, {
     fields: [userSettings.authUserId],
+    references: [authUsers.id],
+  }),
+}));
+
+export const userFeedbackRelations = relations(userFeedback, ({ one }) => ({
+  authUser: one(authUsers, {
+    fields: [userFeedback.authUserId],
     references: [authUsers.id],
   }),
 }));
@@ -256,6 +276,15 @@ export const updateUserProfileSchema = createInsertSchema(authUsers).pick({
   favoriteChefs: true,
 }).partial();
 
+export const insertUserFeedbackSchema = createInsertSchema(userFeedback).pick({
+  authUserId: true,
+  pageName: true,
+  feedbackText: true,
+  category: true,
+  userEmail: true,
+  userName: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -281,3 +310,6 @@ export type UserSettings = typeof userSettings.$inferSelect;
 export type InsertUserSettings = z.infer<typeof insertUserSettingsSchema>;
 
 export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
+
+export type UserFeedback = typeof userFeedback.$inferSelect;
+export type InsertUserFeedback = z.infer<typeof insertUserFeedbackSchema>;

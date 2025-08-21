@@ -3,6 +3,7 @@ import {
   users,
   cookingSessions,
   userSettings,
+  userFeedback,
   type AuthUser,
   type User,
   type UpsertUser,
@@ -12,6 +13,8 @@ import {
   type UserSettings,
   type InsertUserSettings,
   type UpdateUserProfile,
+  type UserFeedback,
+  type InsertUserFeedback,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -33,6 +36,10 @@ export interface IStorage {
   updateCookingSession(id: number, session: Partial<CookingSession>): Promise<CookingSession>;
   getUserCookingSessions(userId: string, limit?: number): Promise<CookingSession[]>;
   getActiveCookingSession(userId: string): Promise<CookingSession | undefined>;
+  
+  // Feedback operations
+  createUserFeedback(feedback: InsertUserFeedback): Promise<UserFeedback>;
+  getUserFeedback(userId: string, limit?: number): Promise<UserFeedback[]>;
   
   // Local authentication operations
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -180,6 +187,25 @@ export class DatabaseStorage implements IStorage {
   async getLocalUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
+  }
+
+  // Feedback operations
+  async createUserFeedback(feedbackData: InsertUserFeedback): Promise<UserFeedback> {
+    const [feedback] = await db
+      .insert(userFeedback)
+      .values(feedbackData)
+      .returning();
+    return feedback;
+  }
+
+  async getUserFeedback(userId: string, limit: number = 50): Promise<UserFeedback[]> {
+    const feedback = await db
+      .select()
+      .from(userFeedback)
+      .where(eq(userFeedback.authUserId, userId))
+      .orderBy(desc(userFeedback.createdAt))
+      .limit(limit);
+    return feedback;
   }
 }
 
