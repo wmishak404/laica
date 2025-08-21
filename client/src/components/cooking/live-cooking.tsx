@@ -662,9 +662,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setIsProcessing(false);
     setRecordingDuration(0);
     
-    // Clear any pending responses and set ready state
-    setLastSpokenResponse(''); 
-    setAssistantResponse("Recording cancelled. Press 'Ask for Help' if you need assistance with this cooking step.");
+    // Clear any pending responses - no explicit message needed for natural conversation flow
+    setLastSpokenResponse('');
   };
 
   const processVoiceQuestion = async (audioBlob: Blob) => {
@@ -763,7 +762,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     } catch (error) {
       console.error('Error processing voice question:', error);
       setLastSpokenResponse(''); // Clear to allow new response
-      setAssistantResponse("I had trouble understanding your question. Please try asking again, speaking clearly near your microphone.");
+      setAssistantResponse("I didn't catch that. Could you try again?");
     }
     
     setIsProcessing(false);
@@ -1182,15 +1181,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                 )}
               </Button>
               
-              {/* Recording Duration Indicator */}
+              {/* Recording Indicator - Visual only */}
               {isVoiceRecording && (
                 <div className="mt-2 text-center">
                   <div className="text-sm text-white bg-red-600 px-2 py-1 rounded-full inline-flex items-center gap-1">
                     <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                    {recordingDuration.toFixed(1)}s
-                    {recordingDuration > 30 && (
-                      <span className="text-xs">(Max: 30s)</span>
-                    )}
+                    Listening...
                   </div>
                 </div>
               )}
