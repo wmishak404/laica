@@ -16,7 +16,9 @@ export default function Landing() {
         <div className="ml-auto">
           <GoogleSignInButton 
             className="bg-orange-600 hover:bg-orange-700 text-white"
-          />
+          >
+            Try Demo
+          </GoogleSignInButton>
         </div>
       </header>
 
@@ -38,7 +40,9 @@ export default function Landing() {
               <GoogleSignInButton 
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white min-w-[240px]"
-              />
+              >
+                Sign in to Try Demo
+              </GoogleSignInButton>
             </div>
           </div>
         </div>
