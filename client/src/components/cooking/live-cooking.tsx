@@ -1199,9 +1199,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                       <span className="text-xs">(Max: 30s)</span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-300 mt-1">
-                    Cost: ~${(recordingDuration * 0.0001).toFixed(4)}
-                  </div>
                 </div>
               )}
             </div>
