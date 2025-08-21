@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { ChefHat, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -137,13 +138,10 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
               </div>
             </div>
 
-            <Button
+            <GoogleSignInButton 
               variant="outline"
               className="w-full mt-4"
-              onClick={() => (window.location.href = "/api/login")}
-            >
-              External Account
-            </Button>
+            />
           </div>
 
           <div className="mt-4 text-center text-sm">

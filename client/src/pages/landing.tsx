@@ -15,12 +15,9 @@ export default function Landing() {
           <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Laica Cooking Assistant</span>
         </div>
         <div className="ml-auto">
-          <Button 
-            onClick={() => window.location.href = '/api/login'}
+          <GoogleSignInButton 
             className="bg-orange-600 hover:bg-orange-700 text-white"
-          >
-            Sign In
-          </Button>
+          />
         </div>
       </header>
 
@@ -43,14 +40,6 @@ export default function Landing() {
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white min-w-[240px]"
               />
-              <div className="text-gray-400">or</div>
-              <Button 
-                size="lg" 
-                onClick={() => window.location.href = '/api/login'}
-                className="bg-orange-600 hover:bg-orange-700 text-white min-w-[200px]"
-              >
-                Sign In with Replit
-              </Button>
             </div>
           </div>
         </div>
