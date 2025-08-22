@@ -23,12 +23,9 @@ interface UserProfile {
 interface UserProfilingProps {
   onProfileComplete: (profile: UserProfile) => void;
   existingProfile?: UserProfile;
-  onSkipToMealPlanning?: () => void;
 }
 
-export default function UserProfiling({ onProfileComplete, existingProfile, onSkipToMealPlanning }: UserProfilingProps) {
-  console.log('UserProfiling render - ALL PROPS:', { onProfileComplete: typeof onProfileComplete, existingProfile, onSkipToMealPlanning: typeof onSkipToMealPlanning });
-  console.log('UserProfiling render - onSkipToMealPlanning actual value:', onSkipToMealPlanning);
+export default function UserProfiling({ onProfileComplete, existingProfile }: UserProfilingProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showKitchenSettings, setShowKitchenSettings] = useState(false);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
@@ -941,10 +938,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
         <p className="text-muted-foreground">
           Step {currentStep} of 7 - This helps me give you personalized cooking guidance
         </p>
-        {/* Debug info */}
-        <div className="text-xs text-gray-400">
-          Skip function: {typeof onSkipToMealPlanning === 'function' ? 'Available' : 'Not provided'}
-        </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-primary h-2 rounded-full transition-all duration-300" 
@@ -964,38 +957,21 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
           Previous
         </Button>
         
-        <div className="flex gap-2">
-          {/* Skip to Meal Planning button - TEST VERSION */}
+        {currentStep === 7 ? (
           <Button
-            variant="outline"
-            onClick={(e) => {
-              console.log('TEST SKIP BUTTON CLICKED');
-              // Direct approach - use window message to parent
-              window.postMessage({ type: 'SKIP_TO_MEAL_PLANNING' }, window.location.origin);
-              console.log('Posted skip message to parent');
-            }}
-            className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-            type="button"
+            onClick={() => onProfileComplete(profile)}
+            disabled={!canProceed()}
           >
-            Skip to Meal Planning (Test)
+            Complete Profile
           </Button>
-          
-          {currentStep === 7 ? (
-            <Button
-              onClick={() => onProfileComplete(profile)}
-              disabled={!canProceed()}
-            >
-              Complete Profile
-            </Button>
-          ) : (
-            <Button
-              onClick={() => setCurrentStep(prev => Math.min(7, prev + 1))}
-              disabled={!canProceed()}
-            >
-              Next
-            </Button>
-          )}
-        </div>
+        ) : (
+          <Button
+            onClick={() => setCurrentStep(prev => Math.min(7, prev + 1))}
+            disabled={!canProceed()}
+          >
+            Next
+          </Button>
+        )}
       </div>
 
       {/* Camera Dialogs */}
