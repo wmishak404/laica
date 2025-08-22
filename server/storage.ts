@@ -22,7 +22,6 @@ export interface IStorage {
   getUser(id: string): Promise<AuthUser | undefined>;
   upsertUser(user: UpsertUser): Promise<AuthUser>;
   updateUserProfile(id: string, profile: UpdateUserProfile): Promise<AuthUser>;
-  hasCompletedProfile(id: string): Promise<boolean>;
   
   // User settings operations
   getUserSettings(userId: string): Promise<UserSettings | undefined>;
@@ -71,19 +70,6 @@ export class DatabaseStorage implements IStorage {
       console.error('Upsert user error:', error);
       throw error;
     }
-  }
-
-  async hasCompletedProfile(id: string): Promise<boolean> {
-    const user = await this.getUser(id);
-    if (!user) return false;
-    
-    // Profile is considered complete if user has gone through the essential steps at least once
-    const hasEssentialFields = 
-      user.cookingSkill && 
-      user.dietaryRestrictions && 
-      user.pantryIngredients;
-    
-    return !!hasEssentialFields;
   }
 
   async updateUserProfile(id: string, profile: UpdateUserProfile): Promise<AuthUser> {
