@@ -273,12 +273,31 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setIsSpeaking(false);
   };
 
+  // Check if message is operational (system message) and should not be spoken
+  const isOperationalMessage = (text: string) => {
+    const operationalPhrases = [
+      'Processing your question',
+      'Recording cancelled',
+      'Recording stopped',
+      'Please try asking again',
+      'I couldn\'t access your microphone',
+      'Recording timed out'
+    ];
+    return operationalPhrases.some(phrase => text.includes(phrase));
+  };
+
   // Enhanced text-to-speech using ElevenLabs or browser fallback
   const speakText = async (text: string) => {
     if (!isAudioEnabled || !text || isSpeaking) return;
     
     // Prevent duplicate calls for the same text
     if (text === lastSpokenResponse && isSpeaking) return;
+    
+    // Don't speak operational/system messages
+    if (isOperationalMessage(text)) {
+      console.log('Skipping TTS for operational message:', text);
+      return;
+    }
     
     // Stop any current audio before starting new one
     stopAudio();
@@ -574,7 +593,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         if (shouldProcessRecording && chunks.length > 0) {
           setIsProcessing(true);
           setAssistantResponse("Processing your question...");
-          setLastSpokenResponse(''); // Clear to allow new response
+          setLastSpokenResponse(''); // Clear to allow next real response
           
           const audioBlob = new Blob(chunks, { type: 'audio/wav' });
           await processVoiceQuestion(audioBlob);
