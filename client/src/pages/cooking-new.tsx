@@ -188,7 +188,23 @@ export default function Cooking() {
           <UserProfiling 
             onProfileComplete={handleProfileComplete}
             existingProfile={userProfile || undefined}
-            onSkipToMealPlanning={() => setCurrentPhase('planning')}
+            onSkipToMealPlanning={() => {
+              console.log('Skip function called, switching to planning phase');
+              // Create a minimal profile for planning phase to work
+              if (!userProfile) {
+                const minimalProfile = {
+                  cookingSkill: 'intermediate',
+                  dietaryRestrictions: [],
+                  weeklyTime: '3-5',
+                  pantryIngredients: [],
+                  kitchenEquipment: [],
+                  favoriteChefs: []
+                };
+                setUserProfile(minimalProfile);
+                localStorage.setItem('cookingProfile', JSON.stringify(minimalProfile));
+              }
+              setCurrentPhase('planning');
+            }}
           />
         );
 

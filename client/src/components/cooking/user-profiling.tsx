@@ -966,7 +966,14 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
           {/* Skip to Meal Planning button - always show if prop provided */}
           <Button
             variant="outline"
-            onClick={onSkipToMealPlanning}
+            onClick={() => {
+              console.log('Skip button clicked, calling onSkipToMealPlanning');
+              if (onSkipToMealPlanning) {
+                onSkipToMealPlanning();
+              } else {
+                console.error('onSkipToMealPlanning is not defined');
+              }
+            }}
             className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
           >
             Skip to Meal Planning
