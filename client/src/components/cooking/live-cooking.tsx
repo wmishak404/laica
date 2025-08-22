@@ -573,7 +573,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         // Check the shouldProcess flag at processing time - this prevents cancelled recordings from processing
         if (shouldProcessRecording && chunks.length > 0) {
           setIsProcessing(true);
-          // Don't set assistant response to avoid audio feedback
+          setAssistantResponse("Processing your question...");
+          setLastSpokenResponse(''); // Clear to allow new response
           
           const audioBlob = new Blob(chunks, { type: 'audio/wav' });
           await processVoiceQuestion(audioBlob);
