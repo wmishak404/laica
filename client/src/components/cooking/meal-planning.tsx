@@ -347,30 +347,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
               <p className="text-sm text-gray-600">You can select multiple cuisines</p>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* No Preferences Option - Prominent */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-                <div className="text-center">
-                  <h3 className="font-medium text-blue-900 mb-2">Skip This Step</h3>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentStep(3)}
-                    className="bg-blue-100 border-blue-300 text-blue-700 hover:bg-blue-200"
-                  >
-                    No Preferences - Surprise Me!
-                  </Button>
-                  <p className="text-xs text-blue-600 mt-2">I'll recommend meals based on your pantry ingredients</p>
-                </div>
-              </div>
-              
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-200" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">Or select preferences</span>
-                </div>
-              </div>
-              
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {cuisineOptions.map((cuisine) => (
                   <div 
@@ -385,6 +361,16 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                     <span className="text-sm font-medium text-center">{cuisine}</span>
                   </div>
                 ))}
+              </div>
+              
+              <div className="text-center pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep(3)}
+                  className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                >
+                  No preferences
+                </Button>
               </div>
 
               <div className="flex justify-between pt-4">

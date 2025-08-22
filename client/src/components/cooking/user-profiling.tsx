@@ -959,8 +959,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
         </Button>
         
         <div className="flex gap-2">
-          {/* Skip to Meal Planning button for returning users */}
-          {onSkipToMealPlanning && existingProfile && (
+          {/* Skip to Meal Planning button */}
+          {onSkipToMealPlanning && (
             <Button
               variant="outline"
               onClick={onSkipToMealPlanning}
