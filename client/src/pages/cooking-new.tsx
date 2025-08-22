@@ -184,27 +184,30 @@ export default function Cooking() {
         return renderWelcomeScreen();
 
       case 'profiling':
+        console.log('Rendering UserProfiling with skip function');
+        const skipFunction = () => {
+          console.log('Skip function called, switching to planning phase');
+          // Create a minimal profile for planning phase to work
+          if (!userProfile) {
+            const minimalProfile = {
+              cookingSkill: 'intermediate',
+              dietaryRestrictions: [],
+              weeklyTime: '3-5',
+              pantryIngredients: [],
+              kitchenEquipment: [],
+              favoriteChefs: []
+            };
+            setUserProfile(minimalProfile);
+            localStorage.setItem('cookingProfile', JSON.stringify(minimalProfile));
+          }
+          setCurrentPhase('planning');
+        };
+        
         return (
           <UserProfiling 
             onProfileComplete={handleProfileComplete}
             existingProfile={userProfile || undefined}
-            onSkipToMealPlanning={() => {
-              console.log('Skip function called, switching to planning phase');
-              // Create a minimal profile for planning phase to work
-              if (!userProfile) {
-                const minimalProfile = {
-                  cookingSkill: 'intermediate',
-                  dietaryRestrictions: [],
-                  weeklyTime: '3-5',
-                  pantryIngredients: [],
-                  kitchenEquipment: [],
-                  favoriteChefs: []
-                };
-                setUserProfile(minimalProfile);
-                localStorage.setItem('cookingProfile', JSON.stringify(minimalProfile));
-              }
-              setCurrentPhase('planning');
-            }}
+            onSkipToMealPlanning={skipFunction}
           />
         );
 
