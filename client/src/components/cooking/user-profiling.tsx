@@ -23,9 +23,10 @@ interface UserProfile {
 interface UserProfilingProps {
   onProfileComplete: (profile: UserProfile) => void;
   existingProfile?: UserProfile;
+  onSkipToMealPlanning?: () => void;
 }
 
-export default function UserProfiling({ onProfileComplete, existingProfile }: UserProfilingProps) {
+export default function UserProfiling({ onProfileComplete, existingProfile, onSkipToMealPlanning }: UserProfilingProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showKitchenSettings, setShowKitchenSettings] = useState(false);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
@@ -957,21 +958,34 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           Previous
         </Button>
         
-        {currentStep === 7 ? (
-          <Button
-            onClick={() => onProfileComplete(profile)}
-            disabled={!canProceed()}
-          >
-            Complete Profile
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setCurrentStep(prev => Math.min(7, prev + 1))}
-            disabled={!canProceed()}
-          >
-            Next
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {/* Skip to Meal Planning button for returning users */}
+          {onSkipToMealPlanning && existingProfile && (
+            <Button
+              variant="outline"
+              onClick={onSkipToMealPlanning}
+              className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+            >
+              Skip to Meal Planning
+            </Button>
+          )}
+          
+          {currentStep === 7 ? (
+            <Button
+              onClick={() => onProfileComplete(profile)}
+              disabled={!canProceed()}
+            >
+              Complete Profile
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setCurrentStep(prev => Math.min(7, prev + 1))}
+              disabled={!canProceed()}
+            >
+              Next
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Camera Dialogs */}

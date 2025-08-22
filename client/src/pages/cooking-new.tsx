@@ -186,6 +186,8 @@ export default function Cooking() {
         return (
           <UserProfiling 
             onProfileComplete={handleProfileComplete}
+            existingProfile={userProfile || undefined}
+            onSkipToMealPlanning={isReturningUser ? () => setCurrentPhase('planning') : undefined}
           />
         );
 
