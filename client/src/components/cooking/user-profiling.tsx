@@ -941,7 +941,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
         </p>
         {/* Debug info */}
         <div className="text-xs text-gray-400">
-          Skip function: {onSkipToMealPlanning ? 'Available' : 'Not provided'}
+          Skip function: {typeof onSkipToMealPlanning === 'function' ? 'Available' : 'Not provided'}
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
@@ -968,10 +968,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
             variant="outline"
             onClick={() => {
               console.log('Skip button clicked, calling onSkipToMealPlanning');
+              console.log('Function type:', typeof onSkipToMealPlanning);
               if (onSkipToMealPlanning) {
+                console.log('Calling skip function...');
                 onSkipToMealPlanning();
               } else {
-                console.error('onSkipToMealPlanning is not defined');
+                console.error('Skip function not provided!');
               }
             }}
             className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
