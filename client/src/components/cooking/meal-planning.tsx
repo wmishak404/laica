@@ -363,7 +363,11 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 ))}
               </div>
               
-              <div className="text-center pt-4">
+              <div className="flex justify-between items-center pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                  Back
+                </Button>
+                
                 <Button
                   variant="outline"
                   onClick={() => setCurrentStep(3)}
@@ -371,12 +375,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 >
                   No preferences
                 </Button>
-              </div>
-
-              <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setCurrentStep(1)}>
-                  Back
-                </Button>
+                
                 <Button 
                   onClick={() => setCurrentStep(3)}
                   disabled={!canProceedFromStep2}

@@ -51,7 +51,8 @@ export default function Cooking() {
         const profile = JSON.parse(savedProfile);
         setUserProfile(profile);
         setIsReturningUser(true);
-        setCurrentPhase('planning');
+        // Don't auto-redirect to planning - let user choose
+        // setCurrentPhase('planning');
       } catch (error) {
         console.error('Error loading saved profile:', error);
       }

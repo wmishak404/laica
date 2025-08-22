@@ -959,7 +959,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
         </Button>
         
         <div className="flex gap-2">
-          {/* Skip to Meal Planning button */}
+          {/* Skip to Meal Planning button - always show if prop provided */}
           {onSkipToMealPlanning && (
             <Button
               variant="outline"
