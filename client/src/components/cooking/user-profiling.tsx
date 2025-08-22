@@ -27,6 +27,7 @@ interface UserProfilingProps {
 }
 
 export default function UserProfiling({ onProfileComplete, existingProfile, onSkipToMealPlanning }: UserProfilingProps) {
+  console.log('UserProfiling render - onSkipToMealPlanning:', typeof onSkipToMealPlanning, onSkipToMealPlanning);
   const [currentStep, setCurrentStep] = useState(1);
   const [showKitchenSettings, setShowKitchenSettings] = useState(false);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
@@ -963,20 +964,30 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
         </Button>
         
         <div className="flex gap-2">
-          {/* Skip to Meal Planning button - always show if prop provided */}
+          {/* Skip to Meal Planning button */}
           <Button
             variant="outline"
-            onClick={() => {
-              console.log('Skip button clicked, calling onSkipToMealPlanning');
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('SKIP BUTTON CLICKED - EVENT:', e);
+              console.log('onSkipToMealPlanning function:', onSkipToMealPlanning);
               console.log('Function type:', typeof onSkipToMealPlanning);
-              if (onSkipToMealPlanning) {
-                console.log('Calling skip function...');
-                onSkipToMealPlanning();
+              
+              if (typeof onSkipToMealPlanning === 'function') {
+                console.log('Executing skip function now...');
+                try {
+                  onSkipToMealPlanning();
+                  console.log('Skip function executed successfully');
+                } catch (error) {
+                  console.error('Error executing skip function:', error);
+                }
               } else {
-                console.error('Skip function not provided!');
+                console.error('onSkipToMealPlanning is not a function:', onSkipToMealPlanning);
               }
             }}
             className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+            type="button"
           >
             Skip to Meal Planning
           </Button>
