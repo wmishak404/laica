@@ -183,7 +183,7 @@ export default function MobileApp() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user?.getIdToken?.()}` // Firebase auth
+          'Authorization': `Bearer ${await getAuthToken()}` // Firebase auth
         },
         body: JSON.stringify({
           cookingSkill: profile.cookingSkill,
@@ -238,7 +238,6 @@ export default function MobileApp() {
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile);
-    saveProfile(updatedProfile);
     
     // Check if profile is complete before going to planning
     const isProfileComplete = updatedProfile.cookingSkill && 
