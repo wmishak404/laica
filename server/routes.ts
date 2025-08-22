@@ -76,6 +76,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check if user has completed profile setup
+  app.get('/api/user/profile-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const hasCompleted = await storage.hasCompletedProfile(firebaseUser.uid);
+      return res.json({ hasCompletedProfile: hasCompleted });
+    } catch (error) {
+      console.error("Error checking profile status:", error);
+      res.status(500).json({ message: "Failed to check profile status" });
+    }
+  });
+
   // User profile routes
   app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfileStatus } from '@/hooks/useProfileStatus';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
@@ -43,6 +44,7 @@ type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'setting
 
 export default function MobileApp() {
   const { user } = useAuth();
+  const { hasCompletedProfile, isLoading: isLoadingProfileStatus } = useProfileStatus();
   const { toast } = useToast();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -55,43 +57,44 @@ export default function MobileApp() {
   });
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [showProfileOptions, setShowProfileOptions] = useState(false);
 
-  // Load existing profile on mount
+  // Load existing profile data from user object
   useEffect(() => {
-    if (user?.id) {
-      const savedProfile = localStorage.getItem(`cookingProfile_${user.id}`);
-      if (savedProfile) {
-        try {
-          const parsedProfile = JSON.parse(savedProfile);
-          setUserProfile(parsedProfile);
-          
-          // Check if profile is complete
-          const isProfileComplete = parsedProfile.cookingSkill && 
-            parsedProfile.weeklyTime && 
-            parsedProfile.pantryIngredients.length > 0;
-          
-          if (isProfileComplete) {
-            setCurrentPhase('planning');
-          } else {
-            setCurrentPhase('profiling');
-          }
-        } catch (error) {
-          console.error('Error loading saved profile:', error);
-          setCurrentPhase('welcome');
-        }
-      } else {
+    if (user && 'cookingSkill' in user) {
+      // User is an AuthUser with profile data
+      setUserProfile({
+        cookingSkill: user.cookingSkill || '',
+        dietaryRestrictions: user.dietaryRestrictions || [],
+        weeklyTime: user.weeklyTime || '',
+        pantryIngredients: user.pantryIngredients || [],
+        kitchenEquipment: user.kitchenEquipment || [],
+        favoriteChefs: user.favoriteChefs || []
+      });
+    }
+  }, [user]);
+
+  // Determine initial phase based on profile completion status
+  useEffect(() => {
+    if (!isLoadingProfileStatus && user) {
+      if (hasCompletedProfile) {
+        // Returning user - show profile options
+        setShowProfileOptions(true);
         setCurrentPhase('welcome');
+      } else {
+        // First-time user - go straight to profiling
+        setCurrentPhase('profiling');
+        setShowProfileOptions(false);
       }
     }
-    setIsLoadingProfile(false);
-  }, [user?.id]);
+  }, [hasCompletedProfile, isLoadingProfileStatus, user]);
 
-  // Save profile whenever it changes
-  const saveProfile = (profile: UserProfile) => {
-    if (user?.id) {
-      localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profile));
+  // Helper to get Firebase ID token for authenticated requests
+  const getAuthToken = async () => {
+    if (user && 'getIdToken' in user && typeof user.getIdToken === 'function') {
+      return await user.getIdToken();
     }
+    return null;
   };
 
   const getUserInitials = () => {
@@ -171,28 +174,46 @@ export default function MobileApp() {
     }
   };
 
-  const handleProfileComplete = (profile: UserProfile) => {
+  const handleProfileComplete = async (profile: UserProfile) => {
     setUserProfile(profile);
-    saveProfile(profile);
     
-    // Show confirmation toast with link to settings
-    toast({
-      title: "Profile Updated Successfully",
-      description: (
-        <div>
-          Your cooking profile has been saved. Ready to find your perfect meal?{' '}
-          <button 
-            onClick={() => setCurrentPhase('settings')}
-            className="underline text-blue-600 hover:text-blue-800"
-          >
-            Make changes here
-          </button>
-        </div>
-      ),
-      duration: 5000,
-    });
-    
-    setCurrentPhase('planning');
+    // Update profile in database via API
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await user?.getIdToken?.()}` // Firebase auth
+        },
+        body: JSON.stringify({
+          cookingSkill: profile.cookingSkill,
+          dietaryRestrictions: profile.dietaryRestrictions,
+          weeklyTime: profile.weeklyTime,
+          pantryIngredients: profile.pantryIngredients,
+          kitchenEquipment: profile.kitchenEquipment,
+          favoriteChefs: profile.favoriteChefs,
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to update profile');
+      
+      // Show confirmation toast
+      toast({
+        title: "Profile Updated Successfully",
+        description: "Your cooking profile has been saved. Ready to find your perfect meal?",
+        duration: 3000,
+      });
+      
+      setCurrentPhase('planning');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Profile Update Failed",
+        description: "We couldn't save your profile. Please try again.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
   };
 
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
@@ -301,31 +322,82 @@ export default function MobileApp() {
     );
   };
 
-  const renderWelcomeScreen = () => (
-    <div className="min-h-screen bg-gradient-to-b from-[#FF6B6B]/10 to-white flex flex-col justify-center items-center p-6">
-      <div className="text-center mb-8">
-        <div className="bg-[#FF6B6B] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <ChefHat className="h-10 w-10 text-white" />
+  const renderWelcomeScreen = () => {
+    if (showProfileOptions && hasCompletedProfile) {
+      // Returning user - show profile options
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-[#FF6B6B]/10 to-white flex flex-col justify-center items-center p-6">
+          <div className="text-center mb-8">
+            <div className="bg-[#FF6B6B] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ChefHat className="h-10 w-10 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {getUserDisplayName()}!</h1>
+            <p className="text-lg text-gray-600 mb-8">What would you like to do today?</p>
+            
+            <div className="space-y-4 max-w-sm mx-auto">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-gray-900 mb-2">Make Changes to Pantry</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Update your cooking preferences, pantry ingredients, or dietary restrictions.
+                  </p>
+                  <Button 
+                    onClick={() => setCurrentPhase('profiling')}
+                    variant="outline"
+                    className="w-full border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B]/5"
+                  >
+                    Update Profile
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-gray-900 mb-2">Go Straight to Meal Planning</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Skip profile setup and start planning your next meal right away.
+                  </p>
+                  <Button 
+                    onClick={() => setCurrentPhase('planning')}
+                    className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+                  >
+                    Start Cooking
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Laica</h1>
-        <p className="text-lg text-gray-600 mb-8">Your Live Cooking Assistant</p>
-        
-        <Card className="max-w-sm mx-auto">
-          <CardContent className="p-6">
-            <p className="text-gray-700 mb-6 text-center">
-              Let's get started by learning about your cooking style and preferences.
-            </p>
-            <Button 
-              onClick={() => setCurrentPhase('profiling')}
-              className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
-            >
-              Get Started
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+      );
+    } else {
+      // First-time user - show get started
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-[#FF6B6B]/10 to-white flex flex-col justify-center items-center p-6">
+          <div className="text-center mb-8">
+            <div className="bg-[#FF6B6B] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ChefHat className="h-10 w-10 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Laica</h1>
+            <p className="text-lg text-gray-600 mb-8">Your Live Cooking Assistant</p>
+            
+            <Card className="max-w-sm mx-auto">
+              <CardContent className="p-6">
+                <p className="text-gray-700 mb-6 text-center">
+                  Let's get started by learning about your cooking style and preferences.
+                </p>
+                <Button 
+                  onClick={() => setCurrentPhase('profiling')}
+                  className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+                >
+                  Get Started
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+  };
 
   // Check if user has an existing profile
   const hasExistingProfile = () => {
@@ -334,7 +406,7 @@ export default function MobileApp() {
            userProfile.pantryIngredients.length > 0;
   };
 
-  if (isLoadingProfile) {
+  if (isLoadingProfileStatus) {
     return (
       <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8 text-center">
