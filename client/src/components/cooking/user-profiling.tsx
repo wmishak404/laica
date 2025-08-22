@@ -939,6 +939,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
         <p className="text-muted-foreground">
           Step {currentStep} of 7 - This helps me give you personalized cooking guidance
         </p>
+        {/* Debug info */}
+        <div className="text-xs text-gray-400">
+          Skip function: {onSkipToMealPlanning ? 'Available' : 'Not provided'}
+        </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-primary h-2 rounded-full transition-all duration-300" 
@@ -960,15 +964,13 @@ export default function UserProfiling({ onProfileComplete, existingProfile, onSk
         
         <div className="flex gap-2">
           {/* Skip to Meal Planning button - always show if prop provided */}
-          {onSkipToMealPlanning && (
-            <Button
-              variant="outline"
-              onClick={onSkipToMealPlanning}
-              className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-            >
-              Skip to Meal Planning
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={onSkipToMealPlanning}
+            className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+          >
+            Skip to Meal Planning
+          </Button>
           
           {currentStep === 7 ? (
             <Button
