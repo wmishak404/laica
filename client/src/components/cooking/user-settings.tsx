@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useResetPantry, useUpdateUserProfile } from '@/hooks/useAuth';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -32,10 +34,36 @@ interface UserSettingsProps {
 
 export default function UserSettings({ userProfile, onProfileUpdate, onBackToPlanning }: UserSettingsProps) {
   const [profile, setProfile] = useState<UserProfile>(userProfile);
+  
+  // Option arrays matching the initial profiling
+  const skillLevels = [
+    { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes like pasta or sandwiches' },
+    { value: 'intermediate', label: 'Intermediate', description: 'I can follow recipes and cook most dishes' },
+    { value: 'expert', label: 'Expert', description: 'I can cook complex dishes and modify recipes' }
+  ];
+
+  const dietaryOptions = [
+    'None', 'Gluten Free', 'Vegetarian', 'Vegan', 'Dairy Free', 
+    'No Red Meat', 'Halal', 'Kosher', 'Keto', 'Paleo'
+  ];
+
+  const timeOptions = [
+    { value: '1-2', label: '1-2 hours per week' },
+    { value: '3-5', label: '3-5 hours per week' },
+    { value: '6-10', label: '6-10 hours per week' },
+    { value: '10+', label: 'More than 10 hours per week' }
+  ];
+
+  const popularChefs = [
+    'Gordon Ramsay', 'Andy Cooks', 'Kenji Lopez-Alt', 'Joshua Weissman',
+    'Bon Appétit', 'Epicurious', 'Modernist Kitchen', 'Salt Fat Acid Heat',
+    'Babish Culinary Universe', 'Maangchi'
+  ];
   const [showPantryCamera, setShowPantryCamera] = useState(false);
   const [showEquipmentCamera, setShowEquipmentCamera] = useState(false);
   const [newIngredient, setNewIngredient] = useState('');
   const [newEquipment, setNewEquipment] = useState('');
+  const [newChef, setNewChef] = useState('');
   const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
   const [notifications, setNotifications] = useState({
@@ -45,6 +73,31 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     weeklyPlanning: true
   });
   const { toast } = useToast();
+
+  // Handler functions matching the initial profiling
+  const handleDietaryChange = (restriction: string) => {
+    if (restriction === 'None') {
+      setProfile(prev => ({ ...prev, dietaryRestrictions: ['None'] }));
+    } else {
+      setProfile(prev => ({
+        ...prev,
+        dietaryRestrictions: prev.dietaryRestrictions.includes('None')
+          ? [restriction]
+          : prev.dietaryRestrictions.includes(restriction)
+          ? prev.dietaryRestrictions.filter(r => r !== restriction)
+          : [...prev.dietaryRestrictions.filter(r => r !== 'None'), restriction]
+      }));
+    }
+  };
+
+  const handleChefChange = (chef: string) => {
+    setProfile(prev => ({
+      ...prev,
+      favoriteChefs: prev.favoriteChefs.includes(chef)
+        ? prev.favoriteChefs.filter(c => c !== chef)
+        : [...prev.favoriteChefs, chef]
+    }));
+  };
 
   const addIngredient = () => {
     if (newIngredient.trim() && !profile.pantryIngredients.includes(newIngredient.trim())) {
@@ -470,37 +523,54 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="skill">Cooking Skill Level</Label>
-                <Input
-                  id="skill"
-                  value={profile.cookingSkill}
-                  onChange={(e) => setProfile(prev => ({ ...prev, cookingSkill: e.target.value }))}
-                  placeholder="e.g., Beginner, Intermediate, Advanced"
-                />
+                <Label>Cooking Skill Level</Label>
+                <RadioGroup 
+                  value={profile.cookingSkill} 
+                  onValueChange={(value) => setProfile(prev => ({ ...prev, cookingSkill: value }))}
+                  className="mt-2"
+                >
+                  {skillLevels.map((skill) => (
+                    <div key={skill.value} className="flex items-start space-x-3 space-y-0">
+                      <RadioGroupItem value={skill.value} id={skill.value} className="mt-1" />
+                      <div className="space-y-1 leading-none">
+                        <Label htmlFor={skill.value} className="font-medium">{skill.label}</Label>
+                        <p className="text-sm text-muted-foreground">{skill.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </RadioGroup>
               </div>
 
               <div>
-                <Label htmlFor="time">Weekly Cooking Time</Label>
-                <Input
-                  id="time"
-                  value={profile.weeklyTime}
-                  onChange={(e) => setProfile(prev => ({ ...prev, weeklyTime: e.target.value }))}
-                  placeholder="e.g., 5-10 hours, 10-15 hours"
-                />
+                <Label>Weekly Cooking Time</Label>
+                <RadioGroup 
+                  value={profile.weeklyTime} 
+                  onValueChange={(value) => setProfile(prev => ({ ...prev, weeklyTime: value }))}
+                  className="mt-2"
+                >
+                  {timeOptions.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option.value} id={option.value} />
+                      <Label htmlFor={option.value}>{option.label}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
               </div>
 
               <div>
-                <Label htmlFor="restrictions">Dietary Restrictions</Label>
-                <Textarea
-                  id="restrictions"
-                  value={profile.dietaryRestrictions.join(', ')}
-                  onChange={(e) => setProfile(prev => ({
-                    ...prev,
-                    dietaryRestrictions: e.target.value.split(',').map(r => r.trim()).filter(r => r.length > 0)
-                  }))}
-                  placeholder="e.g., vegetarian, gluten-free, dairy-free"
-                  rows={3}
-                />
+                <Label>Dietary Restrictions</Label>
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  {dietaryOptions.map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={option}
+                        checked={profile.dietaryRestrictions.includes(option)}
+                        onCheckedChange={() => handleDietaryChange(option)}
+                      />
+                      <Label htmlFor={option} className="text-sm">{option}</Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -513,17 +583,76 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="chefs">Favorite Chefs/Cooking Styles</Label>
-                <Textarea
-                  id="chefs"
-                  value={profile.favoriteChefs.join(', ')}
-                  onChange={(e) => setProfile(prev => ({
-                    ...prev,
-                    favoriteChefs: e.target.value.split(',').map(c => c.trim()).filter(c => c.length > 0)
-                  }))}
-                  placeholder="e.g., Gordon Ramsay, Italian cuisine, Asian fusion"
-                  rows={3}
-                />
+                <Label>Favorite Chefs/Cooking Styles</Label>
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  {popularChefs.map((chef) => (
+                    <div key={chef} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={chef}
+                        checked={profile.favoriteChefs.includes(chef)}
+                        onCheckedChange={() => handleChefChange(chef)}
+                      />
+                      <Label htmlFor={chef} className="text-sm">{chef}</Label>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-4">
+                  <Label htmlFor="other-chefs">Add chefs or cooking styles manually:</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="other-chefs"
+                      placeholder="e.g., Fallow"
+                      value={newChef}
+                      onChange={(e) => setNewChef(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        if (newChef.trim()) {
+                          const newChefs = newChef.split(',').map(c => c.trim()).filter(c => c.length > 0);
+                          newChefs.forEach(chef => {
+                            if (!profile.favoriteChefs.includes(chef)) {
+                              handleChefChange(chef);
+                            }
+                          });
+                          setNewChef('');
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    You may enter multiple chefs separated by a comma (e.g. Julia Child, Gordon Ramsay)
+                  </p>
+                </div>
+                  
+                {/* Show added custom chefs */}
+                {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-gray-600 mb-2">Custom chefs added:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).map((chef, index) => (
+                        <span 
+                          key={index} 
+                          className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                        >
+                          {chef}
+                          <button
+                            onClick={() => handleChefChange(chef)}
+                            className="text-primary/60 hover:text-primary text-xs"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
