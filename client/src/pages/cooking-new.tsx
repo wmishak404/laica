@@ -37,31 +37,6 @@ type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'setting
 export default function Cooking() {
   const [location, setLocation] = useLocation();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
-  
-  // Listen for skip messages from UserProfiling component
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data.type === 'SKIP_TO_MEAL_PLANNING') {
-        console.log('Received skip message, switching to planning');
-        // Create a minimal profile for planning phase to work
-        const minimalProfile = {
-          cookingSkill: 'intermediate',
-          dietaryRestrictions: [],
-          weeklyTime: '3-5',
-          pantryIngredients: [],
-          kitchenEquipment: [],
-          favoriteChefs: []
-        };
-        setUserProfile(minimalProfile);
-        localStorage.setItem('cookingProfile', JSON.stringify(minimalProfile));
-        setCurrentPhase('planning');
-      }
-    };
-    
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
@@ -76,8 +51,7 @@ export default function Cooking() {
         const profile = JSON.parse(savedProfile);
         setUserProfile(profile);
         setIsReturningUser(true);
-        // Don't auto-redirect to planning - let user choose
-        // setCurrentPhase('planning');
+        setCurrentPhase('planning');
       } catch (error) {
         console.error('Error loading saved profile:', error);
       }
@@ -209,30 +183,9 @@ export default function Cooking() {
         return renderWelcomeScreen();
 
       case 'profiling':
-        console.log('Rendering UserProfiling with skip function');
-        const skipFunction = () => {
-          console.log('Skip function called, switching to planning phase');
-          // Create a minimal profile for planning phase to work
-          if (!userProfile) {
-            const minimalProfile = {
-              cookingSkill: 'intermediate',
-              dietaryRestrictions: [],
-              weeklyTime: '3-5',
-              pantryIngredients: [],
-              kitchenEquipment: [],
-              favoriteChefs: []
-            };
-            setUserProfile(minimalProfile);
-            localStorage.setItem('cookingProfile', JSON.stringify(minimalProfile));
-          }
-          setCurrentPhase('planning');
-        };
-        
         return (
           <UserProfiling 
             onProfileComplete={handleProfileComplete}
-            existingProfile={userProfile || undefined}
-            onSkipToMealPlanning={skipFunction}
           />
         );
 

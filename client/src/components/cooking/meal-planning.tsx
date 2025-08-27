@@ -73,7 +73,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   const cuisineOptions = [
     'Italian', 'Asian', 'Mexican', 'Indian', 'Mediterranean', 
     'American', 'French', 'Thai', 'Japanese', 'Middle Eastern',
-    'Korean', 'Vietnamese', 'Greek', 'Spanish'
+    'Korean', 'Vietnamese', 'Greek', 'Spanish', 'No preference'
   ];
 
   const schedulingOptions = [
@@ -295,7 +295,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   };
 
   const canProceedFromStep1 = mealPrefs.timeAvailable !== '';
-  const canProceedFromStep2 = true; // Always allow proceeding from step 2 (cuisine preferences now optional)
+  const canProceedFromStep2 = mealPrefs.cuisinePreference.length > 0;
   const canProceedFromStep3 = true; // Optional step
 
   const renderCurrentStep = () => {
@@ -362,20 +362,11 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                   </div>
                 ))}
               </div>
-              
-              <div className="flex justify-between items-center pt-4">
+
+              <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => setCurrentStep(1)}>
                   Back
                 </Button>
-                
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentStep(3)}
-                  className="text-gray-600 border-gray-300 hover:bg-gray-50"
-                >
-                  No preferences
-                </Button>
-                
                 <Button 
                   onClick={() => setCurrentStep(3)}
                   disabled={!canProceedFromStep2}
@@ -554,15 +545,37 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 </div>
               )}
 
-              {/* Removed scheduling options - always cook now for V1 */}
+              {selectedMeal && (
+                <Card className="bg-gray-50">
+                  <CardHeader>
+                    <CardTitle className="text-lg">When would you like to cook?</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <RadioGroup 
+                      value={scheduledTime} 
+                      onValueChange={setScheduledTime}
+                      className="space-y-2"
+                    >
+                      {schedulingOptions.map((option) => (
+                        <div key={option.value} className="flex items-center space-x-2">
+                          <RadioGroupItem value={option.value} id={option.value} />
+                          <Label htmlFor={option.value} className="cursor-pointer">
+                            {option.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
+              )}
 
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => setCurrentStep(3)}>
                   Back
                 </Button>
-                {selectedMeal && (
+                {selectedMeal && scheduledTime && (
                   <Button 
-                    onClick={() => onMealSelected(selectedMeal, 'now')}
+                    onClick={() => onMealSelected(selectedMeal, scheduledTime)}
                     className="bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700"
                   >
                     Start Cooking {selectedMeal.name}
