@@ -144,7 +144,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Grocery list endpoint
+  // Grocery list endpoint (temporarily disabled for future release)
+  /* 
   app.post('/api/grocery/list', async (req, res) => {
     try {
       const schema = z.object({
@@ -159,6 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to generate grocery list' });
     }
   });
+  */
 
   // Ingredient alternatives endpoint
   app.post('/api/ingredients/alternatives', async (req, res) => {

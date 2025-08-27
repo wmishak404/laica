@@ -10,8 +10,6 @@ import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import MobileApp from "@/pages/app";
 import Cooking from "@/pages/cooking-new";
-import GroceryList from "@/pages/grocery-list";
-import GroceryListMobile from "@/pages/grocery-list-mobile";
 import Settings from "@/pages/settings";
 
 function Router() {
@@ -26,7 +24,6 @@ function Router() {
           <Route path="/" component={MobileApp} />
           <Route path="/website" component={Home} />
           <Route path="/cooking" component={Cooking} />
-          <Route path="/grocery-list" component={GroceryListMobile} />
           <Route path="/settings" component={Settings} />
         </>
       )}

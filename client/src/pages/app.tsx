@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChefHat, Settings, Home, ShoppingCart, LogOut, User } from 'lucide-react';
+import { ChefHat, Settings, Home, LogOut, User } from 'lucide-react';
 
 interface UserProfile {
   cookingSkill: string;
@@ -275,16 +275,6 @@ export default function MobileApp() {
             <span className="text-xs">Cook</span>
           </Button>
 
-          <Link href="/grocery-list">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="flex flex-col items-center text-gray-500"
-            >
-              <ShoppingCart className="h-5 w-5 mb-1" />
-              <span className="text-xs">Grocery</span>
-            </Button>
-          </Link>
 
           <Button 
             variant="ghost" 

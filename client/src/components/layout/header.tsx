@@ -131,11 +131,6 @@ export default function Header() {
               Recipes
             </a>
           </Link>
-          <Link href="/grocery-list">
-            <a className={`text-foreground hover:text-primary transition font-medium ${location === '/grocery-list' ? 'text-primary' : ''}`}>
-              Grocery List
-            </a>
-          </Link>
         </nav>
 
         <div className="flex items-center space-x-4">
