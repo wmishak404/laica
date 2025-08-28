@@ -213,7 +213,7 @@ export default function Recipes() {
               <TabsContent value="suggestions">
                 <div className="bg-gray-50 p-6 rounded-lg mb-8">
                   <h2 className="text-xl font-bold mb-3">Get Smart Recipe Suggestions</h2>
-                  <p className="mb-4 text-gray-600">Tell us what you're looking for, your dietary preferences, or ingredients you'd like to use. Laica may make mistakes in generating recipes.</p>
+                  <p className="mb-4 text-gray-600">Tell us what you're looking for, your dietary preferences, or ingredients you'd like to use. Laica may recommend recipes not according to cuisine preferences to make use of your pantry ingredients.</p>
                   
                   <div className="flex flex-col md:flex-row gap-3">
                     <Input
