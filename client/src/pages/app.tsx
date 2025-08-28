@@ -17,7 +17,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChefHat, Settings, Home, LogOut, User } from 'lucide-react';
+import { ChefHat, Settings, Home, LogOut, User, MessageCircle } from 'lucide-react';
+import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
 interface UserProfile {
   cookingSkill: string;
@@ -45,6 +46,7 @@ export default function MobileApp() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     cookingSkill: '',
     dietaryRestrictions: [],
@@ -396,6 +398,17 @@ export default function MobileApp() {
         </div>
         
         <div className="flex items-center space-x-2">
+          {/* Feedback Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsFeedbackOpen(true)}
+            className="h-8 w-8 hover:bg-[#FF6B6B]/10"
+            title="Send Feedback"
+          >
+            <MessageCircle className="h-5 w-5 text-[#FF6B6B]" />
+          </Button>
+          
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -443,6 +456,12 @@ export default function MobileApp() {
       {renderHeader()}
       {renderCurrentPhase()}
       {renderBottomNav()}
+      
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        currentPage={`/app-${currentPhase}`}
+      />
     </div>
   );
 }
