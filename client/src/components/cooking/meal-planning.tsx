@@ -404,7 +404,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
               </div>
 
               <div>
-                <Label>What have you eaten recently? (Optional)</Label>
+                <Label>What have you eaten recently?</Label>
                 <p className="text-xs text-gray-500 mb-3">You may enter one dish at a time and click "Add" to build your list</p>
                 <div className="flex gap-2 mb-3">
                   <Input
