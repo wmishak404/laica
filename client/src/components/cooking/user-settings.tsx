@@ -54,16 +54,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     { value: '10+', label: 'More than 10 hours per week' }
   ];
 
-  const popularChefs = [
-    'Gordon Ramsay', 'Andy Cooks', 'Kenji Lopez-Alt', 'Joshua Weissman',
-    'Bon Appétit', 'Epicurious', 'Modernist Kitchen', 'Salt Fat Acid Heat',
-    'Babish Culinary Universe', 'Maangchi'
-  ];
   const [showPantryCamera, setShowPantryCamera] = useState(false);
   const [showEquipmentCamera, setShowEquipmentCamera] = useState(false);
   const [newIngredient, setNewIngredient] = useState('');
   const [newEquipment, setNewEquipment] = useState('');
-  const [newChef, setNewChef] = useState('');
   const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
   const [notifications, setNotifications] = useState({
@@ -90,14 +84,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     }
   };
 
-  const handleChefChange = (chef: string) => {
-    setProfile(prev => ({
-      ...prev,
-      favoriteChefs: prev.favoriteChefs.includes(chef)
-        ? prev.favoriteChefs.filter(c => c !== chef)
-        : [...prev.favoriteChefs, chef]
-    }));
-  };
 
   const addIngredient = () => {
     if (newIngredient.trim() && !profile.pantryIngredients.includes(newIngredient.trim())) {
@@ -324,7 +310,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       </div>
 
       <Tabs defaultValue="kitchen" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="kitchen" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             My Kitchen
@@ -332,10 +318,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
-          </TabsTrigger>
-          <TabsTrigger value="preferences" className="flex items-center gap-2">
-            <ChefHat className="h-4 w-4" />
-            Cooking
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
@@ -576,87 +558,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           </Card>
         </TabsContent>
 
-        <TabsContent value="preferences" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Cooking Preferences</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Favorite Chefs/Cooking Styles</Label>
-                <div className="grid grid-cols-2 gap-3 mt-2">
-                  {popularChefs.map((chef) => (
-                    <div key={chef} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={chef}
-                        checked={profile.favoriteChefs.includes(chef)}
-                        onCheckedChange={() => handleChefChange(chef)}
-                      />
-                      <Label htmlFor={chef} className="text-sm">{chef}</Label>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-4">
-                  <Label htmlFor="other-chefs">Add chefs or cooking styles manually:</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      id="other-chefs"
-                      placeholder="e.g., Fallow"
-                      value={newChef}
-                      onChange={(e) => setNewChef(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        if (newChef.trim()) {
-                          const newChefs = newChef.split(',').map(c => c.trim()).filter(c => c.length > 0);
-                          newChefs.forEach(chef => {
-                            if (!profile.favoriteChefs.includes(chef)) {
-                              handleChefChange(chef);
-                            }
-                          });
-                          setNewChef('');
-                        }
-                      }}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    You may enter multiple chefs separated by a comma (e.g. Julia Child, Gordon Ramsay)
-                  </p>
-                </div>
-                  
-                {/* Show added custom chefs */}
-                {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-sm font-medium text-gray-600 mb-2">Custom chefs added:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).map((chef, index) => (
-                        <span 
-                          key={index} 
-                          className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                        >
-                          {chef}
-                          <button
-                            onClick={() => handleChefChange(chef)}
-                            className="text-primary/60 hover:text-primary text-xs"
-                            type="button"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="notifications" className="space-y-6">
           <Card>

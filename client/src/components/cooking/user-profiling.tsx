@@ -59,11 +59,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     { value: '10+', label: 'More than 10 hours per week' }
   ];
 
-  const popularChefs = [
-    'Gordon Ramsay', 'Andy Cooks', 'Kenji Lopez-Alt', 'Joshua Weissman',
-    'Bon Appétit', 'Epicurious', 'Modernist Kitchen', 'Salt Fat Acid Heat',
-    'Babish Culinary Universe', 'Maangchi'
-  ];
 
   const handleDietaryChange = (restriction: string) => {
     if (restriction === 'None') {
@@ -80,14 +75,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     }
   };
 
-  const handleChefChange = (chef: string) => {
-    setProfile(prev => ({
-      ...prev,
-      favoriteChefs: prev.favoriteChefs.includes(chef)
-        ? prev.favoriteChefs.filter(c => c !== chef)
-        : [...prev.favoriteChefs, chef]
-    }));
-  };
 
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -794,86 +781,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           </Card>
         );
 
-      case 6:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Any favorite chefs or cooking styles you enjoy?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                {popularChefs.map((chef) => (
-                  <div key={chef} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={chef}
-                      checked={profile.favoriteChefs.includes(chef)}
-                      onCheckedChange={() => handleChefChange(chef)}
-                    />
-                    <Label htmlFor={chef} className="text-sm">{chef}</Label>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-4">
-                <Label htmlFor="other-chefs">Add chefs or cooking styles manually:</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="other-chefs"
-                    placeholder="e.g., Fallow"
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.getElementById('other-chefs') as HTMLInputElement;
-                      if (input && input.value.trim()) {
-                        const newChefs = input.value.split(',').map(c => c.trim()).filter(c => c.length > 0);
-                        newChefs.forEach(chef => {
-                          if (!profile.favoriteChefs.includes(chef)) {
-                            handleChefChange(chef);
-                          }
-                        });
-                        input.value = '';
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  You may enter "Fallow" or multiple chefs separated by a comma (e.g. Julia Child, Gordon Ramsay)
-                </p>
-              </div>
-                
-              {/* Show added custom chefs */}
-              {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).length > 0 && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-600 mb-2">Chefs added:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {profile.favoriteChefs.filter(chef => !popularChefs.includes(chef)).map((chef, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                      >
-                        {chef}
-                        <button
-                          onClick={() => handleChefChange(chef)}
-                          className="text-primary/60 hover:text-primary text-xs"
-                          type="button"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        );
 
-      case 7:
+      case 6:
         return (
           <Card>
             <CardHeader>
@@ -897,9 +806,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                 <div>
                   <strong>Kitchen Equipment:</strong> {profile.kitchenEquipment.slice(0, 6).join(', ')}
                   {profile.kitchenEquipment.length > 6 && ` and ${profile.kitchenEquipment.length - 6} more...`}
-                </div>
-                <div>
-                  <strong>Cooking Influences:</strong> {profile.favoriteChefs.join(', ') || 'None specified'}
                 </div>
               </div>
               
@@ -936,12 +842,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold">Let's set up your cooking profile</h2>
         <p className="text-muted-foreground">
-          Step {currentStep} of 7 - This helps me give you personalized cooking guidance
+          Step {currentStep} of 6 - This helps me give you personalized cooking guidance
         </p>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-primary h-2 rounded-full transition-all duration-300" 
-            style={{ width: `${(currentStep / 7) * 100}%` }}
+            style={{ width: `${(currentStep / 6) * 100}%` }}
           />
         </div>
       </div>
@@ -957,7 +863,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           Previous
         </Button>
         
-        {currentStep === 7 ? (
+        {currentStep === 6 ? (
           <Button
             onClick={() => onProfileComplete(profile)}
             disabled={!canProceed()}
