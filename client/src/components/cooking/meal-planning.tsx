@@ -58,7 +58,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   });
   const [recommendations, setRecommendations] = useState<RecipeRecommendation[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
-  const [scheduledTime, setScheduledTime] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [newMeal, setNewMeal] = useState('');
@@ -77,14 +76,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
     'Korean', 'Vietnamese', 'Greek', 'Spanish', 'No preference'
   ];
 
-  const schedulingOptions = [
-    { value: 'now', label: 'Start cooking now' },
-    { value: '1hour', label: 'In 1 hour' },
-    { value: '2hours', label: 'In 2 hours' },
-    { value: 'tonight', label: 'Tonight (6-8 PM)' },
-    { value: 'tomorrow', label: 'Tomorrow' },
-    { value: 'custom', label: 'Pick specific time' }
-  ];
 
   const addMeal = () => {
     if (newMeal.trim()) {
@@ -560,29 +551,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 </div>
               )}
 
-              {selectedMeal && (
-                <Card className="bg-gray-50">
-                  <CardHeader>
-                    <CardTitle className="text-lg">When would you like to cook?</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <RadioGroup 
-                      value={scheduledTime} 
-                      onValueChange={setScheduledTime}
-                      className="space-y-2"
-                    >
-                      {schedulingOptions.map((option) => (
-                        <div key={option.value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={option.value} id={option.value} />
-                          <Label htmlFor={option.value} className="cursor-pointer">
-                            {option.label}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  </CardContent>
-                </Card>
-              )}
 
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => {
@@ -592,29 +560,27 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 }}>
                   Back
                 </Button>
-                {scheduledTime && (
-                  <Button 
-                    onClick={() => {
-                      if (!selectedMeal) {
-                        toast({
-                          title: "Please select a recipe",
-                          description: "You must choose one of the recommended recipes to continue cooking.",
-                          variant: "destructive"
-                        });
-                        return;
-                      }
-                      onMealSelected(selectedMeal, scheduledTime);
-                    }}
-                    className={`${
-                      selectedMeal 
-                        ? 'bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700' 
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                    disabled={!selectedMeal}
-                  >
-                    {selectedMeal ? `Start Cooking ${selectedMeal.name}` : 'Select a recipe to continue'}
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => {
+                    if (!selectedMeal) {
+                      toast({
+                        title: "Please select a recipe",
+                        description: "You must choose one of the recommended recipes to continue cooking.",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    onMealSelected(selectedMeal, 'now');
+                  }}
+                  className={`${
+                    selectedMeal 
+                      ? 'bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                  disabled={!selectedMeal}
+                >
+                  {selectedMeal ? `Start Cooking ${selectedMeal.name}` : 'Select a recipe to continue'}
+                </Button>
               </div>
             </CardContent>
           </Card>
