@@ -473,6 +473,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
 
     try {
+      // IMMEDIATELY stop any playing audio to prevent conflicts
+      stopAudio();
+      
       setIsVoiceRecording(true);
       // Don't set any assistant response to avoid audio feedback during recording
       
@@ -495,9 +498,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let isCurrentlyListening = true;
       let initialDelayComplete = false;
       let recordingStartTime = Date.now();
-      const SILENCE_THRESHOLD = 35; // Higher threshold to handle background noise
-      const SILENCE_DURATION = 2500; // 2.5 seconds of silence for better responsiveness
-      const INITIAL_DELAY = 2000; // 2 second delay before starting silence detection
+      const SILENCE_THRESHOLD = 50; // Even higher threshold for noisy environments
+      const SILENCE_DURATION = 3000; // 3 seconds of silence for more reliable detection
+      const INITIAL_DELAY = 1500; // 1.5 second delay before starting silence detection
       const MAX_RECORDING_TIME = 30000; // 30 seconds maximum recording
       const MIN_RECORDING_TIME = 2000; // 2 second minimum for valid recording
       
