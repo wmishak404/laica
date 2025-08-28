@@ -498,11 +498,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let isCurrentlyListening = true;
       let initialDelayComplete = false;
       let recordingStartTime = Date.now();
-      const SILENCE_THRESHOLD = 80; // Much higher threshold - many environments have 60+ background noise
-      const SILENCE_DURATION = 2000; // 2 seconds feels more responsive than 3
+      const SILENCE_THRESHOLD = 100; // Very high threshold as fallback
+      const SILENCE_DURATION = 2000; // 2 seconds of silence
       const INITIAL_DELAY = 1500; // 1.5 second delay before starting silence detection
-      const MAX_RECORDING_TIME = 30000; // 30 seconds maximum recording
+      const MAX_RECORDING_TIME = 15000; // Reduced to 15 seconds max recording
       const MIN_RECORDING_TIME = 2000; // 2 second minimum for valid recording
+      const AUTO_STOP_TIME = 8000; // Auto-stop after 8 seconds if we detect any speech
       
       const checkAudioLevel = () => {
         if (!isCurrentlyListening) return;
@@ -533,15 +534,21 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         
         // Check for maximum recording time limit
         if (recordingTime > MAX_RECORDING_TIME) {
-          console.log('Auto-stopping due to 30-second maximum recording limit');
+          console.log('Auto-stopping due to maximum recording limit');
           isCurrentlyListening = false;
           if (hasDetectedSound && recordingTime > MIN_RECORDING_TIME) {
-            // Don't set assistant response to avoid audio feedback
             stopVoiceRecording();
           } else {
-            // Don't set assistant response to avoid audio feedback
             cancelVoiceRecording();
           }
+          return;
+        }
+        
+        // Auto-stop after reasonable time if we've detected speech (backup silence detection)
+        if (hasDetectedSound && initialDelayComplete && recordingTime > AUTO_STOP_TIME) {
+          console.log('🕒 Auto-stopping after 8 seconds with detected speech');
+          isCurrentlyListening = false;
+          stopVoiceRecording();
           return;
         }
         
