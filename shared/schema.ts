@@ -121,6 +121,15 @@ export const userSettings = pgTable("user_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Feedback table for user feedback submissions
+export const feedback = pgTable("feedback", {
+  id: serial("id").primaryKey(),
+  authUserId: varchar("auth_user_id"), // Optional - no PII required
+  currentPage: text("current_page").notNull(), // Track page context
+  feedbackText: text("feedback_text").notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   groceryLists: many(groceryLists),
@@ -130,6 +139,7 @@ export const authUsersRelations = relations(authUsers, ({ many, one }) => ({
   groceryLists: many(groceryLists),
   cookingSessions: many(cookingSessions),
   settings: one(userSettings),
+  feedback: many(feedback),
 }));
 
 export const recipesRelations = relations(recipes, ({ many }) => ({
@@ -172,6 +182,13 @@ export const cookingSessionsRelations = relations(cookingSessions, ({ one }) => 
 export const userSettingsRelations = relations(userSettings, ({ one }) => ({
   authUser: one(authUsers, {
     fields: [userSettings.authUserId],
+    references: [authUsers.id],
+  }),
+}));
+
+export const feedbackRelations = relations(feedback, ({ one }) => ({
+  authUser: one(authUsers, {
+    fields: [feedback.authUserId],
     references: [authUsers.id],
   }),
 }));
@@ -281,3 +298,12 @@ export type UserSettings = typeof userSettings.$inferSelect;
 export type InsertUserSettings = z.infer<typeof insertUserSettingsSchema>;
 
 export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
+
+export const insertFeedbackSchema = createInsertSchema(feedback).pick({
+  authUserId: true,
+  currentPage: true,
+  feedbackText: true,
+});
+
+export type Feedback = typeof feedback.$inferSelect;
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;

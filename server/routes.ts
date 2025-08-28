@@ -8,7 +8,10 @@ import {
   updateUserProfileSchema, 
   insertUserSettingsSchema, 
   insertCookingSessionSchema,
+  insertFeedbackSchema,
 } from "@shared/schema";
+import { db } from "./db";
+import { feedback } from "@shared/schema";
 import { z } from "zod";
 import heicConvert from "heic-convert";
 import multer from "multer";
@@ -534,6 +537,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error resetting pantry:", error);
       res.status(500).json({ message: "Failed to reset pantry" });
+    }
+  });
+
+  // Feedback submission endpoint
+  app.post('/api/feedback', async (req, res) => {
+    try {
+      const feedbackData = insertFeedbackSchema.parse(req.body);
+      
+      // Optional: add user ID if authenticated (not required per user specs)
+      let authUserId = null;
+      if (req.headers.authorization) {
+        try {
+          const token = req.headers.authorization.replace('Bearer ', '');
+          const { verifyFirebaseToken } = await import('./firebaseAuth');
+          const decodedToken = await verifyFirebaseToken(token);
+          if (decodedToken && decodedToken.uid) {
+            authUserId = decodedToken.uid;
+          }
+        } catch {
+          // Ignore auth errors - feedback can be anonymous
+        }
+      }
+      
+      // Insert feedback into database
+      const newFeedback = await db.insert(feedback).values({
+        ...feedbackData,
+        authUserId,
+      }).returning();
+      
+      res.json({ 
+        success: true, 
+        message: "Feedback received successfully",
+        id: newFeedback[0].id 
+      });
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      res.status(500).json({ message: "Failed to submit feedback" });
     }
   });
 

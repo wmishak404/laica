@@ -10,11 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { UtensilsCrossed, Search, Menu, X, Settings, LogOut, User } from 'lucide-react';
+import { UtensilsCrossed, Search, Menu, X, Settings, LogOut, User, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
 
@@ -143,6 +145,17 @@ export default function Header() {
             {isMenuOpen ? <X className="h-5 w-5 text-foreground" /> : <Menu className="h-5 w-5 text-foreground" />}
           </Button>
 
+          {/* Feedback Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsFeedbackOpen(true)}
+            className="h-8 w-8 hover:bg-[#FF6B6B]/10"
+            title="Send Feedback"
+          >
+            <MessageCircle className="h-5 w-5 text-[#FF6B6B]" />
+          </Button>
+
           {!isLoading && isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -187,6 +200,12 @@ export default function Header() {
           )}
         </div>
       </div>
+      
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        currentPage={location || '/'}
+      />
     </header>
   );
 }
