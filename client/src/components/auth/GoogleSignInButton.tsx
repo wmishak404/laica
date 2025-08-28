@@ -23,10 +23,8 @@ export function GoogleSignInButton({
 
   const handleSignIn = async () => {
     try {
-      // Detect mobile devices and use redirect instead of popup
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      await signInWithGoogle(!isMobile);
+      // Use the smart sign-in that automatically handles platform detection
+      await signInWithGoogle();
       onSuccess?.();
     } catch (error: any) {
       console.error('Sign-in failed:', error);

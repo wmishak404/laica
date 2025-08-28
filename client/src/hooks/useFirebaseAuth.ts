@@ -36,11 +36,15 @@ export function useFirebaseAuth() {
       })
       .catch((error) => {
         console.error('Redirect result error:', error);
-        toast({
-          title: "Sign-in Error",
-          description: "There was a problem signing you in. Please try again.",
-          variant: "destructive",
-        });
+        
+        // Don't show error toast for "missing initial state" - it's expected on iOS Safari
+        if (!error.message?.includes('missing initial state')) {
+          toast({
+            title: "Sign-in Error", 
+            description: "There was a problem signing you in. Please try again.",
+            variant: "destructive",
+          });
+        }
       });
 
     return () => unsubscribe();
@@ -77,21 +81,17 @@ export function useFirebaseAuth() {
     }
   };
 
-  const signInWithGoogle = async (usePopup = true) => {
+  const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
       
-      if (usePopup) {
-        const result = await FirebaseAuthService.signInWithGooglePopup();
-        if (result) {
-          toast({
-            title: "Welcome!",
-            description: `Signed in as ${result.displayName || result.email}`,
-          });
-        }
-      } else {
-        // Use redirect for mobile
-        await FirebaseAuthService.signInWithGoogleRedirect();
+      // Use the new smart sign-in that automatically chooses the best method
+      const result = await FirebaseAuthService.signInWithGoogleSmart();
+      if (result) {
+        toast({
+          title: "Welcome!",
+          description: `Signed in as ${result.displayName || result.email}`,
+        });
       }
     } catch (error: any) {
       console.error('Google sign-in error:', error);

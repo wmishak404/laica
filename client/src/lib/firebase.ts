@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signOut, type User } from "firebase/auth";
+import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, type User } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,6 +11,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
+// Set persistence to LOCAL to work better with Safari
+setPersistence(auth, browserLocalPersistence).catch(console.error);
+
 export const googleProvider = new GoogleAuthProvider();
 
 // Configure Google provider for additional scopes and account selection
@@ -31,7 +35,20 @@ export interface FirebaseAuthUser {
 }
 
 export class FirebaseAuthService {
-  // Sign in with Google using popup (better for desktop)
+  // Detect if we're on iOS Safari specifically
+  static isIOSSafari(): boolean {
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS/.test(ua);
+    return isIOS && isSafari;
+  }
+
+  // Enhanced mobile detection
+  static isMobile(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
+  // Sign in with Google using popup (better for desktop and iOS Safari fallback)
   static async signInWithGooglePopup(): Promise<FirebaseAuthUser | null> {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -42,7 +59,7 @@ export class FirebaseAuthService {
     }
   }
 
-  // Sign in with Google using redirect (better for mobile)
+  // Sign in with Google using redirect (better for mobile, but not iOS Safari)
   static async signInWithGoogleRedirect(): Promise<void> {
     try {
       await signInWithRedirect(auth, googleProvider);
@@ -52,13 +69,51 @@ export class FirebaseAuthService {
     }
   }
 
-  // Handle redirect result on page load
+  // Smart sign-in that chooses the best method for each platform
+  static async signInWithGoogleSmart(): Promise<FirebaseAuthUser | null> {
+    try {
+      // iOS Safari has issues with redirect - always use popup
+      if (this.isIOSSafari()) {
+        console.log('iOS Safari detected - using popup method');
+        return await this.signInWithGooglePopup();
+      }
+      
+      // Other mobile devices - try redirect first, fallback to popup
+      if (this.isMobile()) {
+        console.log('Mobile device detected - trying redirect with popup fallback');
+        try {
+          await this.signInWithGoogleRedirect();
+          return null; // Will be handled by redirect result
+        } catch (redirectError) {
+          console.warn('Redirect failed, falling back to popup:', redirectError);
+          return await this.signInWithGooglePopup();
+        }
+      }
+      
+      // Desktop - use popup
+      console.log('Desktop detected - using popup method');
+      return await this.signInWithGooglePopup();
+    } catch (error) {
+      console.error('Smart sign-in failed:', error);
+      throw error;
+    }
+  }
+
+  // Handle redirect result on page load with enhanced error handling
   static async handleRedirectResult(): Promise<FirebaseAuthUser | null> {
     try {
       const result = await getRedirectResult(auth);
       return result?.user ? this.formatUser(result.user) : null;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error handling redirect result:', error);
+      
+      // Handle "missing initial state" error specifically
+      if (error.message?.includes('missing initial state') || error.code === 'auth/invalid-action-code') {
+        console.warn('Safari redirect flow failed - this is expected on iOS Safari');
+        // Don't throw error for this case, it's expected on iOS Safari
+        return null;
+      }
+      
       throw error;
     }
   }
