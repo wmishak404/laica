@@ -810,9 +810,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
               </div>
               
               <div className="mt-4">
-                <p className="text-[10px] text-gray-500 text-center">
-                  Your preferences will evolve as I get to know your cooking style better. 
-                  We can always update these settings as your skills and tastes develop.
+                <p className="text-sm text-gray-500 text-center">
+                  Don't worry about being very accurate. We can always update your profile after this step.
                 </p>
               </div>
             </CardContent>
