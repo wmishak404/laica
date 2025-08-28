@@ -498,8 +498,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let isCurrentlyListening = true;
       let initialDelayComplete = false;
       let recordingStartTime = Date.now();
-      const SILENCE_THRESHOLD = 50; // Even higher threshold for noisy environments
-      const SILENCE_DURATION = 3000; // 3 seconds of silence for more reliable detection
+      const SILENCE_THRESHOLD = 80; // Much higher threshold - many environments have 60+ background noise
+      const SILENCE_DURATION = 2000; // 2 seconds feels more responsive than 3
       const INITIAL_DELAY = 1500; // 1.5 second delay before starting silence detection
       const MAX_RECORDING_TIME = 30000; // 30 seconds maximum recording
       const MIN_RECORDING_TIME = 2000; // 2 second minimum for valid recording
@@ -529,7 +529,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         const volume = Math.sqrt(sum / bufferLength) * 100;
         const recordingTime = Date.now() - recordingStartTime;
         
-        console.log(`Audio level: ${volume.toFixed(2)}, Recording time: ${(recordingTime/1000).toFixed(1)}s, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
+        console.log(`🎤 Audio level: ${volume.toFixed(2)} (threshold: ${SILENCE_THRESHOLD}), Recording time: ${(recordingTime/1000).toFixed(1)}s, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
         
         // Check for maximum recording time limit
         if (recordingTime > MAX_RECORDING_TIME) {
@@ -555,7 +555,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         } else if (hasDetectedSound && initialDelayComplete) {
           // Silence detected after sound was heard and initial delay passed
           const silenceDuration = Date.now() - silenceStart;
-          console.log(`Silence duration: ${silenceDuration}ms, threshold: ${SILENCE_DURATION}ms`);
+          console.log(`🔇 SILENCE detected - Duration: ${silenceDuration}ms, Threshold: ${SILENCE_DURATION}ms, Volume: ${volume.toFixed(2)}`);
           
           if (silenceDuration >= SILENCE_DURATION) {
             console.log('Auto-processing due to silence detection');
