@@ -194,6 +194,9 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
         throw new Error('No recipes generated');
       }
       
+      // Clear any previously selected meal when new recommendations are generated
+      setSelectedMeal(null);
+      
       return newRecommendations;
     }, 'meal recommendations');
 
@@ -579,15 +582,34 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
               )}
 
               <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setCurrentStep(3)}>
+                <Button variant="outline" onClick={() => {
+                  setCurrentStep(3);
+                  // Clear selected meal when going back to allow fresh selection
+                  setSelectedMeal(null);
+                }}>
                   Back
                 </Button>
-                {selectedMeal && scheduledTime && (
+                {scheduledTime && (
                   <Button 
-                    onClick={() => onMealSelected(selectedMeal, scheduledTime)}
-                    className="bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700"
+                    onClick={() => {
+                      if (!selectedMeal) {
+                        toast({
+                          title: "Please select a recipe",
+                          description: "You must choose one of the recommended recipes to continue cooking.",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+                      onMealSelected(selectedMeal, scheduledTime);
+                    }}
+                    className={`${
+                      selectedMeal 
+                        ? 'bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700' 
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                    disabled={!selectedMeal}
                   >
-                    Start Cooking {selectedMeal.name}
+                    {selectedMeal ? `Start Cooking ${selectedMeal.name}` : 'Select a recipe to continue'}
                   </Button>
                 )}
               </div>
