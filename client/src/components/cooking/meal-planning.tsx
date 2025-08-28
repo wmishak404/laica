@@ -505,7 +505,9 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                             {recipe.cookTime} min
                           </span>
                           <span>{recipe.difficulty}</span>
-                          <span>{recipe.cuisine}</span>
+                          {recipe.cuisine && recipe.cuisine !== 'International' && (
+                            <span>{recipe.cuisine}</span>
+                          )}
                         </div>
                         {recipe.missingIngredients.length > 0 && (
                           <div className="mt-2">
