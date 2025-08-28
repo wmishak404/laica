@@ -530,7 +530,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
 
               {recommendations.length > 0 && !isLoading && (
                 <div className="flex flex-col items-center mt-4 space-y-2">
-                  <p className="text-xs text-gray-500 text-center">
+                  <p className="text-[10px] text-gray-500 text-center">
                     Laica may recommend recipes not according to cuisine preferences to make use of your pantry ingredients.
                   </p>
                   <Button 
