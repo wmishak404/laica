@@ -352,7 +352,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user profile with settings and cooking history
   app.get('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       
       // Get user data
       const user = await storage.getUser(userId);
@@ -380,7 +381,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update user profile (pantry, equipment, preferences)
   app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       const profileData = updateUserProfileSchema.parse(req.body);
       
       const updatedUser = await storage.updateUserProfile(userId, profileData);
@@ -394,7 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update user settings (voice, camera, etc.)
   app.put('/api/user/settings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       const settingsData = insertUserSettingsSchema.partial().parse(req.body);
       
       const updatedSettings = await storage.upsertUserSettings({
@@ -413,7 +416,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Start a new cooking session
   app.post('/api/cooking/session/start', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       const schema = z.object({
         recipeName: z.string(),
         recipeDescription: z.string().optional(),
@@ -464,7 +468,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cooking/session/:id/complete', isAuthenticated, async (req: any, res) => {
     try {
       const sessionId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       
       const schema = z.object({
         ingredientsRemaining: z.array(z.string()),
@@ -497,7 +502,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's cooking session history
   app.get('/api/cooking/sessions', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       const limit = parseInt(req.query.limit as string) || 10;
       
       const sessions = await storage.getUserCookingSessions(userId, limit);
@@ -511,7 +517,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get active cooking session (if any)
   app.get('/api/cooking/session/active', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       const session = await storage.getActiveCookingSession(userId);
       res.json(session || null);
     } catch (error) {
@@ -523,7 +530,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Clear/reset user pantry (for pantry rescan)
   app.post('/api/user/pantry/reset', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
       
       // Clear pantry ingredients
       const updatedUser = await storage.updateUserProfile(userId, {
@@ -550,10 +558,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.headers.authorization) {
         try {
           const token = req.headers.authorization.replace('Bearer ', '');
-          const { verifyFirebaseToken } = await import('./firebaseAuth');
-          const decodedToken = await verifyFirebaseToken(token);
-          if (decodedToken && decodedToken.uid) {
-            authUserId = decodedToken.uid;
+          
+          // Manually decode the JWT token for user ID
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const userId = payload.sub || payload.user_id || payload.uid;
+            if (userId) {
+              authUserId = userId;
+            }
           }
         } catch {
           // Ignore auth errors - feedback can be anonymous
