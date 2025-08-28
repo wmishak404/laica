@@ -134,34 +134,40 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
     setIsLoading(true);
     
     const result = await withDemoErrorHandling(async () => {
-      // Build preferences string from user inputs
-      const preferenceParts = [];
+      // Build preferences string with cuisine as primary constraint
+      let preferences = '';
       
-      if (mealPrefs.timeAvailable) {
-        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
-      }
-      
+      // CUISINE REQUIREMENT - Primary constraint that overrides ingredient availability
       if (mealPrefs.cuisinePreference.length > 0) {
-        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
+        preferences += `CUISINE REQUIREMENT: Only suggest ${mealPrefs.cuisinePreference.join(' or ')} cuisine recipes. Do not use ingredients that don't belong to these cuisines even if available in pantry. `;
       }
+      
+      // SECONDARY PREFERENCES
+      const secondaryPrefs = [];
       
       if (userProfile.dietaryRestrictions.length > 0) {
-        preferenceParts.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
+        secondaryPrefs.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
       }
       
       if (userProfile.cookingSkill) {
-        preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
+        secondaryPrefs.push(`Cooking skill: ${userProfile.cookingSkill}`);
+      }
+      
+      if (mealPrefs.timeAvailable) {
+        secondaryPrefs.push(`Time available: ${mealPrefs.timeAvailable}`);
       }
       
       if (mealPrefs.avoidToday) {
-        preferenceParts.push(`Avoid today: ${mealPrefs.avoidToday}`);
+        secondaryPrefs.push(`Avoid today: ${mealPrefs.avoidToday}`);
       }
       
       if (mealPrefs.previousMeals.length > 0) {
-        preferenceParts.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
+        secondaryPrefs.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
       }
       
-      const preferences = preferenceParts.join('. ');
+      if (secondaryPrefs.length > 0) {
+        preferences += `SECONDARY PREFERENCES: ${secondaryPrefs.join('. ')}.`;
+      }
       
       // Call recipe API with user's actual pantry ingredients and preferences
       const recipeResponse = await fetchPantryRecipes(
@@ -217,39 +223,45 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
     setIsLoadingMore(true);
     
     try {
-      // Build preferences string from user inputs
-      const preferenceParts = [];
+      // Build preferences string with cuisine as primary constraint
+      let preferences = '';
       
-      if (mealPrefs.timeAvailable) {
-        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
-      }
-      
+      // CUISINE REQUIREMENT - Primary constraint that overrides ingredient availability
       if (mealPrefs.cuisinePreference.length > 0) {
-        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
+        preferences += `CUISINE REQUIREMENT: Only suggest ${mealPrefs.cuisinePreference.join(' or ')} cuisine recipes. Do not use ingredients that don't belong to these cuisines even if available in pantry. `;
       }
+      
+      // SECONDARY PREFERENCES
+      const secondaryPrefs = [];
       
       if (userProfile.dietaryRestrictions.length > 0) {
-        preferenceParts.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
+        secondaryPrefs.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
       }
       
       if (userProfile.cookingSkill) {
-        preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
+        secondaryPrefs.push(`Cooking skill: ${userProfile.cookingSkill}`);
+      }
+      
+      if (mealPrefs.timeAvailable) {
+        secondaryPrefs.push(`Time available: ${mealPrefs.timeAvailable}`);
       }
       
       if (mealPrefs.avoidToday) {
-        preferenceParts.push(`Avoid today: ${mealPrefs.avoidToday}`);
+        secondaryPrefs.push(`Avoid today: ${mealPrefs.avoidToday}`);
       }
       
       if (mealPrefs.previousMeals.length > 0) {
-        preferenceParts.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
+        secondaryPrefs.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
       }
       
       // Add existing recommendations to avoid duplicates
       if (recommendations.length > 0) {
-        preferenceParts.push(`Please suggest different recipes, not: ${recommendations.map(r => r.name).join(', ')}`);
+        secondaryPrefs.push(`Please suggest different recipes, not: ${recommendations.map(r => r.name).join(', ')}`);
       }
       
-      const preferences = preferenceParts.join('. ');
+      if (secondaryPrefs.length > 0) {
+        preferences += `SECONDARY PREFERENCES: ${secondaryPrefs.join('. ')}.`;
+      }
       
       // Call recipe API with user's actual pantry ingredients and preferences
       const recipeResponse = await fetchPantryRecipes(
