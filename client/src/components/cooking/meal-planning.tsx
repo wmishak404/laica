@@ -38,6 +38,7 @@ interface RecipeRecommendation {
   cuisine: string;
   pantryMatch: number;
   missingIngredients: string[];
+  isFusion?: boolean;
 }
 
 interface MealPlanningProps {
@@ -183,7 +184,8 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
             difficulty: recipe.difficulty || 'Medium',
             cuisine: recipe.cuisine || 'International',
             pantryMatch: Math.round(((userProfile.pantryIngredients.length - (recipe.additionalIngredientsNeeded?.length || 0)) / userProfile.pantryIngredients.length) * 100),
-            missingIngredients: recipe.additionalIngredientsNeeded || []
+            missingIngredients: recipe.additionalIngredientsNeeded || [],
+            isFusion: recipe.isFusion || false
           });
         });
       }
@@ -507,6 +509,11 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                           <span>{recipe.difficulty}</span>
                           {recipe.cuisine && recipe.cuisine !== 'International' && (
                             <span>{recipe.cuisine}</span>
+                          )}
+                          {recipe.isFusion && (
+                            <Badge className="bg-[#FFB347] text-white text-xs px-2 py-1">
+                              Fusion
+                            </Badge>
                           )}
                         </div>
                         {recipe.missingIngredients.length > 0 && (

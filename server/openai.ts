@@ -36,6 +36,7 @@ Each recipe should include:
   - additionalIngredientsNeeded: Array of ingredients they might need to buy (keep this minimal).
   - overview: Brief overview of the cooking process in 1-3 sentences. Tone should be friendly and concise.
   - instructions: Step by step instructions on how to cook this recipe.
+  - isFusion: Boolean indicating if this recipe combines culinary traditions from multiple cuisines (e.g., Korean-Mexican tacos, Italian-Asian ramen, Indian-French fusion). Only mark as true if the recipe intentionally blends techniques, flavors, or ingredients from distinctly different culinary traditions.
 
 ## Guidelines for choosing a recipe suggestion
 
