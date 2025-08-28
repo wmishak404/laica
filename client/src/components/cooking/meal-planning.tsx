@@ -538,7 +538,10 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
               )}
 
               {recommendations.length > 0 && !isLoading && (
-                <div className="flex justify-center mt-4">
+                <div className="flex flex-col items-center mt-4 space-y-2">
+                  <p className="text-xs text-gray-500 text-center">
+                    Laica may make mistakes in generating recipes.
+                  </p>
                   <Button 
                     variant="outline" 
                     onClick={generateMoreRecommendations}
