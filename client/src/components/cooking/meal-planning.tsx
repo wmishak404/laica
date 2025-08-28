@@ -134,12 +134,15 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
     setIsLoading(true);
     
     const result = await withDemoErrorHandling(async () => {
-      // Build preferences string with cuisine constraint prioritized
+      // Build preferences string from user inputs
       const preferenceParts = [];
       
-      // Add cuisine constraint first and more directly
+      if (mealPrefs.timeAvailable) {
+        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
+      }
+      
       if (mealPrefs.cuisinePreference.length > 0) {
-        preferenceParts.push(`Must be ${mealPrefs.cuisinePreference.join(' or ')} cuisine only`);
+        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
       }
       
       if (userProfile.dietaryRestrictions.length > 0) {
@@ -148,10 +151,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       
       if (userProfile.cookingSkill) {
         preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
-      }
-      
-      if (mealPrefs.timeAvailable) {
-        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
       }
       
       if (mealPrefs.avoidToday) {
@@ -218,12 +217,15 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
     setIsLoadingMore(true);
     
     try {
-      // Build preferences string with cuisine constraint prioritized
+      // Build preferences string from user inputs
       const preferenceParts = [];
       
-      // Add cuisine constraint first and more directly
+      if (mealPrefs.timeAvailable) {
+        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
+      }
+      
       if (mealPrefs.cuisinePreference.length > 0) {
-        preferenceParts.push(`Must be ${mealPrefs.cuisinePreference.join(' or ')} cuisine only`);
+        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
       }
       
       if (userProfile.dietaryRestrictions.length > 0) {
@@ -232,10 +234,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       
       if (userProfile.cookingSkill) {
         preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
-      }
-      
-      if (mealPrefs.timeAvailable) {
-        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
       }
       
       if (mealPrefs.avoidToday) {
