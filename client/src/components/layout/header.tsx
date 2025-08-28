@@ -147,13 +147,12 @@ export default function Header() {
 
           {/* Feedback Button */}
           <Button 
-            variant="ghost" 
-            size="icon" 
+            variant="outline" 
+            size="sm" 
             onClick={() => setIsFeedbackOpen(true)}
-            className="h-8 w-8 hover:bg-[#FF6B6B]/10"
-            title="Send Feedback"
+            className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white border-[#FF6B6B] hover:border-[#FF5252] rounded-lg px-3 py-1"
           >
-            <MessageCircle className="h-5 w-5 text-[#FF6B6B]" />
+            Feedback
           </Button>
 
           {!isLoading && isAuthenticated ? (
