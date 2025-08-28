@@ -532,6 +532,15 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         
         console.log(`🎤 Audio level: ${volume.toFixed(2)} (threshold: ${SILENCE_THRESHOLD}), Recording time: ${(recordingTime/1000).toFixed(1)}s, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
         
+        // Extra debugging - track volume ranges
+        if (initialDelayComplete) {
+          if (volume > SILENCE_THRESHOLD) {
+            console.log(`🔊 SOUND detected - Volume: ${volume.toFixed(2)} > ${SILENCE_THRESHOLD}`);
+          } else {
+            console.log(`🔇 QUIET detected - Volume: ${volume.toFixed(2)} <= ${SILENCE_THRESHOLD}`);
+          }
+        }
+        
         // Check for maximum recording time limit
         if (recordingTime > MAX_RECORDING_TIME) {
           console.log('Auto-stopping due to maximum recording limit');
@@ -562,7 +571,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         } else if (hasDetectedSound && initialDelayComplete) {
           // Silence detected after sound was heard and initial delay passed
           const silenceDuration = Date.now() - silenceStart;
-          console.log(`🔇 SILENCE detected - Duration: ${silenceDuration}ms, Threshold: ${SILENCE_DURATION}ms, Volume: ${volume.toFixed(2)}`);
+          console.log(`🔇 SILENCE TRACKING - Duration: ${silenceDuration}ms / ${SILENCE_DURATION}ms needed, Volume: ${volume.toFixed(2)}`);
           
           if (silenceDuration >= SILENCE_DURATION) {
             console.log('Auto-processing due to silence detection');
