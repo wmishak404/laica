@@ -7,7 +7,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 export async function getRecipeSuggestions(preferences: string, ingredients?: string[]) {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-5",
       messages: [
         {
           role: "system",
@@ -41,12 +41,12 @@ Each recipe should include:
 
 1. Recipe must follow stated dietary restriction. For example, if the user states gluten free, review any ingredients that has any possibility of a trace of gluten. If there are ingredients that might have a slight chance it has gluten, do not recommend the recipe and suggest another one.
 2. In the case of dietary restriction, limit more on restrictions of that could cause health concerns (e.g. peanut allergies, celiac for gluten), religious or cultural reasons (e.g. no traces of pork for Halal). Do not mix this limitation with nutritional preferences (e.g. low carb).
-3. Despite the user having certain pantry ingredients in their kitchen, if it does not fit into the "Current cuisine preference" input at all, do not recommend recipes using that ingredient (e.g. kimchi is usually a staple Korean ingredient. This does not fit into Italian, French or Mexican cuisine.)
+3. When a particular "Current cuisine preference" input is chosen, do not recommend recipes using ingredients that do not belong in that selected cuisines despite the user having the pantry ingredients in their kitchen,  (e.g. kimchi is usually a staple Korean ingredient. This does not fit into Italian, French or Mexican cuisine, so do not recommend using recipes using Kimchi.)
 
 ## Guidelines for "instructions"
 
 1. Do not encourage burning delicate aromatics (e.g., garlic or spices added too early or over high heat), ensuring proper sauté order and temperature control.
-2. Avoid overcrowding the pan when searing is required, which leads to steaming instead of browning and diminished flavor development.
+2. Avoid overcrowding the pan when searing meats or veggies is required. This leads to steaming instead of browning and diminished flavor development.
 3. Include tasting steps during cooking, enabling seasoning adjustments and catching errors early.
 4. Ensure ingredients (like meat or baked goods) are rested or set aside appropriately, preventing dryness and texture issues.
 5. Recommend using correctly sharpened knives and safe cutting techniques, promoting precision and user safety.
