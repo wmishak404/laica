@@ -400,10 +400,10 @@ export default function MobileApp() {
         <div className="flex items-center space-x-2">
           {/* Feedback Button */}
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
             onClick={() => setIsFeedbackOpen(true)}
-            className="text-[#FF6B6B] hover:bg-[#FF6B6B]/10 text-xs rounded-lg px-3 py-1"
+            className="text-[#FF6B6B] border-[#FF6B6B] bg-transparent hover:bg-[#FF6B6B]/10 text-xs rounded-lg px-3 py-1"
           >
             Feedback
           </Button>
