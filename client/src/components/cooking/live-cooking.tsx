@@ -298,11 +298,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       // Ensure context is running
       if (audioContextRef.current.state === 'running') {
         setAudioContextInitialized(true);
-        if (isMobileDevice && !voiceAvailable) {
-          // Re-enable voice features if they were disabled due to mobile issues
-          setVoiceAvailable(true);
-          console.log('🔊 Voice features re-enabled for mobile after successful AudioContext init');
-        }
+        // Note: Don't re-enable voice features here - only AudioContext is ready
+        // Voice features will be re-enabled only when actual audio playback succeeds
         return true;
       }
       
@@ -367,6 +364,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       // Ensure AudioContext is ready
       const audioContext = await ensureAudioContextReady();
+      if (!audioContext) {
+        throw new Error('AudioContext not available');
+      }
       console.log('🔊 AudioContext state:', audioContext.state);
       
       const audioData = await audioContext.decodeAudioData(audioBuffer);
@@ -382,14 +382,17 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         currentAudioRef.current = null;
       };
       
-      source.onerror = (error) => {
-        console.error('❌ Audio playback error:', error);
-        setIsSpeaking(false);
-        currentAudioRef.current = null;
-      };
+      // Note: AudioBufferSourceNode doesn't have onerror event
+      // Errors are handled by the try-catch block
       
       source.start();
       console.log('🎵 Audio playback started');
+      
+      // Only re-enable voice features if playback actually works
+      if (!voiceAvailable) {
+        setVoiceAvailable(true);
+        console.log('🔊 Voice features re-enabled - audio playback confirmed working');
+      }
       
     } catch (error) {
       console.error('❌ Speech synthesis/playback error:', error);
