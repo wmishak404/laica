@@ -853,11 +853,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
 
       {renderStep()}
 
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4">
         <Button
           variant="outline"
           onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
           disabled={currentStep === 1}
+          className="w-full sm:w-auto"
         >
           Previous
         </Button>
@@ -866,6 +867,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           <Button
             onClick={() => onProfileComplete(profile)}
             disabled={!canProceed()}
+            className="w-full sm:w-auto"
           >
             Complete Profile
           </Button>
@@ -873,6 +875,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           <Button
             onClick={() => setCurrentStep(prev => Math.min(7, prev + 1))}
             disabled={!canProceed()}
+            className="w-full sm:w-auto"
           >
             Next
           </Button>

@@ -319,14 +319,14 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 ))}
               </RadioGroup>
 
-              <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={onBackToProfile}>
+              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
+                <Button variant="outline" onClick={onBackToProfile} className="w-full sm:w-auto">
                   Back
                 </Button>
                 <Button 
                   onClick={() => setCurrentStep(2)}
                   disabled={!canProceedFromStep1}
-                  className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+                  className="w-full sm:w-auto bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
                 >
                   Next
                 </Button>
@@ -359,14 +359,14 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 ))}
               </div>
 
-              <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setCurrentStep(1)}>
+              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(1)} className="w-full sm:w-auto">
                   Back
                 </Button>
                 <Button 
                   onClick={() => setCurrentStep(3)}
                   disabled={!canProceedFromStep2}
-                  className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+                  className="w-full sm:w-auto bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
                 >
                   Next
                 </Button>
@@ -436,14 +436,14 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                 )}
               </div>
 
-              <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setCurrentStep(2)}>
+              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">
                   Back
                 </Button>
                 <Button 
                   onClick={generateRecommendations}
                   disabled={isLoading}
-                  className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white disabled:opacity-50"
+                  className="w-full sm:w-auto bg-[#FF6B6B] hover:bg-[#FF5252] text-white disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
