@@ -411,7 +411,7 @@ export default function Cooking() {
                             
                             <Button 
                               onClick={() => handleSelectRecipe(recipe.name)}
-                              className="w-full mt-2 py-4 h-12"
+                              className="w-full mt-2 py-6 h-14"
                             >
                               Start Cooking
                             </Button>

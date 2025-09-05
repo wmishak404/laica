@@ -255,7 +255,7 @@ export default function Recipes() {
                                 <span className="text-primary mr-1">•</span> {suggestion.difficulty || 'Medium'}
                               </span>
                             </div>
-                            <Button className="bg-primary text-white rounded-full px-4 py-3 text-sm h-10">
+                            <Button className="bg-primary text-white rounded-full px-4 py-5 text-sm h-12">
                               Start Cooking
                             </Button>
                           </div>
