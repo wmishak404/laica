@@ -9,6 +9,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Debug Firebase config
+console.log('🔧 Firebase Config:', {
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  hasApiKey: !!firebaseConfig.apiKey,
+  hasAppId: !!firebaseConfig.appId
+});
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
@@ -51,10 +59,26 @@ export class FirebaseAuthService {
   // Sign in with Google using popup (better for desktop and iOS Safari fallback)
   static async signInWithGooglePopup(): Promise<FirebaseAuthUser | null> {
     try {
+      console.log('🚀 Starting popup sign-in...');
       const result = await signInWithPopup(auth, googleProvider);
+      console.log('✅ Popup sign-in successful:', result.user.email);
       return this.formatUser(result.user);
-    } catch (error) {
-      console.error('Google sign-in with popup failed:', error);
+    } catch (error: any) {
+      console.error('❌ Google sign-in with popup failed:', {
+        code: error.code,
+        message: error.message,
+        details: error
+      });
+      
+      // Handle specific iOS Safari issues
+      if (error.code === 'auth/popup-blocked') {
+        throw new Error('Popup was blocked. Please enable popups and try again.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        throw new Error('Authentication not authorized for this domain. Please check Firebase configuration.');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        throw new Error('Google sign-in is not enabled in Firebase Console.');
+      }
+      
       throw error;
     }
   }
@@ -72,29 +96,27 @@ export class FirebaseAuthService {
   // Smart sign-in that chooses the best method for each platform
   static async signInWithGoogleSmart(): Promise<FirebaseAuthUser | null> {
     try {
-      // iOS Safari has issues with redirect - always use popup
-      if (this.isIOSSafari()) {
-        console.log('iOS Safari detected - using popup method');
+      // Debug logging
+      console.log('🔍 Authentication Debug Info:', {
+        userAgent: navigator.userAgent,
+        isIOSSafari: this.isIOSSafari(),
+        isMobile: this.isMobile(),
+        currentDomain: window.location.hostname,
+        currentOrigin: window.location.origin,
+        firebaseAuthDomain: auth.config.authDomain
+      });
+
+      // For mobile devices (including iOS), always use popup to avoid Safari issues
+      if (this.isMobile()) {
+        console.log('📱 Mobile device detected - using popup method (avoiding Safari redirect issues)');
         return await this.signInWithGooglePopup();
       }
       
-      // Other mobile devices - try redirect first, fallback to popup
-      if (this.isMobile()) {
-        console.log('Mobile device detected - trying redirect with popup fallback');
-        try {
-          await this.signInWithGoogleRedirect();
-          return null; // Will be handled by redirect result
-        } catch (redirectError) {
-          console.warn('Redirect failed, falling back to popup:', redirectError);
-          return await this.signInWithGooglePopup();
-        }
-      }
-      
       // Desktop - use popup
-      console.log('Desktop detected - using popup method');
+      console.log('🖥️ Desktop detected - using popup method');
       return await this.signInWithGooglePopup();
     } catch (error) {
-      console.error('Smart sign-in failed:', error);
+      console.error('❌ Smart sign-in failed:', error);
       throw error;
     }
   }
