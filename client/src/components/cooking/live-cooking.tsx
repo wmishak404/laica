@@ -71,6 +71,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [usageStats, setUsageStats] = useState(UsageTracker.getUsageStats());
   const [cookingSessionId, setCookingSessionId] = useState<number | null>(null);
   const [cookingStartTime, setCookingStartTime] = useState<Date | null>(null);
+  const [voiceAvailable, setVoiceAvailable] = useState(true);
+  const [voiceErrorShown, setVoiceErrorShown] = useState(false);
 
   const { toast } = useToast();
   const startSessionMutation = useStartCookingSession();
@@ -270,9 +272,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     return operationalPhrases.some(phrase => text.includes(phrase));
   };
 
-  // Enhanced text-to-speech using ElevenLabs or browser fallback
+  // Enhanced text-to-speech using ElevenLabs only
   const speakText = async (text: string) => {
-    if (!isAudioEnabled || !text || isSpeaking) return;
+    if (!isAudioEnabled || !text || isSpeaking || !voiceAvailable) return;
     
     // Prevent duplicate calls for the same text
     if (text === lastSpokenResponse && isSpeaking) return;
@@ -289,47 +291,39 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setIsSpeaking(true);
     
     try {
-      if (useElevenLabs) {
-        // Use ElevenLabs for high-quality voice
-        const audioBuffer = await elevenLabsClient.synthesizeSpeech(text, voiceSettings);
-        const audioContext = new AudioContext();
-        const audioData = await audioContext.decodeAudioData(audioBuffer);
-        const source = audioContext.createBufferSource();
-        source.buffer = audioData;
-        source.connect(audioContext.destination);
-        
-        currentAudioRef.current = source;
-        
-        source.onended = () => {
-          setIsSpeaking(false);
-          currentAudioRef.current = null;
-        };
-        
-        source.start();
-      } else {
-        // Fallback to browser TTS
-        await browserTTSClient.speak(text, {
-          rate: 0.9,
-          pitch: 1.0,
-          volume: 0.8,
-        });
+      // Use ElevenLabs for high-quality voice
+      const audioBuffer = await elevenLabsClient.synthesizeSpeech(text, voiceSettings);
+      const audioContext = new AudioContext();
+      const audioData = await audioContext.decodeAudioData(audioBuffer);
+      const source = audioContext.createBufferSource();
+      source.buffer = audioData;
+      source.connect(audioContext.destination);
+      
+      currentAudioRef.current = source;
+      
+      source.onended = () => {
         setIsSpeaking(false);
-      }
+        currentAudioRef.current = null;
+      };
+      
+      source.start();
     } catch (error) {
       console.error('Speech synthesis error:', error);
-      // Fallback to browser TTS if ElevenLabs fails (but only during cooking, not for general app usage)
-      if (useElevenLabs) {
-        try {
-          await browserTTSClient.speak(text, {
-            rate: 0.9,
-            pitch: 1.0,
-            volume: 0.8,
-          });
-        } catch (fallbackError) {
-          console.error('Browser TTS fallback failed:', fallbackError);
-        }
-      }
+      
+      // Mark voice as unavailable and show notification
+      setVoiceAvailable(false);
       setIsSpeaking(false);
+      
+      // Show user notification only once per session
+      if (!voiceErrorShown) {
+        setVoiceErrorShown(true);
+        toast({
+          title: "Voice features unavailable",
+          description: "Voice features aren't available at the moment. You may still continue your cooking session.",
+          variant: "destructive",
+          duration: 5000
+        });
+      }
     }
   };
 
@@ -1170,20 +1164,30 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             {/* Large Mute/Unmute Button */}
             <Button
               onClick={() => {
+                if (!voiceAvailable) return; // Don't allow interaction when voice is unavailable
+                
                 if (isAudioEnabled) {
                   // When muting, stop any current audio
                   stopAudio();
                 }
                 setIsAudioEnabled(!isAudioEnabled);
               }}
+              disabled={!voiceAvailable}
               className={`w-full sm:w-auto px-6 py-3 font-medium ${
-                isAudioEnabled 
+                !voiceAvailable
+                  ? 'bg-gray-400 text-gray-200 border-gray-400 cursor-not-allowed'
+                  : isAudioEnabled 
                   ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' 
                   : 'bg-red-600 hover:bg-red-700 text-white border-red-600'
               }`}
               size="lg"
             >
-              {isAudioEnabled ? (
+              {!voiceAvailable ? (
+                <>
+                  <VolumeX className="h-4 w-4 mr-2" />
+                  Voice mode unavailable
+                </>
+              ) : isAudioEnabled ? (
                 <>
                   <Volume2 className="h-4 w-4 mr-2" />
                   Audio On

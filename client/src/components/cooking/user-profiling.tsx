@@ -162,6 +162,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
         const newIngredients: string[] = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients]));
         setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
         console.log('Added ingredients:', uniqueIngredients);
+        
+        // Show success notification
+        alert(`Pantry scan complete! Found ${uniqueIngredients.length} items: ${uniqueIngredients.slice(0, 3).join(', ')}${uniqueIngredients.length > 3 ? '...' : ''}`);
+      } else {
+        // Show no ingredients found notification
+        alert('No ingredients detected in the image. Try taking a clearer photo or add items manually.');
       }
     }
   };
@@ -220,10 +226,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
   const handlePantryImageAnalysis = async (imageData: string) => {
     setIsAnalyzingPantry(true);
     try {
-      const result = await analyzeImage(imageData);
+      const result = await analyzeImage(imageData, false); // Camera typically produces JPEG/PNG, not HEIC
       await processIngredientResults(result);
     } catch (error) {
       console.error('Error analyzing pantry image:', error);
+      alert('Error processing image. Please try again or use the "Upload Images" option.');
     } finally {
       setIsAnalyzingPantry(false);
       setShowPantryCamera(false);
@@ -233,10 +240,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
   const handleEquipmentImageAnalysis = async (imageData: string) => {
     setIsAnalyzingEquipment(true);
     try {
-      const result = await analyzeImage(imageData);
+      const result = await analyzeImage(imageData, false); // Camera typically produces JPEG/PNG, not HEIC
       await processEquipmentResults(result);
     } catch (error) {
       console.error('Error analyzing kitchen image:', error);
+      alert('Error processing image. Please try again or use the "Upload Images" option.');
     } finally {
       setIsAnalyzingEquipment(false);
       setShowEquipmentCamera(false);
