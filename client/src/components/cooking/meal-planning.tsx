@@ -552,12 +552,12 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
               )}
 
 
-              <div className="flex justify-between pt-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
                 <Button variant="outline" onClick={() => {
                   setCurrentStep(3);
                   // Clear selected meal when going back to allow fresh selection
                   setSelectedMeal(null);
-                }}>
+                }} className="w-full sm:w-auto">
                   Back
                 </Button>
                 <Button 
@@ -572,7 +572,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                     }
                     onMealSelected(selectedMeal, 'now');
                   }}
-                  className={`${
+                  className={`w-full sm:w-auto ${
                     selectedMeal 
                       ? 'bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700' 
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
