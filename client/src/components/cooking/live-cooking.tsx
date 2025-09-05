@@ -73,6 +73,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [cookingStartTime, setCookingStartTime] = useState<Date | null>(null);
   const [voiceAvailable, setVoiceAvailable] = useState(true);
   const [voiceErrorShown, setVoiceErrorShown] = useState(false);
+  const [audioContextInitialized, setAudioContextInitialized] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   const { toast } = useToast();
   const startSessionMutation = useStartCookingSession();
@@ -86,6 +89,24 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const currentAudioRef = useRef<AudioBufferSourceNode | null>(null);
 
   // Load recipe steps when component mounts
+  // Detect mobile device and setup early AudioContext preparation
+  useEffect(() => {
+    const detectMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent) ||
+                      ('ontouchstart' in window) ||
+                      (navigator.maxTouchPoints > 0);
+      setIsMobileDevice(isMobile);
+      console.log('📱 Mobile device detected:', isMobile);
+      
+      if (isMobile) {
+        console.log('📱 Mobile device detected - AudioContext will be initialized on first user interaction');
+      }
+    };
+
+    detectMobile();
+  }, []);
+
   useEffect(() => {
     const loadRecipeSteps = async () => {
       setIsLoadingSteps(true);
@@ -259,6 +280,54 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setIsSpeaking(false);
   };
 
+  // Initialize AudioContext with mobile support
+  const initializeAudioContext = async () => {
+    try {
+      if (audioContextRef.current) {
+        // Resume existing context if needed
+        if (audioContextRef.current.state === 'suspended') {
+          await audioContextRef.current.resume();
+          console.log('✅ AudioContext resumed from suspended state');
+        }
+      } else {
+        // Create new AudioContext
+        audioContextRef.current = new AudioContext();
+        console.log(`✅ AudioContext created on ${isMobileDevice ? 'mobile' : 'desktop'} device`);
+      }
+      
+      // Ensure context is running
+      if (audioContextRef.current.state === 'running') {
+        setAudioContextInitialized(true);
+        if (isMobileDevice && !voiceAvailable) {
+          // Re-enable voice features if they were disabled due to mobile issues
+          setVoiceAvailable(true);
+          console.log('🔊 Voice features re-enabled for mobile after successful AudioContext init');
+        }
+        return true;
+      }
+      
+      if (isMobileDevice) {
+        console.log(`📱 Mobile AudioContext state: ${audioContextRef.current.state} - may need more user interaction`);
+      }
+      
+      return false;
+    } catch (error) {
+      console.error(`❌ AudioContext initialization failed on ${isMobileDevice ? 'mobile' : 'desktop'}:`, error);
+      return false;
+    }
+  };
+
+  // Ensure AudioContext is ready for playback
+  const ensureAudioContextReady = async () => {
+    if (!audioContextRef.current || audioContextRef.current.state !== 'running') {
+      const initialized = await initializeAudioContext();
+      if (!initialized) {
+        throw new Error('AudioContext not available');
+      }
+    }
+    return audioContextRef.current;
+  };
+
   // Check if message is operational (system message) and should not be spoken
   const isOperationalMessage = (text: string) => {
     const operationalPhrases = [
@@ -272,8 +341,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     return operationalPhrases.some(phrase => text.includes(phrase));
   };
 
-  // Enhanced text-to-speech using ElevenLabs only
-  const speakText = async (text: string) => {
+  // Enhanced text-to-speech using ElevenLabs with proper AudioContext management
+  const speakText = async (text: string, retryCount = 0) => {
     if (!isAudioEnabled || !text || isSpeaking || !voiceAvailable) return;
     
     // Prevent duplicate calls for the same text
@@ -292,8 +361,14 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     
     try {
       // Use ElevenLabs for high-quality voice
+      console.log('🎵 Synthesizing speech:', text.substring(0, 50) + '...');
       const audioBuffer = await elevenLabsClient.synthesizeSpeech(text, voiceSettings);
-      const audioContext = new AudioContext();
+      console.log('✅ Speech synthesis successful');
+      
+      // Ensure AudioContext is ready
+      const audioContext = await ensureAudioContextReady();
+      console.log('🔊 AudioContext state:', audioContext.state);
+      
       const audioData = await audioContext.decodeAudioData(audioBuffer);
       const source = audioContext.createBufferSource();
       source.buffer = audioData;
@@ -302,26 +377,59 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       currentAudioRef.current = source;
       
       source.onended = () => {
+        console.log('✅ Audio playback completed');
+        setIsSpeaking(false);
+        currentAudioRef.current = null;
+      };
+      
+      source.onerror = (error) => {
+        console.error('❌ Audio playback error:', error);
         setIsSpeaking(false);
         currentAudioRef.current = null;
       };
       
       source.start();
+      console.log('🎵 Audio playback started');
+      
     } catch (error) {
-      console.error('Speech synthesis error:', error);
+      console.error('❌ Speech synthesis/playback error:', error);
+      setIsSpeaking(false);
+      
+      // Retry logic for mobile AudioContext issues
+      if (retryCount < 2 && (error as Error).message.includes('AudioContext')) {
+        console.log(`🔄 Retrying audio playback (attempt ${retryCount + 1})`);
+        // Reset AudioContext and try again
+        audioContextRef.current = null;
+        setAudioContextInitialized(false);
+        setTimeout(() => speakText(text, retryCount + 1), 100);
+        return;
+      }
       
       // Mark voice as unavailable and show notification
       setVoiceAvailable(false);
-      setIsSpeaking(false);
       
       // Show user notification only once per session
       if (!voiceErrorShown) {
         setVoiceErrorShown(true);
+        const isAudioContextError = (error as Error).message.includes('AudioContext') || 
+                                   (error as Error).message.includes('suspended') ||
+                                   (error as Error).message.includes('not available');
+        
+        let title = "Voice features unavailable";
+        let description = "Voice features aren't available at the moment. You may still continue your cooking session.";
+        
+        if (isMobileDevice && isAudioContextError) {
+          title = "Mobile audio needs permission";
+          description = "Tap the audio button or 'Ask for Help' to enable voice features. You can continue cooking with text instructions.";
+        } else if (isMobileDevice) {
+          description = "Voice features may need browser permission. You can continue cooking with text instructions.";
+        }
+        
         toast({
-          title: "Voice features unavailable",
-          description: "Voice features aren't available at the moment. You may still continue your cooking session.",
+          title,
+          description,
           variant: "destructive",
-          duration: 5000
+          duration: 6000
         });
       }
     }
@@ -453,6 +561,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     try {
       // IMMEDIATELY stop any playing audio to prevent conflicts
       stopAudio();
+      
+      // Ensure AudioContext is ready for recording
+      await initializeAudioContext();
       
       setIsVoiceRecording(true);
       // Don't set any assistant response to avoid audio feedback during recording
@@ -785,7 +896,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     setIsProcessing(false);
   };
 
-  const askForHelp = () => {
+  const askForHelp = async () => {
+    // Initialize AudioContext on user interaction (required for mobile)
+    await initializeAudioContext();
+    
     if (isVoiceRecording) {
       cancelVoiceRecording();
     } else {
@@ -1163,8 +1277,11 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
             {/* Large Mute/Unmute Button */}
             <Button
-              onClick={() => {
+              onClick={async () => {
                 if (!voiceAvailable) return; // Don't allow interaction when voice is unavailable
+                
+                // Initialize AudioContext on user interaction (required for mobile)
+                await initializeAudioContext();
                 
                 if (isAudioEnabled) {
                   // When muting, stop any current audio
