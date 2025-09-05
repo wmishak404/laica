@@ -572,7 +572,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                     }
                     onMealSelected(selectedMeal, 'now');
                   }}
-                  className={`w-full sm:w-auto ${
+                  className={`w-full sm:w-auto whitespace-normal sm:whitespace-nowrap text-center min-h-[44px] py-3 leading-tight ${
                     selectedMeal 
                       ? 'bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700' 
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
