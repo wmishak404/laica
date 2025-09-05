@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Camera, CameraOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Monitor, Smartphone, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -51,9 +51,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [voiceProcessingTimeout, setVoiceProcessingTimeout] = useState<NodeJS.Timeout | null>(null);
   const [silenceTimeout, setSilenceTimeout] = useState<NodeJS.Timeout | null>(null);
   const [shouldProcessRecording, setShouldProcessRecording] = useState(true);
-  const [cameraMode, setCameraMode] = useState<'front' | 'back'>('back');
-  const [cameraTimeout, setCameraTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [showCameraFeed, setShowCameraFeed] = useState(true);
   const [assistantResponse, setAssistantResponse] = useState<string>('Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -243,19 +240,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     };
   }, [timer, isTimerRunning]);
 
-  // Camera timeout for back camera mode
-  useEffect(() => {
-    if (cameraMode === 'back' && showCameraFeed) {
-      const timeout = setTimeout(() => {
-        setShowCameraFeed(false);
-      }, 10000); // 10 seconds timeout
-      setCameraTimeout(timeout);
-      
-      return () => {
-        if (timeout) clearTimeout(timeout);
-      };
-    }
-  }, [cameraMode, showCameraFeed]);
 
   // Stop any current audio playback
   const stopAudio = () => {
@@ -815,15 +799,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
   };
 
-  const toggleCameraFeed = () => {
-    setShowCameraFeed(!showCameraFeed);
-    if (cameraMode === 'back') {
-      // Reset timeout when manually toggling
-      if (cameraTimeout) {
-        clearTimeout(cameraTimeout);
-      }
-    }
-  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -890,33 +865,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       {showSettings && (
         <Card className="mb-4 bg-black/70 border-gray-600">
           <CardHeader>
-            <CardTitle className="text-white">Camera & Voice Settings</CardTitle>
+            <CardTitle className="text-white">Voice Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-white">Camera Mode</Label>
-              <div className="flex gap-2">
-                <Button
-                  variant={cameraMode === 'front' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setCameraMode('front')}
-                  className="text-xs"
-                >
-                  <Monitor className="h-3 w-3 mr-1" />
-                  Front
-                </Button>
-                <Button
-                  variant={cameraMode === 'back' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setCameraMode('back')}
-                  className="text-xs"
-                >
-                  <Smartphone className="h-3 w-3 mr-1" />
-                  Back
-                </Button>
-              </div>
-            </div>
-            
             <div className="flex items-center justify-between">
               <Label className="text-white">Audio Guidance</Label>
               <Switch
@@ -1037,28 +988,13 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           ) : (
             <Card className="bg-black border-gray-600 h-64 lg:h-96">
               <CardContent className="p-0 h-full relative">
-                {(cameraMode === 'front' || showCameraFeed) ? (
-                  <div className="h-full bg-gray-800 rounded-lg flex items-center justify-center relative">
-                    <Camera className="h-12 w-12 text-gray-400" />
-                    <p className="text-gray-400 mt-2 absolute bottom-4">Camera feed would appear here</p>
-                    
-                    {cameraMode === 'back' && (
-                      <div className="absolute bottom-2 left-2 text-xs text-gray-300 bg-black/50 px-2 py-1 rounded">
-                        Tap screen to show camera (10s timeout)
-                      </div>
-                    )}
+                <div className="h-full bg-gray-800 rounded-lg flex items-center justify-center relative">
+                  <div className="text-center px-6">
+                    <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-white text-lg font-medium mb-2">Cooking in Progress</h3>
+                    <p className="text-gray-400 text-sm">Follow the step-by-step instructions and use voice commands to ask for help</p>
                   </div>
-                ) : (
-                  <div 
-                    className="h-full bg-gray-900 rounded-lg flex items-center justify-center cursor-pointer"
-                    onClick={toggleCameraFeed}
-                  >
-                    <div className="text-center">
-                      <CameraOff className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-400 text-sm">Tap to show camera</p>
-                    </div>
-                  </div>
-                )}
+                </div>
                 
                 {/* Processing Overlay */}
                 {(isProcessing || isAnalyzing) && (

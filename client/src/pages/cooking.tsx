@@ -439,10 +439,6 @@ export default function Cooking() {
                 
                 {/* Right side - Visual Guidance */}
                 <div className="lg:w-1/2">
-                  <VisualGuidance 
-                    currentStep={currentStep}
-                  />
-                  
                   <IngredientList 
                     recipeName={recipeName}
                     currentStep={currentStepNumber}
