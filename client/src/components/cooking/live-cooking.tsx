@@ -1183,19 +1183,19 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       {/* Audio Controls */}
       <Card className="bg-black/70 border-gray-600 mb-4">
         <CardContent className="p-4">
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
             {/* Repeat Step Button */}
             <Button
               variant="outline"
               onClick={repeatStepInstructions}
-              className="flex-1 max-w-xs"
+              className="w-full sm:flex-1"
             >
               <Repeat className="h-4 w-4 mr-2" />
               Repeat Step
             </Button>
 
             {/* Voice Ask for Help Button */}
-            <div className="flex-1 max-w-xs">
+            <div className="w-full sm:flex-1">
               <Button
                 variant={isVoiceRecording ? "destructive" : "default"}
                 onClick={askForHelp}
@@ -1240,7 +1240,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                 }
                 setIsAudioEnabled(!isAudioEnabled);
               }}
-              className={`px-6 py-3 font-medium ${
+              className={`w-full sm:w-auto px-6 py-3 font-medium ${
                 isAudioEnabled 
                   ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' 
                   : 'bg-red-600 hover:bg-red-700 text-white border-red-600'
