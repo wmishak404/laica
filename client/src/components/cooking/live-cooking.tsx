@@ -1077,54 +1077,20 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         </Card>
       )}
 
-      {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        {/* Camera Feed / Demo Video Area */}
-        <div className="lg:col-span-2">
-          {showDemoVideo ? (
-            <Card className="bg-black border-gray-600 h-64 lg:h-96">
-              <CardContent className="p-0 h-full">
-                <div className="relative h-full bg-black rounded-lg flex items-center justify-center">
-                  <p className="text-white">Demo Video Player</p>
-                  <Button
-                    variant="ghost"
-                    className="absolute top-2 right-2 text-white"
-                    onClick={() => setShowDemoVideo(false)}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="bg-black border-gray-600 h-64 lg:h-96">
-              <CardContent className="p-0 h-full relative">
-                <div className="h-full bg-gray-800 rounded-lg flex items-center justify-center relative">
-                  <div className="text-center px-6">
-                    <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-white text-lg font-medium mb-2">Cooking in Progress</h3>
-                    <p className="text-gray-400 text-sm">Follow the step-by-step instructions and use voice commands to ask for help</p>
-                  </div>
-                </div>
-                
-                {/* Processing Overlay */}
-                {(isProcessing || isAnalyzing) && (
-                  <div className="absolute inset-0 bg-black/75 flex items-center justify-center rounded-lg">
-                    <div className="text-center text-white">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                      <p className="text-sm">
-                        {isProcessing ? 'Processing your question...' : 'Analyzing cooking progress...'}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+      {/* Main Content Area - Centered Step Information */}
+      <div className="flex justify-center mb-4">
+        <div className="w-full max-w-md space-y-4">
+          {/* Processing Overlay - moved to be overlay on step panel when needed */}
+          {(isProcessing || isAnalyzing) && (
+            <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
+              <div className="text-center text-white bg-black/90 px-8 py-6 rounded-lg border border-gray-600">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                <p className="text-sm">
+                  {isProcessing ? 'Processing your question...' : 'Analyzing cooking progress...'}
+                </p>
+              </div>
+            </div>
           )}
-        </div>
-
-        {/* Step Information */}
-        <div className="space-y-4">
           {currentStep && (
             <Card className="bg-black/70 border-gray-600">
               <CardHeader>
@@ -1321,21 +1287,23 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             </Button>
           </div>
         </CardContent>
-      </Card>
+          </Card>
 
-      {/* Closed Captioning */}
-      <Card className="bg-black/90 border-gray-600 sticky bottom-4">
-        <CardContent className="p-4">
-          <div className="text-center">
-            <p 
-              className="text-white leading-relaxed"
-              style={{ fontSize: `${captionSize}px` }}
-            >
-              {assistantResponse}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Closed Captioning */}
+          <Card className="bg-black/90 border-gray-600 sticky bottom-4">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <p 
+                  className="text-white leading-relaxed"
+                  style={{ fontSize: `${captionSize}px` }}
+                >
+                  {assistantResponse}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
