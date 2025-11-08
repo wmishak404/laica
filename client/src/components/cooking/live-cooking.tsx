@@ -1190,11 +1190,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
 
-      {/* Audio Controls */}
-      <Card className="bg-black/70 border-gray-600 mb-4">
+          {/* Audio Controls */}
+          <Card className="bg-black/70 border-gray-600">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
             {/* Repeat Step Button */}
