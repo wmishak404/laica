@@ -182,14 +182,31 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       }
 
       const result = await response.json();
+      console.log('Pantry image analysis result:', result);
       
-      // Parse the response to extract ingredients
-      const detectedIngredients = result.analysis || result.description || '';
-      const ingredientList = detectedIngredients.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+      // Parse the response to extract ingredients from the ingredients array
+      let detectedIngredients: string[] = [];
       
-      if (ingredientList.length > 0) {
-        // Remove duplicates and add to profile
-        const uniqueIngredients = Array.from(new Set(ingredientList.map((i: string) => i.toLowerCase()))) as string[];
+      // Check if result has ingredients array
+      if (result.ingredients && Array.isArray(result.ingredients)) {
+        detectedIngredients = result.ingredients.map((item: any) => 
+          typeof item === 'string' ? item : item.name || item.ingredient || String(item)
+        );
+      }
+      
+      // Also try to extract from text fields as fallback
+      const analysisText = result.analysis || result.description || '';
+      if (analysisText && detectedIngredients.length === 0) {
+        const textIngredients = analysisText.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
+        detectedIngredients = [...detectedIngredients, ...textIngredients];
+      }
+      
+      if (detectedIngredients.length > 0) {
+        // Clean and remove duplicates
+        const cleanIngredients = detectedIngredients
+          .map(i => i.toLowerCase().trim())
+          .filter(i => i && i.length > 1);
+        const uniqueIngredients = Array.from(new Set(cleanIngredients)) as string[];
         const newIngredients = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients])) as string[];
         setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
         
@@ -238,13 +255,37 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       }
 
       const result = await response.json();
+      console.log('Equipment image analysis result:', result);
       
-      // Parse the response to extract kitchen equipment
-      const detectedEquipment = result.analysis || result.description || '';
-      const equipmentList = detectedEquipment.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|pan|pot|saucepan|stockpot|dutch oven|baking sheet|cutting board|knife|chef knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+      // Parse the response to extract kitchen equipment from the equipment array
+      let detectedEquipment: string[] = [];
       
-      if (equipmentList.length > 0) {
-        const uniqueEquipment = Array.from(new Set(equipmentList.map((e: string) => e.toLowerCase()))) as string[];
+      // Check if result has equipment array
+      if (result.equipment && Array.isArray(result.equipment)) {
+        detectedEquipment = result.equipment.map((item: any) => {
+          if (typeof item === 'string') {
+            return item;
+          } else if (typeof item === 'object' && item !== null) {
+            return item.name || item.item || item.equipment || item.description || '';
+          } else {
+            return '';
+          }
+        }).filter((item: string) => item && typeof item === 'string' && item.trim().length > 0);
+      }
+      
+      // Also try to extract from text fields as fallback
+      const analysisText = result.analysis || result.description || '';
+      if (analysisText && detectedEquipment.length === 0) {
+        const textEquipment = analysisText.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|coffee machine|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|frying pan|pan|pot|small pot|large pot|saucepan|stockpot|dutch oven|red dutch oven|blue dutch oven|baking sheet|cutting board|knife|chef knife|santoku|santoku knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
+        detectedEquipment = [...detectedEquipment, ...textEquipment];
+      }
+      
+      if (detectedEquipment.length > 0) {
+        // Clean and remove duplicates
+        const cleanEquipment = detectedEquipment
+          .map(e => e.toLowerCase().trim())
+          .filter(e => e && e.length > 1);
+        const uniqueEquipment = Array.from(new Set(cleanEquipment)) as string[];
         const newEquipment = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment])) as string[];
         setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
         
