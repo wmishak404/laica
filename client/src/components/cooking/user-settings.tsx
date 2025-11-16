@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useResetPantry, useUpdateUserProfile } from '@/hooks/useAuth';
+import { useResetPantry, useResetProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { NativeCamera } from '@/components/ui/native-camera';
@@ -103,6 +103,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
   };
 
   const resetPantryMutation = useResetPantry();
+  const resetProfileMutation = useResetProfile();
   const updateProfileMutation = useUpdateUserProfile();
 
   const handleResetPantry = async () => {
@@ -121,6 +122,28 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
         toast({
           title: "Error",
           description: "Failed to reset pantry. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleStartOver = async () => {
+    if (window.confirm('Are you sure you want to start over? This will delete your entire profile including pantry, equipment, and all preferences. You will go through the onboarding process again.')) {
+      try {
+        await resetProfileMutation.mutateAsync();
+        toast({
+          title: "Profile Reset",
+          description: "Your profile has been reset. Redirecting to onboarding...",
+        });
+        
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to reset profile. Please try again.",
           variant: "destructive",
         });
       }
@@ -423,18 +446,15 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                 </div>
 
                 {profile.pantryIngredients.length > 0 && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                    <p className="text-sm text-amber-800 mb-2">
-                      <strong>Pantry not accurate?</strong> If the system doesn't match your real pantry, you can completely reset and start fresh.
-                    </p>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={handleResetPantry}
-                      disabled={resetPantryMutation.isPending}
+                      onClick={handleStartOver}
+                      disabled={resetProfileMutation.isPending}
                       className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
                     >
-                      {resetPantryMutation.isPending ? (
+                      {resetProfileMutation.isPending ? (
                         <>
                           <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
                           Resetting...
@@ -442,7 +462,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                       ) : (
                         <>
                           <Trash2 className="h-3 w-3 mr-1" />
-                          Reset Entire Pantry
+                          Start Over
                         </>
                       )}
                     </Button>
