@@ -77,11 +77,7 @@ export function useResetPantry() {
   
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/user/pantry/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to reset pantry');
+      const response = await apiRequest('POST', '/api/user/pantry/reset');
       return await response.json();
     },
     onSuccess: () => {
@@ -96,11 +92,7 @@ export function useResetProfile() {
   
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/user/profile/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to reset profile');
+      const response = await apiRequest('POST', '/api/user/profile/reset');
       return await response.json();
     },
     onSuccess: () => {
