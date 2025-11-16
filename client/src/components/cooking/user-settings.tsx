@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +34,11 @@ interface UserSettingsProps {
 
 export default function UserSettings({ userProfile, onProfileUpdate, onBackToPlanning }: UserSettingsProps) {
   const [profile, setProfile] = useState<UserProfile>(userProfile);
+  
+  // Sync local state with prop changes (e.g., after profile reset)
+  useEffect(() => {
+    setProfile(userProfile);
+  }, [userProfile]);
   
   // Option arrays matching the initial profiling
   const skillLevels = [
