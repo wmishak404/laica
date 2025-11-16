@@ -132,6 +132,13 @@ export default function Cooking() {
     setUserProfile(updatedProfile);
   };
 
+  const handleProfileReset = () => {
+    // Clear local state after profile reset
+    setUserProfile(null);
+    setIsReturningUser(false);
+    setCurrentPhase('welcome');
+  };
+
   const renderWelcomeScreen = () => (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-4">
@@ -265,6 +272,7 @@ export default function Cooking() {
           <UserSettings 
             userProfile={userProfile}
             onProfileUpdate={handleProfileUpdate}
+            onProfileReset={handleProfileReset}
             onBackToPlanning={() => setCurrentPhase('planning')}
           />
         ) : null;

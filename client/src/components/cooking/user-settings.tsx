@@ -29,10 +29,11 @@ interface UserProfile {
 interface UserSettingsProps {
   userProfile: UserProfile;
   onProfileUpdate: (profile: UserProfile) => void;
+  onProfileReset: () => void;
   onBackToPlanning: () => void;
 }
 
-export default function UserSettings({ userProfile, onProfileUpdate, onBackToPlanning }: UserSettingsProps) {
+export default function UserSettings({ userProfile, onProfileUpdate, onProfileReset, onBackToPlanning }: UserSettingsProps) {
   const [profile, setProfile] = useState<UserProfile>(userProfile);
   
   // Sync local state with prop changes (e.g., after profile reset)
@@ -140,13 +141,13 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
         
         toast({
           title: "Profile Reset",
-          description: "Your profile has been reset. Reloading app...",
+          description: "Taking you back to onboarding...",
         });
         
-        // Force a full page reload and clear all cache
+        // Call parent callback to clear profile state and navigate to welcome
         setTimeout(() => {
-          window.location.href = '/cooking';
-        }, 800);
+          onProfileReset();
+        }, 500);
       } catch (error) {
         toast({
           title: "Error",
