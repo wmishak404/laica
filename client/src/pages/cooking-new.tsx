@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import { useUpdateUserProfile } from '@/hooks/useAuth';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import UserProfiling from '@/components/cooking/user-profiling';
@@ -50,6 +51,8 @@ export default function Cooking() {
     retry: false,
   });
 
+  const updateProfileMutation = useUpdateUserProfile();
+
   // Check if user has completed profile setup
   const isProfileComplete = (profile: any): boolean => {
     if (!profile) return false;
@@ -87,15 +90,24 @@ export default function Cooking() {
     }
   }, [dbProfile]);
 
-  const handleProfileComplete = (profile: UserProfile) => {
-    setUserProfile(profile);
-    setIsReturningUser(true);
-    setCurrentPhase('planning');
-    
-    toast({
-      title: "Profile saved!",
-      description: "Now let's find you something delicious to cook."
-    });
+  const handleProfileComplete = async (profile: UserProfile) => {
+    try {
+      await updateProfileMutation.mutateAsync(profile);
+      setUserProfile(profile);
+      setIsReturningUser(true);
+      setCurrentPhase('planning');
+      
+      toast({
+        title: "Profile saved!",
+        description: "Now let's find you something delicious to cook."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save profile. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {

@@ -79,18 +79,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User profile routes
-  app.patch('/api/user/profile', isAuthenticated, async (req: any, res) => {
-    try {
-      // Handle Google user profile update
-      const firebaseUser: FirebaseUser = req.firebaseUser;
-      const updatedUser = await storage.updateUserProfile(firebaseUser.uid, req.body);
-      return res.json(updatedUser);
-    } catch (error) {
-      console.error("Error updating user profile:", error);
-      res.status(500).json({ message: "Failed to update profile" });
-    }
-  });
   // Recipe suggestions endpoint
   app.post('/api/recipes/suggestions', async (req, res) => {
     try {
