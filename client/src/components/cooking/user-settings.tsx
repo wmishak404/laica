@@ -138,24 +138,15 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       try {
         await resetProfileMutation.mutateAsync();
         
-        // Immediately update local state to reflect the reset
-        setProfile({
-          cookingSkill: '',
-          dietaryRestrictions: [],
-          weeklyTime: '',
-          pantryIngredients: [],
-          kitchenEquipment: [],
-          favoriteChefs: []
-        });
-        
         toast({
           title: "Profile Reset",
-          description: "Your profile has been reset. Redirecting to onboarding...",
+          description: "Your profile has been reset. Reloading app...",
         });
         
+        // Force a full page reload and clear all cache
         setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+          window.location.href = '/cooking';
+        }, 800);
       } catch (error) {
         toast({
           title: "Error",
