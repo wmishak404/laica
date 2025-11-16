@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import UserProfiling from '@/components/cooking/user-profiling';
@@ -43,24 +44,52 @@ export default function Cooking() {
   const [isReturningUser, setIsReturningUser] = useState(false);
   const { toast } = useToast();
 
-  // Check for returning user profile in localStorage
+  // Fetch user profile from database
+  const { data: dbProfile, isLoading: isLoadingProfile } = useQuery<any>({
+    queryKey: ['/api/user/profile'],
+    retry: false,
+  });
+
+  // Check if user has completed profile setup
+  const isProfileComplete = (profile: any): boolean => {
+    if (!profile) return false;
+    return Boolean(
+      profile.cookingSkill && 
+      profile.pantryIngredients && 
+      profile.pantryIngredients.length > 0
+    );
+  };
+
+  // Initialize user state based on database profile
   useEffect(() => {
-    const savedProfile = localStorage.getItem('cookingProfile');
-    if (savedProfile) {
-      try {
-        const profile = JSON.parse(savedProfile);
+    if (dbProfile) {
+      const hasCompleteProfile = isProfileComplete(dbProfile);
+      
+      if (hasCompleteProfile) {
+        // Returning user with complete profile
+        const profile: UserProfile = {
+          cookingSkill: dbProfile.cookingSkill || '',
+          dietaryRestrictions: dbProfile.dietaryRestrictions || [],
+          weeklyTime: dbProfile.weeklyTime || '',
+          pantryIngredients: dbProfile.pantryIngredients || [],
+          kitchenEquipment: dbProfile.kitchenEquipment || [],
+          favoriteChefs: dbProfile.favoriteChefs || [],
+        };
+        
         setUserProfile(profile);
         setIsReturningUser(true);
-        setCurrentPhase('planning');
-      } catch (error) {
-        console.error('Error loading saved profile:', error);
+        setCurrentPhase('welcome');
+      } else {
+        // First-time user or incomplete profile
+        setIsReturningUser(false);
+        setCurrentPhase('welcome');
       }
     }
-  }, []);
+  }, [dbProfile]);
 
   const handleProfileComplete = (profile: UserProfile) => {
     setUserProfile(profile);
-    localStorage.setItem('cookingProfile', JSON.stringify(profile));
+    setIsReturningUser(true);
     setCurrentPhase('planning');
     
     toast({
@@ -85,12 +114,10 @@ export default function Cooking() {
     setUserProfile(null);
     setSelectedMeal(null);
     setScheduledTime('');
-    localStorage.removeItem('cookingProfile');
   };
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile);
-    localStorage.setItem('cookingProfile', JSON.stringify(updatedProfile));
   };
 
   const renderWelcomeScreen = () => (
@@ -186,6 +213,7 @@ export default function Cooking() {
         return (
           <UserProfiling 
             onProfileComplete={handleProfileComplete}
+            existingProfile={userProfile || undefined}
           />
         );
 
