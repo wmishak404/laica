@@ -132,6 +132,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     if (window.confirm('Are you sure you want to start over? This will delete your entire profile including pantry, equipment, and all preferences. You will go through the onboarding process again.')) {
       try {
         await resetProfileMutation.mutateAsync();
+        
+        // Immediately update local state to reflect the reset
+        setProfile({
+          cookingSkill: '',
+          dietaryRestrictions: [],
+          weeklyTime: '',
+          pantryIngredients: [],
+          kitchenEquipment: [],
+          favoriteChefs: []
+        });
+        
         toast({
           title: "Profile Reset",
           description: "Your profile has been reset. Redirecting to onboarding...",
