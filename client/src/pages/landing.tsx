@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChefHat, Users, Clock, Smartphone, Camera } from "lucide-react";
+import { Users, Clock, Smartphone, Camera } from "lucide-react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import laicaLogo from '@assets/image_1763437580974.png';
 
 export default function Landing() {
   return (
@@ -10,8 +11,7 @@ export default function Landing() {
       {/* Header */}
       <header className="px-4 lg:px-6 h-14 flex items-center border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
         <div className="flex items-center justify-center">
-          <ChefHat className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-          <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Laica Cooking Assistant</span>
+          <img src={laicaLogo} alt="Laica" className="h-8" />
         </div>
         <div className="ml-auto">
           <GoogleSignInButton 
@@ -111,8 +111,7 @@ export default function Landing() {
         <div className="container px-4 md:px-6 py-8 mx-auto">
           <div className="flex flex-col items-center space-y-4">
             <div className="flex items-center">
-              <ChefHat className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-              <span className="ml-2 text-lg font-bold text-gray-900 dark:text-white">Laica Cooking Assistant</span>
+              <img src={laicaLogo} alt="Laica" className="h-8" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               © 2024 Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
