@@ -86,18 +86,3 @@ export function useResetPantry() {
     },
   });
 }
-
-export function useResetProfile() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/user/profile/reset');
-      return await response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-    },
-  });
-}

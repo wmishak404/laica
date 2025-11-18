@@ -536,32 +536,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Reset entire user profile (Start Over feature)
-  app.post('/api/user/profile/reset', isAuthenticated, async (req: any, res) => {
-    try {
-      const firebaseUser: FirebaseUser = req.firebaseUser;
-      const userId = firebaseUser.uid;
-      
-      // Reset all profile fields to null/empty
-      const updatedUser = await storage.updateUserProfile(userId, {
-        cookingSkill: null,
-        dietaryRestrictions: [],
-        weeklyTime: null,
-        pantryIngredients: [],
-        kitchenEquipment: [],
-        favoriteChefs: [],
-      });
-      
-      res.json({ 
-        message: "Profile reset successfully", 
-        user: updatedUser 
-      });
-    } catch (error) {
-      console.error("Error resetting profile:", error);
-      res.status(500).json({ message: "Failed to reset profile" });
-    }
-  });
-
   // Feedback submission endpoint
   app.post('/api/feedback', async (req, res) => {
     try {
