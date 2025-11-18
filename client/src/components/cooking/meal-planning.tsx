@@ -488,11 +488,8 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                       onClick={() => setSelectedMeal(recipe)}
                     >
                       <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="mb-2">
                           <h3 className="font-semibold text-lg">{recipe.name}</h3>
-                          <Badge className="bg-[#4ECDC4] text-white">
-                            {recipe.pantryMatch}% match
-                          </Badge>
                         </div>
                         <p className="text-gray-600 text-sm mb-3">{recipe.description}</p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
