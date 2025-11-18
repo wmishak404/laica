@@ -120,11 +120,35 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     }
   };
 
-  const handleSave = () => {
-    onProfileUpdate(profile);
+  const handleSavePantry = () => {
+    // Only update pantry ingredients
+    onProfileUpdate({ ...userProfile, pantryIngredients: profile.pantryIngredients });
     toast({
-      title: "Settings saved!",
-      description: "Your preferences have been updated successfully."
+      title: "Pantry saved!",
+      description: "Your pantry ingredients have been updated successfully."
+    });
+  };
+
+  const handleSaveEquipment = () => {
+    // Only update kitchen equipment
+    onProfileUpdate({ ...userProfile, kitchenEquipment: profile.kitchenEquipment });
+    toast({
+      title: "Equipment saved!",
+      description: "Your kitchen equipment has been updated successfully."
+    });
+  };
+
+  const handleSaveProfile = () => {
+    // Only update profile settings (skill, dietary, time)
+    onProfileUpdate({ 
+      ...userProfile, 
+      cookingSkill: profile.cookingSkill,
+      dietaryRestrictions: profile.dietaryRestrictions,
+      weeklyTime: profile.weeklyTime
+    });
+    toast({
+      title: "Profile saved!",
+      description: "Your cooking profile has been updated successfully."
     });
   };
 
@@ -517,19 +541,9 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Kitchen & Settings</h1>
-          <p className="text-muted-foreground">Manage your kitchen setup and preferences</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onBackToPlanning}>
-            Back to Planning
-          </Button>
-          <Button onClick={handleSave}>
-            Save Changes
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold">Kitchen & Settings</h1>
+        <p className="text-muted-foreground">Manage your kitchen setup and preferences</p>
       </div>
 
       <Tabs defaultValue="pantry" className="w-full">
@@ -667,6 +681,16 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                   </p>
                 </div>
               )}
+
+              {/* Action buttons at bottom */}
+              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
+                <Button variant="outline" onClick={onBackToPlanning}>
+                  Back to Planning
+                </Button>
+                <Button onClick={handleSavePantry}>
+                  Save Changes
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -787,6 +811,16 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                   </div>
                 </div>
               )}
+
+              {/* Action buttons at bottom */}
+              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
+                <Button variant="outline" onClick={onBackToPlanning}>
+                  Back to Planning
+                </Button>
+                <Button onClick={handleSaveEquipment}>
+                  Save Changes
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -846,6 +880,16 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Action buttons at bottom */}
+              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
+                <Button variant="outline" onClick={onBackToPlanning}>
+                  Back to Planning
+                </Button>
+                <Button onClick={handleSaveProfile}>
+                  Save Changes
+                </Button>
               </div>
             </CardContent>
           </Card>
