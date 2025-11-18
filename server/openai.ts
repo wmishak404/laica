@@ -75,7 +75,7 @@ Each recipe should include:
 #### Recipe Suggestion Example 3
 - Current cuisine preference: Chinese
 - pantryIngredients: "bacon, basil, butter, chickpeas, cream, cumin, garlic, lettuce, mushrooms, olive oil, onion, onion powder, paprika, parmesan, polenta, salmon fillet, smoked paprika"
-- recipe name: "Bacon and Basil Polenta with Creamy Parmesan"
+- recipename: "Bacon and Basil Polenta with Creamy Parmesan"
 - additionalIngredientsNeeded: none 
 
 ##### Why Example 3 is a failed output
