@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Users, Clock, Smartphone, Camera } from "lucide-react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import laicaLogo from '@assets/Laica Logo_v1_1763437897161.png';
+import laicaLogo from '@assets/laica-logo-cropped.png';
 
 export default function Landing() {
   return (

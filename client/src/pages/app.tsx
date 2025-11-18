@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Settings, Home, LogOut, User, MessageCircle, ChefHat } from 'lucide-react';
-import laicaLogo from '@assets/Laica Logo_v1_1763437897161.png';
+import laicaLogo from '@assets/laica-logo-cropped.png';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
 interface UserProfile {
