@@ -1166,35 +1166,29 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           )}
 
           {/* Navigation Controls */}
-          <Card className="bg-black/70 border-gray-600">
-            <CardContent className="p-4">
-              <div className="flex justify-between gap-2">
-                <Button
-                  variant="outline"
-                  onClick={previousStep}
-                  disabled={currentStepIndex === 0}
-                  className="flex-1"
-                >
-                  <SkipBack className="h-4 w-4 mr-1" />
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={nextStep}
-                  disabled={currentStepIndex >= currentRecipeSteps.length - 1}
-                  className="flex-1"
-                >
-                  Next
-                  <SkipForward className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex justify-between gap-2 mb-4">
+            <Button
+              variant="outline"
+              onClick={previousStep}
+              disabled={currentStepIndex === 0}
+              className="flex-1"
+            >
+              <SkipBack className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={nextStep}
+              disabled={currentStepIndex >= currentRecipeSteps.length - 1}
+              className="flex-1"
+            >
+              Next
+              <SkipForward className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
 
           {/* Audio Controls */}
-          <Card className="bg-black/70 border-gray-600">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
             {/* Repeat Step Button */}
             <Button
               variant="outline"
@@ -1284,22 +1278,16 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
               )}
             </Button>
           </div>
-        </CardContent>
-          </Card>
 
           {/* Closed Captioning */}
-          <Card className="bg-black/90 border-gray-600 sticky bottom-4">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <p 
-                  className="text-white leading-relaxed"
-                  style={{ fontSize: `${captionSize}px` }}
-                >
-                  {assistantResponse}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="text-center p-4 rounded-lg sticky bottom-4">
+            <p 
+              className="text-white leading-relaxed"
+              style={{ fontSize: `${captionSize}px` }}
+            >
+              {assistantResponse}
+            </p>
+          </div>
         </div>
       </div>
     </div>
