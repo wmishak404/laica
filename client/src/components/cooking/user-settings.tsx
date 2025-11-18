@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload } from 'lucide-react';
+import { analyzeImage } from '@/lib/openai';
 
 interface UserProfile {
   cookingSkill: string;
@@ -61,16 +62,8 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
   const [showPantryCamera, setShowPantryCamera] = useState(false);
   const [showEquipmentCamera, setShowEquipmentCamera] = useState(false);
-  const [newIngredient, setNewIngredient] = useState('');
-  const [newEquipment, setNewEquipment] = useState('');
   const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
-  const [notifications, setNotifications] = useState({
-    mealReminders: true,
-    groceryAlerts: true,
-    cookingTips: false,
-    weeklyPlanning: true
-  });
   const { toast } = useToast();
 
   // Handler functions matching the initial profiling
@@ -87,24 +80,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           : [...prev.dietaryRestrictions.filter(r => r !== 'None'), restriction]
       }));
     }
-  };
-
-
-  const addIngredient = () => {
-    if (newIngredient.trim() && !profile.pantryIngredients.includes(newIngredient.trim())) {
-      setProfile(prev => ({
-        ...prev,
-        pantryIngredients: [...prev.pantryIngredients, newIngredient.trim()]
-      }));
-      setNewIngredient('');
-    }
-  };
-
-  const removeIngredient = (ingredient: string) => {
-    setProfile(prev => ({
-      ...prev,
-      pantryIngredients: prev.pantryIngredients.filter(i => i !== ingredient)
-    }));
   };
 
   const resetPantryMutation = useResetPantry();
@@ -132,21 +107,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     }
   };
 
-  const addEquipment = () => {
-    if (newEquipment.trim() && !profile.kitchenEquipment.includes(newEquipment.trim())) {
+  const handleResetEquipment = () => {
+    if (window.confirm('Are you sure you want to reset your equipment list? This will remove all current equipment.')) {
       setProfile(prev => ({
         ...prev,
-        kitchenEquipment: [...prev.kitchenEquipment, newEquipment.trim()]
+        kitchenEquipment: []
       }));
-      setNewEquipment('');
+      toast({
+        title: "Equipment Reset",
+        description: "Your equipment list has been cleared.",
+      });
     }
-  };
-
-  const removeEquipment = (equipment: string) => {
-    setProfile(prev => ({
-      ...prev,
-      kitchenEquipment: prev.kitchenEquipment.filter(e => e !== equipment)
-    }));
   };
 
   const handleSave = () => {
@@ -163,6 +134,59 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
   const handleEquipmentImageCapture = async (imageData: string) => {
     await handleEquipmentImageAnalysis(imageData);
+  };
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+      
+      const img = new Image();
+      
+      img.onload = () => {
+        try {
+          const maxWidth = 1024;
+          const maxHeight = 1024;
+          let { width, height } = img;
+          
+          // Calculate new dimensions while maintaining aspect ratio
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(compressedBase64);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      img.onerror = () => reject(new Error('Failed to load image'));
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
   };
 
   const handlePantryImageAnalysis = async (imageData: string) => {
@@ -318,23 +342,176 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleMultipleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    // Convert file to base64
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      if (type === 'pantry') {
-        handlePantryImageAnalysis(base64);
-      } else {
-        handleEquipmentImageAnalysis(base64);
+    const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const processedFiles = Array.from(files).filter(file => {
+      const fileType = file.type.toLowerCase();
+      const fileName = file.name.toLowerCase();
+      const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+      return supportedTypes.includes(fileType) || isHEIC;
+    });
+
+    if (processedFiles.length === 0) {
+      toast({
+        title: "Unsupported file format",
+        description: "Please upload JPEG, PNG, GIF, WebP, or HEIC image files.",
+        variant: "destructive"
+      });
+      event.target.value = '';
+      return;
+    }
+
+    if (processedFiles.length !== files.length) {
+      toast({
+        title: "Some files skipped",
+        description: `${files.length - processedFiles.length} files were skipped (unsupported format). Processing ${processedFiles.length} images.`
+      });
+    }
+
+    // Set analyzing state
+    if (type === 'pantry') {
+      setIsAnalyzingPantry(true);
+    } else {
+      setIsAnalyzingEquipment(true);
+    }
+
+    // Collect all results first, then update state once
+    let allNewIngredients: string[] = [];
+    let allNewEquipment: string[] = [];
+
+    try {
+      // Process files sequentially to avoid overwhelming the API
+      for (let i = 0; i < processedFiles.length; i++) {
+        const file = processedFiles[i];
+        const fileType = file.type.toLowerCase();
+        const fileName = file.name.toLowerCase();
+        const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+
+        try {
+          let result;
+          if (isHEIC) {
+            // Handle HEIC files
+            const reader = new FileReader();
+            result = await new Promise<any>((resolve, reject) => {
+              reader.onload = async (e) => {
+                try {
+                  const base64 = e.target?.result as string;
+                  const base64Data = base64.split(',')[1];
+                  const analysisResult = await analyzeImage(base64Data, true);
+                  resolve(analysisResult);
+                } catch (error) {
+                  reject(error);
+                }
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+          } else {
+            // Handle regular image files
+            const compressedBase64 = await compressImage(file);
+            result = await analyzeImage(compressedBase64, false);
+          }
+
+          // Extract ingredients or equipment from this image
+          if (type === 'pantry' && result) {
+            let detectedIngredients: string[] = [];
+            
+            if (result.ingredients && Array.isArray(result.ingredients)) {
+              detectedIngredients = result.ingredients.map((item: any) => 
+                typeof item === 'string' ? item : item.name || item.ingredient || String(item)
+              );
+            }
+            
+            if (detectedIngredients.length > 0) {
+              const cleanIngredients = detectedIngredients
+                .map(i => i.toLowerCase().trim())
+                .filter(i => i && i.length > 1);
+              allNewIngredients = [...allNewIngredients, ...cleanIngredients];
+              console.log('Added ingredients:', cleanIngredients);
+            }
+          } else if (type === 'kitchen' && result) {
+            let detectedEquipment: string[] = [];
+            
+            if (result.equipment && Array.isArray(result.equipment)) {
+              detectedEquipment = result.equipment.map((item: any) => {
+                if (typeof item === 'string') {
+                  return item;
+                } else if (typeof item === 'object' && item !== null) {
+                  return item.name || item.item || item.equipment || item.description || '';
+                } else {
+                  return '';
+                }
+              }).filter((item: string) => item && typeof item === 'string' && item.trim().length > 0);
+            }
+            
+            if (detectedEquipment.length > 0) {
+              const cleanEquipment = detectedEquipment
+                .map(e => e.toLowerCase().trim())
+                .filter(e => e && e.length > 1);
+              allNewEquipment = [...allNewEquipment, ...cleanEquipment];
+              console.log('Added equipment:', cleanEquipment);
+            }
+          }
+          
+          // Small delay between processing images to avoid overwhelming the API
+          if (i < processedFiles.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        } catch (error) {
+          console.error(`Error processing image ${i + 1}:`, error);
+          // Continue processing other images even if one fails
+        }
       }
-    };
-    reader.readAsDataURL(file);
 
-    // Reset input
+      // Update state once with all accumulated results
+      if (type === 'pantry' && allNewIngredients.length > 0) {
+        const uniqueNewIngredients = Array.from(new Set(allNewIngredients));
+        setProfile(prev => ({
+          ...prev,
+          pantryIngredients: Array.from(new Set([...prev.pantryIngredients, ...uniqueNewIngredients]))
+        }));
+        toast({
+          title: `Scan complete!`,
+          description: `Found ${uniqueNewIngredients.length} ingredients across ${processedFiles.length} image(s).`
+        });
+      } else if (type === 'kitchen' && allNewEquipment.length > 0) {
+        const uniqueNewEquipment = Array.from(new Set(allNewEquipment));
+        setProfile(prev => ({
+          ...prev,
+          kitchenEquipment: Array.from(new Set([...prev.kitchenEquipment, ...uniqueNewEquipment]))
+        }));
+        toast({
+          title: `Scan complete!`,
+          description: `Found ${uniqueNewEquipment.length} equipment items across ${processedFiles.length} image(s).`
+        });
+      } else {
+        toast({
+          title: "No items detected",
+          description: "Try taking clearer photos or add items manually.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error processing multiple images:', error);
+      toast({
+        title: "Processing error",
+        description: "Some images could not be processed. Please try again or use individual uploads.",
+        variant: "destructive"
+      });
+    } finally {
+      // Reset analyzing state
+      if (type === 'pantry') {
+        setIsAnalyzingPantry(false);
+        setShowPantryCamera(false);
+      } else {
+        setIsAnalyzingEquipment(false);
+        setShowEquipmentCamera(false);
+      }
+    }
+    
     event.target.value = '';
   };
 
@@ -355,166 +532,263 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
         </div>
       </div>
 
-      <Tabs defaultValue="kitchen" className="w-full">
+      <Tabs defaultValue="pantry" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="kitchen" className="flex items-center gap-2">
+          <TabsTrigger value="pantry" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
-            My Kitchen
+            Pantry
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Equipment
           </TabsTrigger>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
-            <Bell className="h-4 w-4" />
-            Notifications
-          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kitchen" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  Pantry Ingredients
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2 flex-wrap">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setShowPantryCamera(true)}
-                    className="flex items-center gap-2"
-                    disabled={isAnalyzingPantry}
-                  >
-                    <Camera className="h-4 w-4" />
-                    Take Photo
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => document.getElementById('pantry-upload')?.click()}
-                    className="flex items-center gap-2"
-                    disabled={isAnalyzingPantry}
-                  >
-                    <Upload className="h-4 w-4" />
-                    Upload Image
-                  </Button>
-                  <input
-                    id="pantry-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, 'pantry')}
-                    className="hidden"
-                  />
-                  {isAnalyzingPantry && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                      Analyzing image...
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex gap-2">
+        {/* Pantry Tab - Matching onboarding Step 4 */}
+        <TabsContent value="pantry" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>What ingredients do you have in your pantry?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2 flex-wrap">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowPantryCamera(true)}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingPantry}
+                >
+                  <Camera className="h-4 w-4" />
+                  Take Photo
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('pantry-upload')?.click()}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingPantry}
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Images
+                </Button>
+                <input
+                  id="pantry-upload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleMultipleImageUpload(e, 'pantry')}
+                  className="hidden"
+                />
+                {isAnalyzingPantry && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Analyzing image...
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Take a photo or upload multiple images of your pantry, or add ingredients manually below
+              </p>
+              
+              {/* Manual ingredient entry */}
+              <div className="mt-4">
+                <Label htmlFor="manual-ingredients">Add ingredients manually:</Label>
+                <div className="flex gap-2 mt-1">
                   <Input
-                    placeholder="Add ingredient..."
-                    value={newIngredient}
-                    onChange={(e) => setNewIngredient(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addIngredient()}
+                    id="manual-ingredients"
+                    placeholder="e.g., onions"
+                    className="flex-1"
                   />
-                  <Button onClick={addIngredient} size="sm">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="max-h-60 overflow-y-auto space-y-2">
-                  {profile.pantryIngredients.map((ingredient, index) => (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                      <span className="text-sm">{ingredient}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => removeIngredient(ingredient)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Kitchen Equipment
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2 flex-wrap">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setShowEquipmentCamera(true)}
-                    className="flex items-center gap-2"
-                    disabled={isAnalyzingEquipment}
-                  >
-                    <Camera className="h-4 w-4" />
-                    Take Photo
-                  </Button>
                   <Button
+                    type="button"
                     variant="outline"
-                    onClick={() => document.getElementById('equipment-upload')?.click()}
-                    className="flex items-center gap-2"
-                    disabled={isAnalyzingEquipment}
+                    onClick={() => {
+                      const input = document.getElementById('manual-ingredients') as HTMLInputElement;
+                      if (input && input.value.trim()) {
+                        const newIngredients = input.value.split(',').map(i => i.trim()).filter(i => i.length > 0);
+                        setProfile(prev => ({
+                          ...prev,
+                          pantryIngredients: [...prev.pantryIngredients, ...newIngredients]
+                        }));
+                        input.value = '';
+                      }
+                    }}
                   >
-                    <Upload className="h-4 w-4" />
-                    Upload Image
-                  </Button>
-                  <input
-                    id="equipment-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, 'kitchen')}
-                    className="hidden"
-                  />
-                  {isAnalyzingEquipment && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                      Analyzing image...
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add equipment..."
-                    value={newEquipment}
-                    onChange={(e) => setNewEquipment(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addEquipment()}
-                  />
-                  <Button onClick={addEquipment} size="sm">
-                    <Plus className="h-4 w-4" />
+                    Add
                   </Button>
                 </div>
-
-                <div className="max-h-60 overflow-y-auto space-y-2">
-                  {profile.kitchenEquipment.map((equipment, index) => (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                      <span className="text-sm">{equipment}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => removeEquipment(equipment)}
+                <p className="text-xs text-gray-500 mt-1">
+                  You may enter "onions" or multiple ingredients separated by a comma (e.g. apples, oranges)
+                </p>
+              </div>
+              
+              {/* Show added ingredients */}
+              {profile.pantryIngredients.length > 0 && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-600">Ingredients added:</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResetPantry}
+                      className="text-xs h-7 px-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      Reset Pantry
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.pantryIngredients.map((ingredient, index) => (
+                      <span 
+                        key={index} 
+                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
                       >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
+                        {ingredient}
+                        <button
+                          onClick={() => {
+                            setProfile(prev => ({
+                              ...prev,
+                              pantryIngredients: prev.pantryIngredients.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          className="text-secondary/60 hover:text-secondary text-xs"
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Having trouble with accuracy? Use "Reset Pantry" to clear everything and start fresh.
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Equipment Tab - Matching onboarding Step 5 */}
+        <TabsContent value="equipment" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>What kitchen equipment do you have?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2 flex-wrap">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEquipmentCamera(true)}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingEquipment}
+                >
+                  <Camera className="h-4 w-4" />
+                  Take Photo
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('equipment-upload')?.click()}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingEquipment}
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Images
+                </Button>
+                <input
+                  id="equipment-upload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleMultipleImageUpload(e, 'kitchen')}
+                  className="hidden"
+                />
+                {isAnalyzingEquipment && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Analyzing image...
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Take a photo or upload multiple images of your kitchen, or add equipment manually below
+              </p>
+              
+              {/* Manual equipment entry */}
+              <div className="mt-4">
+                <Label htmlFor="manual-equipment">Add equipment manually:</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    id="manual-equipment"
+                    placeholder="e.g., stove"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const input = document.getElementById('manual-equipment') as HTMLInputElement;
+                      if (input && input.value.trim()) {
+                        const newEquipment = input.value.split(',').map(i => i.trim()).filter(i => i.length > 0);
+                        setProfile(prev => ({
+                          ...prev,
+                          kitchenEquipment: [...prev.kitchenEquipment, ...newEquipment]
+                        }));
+                        input.value = '';
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  You may enter "stove" or multiple equipment separated by a comma (e.g. oven, blender)
+                </p>
+              </div>
+              
+              {/* Show added equipment */}
+              {profile.kitchenEquipment.length > 0 && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-600">Equipment added:</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResetEquipment}
+                      className="text-xs h-7 px-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      Reset Equipment
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.kitchenEquipment.map((equipment, index) => (
+                      <span 
+                        key={index} 
+                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                      >
+                        {equipment}
+                        <button
+                          onClick={() => {
+                            setProfile(prev => ({
+                              ...prev,
+                              kitchenEquipment: prev.kitchenEquipment.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          className="text-secondary/60 hover:text-secondary text-xs"
+                          type="button"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="profile" className="space-y-6">
@@ -576,78 +850,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             </CardContent>
           </Card>
         </TabsContent>
-
-
-        <TabsContent value="notifications" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="meal-reminders">Meal Reminders</Label>
-                  <div className="text-sm text-muted-foreground">
-                    Get notified when it's time to start cooking
-                  </div>
-                </div>
-                <Switch
-                  id="meal-reminders"
-                  checked={notifications.mealReminders}
-                  onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, mealReminders: checked }))}
-                />
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="grocery-alerts">Grocery Alerts</Label>
-                  <div className="text-sm text-muted-foreground">
-                    Alerts for sales on ingredients you use frequently
-                  </div>
-                </div>
-                <Switch
-                  id="grocery-alerts"
-                  checked={notifications.groceryAlerts}
-                  onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, groceryAlerts: checked }))}
-                />
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="cooking-tips">Daily Cooking Tips</Label>
-                  <div className="text-sm text-muted-foreground">
-                    Receive helpful cooking tips and techniques
-                  </div>
-                </div>
-                <Switch
-                  id="cooking-tips"
-                  checked={notifications.cookingTips}
-                  onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, cookingTips: checked }))}
-                />
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="weekly-planning">Weekly Planning</Label>
-                  <div className="text-sm text-muted-foreground">
-                    Weekly meal planning suggestions
-                  </div>
-                </div>
-                <Switch
-                  id="weekly-planning"
-                  checked={notifications.weeklyPlanning}
-                  onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, weeklyPlanning: checked }))}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
       {/* Pantry Camera Dialog */}
@@ -661,23 +863,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           </DialogHeader>
           
           <NativeCamera
+            title="Take Photo"
             onImageCapture={handlePantryImageCapture}
-            onError={(error: string) => {
-              console.error('Camera error:', error);
+            onError={(error) => {
               toast({
                 title: "Camera Error",
                 description: error,
                 variant: "destructive"
               });
+              setShowPantryCamera(false);
             }}
-            title="Take Photo of Pantry"
           />
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPantryCamera(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -692,23 +888,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           </DialogHeader>
           
           <NativeCamera
+            title="Take Photo"
             onImageCapture={handleEquipmentImageCapture}
-            onError={(error: string) => {
-              console.error('Camera error:', error);
+            onError={(error) => {
               toast({
                 title: "Camera Error",
                 description: error,
                 variant: "destructive"
               });
+              setShowEquipmentCamera(false);
             }}
-            title="Take Photo of Kitchen"
           />
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEquipmentCamera(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
