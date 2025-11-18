@@ -46,7 +46,7 @@ Each recipe should include:
 
 ### Examples from open coding that should be avoided as an output of recipe suggestions:
 
-#### Example 1
+#### Recipe Suggestiion Example 1
 - Current cuisine preference: Indian
 - pantryIngredients: "rotisserie chicken whole, thyme, button mushrooms, oyster mushrooms, morel mushrooms, beef buillon, vermouth, beef cubes, brioche, spring onions, arugula, garlic, onions, ketchup, worchestershire sauce, mayonaise, eggs, soy sauce, vinegar, frozen peas, arborio rice, shiitake mushrooms, olive oil, instant noodles, sesame oil, bok choy, bagels, toast, boursin garlic and chive cream cheese, smoked salmon, kale."
 - recipe name: "Chicken and Mushroom Risotto", "Smoked Salmon Kale Noodles"
@@ -57,20 +57,36 @@ Each recipe should include:
 - It might be challenging for some ingredients that they have in the pantry to fit into a cuisine, so its OK to add ingredients in the additionalIngredientsNeeded to complete the recipe. But if the recipe is not fitting into the cuisine preference at all, do not recommend it.
 - additionalIngredientsNeeded in this case can be "garam masala, turmeric, cumin, coriander, ginger, cinnamon, cardamom, cloves, bay leaves, curry powder, chili powderm or any other ingredients that can complete the Indian cuisine recipe.
 
-#### Example 2
+##### Workaround example for Example 1
+- pantryIngredientsUsed: "sesame oil, rotisserie chicken whole, beef buillon cubes, garlic, onions, kale, vinegar"
+- name: "Rotisserie Chicken and Kale Curry"
+- additionalIngredientsNeeded: "garam masala, tomato paste, tomato, ginger"
+
+#### Recipe Suggestion Example 2
+- Current cuisine preference: Chinese
+- pantryIngredients: "bacon, basil, butter, chickpeas, cream, cumin, garlic, lettuce, mushrooms, olive oil, onion, onion powder, paprika, parmesan, polenta, salmon fillet, smoked paprika"
+- recipe name: "Mushroom Polenta with Garlic Butter"
+- additionalIngredientsNeeded: none 
+
+##### Why Example 2 is a failed output
+- "Mushroom Polenta with Garlic Butter" has no ties to Chinese cuisine, and no additional ingredients are recommended to make it chinese.
+- The recommended action if you run into this case is to either add additionalIngredientsNeeded to complete the recipe, or recommend a fusion recipe. Even when there is only 2 or 3 ingredients that have that can be used to meet the cuisine preference, recommend it.
+
+#### Recipe Suggestion Example 3
 - Current cuisine preference: Chinese
 - pantryIngredients: "bacon, basil, butter, chickpeas, cream, cumin, garlic, lettuce, mushrooms, olive oil, onion, onion powder, paprika, parmesan, polenta, salmon fillet, smoked paprika"
 - recipe name: "Bacon and Basil Polenta with Creamy Parmesan"
 - additionalIngredientsNeeded: none 
 
-##### Why Example 2 is a failed output
-- Bacon and Basil Polenta with Creamy Parmesan is a completely different cuisine than Chinese. It fits more to French, Italian or more European cuisines.
-- The recommended action if you run into this case is to either add additionalIngredientsNeeded to complete the recipe, or recommend a fusion recipe. For example, 
+##### Why Example 3 is a failed output
+- Same input at example 2 but showing you different failure examples of the smae input. 
+- Again, despite really limited ingredients, "Bacon and Basil Polenta with Creamy Parmesan" is a completely different cuisine than Chinese. Especially parmesan which doesn't fit to target cuisine. This fits more to French, Italian or more European cuisines. This is still a failed output.
+- The recommended action if you run into this case is to either add additionalIngredientsNeeded to complete the recipe, or recommend more fusion recipes
 
-##### Workaround example for Example 2
+##### Workaround example for Example 3
 - pantryIngredientsUsed: "salmon fillet, garlic, mushrooms, onion powder, onions"
 - name: "Salmon and Mushroom Stir Fry"
-- additionalIngredientsNeeded: "soy sauce, mirin"
+- additionalIngredientsNeeded: "soy sauce, mirin, sake"
 
 ## Guidelines for "instructions"
 
