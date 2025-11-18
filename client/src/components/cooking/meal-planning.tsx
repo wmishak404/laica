@@ -169,7 +169,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
         recipeResponse.recipes.forEach((recipe: any, index: number) => {
           newRecommendations.push({
             id: `recipe-${index}`,
-            name: recipe.name || 'Unnamed Recipe',
+            recipeName: recipe.recipeName || 'Unnamed Recipe',
             description: recipe.description || 'Delicious meal using your pantry ingredients',
             cookTime: recipe.cookTime || 30,
             difficulty: recipe.difficulty || 'Medium',
@@ -242,7 +242,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       
       // Add existing recommendations to avoid duplicates
       if (recommendations.length > 0) {
-        preferenceParts.push(`Please suggest different recipes, not: ${recommendations.map(r => r.name).join(', ')}`);
+        preferenceParts.push(`Please suggest different recipes, not: ${recommendations.map(r => r.recipeName).join(', ')}`);
       }
       
       const preferences = preferenceParts.join('. ');
@@ -261,7 +261,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
         recipeResponse.recipes.forEach((recipe: any, index: number) => {
           newRecommendations.push({
             id: `recipe-more-${Date.now()}-${index}`,
-            name: recipe.name || 'Unnamed Recipe',
+            recipeName: recipe.recipeName || 'Unnamed Recipe',
             description: recipe.description || 'Delicious meal using your pantry ingredients',
             cookTime: recipe.cookTime || 30,
             difficulty: recipe.difficulty || 'Medium',
@@ -489,7 +489,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                     >
                       <CardContent className="p-4">
                         <div className="mb-2">
-                          <h3 className="font-semibold text-lg">{recipe.name}</h3>
+                          <h3 className="font-semibold text-lg">{recipe.recipeName}</h3>
                         </div>
                         <p className="text-gray-600 text-sm mb-3">{recipe.description}</p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -576,7 +576,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
                   }`}
                   disabled={!selectedMeal}
                 >
-                  {selectedMeal ? `Start Cooking ${selectedMeal.name}` : 'Select a recipe to continue'}
+                  {selectedMeal ? `Start Cooking ${selectedMeal.recipeName}` : 'Select a recipe to continue'}
                 </Button>
               </div>
             </CardContent>

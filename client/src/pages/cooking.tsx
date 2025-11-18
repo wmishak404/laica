@@ -382,7 +382,7 @@ export default function Cooking() {
                             </div>
                           </div>
                           <CardContent className="p-5">
-                            <h3 className="font-bold text-lg mb-2">{recipe.name}</h3>
+                            <h3 className="font-bold text-lg mb-2">{recipe.recipeName}</h3>
                             <p className="text-gray-600 text-sm mb-3 line-clamp-2">{recipe.description}</p>
                             
                             <div className="mb-3">
@@ -410,7 +410,7 @@ export default function Cooking() {
                             )}
                             
                             <Button 
-                              onClick={() => handleSelectRecipe(recipe.name)}
+                              onClick={() => handleSelectRecipe(recipe.recipeName)}
                               className="w-full mt-2 py-6 h-14"
                             >
                               Start Cooking

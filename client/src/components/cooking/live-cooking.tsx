@@ -112,7 +112,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       setIsLoadingSteps(true);
       
       const steps = await withDemoErrorHandling(async () => {
-        const response = await fetchCookingSteps(selectedMeal.name);
+        const response = await fetchCookingSteps(selectedMeal.recipeName);
         return response.steps?.map((step: any, index: number) => ({
           id: index + 1,
           instruction: step.instruction || '',
@@ -132,7 +132,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         
         // Only set welcome message if we don't already have one to prevent duplicates
         if (assistantResponse === 'Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.') {
-          const welcomeMessage = `Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.name}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`;
+          const welcomeMessage = `Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.recipeName}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`;
           setAssistantResponse(welcomeMessage);
         }
         
@@ -142,7 +142,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         setLoadedRecipeSteps([
           {
             id: 1,
-            instruction: `Prepare ingredients for ${selectedMeal.name}`,
+            instruction: `Prepare ingredients for ${selectedMeal.recipeName}`,
             tips: 'Gather all ingredients and prep workspace',
             visualCues: 'All ingredients should be within reach',
             commonMistakes: 'Not having everything ready before starting',
@@ -150,7 +150,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           },
           {
             id: 2,
-            instruction: `Begin cooking ${selectedMeal.name}`,
+            instruction: `Begin cooking ${selectedMeal.recipeName}`,
             tips: 'Follow the recipe step by step',
             visualCues: 'Start with the base ingredients',
             commonMistakes: 'Rushing the cooking process',
@@ -162,7 +162,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         
         // Only set fallback message if we don't already have a custom welcome message
         if (assistantResponse === 'Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.') {
-          const fallbackMessage = `I've prepared basic steps for ${selectedMeal.name}. Let's start cooking together!`;
+          const fallbackMessage = `I've prepared basic steps for ${selectedMeal.recipeName}. Let's start cooking together!`;
           setAssistantResponse(fallbackMessage);
         }
       }
@@ -176,13 +176,13 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     if ('speechSynthesis' in window) {
       speechSynthesisRef.current = window.speechSynthesis;
     }
-  }, [selectedMeal.name]);
+  }, [selectedMeal.recipeName]);
 
   // Cooking session management functions
   const startCookingSession = async (totalSteps: number) => {
     try {
       const sessionData = {
-        recipeName: selectedMeal.name,
+        recipeName: selectedMeal.recipeName,
         recipeDescription: selectedMeal.description,
         ingredientsUsed: selectedMeal.missingIngredients || [],
         totalSteps,
@@ -227,7 +227,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         
         toast({
           title: "Cooking Session Complete!",
-          description: `Great job cooking ${selectedMeal.name}! Your pantry has been updated.`,
+          description: `Great job cooking ${selectedMeal.recipeName}! Your pantry has been updated.`,
         });
       } catch (error) {
         console.error('Failed to complete cooking session:', error);
@@ -939,7 +939,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         <Card className="p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B6B] mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold mb-2">Preparing Your Cooking Guide</h2>
-          <p className="text-gray-600">Setting up personalized step-by-step instructions for {selectedMeal.name}...</p>
+          <p className="text-gray-600">Setting up personalized step-by-step instructions for {selectedMeal.recipeName}...</p>
         </Card>
       </div>
     );
@@ -959,7 +959,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         </Button>
         
         <div className="text-center">
-          <h1 className="text-xl font-bold">{selectedMeal.name}</h1>
+          <h1 className="text-xl font-bold">{selectedMeal.recipeName}</h1>
           <p className="text-sm text-gray-300">Live Cooking Assistant</p>
         </div>
 

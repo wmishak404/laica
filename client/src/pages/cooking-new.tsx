@@ -117,7 +117,7 @@ export default function Cooking() {
     
     toast({
       title: "Let's start cooking!",
-      description: `I'll guide you through making ${meal.name}.`
+      description: `I'll guide you through making ${meal.recipeName}.`
     });
   };
 
