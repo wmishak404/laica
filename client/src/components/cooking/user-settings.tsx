@@ -120,36 +120,63 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     }
   };
 
-  const handleSavePantry = () => {
-    // Only update pantry ingredients
-    onProfileUpdate({ ...userProfile, pantryIngredients: profile.pantryIngredients });
-    toast({
-      title: "Pantry saved!",
-      description: "Your pantry ingredients have been updated successfully."
-    });
+  const handleSavePantry = async () => {
+    try {
+      // Save only pantry ingredients without navigating away
+      await updateProfileMutation.mutateAsync({ 
+        pantryIngredients: profile.pantryIngredients 
+      });
+      toast({
+        title: "Pantry saved!",
+        description: "Your pantry ingredients have been updated successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save pantry. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSaveEquipment = () => {
-    // Only update kitchen equipment
-    onProfileUpdate({ ...userProfile, kitchenEquipment: profile.kitchenEquipment });
-    toast({
-      title: "Equipment saved!",
-      description: "Your kitchen equipment has been updated successfully."
-    });
+  const handleSaveEquipment = async () => {
+    try {
+      // Save only kitchen equipment without navigating away
+      await updateProfileMutation.mutateAsync({ 
+        kitchenEquipment: profile.kitchenEquipment 
+      });
+      toast({
+        title: "Equipment saved!",
+        description: "Your kitchen equipment has been updated successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save equipment. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSaveProfile = () => {
-    // Only update profile settings (skill, dietary, time)
-    onProfileUpdate({ 
-      ...userProfile, 
-      cookingSkill: profile.cookingSkill,
-      dietaryRestrictions: profile.dietaryRestrictions,
-      weeklyTime: profile.weeklyTime
-    });
-    toast({
-      title: "Profile saved!",
-      description: "Your cooking profile has been updated successfully."
-    });
+  const handleSaveProfile = async () => {
+    try {
+      // Save only profile settings without navigating away
+      await updateProfileMutation.mutateAsync({ 
+        cookingSkill: profile.cookingSkill,
+        dietaryRestrictions: profile.dietaryRestrictions,
+        weeklyTime: profile.weeklyTime
+      });
+      toast({
+        title: "Profile saved!",
+        description: "Your cooking profile has been updated successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save profile. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handlePantryImageCapture = async (imageData: string) => {
