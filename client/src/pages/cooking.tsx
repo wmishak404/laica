@@ -99,7 +99,7 @@ export default function Cooking() {
         // Example recipe results
         const mockResults = [
           {
-            name: "Quick Veggie Stir Fry",
+            recipeName: "Quick Veggie Stir Fry",
             description: "A delicious stir fry using whatever vegetables you have on hand",
             difficulty: "Easy",
             cookTime: 20,
@@ -107,7 +107,7 @@ export default function Cooking() {
             additionalIngredientsNeeded: ["soy sauce", "sesame oil"]
           },
           {
-            name: "Pantry Pasta",
+            recipeName: "Pantry Pasta",
             description: "Simple pasta dish with minimal ingredients",
             difficulty: "Easy",
             cookTime: 15,
@@ -115,7 +115,7 @@ export default function Cooking() {
             additionalIngredientsNeeded: ["dried herbs"]
           },
           {
-            name: "Kitchen Sink Frittata",
+            recipeName: "Kitchen Sink Frittata",
             description: "Use up vegetables and proteins in a simple egg dish",
             difficulty: "Medium",
             cookTime: 25,
