@@ -1168,19 +1168,17 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           {/* Navigation Controls */}
           <div className="flex justify-between gap-2 mb-4">
             <Button
-              variant="outline"
               onClick={previousStep}
               disabled={currentStepIndex === 0}
-              className="flex-1"
+              className="flex-1 bg-gray-600 hover:bg-gray-500 text-white"
             >
               <SkipBack className="h-4 w-4 mr-1" />
               Previous
             </Button>
             <Button
-              variant="outline"
               onClick={nextStep}
               disabled={currentStepIndex >= currentRecipeSteps.length - 1}
-              className="flex-1"
+              className="flex-1 bg-white hover:bg-gray-100 text-black"
             >
               Next
               <SkipForward className="h-4 w-4 ml-1" />
@@ -1191,9 +1189,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-4">
             {/* Repeat Step Button */}
             <Button
-              variant="outline"
               onClick={repeatStepInstructions}
-              className="w-full sm:flex-1"
+              className="w-full sm:flex-1 bg-yellow-500 hover:bg-yellow-400 text-black"
             >
               <Repeat className="h-4 w-4 mr-2" />
               Repeat Step
