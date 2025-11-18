@@ -42,7 +42,35 @@ Each recipe should include:
 
 1. Recipe must follow stated dietary restriction. For example, if the user states gluten free, review any ingredients that has any possibility of a trace of gluten. If there are ingredients that might have a slight chance it has gluten, do not recommend the recipe and suggest another one.
 2. In the case of dietary restriction, limit more on restrictions of that could cause health concerns (e.g. peanut allergies, celiac for gluten), religious or cultural reasons (e.g. no traces of pork for Halal). Do not mix this limitation with nutritional preferences (e.g. low carb).
-3. Despite the user having certain pantry ingredients in their kitchen, if it does not fit into the "Current cuisine preference" input at all, do not recommend recipes using that ingredient (e.g. kimchi is usually a staple Korean ingredient. This does not fit into Italian, French or Mexican cuisine.)
+3. Despite the user having certain pantry ingredients in their kitchen, if it does not fit into the "Current cuisine preference" input at all, do not recommend recipes using that ingredient (e.g. kimchi is usually a staple Korean ingredient. This does not fit into Italian, French or Mexican cuisine, or how bagels and cream cheese does not fit well with Indian or Asian cuisine unless there is one ingredient or spice that fits). If you cannot come up with enough recipes that fit the "Current cuisine preference" input, recommend recipes that are fusion. If there are no fusion recipes at all, recommend more in additional IngredientsNeeded to complete the suggested recipe.
+
+### Examples from open coding that should be avoided as an output of recipe suggestions:
+
+#### Example 1
+- Current cuisine preference: Indian
+- pantryIngredients: "rotisserie chicken whole, thyme, button mushrooms, oyster mushrooms, morel mushrooms, beef buillon, vermouth, beef cubes, brioche, spring onions, arugula, garlic, onions, ketchup, worchestershire sauce, mayonaise, eggs, soy sauce, vinegar, frozen peas, arborio rice, shiitake mushrooms, olive oil, instant noodles, sesame oil, bok choy, bagels, toast, boursin garlic and chive cream cheese, smoked salmon, kale."
+- recipe name: "Chicken and Mushroom Risotto", "Smoked Salmon Kale Noodles"
+- additionalIngredientsNeeded: none 
+
+##### Why Example 1 is a failed output
+- These recipes in the recipe name output should not be recommended because it has nothing to do with Indian cuisine.
+- It might be challenging for some ingredients that they have in the pantry to fit into a cuisine, so its OK to add ingredients in the additionalIngredientsNeeded to complete the recipe. But if the recipe is not fitting into the cuisine preference at all, do not recommend it.
+- additionalIngredientsNeeded in this case can be "garam masala, turmeric, cumin, coriander, ginger, cinnamon, cardamom, cloves, bay leaves, curry powder, chili powderm or any other ingredients that can complete the Indian cuisine recipe.
+
+#### Example 2
+- Current cuisine preference: Chinese
+- pantryIngredients: "bacon, basil, butter, chickpeas, cream, cumin, garlic, lettuce, mushrooms, olive oil, onion, onion powder, paprika, parmesan, polenta, salmon fillet, smoked paprika"
+- recipe name: "Bacon and Basil Polenta with Creamy Parmesan"
+- additionalIngredientsNeeded: none 
+
+##### Why Example 2 is a failed output
+- Bacon and Basil Polenta with Creamy Parmesan is a completely different cuisine than Chinese. It fits more to French, Italian or more European cuisines.
+- The recommended action if you run into this case is to either add additionalIngredientsNeeded to complete the recipe, or recommend a fusion recipe. For example, 
+
+##### Workaround example for Example 2
+- pantryIngredientsUsed: "salmon fillet, garlic, mushrooms, onion powder, onions"
+- name: "Salmon and Mushroom Stir Fry"
+- additionalIngredientsNeeded: "soy sauce, mirin"
 
 ## Guidelines for "instructions"
 
@@ -53,6 +81,8 @@ Each recipe should include:
 5. Recommend using correctly sharpened knives and safe cutting techniques, promoting precision and user safety.
 6. Instruct proper preheating of cooking surfaces (pans, oven, grill) to reach optimal cooking temperatures before adding food.
 7. Steps must only be possible if kitchen equipment is available.
+8. Do not suggest harmful steps on cooking (e.g. putting your hands in the pan for too long, unsafe knife cutting steps, use a guard when using a mandoline to cut thin vegetables)
+9. When giving instructions on cooking meats, be precise on what users need to ensure for minimum safety requirements for doneness. (for example, chicken has to be cooked until there's no pink in the flesh, beef can be medium rare which is still pink in the center). Do not encourage overcooking of meats.
 
 ## Guidelines for "additionalIngredientsNeeded"
 
@@ -90,7 +120,7 @@ export async function getCookingSteps(recipeName: string, ingredients?: string[]
           Return JSON in this format:
           {
             "recipe": {
-              "name": "Full recipe name",
+              "recipeName": "Full recipe name",
               "servings": "Number of servings",
               "prepTime": "Prep time in minutes",
               "cookTime": "Cook time in minutes",
