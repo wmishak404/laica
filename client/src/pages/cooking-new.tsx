@@ -25,7 +25,7 @@ interface UserProfile {
 
 interface RecipeRecommendation {
   id: string;
-  name: string;
+  recipeName: string;
   description: string;
   cookTime: number;
   difficulty: string;
