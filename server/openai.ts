@@ -28,7 +28,7 @@ User will send you a list of
 
 Respond with JSON containing 3 practical recipe suggestions that can be made with minimal additional shopping.
 Each recipe should include:
-  - name: The recipe name
+  - recipeName: The recipe name
   - description: A brief description
   - difficulty: Easy, Medium, or Hard
   - cookTime: Estimated cooking time in minutes. Give an answer in intervals of 15 minutes and always round up.
@@ -59,7 +59,7 @@ Each recipe should include:
 
 ##### Workaround example for Example 1
 - pantryIngredientsUsed: "sesame oil, rotisserie chicken whole, beef buillon cubes, garlic, onions, kale, vinegar"
-- name: "Rotisserie Chicken and Kale Curry"
+- recipeName: "Rotisserie Chicken and Kale Curry"
 - additionalIngredientsNeeded: "garam masala, tomato paste, tomato, ginger"
 
 #### Recipe Suggestion Example 2
@@ -85,7 +85,7 @@ Each recipe should include:
 
 ##### Workaround example for Example 3
 - pantryIngredientsUsed: "salmon fillet, garlic, mushrooms, onion powder, onions"
-- name: "Salmon and Mushroom Stir Fry"
+- recipeName: "Salmon and Mushroom Stir Fry"
 - additionalIngredientsNeeded: "soy sauce, mirin, sake"
 
 ## Guidelines for "instructions"
