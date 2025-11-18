@@ -17,7 +17,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChefHat, Settings, Home, LogOut, User, MessageCircle } from 'lucide-react';
+import { Settings, Home, LogOut, User, MessageCircle, ChefHat } from 'lucide-react';
+import laicaLogo from '@assets/image_1763437580974.png';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
 interface UserProfile {
@@ -296,8 +297,8 @@ export default function MobileApp() {
   const renderWelcomeScreen = () => (
     <div className="min-h-screen bg-gradient-to-b from-[#FF6B6B]/10 to-white flex flex-col justify-center items-center p-6">
       <div className="text-center mb-8">
-        <div className="bg-[#FF6B6B] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <ChefHat className="h-10 w-10 text-white" />
+        <div className="flex items-center justify-center mx-auto mb-6">
+          <img src={laicaLogo} alt="Laica" className="h-16" />
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Laica</h1>
         <p className="text-lg text-gray-600 mb-8">Your Live Cooking Assistant</p>
@@ -392,9 +393,8 @@ export default function MobileApp() {
   const renderHeader = () => (
     <div className="fixed top-0 left-0 right-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
       <div className="flex items-center justify-between max-w-md mx-auto">
-        <div className="flex items-center space-x-3">
-          <ChefHat className="h-6 w-6 text-[#FF6B6B]" />
-          <span className="font-semibold text-gray-900">Laica</span>
+        <div className="flex items-center">
+          <img src={laicaLogo} alt="Laica" className="h-8" />
         </div>
         
         <div className="flex items-center space-x-2">
