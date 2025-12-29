@@ -560,15 +560,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2 flex-wrap">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowPantryCamera(true)}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingPantry}
-                >
-                  <Camera className="h-4 w-4" />
-                  Take Photo
-                </Button>
                 <Button
                   variant="outline"
                   onClick={() => document.getElementById('pantry-upload-profile')?.click()}
@@ -594,7 +585,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Take a photo or upload multiple images of your pantry, or add ingredients manually below
+                Upload images of your pantry, or add ingredients manually below
               </p>
               
               {/* Manual ingredient entry */}
@@ -688,15 +679,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2 flex-wrap">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowEquipmentCamera(true)}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingEquipment}
-                >
-                  <Camera className="h-4 w-4" />
-                  Take Photo
-                </Button>
                 <Button
                   variant="outline"
                   onClick={() => document.getElementById('equipment-upload-profile')?.click()}
@@ -722,7 +704,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Take a photo or upload multiple images of your kitchen, or add equipment manually below
+                Upload images of your kitchen, or add equipment manually below
               </p>
               
               {/* Manual equipment entry */}
