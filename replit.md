@@ -60,3 +60,45 @@ The application employs a full-stack architecture with distinct client and serve
 - **TypeScript**: Ensures type safety across the application.
 - **Vitest**: Used for unit testing.
 - **Playwright**: Utilized for end-to-end browser automation testing.
+
+## Version History
+
+### v1.0 - Kitchen & Settings Refactor (December 2025)
+
+**Accepted Milestones:**
+
+1. **Settings Page Tab Structure Refactor**
+   - Split "My Kitchen" tab into two separate tabs: "Pantry" and "Equipment"
+   - Removed "Notifications" tab entirely
+   - Final structure: Pantry | Equipment | Profile (3 tabs)
+
+2. **Settings UI Aligned with Onboarding Flow**
+   - Pantry tab UI exactly matches onboarding Step 4
+   - Equipment tab UI exactly matches onboarding Step 5
+   - Consistent helper text, labels, and input guidance across both flows
+
+3. **Multiple Image Upload Support**
+   - Both Pantry and Equipment sections support uploading multiple images at once
+   - Includes image compression and HEIC format support
+   - Sequential processing with progress indication
+
+4. **Tag-Style Display for Ingredients/Equipment**
+   - Items displayed as styled tags with individual remove buttons (×)
+   - Replaced previous gray box display style
+   - Consistent with onboarding flow appearance
+
+5. **Reset Functionality**
+   - "Reset Pantry" button clears all ingredients
+   - "Reset Equipment" button clears all equipment
+   - Confirmation prompts before clearing
+
+6. **Tab-Specific Save Functionality**
+   - "Back to Planning" and "Save Changes" buttons moved to bottom of each tab card
+   - Each tab saves only its own data independently
+   - Users stay on Settings page after saving (no navigation redirect)
+
+7. **Data Model Update**
+   - RecipeRecommendation uses "recipeName" field (database Recipe model retains "name" field)
+
+8. **Branding Update**
+   - Updated app logo to laica_logo_v1_cropped across header, landing page, and welcome screen
