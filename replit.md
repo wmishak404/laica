@@ -102,3 +102,13 @@ The application employs a full-stack architecture with distinct client and serve
 
 8. **Branding Update**
    - Updated app logo to laica_logo_v1_cropped across header, landing page, and welcome screen
+
+9. **Removed Redundant Take Photo Buttons**
+   - Removed standalone "Take Photo" buttons from Pantry and Equipment sections
+   - Applies to both onboarding flow (Steps 4 & 5) and Settings page
+   - "Upload Images" button on mobile already provides "Take Photo" option via browser submenu
+   - Desktop users upload files directly (no camera capture needed)
+
+10. **Dynamic Copyright Year**
+    - Footer copyright now displays current UTC year dynamically
+    - Automatically updates each year
