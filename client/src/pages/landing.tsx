@@ -114,7 +114,7 @@ export default function Landing() {
               <img src={laicaLogo} alt="Laica" className="h-8" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              © 2024 Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
+              © {new Date().getUTCFullYear()} Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
             </p>
           </div>
         </div>
