@@ -115,6 +115,7 @@ export const userSettings = pgTable("user_settings", {
   voiceSimilarity: integer("voice_similarity").default(70), // 0-100
   captionSize: integer("caption_size").default(16), // pixels
   cameraMode: varchar("camera_mode").default('front'), // 'front' or 'back'
+  transcriptionPinned: boolean("transcription_pinned").default(true), // true = full view, false = minimized at bottom
   lastActiveRecipe: text("last_active_recipe"),
   lastActiveStep: integer("last_active_step"),
   createdAt: timestamp("created_at").defaultNow(),

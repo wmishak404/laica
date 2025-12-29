@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle, Pin, PinOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -76,6 +76,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isTranscriptionPinned, setIsTranscriptionPinned] = useState(() => {
+    const saved = localStorage.getItem('laica_transcription_pinned');
+    return saved !== null ? JSON.parse(saved) : true; // Default: pinned
+  });
+  const transcriptionRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef<number>(0);
 
   const { toast } = useToast();
   const startSessionMutation = useStartCookingSession();
@@ -434,6 +440,36 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           variant: "destructive",
           duration: 6000
         });
+      }
+    }
+  };
+
+  // Toggle transcription pinned state and persist to localStorage
+  const toggleTranscriptionPinned = () => {
+    setIsTranscriptionPinned((prev: boolean) => {
+      const newValue = !prev;
+      localStorage.setItem('laica_transcription_pinned', JSON.stringify(newValue));
+      return newValue;
+    });
+  };
+
+  // Handle swipe gestures for transcription box
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchEndY - touchStartY.current;
+    const swipeThreshold = 50; // pixels
+
+    if (Math.abs(deltaY) > swipeThreshold) {
+      if (deltaY > 0 && isTranscriptionPinned) {
+        // Swiped down - unpin (minimize)
+        toggleTranscriptionPinned();
+      } else if (deltaY < 0 && !isTranscriptionPinned) {
+        // Swiped up - pin (expand)
+        toggleTranscriptionPinned();
       }
     }
   };
@@ -1276,14 +1312,61 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             </Button>
           </div>
 
-          {/* Closed Captioning */}
-          <div className="text-center p-4 rounded-lg sticky bottom-4">
-            <p 
-              className="text-white leading-relaxed"
-              style={{ fontSize: `${captionSize}px` }}
+          {/* Closed Captioning with Pin/Unpin functionality */}
+          <div 
+            ref={transcriptionRef}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className={`sticky bottom-4 rounded-lg transition-all duration-300 ease-in-out relative ${
+              isTranscriptionPinned 
+                ? 'bg-amber-500/70 p-4' 
+                : 'bg-amber-500/70 p-2 cursor-pointer'
+            }`}
+            onClick={!isTranscriptionPinned ? toggleTranscriptionPinned : undefined}
+            data-testid="transcription-box"
+          >
+            {/* Pin toggle button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleTranscriptionPinned();
+              }}
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-10"
+              aria-label={isTranscriptionPinned ? "Unpin transcription" : "Pin transcription"}
+              data-testid="button-toggle-pin"
             >
-              {assistantResponse}
-            </p>
+              {isTranscriptionPinned ? (
+                <Pin className="h-4 w-4 text-white" />
+              ) : (
+                <PinOff className="h-4 w-4 text-white" />
+              )}
+            </button>
+
+            {isTranscriptionPinned ? (
+              /* Full view when pinned */
+              <div className="text-center pr-8">
+                <p 
+                  className="text-gray-900 leading-relaxed"
+                  style={{ fontSize: `${captionSize}px` }}
+                  data-testid="text-transcription-full"
+                >
+                  {assistantResponse}
+                </p>
+              </div>
+            ) : (
+              /* Minimized view when unpinned */
+              <div className="flex items-center justify-center gap-2 pr-8">
+                <p 
+                  className="text-gray-900 text-sm truncate max-w-[80%]"
+                  data-testid="text-transcription-minimized"
+                >
+                  {assistantResponse.length > 50 
+                    ? `${assistantResponse.substring(0, 50)}...` 
+                    : assistantResponse}
+                </p>
+                <span className="text-gray-700 text-xs whitespace-nowrap">(Tap to expand)</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
