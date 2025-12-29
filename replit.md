@@ -112,3 +112,11 @@ The application employs a full-stack architecture with distinct client and serve
 10. **Dynamic Copyright Year**
     - Footer copyright now displays current UTC year dynamically
     - Automatically updates each year
+
+11. **Transcription Box UX Improvements**
+    - Added 70% opacity background (amber) for better readability
+    - Pin/Unpin toggle button at top-right corner of transcription box
+    - Pinned (default): Full transcription text visible
+    - Unpinned: Minimized bar at bottom with truncated text
+    - Swipe down to unpin, swipe up to pin (mobile)
+    - Preference persists across cooking steps and sessions via localStorage
