@@ -114,9 +114,8 @@ The application employs a full-stack architecture with distinct client and serve
     - Automatically updates each year
 
 11. **Transcription Box UX Improvements**
-    - Added 70% opacity background (amber) for better readability
-    - Pin/Unpin toggle button at top-right corner of transcription box
-    - Pinned (default): Full transcription text visible
-    - Unpinned: Minimized bar at bottom with truncated text
+    - 100% opacity black background matching Pro Tips box for readability
+    - Larger pin/unpin toggle button (h-6 w-6) at top-right corner
+    - Full expanded text always visible regardless of pin state
     - Swipe down to unpin, swipe up to pin (mobile)
     - Preference persists across cooking steps and sessions via localStorage
