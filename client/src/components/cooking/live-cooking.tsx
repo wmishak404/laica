@@ -1317,7 +1317,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             ref={transcriptionRef}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
-            className="sticky bottom-4 rounded-lg transition-all duration-300 ease-in-out relative bg-gray-900 p-4"
+            className={`rounded-lg transition-all duration-300 ease-in-out relative bg-gray-900 p-4 ${
+              isTranscriptionPinned ? 'sticky bottom-4' : ''
+            }`}
             data-testid="transcription-box"
           >
             {/* Pin toggle button */}
@@ -1326,14 +1328,14 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                 e.stopPropagation();
                 toggleTranscriptionPinned();
               }}
-              className="absolute top-2 right-2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
               aria-label={isTranscriptionPinned ? "Unpin transcription" : "Pin transcription"}
               data-testid="button-toggle-pin"
             >
               {isTranscriptionPinned ? (
-                <Pin className="h-6 w-6 text-white" />
+                <Pin className="h-4 w-4 text-white" />
               ) : (
-                <PinOff className="h-6 w-6 text-white" />
+                <PinOff className="h-4 w-4 text-white" />
               )}
             </button>
 

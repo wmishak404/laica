@@ -115,7 +115,9 @@ The application employs a full-stack architecture with distinct client and serve
 
 11. **Transcription Box UX Improvements**
     - 100% opacity black background matching Pro Tips box for readability
-    - Larger pin/unpin toggle button (h-6 w-6) at top-right corner
+    - Pin/unpin toggle button at top-right corner
+    - Pinned: Textbox sticks to bottom of screen
+    - Unpinned: Textbox floats with content (not sticky)
     - Full expanded text always visible regardless of pin state
     - Swipe down to unpin, swipe up to pin (mobile)
     - Preference persists across cooking steps and sessions via localStorage
