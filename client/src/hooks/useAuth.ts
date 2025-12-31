@@ -38,12 +38,7 @@ export function useUpdateUserProfile() {
   
   return useMutation({
     mutationFn: async (profileData: UpdateUserProfile) => {
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        body: JSON.stringify(profileData),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to update profile');
+      const response = await apiRequest('PUT', '/api/user/profile', profileData);
       return await response.json();
     },
     onSuccess: () => {
@@ -58,12 +53,7 @@ export function useUpdateUserSettings() {
   
   return useMutation({
     mutationFn: async (settingsData: Partial<UserSettings>) => {
-      const response = await fetch('/api/user/settings', {
-        method: 'PUT',
-        body: JSON.stringify(settingsData),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to update settings');
+      const response = await apiRequest('PUT', '/api/user/settings', settingsData);
       return await response.json();
     },
     onSuccess: () => {

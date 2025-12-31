@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'wouter';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
@@ -46,6 +46,8 @@ type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'setting
 export default function MobileApp() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { data: dbProfile, isLoading: isLoadingDbProfile } = useUserProfile();
+  const updateProfileMutation = useUpdateUserProfile();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -59,43 +61,112 @@ export default function MobileApp() {
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false);
 
-  // Load existing profile on mount
+  // Load existing profile from database first, then localStorage as fallback
   useEffect(() => {
-    if (user?.id) {
-      const savedProfile = localStorage.getItem(`cookingProfile_${user.id}`);
-      if (savedProfile) {
-        try {
-          const parsedProfile = JSON.parse(savedProfile);
-          setUserProfile(parsedProfile);
-          
-          // Check if profile is complete
-          const isProfileComplete = parsedProfile.cookingSkill && 
-            parsedProfile.weeklyTime && 
-            parsedProfile.pantryIngredients.length > 0;
-          
-          if (isProfileComplete) {
-            setCurrentPhase('planning');
-          } else {
-            setCurrentPhase('profiling');
-          }
-        } catch (error) {
-          console.error('Error loading saved profile:', error);
-          setCurrentPhase('welcome');
+    if (!user?.id) return;
+    
+    // Wait for database query to complete
+    if (isLoadingDbProfile) return;
+    
+    // Prevent multiple loads
+    if (hasLoadedFromDb) return;
+    setHasLoadedFromDb(true);
+
+    // Try to load from database first
+    if (dbProfile?.user) {
+      const dbUser = dbProfile.user;
+      const profileFromDb: UserProfile = {
+        cookingSkill: dbUser.cookingSkill || '',
+        dietaryRestrictions: dbUser.dietaryRestrictions || [],
+        weeklyTime: dbUser.weeklyTime || '',
+        pantryIngredients: dbUser.pantryIngredients || [],
+        kitchenEquipment: dbUser.kitchenEquipment || [],
+        favoriteChefs: dbUser.favoriteChefs || []
+      };
+
+      // Check if database has meaningful profile data
+      const hasDbProfile = profileFromDb.cookingSkill || 
+        profileFromDb.pantryIngredients.length > 0 ||
+        profileFromDb.kitchenEquipment.length > 0;
+
+      if (hasDbProfile) {
+        console.log('Loading profile from database');
+        setUserProfile(profileFromDb);
+        // Also update localStorage for offline access
+        localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profileFromDb));
+        
+        const isProfileComplete = profileFromDb.cookingSkill && 
+          profileFromDb.weeklyTime && 
+          profileFromDb.pantryIngredients.length > 0;
+        
+        if (isProfileComplete) {
+          setCurrentPhase('planning');
+        } else {
+          setCurrentPhase('profiling');
         }
-      } else {
-        setCurrentPhase('welcome');
+        setIsLoadingProfile(false);
+        return;
       }
     }
-    setIsLoadingProfile(false);
-  }, [user?.id]);
 
-  // Save profile whenever it changes
-  const saveProfile = (profile: UserProfile) => {
-    if (user?.id) {
-      localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profile));
+    // Fall back to localStorage
+    const savedProfile = localStorage.getItem(`cookingProfile_${user.id}`);
+    if (savedProfile) {
+      try {
+        const parsedProfile = JSON.parse(savedProfile);
+        console.log('Loading profile from localStorage');
+        setUserProfile(parsedProfile);
+        
+        // Sync localStorage data to database
+        saveProfileToDb(parsedProfile);
+        
+        const isProfileComplete = parsedProfile.cookingSkill && 
+          parsedProfile.weeklyTime && 
+          parsedProfile.pantryIngredients.length > 0;
+        
+        if (isProfileComplete) {
+          setCurrentPhase('planning');
+        } else {
+          setCurrentPhase('profiling');
+        }
+      } catch (error) {
+        console.error('Error loading saved profile:', error);
+        setCurrentPhase('welcome');
+      }
+    } else {
+      setCurrentPhase('welcome');
     }
-  };
+    setIsLoadingProfile(false);
+  }, [user?.id, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
+
+  // Save profile to database
+  const saveProfileToDb = useCallback(async (profile: UserProfile) => {
+    try {
+      await updateProfileMutation.mutateAsync({
+        cookingSkill: profile.cookingSkill || undefined,
+        dietaryRestrictions: profile.dietaryRestrictions,
+        weeklyTime: profile.weeklyTime || undefined,
+        pantryIngredients: profile.pantryIngredients,
+        kitchenEquipment: profile.kitchenEquipment,
+        favoriteChefs: profile.favoriteChefs,
+      });
+      console.log('Profile saved to database successfully');
+    } catch (error) {
+      console.error('Error saving profile to database:', error);
+    }
+  }, [updateProfileMutation]);
+
+  // Save profile to both localStorage and database
+  const saveProfile = useCallback((profile: UserProfile) => {
+    if (user?.id) {
+      // Save to localStorage for quick access
+      localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profile));
+      // Save to database for cross-device sync
+      saveProfileToDb(profile);
+    }
+  }, [user?.id, saveProfileToDb]);
 
   const getUserInitials = () => {
     if (!user) return 'U';
