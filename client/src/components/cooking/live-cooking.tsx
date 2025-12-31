@@ -1317,12 +1317,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             ref={transcriptionRef}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
-            className={`sticky bottom-4 rounded-lg transition-all duration-300 ease-in-out relative ${
-              isTranscriptionPinned 
-                ? 'bg-amber-500/70 p-4' 
-                : 'bg-amber-500/70 p-2 cursor-pointer'
-            }`}
-            onClick={!isTranscriptionPinned ? toggleTranscriptionPinned : undefined}
+            className="sticky bottom-4 rounded-lg transition-all duration-300 ease-in-out relative bg-gray-900 p-4"
             data-testid="transcription-box"
           >
             {/* Pin toggle button */}
@@ -1331,42 +1326,27 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                 e.stopPropagation();
                 toggleTranscriptionPinned();
               }}
-              className="absolute top-2 right-2 p-1.5 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-10"
+              className="absolute top-2 right-2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
               aria-label={isTranscriptionPinned ? "Unpin transcription" : "Pin transcription"}
               data-testid="button-toggle-pin"
             >
               {isTranscriptionPinned ? (
-                <Pin className="h-4 w-4 text-white" />
+                <Pin className="h-6 w-6 text-white" />
               ) : (
-                <PinOff className="h-4 w-4 text-white" />
+                <PinOff className="h-6 w-6 text-white" />
               )}
             </button>
 
-            {isTranscriptionPinned ? (
-              /* Full view when pinned */
-              <div className="text-center pr-8">
-                <p 
-                  className="text-gray-900 leading-relaxed"
-                  style={{ fontSize: `${captionSize}px` }}
-                  data-testid="text-transcription-full"
-                >
-                  {assistantResponse}
-                </p>
-              </div>
-            ) : (
-              /* Minimized view when unpinned */
-              <div className="flex items-center justify-center gap-2 pr-8">
-                <p 
-                  className="text-gray-900 text-sm truncate max-w-[80%]"
-                  data-testid="text-transcription-minimized"
-                >
-                  {assistantResponse.length > 50 
-                    ? `${assistantResponse.substring(0, 50)}...` 
-                    : assistantResponse}
-                </p>
-                <span className="text-gray-700 text-xs whitespace-nowrap">(Tap to expand)</span>
-              </div>
-            )}
+            {/* Always show full expanded text regardless of pin state */}
+            <div className="text-center pr-10">
+              <p 
+                className="text-white leading-relaxed"
+                style={{ fontSize: `${captionSize}px` }}
+                data-testid="text-transcription-full"
+              >
+                {assistantResponse}
+              </p>
+            </div>
           </div>
         </div>
       </div>
