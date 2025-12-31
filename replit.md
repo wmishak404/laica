@@ -121,3 +121,10 @@ The application employs a full-stack architecture with distinct client and serve
     - Full expanded text always visible regardless of pin state
     - Swipe down to unpin, swipe up to pin (mobile)
     - Preference persists across cooking steps and sessions via localStorage
+
+12. **Cross-Device Profile Sync**
+    - User profile (pantry, equipment, preferences) now saves to central PostgreSQL database
+    - Data syncs across all devices (mobile, desktop, tablets) for the same user
+    - localStorage used as cache for offline access
+    - Database is single source of truth; localStorage falls back when DB is empty
+    - Automatic sync when localStorage data exists but DB is empty
