@@ -88,8 +88,6 @@ export default function MobileApp() {
 
       console.log('Loading profile from database (source of truth)');
       setUserProfile(profileFromDb);
-      // Update localStorage for offline access (sync FROM database TO localStorage)
-      localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profileFromDb));
       
       // Check if profile is complete
       const isProfileComplete = profileFromDb.cookingSkill && 
@@ -105,9 +103,8 @@ export default function MobileApp() {
       return;
     }
 
-    // No database profile found - start fresh (clear any stale localStorage)
+    // No database profile found - start fresh
     console.log('No database profile found, starting fresh');
-    localStorage.removeItem(`cookingProfile_${user.id}`);
     setCurrentPhase('welcome');
     setIsLoadingProfile(false);
   }, [user?.id, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
@@ -126,15 +123,17 @@ export default function MobileApp() {
       console.log('Profile saved to database successfully');
     } catch (error) {
       console.error('Error saving profile to database:', error);
+      toast({
+        title: "Failed to save changes",
+        description: "Your changes couldn't be saved. Please try again.",
+        variant: "destructive",
+      });
     }
-  }, [updateProfileMutation]);
+  }, [updateProfileMutation, toast]);
 
-  // Save profile to both localStorage and database
+  // Save profile to database only (database is single source of truth)
   const saveProfile = useCallback((profile: UserProfile) => {
     if (user?.id) {
-      // Save to localStorage for quick access
-      localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profile));
-      // Save to database for cross-device sync
       saveProfileToDb(profile);
     }
   }, [user?.id, saveProfileToDb]);
