@@ -63,7 +63,7 @@ export default function MobileApp() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false);
 
-  // Load existing profile from database first, then localStorage as fallback
+  // Load profile from database - database is the single source of truth
   useEffect(() => {
     if (!user?.id) return;
     
@@ -74,7 +74,7 @@ export default function MobileApp() {
     if (hasLoadedFromDb) return;
     setHasLoadedFromDb(true);
 
-    // Try to load from database first
+    // Database is the source of truth - always use database data
     if (dbProfile?.user) {
       const dbUser = dbProfile.user;
       const profileFromDb: UserProfile = {
@@ -86,58 +86,29 @@ export default function MobileApp() {
         favoriteChefs: dbUser.favoriteChefs || []
       };
 
-      // Check if database has meaningful profile data
-      const hasDbProfile = profileFromDb.cookingSkill || 
-        profileFromDb.pantryIngredients.length > 0 ||
-        profileFromDb.kitchenEquipment.length > 0;
-
-      if (hasDbProfile) {
-        console.log('Loading profile from database');
-        setUserProfile(profileFromDb);
-        // Also update localStorage for offline access
-        localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profileFromDb));
-        
-        const isProfileComplete = profileFromDb.cookingSkill && 
-          profileFromDb.weeklyTime && 
-          profileFromDb.pantryIngredients.length > 0;
-        
-        if (isProfileComplete) {
-          setCurrentPhase('planning');
-        } else {
-          setCurrentPhase('profiling');
-        }
-        setIsLoadingProfile(false);
-        return;
+      console.log('Loading profile from database (source of truth)');
+      setUserProfile(profileFromDb);
+      // Update localStorage for offline access (sync FROM database TO localStorage)
+      localStorage.setItem(`cookingProfile_${user.id}`, JSON.stringify(profileFromDb));
+      
+      // Check if profile is complete
+      const isProfileComplete = profileFromDb.cookingSkill && 
+        profileFromDb.weeklyTime && 
+        profileFromDb.pantryIngredients.length > 0;
+      
+      if (isProfileComplete) {
+        setCurrentPhase('planning');
+      } else {
+        setCurrentPhase('profiling');
       }
+      setIsLoadingProfile(false);
+      return;
     }
 
-    // Fall back to localStorage
-    const savedProfile = localStorage.getItem(`cookingProfile_${user.id}`);
-    if (savedProfile) {
-      try {
-        const parsedProfile = JSON.parse(savedProfile);
-        console.log('Loading profile from localStorage');
-        setUserProfile(parsedProfile);
-        
-        // Sync localStorage data to database
-        saveProfileToDb(parsedProfile);
-        
-        const isProfileComplete = parsedProfile.cookingSkill && 
-          parsedProfile.weeklyTime && 
-          parsedProfile.pantryIngredients.length > 0;
-        
-        if (isProfileComplete) {
-          setCurrentPhase('planning');
-        } else {
-          setCurrentPhase('profiling');
-        }
-      } catch (error) {
-        console.error('Error loading saved profile:', error);
-        setCurrentPhase('welcome');
-      }
-    } else {
-      setCurrentPhase('welcome');
-    }
+    // No database profile found - start fresh (clear any stale localStorage)
+    console.log('No database profile found, starting fresh');
+    localStorage.removeItem(`cookingProfile_${user.id}`);
+    setCurrentPhase('welcome');
     setIsLoadingProfile(false);
   }, [user?.id, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
 
