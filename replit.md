@@ -138,8 +138,14 @@ The application employs a full-stack architecture with distinct client and serve
 
 14. **Meal Planning Session Persistence**
     - Meal planning state (step, preferences, recommendations, selected meal) saved to localStorage
-    - "Welcome back" resume prompt when returning with saved progress
-    - Users can choose to continue where they left off or start fresh
+    - Auto-resumes where user left off without prompts
     - Sessions auto-expire after 24 hours
     - Robust validation prevents crashes from malformed/stale data
     - Session clears when user starts cooking
+
+15. **Cooking Session Persistence**
+    - Cooking state (current step, timer, recipe info) saved to localStorage
+    - Auto-resumes cooking session if user returns to same recipe within 4 hours
+    - Sessions for different recipes are preserved when switching
+    - Session clears on completion or when navigating back to planning
+    - Robust validation prevents crashes from malformed/stale data
