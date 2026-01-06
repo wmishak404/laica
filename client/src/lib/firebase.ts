@@ -148,12 +148,13 @@ export class FirebaseAuthService {
   }
 
   // Get ID token for backend authentication
-  static async getIdToken(): Promise<string | null> {
+  // forceRefresh: if true, forces a token refresh even if the current one hasn't expired
+  static async getIdToken(forceRefresh: boolean = false): Promise<string | null> {
     const user = auth.currentUser;
     if (!user) return null;
     
     try {
-      return await user.getIdToken();
+      return await user.getIdToken(forceRefresh);
     } catch (error) {
       console.error('Error getting ID token:', error);
       return null;

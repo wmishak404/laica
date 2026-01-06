@@ -12,13 +12,48 @@ interface UserProfile {
 }
 
 export function useAuth() {
-  const { data: user, isLoading } = useQuery<AuthenticatedUser>({
+  const { data: user, isLoading, error } = useQuery<AuthenticatedUser | null>({
     queryKey: ["/api/auth/user"],
     retry: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes - token is still valid
+    refetchOnMount: true,
+    queryFn: async () => {
+      // Get fresh Firebase token for each auth check
+      try {
+        const { FirebaseAuthService } = await import('@/lib/firebase');
+        const idToken = await FirebaseAuthService.getIdToken(true); // Force refresh
+        
+        if (!idToken) {
+          // No Firebase user - return null instead of throwing
+          return null;
+        }
+
+        const res = await fetch('/api/auth/user', {
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+          },
+        });
+
+        if (res.status === 401) {
+          // Server says unauthorized - return null, don't throw
+          // Firebase will handle re-authentication via onAuthStateChanged
+          return null;
+        }
+
+        if (!res.ok) {
+          throw new Error(`${res.status}: ${await res.text()}`);
+        }
+
+        return await res.json();
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        return null;
+      }
+    },
   });
 
   return {
-    user,
+    user: user ?? null,
     isLoading,
     isAuthenticated: !!user,
   };
