@@ -17,6 +17,17 @@ import { UsageTracker } from '@/lib/usageTracker';
 import { useStartCookingSession, useUpdateCookingSession, useCompleteCookingSession } from '@/hooks/useCookingSession';
 import { useToast } from '@/hooks/use-toast';
 
+const COOKING_SESSION_STORAGE_KEY = 'laica_cooking_session';
+
+interface SavedCookingSession {
+  recipeName: string;
+  recipeId: string;
+  currentStepIndex: number;
+  timer: number;
+  isTimerRunning: boolean;
+  savedAt: number;
+}
+
 interface RecipeStep {
   id: number;
   instruction: string;
@@ -93,6 +104,107 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
   const currentAudioRef = useRef<AudioBufferSourceNode | null>(null);
+  const sessionRestoredRef = useRef(false);
+  const initialMountRef = useRef(true);
+
+  // Validate and sanitize a saved cooking session
+  const validateCookingSession = (data: any): SavedCookingSession | null => {
+    try {
+      if (typeof data !== 'object' || data === null) return null;
+      if (typeof data.recipeName !== 'string') return null;
+      if (typeof data.recipeId !== 'string') return null;
+      if (typeof data.currentStepIndex !== 'number') return null;
+      if (typeof data.savedAt !== 'number') return null;
+      
+      return {
+        recipeName: data.recipeName,
+        recipeId: data.recipeId,
+        currentStepIndex: Math.max(0, data.currentStepIndex),
+        timer: typeof data.timer === 'number' ? Math.max(0, data.timer) : 0,
+        isTimerRunning: typeof data.isTimerRunning === 'boolean' ? data.isTimerRunning : false,
+        savedAt: data.savedAt
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  // Restore cooking session on mount if recipe matches
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(COOKING_SESSION_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const session = validateCookingSession(parsed);
+        
+        if (!session) {
+          // Only clear if truly invalid (malformed data)
+          localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+          return;
+        }
+        
+        // Only restore if session is for the same recipe and less than 4 hours old
+        const isRecent = Date.now() - session.savedAt < 4 * 60 * 60 * 1000;
+        const isSameRecipe = session.recipeName === selectedMeal.recipeName && session.recipeId === selectedMeal.id;
+        
+        if (isRecent && isSameRecipe) {
+          setCurrentStepIndex(session.currentStepIndex);
+          setTimer(session.timer);
+          setIsTimerRunning(session.isTimerRunning);
+          sessionRestoredRef.current = true;
+        } else if (!isRecent) {
+          // Only clear if session is stale (expired), not if it's a different recipe
+          // This preserves sessions for other recipes the user might return to
+          localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+        }
+        // If it's a different recipe but still recent, leave it intact
+        // It will be overwritten when user starts cooking this new recipe
+      }
+    } catch (error) {
+      console.error('Error loading saved cooking session:', error);
+      localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+    }
+  }, [selectedMeal.recipeName, selectedMeal.id]);
+
+  // Save cooking session whenever state changes
+  useEffect(() => {
+    // Skip initial mount to prevent overwriting saved sessions for other recipes
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      // Also skip if we just restored a session
+      if (sessionRestoredRef.current) {
+        sessionRestoredRef.current = false;
+      }
+      return;
+    }
+    
+    // Skip if we just restored a session (for subsequent renders)
+    if (sessionRestoredRef.current) {
+      sessionRestoredRef.current = false;
+      return;
+    }
+    
+    const session: SavedCookingSession = {
+      recipeName: selectedMeal.recipeName,
+      recipeId: selectedMeal.id,
+      currentStepIndex,
+      timer,
+      isTimerRunning,
+      savedAt: Date.now()
+    };
+    localStorage.setItem(COOKING_SESSION_STORAGE_KEY, JSON.stringify(session));
+  }, [currentStepIndex, timer, isTimerRunning, selectedMeal.recipeName, selectedMeal.id]);
+
+  // Clear cooking session when navigating back or completing
+  const clearCookingSession = () => {
+    localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+  };
+
+  // Handle back to planning - clear session first
+  const handleBackToPlanning = () => {
+    clearCookingSession();
+    onBackToPlanning();
+  };
 
   // Load recipe steps when component mounts
   // Detect mobile device and setup early AudioContext preparation
@@ -216,6 +328,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   };
 
   const completeCookingSession = async (rating?: number, notes?: string) => {
+    // Clear saved cooking session on completion
+    clearCookingSession();
+    
     if (cookingSessionId && cookingStartTime) {
       try {
         const duration = Math.floor((Date.now() - cookingStartTime.getTime()) / 1000 / 60); // in minutes
@@ -987,7 +1102,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       <div className="flex items-center justify-between mb-4 bg-black/50 p-4 rounded-lg">
         <Button 
           variant="ghost" 
-          onClick={onBackToPlanning}
+          onClick={handleBackToPlanning}
           className="text-white hover:bg-white/20"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
