@@ -107,16 +107,27 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     }
   };
 
-  const handleResetEquipment = () => {
+  const handleResetEquipment = async () => {
     if (window.confirm('Are you sure you want to reset your equipment list? This will remove all current equipment.')) {
-      setProfile(prev => ({
-        ...prev,
-        kitchenEquipment: []
-      }));
-      toast({
-        title: "Equipment Reset",
-        description: "Your equipment list has been cleared.",
-      });
+      try {
+        await updateProfileMutation.mutateAsync({ 
+          kitchenEquipment: [] 
+        });
+        setProfile(prev => ({
+          ...prev,
+          kitchenEquipment: []
+        }));
+        toast({
+          title: "Equipment Reset",
+          description: "Your equipment list has been cleared.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to reset equipment. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
