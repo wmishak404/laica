@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Clock, ChefHat, Users, Calendar, Plus, RotateCcw } from 'lucide-react';
+import { Clock, ChefHat, Users, Calendar, Plus } from 'lucide-react';
 import { fetchPantryRecipes } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
@@ -71,8 +71,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [newMeal, setNewMeal] = useState('');
-  const [showResumePrompt, setShowResumePrompt] = useState(false);
-  const [savedSession, setSavedSession] = useState<SavedMealPlanningSession | null>(null);
+  const [sessionRestored, setSessionRestored] = useState(false);
   const { toast } = useToast();
 
   // Validate and sanitize a saved session
@@ -118,7 +117,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
     }
   };
 
-  // Check for saved session on mount
+  // Auto-restore saved session on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem(MEAL_PLANNING_STORAGE_KEY);
@@ -132,13 +131,17 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
           return;
         }
         
-        // Only show resume prompt if session is less than 24 hours old and has meaningful progress
+        // Only restore if session is less than 24 hours old and has meaningful progress
         const isRecent = Date.now() - session.savedAt < 24 * 60 * 60 * 1000;
         const hasProgress = session.currentStep > 1 || session.recommendations.length > 0;
         
         if (isRecent && hasProgress) {
-          setSavedSession(session);
-          setShowResumePrompt(true);
+          // Auto-restore the session immediately
+          setCurrentStep(session.currentStep);
+          setMealPrefs(session.mealPrefs);
+          setRecommendations(session.recommendations);
+          setSelectedMeal(session.selectedMeal);
+          setSessionRestored(true);
         } else {
           // Clear old session
           localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
@@ -150,10 +153,13 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
     }
   }, []);
 
-  // Save session state whenever it changes (debounced)
+  // Save session state whenever it changes
   useEffect(() => {
-    // Don't save if showing resume prompt (haven't made a decision yet)
-    if (showResumePrompt) return;
+    // Skip saving during initial restore
+    if (sessionRestored) {
+      setSessionRestored(false);
+      return;
+    }
     
     // Only save if there's meaningful state to save
     const hasProgress = currentStep > 1 || mealPrefs.timeAvailable || recommendations.length > 0;
@@ -168,29 +174,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       };
       localStorage.setItem(MEAL_PLANNING_STORAGE_KEY, JSON.stringify(session));
     }
-  }, [currentStep, mealPrefs, recommendations, selectedMeal, showResumePrompt]);
-
-  // Resume saved session
-  const resumeSession = () => {
-    if (savedSession) {
-      setCurrentStep(savedSession.currentStep);
-      setMealPrefs(savedSession.mealPrefs);
-      setRecommendations(savedSession.recommendations);
-      setSelectedMeal(savedSession.selectedMeal);
-      setShowResumePrompt(false);
-      toast({
-        title: "Welcome back!",
-        description: "Continuing from where you left off.",
-      });
-    }
-  };
-
-  // Start fresh session
-  const startFresh = () => {
-    localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
-    setSavedSession(null);
-    setShowResumePrompt(false);
-  };
+  }, [currentStep, mealPrefs, recommendations, selectedMeal, sessionRestored]);
 
   // Clear saved session when cooking starts
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
@@ -722,57 +706,6 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
         return null;
     }
   };
-
-  // Show resume prompt if there's a saved session
-  if (showResumePrompt && savedSession) {
-    const getSessionDescription = () => {
-      if (savedSession.recommendations.length > 0) {
-        const recipeNames = savedSession.recommendations.slice(0, 2).map(r => r.recipeName).join(', ');
-        return savedSession.selectedMeal 
-          ? `You were looking at "${savedSession.selectedMeal.recipeName}"`
-          : `You had ${savedSession.recommendations.length} recipe suggestions including ${recipeNames}`;
-      }
-      if (savedSession.currentStep === 2) return "You were selecting cuisines";
-      if (savedSession.currentStep === 3) return "You were entering preferences";
-      return "You had started planning your meal";
-    };
-
-    return (
-      <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <RotateCcw className="h-5 w-5 text-[#FF6B6B]" />
-              Welcome back!
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-600">
-              {getSessionDescription()}
-            </p>
-            <p className="text-sm text-gray-500">
-              Would you like to continue where you left off, or start fresh?
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Button 
-                onClick={resumeSession}
-                className="flex-1 bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
-              >
-                Continue
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={startFresh}
-                className="flex-1"
-              >
-                Start Fresh
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50">
