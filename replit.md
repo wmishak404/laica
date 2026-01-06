@@ -123,8 +123,8 @@ The application employs a full-stack architecture with distinct client and serve
     - Preference persists across cooking steps and sessions via localStorage
 
 12. **Cross-Device Profile Sync**
-    - User profile (pantry, equipment, preferences) now saves to central PostgreSQL database
+    - User profile (pantry, equipment, preferences) saves to central PostgreSQL database
     - Data syncs across all devices (mobile, desktop, tablets) for the same user
-    - localStorage used as cache for offline access
-    - Database is single source of truth; localStorage falls back when DB is empty
-    - Automatic sync when localStorage data exists but DB is empty
+    - Database is the ONLY source of truth - no localStorage caching
+    - React Query provides in-memory caching for session performance
+    - Failed saves show user-friendly error toast notifications
