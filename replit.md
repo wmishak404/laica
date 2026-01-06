@@ -63,11 +63,11 @@ The application employs a full-stack architecture with distinct client and serve
 
 ## Version History
 
-### v1.0 - Kitchen & Settings Refactor (December 2025)
+### v0 - Initial Stable Release (January 2026)
 
-**Accepted Milestones:**
+**Core Features:**
 
-1. **Settings Page Tab Structure Refactor**
+1. **Settings Page Tab Structure**
    - Split "My Kitchen" tab into two separate tabs: "Pantry" and "Equipment"
    - Removed "Notifications" tab entirely
    - Final structure: Pantry | Equipment | Profile (3 tabs)
