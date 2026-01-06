@@ -10,26 +10,28 @@ import { spawn } from 'child_process';
 import { readFileSync } from 'fs';
 
 const COMMANDS = {
-  unit: 'npx vitest',
-  'unit:ui': 'npx vitest --ui',
-  'unit:coverage': 'npx vitest --coverage',
-  e2e: 'npx playwright test',
-  'e2e:ui': 'npx playwright test --ui',
-  'e2e:headed': 'npx playwright test --headed',
-  all: 'npm run test:unit && npm run test:e2e'
+  unit: ['npx', ['vitest']],
+  'unit:ui': ['npx', ['vitest', '--ui']],
+  'unit:coverage': ['npx', ['vitest', '--coverage']],
+  e2e: ['npx', ['playwright', 'test']],
+  'e2e:ui': ['npx', ['playwright', 'test', '--ui']],
+  'e2e:headed': ['npx', ['playwright', 'test', '--headed']],
+  all: [
+    ['npx', ['vitest']],
+    ['npx', ['playwright', 'test']]
+  ]
 };
 
-function runCommand(command) {
+function runCommand([cmd, args]) {
   return new Promise((resolve, reject) => {
-    console.log(`\n🧪 Running: ${command}\n`);
+    console.log(`\n🧪 Running: ${cmd} ${args.join(' ')}\n`);
     
-    const [cmd, ...args] = command.split(' ');
-    const process = spawn(cmd, args, { 
+    const proc = spawn(cmd, args, { 
       stdio: 'inherit',
-      shell: true 
+      shell: false 
     });
     
-    process.on('close', (code) => {
+    proc.on('close', (code) => {
       if (code === 0) {
         resolve();
       } else {
@@ -63,7 +65,14 @@ Example: node test-runner.js e2e
   }
   
   try {
-    await runCommand(COMMANDS[testType]);
+    const commands = COMMANDS[testType];
+    if (testType === 'all') {
+      for (const command of commands) {
+        await runCommand(command);
+      }
+    } else {
+      await runCommand(commands);
+    }
     console.log(`\n✅ Tests completed successfully!\n`);
   } catch (error) {
     console.error(`\n❌ Tests failed: ${error.message}\n`);
