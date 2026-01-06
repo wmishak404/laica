@@ -128,3 +128,10 @@ The application employs a full-stack architecture with distinct client and serve
     - Database is the ONLY source of truth - no localStorage caching
     - React Query provides in-memory caching for session performance
     - Failed saves show user-friendly error toast notifications
+
+13. **Stateless Firebase Authentication**
+    - Authentication now fully relies on Firebase ID tokens (stateless)
+    - No server-side session storage required - survives server restarts
+    - Tokens are automatically refreshed before each auth check
+    - 401 responses handled gracefully without throwing errors
+    - Firebase's onAuthStateChanged is the source of truth for auth state
