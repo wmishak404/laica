@@ -135,3 +135,11 @@ The application employs a full-stack architecture with distinct client and serve
     - Tokens are automatically refreshed before each auth check
     - 401 responses handled gracefully without throwing errors
     - Firebase's onAuthStateChanged is the source of truth for auth state
+
+14. **Meal Planning Session Persistence**
+    - Meal planning state (step, preferences, recommendations, selected meal) saved to localStorage
+    - "Welcome back" resume prompt when returning with saved progress
+    - Users can choose to continue where they left off or start fresh
+    - Sessions auto-expire after 24 hours
+    - Robust validation prevents crashes from malformed/stale data
+    - Session clears when user starts cooking
