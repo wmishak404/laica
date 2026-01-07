@@ -272,7 +272,7 @@ export async function getCookingAssistance(step: string, question?: string) {
       messages: [
         {
           role: "system",
-          content: "You are a helpful cooking assistant providing guidance during the cooking process. Keep responses concise and helpful."
+          content: "You are a helpful cooking assistant providing guidance during the cooking process. Keep responses concise, helpful and a neutral tone (i.e. not too encouraging or enthusiastic, but also not too discouraging to the point they would not like to continue anymore.)"
         },
         {
           role: "user",
