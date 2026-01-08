@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Settings, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle, Pin, PinOff } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle, Pin, PinOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -73,7 +73,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
   const [isLoadingSteps, setIsLoadingSteps] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -1114,119 +1113,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           <p className="text-sm text-gray-300">Live Cooking Assistant</p>
         </div>
 
-        <Button 
-          variant="ghost" 
-          onClick={() => setShowSettings(!showSettings)}
-          className="text-white hover:bg-white/20"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
+        {/* Spacer to balance the header layout */}
+        <div className="w-[40px]"></div>
       </div>
-
-      {/* Settings Panel */}
-      {showSettings && (
-        <Card className="mb-4 bg-black/70 border-gray-600">
-          <CardHeader>
-            <CardTitle className="text-white">Voice Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-white">Audio Guidance</Label>
-              <Switch
-                checked={isAudioEnabled}
-                onCheckedChange={setIsAudioEnabled}
-              />
-            </div>
-
-            {isAudioEnabled && (
-              <>
-                <div className="flex items-center justify-between">
-                  <Label className="text-white">High-Quality Voice</Label>
-                  <Switch
-                    checked={useElevenLabs}
-                    onCheckedChange={setUseElevenLabs}
-                  />
-                </div>
-                
-                {useElevenLabs && (
-                  <div className="space-y-3 border border-gray-600 p-3 rounded-lg">
-                    <div className="space-y-2">
-                      <Label className="text-white text-sm">Voice Stability: {(voiceSettings.stability || 0.6).toFixed(1)}</Label>
-                      <Slider
-                        value={[voiceSettings.stability || 0.6]}
-                        onValueChange={([value]) => setVoiceSettings(prev => ({ ...prev, stability: value }))}
-                        min={0}
-                        max={1}
-                        step={0.1}
-                        className="w-full"
-                      />
-                      <div className="text-xs text-gray-400">More stable = less expressive</div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-white text-sm">Voice Clarity: {(voiceSettings.similarityBoost || 0.7).toFixed(1)}</Label>
-                      <Slider
-                        value={[voiceSettings.similarityBoost || 0.7]}
-                        onValueChange={([value]) => setVoiceSettings(prev => ({ ...prev, similarityBoost: value }))}
-                        min={0}
-                        max={1}
-                        step={0.1}
-                        className="w-full"
-                      />
-                      <div className="text-xs text-gray-400">Higher = clearer pronunciation</div>
-                    </div>
-
-                    {isSpeaking && (
-                      <div className="flex items-center justify-center text-white text-sm">
-                        <div className="animate-pulse">🎤 Speaking...</div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-            
-            <div className="space-y-2">
-              <Label className="text-white">Caption Size: {captionSize}px</Label>
-              <Slider
-                value={[captionSize]}
-                onValueChange={(value) => setCaptionSize(value[0])}
-                min={12}
-                max={24}
-                step={2}
-                className="w-full"
-              />
-            </div>
-            
-            {/* Usage Statistics */}
-            <div className="space-y-2">
-              <Label className="text-white">Voice Usage Statistics</Label>
-              <div className="bg-gray-800 p-3 rounded-lg space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-300">Today:</span>
-                  <span className="text-white">{usageStats.dailyUsage.toFixed(1)} / 10.0 min</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-300">This Week:</span>
-                  <span className="text-white">{usageStats.weeklyUsage.toFixed(1)} / 50.0 min</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-300">This Month:</span>
-                  <span className="text-white">{usageStats.monthlyUsage.toFixed(1)} / 200.0 min</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-300">Total Cost:</span>
-                  <span className="text-white">${usageStats.totalCost.toFixed(4)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-300">Total Questions:</span>
-                  <span className="text-white">{usageStats.totalTranscriptions}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Main Content Area - Centered Step Information */}
       <div className="flex justify-center mb-4">
