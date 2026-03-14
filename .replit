@@ -37,3 +37,8 @@ args = "npm run dev"
 waitForPort = 5000
 
 [agent]
+
+[userenv]
+
+[userenv.shared]
+ADMIN_SECRET = "laica-eval-2026"

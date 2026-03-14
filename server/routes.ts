@@ -1,5 +1,6 @@
 import type { Express, RequestHandler } from "express";
 import { createServer, type Server } from "http";
+import { registerAdminRoutes } from "./admin-routes";
 import { storage } from "./storage";
 import { verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
@@ -577,6 +578,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to submit feedback" });
     }
   });
+
+  registerAdminRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -1,17 +1,27 @@
 import OpenAI from "openai";
 import { compositions } from "./prompts/composer";
+import { getActivePrompt } from "./prompt-manager";
+import { db } from "./db";
+import { aiInteractions } from "@shared/schema";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 
-export async function getRecipeSuggestions(preferences: string, ingredients?: string[]) {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: `You are a pantry-first culinary expert that helps people use ingredients they already have at home.  You prioritize using what's in their kitchen rather than suggesting recipes that require many additional ingredients.
+// ─────────────────────────────────────────────────────────────────────────────
+// Interaction logger — fire-and-forget, never blocks the user response.
+// ─────────────────────────────────────────────────────────────────────────────
+function logInteraction(featureType: string, inputData: object, outputData: string): void {
+  db.insert(aiInteractions)
+    .values({ featureType, inputData, outputData, evalStatus: 'pending' })
+    .catch(err => console.error(`[eval-log] Failed to log ${featureType} interaction:`, err));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Default system prompts — used when no active DB version exists for a feature.
+// These are the source of truth until an eval session produces an improved version.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DEFAULT_RECIPE_SUGGESTIONS_PROMPT = `You are a pantry-first culinary expert that helps people use ingredients they already have at home.  You prioritize using what's in their kitchen rather than suggesting recipes that require many additional ingredients.
 
 # Information
 
@@ -104,33 +114,9 @@ Each recipe should include:
 
 1. Keep this minimal and only include when its brings a great addition to the dish, but not absolutely necessary.
 2. Do not recommend the recipe as a whole at all if these ingredients are absolutely essential to the dish and recommend another. (For example, do not recommend Chicken Parmiggiana if chicken or tomatoes are not part of the pantry). If the ingredient is a good addition but not necessary, keep recommending this recipe.
-3. Exclude pantry essentials like salt and black pepper if its not captured from the user's input.`
-        },
-        {
-          role: "user",
-          content: `I have these ingredients in my pantry: ${ingredients ? ingredients.join(", ") : "basic staples only"}.
-          My preferences: ${preferences}.
-          Please suggest 3 meal ideas I can make primarily with what I already have.`
-        }
-      ],
-      response_format: { type: "json_object" }
-    });
+3. Exclude pantry essentials like salt and black pepper if its not captured from the user's input.`;
 
-    return JSON.parse(response.choices[0].message.content || "{}");
-  } catch (error) {
-    console.error("Error getting recipe suggestions:", error);
-    throw new Error("Failed to get recipe suggestions");
-  }
-}
-
-export async function getCookingSteps(recipeName: string, ingredients?: string[]) {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: `You are a home-cooking expert that provides realistic step-by-step instructions for everyday cooks.
+const DEFAULT_COOKING_STEPS_PROMPT = `You are a home-cooking expert that provides realistic step-by-step instructions for everyday cooks.
           You focus on practical tips for home kitchens (not professional techniques).
           
           Return JSON in this format:
@@ -158,13 +144,54 @@ export async function getCookingSteps(recipeName: string, ingredients?: string[]
             "variations": [
               "Simple variations using pantry substitutes"
             ]
-          }`
+          }`;
+
+const DEFAULT_COOKING_ASSISTANCE_PROMPT = `You are a helpful cooking assistant providing guidance during the cooking process. Keep responses concise, helpful and a neutral tone (i.e. not too encouraging or enthusiastic, but also not too discouraging to the point they would not like to continue anymore.)`;
+
+export async function getRecipeSuggestions(preferences: string, ingredients?: string[]) {
+  try {
+    const systemPrompt = await getActivePrompt('recipe_suggestions') || DEFAULT_RECIPE_SUGGESTIONS_PROMPT;
+    const inputData = { preferences, ingredients: ingredients || [] };
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
         },
         {
           role: "user",
-          content: `I want to cook ${recipeName}${ingredients && ingredients.length > 0 ? 
-            ` with these main ingredients: ${ingredients.join(", ")}` : 
-            ""}.
+          content: `I have these ingredients in my pantry: ${ingredients ? ingredients.join(", ") : "basic staples only"}.
+          My preferences: ${preferences}.
+          Please suggest 3 meal ideas I can make primarily with what I already have.`
+        }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    logInteraction('recipe_suggestions', inputData, JSON.stringify(result));
+    return result;
+  } catch (error) {
+    console.error("Error getting recipe suggestions:", error);
+    throw new Error("Failed to get recipe suggestions");
+  }
+}
+
+export async function getCookingSteps(recipeName: string, ingredients?: string[]) {
+  try {
+    const systemPrompt = await getActivePrompt('cooking_steps') || DEFAULT_COOKING_STEPS_PROMPT;
+    const inputData = { recipeName, ingredients: ingredients || [] };
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: `I want to cook ${recipeName}${ingredients && ingredients.length > 0 ?
+            ` with these main ingredients: ${ingredients.join(", ")}` : ""}.
             
             Please provide detailed home cooking instructions with visual cues I can look for at each step.
             Focus on practical techniques for a home kitchen, not professional chef methods.`
@@ -173,7 +200,9 @@ export async function getCookingSteps(recipeName: string, ingredients?: string[]
       response_format: { type: "json_object" }
     });
 
-    return JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    logInteraction('cooking_steps', inputData, JSON.stringify(result));
+    return result;
   } catch (error) {
     console.error("Error getting cooking steps:", error);
     throw new Error("Failed to get cooking steps");
@@ -262,26 +291,23 @@ export async function getIngredientAlternatives(ingredient: string, reason: stri
 
 export async function getCookingAssistance(step: string, question?: string) {
   try {
-    let content = `Provide cooking assistance for this step: ${step}`;
-    if (question) {
-      content += ` The user asked: ${question}`;
-    }
+    const systemPrompt = await getActivePrompt('cooking_assistance') || DEFAULT_COOKING_ASSISTANCE_PROMPT;
+    const userContent = question
+      ? `Provide cooking assistance for this step: ${step} The user asked: ${question}`
+      : `Provide cooking assistance for this step: ${step}`;
+    const inputData = { step, question: question || null };
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        {
-          role: "system",
-          content: "You are a helpful cooking assistant providing guidance during the cooking process. Keep responses concise, helpful and a neutral tone (i.e. not too encouraging or enthusiastic, but also not too discouraging to the point they would not like to continue anymore.)"
-        },
-        {
-          role: "user",
-          content
-        }
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userContent }
       ]
     });
 
-    return response.choices[0].message.content || "";
+    const result = response.choices[0].message.content || "";
+    logInteraction('cooking_assistance', inputData, result);
+    return result;
   } catch (error) {
     console.error("Error getting cooking assistance:", error);
     throw new Error("Failed to get cooking assistance");

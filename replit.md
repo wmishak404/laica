@@ -29,6 +29,15 @@ The application employs a full-stack architecture with distinct client and serve
 - **Authentication**: Firebase Authentication (Google Sign-in only).
 - **Session Management**: Handled by Firebase.
 
+### Evaluation Framework
+- **AI Interaction Logging**: Every call to `getRecipeSuggestions`, `getCookingSteps`, and `getCookingAssistance` is logged async to the `ai_interactions` table with full input context and output.
+- **Batch Evaluation**: Evaluations are submitted weekly (manually) as OpenAI Batch API jobs using o4-mini as the judge model (50% cost discount vs real-time).
+- **Prompt Versioning**: `prompt_versions` table stores all prompt versions per feature. Active version is loaded at request time with 5-minute in-memory cache. Falls back to hardcoded defaults if no DB version exists.
+- **Eval Criteria**: Defined in `server/eval-criteria.ts` — edit this file to add/update error modes without touching evaluator logic.
+- **Manual Session Workflow**: Triggered by saying "run eval session". No automatic prompt updates — all changes require explicit approval.
+- **Admin Endpoints**: Protected by `ADMIN_SECRET` env var via `X-Admin-Secret` header. Registered in `server/admin-routes.ts`.
+- **Key Files**: `server/eval-criteria.ts`, `server/evaluator.ts`, `server/prompt-manager.ts`, `server/admin-routes.ts`
+
 ### Key Components & Features
 - **User Profiling**: Captures cooking skill, dietary needs, time availability, pantry ingredients, and kitchen equipment.
 - **Meal Planning**: Provides AI-suggested recipes tailored to user profiles and pantry contents.

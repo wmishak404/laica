@@ -131,6 +131,36 @@ export const feedback = pgTable("feedback", {
   submittedAt: timestamp("submitted_at").defaultNow(),
 });
 
+// AI interaction logging for evaluation framework
+export const aiInteractions = pgTable("ai_interactions", {
+  id: serial("id").primaryKey(),
+  featureType: varchar("feature_type").notNull(), // 'recipe_suggestions' | 'cooking_assistance' | 'cooking_steps'
+  inputData: jsonb("input_data").notNull(),
+  outputData: text("output_data").notNull(),
+  authUserId: varchar("auth_user_id"),
+  promptVersionId: integer("prompt_version_id"),
+  batchJobId: varchar("batch_job_id"),
+  evalStatus: varchar("eval_status").default('pending'), // 'pending' | 'batched' | 'completed'
+  evalPassed: boolean("eval_passed"),
+  evalScore: integer("eval_score"),
+  evalErrorModes: text("eval_error_modes").array(),
+  evalReasoning: text("eval_reasoning"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Prompt version history for self-improving prompts
+export const promptVersions = pgTable("prompt_versions", {
+  id: serial("id").primaryKey(),
+  featureType: varchar("feature_type").notNull(), // 'recipe_suggestions' | 'cooking_assistance' | 'cooking_steps'
+  systemPrompt: text("system_prompt").notNull(),
+  isActive: boolean("is_active").default(false),
+  versionNote: text("version_note"),
+  realExamplesUsed: jsonb("real_examples_used"),
+  totalEvaluated: integer("total_evaluated").default(0),
+  activatedAt: timestamp("activated_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   groceryLists: many(groceryLists),
@@ -308,3 +338,24 @@ export const insertFeedbackSchema = createInsertSchema(feedback).pick({
 
 export type Feedback = typeof feedback.$inferSelect;
 export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+
+export const insertAiInteractionSchema = createInsertSchema(aiInteractions).pick({
+  featureType: true,
+  inputData: true,
+  outputData: true,
+  authUserId: true,
+  promptVersionId: true,
+});
+
+export const insertPromptVersionSchema = createInsertSchema(promptVersions).pick({
+  featureType: true,
+  systemPrompt: true,
+  isActive: true,
+  versionNote: true,
+  realExamplesUsed: true,
+});
+
+export type AiInteraction = typeof aiInteractions.$inferSelect;
+export type InsertAiInteraction = z.infer<typeof insertAiInteractionSchema>;
+export type PromptVersion = typeof promptVersions.$inferSelect;
+export type InsertPromptVersion = z.infer<typeof insertPromptVersionSchema>;
