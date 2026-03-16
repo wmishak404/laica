@@ -296,11 +296,23 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   }, [selectedMeal.recipeName]);
 
   // Cooking session management functions
-  const startCookingSession = async (totalSteps: number) => {
+  const startCookingSession = async (totalSteps: number, steps?: any[]) => {
     try {
+      const recipeSnapshot = {
+        recipeName: selectedMeal.recipeName,
+        description: selectedMeal.description,
+        cookTime: selectedMeal.cookTime,
+        difficulty: selectedMeal.difficulty,
+        cuisine: selectedMeal.cuisine,
+        pantryMatch: selectedMeal.pantryMatch,
+        missingIngredients: selectedMeal.missingIngredients || [],
+        isFusion: (selectedMeal as any).isFusion || false,
+        steps: steps || [],
+      };
       const sessionData = {
         recipeName: selectedMeal.recipeName,
         recipeDescription: selectedMeal.description,
+        recipeSnapshot,
         ingredientsUsed: selectedMeal.missingIngredients || [],
         totalSteps,
       };
@@ -358,7 +370,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   // Start cooking session when steps are loaded
   useEffect(() => {
     if (loadedRecipeSteps.length > 0 && !cookingSessionId) {
-      startCookingSession(loadedRecipeSteps.length);
+      startCookingSession(loadedRecipeSteps.length, loadedRecipeSteps);
     }
   }, [loadedRecipeSteps, cookingSessionId]);
 

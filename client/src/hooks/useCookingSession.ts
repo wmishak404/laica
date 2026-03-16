@@ -5,6 +5,7 @@ import type { CookingSession } from "@shared/schema";
 interface StartSessionData {
   recipeName: string;
   recipeDescription?: string;
+  recipeSnapshot?: any;
   ingredientsUsed: string[];
   totalSteps: number;
 }
@@ -96,6 +97,42 @@ export function useCompleteCookingSession() {
       queryClient.invalidateQueries({ queryKey: ["/api/cooking/session/active"] });
       queryClient.invalidateQueries({ queryKey: ["/api/cooking/sessions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+    },
+  });
+}
+
+export function useDeleteCookingSession() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (sessionId: number) => {
+      const response = await fetch(`/api/cooking/session/${sessionId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete cooking session');
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/cooking/sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/cooking/session/active"] });
+    },
+  });
+}
+
+export function useDeleteAllCookingSessions() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/cooking/sessions/all', {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete all cooking sessions');
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/cooking/sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/cooking/session/active"] });
     },
   });
 }

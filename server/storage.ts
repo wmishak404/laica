@@ -14,7 +14,7 @@ import {
   type UpdateUserProfile,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -33,6 +33,8 @@ export interface IStorage {
   updateCookingSession(id: number, session: Partial<CookingSession>): Promise<CookingSession>;
   getUserCookingSessions(userId: string, limit?: number): Promise<CookingSession[]>;
   getActiveCookingSession(userId: string): Promise<CookingSession | undefined>;
+  deleteCookingSession(id: number, userId: string): Promise<boolean>;
+  deleteAllCookingSessions(userId: string): Promise<number>;
   
   // Local authentication operations
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -156,6 +158,22 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(cookingSessions.startedAt))
       .limit(1);
     return session?.completed === false ? session : undefined;
+  }
+
+  async deleteCookingSession(id: number, userId: string): Promise<boolean> {
+    const result = await db
+      .delete(cookingSessions)
+      .where(and(eq(cookingSessions.id, id), eq(cookingSessions.authUserId, userId)))
+      .returning();
+    return result.length > 0;
+  }
+
+  async deleteAllCookingSessions(userId: string): Promise<number> {
+    const result = await db
+      .delete(cookingSessions)
+      .where(eq(cookingSessions.authUserId, userId))
+      .returning();
+    return result.length;
   }
 
   // Local authentication operations

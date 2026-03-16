@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,13 +11,19 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Skeleton } from '@/components/ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useResetPantry, useUpdateUserProfile } from '@/hooks/useAuth';
+import { useDeleteCookingSession, useDeleteAllCookingSessions } from '@/hooks/useCookingSession';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
-import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload } from 'lucide-react';
+import { ToastAction } from '@/components/ui/toast';
+import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload, Clock, MoreVertical, History } from 'lucide-react';
 import { analyzeImage } from '@/lib/openai';
+import type { CookingSession } from '@shared/schema';
 
 interface UserProfile {
   cookingSkill: string;
@@ -31,6 +38,265 @@ interface UserSettingsProps {
   userProfile: UserProfile;
   onProfileUpdate: (profile: UserProfile) => void;
   onBackToPlanning: () => void;
+}
+
+function HistoryTab() {
+  const { toast } = useToast();
+  const { data: sessions, isLoading } = useQuery<CookingSession[]>({
+    queryKey: ['/api/cooking/sessions'],
+  });
+  const deleteSessionMutation = useDeleteCookingSession();
+  const deleteAllMutation = useDeleteAllCookingSessions();
+
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+  const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
+  const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const deleteTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleDelete = useCallback((sessionId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (expandedId === sessionId) setExpandedId(null);
+    if (deleteTimerRef.current) {
+      clearTimeout(deleteTimerRef.current);
+      if (pendingDeleteId !== null) {
+        deleteSessionMutation.mutate(pendingDeleteId);
+      }
+    }
+    setPendingDeleteId(sessionId);
+    setHiddenIds(prev => new Set(prev).add(sessionId));
+
+    deleteTimerRef.current = setTimeout(() => {
+      deleteSessionMutation.mutate(sessionId);
+      setPendingDeleteId(null);
+      setHiddenIds(prev => {
+        const next = new Set(prev);
+        next.delete(sessionId);
+        return next;
+      });
+      deleteTimerRef.current = null;
+    }, 5000);
+
+    toast({
+      title: "Recipe removed",
+      duration: 5000,
+      action: (
+        <ToastAction
+          altText="Undo delete"
+          onClick={() => {
+            if (deleteTimerRef.current) {
+              clearTimeout(deleteTimerRef.current);
+              deleteTimerRef.current = null;
+            }
+            setPendingDeleteId(null);
+            setHiddenIds(prev => {
+              const next = new Set(prev);
+              next.delete(sessionId);
+              return next;
+            });
+          }}
+        >
+          Undo
+        </ToastAction>
+      ),
+    });
+  }, [expandedId, pendingDeleteId, deleteSessionMutation, toast]);
+
+  const handleDeleteAll = () => {
+    setShowDeleteAllDialog(false);
+    deleteAllMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast({ title: "All history deleted" });
+      },
+      onError: () => {
+        toast({ title: "Failed to delete history", variant: "destructive" });
+      },
+    });
+  };
+
+  const formatDate = (dateStr: string | Date | null) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) +
+      ' at ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const visibleSessions = sessions?.filter(s => !hiddenIds.has(s.id)) || [];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map(i => (
+          <Card key={i}>
+            <CardContent className="p-4 space-y-3">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex items-center justify-between mb-2">
+        <CardTitle className="text-lg">Cooking History</CardTitle>
+        {visibleSessions.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-600"
+                onClick={() => setShowDeleteAllDialog(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete All History
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+
+      {visibleSessions.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <History className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+            <p className="text-gray-500">No cooking history yet.</p>
+            <p className="text-sm text-gray-400 mt-1">Your past recipes will appear here after you start cooking.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {visibleSessions.map((session) => {
+            const snapshot = session.recipeSnapshot as any;
+            const isExpanded = expandedId === session.id;
+            return (
+              <Card
+                key={session.id}
+                className="cursor-pointer transition-all hover:shadow-md"
+                onClick={() => setExpandedId(isExpanded ? null : session.id)}
+              >
+                <CardContent className="p-4">
+                  <div className={isExpanded ? 'sticky top-0 bg-white z-10 pb-3 border-b mb-3' : ''}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-lg">{session.recipeName}</h3>
+                        <p className="text-xs text-gray-400 mt-1">{formatDate(session.startedAt)}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-red-500 shrink-0 ml-2"
+                        onClick={(e) => handleDelete(session.id, e)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {(snapshot?.description || session.recipeDescription) && (
+                      <p className="text-gray-600 text-sm mt-2">{snapshot?.description || session.recipeDescription}</p>
+                    )}
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mt-2 flex-wrap">
+                      {snapshot?.cookTime && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          {snapshot.cookTime} min
+                        </span>
+                      )}
+                      {snapshot?.difficulty && <span>{snapshot.difficulty}</span>}
+                      {snapshot?.cuisine && snapshot.cuisine !== 'International' && (
+                        <span>{snapshot.cuisine}</span>
+                      )}
+                      {snapshot?.isFusion && (
+                        <Badge className="bg-[#FFB347] text-white text-xs px-2 py-1">
+                          Fusion
+                        </Badge>
+                      )}
+                    </div>
+                    {snapshot?.missingIngredients?.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500">Needed to get:</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {snapshot.missingIngredients.map((ingredient: string) => (
+                            <Badge key={ingredient} variant="outline" className="text-xs">
+                              {ingredient}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {isExpanded && (
+                    <div className="space-y-4 mt-3">
+                      {session.ingredientsUsed && session.ingredientsUsed.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-sm mb-2">Ingredients Used</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {session.ingredientsUsed.map((ing, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs">{ing}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {snapshot?.steps?.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-sm mb-2">Recipe Steps</h4>
+                          <ol className="space-y-3">
+                            {snapshot.steps.map((step: any, idx: number) => (
+                              <li key={idx} className="flex gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FF6B6B] text-white text-xs flex items-center justify-center font-medium">
+                                  {idx + 1}
+                                </span>
+                                <div className="flex-1">
+                                  <p className="text-sm">{step.instruction}</p>
+                                  {step.tips && (
+                                    <p className="text-xs text-gray-400 mt-1">Tip: {step.tips}</p>
+                                  )}
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+                      {(!snapshot?.steps || snapshot.steps.length === 0) && (!session.ingredientsUsed || session.ingredientsUsed.length === 0) && (
+                        <p className="text-sm text-gray-400 text-center py-2">No detailed recipe data available for this session.</p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      <AlertDialog open={showDeleteAllDialog} onOpenChange={setShowDeleteAllDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete all cooking history?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove all {visibleSessions.length} cooking session{visibleSessions.length !== 1 ? 's' : ''} from your history. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAll}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 }
 
 export default function UserSettings({ userProfile, onProfileUpdate, onBackToPlanning }: UserSettingsProps) {
@@ -585,7 +851,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       </div>
 
       <Tabs defaultValue="pantry" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="pantry" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             Pantry
@@ -597,6 +863,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            History
           </TabsTrigger>
         </TabsList>
 
@@ -913,6 +1183,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-4">
+          <HistoryTab />
         </TabsContent>
       </Tabs>
 

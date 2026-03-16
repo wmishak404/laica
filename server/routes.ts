@@ -410,6 +410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const schema = z.object({
         recipeName: z.string(),
         recipeDescription: z.string().optional(),
+        recipeSnapshot: z.any().optional(),
         ingredientsUsed: z.array(z.string()),
         totalSteps: z.number(),
       });
@@ -493,7 +494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const limit = parseInt(req.query.limit as string) || 200;
       
       const sessions = await storage.getUserCookingSessions(userId, limit);
       res.json(sessions);
@@ -513,6 +514,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching active cooking session:", error);
       res.status(500).json({ message: "Failed to fetch active cooking session" });
+    }
+  });
+
+  // Delete a single cooking session (ownership-verified)
+  app.delete('/api/cooking/session/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
+      
+      const deleted = await storage.deleteCookingSession(sessionId, userId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Session not found or not owned by user" });
+      }
+      res.json({ message: "Session deleted" });
+    } catch (error) {
+      console.error("Error deleting cooking session:", error);
+      res.status(500).json({ message: "Failed to delete cooking session" });
+    }
+  });
+
+  // Delete all cooking sessions for the authenticated user
+  app.delete('/api/cooking/sessions/all', isAuthenticated, async (req: any, res) => {
+    try {
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
+      
+      const count = await storage.deleteAllCookingSessions(userId);
+      res.json({ message: `Deleted ${count} sessions`, count });
+    } catch (error) {
+      console.error("Error deleting all cooking sessions:", error);
+      res.status(500).json({ message: "Failed to delete cooking sessions" });
     }
   });
 

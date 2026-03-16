@@ -158,3 +158,16 @@ The application employs a full-stack architecture with distinct client and serve
     - Sessions for different recipes are preserved when switching
     - Session clears on completion or when navigating back to planning
     - Robust validation prevents crashes from malformed/stale data
+
+16. **Cooking History Tab**
+    - Fourth tab in Kitchen & Settings (Pantry | Equipment | Profile | History)
+    - Shows chronological list (newest first) of all past cooking sessions
+    - Sessions recorded at recipe selection time, not just on completion
+    - `recipeSnapshot` JSONB column stores full recipe details (cookTime, difficulty, cuisine, isFusion, missingIngredients, steps) at session start
+    - Cards match the recipe selection UI (same style, badges, layout)
+    - Click to expand: shows ingredients and numbered steps with sticky title header
+    - Date/time displayed on each collapsed card
+    - Single delete with 5-second undo toast before permanent removal
+    - "Delete All History" via three-dot menu with confirmation dialog
+    - All deletes are hard deletes from the database, user-ownership verified on backend
+    - Data strictly filtered by authenticated user — no cross-user data access

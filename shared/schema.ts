@@ -93,6 +93,7 @@ export const cookingSessions = pgTable("cooking_sessions", {
   authUserId: varchar("auth_user_id").notNull(),
   recipeName: text("recipe_name").notNull(),
   recipeDescription: text("recipe_description"),
+  recipeSnapshot: jsonb("recipe_snapshot"),
   ingredientsUsed: text("ingredients_used").array(),
   ingredientsRemaining: text("ingredients_remaining").array(),
   cookingDuration: integer("cooking_duration"), // in minutes
@@ -273,6 +274,7 @@ export const insertCookingSessionSchema = createInsertSchema(cookingSessions).pi
   authUserId: true,
   recipeName: true,
   recipeDescription: true,
+  recipeSnapshot: true,
   ingredientsUsed: true,
   ingredientsRemaining: true,
   cookingDuration: true,
