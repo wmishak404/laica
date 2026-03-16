@@ -419,7 +419,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         steps: z.array(z.object({
           id: z.number().optional(),
           instruction: z.string(),
-          duration: z.string().optional(),
+          duration: z.union([z.string(), z.number()]).optional(),
           tips: z.string().optional(),
           visualCues: z.string().optional(),
           commonMistakes: z.string().optional(),

@@ -14,7 +14,7 @@ interface RecipeSnapshotData {
   steps: Array<{
     id?: number;
     instruction: string;
-    duration?: string;
+    duration?: string | number;
     tips?: string;
     visualCues?: string;
     commonMistakes?: string;

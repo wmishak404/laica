@@ -50,24 +50,24 @@ function HistoryTab() {
   const deleteAllMutation = useDeleteAllCookingSessions();
 
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
-  const deleteTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const deleteTimersRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
   const handleDelete = useCallback((sessionId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (expandedId === sessionId) setExpandedId(null);
-    if (deleteTimerRef.current) {
-      clearTimeout(deleteTimerRef.current);
-      if (pendingDeleteId !== null) {
-        deleteSessionMutation.mutate(pendingDeleteId);
-      }
+
+    const existingTimer = deleteTimersRef.current.get(sessionId);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+      deleteTimersRef.current.delete(sessionId);
     }
-    setPendingDeleteId(sessionId);
+
     setHiddenIds(prev => new Set(prev).add(sessionId));
 
-    deleteTimerRef.current = setTimeout(() => {
+    const timer = setTimeout(() => {
+      deleteTimersRef.current.delete(sessionId);
       deleteSessionMutation.mutate(sessionId, {
         onError: () => {
           setHiddenIds(prev => {
@@ -78,9 +78,8 @@ function HistoryTab() {
           toast({ title: "Failed to delete", variant: "destructive" });
         },
       });
-      setPendingDeleteId(null);
-      deleteTimerRef.current = null;
     }, 5000);
+    deleteTimersRef.current.set(sessionId, timer);
 
     toast({
       title: "Recipe removed",
@@ -89,11 +88,11 @@ function HistoryTab() {
         <ToastAction
           altText="Undo delete"
           onClick={() => {
-            if (deleteTimerRef.current) {
-              clearTimeout(deleteTimerRef.current);
-              deleteTimerRef.current = null;
+            const t = deleteTimersRef.current.get(sessionId);
+            if (t) {
+              clearTimeout(t);
+              deleteTimersRef.current.delete(sessionId);
             }
-            setPendingDeleteId(null);
             setHiddenIds(prev => {
               const next = new Set(prev);
               next.delete(sessionId);
@@ -105,7 +104,7 @@ function HistoryTab() {
         </ToastAction>
       ),
     });
-  }, [expandedId, pendingDeleteId, deleteSessionMutation, toast]);
+  }, [expandedId, deleteSessionMutation, toast]);
 
   const handleDeleteAll = () => {
     setShowDeleteAllDialog(false);
@@ -225,7 +224,7 @@ function HistoryTab() {
                     </div>
                     {snapshot?.missingIngredients?.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-xs text-gray-500">Needed to get:</p>
+                        <p className="text-xs text-gray-500">Need to get:</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {snapshot.missingIngredients.map((ingredient: string) => (
                             <Badge key={ingredient} variant="outline" className="text-xs">
