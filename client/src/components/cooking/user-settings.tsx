@@ -238,12 +238,15 @@ function HistoryTab() {
 
                   {isExpanded && (
                     <div className="space-y-4 mt-3">
-                      {session.ingredientsUsed && session.ingredientsUsed.length > 0 && (
+                      {snapshot?.ingredients && snapshot.ingredients.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm mb-2">Ingredients Used</h4>
-                          <div className="flex flex-wrap gap-1">
-                            {session.ingredientsUsed.map((ing, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs">{ing}</Badge>
+                          <h4 className="font-medium text-sm mb-2">Ingredients</h4>
+                          <div className="space-y-1">
+                            {snapshot.ingredients.map((ing: RecipeSnapshotData['ingredients'][number], idx: number) => (
+                              <div key={idx} className="flex items-center gap-2 text-sm">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B6B] flex-shrink-0" />
+                                <span>{ing.quantity ? `${ing.quantity} ` : ''}{ing.name}</span>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -268,7 +271,7 @@ function HistoryTab() {
                           </ol>
                         </div>
                       )}
-                      {(!snapshot?.steps || snapshot.steps.length === 0) && (!session.ingredientsUsed || session.ingredientsUsed.length === 0) && (
+                      {(!snapshot?.steps || snapshot.steps.length === 0) && (!snapshot?.ingredients || snapshot.ingredients.length === 0) && (
                         <p className="text-sm text-gray-400 text-center py-2">No detailed recipe data available for this session.</p>
                       )}
                     </div>

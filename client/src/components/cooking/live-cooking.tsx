@@ -72,6 +72,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [demoVideoUrl, setDemoVideoUrl] = useState('');
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
+  const [loadedRecipeIngredients, setLoadedRecipeIngredients] = useState<Array<{ name: string; quantity?: string; forSteps?: number[] }>>([]);
   const [isLoadingSteps, setIsLoadingSteps] = useState(true);
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
@@ -228,9 +229,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     const loadRecipeSteps = async () => {
       setIsLoadingSteps(true);
       
-      const steps = await withDemoErrorHandling(async () => {
+      const stepsResult = await withDemoErrorHandling(async () => {
         const response = await fetchCookingSteps(selectedMeal.recipeName);
-        return response.steps?.map((step: any, index: number) => ({
+        const parsedSteps = response.steps?.map((step: { instruction?: string; duration?: string | number; tips?: string; visualCues?: string; commonMistakes?: string; safetyLevel?: string }, index: number) => ({
           id: index + 1,
           instruction: step.instruction || '',
           duration: step.duration,
@@ -239,7 +240,18 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           commonMistakes: step.commonMistakes || '',
           safetyLevel: step.safetyLevel || 'minor'
         })) || [];
+        const parsedIngredients = response.recipe?.ingredients?.map((ing: { name: string; quantity?: string; forSteps?: number[] }) => ({
+          name: ing.name,
+          quantity: ing.quantity,
+          forSteps: ing.forSteps,
+        })) || [];
+        return { steps: parsedSteps, ingredients: parsedIngredients };
       }, 'cooking steps');
+      
+      const steps = stepsResult?.steps;
+      if (stepsResult?.ingredients) {
+        setLoadedRecipeIngredients(stepsResult.ingredients);
+      }
       
       if (steps && steps.length > 0) {
         setLoadedRecipeSteps(steps);
@@ -296,7 +308,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   }, [selectedMeal.recipeName]);
 
   // Cooking session management functions
-  const startCookingSession = async (totalSteps: number, steps?: RecipeStep[]) => {
+  const startCookingSession = async (totalSteps: number, steps?: RecipeStep[], ingredients?: Array<{ name: string; quantity?: string; forSteps?: number[] }>) => {
     try {
       const recipeSnapshot = {
         recipeName: selectedMeal.recipeName,
@@ -306,6 +318,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         cuisine: selectedMeal.cuisine,
         pantryMatch: selectedMeal.pantryMatch,
         missingIngredients: selectedMeal.missingIngredients || [],
+        ingredients: ingredients || loadedRecipeIngredients || [],
         isFusion: 'isFusion' in selectedMeal ? Boolean(selectedMeal.isFusion) : false,
         steps: (steps || []).map(s => ({
           id: s.id,
@@ -378,9 +391,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   // Start cooking session when steps are loaded
   useEffect(() => {
     if (loadedRecipeSteps.length > 0 && !cookingSessionId) {
-      startCookingSession(loadedRecipeSteps.length, loadedRecipeSteps);
+      startCookingSession(loadedRecipeSteps.length, loadedRecipeSteps, loadedRecipeIngredients);
     }
-  }, [loadedRecipeSteps, cookingSessionId]);
+  }, [loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId]);
 
   // Use loaded steps
   const currentRecipeSteps = loadedRecipeSteps;

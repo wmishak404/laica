@@ -2,6 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { CookingSession } from "@shared/schema";
 
+interface RecipeIngredient {
+  name: string;
+  quantity?: string;
+  forSteps?: number[];
+}
+
 interface RecipeSnapshotData {
   recipeName: string;
   description: string;
@@ -10,6 +16,7 @@ interface RecipeSnapshotData {
   cuisine: string;
   pantryMatch: number;
   missingIngredients: string[];
+  ingredients: RecipeIngredient[];
   isFusion: boolean;
   steps: Array<{
     id?: number;
@@ -136,4 +143,4 @@ export function useDeleteAllCookingSessions() {
   });
 }
 
-export type { RecipeSnapshotData };
+export type { RecipeSnapshotData, RecipeIngredient };

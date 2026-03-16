@@ -415,6 +415,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cuisine: z.string(),
         pantryMatch: z.number(),
         missingIngredients: z.array(z.string()),
+        ingredients: z.array(z.object({
+          name: z.string(),
+          quantity: z.string().optional(),
+          forSteps: z.array(z.number()).optional(),
+        })).default([]),
         isFusion: z.boolean(),
         steps: z.array(z.object({
           id: z.number().optional(),
