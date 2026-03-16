@@ -296,7 +296,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   }, [selectedMeal.recipeName]);
 
   // Cooking session management functions
-  const startCookingSession = async (totalSteps: number, steps?: any[]) => {
+  const startCookingSession = async (totalSteps: number, steps?: RecipeStep[]) => {
     try {
       const recipeSnapshot = {
         recipeName: selectedMeal.recipeName,
@@ -306,8 +306,16 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         cuisine: selectedMeal.cuisine,
         pantryMatch: selectedMeal.pantryMatch,
         missingIngredients: selectedMeal.missingIngredients || [],
-        isFusion: (selectedMeal as any).isFusion || false,
-        steps: steps || [],
+        isFusion: 'isFusion' in selectedMeal ? Boolean(selectedMeal.isFusion) : false,
+        steps: (steps || []).map(s => ({
+          id: s.id,
+          instruction: s.instruction,
+          duration: s.duration,
+          tips: s.tips,
+          visualCues: s.visualCues,
+          commonMistakes: s.commonMistakes,
+          safetyLevel: s.safetyLevel,
+        })),
       };
       const sessionData = {
         recipeName: selectedMeal.recipeName,

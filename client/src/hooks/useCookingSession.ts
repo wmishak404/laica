@@ -2,10 +2,30 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { CookingSession } from "@shared/schema";
 
+interface RecipeSnapshotData {
+  recipeName: string;
+  description: string;
+  cookTime: number;
+  difficulty: string;
+  cuisine: string;
+  pantryMatch: number;
+  missingIngredients: string[];
+  isFusion: boolean;
+  steps: Array<{
+    id?: number;
+    instruction: string;
+    duration?: string;
+    tips?: string;
+    visualCues?: string;
+    commonMistakes?: string;
+    safetyLevel?: string;
+  }>;
+}
+
 interface StartSessionData {
   recipeName: string;
   recipeDescription?: string;
-  recipeSnapshot?: any;
+  recipeSnapshot?: RecipeSnapshotData;
   ingredientsUsed: string[];
   totalSteps: number;
 }
@@ -30,11 +50,11 @@ interface CompleteSessionData {
 export function useActiveCookingSession() {
   return useQuery<CookingSession | null>({
     queryKey: ["/api/cooking/session/active"],
-    refetchInterval: 30000, // Check for updates every 30 seconds
+    refetchInterval: 30000,
   });
 }
 
-export function useCookingSessions(limit = 10) {
+export function useCookingSessions(limit = 200) {
   return useQuery<CookingSession[]>({
     queryKey: ["/api/cooking/sessions", limit],
   });
@@ -45,12 +65,7 @@ export function useStartCookingSession() {
   
   return useMutation({
     mutationFn: async (sessionData: StartSessionData) => {
-      const response = await fetch('/api/cooking/session/start', {
-        method: 'POST',
-        body: JSON.stringify(sessionData),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to start cooking session');
+      const response = await apiRequest('POST', '/api/cooking/session/start', sessionData);
       return await response.json();
     },
     onSuccess: () => {
@@ -65,12 +80,7 @@ export function useUpdateCookingSession() {
   
   return useMutation({
     mutationFn: async ({ sessionId, updateData }: { sessionId: number; updateData: UpdateSessionData }) => {
-      const response = await fetch(`/api/cooking/session/${sessionId}`, {
-        method: 'PUT',
-        body: JSON.stringify(updateData),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to update cooking session');
+      const response = await apiRequest('PUT', `/api/cooking/session/${sessionId}`, updateData);
       return await response.json();
     },
     onSuccess: () => {
@@ -85,12 +95,7 @@ export function useCompleteCookingSession() {
   
   return useMutation({
     mutationFn: async ({ sessionId, completionData }: { sessionId: number; completionData: CompleteSessionData }) => {
-      const response = await fetch(`/api/cooking/session/${sessionId}/complete`, {
-        method: 'POST',
-        body: JSON.stringify(completionData),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) throw new Error('Failed to complete cooking session');
+      const response = await apiRequest('POST', `/api/cooking/session/${sessionId}/complete`, completionData);
       return await response.json();
     },
     onSuccess: () => {
@@ -106,10 +111,7 @@ export function useDeleteCookingSession() {
   
   return useMutation({
     mutationFn: async (sessionId: number) => {
-      const response = await fetch(`/api/cooking/session/${sessionId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete cooking session');
+      const response = await apiRequest('DELETE', `/api/cooking/session/${sessionId}`);
       return await response.json();
     },
     onSuccess: () => {
@@ -124,10 +126,7 @@ export function useDeleteAllCookingSessions() {
   
   return useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/cooking/sessions/all', {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete all cooking sessions');
+      const response = await apiRequest('DELETE', '/api/cooking/sessions/all');
       return await response.json();
     },
     onSuccess: () => {
@@ -136,3 +135,5 @@ export function useDeleteAllCookingSessions() {
     },
   });
 }
+
+export type { RecipeSnapshotData };

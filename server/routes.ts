@@ -407,10 +407,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
+      const recipeSnapshotSchema = z.object({
+        recipeName: z.string(),
+        description: z.string(),
+        cookTime: z.number(),
+        difficulty: z.string(),
+        cuisine: z.string(),
+        pantryMatch: z.number(),
+        missingIngredients: z.array(z.string()),
+        isFusion: z.boolean(),
+        steps: z.array(z.object({
+          id: z.number().optional(),
+          instruction: z.string(),
+          duration: z.string().optional(),
+          tips: z.string().optional(),
+          visualCues: z.string().optional(),
+          commonMistakes: z.string().optional(),
+          safetyLevel: z.string().optional(),
+        })),
+      }).optional();
+
       const schema = z.object({
         recipeName: z.string(),
         recipeDescription: z.string().optional(),
-        recipeSnapshot: z.any().optional(),
+        recipeSnapshot: recipeSnapshotSchema,
         ingredientsUsed: z.array(z.string()),
         totalSteps: z.number(),
       });

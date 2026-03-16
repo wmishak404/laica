@@ -24,6 +24,7 @@ import { ToastAction } from '@/components/ui/toast';
 import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload, Clock, MoreVertical, History } from 'lucide-react';
 import { analyzeImage } from '@/lib/openai';
 import type { CookingSession } from '@shared/schema';
+import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
 
 interface UserProfile {
   cookingSkill: string;
@@ -67,13 +68,17 @@ function HistoryTab() {
     setHiddenIds(prev => new Set(prev).add(sessionId));
 
     deleteTimerRef.current = setTimeout(() => {
-      deleteSessionMutation.mutate(sessionId);
-      setPendingDeleteId(null);
-      setHiddenIds(prev => {
-        const next = new Set(prev);
-        next.delete(sessionId);
-        return next;
+      deleteSessionMutation.mutate(sessionId, {
+        onError: () => {
+          setHiddenIds(prev => {
+            const next = new Set(prev);
+            next.delete(sessionId);
+            return next;
+          });
+          toast({ title: "Failed to delete", variant: "destructive" });
+        },
       });
+      setPendingDeleteId(null);
       deleteTimerRef.current = null;
     }, 5000);
 
@@ -174,7 +179,7 @@ function HistoryTab() {
       ) : (
         <div className="space-y-3">
           {visibleSessions.map((session) => {
-            const snapshot = session.recipeSnapshot as any;
+            const snapshot = session.recipeSnapshot as RecipeSnapshotData | null;
             const isExpanded = expandedId === session.id;
             return (
               <Card
@@ -248,7 +253,7 @@ function HistoryTab() {
                         <div>
                           <h4 className="font-medium text-sm mb-2">Recipe Steps</h4>
                           <ol className="space-y-3">
-                            {snapshot.steps.map((step: any, idx: number) => (
+                            {snapshot.steps.map((step: RecipeSnapshotData['steps'][number], idx: number) => (
                               <li key={idx} className="flex gap-3">
                                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FF6B6B] text-white text-xs flex items-center justify-center font-medium">
                                   {idx + 1}
