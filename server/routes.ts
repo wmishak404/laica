@@ -519,7 +519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
-      const limit = parseInt(req.query.limit as string) || 200;
+      const limit = Math.min(parseInt(req.query.limit as string) || 200, 200);
       
       const sessions = await storage.getUserCookingSessions(userId, limit);
       res.json(sessions);
