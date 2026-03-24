@@ -53,6 +53,7 @@ function HistoryTab() {
   const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const deleteTimersRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
+  const deleteAllTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDelete = useCallback((sessionId: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -108,13 +109,56 @@ function HistoryTab() {
 
   const handleDeleteAll = () => {
     setShowDeleteAllDialog(false);
-    deleteAllMutation.mutate(undefined, {
-      onSuccess: () => {
-        toast({ title: "All history deleted" });
-      },
-      onError: () => {
-        toast({ title: "Failed to delete history", variant: "destructive" });
-      },
+
+    if (deleteAllTimerRef.current) {
+      clearTimeout(deleteAllTimerRef.current);
+      deleteAllTimerRef.current = null;
+    }
+
+    const allIds = sessions?.map(s => s.id) || [];
+    setHiddenIds(prev => {
+      const next = new Set(prev);
+      allIds.forEach(id => next.add(id));
+      return next;
+    });
+    setExpandedId(null);
+
+    const timer = setTimeout(() => {
+      deleteAllTimerRef.current = null;
+      deleteAllMutation.mutate(undefined, {
+        onError: () => {
+          setHiddenIds(prev => {
+            const next = new Set(prev);
+            allIds.forEach(id => next.delete(id));
+            return next;
+          });
+          toast({ title: "Failed to delete history", variant: "destructive" });
+        },
+      });
+    }, 5000);
+    deleteAllTimerRef.current = timer;
+
+    toast({
+      title: "All history removed",
+      duration: 5000,
+      action: (
+        <ToastAction
+          altText="Undo delete all"
+          onClick={() => {
+            if (deleteAllTimerRef.current) {
+              clearTimeout(deleteAllTimerRef.current);
+              deleteAllTimerRef.current = null;
+            }
+            setHiddenIds(prev => {
+              const next = new Set(prev);
+              allIds.forEach(id => next.delete(id));
+              return next;
+            });
+          }}
+        >
+          Undo
+        </ToastAction>
+      ),
     });
   };
 
@@ -224,7 +268,7 @@ function HistoryTab() {
                     </div>
                     {snapshot?.missingIngredients?.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-xs text-gray-500">Need to get:</p>
+                        <p className="text-xs text-gray-500">Extra ingredients needed:</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {snapshot.missingIngredients.map((ingredient: string) => (
                             <Badge key={ingredient} variant="outline" className="text-xs">
