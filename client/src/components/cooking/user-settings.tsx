@@ -332,7 +332,7 @@ function HistoryTab() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete all cooking history?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove all {visibleSessions.length} cooking session{visibleSessions.length !== 1 ? 's' : ''} from your history. This action cannot be undone.
+              This will permanently remove all {visibleSessions.length} cooking session{visibleSessions.length !== 1 ? 's' : ''} from your history.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
