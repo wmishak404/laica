@@ -41,4 +41,3 @@ waitForPort = 5000
 [userenv]
 
 [userenv.shared]
-ADMIN_SECRET = "laica-eval-2026"
