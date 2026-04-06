@@ -2,7 +2,7 @@
 
 Replit is the primary environment for runtime behavior, secrets, database access, and deployment. GitHub is the shared source of truth between Replit and local agent tooling on macOS.
 
-See the full shared workflow in [docs/workflows/replit-primary-local-agents.md](/Users/wilsonishak-macbookpro/src/laica/docs/workflows/replit-primary-local-agents.md).
+See the full shared workflow in [docs/adr/0001-replit-primary-local-agents.md](docs/adr/0001-replit-primary-local-agents.md).
 
 ## Core rules
 
@@ -32,8 +32,32 @@ Before merging deployment-bound changes, sync the branch into Replit and verify:
 - feedback writes
 - ElevenLabs-backed speech routes
 
+## Project structure
+
+```
+client/          # React frontend (Vite, React 18, Tailwind, shadcn/ui)
+server/          # Express backend (Node 20, Drizzle ORM, PostgreSQL)
+shared/          # Shared types and schemas (Drizzle + Zod)
+tests/           # Playwright + Vitest tests
+docs/adr/        # Architecture decision records
+docs/handoffs/   # Agent coordination handoff files
+```
+
 ## Secrets
 
 - Keep real secrets in Replit Secrets, not in tracked files.
 - The historical `ADMIN_SECRET` exposure has been rotated in Replit. Keep the new value in Replit Secrets only and continue treating the old Git history as sensitive.
 - Never commit `.env`, `.env.*`, `.claude/settings.local.json`, or personal Claude memory files.
+- See `.env.example` for the full list of required variables.
+
+## Agent coordination — handoffs
+
+When completing a task, write a handoff file in `docs/handoffs/` so the other agent can pick up context. When starting new work, read recent handoffs to understand what's changed. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention and required sections. PR descriptions should include the same structured summary.
+
+## Code conventions
+
+- TypeScript throughout (client and server)
+- Drizzle ORM for database access; Zod for validation
+- shadcn/ui component library (Radix primitives + Tailwind)
+- wouter for client-side routing
+- TanStack Query for server state

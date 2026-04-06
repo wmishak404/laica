@@ -4,9 +4,13 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Secrets
 .env
 .env.*
 !.env.example
+
+# Local-only agent settings
 .claude/settings.local.json
 .claude/worktrees/
 CLAUDE.local.md
