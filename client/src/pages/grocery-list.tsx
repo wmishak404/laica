@@ -22,6 +22,29 @@ interface GroceryCategory {
   items: GroceryItemType[];
 }
 
+interface GeneratedGroceryItem {
+  name: string;
+  price?: string;
+}
+
+interface GeneratedGroceryCategory {
+  name: string;
+  items: GeneratedGroceryItem[];
+}
+
+interface GeneratedGroceryData {
+  categories: GeneratedGroceryCategory[];
+}
+
+function isGeneratedGroceryData(value: unknown): value is GeneratedGroceryData {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    'categories' in value &&
+    Array.isArray((value as GeneratedGroceryData).categories)
+  );
+}
+
 export default function GroceryList() {
   const [groceryList, setGroceryList] = useState<GroceryCategory[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -29,12 +52,12 @@ export default function GroceryList() {
   const [itemCount, setItemCount] = useState<number>(0);
   const [listGenerated, setListGenerated] = useState(false);
 
-  const handleGenerateList = (groceryData: any) => {
-    if (groceryData && groceryData.categories && Array.isArray(groceryData.categories)) {
+  const handleGenerateList = (groceryData: unknown) => {
+    if (isGeneratedGroceryData(groceryData)) {
       // Transform API response to our format
-      const transformedList = groceryData.categories.map((category: any) => ({
+      const transformedList: GroceryCategory[] = groceryData.categories.map((category: GeneratedGroceryCategory) => ({
         name: category.name,
-        items: category.items.map((item: any, idx: number) => ({
+        items: category.items.map((item: GeneratedGroceryItem, idx: number) => ({
           id: `${category.name.toLowerCase()}-${idx}`,
           name: item.name,
           price: item.price || undefined,
@@ -49,8 +72,8 @@ export default function GroceryList() {
       let total = 0;
       let count = 0;
       
-      transformedList.forEach((category) => {
-        category.items.forEach((item) => {
+      transformedList.forEach((category: GroceryCategory) => {
+        category.items.forEach((item: GroceryItemType) => {
           count++;
           if (item.price) {
             // Remove $ and convert to number
