@@ -29,6 +29,9 @@ What the other agent needs to know — dependencies, conventions introduced, fil
 
 ## Open items
 Anything left unfinished or that requires human/Replit-side action.
+
+## Verification
+How to confirm the changes work — local checks, Replit validation steps, or manual tests.
 ```
 
 ## PR descriptions
