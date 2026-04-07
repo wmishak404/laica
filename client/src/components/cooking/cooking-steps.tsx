@@ -23,10 +23,10 @@ export default function CookingSteps({ recipeName, onStepChange }: CookingStepsP
         const response = await fetchCookingSteps(recipeName);
         if (response.steps && Array.isArray(response.steps)) {
           // Transform the steps if they have a complex structure
-          const formattedSteps = response.steps.map(step => {
+          const formattedSteps = response.steps.map((step) => {
             if (typeof step === 'string') {
               return step;
-            } else if (typeof step === 'object') {
+            } else if (step && typeof step === 'object') {
               // If step is an object with instruction property, extract it
               return step.instruction || step.step || JSON.stringify(step);
             }

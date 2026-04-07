@@ -224,6 +224,9 @@ function HistoryTab() {
           {visibleSessions.map((session) => {
             const snapshot = session.recipeSnapshot as RecipeSnapshotData | null;
             const isExpanded = expandedId === session.id;
+            const missingIngredients = snapshot?.missingIngredients ?? [];
+            const recipeIngredients = snapshot?.ingredients ?? [];
+            const recipeSteps = snapshot?.steps ?? [];
             return (
               <Card
                 key={session.id}
@@ -266,11 +269,11 @@ function HistoryTab() {
                         </Badge>
                       )}
                     </div>
-                    {snapshot?.missingIngredients?.length > 0 && (
+                    {missingIngredients.length > 0 && (
                       <div className="mt-2">
                         <p className="text-xs text-gray-500">Extra ingredients needed:</p>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {snapshot.missingIngredients.map((ingredient: string) => (
+                          {missingIngredients.map((ingredient: string) => (
                             <Badge key={ingredient} variant="outline" className="text-xs">
                               {ingredient}
                             </Badge>
@@ -282,11 +285,11 @@ function HistoryTab() {
 
                   {isExpanded && (
                     <div className="space-y-4 mt-3">
-                      {snapshot?.ingredients && snapshot.ingredients.length > 0 && (
+                      {recipeIngredients.length > 0 && (
                         <div>
                           <h4 className="font-medium text-sm mb-2">Ingredients</h4>
                           <div className="space-y-1">
-                            {snapshot.ingredients.map((ing: RecipeSnapshotData['ingredients'][number], idx: number) => (
+                            {recipeIngredients.map((ing: RecipeSnapshotData['ingredients'][number], idx: number) => (
                               <div key={idx} className="flex items-center gap-2 text-sm">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B6B] flex-shrink-0" />
                                 <span>{ing.quantity ? `${ing.quantity} ` : ''}{ing.name}</span>
@@ -295,11 +298,11 @@ function HistoryTab() {
                           </div>
                         </div>
                       )}
-                      {snapshot?.steps?.length > 0 && (
+                      {recipeSteps.length > 0 && (
                         <div>
                           <h4 className="font-medium text-sm mb-2">Recipe Steps</h4>
                           <ol className="space-y-3">
-                            {snapshot.steps.map((step: RecipeSnapshotData['steps'][number], idx: number) => (
+                            {recipeSteps.map((step: RecipeSnapshotData['steps'][number], idx: number) => (
                               <li key={idx} className="flex gap-3">
                                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FF6B6B] text-white text-xs flex items-center justify-center font-medium">
                                   {idx + 1}
@@ -315,7 +318,7 @@ function HistoryTab() {
                           </ol>
                         </div>
                       )}
-                      {(!snapshot?.steps || snapshot.steps.length === 0) && (!snapshot?.ingredients || snapshot.ingredients.length === 0) && (
+                      {recipeSteps.length === 0 && recipeIngredients.length === 0 && (
                         <p className="text-sm text-gray-400 text-center py-2">No detailed recipe data available for this session.</p>
                       )}
                     </div>
