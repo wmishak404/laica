@@ -52,11 +52,11 @@ The application employs a full-stack architecture with distinct client and serve
 
 ## Secrets Management
 
-Secrets are managed with **dotenvx** for cross-environment portability.
+The encrypted `.env` file is the **single source of truth** for secrets across all environments (local and Replit). Secrets are AES-256-GCM encrypted with dotenvx and committed to the repo.
 
-- **On Replit:** Secrets are injected via the Replit Secrets tab as usual. No dotenvx needed.
-- **Locally:** The `.env` file is AES-256-GCM encrypted and committed to the repo. Run with `npx @dotenvx/dotenvx run -- npm run dev` to decrypt at runtime.
-- `.env.keys` contains the private decryption key and is **never committed** to git.
+- **On Replit:** Only `DOTENV_PRIVATE_KEY` is needed in the Secrets tab. dotenvx decrypts the rest from `.env` at runtime.
+- **Locally:** Same mechanism — `.env.keys` file provides the private key, dotenvx decrypts at runtime.
+- **Adding/changing a secret:** Decrypt `.env`, edit, re-encrypt, commit. All environments pick up the change.
 - The server port is configurable via `PORT` env var (defaults to 5000). Local macOS uses `PORT=3000` since AirPlay occupies 5000.
 - Full decision rationale: `product-decisions/001-secrets-management.md`
 

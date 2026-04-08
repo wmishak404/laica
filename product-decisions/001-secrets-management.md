@@ -25,12 +25,18 @@ We needed a solution that:
 
 ## Decision
 
-**Use dotenvx** for encrypted secrets management.
+**Use dotenvx** as the single source of truth for secrets across all environments.
 
 - The `.env` file is AES-256-GCM encrypted in place and committed to the repo
 - The `DOTENV_KEY` / `.env.keys` file is **never committed** (excluded via `.gitignore`)
-- Each developer stores the `DOTENV_KEY` on their machine or in a password manager
+- Each developer/environment stores only the `DOTENV_PRIVATE_KEY` — everything else is decrypted from `.env`
 - The dev server loads secrets via `npx @dotenvx/dotenvx run -- <command>`
+
+### Unified approach: local + Replit
+
+Rather than maintaining secrets in two places (encrypted `.env` locally, Secrets tab on Replit), **Replit also uses dotenvx**. Replit only needs one secret — `DOTENV_PRIVATE_KEY` — and decrypts the rest from the committed `.env` file at runtime.
+
+This means adding or changing a secret is a single workflow: decrypt, edit, re-encrypt, commit. Every environment picks up the change automatically.
 
 ## How It Works
 
@@ -38,12 +44,20 @@ We needed a solution that:
 # Encrypt after editing secrets
 npx @dotenvx/dotenvx encrypt
 
-# Run the app (decrypts at runtime)
+# Run the app (decrypts at runtime) — works on both local and Replit
 npx @dotenvx/dotenvx run -- npm run dev
 
-# A new contributor needs the DOTENV_PRIVATE_KEY value from .env.keys
+# A new contributor/environment needs only the DOTENV_PRIVATE_KEY value
 # shared securely (password manager, encrypted message — never Slack/email plaintext)
 ```
+
+### Replit setup (one-time)
+
+1. Open the Replit Secrets tab
+2. Add one secret: `DOTENV_PRIVATE_KEY` = (value from `.env.keys`)
+3. Update the Replit run command to: `npx @dotenvx/dotenvx run -- npm run dev`
+4. Remove the individual secrets from the Secrets tab (DATABASE_URL, OPENAI_API_KEY, etc.) — they are now managed via the encrypted `.env`
+5. Pull the latest `main` so Replit has the encrypted `.env` file
 
 ## Upgrade Path
 

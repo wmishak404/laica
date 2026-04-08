@@ -60,12 +60,12 @@ product-decisions/ # Documented product and architecture decisions
 
 Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to the repo). Decision documented in `product-decisions/001-secrets-management.md`.
 
-- `.env` — encrypted, safe in git. Decrypted at runtime.
+- `.env` — encrypted, safe in git. **Single source of truth** for all environments.
 - `.env.keys` — private decryption key, **never commit this**
 - `.env.example` — lists all required vars (no values)
 - To decrypt and run: `npx @dotenvx/dotenvx run -- <command>`
 - To edit secrets: `npx @dotenvx/dotenvx decrypt`, edit, then `npx @dotenvx/dotenvx encrypt`
-- **On Replit:** secrets are injected via the Replit Secrets tab. No dotenvx needed.
+- **On Replit:** only `DOTENV_PRIVATE_KEY` is in the Secrets tab. dotenvx decrypts the rest from `.env`.
 
 ### Required env vars
 - `DATABASE_URL` — Neon PostgreSQL connection string (crashes on startup if missing)
