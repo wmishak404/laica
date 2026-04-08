@@ -50,6 +50,28 @@ The application employs a full-stack architecture with distinct client and serve
 - **Cooking Session Tracking**: Records each cooking session, updating pantry with ingredients used/remaining.
 - **Pantry Management**: Users can edit pantry contents at any time, with a feature to reset the entire pantry.
 
+## Secrets Management
+
+Secrets are managed with **dotenvx** for cross-environment portability.
+
+- **On Replit:** Secrets are injected via the Replit Secrets tab as usual. No dotenvx needed.
+- **Locally:** The `.env` file is AES-256-GCM encrypted and committed to the repo. Run with `npx @dotenvx/dotenvx run -- npm run dev` to decrypt at runtime.
+- `.env.keys` contains the private decryption key and is **never committed** to git.
+- The server port is configurable via `PORT` env var (defaults to 5000). Local macOS uses `PORT=3000` since AirPlay occupies 5000.
+- Full decision rationale: `product-decisions/001-secrets-management.md`
+
+### Required Environment Variables
+- `DATABASE_URL` — Neon PostgreSQL connection string (required, crashes without it)
+- `ELEVENLABS_API_KEY` — ElevenLabs text-to-speech (required, crashes without it)
+- `OPENAI_API_KEY` — OpenAI GPT-4o for AI features (optional, graceful fallback)
+- `ADMIN_SECRET` — Admin endpoint authentication
+- `SESSION_SECRET` — Express session signing
+- `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` — Firebase client config
+
+## Product Decisions
+
+Significant product and architecture decisions are documented in the `product-decisions/` folder. Check there before making decisions that overlap with prior ones.
+
 ## External Dependencies
 
 ### AI Services

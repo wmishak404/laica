@@ -36,7 +36,7 @@ Both agents run on macOS against a local clone of the repo. They are approved sp
 
 ## Consequences
 
-- Local dev cannot run the full app (no database, no secrets) — this is accepted by design.
+- Local dev can now run the full app using dotenvx for encrypted secrets (see `product-decisions/001-secrets-management.md`). Replit remains the authoritative deployment and validation environment.
 - PRs from agent branches need Replit validation before shipping.
 - The `.codex` and `.claude/` directories are checked in for reproducibility across worktrees.
 - The historical `ADMIN_SECRET` exposure has been handled operationally with a Replit secret rotation, but the old Git history should still be treated as sensitive.

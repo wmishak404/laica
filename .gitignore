@@ -5,9 +5,9 @@ server/public
 vite.config.ts.*
 *.tar.gz
 
-# Secrets
-.env
+# Secrets — .env is encrypted via dotenvx and safe to commit
 .env.*
+!.env
 !.env.example
 
 # Local-only agent settings
