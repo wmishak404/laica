@@ -1,3 +1,6 @@
+# dotenvx: .env is encrypted and safe to commit; .env.keys has the private key
+.env.keys
+.env.local
 node_modules
 dist
 .DS_Store
