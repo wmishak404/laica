@@ -92,6 +92,17 @@ Significant product and architecture decisions are documented in the `product-de
 - **Vitest**: Used for unit testing.
 - **Playwright**: Utilized for end-to-end browser automation testing.
 
+### Multi-Agent Collaboration
+- **AGENTS.md**: Root-level instructions for all AI coding agents (Codex, Claude, Replit). Defines workflow rules, stack constraints, and handoff protocol.
+- **CLAUDE.md**: Claude-specific override instructions (extends AGENTS.md).
+- **.codex/environments/environment.toml**: Codex local environment config (Node 20, setup commands).
+- **.env.example**: Lists all required env var names without values for local agent setup.
+- **.nvmrc**: Pins Node.js version to 20.
+- **docs/adr/**: Architecture Decision Records (ADR-0001: Replit as primary, local agents as contributors).
+- **docs/handoffs/**: Agent handoff notes and cross-agent coordination logs.
+- **docs/workflows/**: Workflow documentation for each agent role.
+- **Key rule**: Replit agent is the ONLY one that merges to main and deploys. Local agents (Codex/Claude) work on feature branches and open PRs.
+
 ## Version History
 
 ### v0 - Initial Stable Release (January 2026)

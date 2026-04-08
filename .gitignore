@@ -1,9 +1,17 @@
-# dotenvx: .env is encrypted and safe to commit; .env.keys has the private key
-.env.keys
-.env.local
 node_modules
 dist
 .DS_Store
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Secrets — .env is encrypted via dotenvx and safe to commit
+.env.keys
+.env.local
+!.env.example
+
+# Local-only agent settings
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+.codex/environments/*.local.*

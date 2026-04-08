@@ -231,15 +231,29 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       const stepsResult = await withDemoErrorHandling(async () => {
         const response = await fetchCookingSteps(selectedMeal.recipeName);
-        const parsedSteps = response.steps?.map((step: { instruction?: string; duration?: string | number; tips?: string; visualCues?: string; commonMistakes?: string; safetyLevel?: string }, index: number) => ({
-          id: index + 1,
-          instruction: step.instruction || '',
-          duration: step.duration,
-          tips: step.tips || '',
-          visualCues: step.visualCues || '',
-          commonMistakes: step.commonMistakes || '',
-          safetyLevel: step.safetyLevel || 'minor'
-        })) || [];
+        const parsedSteps = response.steps?.map((step, index): RecipeStep => {
+          const normalizedStep = typeof step === 'string' ? { instruction: step } : step;
+          const parsedDuration = typeof normalizedStep.duration === 'number'
+            ? normalizedStep.duration
+            : typeof normalizedStep.duration === 'string'
+              ? Number.parseInt(normalizedStep.duration, 10) || undefined
+              : undefined;
+          const safetyLevel = normalizedStep.safetyLevel === 'critical' ||
+            normalizedStep.safetyLevel === 'important' ||
+            normalizedStep.safetyLevel === 'minor'
+            ? normalizedStep.safetyLevel
+            : 'minor';
+
+          return {
+            id: index + 1,
+            instruction: normalizedStep.instruction || normalizedStep.step || '',
+            duration: parsedDuration,
+            tips: normalizedStep.tips || '',
+            visualCues: normalizedStep.visualCues || '',
+            commonMistakes: normalizedStep.commonMistakes || '',
+            safetyLevel,
+          };
+        }) || [];
         const parsedIngredients = response.recipe?.ingredients?.map((ing: { name: string; quantity?: string; forSteps?: number[] }) => ({
           name: ing.name,
           quantity: ing.quantity,

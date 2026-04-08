@@ -1,3 +1,29 @@
+interface CookingStepObject {
+  instruction?: string;
+  step?: string;
+  duration?: string | number;
+  tips?: string;
+  visualCues?: string;
+  commonMistakes?: string;
+  safetyLevel?: string;
+  [key: string]: unknown;
+}
+
+interface CookingIngredientObject {
+  name: string;
+  quantity?: string;
+  forSteps?: number[];
+}
+
+interface CookingRecipeObject {
+  ingredients?: CookingIngredientObject[];
+}
+
+interface CookingStepsResponse {
+  steps?: Array<string | CookingStepObject>;
+  recipe?: CookingRecipeObject;
+}
+
 export async function fetchRecipeSuggestions(preferences: string, ingredients?: string[]) {
   const response = await fetch('/api/recipes/suggestions', {
     method: 'POST',
@@ -39,7 +65,7 @@ export async function fetchPantryRecipes(pantryIngredients: string[], preference
   return await response.json();
 }
 
-export async function fetchCookingSteps(recipeName: string) {
+export async function fetchCookingSteps(recipeName: string): Promise<CookingStepsResponse> {
   const response = await fetch('/api/cooking/steps', {
     method: 'POST',
     headers: {
