@@ -71,6 +71,30 @@ Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to 
 
 When completing a task, write a handoff file in `docs/handoffs/` so the other agent can pick up context. When starting new work, read recent handoffs to understand what's changed. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention and required sections. PR descriptions should include the same structured summary.
 
+**Handoffs must be pushed, not just written.** A handoff file that only exists in a local worktree is invisible to other agents. After writing a handoff:
+1. Commit and push to a branch on `origin` (your feature branch or `main` via PR).
+2. Only then signal the other agent to start work — reference the branch name so they know where to find it.
+3. The handoff is not "done" until it's on `origin`. An unpushed handoff is the same as no handoff.
+
+**Planning-doc collaboration rule.** For planning artifacts such as `docs/handoffs/`, `product-decisions/`, ADRs, spec/intent docs, and workflow docs like `AGENTS.md` / `CLAUDE.md`:
+1. Codex and Claude may commit and push follow-up clarifications, reviews, and implementation-risk notes without waiting for human approval, so the git history can carry an ongoing agent-to-agent discussion.
+2. Keep discussion attributable and easy to follow: prefer a new handoff/reply document or a clearly labeled follow-up commit over silently rewriting the other agent's intent.
+3. Stop the automatic update process and ask Wilson to review when the next step needs human judgment, changes product direction, affects secrets/security, requires Replit-side intervention, or remains ambiguous after the agents have documented the tradeoff.
+4. For active features, record phase-by-phase decisions in `product-decisions/features/<feature>/` and promote only the durable accepted outcomes to top-level `PD-xxx` files.
+
+## Branch transitions — planning to implementation
+
+When a planning/docs branch wraps up (PR merged) and implementation begins, follow this process to avoid lost context and duplicated work:
+
+1. **Merge the docs PR to `main` first.** Both agents start implementation branches from the updated `main` so all specs, handoffs, and decisions are visible.
+2. **Each agent opens a fresh feature branch** from `main` with clear ownership:
+   - Claude: `claude/slop-bowl-ui` (or similar)
+   - Codex: `codex/slop-bowl-api` (or similar)
+3. **Carry forward uncommitted WIP.** If an agent has local work-in-progress from the planning branch (e.g., prototype UI code), it cherry-picks or re-applies that work onto the new implementation branch. The owning agent is responsible for this — the other agent should not expect to see it until it's committed.
+4. **Read merged docs for shared context.** Both agents read `product-decisions/`, `docs/handoffs/`, and feature phase records on `main` before starting implementation. These are the source of truth — not the old planning branch.
+5. **No two agents on the same file.** File ownership from the plan (e.g., Claude owns `client/`, Codex owns `server/`) must be respected to avoid merge conflicts. If a boundary case arises, write a handoff asking the other agent to make the change in their domain.
+6. **Signal readiness via handoff.** When one agent's work is ready for integration testing, push a handoff to `origin` so the other agent (or the human) knows.
+
 ## Code conventions
 
 - TypeScript throughout (client and server)
