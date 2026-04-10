@@ -98,6 +98,21 @@ The goal is zero lost context — the human (or a fresh agent session) should be
 
 When completing a task, write a handoff file in `docs/handoffs/` so the other agent (Codex) can pick up context. When starting new work, read recent handoffs to understand what's changed. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention and required sections. PR descriptions should include the same structured summary.
 
+## Auto-push permissions for planning documents
+
+Claude may **commit and push without asking** when the changes are limited to planning and coordination documents:
+- `docs/handoffs/*.md` — agent handoff files
+- `product-decisions/*.md` and `product-decisions/README.md` — product decision records
+- `AGENTS.md` — workflow/process updates
+
+This keeps a continuous conversation flow between Claude and Codex. The other agent can't see anything until it's on `origin`.
+
+**Stop and ask the human when:**
+- The change touches source code (`client/`, `server/`, `shared/`, `tests/`)
+- There is a question, ambiguity, or decision that needs human input
+- The handoff proposes something that hasn't been discussed/approved yet
+- Any destructive git operation (force push, branch delete, rebase)
+
 ## Claude-specific notes
 
 - Auth is Firebase (Google sign-in only), not Replit Auth. `server/replitAuth.ts` is legacy and unused.
