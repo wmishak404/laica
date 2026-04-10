@@ -49,3 +49,4 @@ All selected models support structured JSON output (`response_format: { type: "j
 - Bundled with the Slop Bowl feature work (same PR, same `server/openai.ts` file)
 - Codex handles all model reference changes
 - No prompt changes needed — structured output works identically across all selected models
+- Feature-specific alignment notes live under `product-decisions/features/slop-bowl/`

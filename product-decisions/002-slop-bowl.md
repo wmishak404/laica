@@ -69,3 +69,4 @@ The system must make *good* decisions to earn trust. Key signals used:
 - **API contract:** `POST /api/recipes/slop-bowl` — authenticated, returns single bowl with component breakdown
 - **New component:** `client/src/components/cooking/slop-bowl.tsx`
 - **Workflow phase:** `'slop-bowl'` added to `WorkflowPhase` union type
+- **Phase records:** Ongoing alignment notes live under `product-decisions/features/slop-bowl/`
