@@ -65,14 +65,22 @@ export async function fetchPantryRecipes(pantryIngredients: string[], preference
   return await response.json();
 }
 
-export async function fetchCookingSteps(recipeName: string): Promise<CookingStepsResponse> {
+export async function fetchCookingSteps(
+  recipeName: string,
+  options?: {
+    ingredients?: string[];
+    equipment?: string[];
+    description?: string;
+  }
+): Promise<CookingStepsResponse> {
   const response = await fetch('/api/cooking/steps', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        recipeName
+        recipeName,
+        ...options,
       }),
     });
 
@@ -141,6 +149,48 @@ export async function fetchCookingAssistance(step: string, question?: string) {
   }
 
   return await response.text();
+}
+
+export interface SlopBowlRecipe {
+  recipeName: string;
+  description: string;
+  cookTime: number;
+  difficulty: string;
+  cuisine: string;
+  pantryIngredientsUsed: string[];
+  additionalIngredientsNeeded: string[];
+  overview: string;
+  instructions: string[];
+  isFusion: boolean;
+  pantryMatch: number;
+}
+
+export async function fetchSlopBowlRecipe(options?: {
+  pantryOverride?: string[];
+  feedback?: string;
+  previousRecipe?: string;
+}): Promise<{ recipe: SlopBowlRecipe }> {
+  const { FirebaseAuthService } = await import('@/lib/firebase');
+  const idToken = await FirebaseAuthService.getIdToken();
+  if (!idToken) {
+    throw new Error('Not authenticated');
+  }
+
+  const response = await fetch('/api/recipes/slop-bowl', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`,
+    },
+    body: JSON.stringify(options || {}),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`${response.status}: ${errorText}`);
+  }
+
+  return await response.json();
 }
 
 export async function analyzeImage(imageData: string, isHEIC?: boolean) {

@@ -4,6 +4,7 @@ import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
+import SlopBowl from '@/components/cooking/slop-bowl';
 import LiveCooking from '@/components/cooking/live-cooking';
 import UserSettings from '@/components/cooking/user-settings';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Home, LogOut, User, MessageCircle, ChefHat } from 'lucide-react';
+import { Settings, Home, LogOut, User, MessageCircle, ChefHat, Soup, ClipboardList } from 'lucide-react';
 import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
@@ -39,9 +40,14 @@ interface RecipeRecommendation {
   cuisine: string;
   pantryMatch: number;
   missingIngredients: string[];
+  // Slop Bowl additions (all optional — manual flow leaves them undefined)
+  isFusion?: boolean;
+  ingredients?: string[];      // actual pantry items used — fed to cooking steps
+  equipment?: string[];        // user's kitchen equipment — fed to cooking steps
+  overview?: string;           // short tagline from slop-bowl response
 }
 
-type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings';
+type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-bowl';
 
 export default function MobileApp() {
   const { user } = useAuth();
@@ -62,6 +68,7 @@ export default function MobileApp() {
   const [scheduledTime, setScheduledTime] = useState<string>('');
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false);
+  const [showPlanningChoice, setShowPlanningChoice] = useState(true);
 
   // Load profile from database - database is the single source of truth
   useEffect(() => {
@@ -247,11 +254,12 @@ export default function MobileApp() {
 
   const handleBackToPlanning = () => {
     // Check if profile is complete before allowing access to planning
-    const isProfileComplete = userProfile.cookingSkill && 
-      userProfile.weeklyTime && 
+    const isProfileComplete = userProfile.cookingSkill &&
+      userProfile.weeklyTime &&
       userProfile.pantryIngredients.length > 0;
-    
+
     if (isProfileComplete) {
+      setShowPlanningChoice(true);
       setCurrentPhase('planning');
     } else {
       // If profile is incomplete, go back to profiling step
@@ -292,6 +300,64 @@ export default function MobileApp() {
     }
   };
 
+  const renderPlanningChoice = () => (
+    <div className="w-full max-w-md mx-auto p-4 space-y-6">
+      <div className="text-center pt-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">What are we cooking today?</h2>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {/* Slop Bowl card */}
+        <Card
+          className="cursor-pointer hover:shadow-md transition-all border-2 border-transparent hover:border-[#FF6B6B]/30"
+          onClick={() => {
+            setShowPlanningChoice(false);
+            setCurrentPhase('slop-bowl');
+          }}
+        >
+          <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
+            <Soup className="h-10 w-10 text-[#FF6B6B]" />
+            <div>
+              <h3 className="font-bold text-lg text-gray-900">Slop Bowl</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Trust the slop. We'll raid your pantry and make something great.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+            >
+              Let's go
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Manual planning card */}
+        <Card
+          className="cursor-pointer hover:shadow-md transition-all border-2 border-transparent hover:border-gray-300"
+          onClick={() => setShowPlanningChoice(false)}
+        >
+          <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
+            <ClipboardList className="h-10 w-10 text-gray-600" />
+            <div>
+              <h3 className="font-bold text-lg text-gray-900">Plan your meal</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Choose your cuisine, time, and pick from suggestions.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full"
+            >
+              Start
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
   const renderBottomNav = () => {
     if (currentPhase === 'cooking') return null;
 
@@ -311,8 +377,13 @@ export default function MobileApp() {
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={() => currentPhase !== 'profiling' && setCurrentPhase('planning')}
-            className={`flex flex-col items-center ${currentPhase === 'planning' ? 'text-[#FF6B6B]' : 'text-gray-500'}`}
+            onClick={() => {
+              if (currentPhase !== 'profiling') {
+                setShowPlanningChoice(true);
+                setCurrentPhase('planning');
+              }
+            }}
+            className={`flex flex-col items-center ${currentPhase === 'planning' || currentPhase === 'slop-bowl' ? 'text-[#FF6B6B]' : 'text-gray-500'}`}
             disabled={userProfile.cookingSkill === ''}
           >
             <ChefHat className="h-5 w-5 mb-1" />
@@ -398,14 +469,36 @@ export default function MobileApp() {
       case 'planning':
         return (
           <div className="pb-20">
-            <MealPlanning 
+            {showPlanningChoice ? (
+              renderPlanningChoice()
+            ) : (
+              <MealPlanning
+                userProfile={userProfile}
+                onMealSelected={handleMealSelected}
+                onBackToProfile={() => {
+                  setShowPlanningChoice(true);
+                  setCurrentPhase('settings');
+                }}
+              />
+            )}
+          </div>
+        );
+
+      case 'slop-bowl':
+        return (
+          <div className="pb-20">
+            <SlopBowl
               userProfile={userProfile}
               onMealSelected={handleMealSelected}
-              onBackToProfile={() => setCurrentPhase('settings')}
+              onBackToPlanning={() => {
+                setShowPlanningChoice(true);
+                setCurrentPhase('planning');
+              }}
+              onUpdateProfile={(updatedProfile) => setUserProfile(updatedProfile)}
             />
           </div>
         );
-        
+
       case 'cooking':
         return selectedMeal ? (
           <LiveCooking 
