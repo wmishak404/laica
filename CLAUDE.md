@@ -113,6 +113,17 @@ This keeps a continuous conversation flow between Claude and Codex. The other ag
 - The handoff proposes something that hasn't been discussed/approved yet
 - Any destructive git operation (force push, branch delete, rebase)
 
+## Branch transitions — carrying WIP
+
+When a planning branch (like `claude/funny-boyd`) transitions to an implementation branch (like `claude/slop-bowl-ui`):
+
+1. Wait for the docs PR to merge to `main`.
+2. Create the new implementation branch from `main`.
+3. Re-apply any uncommitted WIP (e.g., prototype `slop-bowl.tsx`, modified `app.tsx`, `openai.ts`) onto the new branch. Use `git stash` or manual copy — do not assume the old worktree will persist.
+4. The new branch should contain only implementation changes. All planning docs are already on `main`.
+
+This prevents orphaned work and ensures clean git history.
+
 ## Claude-specific notes
 
 - Auth is Firebase (Google sign-in only), not Replit Auth. `server/replitAuth.ts` is legacy and unused.
