@@ -50,7 +50,28 @@ const LOADING_MESSAGES = [
   "Deciding if this needs more hot sauce...",
   "Making your pantry work overtime...",
   "Chef's intuition loading...",
+  "Negotiating with the leftovers...",
+  "Pretending we know what we're doing...",
+  "Convincing your sad tomato it has potential...",
+  "Channeling your inner depression-meal genius...",
+  "Auditioning rice for the lead role...",
+  "Whispering encouragement to your spice rack...",
+  "Embracing culinary improv...",
+  "Calculating maximum slop-to-bowl ratio...",
+  "Reminding the pasta who's boss...",
+  "Strategically hiding the wilted herbs...",
+  "Bargaining with the food gods...",
+  "Doing math nobody asked for...",
 ];
+
+const pickRandomMessageIndex = (current: number) => {
+  if (LOADING_MESSAGES.length <= 1) return 0;
+  let next = current;
+  while (next === current) {
+    next = Math.floor(Math.random() * LOADING_MESSAGES.length);
+  }
+  return next;
+};
 
 export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning, onEditPantry }: SlopBowlProps) {
   const [state, setState] = useState<SlopBowlState>('pantry-check');
@@ -58,13 +79,15 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const [previousRecipe, setPreviousRecipe] = useState<string | undefined>();
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(() =>
+    Math.floor(Math.random() * LOADING_MESSAGES.length)
+  );
 
-  // Rotate loading messages
+  // Rotate loading messages randomly (never repeating consecutively)
   useEffect(() => {
     if (state !== 'generating') return;
     const interval = setInterval(() => {
-      setLoadingMessageIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
+      setLoadingMessageIndex(prev => pickRandomMessageIndex(prev));
     }, 2000);
     return () => clearInterval(interval);
   }, [state]);
@@ -76,7 +99,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
   const generateBowl = useCallback(async (pantryOverride?: string[], feedback?: string, prevRecipe?: string) => {
     setState('generating');
     setIsLoading(true);
-    setLoadingMessageIndex(0);
+    setLoadingMessageIndex(prev => pickRandomMessageIndex(prev));
 
     const result = await withDemoErrorHandling(
       () => fetchSlopBowlRecipe({
@@ -279,23 +302,21 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
           Let's cook this!
         </Button>
 
-        <div className="text-center space-y-2">
-          <p className="text-sm text-gray-400">Not feeling it? No judgment.</p>
+        <div className="space-y-3">
+          <p className="text-sm text-gray-400 text-center">Not feeling it? No judgment.</p>
           <Button
             variant="outline"
             onClick={handleReject}
-            className="border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white"
+            className="w-full border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white py-3 text-lg"
           >
             Try something else
           </Button>
-          <div>
-            <button
-              onClick={onBackToPlanning}
-              className="text-sm text-gray-400 underline hover:text-gray-600 mt-2"
-            >
-              Plan your own meal instead
-            </button>
-          </div>
+          <Button
+            onClick={onBackToPlanning}
+            className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+          >
+            Plan your own meal instead
+          </Button>
         </div>
       </div>
     );
@@ -324,17 +345,18 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
           <Button
             onClick={() => handleRegenerate(true)}
             disabled={isLoading}
-            className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+            className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
           >
-            Generate another bowl
+            Recommend another bowl
           </Button>
 
-          <button
+          <Button
             onClick={() => handleRegenerate(false)}
-            className="w-full text-sm text-gray-400 underline hover:text-gray-600 text-center"
+            disabled={isLoading}
+            className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
           >
             Skip and just surprise me
-          </button>
+          </Button>
         </CardContent>
       </Card>
 
