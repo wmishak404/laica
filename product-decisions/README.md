@@ -13,3 +13,5 @@ This folder documents key product and technical decisions for the Laica project.
 | ID | Title | Date | Status |
 |----|-------|------|--------|
 | [PD-001](001-secrets-management.md) | Secrets Management with dotenvx | 2026-04-07 | Accepted |
+| [PD-002](002-slop-bowl.md) | Slop Bowl — Zero-Decision Cooking Path | 2026-04-09 | Accepted |
+| [PD-003](003-openai-model-strategy.md) | OpenAI Model Strategy — Tiered Model Selection | 2026-04-09 | Accepted |

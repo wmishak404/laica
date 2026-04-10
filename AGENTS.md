@@ -71,6 +71,11 @@ Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to 
 
 When completing a task, write a handoff file in `docs/handoffs/` so the other agent can pick up context. When starting new work, read recent handoffs to understand what's changed. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention and required sections. PR descriptions should include the same structured summary.
 
+**Handoffs must be pushed, not just written.** A handoff file that only exists in a local worktree is invisible to other agents. After writing a handoff:
+1. Commit and push to a branch on `origin` (your feature branch or `main` via PR).
+2. Only then signal the other agent to start work — reference the branch name so they know where to find it.
+3. The handoff is not "done" until it's on `origin`. An unpushed handoff is the same as no handoff.
+
 ## Code conventions
 
 - TypeScript throughout (client and server)
