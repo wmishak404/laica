@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Plus, X, ArrowLeft, ChefHat } from 'lucide-react';
+import { Clock, ArrowLeft, ChefHat, Settings } from 'lucide-react';
 import { fetchSlopBowlRecipe, type SlopBowlRecipe } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
-import { useUpdateUserProfile } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
   cookingSkill: string;
@@ -39,7 +36,7 @@ interface SlopBowlProps {
   userProfile: UserProfile;
   onMealSelected: (meal: RecipeRecommendation, scheduledTime: string) => void;
   onBackToPlanning: () => void;
-  onUpdateProfile: (profile: UserProfile) => void;
+  onEditPantry: () => void;
 }
 
 type SlopBowlState = 'pantry-check' | 'generating' | 'approval' | 'feedback';
@@ -55,13 +52,8 @@ const LOADING_MESSAGES = [
   "Chef's intuition loading...",
 ];
 
-export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning, onUpdateProfile }: SlopBowlProps) {
-  const { toast } = useToast();
-  const updateProfileMutation = useUpdateUserProfile();
-
+export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning, onEditPantry }: SlopBowlProps) {
   const [state, setState] = useState<SlopBowlState>('pantry-check');
-  const [ingredients, setIngredients] = useState<string[]>(userProfile.pantryIngredients);
-  const [newIngredient, setNewIngredient] = useState('');
   const [recipe, setRecipe] = useState<SlopBowlRecipe | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
@@ -77,33 +69,8 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     return () => clearInterval(interval);
   }, [state]);
 
-  const removeIngredient = (index: number) => {
-    setIngredients(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const addIngredient = () => {
-    const trimmed = newIngredient.trim().toLowerCase();
-    if (trimmed && !ingredients.includes(trimmed)) {
-      setIngredients(prev => [...prev, trimmed]);
-      setNewIngredient('');
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addIngredient();
-    }
-  };
-
-  const confirmPantry = async () => {
-    // Save updated pantry to profile
-    const updatedProfile = { ...userProfile, pantryIngredients: ingredients };
-    updateProfileMutation.mutate(updatedProfile);
-    onUpdateProfile(updatedProfile);
-
-    // Start generation
-    generateBowl(ingredients);
+  const confirmPantry = () => {
+    generateBowl(userProfile.pantryIngredients);
   };
 
   const generateBowl = useCallback(async (pantryOverride?: string[], feedback?: string, prevRecipe?: string) => {
@@ -162,78 +129,75 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
 
   const handleRegenerate = (withFeedback: boolean) => {
     const feedback = withFeedback ? feedbackText.trim() : undefined;
-    generateBowl(ingredients, feedback, previousRecipe);
+    generateBowl(userProfile.pantryIngredients, feedback, previousRecipe);
   };
 
   // ── Pantry Check ──────────────────────────────────────────────────────────
-  const renderPantryCheck = () => (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Quick pantry check</h2>
-        <p className="text-gray-600">
-          Here's what we think you have. Tap to remove anything that's gone. Add anything we missed.
-        </p>
-      </div>
+  const renderPantryCheck = () => {
+    const pantry = userProfile.pantryIngredients;
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">Quick pantry check</h2>
+          <p className="text-gray-600">
+            Here's what we think you have. To make changes, edit your pantry in your profile.
+          </p>
+        </div>
 
-      <Card>
-        <CardContent className="p-4 space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {ingredients.map((item, index) => (
-              <Badge
-                key={`${item}-${index}`}
-                variant="secondary"
-                className="bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700 cursor-pointer transition-colors px-3 py-1.5 text-sm"
-                onClick={() => removeIngredient(index)}
-              >
-                {item}
-                <X className="h-3 w-3 ml-1.5" />
-              </Badge>
-            ))}
-          </div>
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            {pantry.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {pantry.map((item, index) => (
+                  <Badge
+                    key={`${item}-${index}`}
+                    variant="secondary"
+                    className="bg-gray-100 text-gray-700 px-3 py-1.5 text-sm"
+                  >
+                    {item}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-2">
+                Your pantry is empty. Add some ingredients in your profile to get started.
+              </p>
+            )}
 
-          <div className="flex gap-2">
-            <Input
-              value={newIngredient}
-              onChange={(e) => setNewIngredient(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Add an ingredient..."
-              className="flex-1"
-            />
+            <p className="text-xs text-gray-400 text-center">
+              {pantry.length} ingredient{pantry.length !== 1 ? 's' : ''}
+            </p>
+
             <Button
               variant="outline"
-              size="sm"
-              onClick={addIngredient}
-              disabled={!newIngredient.trim()}
-              className="px-3"
+              onClick={onEditPantry}
+              className="w-full"
             >
-              <Plus className="h-4 w-4" />
+              <Settings className="h-4 w-4 mr-2" />
+              Edit pantry in profile
             </Button>
-          </div>
+          </CardContent>
+        </Card>
 
-          <p className="text-xs text-gray-400 text-center">
-            {ingredients.length} ingredient{ingredients.length !== 1 ? 's' : ''}
-          </p>
-        </CardContent>
-      </Card>
+        <Button
+          onClick={confirmPantry}
+          disabled={pantry.length === 0}
+          className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+        >
+          This looks right
+        </Button>
 
-      <Button
-        onClick={confirmPantry}
-        disabled={ingredients.length === 0}
-        className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
-      >
-        This looks right
-      </Button>
-
-      <Button
-        variant="ghost"
-        onClick={onBackToPlanning}
-        className="w-full text-gray-500"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to options
-      </Button>
-    </div>
-  );
+        <Button
+          variant="ghost"
+          onClick={onBackToPlanning}
+          className="w-full text-gray-500"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to options
+        </Button>
+      </div>
+    );
+  };
 
   // ── Generating ────────────────────────────────────────────────────────────
   const renderGenerating = () => (
