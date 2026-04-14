@@ -494,7 +494,7 @@ export default function MobileApp() {
                 setShowPlanningChoice(true);
                 setCurrentPhase('planning');
               }}
-              onUpdateProfile={(updatedProfile) => setUserProfile(updatedProfile)}
+              onEditPantry={() => setCurrentPhase('settings')}
             />
           </div>
         );
