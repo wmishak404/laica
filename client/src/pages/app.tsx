@@ -355,7 +355,7 @@ export default function MobileApp() {
             <div className="relative">
               <h3 className="font-bold text-lg text-gray-900">Slop Bowl</h3>
               <p className="text-xs text-gray-700 mt-1 font-medium italic">
-                Zero decisions. Maximum chaos.
+                Laica will plan for you.
               </p>
             </div>
             <Button
