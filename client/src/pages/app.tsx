@@ -56,14 +56,10 @@ const SLOP_BOWL_STICKER_TAGLINES = [
   'FLAVOR ROULETTE',
 ];
 
-// Chef emoji roster — man, woman, and gender-neutral cook across the five
-// Fitzpatrick skin tones (18 total). A fresh one is picked each time the
-// planning-choice screen is shown so the card feels inclusive of every home chef.
-const CHEF_EMOJIS = [
-  '👨‍🍳', '👨🏻‍🍳', '👨🏼‍🍳', '👨🏽‍🍳', '👨🏾‍🍳', '👨🏿‍🍳',
-  '👩‍🍳', '👩🏻‍🍳', '👩🏼‍🍳', '👩🏽‍🍳', '👩🏾‍🍳', '👩🏿‍🍳',
-  '🧑‍🍳', '🧑🏻‍🍳', '🧑🏼‍🍳', '🧑🏽‍🍳', '🧑🏾‍🍳', '🧑🏿‍🍳',
-];
+// Chef emoji roster — man and woman cook at the default yellow tone
+// (race-neutral). A fresh one is picked each time the planning-choice
+// screen is shown so the card alternates representation.
+const CHEF_EMOJIS = ['👨‍🍳', '👩‍🍳'];
 
 export default function MobileApp() {
   const { user } = useAuth();
@@ -93,9 +89,8 @@ export default function MobileApp() {
     [showPlanningChoice]
   );
 
-  // Picks a fresh random chef emoji each time the planning-choice screen is
-  // shown. Rotates across genders and skin tones so every home chef sees
-  // themselves represented at least some of the time.
+  // Picks a fresh random chef emoji (man or woman, yellow tone) each time
+  // the planning-choice screen is shown.
   const chefEmoji = useMemo(
     () => CHEF_EMOJIS[Math.floor(Math.random() * CHEF_EMOJIS.length)],
     [showPlanningChoice]
