@@ -120,3 +120,39 @@ html, body {
     border-radius: 18px 18px 4px 18px;
   }
 }
+
+/* Slop Bowl playful animations */
+@keyframes steam-rise {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-14px) translateX(3px) scale(1.15);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(-28px) translateX(-2px) scale(0.7);
+    opacity: 0;
+  }
+}
+
+@keyframes slop-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-8deg); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(5deg); }
+}
+
+.steam-puff {
+  animation: steam-rise 2.2s ease-out infinite;
+  display: inline-block;
+}
+
+.steam-puff-d1 { animation-delay: 0.7s; }
+.steam-puff-d2 { animation-delay: 1.4s; }
+
+.slop-bowl-card:hover .slop-emoji {
+  animation: slop-wobble 0.7s ease-in-out;
+}
