@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'wouter';
 import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -49,6 +49,12 @@ interface RecipeRecommendation {
 
 type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-bowl';
 
+const SLOP_BOWL_STICKER_TAGLINES = [
+  'MAKE GOOD SLOP',
+  'LESS BRAIN POWER',
+  'NO RULES',
+];
+
 export default function MobileApp() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -69,6 +75,13 @@ export default function MobileApp() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false);
   const [showPlanningChoice, setShowPlanningChoice] = useState(true);
+
+  // Picks a fresh random tagline for the Slop Bowl sticker each time the
+  // planning-choice screen is shown. Stable across re-renders while visible.
+  const slopBowlStickerTagline = useMemo(
+    () => SLOP_BOWL_STICKER_TAGLINES[Math.floor(Math.random() * SLOP_BOWL_STICKER_TAGLINES.length)],
+    [showPlanningChoice]
+  );
 
   // Load profile from database - database is the single source of truth
   useEffect(() => {
@@ -315,10 +328,10 @@ export default function MobileApp() {
             setCurrentPhase('slop-bowl');
           }}
         >
-          {/* Sticker badge - counter-rotated for handmade feel */}
+          {/* Sticker badge - counter-rotated for handmade feel. Tagline rolls random per visit. */}
           <div className="absolute -top-2 -right-2 z-10 rotate-6 pointer-events-none">
             <span className="bg-[#FF6B6B] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md tracking-wider uppercase whitespace-nowrap">
-              chef's gamble
+              {slopBowlStickerTagline}
             </span>
           </div>
 
