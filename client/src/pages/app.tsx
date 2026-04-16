@@ -515,8 +515,9 @@ export default function MobileApp() {
                 userProfile={userProfile}
                 onMealSelected={handleMealSelected}
                 onBackToProfile={() => {
+                  // Back from step 1 of manual planning returns to the
+                  // Slop Bowl vs Chef it up choice screen, not the profile.
                   setShowPlanningChoice(true);
-                  setCurrentPhase('settings');
                 }}
               />
             )}
