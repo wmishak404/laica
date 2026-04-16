@@ -375,7 +375,7 @@ export default function MobileApp() {
           <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
             <ClipboardList className="h-10 w-10 text-gray-600" />
             <div>
-              <h3 className="font-bold text-lg text-gray-900">Something more specific</h3>
+              <h3 className="font-bold text-lg text-gray-900">Chef it up!</h3>
               <p className="text-xs text-gray-500 mt-1">
                 Choose your cuisine, time, and pick from suggestions.
               </p>
