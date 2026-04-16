@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Home, LogOut, User, MessageCircle, ChefHat, Soup, ClipboardList } from 'lucide-react';
+import { Settings, Home, LogOut, User, MessageCircle, ChefHat, ClipboardList } from 'lucide-react';
 import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
@@ -309,23 +309,43 @@ export default function MobileApp() {
       <div className="grid grid-cols-2 gap-3">
         {/* Slop Bowl card */}
         <Card
-          className="cursor-pointer hover:shadow-md transition-all border-2 border-transparent hover:border-[#FF6B6B]/30"
+          className="slop-bowl-card relative cursor-pointer transition-all duration-200 -rotate-1 hover:rotate-0 hover:shadow-lg border-2 border-[#FF6B6B]/25 hover:border-[#FF6B6B]/60 bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50"
           onClick={() => {
             setShowPlanningChoice(false);
             setCurrentPhase('slop-bowl');
           }}
         >
-          <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-            <Soup className="h-10 w-10 text-[#FF6B6B]" />
-            <div>
+          {/* Sticker badge - counter-rotated for handmade feel */}
+          <div className="absolute -top-2 -right-2 z-10 rotate-6 pointer-events-none">
+            <span className="bg-[#FF6B6B] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md tracking-wider uppercase whitespace-nowrap">
+              chef's gamble
+            </span>
+          </div>
+
+          <CardContent className="p-4 pt-5 flex flex-col items-center text-center space-y-3 relative">
+            {/* Scattered pantry emojis at low opacity */}
+            <span className="absolute top-2 left-2 text-xs opacity-20 select-none pointer-events-none">🧀</span>
+            <span className="absolute top-14 right-3 text-sm opacity-20 select-none pointer-events-none">🍝</span>
+            <span className="absolute bottom-20 left-3 text-xs opacity-20 select-none pointer-events-none">🌶️</span>
+            <span className="absolute bottom-24 right-2 text-xs opacity-15 select-none pointer-events-none">🥫</span>
+
+            {/* Icon with animated steam puffs */}
+            <div className="relative">
+              <span className="steam-puff absolute -top-3 left-1/2 -translate-x-1/2 text-sm opacity-60 pointer-events-none">💨</span>
+              <span className="steam-puff steam-puff-d1 absolute -top-2 left-[25%] text-[10px] opacity-50 pointer-events-none">💨</span>
+              <span className="steam-puff steam-puff-d2 absolute -top-2 right-[20%] text-[10px] opacity-50 pointer-events-none">💨</span>
+              <span className="slop-emoji text-5xl inline-block select-none" role="img" aria-label="slop bowl">🥣</span>
+            </div>
+
+            <div className="relative">
               <h3 className="font-bold text-lg text-gray-900">Slop Bowl</h3>
-              <p className="text-xs text-gray-500 mt-1">
-                Trust the slop. We'll raid your pantry and make something great.
+              <p className="text-xs text-gray-700 mt-1 font-medium italic">
+                Zero decisions. Maximum chaos.
               </p>
             </div>
             <Button
               size="sm"
-              className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+              className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white relative z-10"
             >
               Let's go
             </Button>
