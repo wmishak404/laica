@@ -329,11 +329,12 @@ export default function MobileApp() {
             <span className="absolute bottom-20 left-3 text-xs opacity-20 select-none pointer-events-none">🌶️</span>
             <span className="absolute bottom-24 right-2 text-xs opacity-15 select-none pointer-events-none">🥫</span>
 
-            {/* Icon with animated steam puffs */}
+            {/* Icon with ingredients falling into the bowl */}
             <div className="relative">
-              <span className="steam-puff absolute -top-3 left-1/2 -translate-x-1/2 text-sm opacity-60 pointer-events-none">💨</span>
-              <span className="steam-puff steam-puff-d1 absolute -top-2 left-[25%] text-[10px] opacity-50 pointer-events-none">💨</span>
-              <span className="steam-puff steam-puff-d2 absolute -top-2 right-[20%] text-[10px] opacity-50 pointer-events-none">💨</span>
+              <span className="slop-ingredient text-sm left-[22%]" aria-hidden="true">🍖</span>
+              <span className="slop-ingredient slop-ingredient-d1 text-sm left-[42%]" aria-hidden="true">🥦</span>
+              <span className="slop-ingredient slop-ingredient-d2 text-sm left-[58%]" aria-hidden="true">🍚</span>
+              <span className="slop-ingredient slop-ingredient-d3 text-sm left-[76%]" aria-hidden="true">🍅</span>
               <span className="slop-emoji text-5xl inline-block select-none" role="img" aria-label="slop bowl">🥣</span>
             </div>
 
