@@ -101,16 +101,12 @@ export class FirebaseAuthService {
       const result = await getRedirectResult(auth);
       return result?.user ? this.formatUser(result.user) : null;
     } catch (error: any) {
-      console.error('Error handling redirect result:', error);
-      
-      // Handle "missing initial state" error specifically
-      if (error.message?.includes('missing initial state') || error.code === 'auth/invalid-action-code') {
-        console.warn('Safari redirect flow failed - this is expected on iOS Safari');
-        // Don't throw error for this case, it's expected on iOS Safari
-        return null;
-      }
-      
-      throw error;
+      // Swallow all errors silently — getRedirectResult only produces meaningful
+      // results when signInWithRedirect was explicitly initiated. In partitioned-
+      // storage browsers (Safari ITP, in-app browsers) it throws spuriously on
+      // every page load. Returning null is always safe here.
+      console.warn('getRedirectResult failed (expected in partitioned-storage browsers):', error?.code || error?.message);
+      return null;
     }
   }
 

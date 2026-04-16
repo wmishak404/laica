@@ -35,16 +35,10 @@ export function useFirebaseAuth() {
         }
       })
       .catch((error) => {
+        // handleRedirectResult already swallows all errors internally.
+        // This catch is a last-resort safety net — never show raw Firebase
+        // messages to the user.
         console.error('Redirect result error:', error);
-        
-        // Don't show error toast for "missing initial state" - it's expected on iOS Safari
-        if (!error.message?.includes('missing initial state')) {
-          toast({
-            title: "Sign-in Error", 
-            description: "There was a problem signing you in. Please try again.",
-            variant: "destructive",
-          });
-        }
       });
 
     return () => unsubscribe();
@@ -97,7 +91,18 @@ export function useFirebaseAuth() {
       console.error('Google sign-in error:', error);
       
       let errorMessage = "Failed to sign in with Google. Please try again.";
-      
+
+      // Internal Firebase messages that should never be shown to users
+      const internalFirebaseMessages = [
+        'missing initial state',
+        'sessionStorage',
+        'storage-partitioned',
+        'SAML SSO',
+      ];
+      const isInternalError = internalFirebaseMessages.some(m =>
+        error.message?.toLowerCase().includes(m.toLowerCase())
+      );
+
       // Check for common Firebase auth errors
       if (error.code === 'auth/operation-not-allowed') {
         errorMessage = "Google sign-in is not enabled in Firebase. Please enable Google authentication in Firebase Console.";
@@ -105,7 +110,7 @@ export function useFirebaseAuth() {
         errorMessage = "Domain not authorized. Please add your current domain to Firebase's authorized domains list.";
       } else if (error.code === 'auth/popup-blocked') {
         errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
-      } else if (error.message) {
+      } else if (error.message && !isInternalError) {
         errorMessage = error.message;
       }
       
