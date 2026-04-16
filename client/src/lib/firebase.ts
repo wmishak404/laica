@@ -105,7 +105,9 @@ export class FirebaseAuthService {
       // results when signInWithRedirect was explicitly initiated. In partitioned-
       // storage browsers (Safari ITP, in-app browsers) it throws spuriously on
       // every page load. Returning null is always safe here.
-      console.warn('getRedirectResult failed (expected in partitioned-storage browsers):', error?.code || error?.message);
+      if (import.meta.env.DEV) {
+        console.debug('getRedirectResult failed (expected in partitioned-storage browsers):', error?.code || error?.message);
+      }
       return null;
     }
   }
