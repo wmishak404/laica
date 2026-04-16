@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Home, LogOut, User, MessageCircle, ChefHat, ClipboardList } from 'lucide-react';
+import { Settings, Home, LogOut, User, MessageCircle, ChefHat } from 'lucide-react';
 import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
@@ -336,7 +336,7 @@ export default function MobileApp() {
             </span>
           </div>
 
-          <CardContent className="p-4 pt-5 flex flex-col items-center text-center space-y-3 relative">
+          <CardContent className="p-4 pt-5 flex flex-col items-center text-center h-full relative">
             {/* Scattered pantry emojis at low opacity */}
             <span className="absolute top-2 left-2 text-xs opacity-20 select-none pointer-events-none">🧀</span>
             <span className="absolute top-14 right-3 text-sm opacity-20 select-none pointer-events-none">🍝</span>
@@ -344,15 +344,17 @@ export default function MobileApp() {
             <span className="absolute bottom-24 right-2 text-xs opacity-15 select-none pointer-events-none">🥫</span>
 
             {/* Icon with ingredients falling into the bowl */}
-            <div className="relative">
-              <span className="slop-ingredient text-sm left-[22%]" aria-hidden="true">🍖</span>
-              <span className="slop-ingredient slop-ingredient-d1 text-sm left-[42%]" aria-hidden="true">🥦</span>
-              <span className="slop-ingredient slop-ingredient-d2 text-sm left-[58%]" aria-hidden="true">🍚</span>
-              <span className="slop-ingredient slop-ingredient-d3 text-sm left-[76%]" aria-hidden="true">🍅</span>
-              <span className="slop-emoji text-5xl inline-block select-none" role="img" aria-label="slop bowl">🥣</span>
+            <div className="h-14 flex items-center justify-center">
+              <div className="relative">
+                <span className="slop-ingredient text-sm left-[22%]" aria-hidden="true">🍖</span>
+                <span className="slop-ingredient slop-ingredient-d1 text-sm left-[42%]" aria-hidden="true">🥦</span>
+                <span className="slop-ingredient slop-ingredient-d2 text-sm left-[58%]" aria-hidden="true">🍚</span>
+                <span className="slop-ingredient slop-ingredient-d3 text-sm left-[76%]" aria-hidden="true">🍅</span>
+                <span className="slop-emoji text-5xl leading-none inline-block select-none" role="img" aria-label="slop bowl">🥣</span>
+              </div>
             </div>
 
-            <div className="relative">
+            <div className="flex-1 flex flex-col justify-center relative my-3">
               <h3 className="font-bold text-lg text-gray-900">Slop Bowl</h3>
               <p className="text-xs text-gray-700 mt-1 font-medium italic">
                 Zero decisions. Laica will plan for you.
@@ -372,9 +374,11 @@ export default function MobileApp() {
           className="cursor-pointer hover:shadow-md transition-all border-2 border-transparent hover:border-gray-300"
           onClick={() => setShowPlanningChoice(false)}
         >
-          <CardContent className="p-4 flex flex-col items-center text-center space-y-3">
-            <ClipboardList className="h-10 w-10 text-gray-600" />
-            <div>
+          <CardContent className="p-4 pt-5 flex flex-col items-center text-center h-full">
+            <div className="h-14 flex items-center justify-center">
+              <span className="text-5xl leading-none select-none" role="img" aria-label="chef">👨‍🍳</span>
+            </div>
+            <div className="flex-1 flex flex-col justify-center my-3">
               <h3 className="font-bold text-lg text-gray-900">Chef it up!</h3>
               <p className="text-xs text-gray-500 mt-1">
                 Choose your cuisine, time, and pick from suggestions.
