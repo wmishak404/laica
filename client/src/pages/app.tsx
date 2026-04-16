@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'wouter';
 import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -49,6 +49,13 @@ interface RecipeRecommendation {
 
 type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-bowl';
 
+const SLOP_BOWL_STICKER_TAGLINES = [
+  'MAKE GOOD SLOP',
+  'LESS BRAIN POWER',
+  'NO RULES',
+  'FLAVOR ROULETTE',
+];
+
 export default function MobileApp() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -69,6 +76,13 @@ export default function MobileApp() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false);
   const [showPlanningChoice, setShowPlanningChoice] = useState(true);
+
+  // Picks a fresh random tagline for the Slop Bowl sticker each time the
+  // planning-choice screen is shown. Stable across re-renders while visible.
+  const slopBowlStickerTagline = useMemo(
+    () => SLOP_BOWL_STICKER_TAGLINES[Math.floor(Math.random() * SLOP_BOWL_STICKER_TAGLINES.length)],
+    [showPlanningChoice]
+  );
 
   // Load profile from database - database is the single source of truth
   useEffect(() => {
@@ -315,10 +329,10 @@ export default function MobileApp() {
             setCurrentPhase('slop-bowl');
           }}
         >
-          {/* Sticker badge - counter-rotated for handmade feel */}
+          {/* Sticker badge - counter-rotated for handmade feel. Tagline rolls random per visit. */}
           <div className="absolute -top-2 -right-2 z-10 rotate-6 pointer-events-none">
             <span className="bg-[#FF6B6B] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md tracking-wider uppercase whitespace-nowrap">
-              chef's gamble
+              {slopBowlStickerTagline}
             </span>
           </div>
 
@@ -329,11 +343,12 @@ export default function MobileApp() {
             <span className="absolute bottom-20 left-3 text-xs opacity-20 select-none pointer-events-none">🌶️</span>
             <span className="absolute bottom-24 right-2 text-xs opacity-15 select-none pointer-events-none">🥫</span>
 
-            {/* Icon with animated steam puffs */}
+            {/* Icon with ingredients falling into the bowl */}
             <div className="relative">
-              <span className="steam-puff absolute -top-3 left-1/2 -translate-x-1/2 text-sm opacity-60 pointer-events-none">💨</span>
-              <span className="steam-puff steam-puff-d1 absolute -top-2 left-[25%] text-[10px] opacity-50 pointer-events-none">💨</span>
-              <span className="steam-puff steam-puff-d2 absolute -top-2 right-[20%] text-[10px] opacity-50 pointer-events-none">💨</span>
+              <span className="slop-ingredient text-sm left-[22%]" aria-hidden="true">🍖</span>
+              <span className="slop-ingredient slop-ingredient-d1 text-sm left-[42%]" aria-hidden="true">🥦</span>
+              <span className="slop-ingredient slop-ingredient-d2 text-sm left-[58%]" aria-hidden="true">🍚</span>
+              <span className="slop-ingredient slop-ingredient-d3 text-sm left-[76%]" aria-hidden="true">🍅</span>
               <span className="slop-emoji text-5xl inline-block select-none" role="img" aria-label="slop bowl">🥣</span>
             </div>
 
