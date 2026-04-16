@@ -53,6 +53,7 @@ const SLOP_BOWL_STICKER_TAGLINES = [
   'MAKE GOOD SLOP',
   'LESS BRAIN POWER',
   'NO RULES',
+  'FLAVOR ROULETTE',
 ];
 
 export default function MobileApp() {
