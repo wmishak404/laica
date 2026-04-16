@@ -375,8 +375,9 @@ export default function MobileApp() {
           onClick={() => setShowPlanningChoice(false)}
         >
           <CardContent className="p-4 pt-5 flex flex-col items-center text-center h-full">
-            <div className="h-14 flex items-center justify-center">
-              <span className="text-5xl leading-none select-none" role="img" aria-label="chef">👨‍🍳</span>
+            <div className="h-14 flex items-center justify-center gap-1">
+              <span className="text-4xl leading-none select-none" role="img" aria-label="chef">👨‍🍳</span>
+              <span className="text-4xl leading-none select-none" role="img" aria-label="chef">👩‍🍳</span>
             </div>
             <div className="flex-1 flex flex-col justify-center my-3">
               <h3 className="font-bold text-lg text-gray-900">Chef it up!</h3>
