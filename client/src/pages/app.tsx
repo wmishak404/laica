@@ -56,6 +56,15 @@ const SLOP_BOWL_STICKER_TAGLINES = [
   'FLAVOR ROULETTE',
 ];
 
+// Chef emoji roster — man, woman, and gender-neutral cook across the five
+// Fitzpatrick skin tones (18 total). A fresh one is picked each time the
+// planning-choice screen is shown so the card feels inclusive of every home chef.
+const CHEF_EMOJIS = [
+  '👨‍🍳', '👨🏻‍🍳', '👨🏼‍🍳', '👨🏽‍🍳', '👨🏾‍🍳', '👨🏿‍🍳',
+  '👩‍🍳', '👩🏻‍🍳', '👩🏼‍🍳', '👩🏽‍🍳', '👩🏾‍🍳', '👩🏿‍🍳',
+  '🧑‍🍳', '🧑🏻‍🍳', '🧑🏼‍🍳', '🧑🏽‍🍳', '🧑🏾‍🍳', '🧑🏿‍🍳',
+];
+
 export default function MobileApp() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -81,6 +90,14 @@ export default function MobileApp() {
   // planning-choice screen is shown. Stable across re-renders while visible.
   const slopBowlStickerTagline = useMemo(
     () => SLOP_BOWL_STICKER_TAGLINES[Math.floor(Math.random() * SLOP_BOWL_STICKER_TAGLINES.length)],
+    [showPlanningChoice]
+  );
+
+  // Picks a fresh random chef emoji each time the planning-choice screen is
+  // shown. Rotates across genders and skin tones so every home chef sees
+  // themselves represented at least some of the time.
+  const chefEmoji = useMemo(
+    () => CHEF_EMOJIS[Math.floor(Math.random() * CHEF_EMOJIS.length)],
     [showPlanningChoice]
   );
 
@@ -375,9 +392,8 @@ export default function MobileApp() {
           onClick={() => setShowPlanningChoice(false)}
         >
           <CardContent className="p-4 pt-5 flex flex-col items-center text-center h-full">
-            <div className="h-14 flex items-center justify-center gap-1">
-              <span className="text-4xl leading-none select-none" role="img" aria-label="chef">👨‍🍳</span>
-              <span className="text-4xl leading-none select-none" role="img" aria-label="chef">👩‍🍳</span>
+            <div className="h-14 flex items-center justify-center">
+              <span className="text-5xl leading-none select-none" role="img" aria-label="chef">{chefEmoji}</span>
             </div>
             <div className="flex-1 flex flex-col justify-center my-3">
               <h3 className="font-bold text-lg text-gray-900">Chef it up!</h3>
