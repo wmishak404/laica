@@ -54,23 +54,20 @@ tests/           # Playwright + Vitest tests
 docs/adr/        # Architecture decision records
 docs/handoffs/   # Agent coordination handoff files
 product-decisions/ # Documented product and architecture decisions
-issues/          # Open governance / backlog items agents must check before related work
+epics/           # Open stories / backlog / governance — agents must check before related work
 ```
 
-## Open issues — check before starting design-touching work
+## Open epics — check before starting work in a governed domain
 
-The `issues/` directory tracks cross-cutting governance concerns as living markdown files (distinct from GitHub Issues). See `issues/README.md` for the convention.
+The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span multiple features. These are **not** GitHub Issues and **not** bug reports. See `epics/README.md` for the convention and the current open-epic registry.
 
-**When to read `issues/NNN-*.md`:** every time you start work that touches a governed domain. Each issue has an *Agent checklist* section listing the exact triggers. For UI/design work, read `issues/001-ui-governance.md` before:
+**When to read `epics/NNN-*.md`:** every time you start work that touches a governed domain. Each epic has an *Agent checklist* section listing the exact triggers. Current open epics:
 
-- Adding a new page or top-level surface
-- Creating a tone-forward component (custom animations, gradients, non-standard styling)
-- Introducing hex literals in `className` (check tokens first)
-- Adding custom `className` overrides to a shadcn primitive
-- Changing `client/src/components/ui/*.tsx`
-- Swapping or adding icon libraries, fonts, or typography
+- `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
+- `epics/002-home-getstarted-routing.md` — read before touching Home / Get Started / Cook navigation or the first-time-user profile flow
+- `epics/003-slop-bowl-pantry-quick-actions.md` — read before changing the Slop Bowl pantry-check UI or the pantry-override generation path
 
-If your work intersects with an open issue, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
+If your work intersects with an open epic, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
 
 ## Secrets
 
@@ -119,7 +116,7 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 Claude may **commit and push without asking** when the changes are limited to planning and coordination documents:
 - `docs/handoffs/*.md` — agent handoff files
 - `product-decisions/*.md` and `product-decisions/README.md` — product decision records
-- `issues/*.md` and `issues/README.md` — open governance / backlog items
+- `epics/*.md` and `epics/README.md` — open stories / backlog / governance
 - `AGENTS.md` — workflow/process updates
 
 This keeps a continuous conversation flow between Claude and Codex. The other agent can't see anything until it's on `origin`.

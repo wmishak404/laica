@@ -1,4 +1,4 @@
-# ISSUE-001 — UI Consistency & Design Governance
+# EPIC-001 — UI Consistency & Design Governance
 
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (plan drafting) / Claude (review + pilot-surface feedback)
@@ -13,7 +13,7 @@ Establish a hybrid UI-consistency system — concise style rubric + code-level e
 
 The Slop Bowl feature (see `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`) surfaced how easy it is for a feature branch to introduce bespoke styling that bypasses the tokens and primitives the repo already has. During that implementation, Codex separately drafted a "hybrid UI consistency system" plan. The two threads collided in a productive way: Slop Bowl became a live test case for the rubric, and the rubric became a check on Slop Bowl's drift.
 
-Wilson then decided to park the governance work until Slop Bowl ships, and track it here as the first entry in a new `issues/` system so it doesn't get lost.
+Wilson then decided to park the governance work until Slop Bowl ships, and track it here as the first entry in a new `epics/` system so it doesn't get lost.
 
 ### How the repo looks today (evidence, as of 2026-04-16 HEAD `claude/slop-bowl-ui`)
 
@@ -140,9 +140,9 @@ Claude's proposed table (from the review handoff):
 
 **Decision needed:** is this the right split? Reviewer reference, not a hard gate.
 
-## Agent checklist — when to read this issue
+## Agent checklist — when to read this epic
 
-Read ISSUE-001 before starting any of the following:
+Read EPIC-001 before starting any of the following:
 
 - [ ] Adding a **new page or top-level surface** to `client/src/pages/`
 - [ ] Creating a **new tone-forward component** with custom animation, tilt, gradient, or non-standard styling
@@ -155,21 +155,21 @@ Read ISSUE-001 before starting any of the following:
 
 When one of these applies, the handoff for the work **must**:
 
-1. Cite `issues/001-ui-governance.md`
-2. State how the change interacts with the issue (conforms / defers / adds new evidence)
-3. If the change adds new drift (new hex literals, new custom variants, new tone-forward surfaces), **document it here** in the issue under a new `## YYYY-MM-DD — <summary>` section so the next agent can see it
+1. Cite `epics/001-ui-governance.md`
+2. State how the change interacts with the epic (conforms / defers / adds new evidence)
+3. If the change adds new drift (new hex literals, new custom variants, new tone-forward surfaces), **document it here** in the epic under a new `## YYYY-MM-DD — <summary>` section so the next agent can see it
 
 ## Resolution criteria — what "done" looks like
 
-This issue is `Resolved` when all of the following are true:
+This epic is `Resolved` when all of the following are true:
 
 1. A `product-decisions/PD-005-ui-governance.md` exists with the accepted rubric (require/recommend table, primitive lock order, tone-override convention, rollout plan)
 2. The enforcement mechanism is shipped on `main` (at minimum: lint rule or PR template, whichever Phase 1 v2 lands on)
 3. At least one pilot surface has completed migration under the rubric (no `bg-[#hex]` violations, escape hatches documented where used)
-4. `design_guidelines.md` references the PD and the `issues/001` graduation note
-5. This issue file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the PD
+4. `design_guidelines.md` references the PD and the `epics/001` graduation note
+5. This epic file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the PD
 
-At that point, status flips to `Resolved`. Future UI-system concerns (tone refresh, design-system expansion, etc.) get their own issue numbers — ISSUE-002, 003, etc.
+At that point, status flips to `Resolved`. Future UI-system concerns (tone refresh, design-system expansion, etc.) get their own epic numbers — EPIC-002, 003, etc.
 
 ## Linked artifacts
 
@@ -182,7 +182,7 @@ At that point, status flips to `Resolved`. Future UI-system concerns (tone refre
 
 ## Chronology — how we got here
 
-### 2026-04-16 — Issue created
+### 2026-04-16 — Epic created
 
 Captured from the active thread during Slop Bowl implementation:
 
@@ -196,7 +196,7 @@ Captured from the active thread during Slop Bowl implementation:
 6. Wilson decided: **doc follows code** for both — "whatever we have today for now. We can change this later (which I want to in the future to make it less like many AI apps today)"
 7. Claude completed Phase 0 — reconciled `design_guidelines.md` to match `index.css` (Merriweather + SF Pro / Source Sans Pro), `lucide-react`, `rounded-lg` default; added a new **Color Palette & Tokens** section and a status banner flagging the future refresh as a separate workstream
 8. Codex signaled a v2 lean for Phase 1 (keep pilot narrower; lock Button, Input, Card, and page-headers first) — chat-only, not yet pushed
-9. Wilson called to park the governance work until Slop Bowl ships, and asked Claude to document the whole thread as ISSUE-001 so it can resume cleanly later. This doc is that record.
+9. Wilson called to park the governance work until Slop Bowl ships, and asked Claude to document the whole thread as EPIC-001 so it can resume cleanly later. This doc is that record.
 
 ## Next steps when work resumes
 
@@ -205,4 +205,4 @@ Captured from the active thread during Slop Bowl implementation:
 3. Claude re-reviews v2 against this issue's evidence
 4. One of Claude/Codex lands the enforcement mechanism (lint rule + PR template as starting point)
 5. Slop Bowl's 6+ `bg-[#FF6B6B]` / `hover:bg-[#FF5252]` callsites migrate to `bg-primary` / `hover:bg-primary/90` as the first pilot-surface cleanup
-6. Issue graduates to `PD-005-ui-governance.md`; this file flips to `Resolved`
+6. Epic graduates to `PD-005-ui-governance.md`; this file flips to `Resolved`
