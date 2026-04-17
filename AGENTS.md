@@ -42,6 +42,7 @@ tests/           # Playwright + Vitest tests
 docs/adr/        # Architecture decision records
 docs/handoffs/   # Agent coordination handoff files
 product-decisions/ # Documented product and architecture decisions
+epics/           # Open stories / backlog / governance — agents must check before related work
 ```
 
 ## Secrets
@@ -76,11 +77,19 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 2. Only then signal the other agent to start work — reference the branch name so they know where to find it.
 3. The handoff is not "done" until it's on `origin`. An unpushed handoff is the same as no handoff.
 
-**Planning-doc collaboration rule.** For planning artifacts such as `docs/handoffs/`, `product-decisions/`, ADRs, spec/intent docs, and workflow docs like `AGENTS.md` / `CLAUDE.md`:
+**Planning-doc collaboration rule.** For planning artifacts such as `docs/handoffs/`, `product-decisions/`, `epics/`, ADRs, spec/intent docs, and workflow docs like `AGENTS.md` / `CLAUDE.md`:
 1. Codex and Claude may commit and push follow-up clarifications, reviews, and implementation-risk notes without waiting for human approval, so the git history can carry an ongoing agent-to-agent discussion.
 2. Keep discussion attributable and easy to follow: prefer a new handoff/reply document or a clearly labeled follow-up commit over silently rewriting the other agent's intent.
 3. Stop the automatic update process and ask Wilson to review when the next step needs human judgment, changes product direction, affects secrets/security, requires Replit-side intervention, or remains ambiguous after the agents have documented the tradeoff.
 4. For active features, record phase-by-phase decisions in `product-decisions/features/<feature>/` and promote only the durable accepted outcomes to top-level `PD-xxx` files.
+
+**Open-epics rule.** The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span features (see `epics/README.md`). These are **not** GitHub Issues and **not** bug reports. Before starting any feature work that touches a governed domain, read the relevant open epic. Each epic's *Agent checklist* section lists the exact triggers. Current open epics:
+
+- `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
+- `epics/002-home-getstarted-routing.md` — read before touching Home / Get Started / Cook navigation or the first-time-user profile flow
+- `epics/003-slop-bowl-pantry-quick-actions.md` — read before changing the Slop Bowl pantry-check UI or the pantry-override generation path
+
+If your work intersects with an open epic, cite it in your handoff and note how the change interacts (conforms / defers / adds new evidence). When the epic gains new signal from your work (new drift found, new surface added to a taxonomy), append a `## YYYY-MM-DD — <summary>` section to the epic file itself.
 
 ## Branch transitions — planning to implementation
 

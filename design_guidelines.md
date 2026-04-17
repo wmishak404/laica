@@ -1,19 +1,48 @@
 # Laica AI Cooking Assistant - Design Guidelines
 
+> **Status: current-implementation record.** This document describes what the app *currently uses*, not the long-term target. A future refresh is planned to give Laica a more distinctive visual identity — less generic-AI-app-looking — but that is tracked as a separate workstream. Until that refresh lands, this doc is the source of truth for day-to-day code review and the UI-consistency rubric (see `docs/handoffs/2026-04-16-codex-ui-consistency-handoff-test.md`).
+
 ## Design Approach
 **System**: shadcn/ui with customization for warm, approachable cooking experience
 **Inspiration**: Notion's clean information hierarchy + Instagram's visual recipe presentation + Headspace's friendly, guided experience
 **Mobile-First Philosophy**: All layouts designed for thumb-friendly interaction, optimized for one-handed cooking use
 
 ## Typography System
-- **Primary Font**: Inter (via Google Fonts) for clean readability
-- **Accent Font**: DM Serif Display for recipe titles and warm personality
-- **Scale**:
-  - Hero/Recipe Titles: text-3xl to text-4xl (DM Serif Display, font-semibold)
-  - Section Headers: text-xl to text-2xl (Inter, font-semibold)
-  - Body Text: text-base (Inter, font-normal)
-  - Step Numbers: text-5xl to text-6xl (DM Serif Display, font-bold, subtle opacity)
-  - Captions/Meta: text-sm (Inter, font-medium)
+
+Current fonts loaded in `client/src/index.css`:
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
+```
+
+- **Body**: Tailwind default `font-sans` stack (system UI on each platform) — applied via `body { @apply font-sans; }`
+- **Headings** (`h1`–`h6`): `'SF Pro Display', 'Source Sans Pro', sans-serif` — picks up SF Pro natively on macOS/iOS, falls back to Source Sans Pro (loaded from Google Fonts) elsewhere
+- **Recipe titles** (`.recipe-title` utility class): `'Merriweather', serif` — used on full recipe-detail surfaces for warmth
+
+**Scale** (Tailwind utility classes in active use):
+  - Hero/Recipe Titles: `text-3xl` to `text-4xl`, `font-semibold`, `.recipe-title` (Merriweather)
+  - Section Headers: `text-xl` to `text-2xl`, `font-semibold` (SF Pro / Source Sans Pro stack)
+  - Body Text: `text-base`, `font-normal` (system sans)
+  - Step Numbers: `text-5xl` to `text-6xl`, `font-bold`, subtle opacity
+  - Captions/Meta: `text-sm`, `font-medium`
+
+> **Future direction**: Wilson plans to move away from the current Merriweather + SF Pro / Source Sans Pro stack toward a more distinctive type identity. Tracked as a separate workstream; no in-flight changes.
+
+## Color Palette & Tokens
+
+Brand colors live as CSS variables in `client/src/index.css` and are exposed to Tailwind via `bg-primary`, `text-secondary`, `bg-accent`, etc.
+
+| Token | HSL | Hex | Role |
+|---|---|---|---|
+| `--primary` | `0 80% 71%` | `#FF6B6B` | Warm coral — primary CTA, active states, highlights |
+| `--secondary` | `174 60% 56%` | `#4ECDC4` | Culinary teal — secondary actions, timers, progress |
+| `--accent` | `43 100% 71%` | `#FFE66D` | Butter yellow — callouts, small emphasis |
+| `--sidebar-background` | `222 14.3% 19.1%` | `#2D3436` | Charcoal — sidebar / dark surfaces |
+| `--destructive` | `0 84.2% 60.2%` | — | Standard red for destructive actions |
+
+Additional hover/shade values in active use: `#FF5252` (primary hover), `#FFB347`, `#FFD93D` (accent shades).
+
+**Rubric rule (Phase 0):** new code must reach the brand palette via tokens (`bg-primary`, `hover:bg-primary/90`, `bg-accent`) rather than hex literals (`bg-[#FF6B6B]`). Existing hex callsites will migrate incrementally — see the UI-consistency plan for enforcement details.
 
 ## Layout System
 **Spacing Primitives**: Tailwind units of 3, 4, 6, 8, 12, 16
@@ -26,7 +55,7 @@
 **Container Strategy**:
 - Mobile: Full width with px-4 gutters
 - Desktop: max-w-6xl centered (when needed for recipe detail views)
-- Cards: Rounded-2xl with soft shadows
+- Cards: default shadcn `Card` primitive uses `rounded-lg` with `shadow-sm`. Featured / hero cards (marketing and home sections) use `rounded-xl` with `shadow-sm hover:shadow-md`. Reserve `rounded-2xl` for genuinely hero-sized imagery; avoid arbitrary-value radii (`rounded-[N]`).
 
 ## Core Component Library
 
@@ -91,11 +120,9 @@
 - "Listening..." pulsing indicator
 
 ## Icons
-**Library**: Heroicons (outline for default, solid for active states)
-**Common Icons**: 
-- Chef hat, clock, users (servings), flame (difficulty)
-- Microphone, search, bookmark, shopping bag
-- Chevrons, check marks, plus/minus
+**Library**: `lucide-react` (53 import sites across `client/src`). Default variant is outline-style; use the same icon at a different size/weight rather than swapping libraries for an emphasis shift.
+**Common icons already in use**: `ChefHat`, `Clock`, `Home`, `Settings`, `User`, `MessageCircle`, `Camera`, `Mic` / `MicOff`, `Play` / `Pause`, `Check` / `CheckCircle`, `ArrowLeft` / `ArrowRight`, `Plus`, `Info`, `AlertTriangle`, `Loader2`, `LogOut`, `Bell`, `Calendar`, `Copy`, `Menu`, `MoreVertical`.
+**Emoji as iconography**: acceptable on tone-forward surfaces (e.g. 🥣 on the Slop Bowl card, 👨‍🍳 / 👩‍🍳 on the planning-choice card) when the emoji carries product voice better than a lucide glyph would. Use sparingly on utilitarian surfaces.
 
 ## Images
 **Hero Section** (Home Screen):
