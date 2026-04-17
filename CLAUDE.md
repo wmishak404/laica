@@ -54,7 +54,23 @@ tests/           # Playwright + Vitest tests
 docs/adr/        # Architecture decision records
 docs/handoffs/   # Agent coordination handoff files
 product-decisions/ # Documented product and architecture decisions
+issues/          # Open governance / backlog items agents must check before related work
 ```
+
+## Open issues — check before starting design-touching work
+
+The `issues/` directory tracks cross-cutting governance concerns as living markdown files (distinct from GitHub Issues). See `issues/README.md` for the convention.
+
+**When to read `issues/NNN-*.md`:** every time you start work that touches a governed domain. Each issue has an *Agent checklist* section listing the exact triggers. For UI/design work, read `issues/001-ui-governance.md` before:
+
+- Adding a new page or top-level surface
+- Creating a tone-forward component (custom animations, gradients, non-standard styling)
+- Introducing hex literals in `className` (check tokens first)
+- Adding custom `className` overrides to a shadcn primitive
+- Changing `client/src/components/ui/*.tsx`
+- Swapping or adding icon libraries, fonts, or typography
+
+If your work intersects with an open issue, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
 
 ## Secrets
 
@@ -103,6 +119,7 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 Claude may **commit and push without asking** when the changes are limited to planning and coordination documents:
 - `docs/handoffs/*.md` — agent handoff files
 - `product-decisions/*.md` and `product-decisions/README.md` — product decision records
+- `issues/*.md` and `issues/README.md` — open governance / backlog items
 - `AGENTS.md` — workflow/process updates
 
 This keeps a continuous conversation flow between Claude and Codex. The other agent can't see anything until it's on `origin`.
