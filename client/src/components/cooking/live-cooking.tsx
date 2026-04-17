@@ -47,6 +47,11 @@ interface RecipeRecommendation {
   cuisine: string;
   pantryMatch: number;
   missingIngredients: string[];
+  // Slop Bowl additions (all optional — manual flow leaves them undefined)
+  isFusion?: boolean;
+  ingredients?: string[];      // actual pantry items used — fed to cooking steps
+  equipment?: string[];        // user's kitchen equipment — fed to cooking steps
+  overview?: string;           // short tagline from slop-bowl response
 }
 
 interface LiveCookingProps {
@@ -230,7 +235,11 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       setIsLoadingSteps(true);
       
       const stepsResult = await withDemoErrorHandling(async () => {
-        const response = await fetchCookingSteps(selectedMeal.recipeName);
+        const response = await fetchCookingSteps(selectedMeal.recipeName, {
+          ingredients: selectedMeal.ingredients,
+          equipment: selectedMeal.equipment,
+          description: selectedMeal.description,
+        });
         const parsedSteps = response.steps?.map((step, index): RecipeStep => {
           const normalizedStep = typeof step === 'string' ? { instruction: step } : step;
           const parsedDuration = typeof normalizedStep.duration === 'number'

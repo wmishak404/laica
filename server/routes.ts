@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { registerAdminRoutes } from "./admin-routes";
 import { storage } from "./storage";
 import { verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
-import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage } from "./openai";
+import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage, getSlopBowlRecipe } from "./openai";
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
 import { 
   updateUserProfileSchema, 
@@ -37,6 +37,30 @@ const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
   return res.status(401).json({ message: "Unauthorized" });
 };
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function getDaysAgo(dateValue: Date | string | null | undefined): number {
+  if (!dateValue) {
+    return 0;
+  }
+
+  const parsedDate = dateValue instanceof Date ? dateValue : new Date(dateValue);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 0;
+  }
+
+  return Math.max(0, Math.floor((Date.now() - parsedDate.getTime()) / MS_PER_DAY));
+}
+
+function getCuisineFromRecipeSnapshot(recipeSnapshot: unknown): string {
+  if (!recipeSnapshot || typeof recipeSnapshot !== "object") {
+    return "unknown";
+  }
+
+  const cuisine = (recipeSnapshot as { cuisine?: unknown }).cuisine;
+  return typeof cuisine === "string" && cuisine.trim().length > 0 ? cuisine : "unknown";
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Firebase/Google authentication routes
@@ -120,18 +144,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/recipes/slop-bowl', isAuthenticated, async (req: any, res) => {
+    try {
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+      const userId = firebaseUser.uid;
+      const schema = z.object({
+        pantryOverride: z.array(z.string().trim().min(1)).optional(),
+        feedback: z.string().trim().min(1).optional(),
+        previousRecipe: z.string().trim().min(1).optional(),
+      });
+
+      const { pantryOverride, feedback, previousRecipe } = schema.parse(req.body);
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const ingredients = pantryOverride ?? user.pantryIngredients ?? [];
+      if (ingredients.length === 0) {
+        return res.status(400).json({ message: "Add pantry ingredients before generating a Slop Bowl" });
+      }
+
+      if (!user.cookingSkill || !user.weeklyTime) {
+        return res.status(400).json({ message: "Complete your cooking skill and weekly time profile before generating a Slop Bowl" });
+      }
+
+      const sessions = await storage.getUserCookingSessions(userId, 10);
+      const recentMeals = sessions.map((session) => ({
+        recipeName: session.recipeName,
+        cuisine: getCuisineFromRecipeSnapshot(session.recipeSnapshot),
+        daysAgo: getDaysAgo(session.completedAt ?? session.startedAt),
+        rating: session.userRating ?? null,
+      }));
+
+      const recipe = await getSlopBowlRecipe({
+        ingredients,
+        cookingSkill: user.cookingSkill,
+        dietaryRestrictions: user.dietaryRestrictions ?? [],
+        weeklyTime: user.weeklyTime,
+        kitchenEquipment: user.kitchenEquipment ?? [],
+        recentMeals,
+        feedback,
+        previousRecipe,
+      });
+
+      res.json({ recipe });
+    } catch (error) {
+      console.error("Error generating Slop Bowl recipe:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid Slop Bowl request" });
+      }
+      res.status(500).json({ error: "Failed to generate Slop Bowl recipe" });
+    }
+  });
+
   // Cooking steps endpoint
   app.post('/api/cooking/steps', async (req, res) => {
     try {
       const schema = z.object({
-        recipeName: z.string()
+        recipeName: z.string(),
+        ingredients: z.array(z.string()).optional(),
+        equipment: z.array(z.string()).optional(),
+        description: z.string().optional(),
       });
       
-      const { recipeName } = schema.parse(req.body);
-      const steps = await getCookingSteps(recipeName);
+      const { recipeName, ingredients, equipment, description } = schema.parse(req.body);
+      const steps = await getCookingSteps(recipeName, ingredients, equipment, description);
       res.json(steps);
     } catch (error) {
       console.error('Error in cooking steps:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid cooking steps request' });
+      }
       res.status(500).json({ error: 'Failed to get cooking steps' });
     }
   });
@@ -407,44 +491,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
+      const recipeIngredientSchema = z.object({
+        name: z.string(),
+        quantity: z.string().optional(),
+        forSteps: z.array(z.number()).optional(),
+      });
+      const recipeStepSchema = z.object({
+        id: z.number().optional(),
+        instruction: z.string(),
+        duration: z.union([z.string(), z.number()]).optional(),
+        tips: z.string().optional(),
+        visualCues: z.string().optional(),
+        commonMistakes: z.string().optional(),
+        safetyLevel: z.string().optional(),
+      });
       const recipeSnapshotSchema = z.object({
         recipeName: z.string(),
         description: z.string(),
         cookTime: z.number(),
         difficulty: z.string(),
-        cuisine: z.string(),
+        cuisine: z.string().default("unknown"),
         pantryMatch: z.number(),
-        missingIngredients: z.array(z.string()),
-        ingredients: z.array(z.object({
-          name: z.string(),
-          quantity: z.string().optional(),
-          forSteps: z.array(z.number()).optional(),
-        })).default([]),
-        isFusion: z.boolean(),
-        steps: z.array(z.object({
-          id: z.number().optional(),
-          instruction: z.string(),
-          duration: z.union([z.string(), z.number()]).optional(),
-          tips: z.string().optional(),
-          visualCues: z.string().optional(),
-          commonMistakes: z.string().optional(),
-          safetyLevel: z.string().optional(),
-        })),
+        missingIngredients: z.array(z.string()).default([]),
+        pantryIngredientsUsed: z.array(z.string()).default([]),
+        additionalIngredientsNeeded: z.array(z.string()).default([]),
+        overview: z.string().optional(),
+        instructions: z.array(z.string()).default([]),
+        ingredients: z.array(recipeIngredientSchema).default([]),
+        isFusion: z.boolean().default(false),
+        steps: z.array(recipeStepSchema).default([]),
       }).optional();
 
       const schema = z.object({
         recipeName: z.string(),
         recipeDescription: z.string().optional(),
         recipeSnapshot: recipeSnapshotSchema,
-        ingredientsUsed: z.array(z.string()),
+        ingredientsUsed: z.array(z.string()).optional(),
         totalSteps: z.number(),
       });
       
       const sessionData = schema.parse(req.body);
+      const ingredientsUsed = sessionData.ingredientsUsed
+        ?? sessionData.recipeSnapshot?.pantryIngredientsUsed
+        ?? sessionData.recipeSnapshot?.ingredients.map((ingredient) => ingredient.name)
+        ?? [];
       
       const session = await storage.createCookingSession({
         authUserId: userId,
         ...sessionData,
+        ingredientsUsed,
         completedSteps: 0,
         completed: false,
       });
