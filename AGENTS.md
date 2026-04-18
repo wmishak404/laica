@@ -87,6 +87,7 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 
 - `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
 - `epics/002-home-getstarted-routing.md` — read before touching Home / Get Started / Cook navigation or the first-time-user profile flow
+- `epics/004-selection-controls-tap-targets.md` — read before changing onboarding/settings radio-style menus, selection-row hit areas, or the shared radio-group composition
 
 If your work intersects with an open epic, cite it in your handoff and note how the change interacts (conforms / defers / adds new evidence). When the epic gains new signal from your work (new drift found, new surface added to a taxonomy), append a `## YYYY-MM-DD — <summary>` section to the epic file itself.
 
