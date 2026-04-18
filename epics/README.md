@@ -54,3 +54,4 @@ Per `CLAUDE.md`, changes to `epics/*.md` follow the planning-doc collaboration r
 | 001 | UI Consistency & Design Governance | Open | Wilson / Codex / Claude | 2026-04-16 |
 | 002 | Home / Get Started routing & Home-Cook nav consolidation | In Progress | Wilson / Claude | 2026-04-16 |
 | 004 | Selection controls should be full-row tap targets | Open | Wilson / Claude / Codex | 2026-04-17 |
+| 005 | App-wide testing strategy and acceptance criteria workflow | Open | Wilson / Codex / Claude | 2026-04-17 |
