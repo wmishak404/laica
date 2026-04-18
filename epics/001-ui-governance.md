@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (plan drafting) / Claude (review + pilot-surface feedback)
 **Created:** 2026-04-16
-**Updated:** 2026-04-16
+**Updated:** 2026-04-17
 
 ## One-line summary
 
@@ -197,6 +197,15 @@ Captured from the active thread during Slop Bowl implementation:
 7. Claude completed Phase 0 — reconciled `design_guidelines.md` to match `index.css` (Merriweather + SF Pro / Source Sans Pro), `lucide-react`, `rounded-lg` default; added a new **Color Palette & Tokens** section and a status banner flagging the future refresh as a separate workstream
 8. Codex signaled a v2 lean for Phase 1 (keep pilot narrower; lock Button, Input, Card, and page-headers first) — chat-only, not yet pushed
 9. Wilson called to park the governance work until Slop Bowl ships, and asked Claude to document the whole thread as EPIC-001 so it can resume cleanly later. This doc is that record.
+
+## 2026-04-17 — Full-row form selection issue split into EPIC-004
+
+Localhost review surfaced a utilitarian-form problem in the cooking-profile flow: radio-style choices for skill level and weekly time currently behave like bullet lists with small tap targets, even though users visually parse the full row as selectable. That issue is now tracked in `epics/004-selection-controls-tap-targets.md`.
+
+This is useful signal for EPIC-001 because it reinforces two governance points:
+
+- utilitarian surfaces need clearer, more reliable hit areas than the current tiny-dot composition provides
+- reusable control patterns for onboarding/settings forms should be treated as consistency primitives, not left as ad-hoc flex rows
 
 ## Next steps when work resumes
 

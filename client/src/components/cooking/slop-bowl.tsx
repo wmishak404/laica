@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Clock, ArrowLeft, ChefHat, Settings } from 'lucide-react';
+import { Clock, ArrowLeft, ChefHat, Settings, X } from 'lucide-react';
 import { fetchSlopBowlRecipe, type SlopBowlRecipe } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 
@@ -41,6 +42,12 @@ interface SlopBowlProps {
 
 type SlopBowlState = 'pantry-check' | 'generating' | 'approval' | 'feedback';
 
+interface PantryItem {
+  id: string;
+  name: string;
+  source: 'profile' | 'manual';
+}
+
 const LOADING_MESSAGES = [
   "Rummaging through your pantry...",
   "Assembling chaos into deliciousness...",
@@ -73,12 +80,23 @@ const pickRandomMessageIndex = (current: number) => {
   return next;
 };
 
+const normalizeIngredient = (value: string) => value.trim().replace(/\s+/g, ' ').toLowerCase();
+
+const createProfilePantryItems = (ingredients: string[]): PantryItem[] =>
+  ingredients.map((name, index) => ({
+    id: `profile-${index}-${normalizeIngredient(name)}`,
+    name,
+    source: 'profile',
+  }));
+
 export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning, onEditPantry }: SlopBowlProps) {
   const [state, setState] = useState<SlopBowlState>('pantry-check');
   const [recipe, setRecipe] = useState<SlopBowlRecipe | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const [previousRecipe, setPreviousRecipe] = useState<string | undefined>();
+  const [pantryItems, setPantryItems] = useState<PantryItem[]>(() => createProfilePantryItems(userProfile.pantryIngredients));
+  const [ingredientInput, setIngredientInput] = useState('');
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(() =>
     Math.floor(Math.random() * LOADING_MESSAGES.length)
   );
@@ -92,8 +110,18 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     return () => clearInterval(interval);
   }, [state]);
 
+  useEffect(() => {
+    setPantryItems(createProfilePantryItems(userProfile.pantryIngredients));
+    setIngredientInput('');
+  }, [userProfile.pantryIngredients]);
+
+  const pantryNames = pantryItems.map((item) => item.name);
+  const normalizedIngredientInput = normalizeIngredient(ingredientInput);
+  const canAddIngredient = normalizedIngredientInput.length > 0 &&
+    !pantryItems.some((item) => normalizeIngredient(item.name) === normalizedIngredientInput);
+
   const confirmPantry = () => {
-    generateBowl(userProfile.pantryIngredients);
+    generateBowl(pantryNames);
   };
 
   const generateBowl = useCallback(async (pantryOverride?: string[], feedback?: string, prevRecipe?: string) => {
@@ -152,18 +180,39 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
 
   const handleRegenerate = (withFeedback: boolean) => {
     const feedback = withFeedback ? feedbackText.trim() : undefined;
-    generateBowl(userProfile.pantryIngredients, feedback, previousRecipe);
+    generateBowl(pantryNames, feedback, previousRecipe);
+  };
+
+  const handleRemoveIngredient = (id: string) => {
+    setPantryItems((items) => items.filter((item) => item.id !== id));
+  };
+
+  const handleAddIngredient = () => {
+    const nextIngredient = ingredientInput.trim().replace(/\s+/g, ' ');
+    if (!canAddIngredient) return;
+
+    setPantryItems((items) => [
+      ...items,
+      {
+        id: `manual-${Date.now()}-${normalizedIngredientInput}`,
+        name: nextIngredient,
+        source: 'manual',
+      },
+    ]);
+    setIngredientInput('');
   };
 
   // ── Pantry Check ──────────────────────────────────────────────────────────
   const renderPantryCheck = () => {
-    const pantry = userProfile.pantryIngredients;
+    const pantry = pantryItems;
+    const hasManualAdditions = pantry.some((item) => item.source === 'manual');
+
     return (
       <div className="space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Quick pantry check</h2>
           <p className="text-gray-600">
-            Here's what we think you have. To make changes, edit your pantry in your profile.
+            Remove anything you&apos;re out of, or add something for this bowl only. Use your profile for permanent pantry changes.
           </p>
         </div>
 
@@ -171,25 +220,78 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
           <CardContent className="p-4 space-y-4">
             {pantry.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {pantry.map((item, index) => (
+                {pantry.map((item) => (
                   <Badge
-                    key={`${item}-${index}`}
-                    variant="secondary"
-                    className="bg-gray-100 text-gray-700 px-3 py-1.5 text-sm"
+                    key={item.id}
+                    variant={item.source === 'manual' ? 'outline' : 'secondary'}
+                    className={
+                      item.source === 'manual'
+                        ? 'gap-1 border-primary/20 bg-primary/10 px-3 py-1.5 text-sm text-primary'
+                        : 'gap-1 bg-gray-100 px-3 py-1.5 text-sm text-gray-700'
+                    }
                   >
-                    {item}
+                    {item.source === 'manual' && (
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80">
+                        Added
+                      </span>
+                    )}
+                    <span>{item.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveIngredient(item.id)}
+                      aria-label={`Remove ${item.name}`}
+                      className={
+                        item.source === 'manual'
+                          ? 'rounded-full p-0.5 text-primary/70 transition hover:bg-primary/15 hover:text-primary'
+                          : 'rounded-full p-0.5 text-gray-500 transition hover:bg-black/5 hover:text-gray-700'
+                      }
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
             ) : (
               <p className="text-sm text-gray-500 text-center py-2">
-                Your pantry is empty. Add some ingredients in your profile to get started.
+                No pantry items on file yet. Add an ingredient below or open your profile to update the full pantry.
               </p>
             )}
 
+            <form
+              className="space-y-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleAddIngredient();
+              }}
+            >
+              <div className="flex gap-2">
+                <Input
+                  value={ingredientInput}
+                  onChange={(event) => setIngredientInput(event.target.value)}
+                  placeholder="Add an ingredient"
+                  className="flex-1"
+                />
+                <Button type="submit" variant="outline" disabled={!canAddIngredient}>
+                  Add
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500">
+                Changes here only apply to this bowl. Use profile settings if you want them to stick.
+              </p>
+              {!canAddIngredient && normalizedIngredientInput.length > 0 && (
+                <p className="text-xs text-amber-600">That ingredient is already in this bowl.</p>
+              )}
+            </form>
+
             <p className="text-xs text-gray-400 text-center">
-              {pantry.length} ingredient{pantry.length !== 1 ? 's' : ''}
+              {pantry.length} ingredient{pantry.length !== 1 ? 's' : ''} ready for this bowl
             </p>
+
+            {hasManualAdditions && (
+              <p className="text-xs text-center text-primary">
+                Ingredients tagged Added are temporary and won&apos;t change your saved pantry.
+              </p>
+            )}
 
             <Button
               variant="outline"
@@ -381,4 +483,3 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     </div>
   );
 }
-

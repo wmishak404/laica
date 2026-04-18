@@ -147,6 +147,8 @@ Additional hover/shade values in active use: `#FF5252` (primary hover), `#FFB347
 ## Screen-Specific Layouts
 
 ### Home Dashboard
+Status: deferred / aspirational. Per `product-decisions/006-home-and-cook-remain-separate.md`, the current accepted IA keeps **Home** and **Cook** as separate surfaces. Home remains the landing/welcome surface, Cook remains the planning entry, and Cook is disabled until profile setup is complete. The richer dashboard ideas below remain a future direction, not a current implementation requirement.
+
 - Hero featured recipe with image + CTA
 - "Quick Start" section: Voice-activated cooking button (prominent, rounded-2xl, coral gradient)
 - Horizontal scroll: "Continue Cooking" saved recipes

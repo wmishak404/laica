@@ -1,9 +1,9 @@
 # EPIC-003 — Slop Bowl pantry-check quick actions (inline remove / add)
 
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson (product direction) / Claude (next implementation pass)
 **Created:** 2026-04-16
-**Updated:** 2026-04-16
+**Updated:** 2026-04-17
 
 ## One-line summary
 
@@ -141,6 +141,8 @@ This epic is `Resolved` when all of the following are true:
 - `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md:58` — API contract documenting `pantryOverride?: string[]`
 - `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — the read-only-pantry decision that this epic partially revises
 - `docs/handoffs/2026-04-10-claude-slop-bowl-ui-ready.md` — confirms client-server contract alignment (no server changes needed)
+- `docs/handoffs/2026-04-17-codex-epic-002-003-flow-fixes.md` — implementation handoff for the resolved quick-actions work
+- `docs/handoffs/2026-04-17-codex-epic-002-003-validation.md` — follow-up handoff recording validation/test confirmation
 
 ## Chronology — how we got here
 
@@ -150,10 +152,27 @@ During the same post-implementation walkthrough that surfaced EPIC-002, Wilson a
 
 Claude verified while drafting this epic that the server + client already accept `pantryOverride` end-to-end — so implementation is purely a client-side UI addition, no server coordination needed. That's what makes this a tight, self-contained epic rather than a feature requiring Codex involvement.
 
+## 2026-04-17 — Resolved
+
+Codex implemented the pantry-check quick actions in `client/src/components/cooking/slop-bowl.tsx`:
+
+- Ingredient badges now include an inline remove affordance
+- A manual add bar now sits below the pantry list with duplicate prevention and per-bowl helper copy
+- Quick edits are stored in ephemeral local state only, then passed through `pantryOverride` when generating or regenerating a bowl
+- The existing **Edit pantry in profile** button remains for camera features, bulk edits, and permanent pantry changes
+
+Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EPIC-003` note in `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
+
+## 2026-04-17 — Validated/tested after implementation
+
+Wilson later confirmed that the implemented EPIC-003 behavior was validated and tested.
+
+That validation confirms the resolved implementation is functioning as intended:
+
+- pantry-check quick actions are usable in the live flow
+- inline remove/add behavior works with the ephemeral per-bowl model
+- the modified list can be carried into Slop Bowl generation without reopening the permanent pantry-edit question
+
 ## Next steps when work resumes
 
-1. Wilson confirms Open Question #1 (ephemeral vs permanent) before any code lands
-2. Claude implements `renderPantryCheck` changes in a follow-up branch (`claude/slop-bowl-pantry-quick-actions` or similar) — client-only, one file
-3. If the UI work introduces new styling patterns (e.g. a custom remove-button primitive), validate against EPIC-001's rubric
-4. Update phase-04 with the revision note
-5. Graduate this epic to a product decision (or close as phase-05 of Slop Bowl) once the implementation lands
+Resolved on 2026-04-17. Future pantry-edit enhancements, if any, should spin out as a new epic or a later Slop Bowl phase note rather than reopening this one.
