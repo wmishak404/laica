@@ -131,6 +131,7 @@ This epic is `Resolved` when all of the following are true:
 - `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — planning-choice screen decisions (the target of the corrected routing)
 - `design_guidelines.md` — "Home Dashboard" section (currently aspirational, not implemented)
 - `docs/handoffs/2026-04-17-codex-epic-002-003-flow-fixes.md` — implementation handoff for the returning-user routing fix
+- `docs/handoffs/2026-04-17-codex-epic-002-003-validation.md` — follow-up handoff recording validation/test confirmation
 
 ## Chronology — how we got here
 
@@ -152,6 +153,17 @@ Codex implemented the low-risk half of this epic in `client/src/pages/app.tsx`:
 - The planning-ready predicate now accepts `cookingSkill + weeklyTime + (pantry OR kitchen equipment)` so users with enough setup to cook are not forced back through FTUE
 
 The Home-vs-Cook information-architecture question remains open. This epic stays active until Wilson chooses whether Home becomes a real dashboard, a lightweight redirect, or is consolidated into Cook.
+
+### 2026-04-17 — Implemented behavior validated/tested
+
+Wilson later confirmed that the implemented EPIC-002 behavior was validated and tested.
+
+This adds confidence that the returning-user routing fix works as intended in practice:
+
+- users with an existing planning-ready profile no longer have to re-run the first-time profile builder from Home
+- the welcome CTA routes them into the planning-choice screen as intended
+
+The epic still remains `In Progress` because the Home-vs-Cook information-architecture decision has not yet been finalized, and the resolution criteria still require that product direction to be documented.
 
 ## Next steps when work resumes
 

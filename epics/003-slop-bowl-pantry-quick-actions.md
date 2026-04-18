@@ -142,6 +142,7 @@ This epic is `Resolved` when all of the following are true:
 - `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — the read-only-pantry decision that this epic partially revises
 - `docs/handoffs/2026-04-10-claude-slop-bowl-ui-ready.md` — confirms client-server contract alignment (no server changes needed)
 - `docs/handoffs/2026-04-17-codex-epic-002-003-flow-fixes.md` — implementation handoff for the resolved quick-actions work
+- `docs/handoffs/2026-04-17-codex-epic-002-003-validation.md` — follow-up handoff recording validation/test confirmation
 
 ## Chronology — how we got here
 
@@ -161,6 +162,16 @@ Codex implemented the pantry-check quick actions in `client/src/components/cooki
 - The existing **Edit pantry in profile** button remains for camera features, bulk edits, and permanent pantry changes
 
 Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EPIC-003` note in `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
+
+## 2026-04-17 — Validated/tested after implementation
+
+Wilson later confirmed that the implemented EPIC-003 behavior was validated and tested.
+
+That validation confirms the resolved implementation is functioning as intended:
+
+- pantry-check quick actions are usable in the live flow
+- inline remove/add behavior works with the ephemeral per-bowl model
+- the modified list can be carried into Slop Bowl generation without reopening the permanent pantry-edit question
 
 ## Next steps when work resumes
 
