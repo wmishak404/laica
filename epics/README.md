@@ -52,5 +52,4 @@ Per `CLAUDE.md`, changes to `epics/*.md` follow the planning-doc collaboration r
 | # | Title | Status | Owner | Created |
 |---|---|---|---|---|
 | 001 | UI Consistency & Design Governance | Open | Wilson / Codex / Claude | 2026-04-16 |
-| 002 | Home / Get Started routing & Home-Cook nav consolidation | Open | Wilson / Claude | 2026-04-16 |
-| 003 | Slop Bowl pantry-check quick actions (inline remove / add) | Open | Wilson / Claude | 2026-04-16 |
+| 002 | Home / Get Started routing & Home-Cook nav consolidation | In Progress | Wilson / Claude | 2026-04-16 |

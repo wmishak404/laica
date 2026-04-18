@@ -49,6 +49,13 @@ interface RecipeRecommendation {
 
 type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-bowl';
 
+const hasPlanningProfile = (profile: UserProfile) =>
+  Boolean(
+    profile.cookingSkill &&
+    profile.weeklyTime &&
+    (profile.pantryIngredients.length > 0 || profile.kitchenEquipment.length > 0)
+  );
+
 const SLOP_BOWL_STICKER_TAGLINES = [
   'MAKE GOOD SLOP',
   'LESS BRAIN POWER',
@@ -95,6 +102,7 @@ export default function MobileApp() {
     () => CHEF_EMOJIS[Math.floor(Math.random() * CHEF_EMOJIS.length)],
     [showPlanningChoice]
   );
+  const hasExistingProfile = hasPlanningProfile(userProfile);
 
   // Load profile from database - database is the single source of truth
   useEffect(() => {
@@ -123,11 +131,10 @@ export default function MobileApp() {
       setUserProfile(profileFromDb);
       
       // Check if profile is complete
-      const isProfileComplete = profileFromDb.cookingSkill && 
-        profileFromDb.weeklyTime && 
-        profileFromDb.pantryIngredients.length > 0;
+      const isProfileComplete = hasPlanningProfile(profileFromDb);
       
       if (isProfileComplete) {
+        setShowPlanningChoice(true);
         setCurrentPhase('planning');
       } else {
         setCurrentPhase('profiling');
@@ -469,26 +476,28 @@ export default function MobileApp() {
         <Card className="max-w-sm mx-auto">
           <CardContent className="p-6">
             <p className="text-gray-700 mb-6 text-center">
-              Let's get started by learning about your cooking style and preferences.
+              {hasExistingProfile
+                ? "Ready for another meal? Jump straight back into planning."
+                : "Let's get started by learning about your cooking style and preferences."}
             </p>
             <Button 
-              onClick={() => setCurrentPhase('profiling')}
+              onClick={() => {
+                if (hasExistingProfile) {
+                  setShowPlanningChoice(true);
+                  setCurrentPhase('planning');
+                  return;
+                }
+                setCurrentPhase('profiling');
+              }}
               className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
             >
-              Get Started
+              {hasExistingProfile ? 'Start Planning' : 'Get Started'}
             </Button>
           </CardContent>
         </Card>
       </div>
     </div>
   );
-
-  // Check if user has an existing profile
-  const hasExistingProfile = () => {
-    return userProfile.cookingSkill && 
-           userProfile.weeklyTime && 
-           userProfile.pantryIngredients.length > 0;
-  };
 
   if (isLoadingProfile) {
     return (
@@ -512,7 +521,7 @@ export default function MobileApp() {
           <div className="pb-20">
             <UserProfiling 
               onProfileComplete={handleProfileComplete}
-              existingProfile={hasExistingProfile() ? userProfile : undefined}
+              existingProfile={hasExistingProfile ? userProfile : undefined}
             />
           </div>
         );

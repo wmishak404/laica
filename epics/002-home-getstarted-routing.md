@@ -1,9 +1,9 @@
 # EPIC-002 — Home / Get Started routing & Home-Cook nav consolidation
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson (product direction) / Claude (next implementation pass)
 **Created:** 2026-04-16
-**Updated:** 2026-04-16
+**Updated:** 2026-04-17
 
 ## One-line summary
 
@@ -130,6 +130,7 @@ This epic is `Resolved` when all of the following are true:
 - `client/src/pages/app.tsx` — welcome screen, `currentPhase` state machine, bottom nav (Home + Cook tabs)
 - `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — planning-choice screen decisions (the target of the corrected routing)
 - `design_guidelines.md` — "Home Dashboard" section (currently aspirational, not implemented)
+- `docs/handoffs/2026-04-17-codex-epic-002-003-flow-fixes.md` — implementation handoff for the returning-user routing fix
 
 ## Chronology — how we got here
 
@@ -142,9 +143,19 @@ During Slop Bowl implementation, Wilson navigated the app end-to-end and noticed
 
 Wilson asked both items be parked as a backlog epic rather than fixed inline during Slop Bowl. This doc is that record. Implementation is deferred to a future window after Slop Bowl ships.
 
+### 2026-04-17 — Returning-user routing fix landed
+
+Codex implemented the low-risk half of this epic in `client/src/pages/app.tsx`:
+
+- The welcome-screen CTA now branches on a shared `hasPlanningProfile` helper instead of always forcing users back through profiling
+- Returning users now see updated welcome copy and a **Start Planning** CTA that sends them directly to the Slop Bowl vs Chef it up! planning-choice screen
+- The planning-ready predicate now accepts `cookingSkill + weeklyTime + (pantry OR kitchen equipment)` so users with enough setup to cook are not forced back through FTUE
+
+The Home-vs-Cook information-architecture question remains open. This epic stays active until Wilson chooses whether Home becomes a real dashboard, a lightweight redirect, or is consolidated into Cook.
+
 ## Next steps when work resumes
 
 1. Wilson picks a direction on Open Question #2 (Home dashboard / Home redirect / drop Home)
-2. Implement the `hasExistingProfile()` branch on the welcome screen's "Get Started" button — lowest-risk fix, can ship standalone
-3. If consolidation is chosen, draft the nav change in a separate PR and run it through EPIC-001's rubric (since it touches the bottom-nav primitive)
+2. If consolidation is chosen, draft the nav change in a separate PR and run it through EPIC-001's rubric (since it touches the bottom-nav primitive)
+3. Reconcile `design_guidelines.md`'s Home-dashboard section to match the accepted direction
 4. Graduate this epic to a product decision once the IA question is settled

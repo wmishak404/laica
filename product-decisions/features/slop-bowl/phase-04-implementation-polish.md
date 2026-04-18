@@ -106,6 +106,17 @@ These surfaced during the work and are flagged as separate workstreams, not hand
 - **Grocery-list "Generate" copy refresh** — the grocery-list feature surfaced during Replit review but is currently dormant. Kept out of this branch to preserve branch focus.
 - **Rename `onBackToProfile` → `onBack`** in `meal-planning.tsx` — prop name is stale after decision #1 but behavior is correct. Low-priority cleanup for a later branch.
 
+## 2026-04-17 — Revised by EPIC-003
+
+Decision #7 was intentionally scoped to ship the first Slop Bowl pass without reopening pantry-edit UX during phase 4. EPIC-003 later revisited that choice and landed a narrow revision:
+
+- The pantry-check screen now supports **inline remove** on each ingredient badge
+- Users can **add a manual ingredient** directly below the badge list
+- These edits are **ephemeral for the current bowl only** and are sent through `pantryOverride`
+- **Edit pantry in profile** remains the route for camera scan, bulk edit, and permanent pantry updates
+
+This preserves the phase-4 "single source of truth" intent for saved pantry data while reducing friction for one-off Slop Bowl generation tweaks.
+
 ## Source decisions
 
 - Replit validation feedback from Wilson over 2026-04-10 → 2026-04-16
