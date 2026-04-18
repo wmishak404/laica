@@ -86,7 +86,6 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 **Open-epics rule.** The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span features (see `epics/README.md`). These are **not** GitHub Issues and **not** bug reports. Before starting any feature work that touches a governed domain, read the relevant open epic. Each epic's *Agent checklist* section lists the exact triggers. Current open epics:
 
 - `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
-- `epics/002-home-getstarted-routing.md` — read before touching Home / Get Started / Cook navigation or the first-time-user profile flow
 - `epics/004-selection-controls-tap-targets.md` — read before changing onboarding/settings radio-style menus, selection-row hit areas, or the shared radio-group composition
 - `epics/005-testing-strategy-and-acceptance-criteria.md` — read before deciding merge readiness, defining feature acceptance criteria, or changing the app-wide verification workflow
 
