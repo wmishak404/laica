@@ -2,7 +2,7 @@
 
 Long-lived design, architecture, and governance concerns tracked as markdown files — **stories** in the Kanban sense. Each epic is an initiative that may span multiple phases, products, or sessions before it closes.
 
-These are **agent-coordination artifacts**, not GitHub Issues and not active bug reports. Claude and Codex must read relevant open epics before starting work in a governed domain.
+These are **agent-coordination artifacts**, not GitHub Issues and not active bug reports. Claude and Codex must read relevant active epics before starting work in a governed domain.
 
 ## When to create an epic
 
@@ -15,18 +15,30 @@ These are **agent-coordination artifacts**, not GitHub Issues and not active bug
 ## When to **read** epics
 
 - **Every time you start a new feature that touches a governed domain** — see each epic's *Agent checklist* section for the exact triggers
-- Before writing a handoff that introduces patterns an open epic might constrain
+- Before writing a handoff that introduces patterns an active epic might constrain
 - Before making a decision that might collide with something parked in the backlog
 
-If your work intersects with an open epic, **cite the epic in your handoff** and note how your change interacts with it (conforms / defers / adds new signal).
+If your work intersects with an active epic, **cite the epic in your handoff** and note how your change interacts with it (conforms / defers / adds new signal).
 
 ## Convention
 
 - Filename: `NNN-<kebab-name>.md` — numbered, ordered by creation
-- Status: `Open` / `In Progress` / `Deferred` / `Resolved`
+- Status: use one of the statuses in the model below. Do not use `Closed`; use `Resolved` for closed/completed epics.
 - Required sections: `Context`, `Scope`, `Decisions made so far`, `Open questions`, `Agent checklist`, `Resolution criteria`
 - Link to relevant handoffs, product-decisions, and ADRs as they accumulate
 - Keep updates chronological — append new notes with a `## YYYY-MM-DD — <event>` header rather than rewriting history
+
+## Status model
+
+Keep the vocabulary small so agents can scan it quickly:
+
+| Status | Meaning | Agent behavior |
+|---|---|---|
+| `Open` | Accepted backlog/governance concern, not actively being implemented yet | Read before touching its governed domain |
+| `In Progress` | Work, decisions, or validation are partially complete | Read and cite before adjacent work; avoid duplicating active work |
+| `Blocked` | Cannot progress without a human decision, external dependency, or environment action | Document new evidence, then ask Wilson before forcing a direction |
+| `Deferred` | Intentionally parked for later, with no current action expected | Do not treat as active unless your work directly reopens the area |
+| `Resolved` | Closed/completed; resolution criteria were met or the decision was accepted | Use as history; do not include in the active read list unless directly relevant |
 
 ## Relationship to other planning docs
 
@@ -47,10 +59,24 @@ Per `CLAUDE.md`, changes to `epics/*.md` follow the planning-doc collaboration r
 - Add new product direction that hasn't been discussed
 - Contradict a decision already recorded
 
-## Open epics
+## Epic registry
+
+This table is the quick source of truth for whether an epic is active or closed. The `Status` field inside each epic file remains authoritative if this registry ever drifts.
+
+| # | Title | Status | Owner | Created | Last signal |
+|---|---|---|---|---|---|
+| [001](001-ui-governance.md) | UI Consistency & Design Governance | `Open` | Wilson / Codex / Claude | 2026-04-16 | Parked until Slop Bowl ships |
+| [002](002-home-getstarted-routing.md) | Home / Get Started routing & Home-Cook nav consolidation | `Resolved` | Wilson / Claude / Codex | 2026-04-16 | Returning-user routing fixed; Home/Cook stay separate via `product-decisions/006-home-and-cook-remain-separate.md` |
+| [003](003-slop-bowl-pantry-quick-actions.md) | Slop Bowl pantry-check quick actions | `Resolved` | Wilson / Claude / Codex | 2026-04-16 | Inline pantry add/remove implemented and validated |
+| [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Open` | Wilson / Claude / Codex | 2026-04-17 | Awaiting implementation |
+| [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 | Awaiting planning pass |
+
+## Active epic read list
+
+Read these before starting work in their governed domains:
 
 | # | Title | Status | Owner | Created |
 |---|---|---|---|---|
-| 001 | UI Consistency & Design Governance | Open | Wilson / Codex / Claude | 2026-04-16 |
-| 004 | Selection controls should be full-row tap targets | Open | Wilson / Claude / Codex | 2026-04-17 |
-| 005 | App-wide testing strategy and acceptance criteria workflow | Open | Wilson / Codex / Claude | 2026-04-17 |
+| [001](001-ui-governance.md) | UI Consistency & Design Governance | `Open` | Wilson / Codex / Claude | 2026-04-16 |
+| [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Open` | Wilson / Claude / Codex | 2026-04-17 |
+| [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 |
