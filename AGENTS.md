@@ -83,13 +83,13 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 3. Stop the automatic update process and ask Wilson to review when the next step needs human judgment, changes product direction, affects secrets/security, requires Replit-side intervention, or remains ambiguous after the agents have documented the tradeoff.
 4. For active features, record phase-by-phase decisions in `product-decisions/features/<feature>/` and promote only the durable accepted outcomes to top-level `PD-xxx` files.
 
-**Open-epics rule.** The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span features (see `epics/README.md`). These are **not** GitHub Issues and **not** bug reports. Before starting any feature work that touches a governed domain, read the relevant open epic. Each epic's *Agent checklist* section lists the exact triggers. Current open epics:
+**Epics rule.** The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span features (see `epics/README.md`). These are **not** GitHub Issues and **not** bug reports. Start with `epics/README.md` for the status model and active read list; use `epics/registry.md` only when historical context is directly relevant. `Resolved` means closed/completed, while `Open`, `In Progress`, and `Blocked` are active. This workflow is durable in `product-decisions/007-epic-status-and-registry-workflow.md`. Before starting any feature work that touches a governed domain, read the relevant active epic. Each epic's *Agent checklist* section lists the exact triggers. Current active epics:
 
 - `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
 - `epics/004-selection-controls-tap-targets.md` — read before changing onboarding/settings radio-style menus, selection-row hit areas, or the shared radio-group composition
 - `epics/005-testing-strategy-and-acceptance-criteria.md` — read before deciding merge readiness, defining feature acceptance criteria, or changing the app-wide verification workflow
 
-If your work intersects with an open epic, cite it in your handoff and note how the change interacts (conforms / defers / adds new evidence). When the epic gains new signal from your work (new drift found, new surface added to a taxonomy), append a `## YYYY-MM-DD — <summary>` section to the epic file itself.
+If your work intersects with an active epic, cite it in your handoff and note how the change interacts (conforms / defers / adds new evidence). When the epic gains new signal from your work (new drift found, new surface added to a taxonomy), append a `## YYYY-MM-DD — <summary>` section to the epic file itself.
 
 ## Branch transitions — planning to implementation
 

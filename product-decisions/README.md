@@ -19,6 +19,7 @@ This folder documents key product and technical decisions for the Laica project.
 | [PD-003](003-openai-model-strategy.md) | OpenAI Model Strategy — Tiered Model Selection | 2026-04-09 | Accepted |
 | [PD-004](004-feature-phase-records.md) | Feature Phase Decision Records | 2026-04-09 | Accepted |
 | [PD-006](006-home-and-cook-remain-separate.md) | Home and Cook remain separate navigation surfaces | 2026-04-17 | Accepted |
+| [PD-007](007-epic-status-and-registry-workflow.md) | Epic status and registry workflow | 2026-04-21 | Accepted |
 
 ## Feature Phase Records
 

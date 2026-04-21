@@ -57,17 +57,17 @@ product-decisions/ # Documented product and architecture decisions
 epics/           # Open stories / backlog / governance — agents must check before related work
 ```
 
-## Open epics — check before starting work in a governed domain
+## Active epics — check before starting work in a governed domain
 
-The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span multiple features. These are **not** GitHub Issues and **not** bug reports. See `epics/README.md` for the convention and the current open-epic registry.
+The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span multiple features. These are **not** GitHub Issues and **not** bug reports. See `epics/README.md` for the convention, status model, and current active read list. Use `epics/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/007-epic-status-and-registry-workflow.md`.
 
-**When to read `epics/NNN-*.md`:** every time you start work that touches a governed domain. Each epic has an *Agent checklist* section listing the exact triggers. Current open epics:
+**When to read `epics/NNN-*.md`:** start with the `epics/README.md` active read list. `Resolved` means closed/completed; `Open`, `In Progress`, and `Blocked` are active. Read an active epic every time you start work that touches its governed domain. Use `epics/registry.md` only if you need resolved/deferred history. Each epic has an *Agent checklist* section listing the exact triggers. Current active epics:
 
 - `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
 - `epics/004-selection-controls-tap-targets.md` — read before changing onboarding/settings radio-style menus, selection-row hit areas, or the shared radio-group composition
 - `epics/005-testing-strategy-and-acceptance-criteria.md` — read before deciding merge readiness, defining feature acceptance criteria, or changing the app-wide verification workflow
 
-If your work intersects with an open epic, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
+If your work intersects with an active epic, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
 
 ## Secrets
 
