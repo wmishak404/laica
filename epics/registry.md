@@ -1,0 +1,19 @@
+# Epic Registry
+
+Complete searchable index of Laica epics, including active and resolved history.
+
+Default agent workflow:
+
+- Start with [`README.md`](README.md) for the status model and active epic read list.
+- Open this registry only when historical context is directly relevant or a task references a resolved/deferred epic.
+- Treat the `Status` field inside each epic file as authoritative if this registry ever drifts.
+
+Durable workflow decision: [`PD-007`](../product-decisions/007-epic-status-and-registry-workflow.md).
+
+| # | Title | Status | Owner | Created | Resolved/deferred | Last signal |
+|---|---|---|---|---|---|---|
+| [001](001-ui-governance.md) | UI Consistency & Design Governance | `Open` | Wilson / Codex / Claude | 2026-04-16 |  | Parked until Slop Bowl ships |
+| [002](002-home-getstarted-routing.md) | Home / Get Started routing & Home-Cook nav consolidation | `Resolved` | Wilson / Claude / Codex | 2026-04-16 | 2026-04-17 | Returning-user routing fixed; Home/Cook stay separate via [`PD-006`](../product-decisions/006-home-and-cook-remain-separate.md) |
+| [003](003-slop-bowl-pantry-quick-actions.md) | Slop Bowl pantry-check quick actions | `Resolved` | Wilson / Claude / Codex | 2026-04-16 | 2026-04-17 | Inline pantry add/remove implemented and validated |
+| [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Open` | Wilson / Claude / Codex | 2026-04-17 |  | Awaiting implementation |
+| [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 |  | Awaiting planning pass |
