@@ -161,8 +161,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const ingredients = pantryOverride ?? user.pantryIngredients ?? [];
-      if (ingredients.length === 0) {
-        return res.status(400).json({ message: "Add pantry ingredients before generating a Slop Bowl" });
+      const distinctIngredients = Array.from(
+        new Set(ingredients.map((ingredient) => ingredient.trim().toLowerCase()).filter(Boolean))
+      );
+
+      if (distinctIngredients.length < 3) {
+        return res.status(422).json({
+          code: "SLOP_BOWL_TOO_FEW_INGREDIENTS",
+          message: "Add at least 3 ingredients before generating a Slop Bowl.",
+        });
       }
 
       if (!user.cookingSkill || !user.weeklyTime) {
