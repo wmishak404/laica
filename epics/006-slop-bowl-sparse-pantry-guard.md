@@ -95,3 +95,15 @@ Codex implemented the first sparse-pantry guard pass on `codex/slop-bowl-sparse-
 Local verification passed with `npm run check` and `npm run build`. Replit/manual service-backed validation remains before this epic should be marked `Resolved`.
 
 The local-vs-production fallback policy that came out of this work is now captured in `product-decisions/008-optional-context-and-local-validation-boundaries.md`.
+
+## 2026-04-27 — Replit validation signal
+
+Wilson validated the main authenticated Replit flow on `codex/slop-bowl-sparse-pantry-guard`:
+
+- The original 2-ingredient Slop Bowl case showed the sparse-pantry helper instead of the generic service-unavailable toast.
+- Adding a third ingredient allowed generation to continue.
+- Replit logs showed `POST /api/recipes/slop-bowl 200`.
+- No `[user-profile] Recent cooking sessions unavailable` or `[slop-bowl] Recent cooking sessions unavailable` warnings appeared in the Replit logs.
+- Accepting the generated recipe and entering cooking worked; cooking steps loaded successfully.
+
+The remaining strict API-specific check, if needed before marking this epic resolved, is a direct authenticated call with fewer than 3 ingredients returning `422` and `SLOP_BOWL_TOO_FEW_INGREDIENTS`.

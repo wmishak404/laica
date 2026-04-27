@@ -31,8 +31,7 @@ The generic `withDemoErrorHandling` path is still used elsewhere. Slop Bowl now 
 
 ## Open items
 
-- Replit/manual validation is still needed for the authenticated end-to-end flow before EPIC-006 is marked `Resolved`.
-- A direct authenticated API check should verify that `pantryOverride: ["beef", "buns"]` returns `422` with `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
+- Optional strict follow-up: a direct authenticated API check can verify that `pantryOverride: ["beef", "buns"]` returns `422` with `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
 - True OpenAI/model failures still use the existing generic service-unavailable toast. EPIC-006 leaves a follow-up question about whether Slop Bowl should get a more specific retry message later.
 - The local Neon database used during 2026-04-27 validation is still behind the current schema (`cooking_sessions.recipe_snapshot` missing). The server now tolerates that for recent-history reads, but DB schema sync remains a separate local-environment cleanup.
 
@@ -46,8 +45,9 @@ The generic `withDemoErrorHandling` path is still used elsewhere. Slop Bowl now 
 
 Manual Replit validation still required:
 
-- `0` ingredients: generation remains unavailable and empty-state copy is shown.
-- `1` ingredient: inline sparse-pantry prompt appears and no API call is made.
-- `2` ingredients: inline sparse-pantry prompt appears and no generic toast appears.
-- `3+` ingredients: generation proceeds normally.
-- Direct authenticated API call with two ingredients returns the typed `422`.
+- `2` ingredients: inline sparse-pantry prompt appeared and no generic toast appeared.
+- `3+` ingredients: generation proceeded normally.
+- Replit logs showed `POST /api/recipes/slop-bowl 200`.
+- Replit logs did not show `[user-profile] Recent cooking sessions unavailable` or `[slop-bowl] Recent cooking sessions unavailable`.
+- Accepting the generated recipe and entering cooking worked; cooking steps loaded successfully.
+- Direct authenticated API call with two ingredients remains optional if a strict server-contract check is needed.
