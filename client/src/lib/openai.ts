@@ -165,6 +165,28 @@ export interface SlopBowlRecipe {
   pantryMatch: number;
 }
 
+export const SLOP_BOWL_TOO_FEW_INGREDIENTS = 'SLOP_BOWL_TOO_FEW_INGREDIENTS';
+
+interface SlopBowlErrorBody {
+  code?: string;
+  message?: string;
+  error?: string;
+}
+
+export class SlopBowlApiError extends Error {
+  status: number;
+  code?: string;
+  body?: SlopBowlErrorBody;
+
+  constructor(status: number, body?: SlopBowlErrorBody, fallbackMessage = 'Failed to generate Slop Bowl recipe') {
+    super(body?.message || body?.error || fallbackMessage);
+    this.name = 'SlopBowlApiError';
+    this.status = status;
+    this.code = body?.code;
+    this.body = body;
+  }
+}
+
 export async function fetchSlopBowlRecipe(options?: {
   pantryOverride?: string[];
   feedback?: string;
@@ -187,7 +209,15 @@ export async function fetchSlopBowlRecipe(options?: {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
+    let errorBody: SlopBowlErrorBody | undefined;
+
+    try {
+      errorBody = JSON.parse(errorText) as SlopBowlErrorBody;
+    } catch {
+      errorBody = { message: errorText };
+    }
+
+    throw new SlopBowlApiError(response.status, errorBody);
   }
 
   return await response.json();

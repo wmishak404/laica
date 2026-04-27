@@ -5,8 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Clock, ArrowLeft, ChefHat, Settings, X } from 'lucide-react';
-import { fetchSlopBowlRecipe, type SlopBowlRecipe } from '@/lib/openai';
-import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
+import {
+  fetchSlopBowlRecipe,
+  SLOP_BOWL_TOO_FEW_INGREDIENTS,
+  SlopBowlApiError,
+  type SlopBowlRecipe,
+} from '@/lib/openai';
+import { handleAPIError } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
   cookingSkill: string;
@@ -81,6 +86,10 @@ const pickRandomMessageIndex = (current: number) => {
 };
 
 const normalizeIngredient = (value: string) => value.trim().replace(/\s+/g, ' ').toLowerCase();
+const MIN_SLOP_BOWL_INGREDIENTS = 3;
+
+const countDistinctIngredients = (ingredients: string[]) =>
+  new Set(ingredients.map(normalizeIngredient).filter(Boolean)).size;
 
 const createProfilePantryItems = (ingredients: string[]): PantryItem[] =>
   ingredients.map((name, index) => ({
@@ -97,6 +106,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
   const [previousRecipe, setPreviousRecipe] = useState<string | undefined>();
   const [pantryItems, setPantryItems] = useState<PantryItem[]>(() => createProfilePantryItems(userProfile.pantryIngredients));
   const [ingredientInput, setIngredientInput] = useState('');
+  const [pantryMessage, setPantryMessage] = useState<string | null>(null);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(() =>
     Math.floor(Math.random() * LOADING_MESSAGES.length)
   );
@@ -113,14 +123,29 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
   useEffect(() => {
     setPantryItems(createProfilePantryItems(userProfile.pantryIngredients));
     setIngredientInput('');
+    setPantryMessage(null);
   }, [userProfile.pantryIngredients]);
 
   const pantryNames = pantryItems.map((item) => item.name);
+  const distinctPantryCount = countDistinctIngredients(pantryNames);
   const normalizedIngredientInput = normalizeIngredient(ingredientInput);
   const canAddIngredient = normalizedIngredientInput.length > 0 &&
     !pantryItems.some((item) => normalizeIngredient(item.name) === normalizedIngredientInput);
+  const missingIngredientCount = Math.max(MIN_SLOP_BOWL_INGREDIENTS - distinctPantryCount, 0);
+  const hasSparsePantry = distinctPantryCount > 0 && distinctPantryCount < MIN_SLOP_BOWL_INGREDIENTS;
+  const canGenerateBowl = distinctPantryCount >= MIN_SLOP_BOWL_INGREDIENTS;
 
   const confirmPantry = () => {
+    if (!canGenerateBowl) {
+      setPantryMessage(
+        hasSparsePantry
+          ? `Add ${missingIngredientCount} more ingredient${missingIngredientCount === 1 ? '' : 's'} so Laica has enough to build a real bowl. Think base, vegetable, sauce, seasoning, egg, cheese, beans, or leftovers.`
+          : 'Add a few ingredients so Laica has enough to build a real bowl.'
+      );
+      return;
+    }
+
+    setPantryMessage(null);
     generateBowl(pantryNames);
   };
 
@@ -129,23 +154,27 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     setIsLoading(true);
     setLoadingMessageIndex(prev => pickRandomMessageIndex(prev));
 
-    const result = await withDemoErrorHandling(
-      () => fetchSlopBowlRecipe({
+    try {
+      const result = await fetchSlopBowlRecipe({
         pantryOverride,
         feedback: feedback || undefined,
         previousRecipe: prevRecipe || undefined,
-      }),
-      'slop-bowl'
-    );
+      });
 
-    setIsLoading(false);
-
-    if (result?.recipe) {
       setRecipe(result.recipe);
+      setPantryMessage(null);
       setState('approval');
-    } else {
-      // Error handled by withDemoErrorHandling, go back to pantry check
+    } catch (error) {
+      if (error instanceof SlopBowlApiError && error.code === SLOP_BOWL_TOO_FEW_INGREDIENTS) {
+        setPantryMessage(
+          error.message || 'Add at least 3 ingredients so Laica has enough to build a real bowl.'
+        );
+      } else {
+        handleAPIError(error as Error, 'slop-bowl');
+      }
       setState('pantry-check');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -184,6 +213,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
   };
 
   const handleRemoveIngredient = (id: string) => {
+    setPantryMessage(null);
     setPantryItems((items) => items.filter((item) => item.id !== id));
   };
 
@@ -191,6 +221,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     const nextIngredient = ingredientInput.trim().replace(/\s+/g, ' ');
     if (!canAddIngredient) return;
 
+    setPantryMessage(null);
     setPantryItems((items) => [
       ...items,
       {
@@ -287,6 +318,18 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
               {pantry.length} ingredient{pantry.length !== 1 ? 's' : ''} ready for this bowl
             </p>
 
+            {hasSparsePantry && (
+              <p className="text-xs text-center text-amber-700">
+                Add {missingIngredientCount} more ingredient{missingIngredientCount === 1 ? '' : 's'} before we make this a bowl. Try a base, vegetable, sauce, seasoning, egg, cheese, beans, or leftovers.
+              </p>
+            )}
+
+            {pantryMessage && (
+              <p className="text-xs text-center text-amber-700">
+                {pantryMessage}
+              </p>
+            )}
+
             {hasManualAdditions && (
               <p className="text-xs text-center text-primary">
                 Ingredients tagged Added are temporary and won&apos;t change your saved pantry.
@@ -306,7 +349,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
 
         <Button
           onClick={confirmPantry}
-          disabled={pantry.length === 0}
+          disabled={!canGenerateBowl}
           className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
         >
           This looks right
