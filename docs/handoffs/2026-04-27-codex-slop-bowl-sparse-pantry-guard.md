@@ -10,6 +10,8 @@ Implemented EPIC-006 so Slop Bowl no longer tries to generate from a 1-2 ingredi
 
 This work cites EPIC-005 because it adds acceptance criteria for a core cooking-flow edge case. It also preserves EPIC-003's ephemeral pantry-edit model: quick add/remove still only affects the current bowl unless the user edits their profile.
 
+Follow-up policy from localhost validation is now captured in `product-decisions/008-optional-context-and-local-validation-boundaries.md`: sparse-pantry checks are core product behavior, while recent cooking history is optional context that can degrade gracefully with warnings.
+
 ## Changes
 
 - `epics/006-slop-bowl-sparse-pantry-guard.md` — new active epic documenting the sparse-pantry failure, accepted product behavior, API semantics, and resolution criteria.
@@ -18,6 +20,7 @@ This work cites EPIC-005 because it adds acceptance criteria for a core cooking-
 - `client/src/lib/openai.ts` — added `SlopBowlApiError` plus the `SLOP_BOWL_TOO_FEW_INGREDIENTS` code constant so Slop Bowl can inspect server error details.
 - `server/routes.ts` — added a server-side distinct-ingredient guard that returns HTTP `422` with `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"` before OpenAI is called.
 - `server/routes.ts` — follow-up local validation fix: recent cooking sessions are now best-effort for profile load and Slop Bowl generation, so a stale local DB history schema does not block the current cooking flow.
+- `product-decisions/008-optional-context-and-local-validation-boundaries.md` — durable policy for optional context, local validation boundaries, and production-safe graceful degradation.
 
 ## Impact on other agents
 

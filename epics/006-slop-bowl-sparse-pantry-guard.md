@@ -79,6 +79,7 @@ This epic is `Resolved` when all of the following are true:
 - `client/src/components/cooking/slop-bowl.tsx`
 - `client/src/lib/openai.ts`
 - `server/routes.ts`
+- `product-decisions/008-optional-context-and-local-validation-boundaries.md`
 - `epics/003-slop-bowl-pantry-quick-actions.md`
 - `epics/005-testing-strategy-and-acceptance-criteria.md`
 
@@ -92,3 +93,5 @@ Codex implemented the first sparse-pantry guard pass on `codex/slop-bowl-sparse-
 - The server route now returns HTTP `422` with `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"` before calling OpenAI when the effective pantry has fewer than 3 distinct ingredients.
 
 Local verification passed with `npm run check` and `npm run build`. Replit/manual service-backed validation remains before this epic should be marked `Resolved`.
+
+The local-vs-production fallback policy that came out of this work is now captured in `product-decisions/008-optional-context-and-local-validation-boundaries.md`.
