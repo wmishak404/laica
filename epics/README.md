@@ -77,3 +77,4 @@ Read these before starting work in their governed domains:
 | [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 |
 | [006](006-slop-bowl-sparse-pantry-guard.md) | Slop Bowl sparse-pantry guard | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [007](007-consistent-comma-separated-ingredient-entry.md) | Consistent comma-separated ingredient entry | `Open` | Wilson / Codex / Claude | 2026-04-27 |
+| [008](008-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
