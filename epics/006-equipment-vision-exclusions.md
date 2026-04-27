@@ -167,3 +167,18 @@ Live local fixture retesting showed that prompt tightening alone reduced many fa
 ### 2026-04-27 — Empty-result UI follow-up split into EPIC-007
 
 Negative-control fixture testing also surfaced a smaller product gap outside the model itself: some scan flows clearly communicate a valid empty result, while others still end silently when nothing is detected. That follow-up now lives in `epics/007-vision-scan-no-detection-feedback.md` so it remains visible during ongoing and future equipment-scan validation without widening EPIC-006 itself.
+
+### 2026-04-27 — Fine-grained taxonomy call for serving/storage vs. drinkware
+
+Follow-up product review narrowed another set of borderline items. `Wine glass`, `wine bottle`, `water filtration dispenser`, and generic `utensil set` labels should be excluded from `equipment`. `Mason jars` and `serving tray` remain in-bounds as acceptable storage or serving equipment. This moved the next refinement from broad room-context cleanup into a more precise taxonomy pass on what should count as usable kitchen equipment.
+
+### 2026-04-27 — Live rerun after drinkware and water-filter exclusions
+
+After applying the finer-grained taxonomy pass and rerunning the noisy kitchen fixtures on a fresh local server, the results improved again:
+
+- `wine bottle` no longer appeared in `equipment`
+- water-filter-family labels were removed from `equipment`
+- generic `utensil set`, `utensil holder`, and `drinking glass` labels were removed from `equipment`
+- earlier infrastructure exclusions (`range hood`, `sink`, `faucet`) continued to hold
+
+Residual edge cases remain in the mixed-kitchen fixture, especially organizer/decor labels such as `magnetic knife rack` and `flower vase`. At this point the work is no longer about broad non-kitchen junk; it is about a narrower taxonomy choice around storage/organizer surfaces versus directly used tools.

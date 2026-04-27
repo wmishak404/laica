@@ -14,9 +14,13 @@ Do not list bathroom items, luggage, coats, shoes, pet items, decor, furniture, 
 
 Installed plumbing fixtures are never kitchen equipment. Exclude sinks, faucets, sprayers, drains, garbage disposals, and soap pumps even when they are part of a kitchen work area.
 
+Exclude wine bottles, wine glasses, water filtration dispensers, and water filtration systems from kitchen equipment.
+
 Dedicated beverage-prep tools such as coffee makers, espresso machines, French presses, kettles, and coffee or tea carafes can count when they are clearly used for preparing or serving drinks.
 
-If knives, spoons, spatulas, or other cooking tools are stored inside a holder or block, list the tools when clearly visible, not the storage object. Do not list knife blocks, utensil crocks, wire baskets, or paper towel holders as equipment.
+If knives, spoons, spatulas, or other cooking tools are stored inside a holder or block, list the tools when clearly visible, not the storage object. Do not list knife blocks, generic utensil sets, utensil crocks, wire baskets, or paper towel holders as equipment.
+
+Serving and storage items such as mason jars or serving trays can count when they are clearly used for food storage or serving.
 
 Ignore humans and animals.
 

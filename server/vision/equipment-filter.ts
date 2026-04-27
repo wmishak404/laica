@@ -8,6 +8,12 @@ const EXCLUDED_EQUIPMENT_PATTERNS = [
   /\bgarbage\s+disposal\b/i,
   /\b(?:range|vent)\s+hood\b/i,
   /\bexhaust\s+(?:fan|hood)\b/i,
+  /\bwine\s+glass\b/i,
+  /\bwine\s+bottle\b/i,
+  /\bwater\s+fil(?:ter|tration)(?:ing)?\b/i,
+  /\butensil\s+set\b/i,
+  /\butensil\s+(?:holder|crock|container)\b/i,
+  /\bdrinking\s+glass\b/i,
 ];
 
 function getEquipmentLabel(item: unknown): string {
