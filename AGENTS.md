@@ -36,7 +36,7 @@ Before merging deployment-bound changes, sync the branch into Replit and verify:
 
 ```
 client/          # React frontend (Vite, React 18, Tailwind, shadcn/ui)
-server/          # Express backend (Node 20, Drizzle ORM, PostgreSQL)
+server/          # Express backend (Node 20.19+, Drizzle ORM, PostgreSQL)
 shared/          # Shared types and schemas (Drizzle + Zod)
 tests/           # Playwright + Vitest tests
 docs/adr/        # Architecture decision records
