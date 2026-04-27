@@ -1,6 +1,6 @@
 # EPIC-006 — Tighten equipment vision prompts to exclude non-kitchen items
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (future implementation review)
 **Created:** 2026-04-22
 **Updated:** 2026-04-27
@@ -186,3 +186,20 @@ Residual edge cases remain in the mixed-kitchen fixture, especially organizer/de
 ### 2026-04-27 — Organizer and decor cleanup pass
 
 Product confirmed that `magnetic knife rack` and `flower vase` should not be returned as equipment because they are not directly usable for cooking. After excluding those labels and rerunning the mixed-kitchen fixture on a fresh local server, both dropped out of `equipment`, leaving a much cleaner result centered on actual kitchen gear such as refrigerator, range, oven, cutting board, knives, wooden spoons, storage jars, and mixing bowl. At this stage the remaining equipment output is close to the intended “usable for cooking” surface.
+
+### 2026-04-27 — Resolved after PR #17 merged
+
+PR #17 merged the equipment-scan tightening work into `main`, satisfying this epic's accepted implementation bar.
+
+- `server/prompts/molecules/vision-base.md`, `server/prompts/organisms/equipment-analysis.md`, and the fallback strings in `server/prompts/composer.ts` were tightened together so file-backed and fallback prompt behavior stay aligned.
+- `server/vision/equipment-filter.ts` and its integration in `server/openai.ts` now backstop the agreed exclusions for infrastructure and clutter labels the model still occasionally reintroduced.
+- The named local fixture set was used for live manual validation, including negative controls (`suitcases.jpeg`, living-room fixtures) and mixed kitchen images (`kitchenfar_beckoit.jpeg`, `209E6358-...jpeg`).
+- Final live results removed the targeted non-kitchen returns from `equipment`, including doorway clutter, soap dispensers, sink/faucet/hood labels, casual drinkware, water-filter labels, organizer surfaces, and decor objects.
+
+The logging caveat was explicitly treated as separate scope: vision-route logging was not added, and it is not required for EPIC-006 resolution. The empty-result UI gap discovered during validation remains tracked separately in `epics/007-vision-scan-no-detection-feedback.md`.
+
+Resolution artifacts:
+
+- `docs/handoffs/2026-04-27-codex-equipment-vision-prompt-filter.md`
+- `docs/handoffs/2026-04-27-codex-equipment-vision-taxonomy-pass.md`
+- `docs/handoffs/2026-04-27-codex-equipment-vision-cleanup-pass.md`
