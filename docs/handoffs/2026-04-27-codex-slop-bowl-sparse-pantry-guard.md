@@ -17,6 +17,7 @@ This work cites EPIC-005 because it adds acceptance criteria for a core cooking-
 - `client/src/components/cooking/slop-bowl.tsx` — added a 3-distinct-ingredient readiness guard, sparse-pantry helper copy, and typed Slop Bowl error handling that avoids the generic toast for `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
 - `client/src/lib/openai.ts` — added `SlopBowlApiError` plus the `SLOP_BOWL_TOO_FEW_INGREDIENTS` code constant so Slop Bowl can inspect server error details.
 - `server/routes.ts` — added a server-side distinct-ingredient guard that returns HTTP `422` with `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"` before OpenAI is called.
+- `server/routes.ts` — follow-up local validation fix: recent cooking sessions are now best-effort for profile load and Slop Bowl generation, so a stale local DB history schema does not block the current cooking flow.
 
 ## Impact on other agents
 
@@ -29,6 +30,7 @@ The generic `withDemoErrorHandling` path is still used elsewhere. Slop Bowl now 
 - Replit/manual validation is still needed for the authenticated end-to-end flow before EPIC-006 is marked `Resolved`.
 - A direct authenticated API check should verify that `pantryOverride: ["beef", "buns"]` returns `422` with `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
 - True OpenAI/model failures still use the existing generic service-unavailable toast. EPIC-006 leaves a follow-up question about whether Slop Bowl should get a more specific retry message later.
+- The local Neon database used during 2026-04-27 validation is still behind the current schema (`cooking_sessions.recipe_snapshot` missing). The server now tolerates that for recent-history reads, but DB schema sync remains a separate local-environment cleanup.
 
 ## Verification
 
@@ -36,6 +38,7 @@ The generic `withDemoErrorHandling` path is still used elsewhere. Slop Bowl now 
 - `npm run check` — passed.
 - `npm run build` — passed. Vite emitted existing warnings about dynamic Firebase imports and chunk size.
 - `git diff --check` — passed.
+- Follow-up localhost log check after restart — `/api/user/profile` returned `200`; recent cooking sessions were skipped with a warning because local Neon is missing `cooking_sessions.recipe_snapshot`.
 
 Manual Replit validation still required:
 

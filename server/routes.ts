@@ -62,6 +62,18 @@ function getCuisineFromRecipeSnapshot(recipeSnapshot: unknown): string {
   return typeof cuisine === "string" && cuisine.trim().length > 0 ? cuisine : "unknown";
 }
 
+async function getRecentCookingSessionsOrEmpty(userId: string, limit: number, context: string) {
+  try {
+    return await storage.getUserCookingSessions(userId, limit);
+  } catch (error) {
+    console.warn(
+      `[${context}] Recent cooking sessions unavailable; continuing without history:`,
+      error instanceof Error ? error.message : error,
+    );
+    return [];
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Firebase/Google authentication routes
   app.post('/api/auth/google', verifyFirebaseToken, async (req: any, res) => {
@@ -176,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Complete your cooking skill and weekly time profile before generating a Slop Bowl" });
       }
 
-      const sessions = await storage.getUserCookingSessions(userId, 10);
+      const sessions = await getRecentCookingSessionsOrEmpty(userId, 10, "slop-bowl");
       const recentMeals = sessions.map((session) => ({
         recipeName: session.recipeName,
         cuisine: getCuisineFromRecipeSnapshot(session.recipeSnapshot),
@@ -445,7 +457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const settings = await storage.getUserSettings(userId);
       
       // Get recent cooking sessions
-      const sessions = await storage.getUserCookingSessions(userId, 5);
+      const sessions = await getRecentCookingSessionsOrEmpty(userId, 5, "user-profile");
       
       res.json({
         user,
