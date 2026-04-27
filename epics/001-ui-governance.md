@@ -207,15 +207,6 @@ This is useful signal for EPIC-001 because it reinforces two governance points:
 - utilitarian surfaces need clearer, more reliable hit areas than the current tiny-dot composition provides
 - reusable control patterns for onboarding/settings forms should be treated as consistency primitives, not left as ad-hoc flex rows
 
-## 2026-04-27 — Empty scan feedback consistency issue split into EPIC-007
-
-Live vision testing surfaced another utilitarian-surface consistency gap: some pantry/kitchen scan flows show explicit “nothing detected” feedback, while others silently end or still rely on browser `alert(...)`. That issue now lives in `epics/007-vision-scan-no-detection-feedback.md`.
-
-This adds more evidence to EPIC-001’s broader governance concern:
-
-- utilitarian flows need consistent status/feedback patterns, not a mix of toast, alert, and silent no-op outcomes
-- onboarding/profile scan behavior is another reusable interaction pattern that should converge over time instead of drifting screen by screen
-
 ## Next steps when work resumes
 
 1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean

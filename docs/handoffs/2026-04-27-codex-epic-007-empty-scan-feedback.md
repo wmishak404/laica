@@ -6,33 +6,30 @@
 
 ## Summary
 
-Filed EPIC-007 to track a UI workflow gap: when image analysis correctly detects nothing, some scan surfaces explicitly tell the user while others silently do nothing. This is now tracked separately from EPIC-006 so model-quality work and UI-feedback work do not get blurred together.
+Filed EPIC-007 as a small backlog reminder discovered during equipment-scan validation: when image analysis correctly detects nothing, some scan surfaces explicitly tell the user while others silently do nothing. This is intentionally narrower than a broad scan-UX initiative and exists so the gap is not forgotten while EPIC-006 continues.
 
 ## Changes
 
 - `epics/007-vision-scan-no-detection-feedback.md`
-  - New epic capturing the UX issue, current implementation evidence, scope, open questions, and resolution criteria.
+  - New `Open` epic capturing the no-detection feedback gap as a validation follow-up rather than an implementation-ready UX project.
 - `epics/README.md`
   - Added EPIC-007 to the active read list as an `Open` epic.
 - `epics/registry.md`
   - Added the new epic to the registry with its current backlog signal.
-- `epics/001-ui-governance.md`
-  - Added a dated note pointing out that scan feedback consistency is another utilitarian-surface issue now split into EPIC-007.
+- `epics/006-equipment-vision-exclusions.md`
+  - Added a dated note linking EPIC-007 as a follow-up discovered during equipment-scan validation.
 
 ## Impact on other agents
 
 - Read `epics/007-vision-scan-no-detection-feedback.md` before changing scan-result feedback in `user-settings` or `user-profiling`.
-- This adds signal to `epics/001-ui-governance.md`: utilitarian scan flows should not mix silent no-op endings, browser alerts, and toasts without intention.
-- EPIC-006 remains about detection correctness; EPIC-007 is about explaining valid empty results to the user.
+- EPIC-006 remains about detection correctness; EPIC-007 preserves a smaller UI follow-up discovered during that validation work.
+- This epic does not yet commit the team to a broader scan-feedback redesign.
 
 ## Open items
 
 - No implementation yet.
-- Still needs product choice on the preferred feedback pattern for zero-result scans:
-  - toast only
-  - inline status
-  - both
-- Multi-image mixed-result behavior is still intentionally undecided.
+- Final UI pattern is intentionally undecided.
+- Multi-image mixed-result behavior is intentionally undecided.
 
 ## Verification
 

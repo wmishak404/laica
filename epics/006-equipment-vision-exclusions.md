@@ -163,3 +163,7 @@ Follow-up product review clarified that some remaining false positives are not r
 ### 2026-04-27 — Prompt-plus-filter refinement for infrastructure aliases
 
 Live local fixture retesting showed that prompt tightening alone reduced many false positives, but the vision model still occasionally reintroduced excluded infrastructure under nearby synonyms such as `vent hood`, `farmhouse kitchen sink`, or `kitchen faucet`. The implementation therefore graduated from pure prompt control to a narrow server-side equipment filter for fixed infrastructure and plumbing labels that are out of scope for the current `kitchenEquipment` product surface. This keeps `French press` and `carafe` in-bounds while enforcing the agreed exclusion for sinks and hoods.
+
+### 2026-04-27 — Empty-result UI follow-up split into EPIC-007
+
+Negative-control fixture testing also surfaced a smaller product gap outside the model itself: some scan flows clearly communicate a valid empty result, while others still end silently when nothing is detected. That follow-up now lives in `epics/007-vision-scan-no-detection-feedback.md` so it remains visible during ongoing and future equipment-scan validation without widening EPIC-006 itself.
