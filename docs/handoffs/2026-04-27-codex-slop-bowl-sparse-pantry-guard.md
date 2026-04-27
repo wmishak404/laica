@@ -20,6 +20,7 @@ Follow-up policy from localhost validation is now captured in `product-decisions
 - `client/src/lib/openai.ts` — added `SlopBowlApiError` plus the `SLOP_BOWL_TOO_FEW_INGREDIENTS` code constant so Slop Bowl can inspect server error details.
 - `server/routes.ts` — added a server-side distinct-ingredient guard that returns HTTP `422` with `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"` before OpenAI is called.
 - `server/routes.ts` — follow-up local validation fix: recent cooking sessions are now best-effort for profile load and Slop Bowl generation, so a stale local DB history schema does not block the current cooking flow.
+- `client/src/pages/app.tsx` — follow-up validation fix: app-level `userProfile` now syncs after `/api/user/profile` refetches, so settings pantry saves/reset updates are reflected when returning to Slop Bowl.
 - `product-decisions/008-optional-context-and-local-validation-boundaries.md` — durable policy for optional context, local validation boundaries, and production-safe graceful degradation.
 
 ## Impact on other agents

@@ -110,10 +110,6 @@ export default function MobileApp() {
     
     // Wait for database query to complete
     if (isLoadingDbProfile) return;
-    
-    // Prevent multiple loads
-    if (hasLoadedFromDb) return;
-    setHasLoadedFromDb(true);
 
     // Database is the source of truth - always use database data
     if (dbProfile?.user) {
@@ -127,25 +123,33 @@ export default function MobileApp() {
         favoriteChefs: dbUser.favoriteChefs || []
       };
 
-      console.log('Loading profile from database (source of truth)');
+      console.log(hasLoadedFromDb ? 'Syncing profile from database (source of truth)' : 'Loading profile from database (source of truth)');
       setUserProfile(profileFromDb);
       
-      // Check if profile is complete
-      const isProfileComplete = hasPlanningProfile(profileFromDb);
-      
-      if (isProfileComplete) {
-        setShowPlanningChoice(true);
-        setCurrentPhase('planning');
-      } else {
-        setCurrentPhase('profiling');
+      if (!hasLoadedFromDb) {
+        setHasLoadedFromDb(true);
+
+        // Check if profile is complete
+        const isProfileComplete = hasPlanningProfile(profileFromDb);
+
+        if (isProfileComplete) {
+          setShowPlanningChoice(true);
+          setCurrentPhase('planning');
+        } else {
+          setCurrentPhase('profiling');
+        }
       }
+
       setIsLoadingProfile(false);
       return;
     }
 
     // No database profile found - start fresh
-    console.log('No database profile found, starting fresh');
-    setCurrentPhase('welcome');
+    if (!hasLoadedFromDb) {
+      console.log('No database profile found, starting fresh');
+      setHasLoadedFromDb(true);
+      setCurrentPhase('welcome');
+    }
     setIsLoadingProfile(false);
   }, [user?.id, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
 
