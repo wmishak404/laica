@@ -236,6 +236,10 @@ This epic is `Resolved` when all of the following are true:
 
 After getting localhost running again with the encrypted dotenv setup, Wilson asked for a better app-wide testing workflow so feature changes can be validated deliberately before code is merely pushed around. This epic records that ask as a cross-cutting governance track, separate from any one feature branch.
 
+### 2026-04-27 — Epic closeout expectation clarified
+
+The equipment-vision branch merged code that satisfied EPIC-006 in practice, but the epic docs remained active until a separate cleanup pass caught the drift. That adds a useful workflow signal: when a merged PR satisfies an epic's resolution criteria, the repo still needs a short docs closeout pass from fresh `main` to flip the epic status, update `epics/README.md` and `epics/registry.md`, append a final resolution note, and push a handoff. `AGENTS.md` and `CLAUDE.md` now call that out explicitly so merge-ready feature work and epic bookkeeping do not drift apart again.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design
