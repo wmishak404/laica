@@ -75,3 +75,4 @@ Read these before starting work in their governed domains:
 | [001](001-ui-governance.md) | UI Consistency & Design Governance | `Open` | Wilson / Codex / Claude | 2026-04-16 |
 | [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Open` | Wilson / Claude / Codex | 2026-04-17 |
 | [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 |
+| [006](006-equipment-vision-exclusions.md) | Tighten equipment vision prompts to exclude non-kitchen items | `In Progress` | Wilson / Codex / Claude | 2026-04-22 |

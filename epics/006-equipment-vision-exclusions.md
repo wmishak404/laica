@@ -1,9 +1,9 @@
 # EPIC-006 — Tighten equipment vision prompts to exclude non-kitchen items
 
-**Status:** Deferred
+**Status:** In Progress
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (future implementation review)
 **Created:** 2026-04-22
-**Updated:** 2026-04-22
+**Updated:** 2026-04-27
 
 ## One-line summary
 
@@ -121,3 +121,45 @@ This epic is `Resolved` when all of the following are true:
 ### 2026-04-22 — Epic filed for later work
 
 This issue was recorded as a deferred backlog item so the false-positive pattern is not lost while other work takes priority. The core observation is narrow and actionable: the equipment-vision prompts need exclusion rules for non-kitchen context, but the implementation should remain separate from this filing pass.
+
+### 2026-04-27 — Prompt-first implementation started
+
+The first implementation pass reactivated this epic and stayed intentionally narrow: tighten the prompt wording in the markdown prompt files and in `server/prompts/composer.ts`, then verify with local compile/build checks plus a small prompt-composition guardrail test. Vision-route logging and prompt-version plumbing remain out of scope for this pass unless the prompt-only fix proves insufficient.
+
+### 2026-04-27 — Validation fixture set captured
+
+Wilson provided a concrete local validation set for future manual testing. Use these as named fixtures in handoffs and verification notes:
+
+- `kitchenfar_beckoit.jpeg` — mixed kitchen plus entryway objects, including soap dispenser risk
+- `suitcases.jpeg` — negative control with luggage only
+- `63F9B83B-F16E-4951-BFB7-D91F4A216A60_1_105_c.jpeg` — active kitchen with human, dog, and soap dispenser
+- `E68A8D93-A4EE-4867-A072-AA4A0A83C539_1_105_c.jpeg` — living room negative control
+- `B080ACE5-1701-48FC-91E0-EEC96CACCC51_1_105_c.jpeg` — living room negative control
+- `58A18FEE-B3D9-4B66-B02D-6D34F2444676_1_201_a.jpeg` — partial kitchen with stools and lamps that should not count as equipment
+- `209E6358-D0C9-42D8-8D6D-4C8D35484115_1_105_c.jpeg` — mixed kitchen with non-kitchen objects
+- `living-room-tv-cat-negative-control.png` — renamed screenshot-style living room negative control
+
+These fixtures are for evaluation, not as prompt rules. The prompt should judge object function, not whether the whole room conforms to one kitchen style.
+
+### 2026-04-27 — First live fixture run signal
+
+After restoring `.env.keys` in the worktree and running the local image fixtures against `/api/vision/analyze`, the prompt-first pass showed mixed results:
+
+- Negative controls improved substantially:
+  - `suitcases.jpeg` returned an empty equipment list
+  - living-room negatives returned empty equipment lists
+- Mixed kitchen scenes still over-returned kitchen-adjacent objects:
+  - `kitchenfar_beckoit.jpeg` still included dining table and dining chairs
+  - `63F9B83B-...jpeg` still included drinkware and water bottles
+  - `209E6358-...jpeg` still included sink/faucet/hood, cleaning supplies, and drinkware
+  - `58A18FEE-...jpeg` still included shelf/cart-style furniture
+
+This evidence suggests the next prompt iteration should narrow "equipment" toward cooking-relevant inventory and away from furniture, cleaning items, drinkware, and room fixtures, while preserving support for unusual or mixed-use kitchens.
+
+### 2026-04-27 — Kitchen infrastructure vs. equipment decision
+
+Follow-up product review clarified that some remaining false positives are not random mistakes, but taxonomy mistakes. `French press` and `carafe` are acceptable in `equipment` because they are directly used for beverage preparation or serving. `Sink` and `range hood` should not be in `equipment`: they describe fixed kitchen infrastructure or environment context, not tools the user actively cooks with. Future product work may capture ventilation or other kitchen-environment signals in a separate category, but this prompt-first pass should keep `equipment` focused on usable cooking inventory.
+
+### 2026-04-27 — Prompt-plus-filter refinement for infrastructure aliases
+
+Live local fixture retesting showed that prompt tightening alone reduced many false positives, but the vision model still occasionally reintroduced excluded infrastructure under nearby synonyms such as `vent hood`, `farmhouse kitchen sink`, or `kitchen faucet`. The implementation therefore graduated from pure prompt control to a narrow server-side equipment filter for fixed infrastructure and plumbing labels that are out of scope for the current `kitchenEquipment` product surface. This keeps `French press` and `carafe` in-bounds while enforcing the agreed exclusion for sinks and hoods.
