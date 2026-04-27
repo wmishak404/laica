@@ -14,6 +14,8 @@ describe('equipment filter', () => {
       'wooden utensil set',
       'utensil holder',
       'drinking glass',
+      'magnetic knife rack',
+      'flower vase',
       'gas range (6-burner)',
       'French press coffee maker',
       'glass carafe',
@@ -39,6 +41,8 @@ describe('equipment filter', () => {
       { equipment: 'utensil set' },
       { equipment: 'utensil holder' },
       { description: 'drinking glass' },
+      { description: 'magnetic knife rack' },
+      { item: 'flower vase' },
       { description: 'coffee maker' },
       { equipment: 'cutting board' },
       { item: 'mason jars' },
@@ -61,6 +65,8 @@ describe('equipment filter', () => {
     expect(isExcludedEquipmentLabel('utensil set')).toBe(true);
     expect(isExcludedEquipmentLabel('utensil holder')).toBe(true);
     expect(isExcludedEquipmentLabel('drinking glass')).toBe(true);
+    expect(isExcludedEquipmentLabel('magnetic knife rack')).toBe(true);
+    expect(isExcludedEquipmentLabel('flower vase')).toBe(true);
     expect(isExcludedEquipmentLabel('French press coffee maker')).toBe(false);
     expect(isExcludedEquipmentLabel('glass carafe')).toBe(false);
     expect(isExcludedEquipmentLabel('mason jars')).toBe(false);

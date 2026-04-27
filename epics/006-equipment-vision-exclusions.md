@@ -182,3 +182,7 @@ After applying the finer-grained taxonomy pass and rerunning the noisy kitchen f
 - earlier infrastructure exclusions (`range hood`, `sink`, `faucet`) continued to hold
 
 Residual edge cases remain in the mixed-kitchen fixture, especially organizer/decor labels such as `magnetic knife rack` and `flower vase`. At this point the work is no longer about broad non-kitchen junk; it is about a narrower taxonomy choice around storage/organizer surfaces versus directly used tools.
+
+### 2026-04-27 — Organizer and decor cleanup pass
+
+Product confirmed that `magnetic knife rack` and `flower vase` should not be returned as equipment because they are not directly usable for cooking. After excluding those labels and rerunning the mixed-kitchen fixture on a fresh local server, both dropped out of `equipment`, leaving a much cleaner result centered on actual kitchen gear such as refrigerator, range, oven, cutting board, knives, wooden spoons, storage jars, and mixing bowl. At this stage the remaining equipment output is close to the intended “usable for cooking” surface.

@@ -14,6 +14,8 @@ const EXCLUDED_EQUIPMENT_PATTERNS = [
   /\butensil\s+set\b/i,
   /\butensil\s+(?:holder|crock|container)\b/i,
   /\bdrinking\s+glass\b/i,
+  /\bmagnetic\s+knife\s+rack\b/i,
+  /\bflower\s+vase\b/i,
 ];
 
 function getEquipmentLabel(item: unknown): string {
