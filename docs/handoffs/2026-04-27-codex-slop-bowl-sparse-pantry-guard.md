@@ -22,6 +22,7 @@ Follow-up policy from localhost validation is now captured in `product-decisions
 - `server/routes.ts` — follow-up local validation fix: recent cooking sessions are now best-effort for profile load and Slop Bowl generation, so a stale local DB history schema does not block the current cooking flow.
 - `client/src/pages/app.tsx` — follow-up validation fix: app-level `userProfile` now syncs after `/api/user/profile` refetches, so settings pantry saves/reset updates are reflected when returning to Slop Bowl.
 - `product-decisions/008-optional-context-and-local-validation-boundaries.md` — durable policy for optional context, local validation boundaries, and production-safe graceful degradation.
+- `tests/unit/slop-bowl-route.test.ts` — route-contract test proving the server returns typed `422 SLOP_BOWL_TOO_FEW_INGREDIENTS` before history lookup or OpenAI when a sparse pantry request bypasses the UI.
 
 ## Impact on other agents
 
@@ -31,9 +32,8 @@ The generic `withDemoErrorHandling` path is still used elsewhere. Slop Bowl now 
 
 ## Open items
 
-- Optional strict follow-up: a direct authenticated API check can verify that `pantryOverride: ["beef", "buns"]` returns `422` with `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
 - True OpenAI/model failures still use the existing generic service-unavailable toast. EPIC-006 leaves a follow-up question about whether Slop Bowl should get a more specific retry message later.
-- The local Neon database used during 2026-04-27 validation is still behind the current schema (`cooking_sessions.recipe_snapshot` missing). The server now tolerates that for recent-history reads, but DB schema sync remains a separate local-environment cleanup.
+- The local Neon database used during 2026-04-27 validation is still behind the current schema (`cooking_sessions.recipe_snapshot` missing). The server now tolerates that for recent-history reads, but DB schema sync remains a separate local-environment cleanup tracked by EPIC-008.
 
 ## Verification
 
@@ -41,6 +41,7 @@ The generic `withDemoErrorHandling` path is still used elsewhere. Slop Bowl now 
 - `npm run check` — passed.
 - `npm run build` — passed. Vite emitted existing warnings about dynamic Firebase imports and chunk size.
 - `git diff --check` — passed.
+- `npx vitest run tests/unit/slop-bowl-route.test.ts` — passed; sandboxed local run needed escalation because Vitest binds a temporary localhost port.
 - Follow-up localhost log check after restart — `/api/user/profile` returned `200`; recent cooking sessions were skipped with a warning because local Neon is missing `cooking_sessions.recipe_snapshot`.
 
 Manual Replit validation still required:
@@ -50,4 +51,4 @@ Manual Replit validation still required:
 - Replit logs showed `POST /api/recipes/slop-bowl 200`.
 - Replit logs did not show `[user-profile] Recent cooking sessions unavailable` or `[slop-bowl] Recent cooking sessions unavailable`.
 - Accepting the generated recipe and entering cooking worked; cooking steps loaded successfully.
-- Direct authenticated API call with two ingredients remains optional if a strict server-contract check is needed.
+- Automated route-contract coverage now verifies the typed two-ingredient `422` server guard.

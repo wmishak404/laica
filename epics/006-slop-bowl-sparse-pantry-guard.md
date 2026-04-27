@@ -1,6 +1,6 @@
 # EPIC-006 — Slop Bowl sparse-pantry guard
 
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
 **Updated:** 2026-04-27
@@ -107,3 +107,20 @@ Wilson validated the main authenticated Replit flow on `codex/slop-bowl-sparse-p
 - Accepting the generated recipe and entering cooking worked; cooking steps loaded successfully.
 
 The remaining strict API-specific check, if needed before marking this epic resolved, is a direct authenticated call with fewer than 3 ingredients returning `422` and `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
+
+## 2026-04-27 — Resolved
+
+Codex added an automated route-contract test in `tests/unit/slop-bowl-route.test.ts` covering the bypass case directly:
+
+- `POST /api/recipes/slop-bowl` with `pantryOverride: ["ground beef patties", "buns"]` returns HTTP `422`.
+- The response body includes `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"`.
+- The route returns before recent-history lookup or OpenAI generation.
+- Duplicate/case/whitespace variants are counted as distinct ingredients only after trimming and lowercasing.
+
+Verification passed:
+
+- `npx vitest run tests/unit/slop-bowl-route.test.ts`
+- `npm run check`
+- `npm run build`
+
+EPIC-006 is resolved. Future Slop Bowl pantry-entry improvements should use EPIC-007, and local DB strategy work should use EPIC-008.
