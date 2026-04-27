@@ -81,6 +81,6 @@ Use this policy for optional context and local-vs-production validation:
 
 - [`PD-002: Slop Bowl`](002-slop-bowl.md)
 - [`EPIC-005: App-wide testing strategy and acceptance criteria workflow`](../epics/005-testing-strategy-and-acceptance-criteria.md)
-- [`EPIC-006: Slop Bowl sparse-pantry guard`](../epics/006-slop-bowl-sparse-pantry-guard.md)
-- [`EPIC-008: Local database schema strategy`](../epics/008-local-db-schema-strategy.md)
+- [`EPIC-008: Slop Bowl sparse-pantry guard`](../epics/008-slop-bowl-sparse-pantry-guard.md)
+- [`EPIC-010: Local database schema strategy`](../epics/010-local-db-schema-strategy.md)
 - [`docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md`](../docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md)

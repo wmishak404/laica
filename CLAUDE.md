@@ -80,6 +80,16 @@ Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to 
 - To edit secrets: `npx @dotenvx/dotenvx decrypt`, edit, then `npx @dotenvx/dotenvx encrypt`
 - **On Replit:** secrets are injected via the Replit Secrets tab. No dotenvx needed.
 
+### Worktrees and `.env.keys`
+
+`git worktree add` does not copy gitignored files. After creating a new worktree, link the key from the main repo:
+
+```bash
+ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
+```
+
+The symlink stays untracked because `.env.*` is gitignored. Without this link, dotenvx cannot decrypt `.env` in the worktree and local OpenAI / ElevenLabs / database-backed validation will fail.
+
 ### Required env vars
 - `DATABASE_URL` — Neon PostgreSQL connection string (crashes on startup if missing)
 - `ELEVENLABS_API_KEY` — text-to-speech (crashes on startup if missing)

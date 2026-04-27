@@ -1,4 +1,4 @@
-# EPIC-006 — Slop Bowl sparse-pantry guard
+# EPIC-008 — Slop Bowl sparse-pantry guard
 
 **Status:** Resolved
 **Owner:** Wilson / Codex / Claude
@@ -55,7 +55,7 @@ Wilson chose the product behavior: ask for more ingredients and gently prompt th
 
 ## Agent checklist — when to read this epic
 
-Read EPIC-006 before starting any of the following:
+Read EPIC-008 before starting any of the following:
 
 - [ ] Modifying `client/src/components/cooking/slop-bowl.tsx` pantry-check, generation, or error handling behavior
 - [ ] Changing `POST /api/recipes/slop-bowl` validation or request/response semantics
@@ -123,4 +123,4 @@ Verification passed:
 - `npm run check`
 - `npm run build`
 
-EPIC-006 is resolved. Future Slop Bowl pantry-entry improvements should use EPIC-007, and local DB strategy work should use EPIC-008.
+EPIC-008 is resolved. Future Slop Bowl pantry-entry improvements should use EPIC-009, and local DB strategy work should use EPIC-010.

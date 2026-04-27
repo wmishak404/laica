@@ -6,7 +6,7 @@
 
 ## Summary
 
-Implemented EPIC-006 so Slop Bowl no longer tries to generate from a 1-2 ingredient pantry and then reports the failure as a generic service outage. The pantry-check screen now blocks sparse lists inline, and the server has a matching typed guard for stale clients or direct API calls.
+Implemented EPIC-008 so Slop Bowl no longer tries to generate from a 1-2 ingredient pantry and then reports the failure as a generic service outage. The pantry-check screen now blocks sparse lists inline, and the server has a matching typed guard for stale clients or direct API calls.
 
 This work cites EPIC-005 because it adds acceptance criteria for a core cooking-flow edge case. It also preserves EPIC-003's ephemeral pantry-edit model: quick add/remove still only affects the current bowl unless the user edits their profile.
 
@@ -14,8 +14,8 @@ Follow-up policy from localhost validation is now captured in `product-decisions
 
 ## Changes
 
-- `epics/006-slop-bowl-sparse-pantry-guard.md` — new active epic documenting the sparse-pantry failure, accepted product behavior, API semantics, and resolution criteria.
-- `epics/README.md` and `epics/registry.md` — added EPIC-006 to the active read list and registry.
+- `epics/008-slop-bowl-sparse-pantry-guard.md` — new epic documenting the sparse-pantry failure, accepted product behavior, API semantics, and resolution criteria.
+- `epics/README.md` and `epics/registry.md` — indexed the Slop Bowl guard plus follow-up epics after resolving the epic-numbering collision with `main`.
 - `client/src/components/cooking/slop-bowl.tsx` — added a 3-distinct-ingredient readiness guard, sparse-pantry helper copy, and typed Slop Bowl error handling that avoids the generic toast for `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
 - `client/src/lib/openai.ts` — added `SlopBowlApiError` plus the `SLOP_BOWL_TOO_FEW_INGREDIENTS` code constant so Slop Bowl can inspect server error details.
 - `server/routes.ts` — added a server-side distinct-ingredient guard that returns HTTP `422` with `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"` before OpenAI is called.
@@ -26,14 +26,14 @@ Follow-up policy from localhost validation is now captured in `product-decisions
 
 ## Impact on other agents
 
-Future Slop Bowl generation or pantry-check work should read EPIC-006 first. The minimum viable Slop Bowl input is now 3 distinct trimmed ingredient names, enforced on both client and server.
+Future Slop Bowl generation or pantry-check work should read EPIC-008 first. The minimum viable Slop Bowl input is now 3 distinct trimmed ingredient names, enforced on both client and server.
 
 The generic `withDemoErrorHandling` path is still used elsewhere. Slop Bowl now bypasses it only where typed domain errors need inline UI treatment.
 
 ## Open items
 
-- True OpenAI/model failures still use the existing generic service-unavailable toast. EPIC-006 leaves a follow-up question about whether Slop Bowl should get a more specific retry message later.
-- The local Neon database used during 2026-04-27 validation is still behind the current schema (`cooking_sessions.recipe_snapshot` missing). The server now tolerates that for recent-history reads, but DB schema sync remains a separate local-environment cleanup tracked by EPIC-008.
+- True OpenAI/model failures still use the existing generic service-unavailable toast. EPIC-008 leaves a follow-up question about whether Slop Bowl should get a more specific retry message later.
+- The local Neon database used during 2026-04-27 validation is still behind the current schema (`cooking_sessions.recipe_snapshot` missing). The server now tolerates that for recent-history reads, but DB schema sync remains a separate local-environment cleanup tracked by EPIC-010.
 
 ## Verification
 

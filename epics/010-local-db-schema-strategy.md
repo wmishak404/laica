@@ -1,4 +1,4 @@
-# EPIC-008 — Local database schema strategy
+# EPIC-010 — Local database schema strategy
 
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
@@ -60,7 +60,7 @@ Until this is resolved, local agents can waste time debugging environment drift 
 
 ## Agent checklist — when to read this epic
 
-Read EPIC-008 before starting any of the following:
+Read EPIC-010 before starting any of the following:
 
 - [ ] Running or recommending `npm run db:push`
 - [ ] Changing Drizzle schemas or DB-backed persistence paths

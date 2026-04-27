@@ -1,4 +1,4 @@
-# EPIC-007 — Consistent comma-separated ingredient entry
+# EPIC-009 — Consistent comma-separated ingredient entry
 
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
@@ -53,12 +53,12 @@ Slop Bowl quick-add currently treats the entire input as a single temporary ingr
 
 ## Agent checklist — when to read this epic
 
-Read EPIC-007 before starting any of the following:
+Read EPIC-009 before starting any of the following:
 
 - [ ] Modifying Slop Bowl pantry-check quick-add behavior in `client/src/components/cooking/slop-bowl.tsx`
 - [ ] Changing manual pantry input parsing in `client/src/components/cooking/user-settings.tsx` or `client/src/components/cooking/user-profiling.tsx`
 - [ ] Adding shared ingredient-entry parsing utilities
-- [ ] Changing sparse-pantry readiness counting from EPIC-006
+- [ ] Changing sparse-pantry readiness counting from EPIC-008
 
 When this applies, also cite EPIC-003 because the quick-add surface came from that resolved epic, and cite EPIC-005 if the work defines or changes acceptance criteria.
 
@@ -70,7 +70,7 @@ This epic is `Resolved` when all of the following are true:
 2. Typing a single ingredient still creates one temporary badge.
 3. Empty comma segments are ignored.
 4. Existing case-insensitive duplicate prevention still works for profile and temporary ingredients.
-5. The distinct-ingredient count from EPIC-006 treats split ingredients separately.
+5. The distinct-ingredient count from EPIC-008 treats split ingredients separately.
 6. Local validation and a handoff record the behavior checked.
 
 ## Linked artifacts
@@ -79,5 +79,5 @@ This epic is `Resolved` when all of the following are true:
 - `client/src/components/cooking/user-settings.tsx`
 - `client/src/components/cooking/user-profiling.tsx`
 - `epics/003-slop-bowl-pantry-quick-actions.md`
-- `epics/006-slop-bowl-sparse-pantry-guard.md`
+- `epics/008-slop-bowl-sparse-pantry-guard.md`
 - `epics/005-testing-strategy-and-acceptance-criteria.md`

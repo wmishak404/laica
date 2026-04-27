@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { compositions } from "./prompts/composer";
 import { getActivePrompt } from "./prompt-manager";
+import { filterDetectedEquipment } from "./vision/equipment-filter";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
 
@@ -529,6 +530,10 @@ export async function analyzeIngredientImage(base64Image: string) {
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
+
+    if (Array.isArray(result.equipment)) {
+      result.equipment = filterDetectedEquipment(result.equipment);
+    }
     
     console.log("\n=== OpenAI Vision API Response ===");
     console.log(`Raw Response: ${response.choices[0].message.content}`);
