@@ -18,3 +18,4 @@ Durable workflow decision: [`PD-007`](../product-decisions/007-epic-status-and-r
 | [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Open` | Wilson / Claude / Codex | 2026-04-17 |  | Awaiting implementation |
 | [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 |  | Awaiting planning pass |
 | [006](006-equipment-vision-exclusions.md) | Tighten equipment vision prompts to exclude non-kitchen items | `In Progress` | Wilson / Codex / Claude | 2026-04-22 |  | Prompt-first exclusions implemented; awaiting manual image validation |
+| [007](007-vision-scan-no-detection-feedback.md) | Vision scan should explicitly say when nothing was detected | `Open` | Wilson / Codex / Claude | 2026-04-27 |  | Filed from live negative-control scan testing; user-facing no-result feedback is inconsistent |
