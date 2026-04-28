@@ -98,8 +98,20 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 - `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
 - `epics/004-selection-controls-tap-targets.md` — read before changing onboarding/settings radio-style menus, selection-row hit areas, or the shared radio-group composition
 - `epics/005-testing-strategy-and-acceptance-criteria.md` — read before deciding merge readiness, defining feature acceptance criteria, or changing the app-wide verification workflow
+- `epics/007-vision-scan-no-detection-feedback.md` — read before changing image-scan result messaging or zero-result scan behavior
+- `epics/009-consistent-comma-separated-ingredient-entry.md` — read before changing multi-ingredient manual entry or delimiter behavior
+- `epics/010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
 
 If your work intersects with an active epic, cite it in your handoff and note how the change interacts (conforms / defers / adds new evidence). When the epic gains new signal from your work (new drift found, new surface added to a taxonomy), append a `## YYYY-MM-DD — <summary>` section to the epic file itself.
+
+**Epic closeout after merge.** If a merged PR satisfies an epic's resolution criteria, do a short follow-up docs pass from fresh `main` rather than leaving the epic half-open on a stale feature branch. That closeout pass should:
+1. Flip the epic file's `Status` to `Resolved`
+2. Append a final dated resolution section with the merged PR / handoff references
+3. Remove the epic from `epics/README.md`'s active read list
+4. Update `epics/registry.md` with the resolved date and final signal
+5. Push a handoff so the closeout is visible on `origin`
+
+If meaningful follow-up scope remains, split it into a separate active epic or explicitly record why the original epic stays open.
 
 ## Branch transitions — planning to implementation
 
