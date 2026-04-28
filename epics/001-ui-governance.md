@@ -207,6 +207,12 @@ This is useful signal for EPIC-001 because it reinforces two governance points:
 - utilitarian surfaces need clearer, more reliable hit areas than the current tiny-dot composition provides
 - reusable control patterns for onboarding/settings forms should be treated as consistency primitives, not left as ad-hoc flex rows
 
+## 2026-04-28 — Mobile refresh planning adds the next design-system pressure test
+
+The mobile-refresh phase records in `product-decisions/features/mobile-refresh/` define new tone-forward surfaces across auth, setup, planning, cooking, and post-cook cleanup. This work conforms to EPIC-001 by making the design direction explicit before implementation: mobile-native layout, tokenized warm/coral styling, full-row controls, distinctive Ticket Pass recipe cards, and no generic AI percentage-match cards.
+
+Implementation should treat these phase records as the next pilot surface for UI governance. Any new colors, primitives, or icon treatments should be tokenized or documented as an intentional escape hatch.
+
 ## Next steps when work resumes
 
 1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean

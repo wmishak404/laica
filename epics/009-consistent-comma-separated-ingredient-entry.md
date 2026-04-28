@@ -3,11 +3,11 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-04-27
+**Updated:** 2026-04-28
 
 ## One-line summary
 
-Make Slop Bowl quick-add ingredient entry handle comma-separated ingredients the same way the profile/onboarding pantry input does.
+Make manual ingredient entry consistently handle comma-separated ingredients across Slop Bowl, setup, settings, and post-cook cleanup surfaces.
 
 ## Context — why this exists
 
@@ -78,6 +78,13 @@ This epic is `Resolved` when all of the following are true:
 - `client/src/components/cooking/slop-bowl.tsx`
 - `client/src/components/cooking/user-settings.tsx`
 - `client/src/components/cooking/user-profiling.tsx`
+- `product-decisions/features/mobile-refresh/phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/phase-03-planning.md`
+- `product-decisions/features/mobile-refresh/phase-05-post-cook.md`
 - `epics/003-slop-bowl-pantry-quick-actions.md`
 - `epics/008-slop-bowl-sparse-pantry-guard.md`
 - `epics/005-testing-strategy-and-acceptance-criteria.md`
+
+## 2026-04-28 — Mobile refresh broadens scope beyond Slop Bowl
+
+Wilson approved comma-separated manual entry for Phase 2 setup and Phase 3 Slop Bowl, with the implementation preference to extract shared parsing rather than duplicating split/trim/filter logic. Phase 5 cleanup should reuse the same parser for any quick-add surface. This broadens the epic from a Slop Bowl-only fix into a shared ingredient-entry consistency rule.

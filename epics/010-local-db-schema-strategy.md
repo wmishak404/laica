@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-04-27
+**Updated:** 2026-04-28
 
 ## One-line summary
 
@@ -49,6 +49,7 @@ Until this is resolved, local agents can waste time debugging environment drift 
 - **Replit remains authoritative for deployment-bound validation.** Local DB work should support faster iteration, not replace the Replit validation gate.
 - **Local schema drift is an environment problem.** Feature code can gracefully degrade around optional context, but required persistence and schema correctness still need a reliable local workflow.
 - **Agents should not run `db:push` casually against an unknown shared DB.** The workflow needs ownership boundaries before schema mutation becomes routine.
+- **Mobile refresh interim policy:** Phase 5 schema changes are documented, but local agents should not run `npm run db:push` against shared dev or Replit databases. Schema pushes for this feature happen through the Replit-authoritative path until this epic resolves.
 
 ## Open questions
 
@@ -85,7 +86,12 @@ This epic is `Resolved` when all of the following are true:
 ## Linked artifacts
 
 - `product-decisions/008-optional-context-and-local-validation-boundaries.md`
+- `product-decisions/features/mobile-refresh/phase-05-post-cook.md`
 - `epics/005-testing-strategy-and-acceptance-criteria.md`
 - `docs/adr/0001-replit-primary-local-agents.md`
 - `docs/handoffs/2026-04-10-claude-slop-bowl-replit-merge.md`
 - `docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md`
+
+## 2026-04-28 — Mobile refresh interim schema ruling
+
+Phase 5 introduces pending-cleanup and taste-signal persistence on cooking sessions. The feature docs preserve the schema requirement but explicitly defer local `db:push` until the local DB strategy is resolved. Implementation branches should coordinate schema pushes through Replit and document the Replit validation result before merge.

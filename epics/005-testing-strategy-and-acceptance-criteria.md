@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (workflow review)
 **Created:** 2026-04-17
-**Updated:** 2026-04-17
+**Updated:** 2026-04-28
 
 ## One-line summary
 
@@ -235,6 +235,10 @@ This epic is `Resolved` when all of the following are true:
 ### 2026-04-17 — Epic created
 
 After getting localhost running again with the encrypted dotenv setup, Wilson asked for a better app-wide testing workflow so feature changes can be validated deliberately before code is merely pushed around. This epic records that ask as a cross-cutting governance track, separate from any one feature branch.
+
+### 2026-04-28 — Mobile refresh adopts phase-level acceptance criteria
+
+The mobile-refresh records in `product-decisions/features/mobile-refresh/` include explicit acceptance criteria for Phase 0 through Phase 5 plus cross-phase AI privacy/abuse rules. This does not resolve the app-wide testing strategy, but it gives implementation agents a concrete merge-readiness checklist for this feature and preserves the Replit validation gate.
 
 ## Next steps when work resumes
 

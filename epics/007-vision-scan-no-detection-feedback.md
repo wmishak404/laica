@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (future implementation review)
 **Created:** 2026-04-27
-**Updated:** 2026-04-27
+**Updated:** 2026-04-28
 
 ## One-line summary
 
@@ -96,3 +96,7 @@ This epic is `Resolved` when all of the following are true:
 ### 2026-04-27 — Epic created from live negative-control testing
 
 While validating equipment-vision fixes with living-room and luggage-only photos, the model correctly returned empty arrays for several scans. That surfaced a separate UI follow-up: some scan flows clearly say “No equipment detected,” while others silently finish with no explanation. Wilson asked to capture this as a small backlog epic so it remains visible while EPIC-006 continues, rather than disappearing behind model-quality work.
+
+### 2026-04-28 — Mobile refresh makes zero-result scan feedback an acceptance criterion
+
+Phase 2 setup and Phase 5 post-cook rescan both require explicit no-detection feedback. This conforms to the epic direction and broadens the expected implementation surface from current onboarding/settings scans to the new camera-first scan and cleanup-rescan flows.

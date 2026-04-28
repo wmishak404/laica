@@ -1,8 +1,10 @@
 # PD-006: Home and Cook remain separate navigation surfaces
 
 **Date:** 2026-04-17
-**Status:** Accepted
+**Status:** Superseded by [PD-009](009-mobile-refresh-navigation.md)
 **Decision maker:** Wilson
+
+> Superseded on 2026-04-28 by the mobile-refresh navigation direction. The earlier decision remains as historical context for EPIC-002, but implementation should follow [PD-009](009-mobile-refresh-navigation.md).
 
 ## Context
 
@@ -45,3 +47,7 @@ Keep **Home** and **Cook** as separate navigation surfaces.
 - The current bottom-nav structure stays in place
 - The richer "Home Dashboard" concept in `design_guidelines.md` is a future / aspirational direction, not a currently required implementation target
 - If Home later grows into a richer dashboard experience, that should be tracked as a new work item rather than reopening the resolved Home-vs-Cook consolidation question by default
+
+## 2026-04-28 Supersession
+
+The mobile-refresh planning work changed the app's authenticated information architecture. Wilson approved removing the redundant authenticated Home step so first-time users route directly to Setup and returning complete users route directly to Planning. See [PD-009](009-mobile-refresh-navigation.md) and [Mobile Refresh Phase 1](features/mobile-refresh/phase-01-auth.md).

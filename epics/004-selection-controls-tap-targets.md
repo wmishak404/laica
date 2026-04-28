@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Claude (next implementation pass) / Codex (doc capture)
 **Created:** 2026-04-17
-**Updated:** 2026-04-17
+**Updated:** 2026-04-28
 
 ## One-line summary
 
@@ -141,6 +141,10 @@ This epic is `Resolved` when all of the following are true:
 ### 2026-04-17 — Epic created
 
 During localhost review, Wilson flagged that the cooking-profile menu selections require overly precise clicking on the radio dot itself. The visible row reads like a selectable option, but the interaction does not match that expectation. Rather than fold this into EPIC-001's broad governance work, it is tracked here as a focused form-control usability epic so it can be implemented cleanly and then referenced from the wider governance track.
+
+### 2026-04-28 — Mobile refresh expands the full-row pattern
+
+The mobile-refresh setup and planning records apply this pattern beyond the original weekly-time/skill rows. Weekly Cooking Time is being removed, but Cooking Skill, Dietary Restrictions, cuisine chips, Slop Bowl confirmation controls, and post-cook review choices should all use mobile-appropriate full-row or full-chip tap targets rather than tiny radio/checkbox hit areas.
 
 ## Next steps when work resumes
 
