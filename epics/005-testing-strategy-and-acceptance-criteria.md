@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (workflow review)
 **Created:** 2026-04-17
-**Updated:** 2026-04-17
+**Updated:** 2026-04-28
 
 ## One-line summary
 
@@ -239,6 +239,10 @@ After getting localhost running again with the encrypted dotenv setup, Wilson as
 ### 2026-04-27 — Epic closeout expectation clarified
 
 The equipment-vision branch merged code that satisfied EPIC-006 in practice, but the epic docs remained active until a separate cleanup pass caught the drift. That adds a useful workflow signal: when a merged PR satisfies an epic's resolution criteria, the repo still needs a short docs closeout pass from fresh `main` to flip the epic status, update `epics/README.md` and `epics/registry.md`, append a final resolution note, and push a handoff. `AGENTS.md` and `CLAUDE.md` now call that out explicitly so merge-ready feature work and epic bookkeeping do not drift apart again.
+
+### 2026-04-28 — Mobile refresh adopts phase-level acceptance criteria
+
+The mobile-refresh records in `product-decisions/features/mobile-refresh/` include explicit acceptance criteria for Phase 0 through Phase 5 plus cross-phase AI privacy/abuse rules. This does not resolve the app-wide testing strategy, but it gives implementation agents a concrete merge-readiness checklist for this feature and preserves the Replit validation gate.
 
 ## Next steps when work resumes
 

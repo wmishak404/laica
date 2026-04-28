@@ -25,3 +25,8 @@ Suggested phases:
 
 - If a decision becomes durable and should stay easy to discover later, promote it to a top-level `PD-xxx` file
 - If a note is just about branch context or who should do what next, put it in a handoff instead
+
+## Current Feature Folders
+
+- [Slop Bowl](slop-bowl/README.md)
+- [Mobile Refresh](mobile-refresh/README.md)

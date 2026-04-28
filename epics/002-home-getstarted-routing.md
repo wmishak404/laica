@@ -133,7 +133,8 @@ This epic is `Resolved` when all of the following are true:
 - `client/src/pages/app.tsx` — welcome screen, `currentPhase` state machine, bottom nav (Home + Cook tabs)
 - `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — planning-choice screen decisions (the target of the corrected routing)
 - `design_guidelines.md` — "Home Dashboard" section (currently aspirational, not implemented)
-- `product-decisions/006-home-and-cook-remain-separate.md` — accepted product decision resolving the Home-vs-Cook question
+- `product-decisions/006-home-and-cook-remain-separate.md` — historical product decision for the earlier Home/Cook split, now superseded
+- `product-decisions/009-mobile-refresh-navigation.md` — accepted mobile-refresh decision consolidating authenticated entry into Planning
 - `docs/handoffs/2026-04-17-codex-epic-002-003-flow-fixes.md` — implementation handoff for the returning-user routing fix
 - `docs/handoffs/2026-04-17-codex-epic-002-003-validation.md` — follow-up handoff recording validation/test confirmation
 
@@ -181,6 +182,10 @@ Accepted rationale:
 
 This decision is recorded in `product-decisions/006-home-and-cook-remain-separate.md`. `design_guidelines.md` now marks the richer Home Dashboard section as deferred / aspirational rather than a required current implementation target. With that, EPIC-002's resolution criteria are met and the epic flips to `Resolved`.
 
+### 2026-04-28 — Historical decision superseded by mobile refresh
+
+Mobile-refresh planning reopened the information architecture because Wilson wanted the app to feel native-mobile rather than like a website with a redundant post-login Home step. `product-decisions/009-mobile-refresh-navigation.md` supersedes PD-006: incomplete users route directly to Setup, complete users route directly to Planning, and the redundant authenticated Home tab is removed in the refresh.
+
 ## Next steps when work resumes
 
-Resolved on 2026-04-17. Future Home-dashboard expansion can be tracked as a new work item if it becomes active, but the Home-vs-Cook consolidation question is considered settled.
+Resolved on 2026-04-17 for the earlier app shape, then superseded on 2026-04-28 by the mobile-refresh direction. Future Home-dashboard expansion can still be tracked as a new work item if it becomes active, but implementation should follow PD-009 for the mobile-refresh work.
