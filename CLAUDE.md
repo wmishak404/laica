@@ -153,6 +153,28 @@ When a planning branch (like `claude/funny-boyd`) transitions to an implementati
 
 This prevents orphaned work and ensures clean git history.
 
+## Stacked PRs and Replit validation
+
+When work spans phased or dependent PRs, two rules backstop staleness in Replit validation:
+
+**1. Rebase the upper-stack branch after lower-stack merges.** Once a lower-stack PR merges to `main`, the agent owning the next stacked branch must:
+
+- `git fetch origin`
+- Rebase the branch onto fresh `origin/main`
+- `git push --force-with-lease`
+- Have Replit fetch the rebased branch before any preview or smoke test
+
+This applies when the upper PR logically depends on the lower one (shared files, builds on a feature) — not for parallel/independent PRs.
+
+**2. Re-validate if new commits land after validation.** PR descriptions must include a line: `Last Replit-validated at: <commit-sha>`. If new commits arrive on the branch after that, the validation is stale by definition. The PR cannot merge until re-validated and the SHA refreshed. No exceptions for "small" cosmetic commits — the judgment call about what counts as small is exactly where regressions slip in.
+
+**Audit hygiene.** When auditing a PR's scope, always diff against `origin/main...HEAD`, never a stale local `main`. The local branch may not have the latest merged work, and using it can hide in-flight changes.
+
+**Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state:
+
+- Whether the branch has been rebased onto current `origin/main` after lower-stack merges (yes/no + base SHA)
+- The last Replit-validated commit SHA
+
 ## Claude-specific notes
 
 - Auth is Firebase (Google sign-in only), not Replit Auth. `server/replitAuth.ts` is legacy and unused.
