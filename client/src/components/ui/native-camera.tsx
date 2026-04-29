@@ -152,7 +152,6 @@ export function NativeCamera({
         ref={fileInputRef}
         type="file"
         accept={accept}
-        capture="environment"
         onChange={handleFileChange}
         className="hidden"
       />
