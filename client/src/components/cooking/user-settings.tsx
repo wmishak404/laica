@@ -577,22 +577,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      // Use vision API to analyze pantry image
-      const response = await fetch('/api/vision/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          image: imageData,
-          isHEIC: isHEIC
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze image');
-      }
-
-      const result = await response.json();
+      const result = await analyzeImage(imageData, isHEIC);
       console.log('Pantry image analysis result:', result);
       
       // Parse the response to extract ingredients from the ingredients array
@@ -651,21 +636,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      const response = await fetch('/api/vision/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          image: imageData,
-          isHEIC: isHEIC
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to analyze image');
-      }
-
-      const result = await response.json();
+      const result = await analyzeImage(imageData, isHEIC);
       console.log('Equipment image analysis result:', result);
       
       // Parse the response to extract kitchen equipment from the equipment array

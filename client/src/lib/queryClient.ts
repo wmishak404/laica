@@ -7,6 +7,41 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+export async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers);
+
+  async function attachToken(forceRefresh = false) {
+    try {
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      const idToken = await FirebaseAuthService.getIdToken(forceRefresh);
+      if (idToken) {
+        headers.set('Authorization', `Bearer ${idToken}`);
+      }
+    } catch {
+      // Firebase may be unavailable on unauthenticated/public surfaces.
+    }
+  }
+
+  await attachToken(false);
+
+  const requestInit: RequestInit = {
+    ...init,
+    headers,
+    credentials: init.credentials ?? "include",
+  };
+
+  let res = await fetch(url, requestInit);
+  if (res.status === 401) {
+    await attachToken(true);
+    res = await fetch(url, {
+      ...requestInit,
+      headers,
+    });
+  }
+
+  return res;
+}
+
 export async function apiRequest(
   method: string,
   url: string,
@@ -14,22 +49,10 @@ export async function apiRequest(
 ): Promise<Response> {
   const headers: HeadersInit = data ? { "Content-Type": "application/json" } : {};
 
-  // Add Firebase token if available
-  try {
-    const { FirebaseAuthService } = await import('@/lib/firebase');
-    const idToken = await FirebaseAuthService.getIdToken();
-    if (idToken) {
-      headers['Authorization'] = `Bearer ${idToken}`;
-    }
-  } catch (error) {
-    // Firebase not available or user not authenticated
-  }
-
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method,
     headers,
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
   });
 
   await throwIfResNotOk(res);
@@ -42,23 +65,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const headers: HeadersInit = {};
-
-    // Add Firebase token if available
-    try {
-      const { FirebaseAuthService } = await import('@/lib/firebase');
-      const idToken = await FirebaseAuthService.getIdToken();
-      if (idToken) {
-        headers['Authorization'] = `Bearer ${idToken}`;
-      }
-    } catch (error) {
-      // Firebase not available or user not authenticated
-    }
-
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
-      headers,
-    });
+    const res = await apiFetch(queryKey[0] as string);
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;

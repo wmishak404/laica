@@ -30,6 +30,7 @@ export interface IStorage {
   
   // Cooking session operations
   createCookingSession(session: InsertCookingSession): Promise<CookingSession>;
+  getCookingSession(id: number): Promise<CookingSession | undefined>;
   updateCookingSession(id: number, session: Partial<CookingSession>): Promise<CookingSession>;
   getUserCookingSessions(userId: string, limit?: number): Promise<CookingSession[]>;
   getActiveCookingSession(userId: string): Promise<CookingSession | undefined>;
@@ -125,6 +126,15 @@ export class DatabaseStorage implements IStorage {
       .insert(cookingSessions)
       .values(sessionData)
       .returning();
+    return session;
+  }
+
+  async getCookingSession(id: number): Promise<CookingSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(cookingSessions)
+      .where(eq(cookingSessions.id, id))
+      .limit(1);
     return session;
   }
 

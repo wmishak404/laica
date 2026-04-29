@@ -67,15 +67,9 @@ export class ElevenLabsClient {
   }
   
   private async performSynthesis(text: string, settings: VoiceSettings): Promise<ArrayBuffer> {
-    const response = await fetch('/api/speech/synthesize', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text,
-        ...settings,
-      }),
+    const response = await apiRequest('POST', '/api/speech/synthesize', {
+      text,
+      ...settings,
     });
 
     if (!response.ok) {

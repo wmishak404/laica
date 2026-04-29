@@ -1,10 +1,31 @@
-import type { Express, RequestHandler } from "express";
+import express, { type Express, type RequestHandler } from "express";
 import { createServer, type Server } from "http";
 import { registerAdminRoutes } from "./admin-routes";
 import { storage } from "./storage";
-import { verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
+import { getFirebaseUserFromRequest, verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage, getSlopBowlRecipe } from "./openai";
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
+import {
+  aiUserDayLimit,
+  aiUserHourLimit,
+  aiIpHourLimit,
+  feedbackIpLimit,
+  recipeIpHourLimit,
+  recipeUserDayLimit,
+  recipeUserHourLimit,
+  slopBowlIpHourLimit,
+  slopBowlUserDayLimit,
+  slopBowlUserHourLimit,
+  speechIpHourLimit,
+  speechUserDayLimit,
+  speechUserHourLimit,
+  visionIpShortLimit,
+  visionUserDayLimit,
+  visionUserShortLimit,
+  voiceIpHourLimit,
+  voiceUserDayLimit,
+  voiceUserHourLimit,
+} from "./rate-limit";
 import { 
   updateUserProfileSchema, 
   insertUserSettingsSchema, 
@@ -26,7 +47,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // Multer for handling file uploads
 const upload = multer({ 
   storage: multer.memoryStorage(),
-  limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit for audio files
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 // Firebase/Google authentication middleware only
@@ -37,6 +58,65 @@ const isAuthenticated: RequestHandler = async (req, res, next) => {
   }
   return res.status(401).json({ message: "Unauthorized" });
 };
+
+const visionJsonParser = express.json({ limit: "6mb" });
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+const pantryItemSchema = z.string().trim().min(1).max(64);
+const shortTextSchema = z.string().trim().min(1).max(280);
+
+function parseSessionId(value: string): number | null {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+const requireCookingSessionOwnership: RequestHandler = async (req: any, res, next) => {
+  try {
+    const sessionId = parseSessionId(req.params.id);
+    if (!sessionId) {
+      return res.status(400).json({ message: "Invalid cooking session id" });
+    }
+
+    const firebaseUser: FirebaseUser = req.firebaseUser;
+    const session = await storage.getCookingSession(sessionId);
+    if (!session) {
+      return res.status(404).json({ message: "Cooking session not found" });
+    }
+
+    if (session.authUserId !== firebaseUser.uid) {
+      return res.status(403).json({ message: "Cooking session does not belong to this user" });
+    }
+
+    req.cookingSession = session;
+    next();
+  } catch (error) {
+    console.error("Error checking cooking session ownership:", error);
+    res.status(500).json({ message: "Failed to verify cooking session ownership" });
+  }
+};
+
+function normalizeImageBase64(image: string): string {
+  const withoutPrefix = image.includes("data:image") ? image.split(",")[1] : image;
+  return withoutPrefix.replace(/\s/g, "");
+}
+
+function decodeBase64Image(image: string): Buffer | null {
+  if (!image || image.length % 4 === 1 || !/^[A-Za-z0-9+/]+={0,2}$/.test(image)) {
+    return null;
+  }
+
+  const buffer = Buffer.from(image, "base64");
+  if (buffer.length === 0) {
+    return null;
+  }
+
+  const normalizedInput = image.replace(/=+$/, "");
+  const normalizedEncoded = buffer.toString("base64").replace(/=+$/, "");
+  return normalizedInput === normalizedEncoded ? buffer : null;
+}
+
+function tooLargeImageResponse(res: any) {
+  return res.status(413).json({ error: "Image is too large. Please upload an image under 4 MB." });
+}
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -117,11 +197,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Recipe suggestions endpoint
-  app.post('/api/recipes/suggestions', async (req, res) => {
+  app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        preferences: z.string(),
-        ingredients: z.array(z.string()).optional()
+        preferences: z.string().trim().min(1).max(500),
+        ingredients: z.array(pantryItemSchema).optional()
       });
       
       const { preferences, ingredients } = schema.parse(req.body);
@@ -129,17 +209,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(suggestions);
     } catch (error) {
       console.error('Error in recipe suggestions:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid recipe suggestions request' });
+      }
       res.status(500).json({ error: 'Failed to get recipe suggestions' });
     }
   });
   
   // Pantry-based recipe suggestions endpoint
-  app.post('/api/recipes/pantry', async (req, res) => {
+  app.post('/api/recipes/pantry', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        ingredients: z.array(z.string()),
-        preferences: z.string().optional(),
-        timeAvailable: z.string().optional()
+        ingredients: z.array(pantryItemSchema),
+        preferences: z.string().trim().max(500).optional(),
+        timeAvailable: z.string().trim().max(64).optional()
       });
       
       const { ingredients, preferences, timeAvailable } = schema.parse(req.body);
@@ -152,18 +235,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(suggestions);
     } catch (error) {
       console.error('Error in pantry recipe suggestions:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid pantry recipe request' });
+      }
       res.status(500).json({ error: 'Failed to get pantry-based recipe suggestions' });
     }
   });
 
-  app.post('/api/recipes/slop-bowl', isAuthenticated, async (req: any, res) => {
+  app.post('/api/recipes/slop-bowl', isAuthenticated, slopBowlIpHourLimit, slopBowlUserHourLimit, slopBowlUserDayLimit, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
       const schema = z.object({
-        pantryOverride: z.array(z.string().trim().min(1)).optional(),
-        feedback: z.string().trim().min(1).optional(),
-        previousRecipe: z.string().trim().min(1).optional(),
+        pantryOverride: z.array(pantryItemSchema).optional(),
+        feedback: shortTextSchema.optional(),
+        previousRecipe: z.string().trim().min(1).max(200).optional(),
       });
 
       const { pantryOverride, feedback, previousRecipe } = schema.parse(req.body);
@@ -218,13 +304,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cooking steps endpoint
-  app.post('/api/cooking/steps', async (req, res) => {
+  app.post('/api/cooking/steps', isAuthenticated, aiIpHourLimit, aiUserHourLimit, aiUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        recipeName: z.string(),
-        ingredients: z.array(z.string()).optional(),
-        equipment: z.array(z.string()).optional(),
-        description: z.string().optional(),
+        recipeName: z.string().trim().min(1).max(200),
+        ingredients: z.array(pantryItemSchema).optional(),
+        equipment: z.array(pantryItemSchema).optional(),
+        description: z.string().trim().max(1000).optional(),
       });
       
       const { recipeName, ingredients, equipment, description } = schema.parse(req.body);
@@ -258,11 +344,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   */
 
   // Ingredient alternatives endpoint
-  app.post('/api/ingredients/alternatives', async (req, res) => {
+  app.post('/api/ingredients/alternatives', isAuthenticated, aiIpHourLimit, aiUserHourLimit, aiUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        ingredient: z.string(),
-        reason: z.string()
+        ingredient: pantryItemSchema,
+        reason: shortTextSchema
       });
       
       const { ingredient, reason } = schema.parse(req.body);
@@ -270,16 +356,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(alternatives);
     } catch (error) {
       console.error('Error in ingredient alternatives:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid ingredient alternatives request' });
+      }
       res.status(500).json({ error: 'Failed to get ingredient alternatives' });
     }
   });
 
   // Cooking assistance endpoint
-  app.post('/api/cooking/assistance', async (req, res) => {
+  app.post('/api/cooking/assistance', isAuthenticated, voiceIpHourLimit, voiceUserHourLimit, voiceUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        step: z.string(),
-        question: z.string().optional()
+        step: z.string().trim().min(1).max(4000),
+        question: z.string().trim().max(2000).optional()
       });
       
       const { step, question } = schema.parse(req.body);
@@ -287,68 +376,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.send(assistance);
     } catch (error) {
       console.error('Error in cooking assistance:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid cooking assistance request' });
+      }
       res.status(500).json({ error: 'Failed to get cooking assistance' });
     }
   });
 
   // Image analysis endpoint with HEIC conversion support
-  app.post('/api/vision/analyze', async (req, res) => {
+  app.post('/api/vision/analyze', isAuthenticated, visionIpShortLimit, visionUserShortLimit, visionUserDayLimit, visionJsonParser, async (req, res) => {
     try {
       const schema = z.object({
-        image: z.string(),
+        image: z.string().min(1),
         isHEIC: z.boolean().optional()
       });
       
       const { image, isHEIC } = schema.parse(req.body);
-      let processedImage = image;
-      
-      // Remove data URL prefix if present
-      if (processedImage.includes('data:image')) {
-        processedImage = processedImage.split(',')[1];
-      }
+      let processedImage = normalizeImageBase64(image);
       
       // Validate base64 format
-      if (!processedImage || processedImage.length === 0) {
+      const imageBuffer = decodeBase64Image(processedImage);
+      if (!imageBuffer) {
         return res.status(400).json({ error: 'Invalid image data provided' });
+      }
+
+      if (imageBuffer.length > MAX_IMAGE_BYTES) {
+        return tooLargeImageResponse(res);
       }
       
       // Convert HEIC to JPEG if needed
       if (isHEIC) {
         try {
-          const imageBuffer = Buffer.from(processedImage, 'base64');
           const outputBuffer = await heicConvert({
             buffer: imageBuffer,
             format: 'JPEG',
             quality: 0.8
           });
-          processedImage = (outputBuffer as Buffer).toString('base64');
+          const convertedBuffer = outputBuffer as Buffer;
+          if (convertedBuffer.length > MAX_IMAGE_BYTES) {
+            return tooLargeImageResponse(res);
+          }
+          processedImage = convertedBuffer.toString('base64');
         } catch (conversionError) {
           console.error('HEIC conversion failed:', conversionError);
           return res.status(400).json({ error: 'Failed to convert HEIC image. Please try a different format.' });
         }
       }
-      
-      // Validate base64 after processing
-      try {
-        Buffer.from(processedImage, 'base64');
-      } catch (base64Error) {
-        console.error('Invalid base64 format:', base64Error);
-        return res.status(400).json({ error: 'Invalid image format. Please upload a valid image file.' });
-      }
-      
+
       const analysis = await analyzeIngredientImage(processedImage);
       res.json(analysis);
     } catch (error) {
       console.error('Error in image analysis:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid image analysis request' });
+      }
       res.status(500).json({ error: 'Failed to analyze image' });
     }
   });
 
   // ElevenLabs voice synthesis routes
-  app.post('/api/speech/synthesize', async (req, res) => {
+  app.post('/api/speech/synthesize', isAuthenticated, speechIpHourLimit, speechUserHourLimit, speechUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        text: z.string().min(1),
+        text: z.string().min(1).max(4000),
         voiceId: z.string().optional(),
         stability: z.number().min(0).max(1).optional(),
         similarityBoost: z.number().min(0).max(1).optional(),
@@ -375,12 +465,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.send(audioBuffer);
     } catch (error) {
       console.error('Error in speech synthesis:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Invalid speech synthesis request' });
+      }
       res.status(500).json({ error: 'Failed to synthesize speech' });
     }
   });
 
   // Get available voices
-  app.get('/api/speech/voices', async (req, res) => {
+  app.get('/api/speech/voices', isAuthenticated, speechIpHourLimit, speechUserHourLimit, speechUserDayLimit, async (req, res) => {
     try {
       res.json({
         cookingVoices: COOKING_VOICES,
@@ -393,13 +486,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Speech transcription route using OpenAI Whisper
-  app.post('/api/speech/transcribe', upload.single('audio'), async (req, res) => {
+  app.post('/api/speech/transcribe', isAuthenticated, speechIpHourLimit, speechUserHourLimit, speechUserDayLimit, upload.single('audio'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'Audio file is required' });
       }
 
-      console.log('Received audio file for transcription:', {
+      console.info('Received audio file for transcription:', {
         originalname: req.file.originalname,
         mimetype: req.file.mimetype,
         size: req.file.size
@@ -418,10 +511,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           response_format: "text"
         });
 
-        console.log('Transcription result:', transcription);
-
         res.json({ 
-          transcription: transcription.trim(),
+          transcription: transcription.trim().slice(0, 2000),
           success: true 
         });
 
@@ -475,12 +566,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
-      const profileData = updateUserProfileSchema.parse(req.body);
+      const profileData = updateUserProfileSchema.extend({
+        pantryIngredients: z.array(pantryItemSchema).optional(),
+        kitchenEquipment: z.array(pantryItemSchema).optional(),
+        dietaryRestrictions: z.array(pantryItemSchema).optional(),
+        favoriteChefs: z.array(z.string().trim().min(1).max(100)).optional(),
+      }).parse(req.body);
       
       const updatedUser = await storage.updateUserProfile(userId, profileData);
       res.json(updatedUser);
     } catch (error) {
       console.error("Error updating user profile:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid user profile request" });
+      }
       res.status(500).json({ message: "Failed to update user profile" });
     }
   });
@@ -571,16 +670,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update cooking session progress
-  app.put('/api/cooking/session/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/cooking/session/:id', isAuthenticated, requireCookingSessionOwnership, async (req: any, res) => {
     try {
       const sessionId = parseInt(req.params.id);
       const schema = z.object({
         completedSteps: z.number().optional(),
         completed: z.boolean().optional(),
-        ingredientsRemaining: z.array(z.string()).optional(),
+        ingredientsRemaining: z.array(pantryItemSchema).optional(),
         cookingDuration: z.number().optional(),
         userRating: z.number().min(1).max(5).optional(),
-        userNotes: z.string().optional(),
+        userNotes: z.string().trim().max(280).optional(),
       });
       
       const updateData = schema.parse(req.body);
@@ -589,21 +688,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(session);
     } catch (error) {
       console.error("Error updating cooking session:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid cooking session update" });
+      }
       res.status(500).json({ message: "Failed to update cooking session" });
     }
   });
 
   // Complete cooking session and update pantry
-  app.post('/api/cooking/session/:id/complete', isAuthenticated, async (req: any, res) => {
+  app.post('/api/cooking/session/:id/complete', isAuthenticated, requireCookingSessionOwnership, async (req: any, res) => {
     try {
       const sessionId = parseInt(req.params.id);
-      const firebaseUser: FirebaseUser = req.firebaseUser;
-      const userId = firebaseUser.uid;
       
       const schema = z.object({
-        ingredientsRemaining: z.array(z.string()),
+        ingredientsRemaining: z.array(pantryItemSchema),
         userRating: z.number().min(1).max(5).optional(),
-        userNotes: z.string().optional(),
+        userNotes: z.string().trim().max(280).optional(),
         cookingDuration: z.number(),
         completedSteps: z.number(),
       });
@@ -615,15 +715,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...completionData,
         completed: true,
       });
-      
-      // Update user's pantry with remaining ingredients
-      await storage.updateUserProfile(userId, {
-        pantryIngredients: completionData.ingredientsRemaining,
-      });
-      
+
       res.json(session);
     } catch (error) {
       console.error("Error completing cooking session:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid cooking session completion" });
+      }
       res.status(500).json({ message: "Failed to complete cooking session" });
     }
   });
@@ -657,7 +755,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a single cooking session (ownership-verified)
-  app.delete('/api/cooking/session/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/cooking/session/:id', isAuthenticated, requireCookingSessionOwnership, async (req: any, res) => {
     try {
       const sessionId = parseInt(req.params.id);
       const firebaseUser: FirebaseUser = req.firebaseUser;
@@ -710,25 +808,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Feedback submission endpoint
-  app.post('/api/feedback', async (req, res) => {
+  app.post('/api/feedback', feedbackIpLimit, async (req, res) => {
     try {
-      const feedbackData = insertFeedbackSchema.parse(req.body);
+      const feedbackData = insertFeedbackSchema.extend({
+        currentPage: z.string().trim().min(1).max(120),
+        feedbackText: shortTextSchema,
+      }).parse(req.body);
       
       // Optional: add user ID if authenticated (not required per user specs)
       let authUserId = null;
       if (req.headers.authorization) {
         try {
-          const token = req.headers.authorization.replace('Bearer ', '');
-          
-          // Manually decode the JWT token for user ID
-          const tokenParts = token.split('.');
-          if (tokenParts.length === 3) {
-            const payload = JSON.parse(atob(tokenParts[1]));
-            const userId = payload.sub || payload.user_id || payload.uid;
-            if (userId) {
-              authUserId = userId;
-            }
-          }
+          const firebaseUser = await getFirebaseUserFromRequest(req);
+          authUserId = firebaseUser?.uid ?? null;
         } catch {
           // Ignore auth errors - feedback can be anonymous
         }
@@ -747,6 +839,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error submitting feedback:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid feedback request" });
+      }
       res.status(500).json({ message: "Failed to submit feedback" });
     }
   });

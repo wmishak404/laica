@@ -10,6 +10,7 @@ import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, C
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
+import { apiFetch } from '@/lib/queryClient';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 import { AudioProcessor } from '@/lib/audioUtils';
@@ -1036,7 +1037,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       formData.append('audio', audioProcessingResult.blob, 'recording.wav');
       
       console.log('Sending optimized audio for transcription...');
-      const transcriptionResponse = await fetch('/api/speech/transcribe', {
+      const transcriptionResponse = await apiFetch('/api/speech/transcribe', {
         method: 'POST',
         body: formData,
       });

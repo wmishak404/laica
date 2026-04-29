@@ -1,3 +1,5 @@
+import { apiFetch, apiRequest } from './queryClient';
+
 interface CookingStepObject {
   instruction?: string;
   step?: string;
@@ -25,43 +27,19 @@ interface CookingStepsResponse {
 }
 
 export async function fetchRecipeSuggestions(preferences: string, ingredients?: string[]) {
-  const response = await fetch('/api/recipes/suggestions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      preferences,
-      ingredients
-    }),
+  const response = await apiRequest('POST', '/api/recipes/suggestions', {
+    preferences,
+    ingredients
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-
   return await response.json();
 }
 
 export async function fetchPantryRecipes(pantryIngredients: string[], preferences?: string, timeAvailable?: string) {
-  const response = await fetch('/api/recipes/pantry', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      ingredients: pantryIngredients,
-      preferences,
-      timeAvailable
-    }),
+  const response = await apiRequest('POST', '/api/recipes/pantry', {
+    ingredients: pantryIngredients,
+    preferences,
+    timeAvailable
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-
   return await response.json();
 }
 
@@ -73,81 +51,33 @@ export async function fetchCookingSteps(
     description?: string;
   }
 ): Promise<CookingStepsResponse> {
-  const response = await fetch('/api/cooking/steps', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        recipeName,
-        ...options,
-      }),
-    });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-
+  const response = await apiRequest('POST', '/api/cooking/steps', {
+    recipeName,
+    ...options,
+  });
   return await response.json();
 }
 
 export async function fetchGroceryList(recipes: string[]) {
-  const response = await fetch('/api/grocery/list', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      recipes
-    }),
+  const response = await apiRequest('POST', '/api/grocery/list', {
+    recipes
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-
   return await response.json();
 }
 
 export async function fetchIngredientAlternatives(ingredient: string, reason: string) {
-  const response = await fetch('/api/ingredients/alternatives', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      ingredient,
-      reason
-    }),
+  const response = await apiRequest('POST', '/api/ingredients/alternatives', {
+    ingredient,
+    reason
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-
   return await response.json();
 }
 
 export async function fetchCookingAssistance(step: string, question?: string) {
-  const response = await fetch('/api/cooking/assistance', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      step,
-      question
-    }),
+  const response = await apiRequest('POST', '/api/cooking/assistance', {
+    step,
+    question
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-
   return await response.text();
 }
 
@@ -192,17 +122,10 @@ export async function fetchSlopBowlRecipe(options?: {
   feedback?: string;
   previousRecipe?: string;
 }): Promise<{ recipe: SlopBowlRecipe }> {
-  const { FirebaseAuthService } = await import('@/lib/firebase');
-  const idToken = await FirebaseAuthService.getIdToken();
-  if (!idToken) {
-    throw new Error('Not authenticated');
-  }
-
-  const response = await fetch('/api/recipes/slop-bowl', {
+  const response = await apiFetch('/api/recipes/slop-bowl', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${idToken}`,
     },
     body: JSON.stringify(options || {}),
   });
@@ -224,21 +147,9 @@ export async function fetchSlopBowlRecipe(options?: {
 }
 
 export async function analyzeImage(imageData: string, isHEIC?: boolean) {
-  const response = await fetch('/api/vision/analyze', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      image: imageData,
-      isHEIC: isHEIC
-    }),
+  const response = await apiRequest('POST', '/api/vision/analyze', {
+    image: imageData,
+    isHEIC: isHEIC
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-
   return await response.json();
 }
