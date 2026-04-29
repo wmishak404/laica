@@ -213,6 +213,12 @@ The mobile-refresh phase records in `product-decisions/features/mobile-refresh/`
 
 Implementation should treat these phase records as the next pilot surface for UI governance. Any new colors, primitives, or icon treatments should be tokenized or documented as an intentional escape hatch.
 
+## 2026-04-29 — Phase 2 exposes mockup conformance gap
+
+Wilson's Phase 2 review found that PR #23 implemented the new setup behavior but did not yet carry enough of the approved mockup aesthetics, and the pantry camera flow lacked an obvious Back/escape affordance. This is new governance evidence: mobile-refresh mockups should be treated as acceptance inputs, not mood boards, and a feature branch should not be marked ready when the primary user surfaces still read as the pre-refresh UI.
+
+The mobile-refresh README now records a cross-phase mockup conformance gate. Future Phase 3-5 work should include visual comparison against the linked mockups as part of smoke testing, alongside functional checks.
+
 ## Next steps when work resumes
 
 1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean

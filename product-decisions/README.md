@@ -9,6 +9,7 @@ This folder documents key product and technical decisions for the Laica project.
 - Use the existing documents as a template for structure and level of detail
 - Use top-level `PD-xxx` files for durable accepted decisions that should outlive a single branch or implementation phase
 - Use `product-decisions/features/<feature>/` for phase-by-phase feature decision records, open alignment questions, and evolving implementation notes during active development
+- If a product decision materially affects an active initiative, add a `Related Initiatives` section linking the relevant INIT and update that INIT's source docs or chronology
 
 ## Index
 
@@ -30,6 +31,7 @@ Active feature work often has decisions that evolve across discovery, API design
 - Handoffs carry agent-to-agent work state, branch context, and immediate next steps
 - Feature phase records carry the current decision log for one feature as it moves through delivery
 - Top-level PDs capture durable accepted outcomes that should stay easy to find later
+- INITs in [`../initiatives/`](../initiatives/README.md) are living hubs that summarize multi-phase initiative state and link back to relevant product decisions
 
 Current feature phase folders:
 

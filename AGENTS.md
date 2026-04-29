@@ -32,6 +32,25 @@ Before merging deployment-bound changes, sync the branch into Replit and verify:
 - feedback writes
 - ElevenLabs-backed speech routes
 
+## Stacked PRs and Replit validation
+
+When work spans phased or dependent PRs, two rules backstop stale Replit validation.
+
+**1. Rebase the upper-stack branch after lower-stack merges.** A branch is "stacked" when it logically depends on a lower PR: shared files, builds on the feature, or needs the lower PR's polish/docs to represent the real post-merge product. This rule does not apply to parallel independent PRs. Once a lower-stack PR merges to `main`, the agent owning the next stacked branch must:
+
+- `git fetch origin`
+- Rebase the branch onto fresh `origin/main`
+- `git push --force-with-lease`
+- Have Replit fetch the rebased branch before any preview or smoke test
+
+The branch owner performs this rebase, triggered by the lower-stack merge handoff. Pair `--force-with-lease` with the one-agent-per-branch rule so rewritten branch history stays safe.
+
+**2. Re-validate if new commits land after validation.** PR descriptions and handoffs for deployment-bound work must include `Last Replit-validated at: <commit-sha>` or clearly say `not yet validated`. If new commits arrive on the branch after that SHA, the validation is stale by definition. The PR cannot merge until Replit validation is re-run and the SHA is refreshed. There are no exceptions for "small" cosmetic commits because that judgment call is where regressions slip in.
+
+**Audit hygiene.** When auditing PR scope, compare against `origin/main...HEAD`, never a stale local `main` or old merge base.
+
+**Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include the last Replit-validated commit SHA.
+
 ## Project structure
 
 ```
@@ -43,6 +62,7 @@ docs/adr/        # Architecture decision records
 docs/handoffs/   # Agent coordination handoff files
 product-decisions/ # Documented product and architecture decisions
 epics/           # Open stories / backlog / governance — agents must check before related work
+initiatives/     # Living hubs for multi-phase initiatives
 ```
 
 ## Secrets
@@ -93,6 +113,12 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 3. Stop the automatic update process and ask Wilson to review when the next step needs human judgment, changes product direction, affects secrets/security, requires Replit-side intervention, or remains ambiguous after the agents have documented the tradeoff.
 4. For active features, record phase-by-phase decisions in `product-decisions/features/<feature>/` and promote only the durable accepted outcomes to top-level `PD-xxx` files.
 
+**INIT rule.** The `initiatives/` directory tracks living hubs for multi-phase work. Read the relevant INIT before starting or resuming initiative work, and update it when phase status, PR status, validation status, assets, major decisions, or the current resume point changes. Handoffs and PR descriptions for initiative work must cite the INIT and state whether it was updated.
+
+Current active INITs:
+
+- `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
+
 **Epics rule.** The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span features (see `epics/README.md`). These are **not** GitHub Issues and **not** bug reports. Start with `epics/README.md` for the status model and active read list; use `epics/registry.md` only when historical context is directly relevant. `Resolved` means closed/completed, while `Open`, `In Progress`, and `Blocked` are active. This workflow is durable in `product-decisions/007-epic-status-and-registry-workflow.md`. Before starting any feature work that touches a governed domain, read the relevant active epic. Each epic's *Agent checklist* section lists the exact triggers. Current active epics:
 
 - `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
@@ -101,6 +127,7 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 - `epics/007-vision-scan-no-detection-feedback.md` — read before changing image-scan result messaging or zero-result scan behavior
 - `epics/009-consistent-comma-separated-ingredient-entry.md` — read before changing multi-ingredient manual entry or delimiter behavior
 - `epics/010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
+- `epics/012-laica-design-language.md` — read before implementing/polishing mobile-refresh screens, translating mockups, or changing visual identity/look-and-feel
 
 If your work intersects with an active epic, cite it in your handoff and note how the change interacts (conforms / defers / adds new evidence). When the epic gains new signal from your work (new drift found, new surface added to a taxonomy), append a `## YYYY-MM-DD — <summary>` section to the epic file itself.
 

@@ -55,7 +55,16 @@ docs/adr/        # Architecture decision records
 docs/handoffs/   # Agent coordination handoff files
 product-decisions/ # Documented product and architecture decisions
 epics/           # Open stories / backlog / governance — agents must check before related work
+initiatives/     # Living hubs for multi-phase initiatives
 ```
+
+## Active initiatives — check before resuming phased work
+
+The `initiatives/` directory tracks living hubs for multi-phase projects. INITs connect phase docs, product decisions, epics, assets, PRs, handoffs, validation state, and the current resume point. Read the relevant INIT before starting or resuming work on that initiative, and update it when phase status, PR status, validation status, assets, major decisions, or resume context changes.
+
+Current active INITs:
+
+- `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
 
 ## Active epics — check before starting work in a governed domain
 
@@ -69,6 +78,7 @@ The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cuttin
 - `epics/007-vision-scan-no-detection-feedback.md` — read before changing image-scan result messaging or zero-result scan behavior
 - `epics/009-consistent-comma-separated-ingredient-entry.md` — read before changing multi-ingredient manual entry or delimiter behavior
 - `epics/010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
+- `epics/012-laica-design-language.md` — read before implementing/polishing mobile-refresh screens, translating mockups, or changing visual identity/look-and-feel
 
 If your work intersects with an active epic, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
 
@@ -132,6 +142,7 @@ Claude may **commit and push without asking** when the changes are limited to pl
 - `docs/handoffs/*.md` — agent handoff files
 - `product-decisions/*.md` and `product-decisions/README.md` — product decision records
 - `epics/*.md` and `epics/README.md` — open stories / backlog / governance
+- `initiatives/*.md` and `initiatives/README.md` — living multi-phase initiative hubs
 - `AGENTS.md` and `CLAUDE.md` — workflow/process updates
 
 This keeps a continuous conversation flow between Claude and Codex. The other agent can't see anything until it's on `origin`.

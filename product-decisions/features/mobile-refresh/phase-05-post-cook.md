@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Phase owner:** Wilson
 **Date:** 2026-04-28
+**Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 **Mockup:** [phase-05-post-cook.png](../../../docs/assets/mobile-refresh/phase-05-post-cook.png)
 
 ## Goal

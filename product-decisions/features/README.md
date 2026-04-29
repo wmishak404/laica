@@ -7,6 +7,7 @@ This subtree tracks active feature decisions by delivery phase. It is the workin
 - Use a feature phase folder when a feature has more than one implementation phase or more than one agent contributing
 - Record decisions that are stable enough to matter beyond a single handoff, but not yet final enough to deserve a top-level `PD-xxx`
 - Capture open questions, assumptions, and cross-agent alignment notes in the phase where they belong
+- Link the relevant INIT when the feature belongs to an active multi-phase initiative
 
 ## Convention
 
