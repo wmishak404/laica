@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 2 setup polish and validation
-**Active PR:** [PR #23](https://github.com/wmishak404/laica/pull/23)
+**Active PRs:** [PR #23](https://github.com/wmishak404/laica/pull/23) and docs/process split pending PR
 
 ## Overview
 
@@ -24,6 +24,8 @@ The initiative also includes cross-phase AI privacy, prompt-injection, abuse-pre
 ## Current Status
 
 Phase 0 and Phase 1 are merged. Phase 2 is open as draft PR #23.
+
+The INIT/process/design documentation stack is being split from PR #23 into `codex/mobile-refresh-init-process-docs` so it can merge first and become the shared workflow baseline for Phase 2 polish and later Phase 3-5 work.
 
 PR #23 has been rebased onto current `origin/main` after PR #22 merged. It is not merge-ready. The latest PR head is not Replit-validated, and the branch still needs Phase 2 visual conformance polish plus signed-in Replit smoke.
 
@@ -62,6 +64,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Draft / active | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work exists; visual polish, Back/escape, and signed-in smoke remain |
+| INIT/process docs | Active split | Pending PR / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; should merge before Phase 2 implementation PR is finalized |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -74,6 +77,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | #21 | Merged | `codex/mobile-refresh-phase-0-security` | Replit/security validation completed before merge |
 | #22 | Merged | `codex/mobile-refresh-phase-1-auth` | Phase 1 polish merged to `main` |
 | #23 | Draft / open | `codex/mobile-refresh-phase-2-setup` | Rebased onto `origin/main`; latest head not Replit-validated |
+| Pending | Active split | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design branch intended to merge before PR #23 |
 
 ## Epics and Governance
 
