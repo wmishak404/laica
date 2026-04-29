@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'wouter';
 import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
@@ -18,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Home, LogOut, User, MessageCircle, ChefHat } from 'lucide-react';
+import { Settings, LogOut, ChefHat } from 'lucide-react';
 import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 
@@ -47,7 +46,7 @@ interface RecipeRecommendation {
   overview?: string;           // short tagline from slop-bowl response
 }
 
-type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-bowl';
+type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-bowl';
 
 const hasPlanningProfile = (profile: UserProfile) =>
   Boolean(
@@ -73,7 +72,7 @@ export default function MobileApp() {
   const { toast } = useToast();
   const { data: dbProfile, isLoading: isLoadingDbProfile } = useUserProfile();
   const updateProfileMutation = useUpdateUserProfile();
-  const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
+  const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('profiling');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     cookingSkill: '',
@@ -148,7 +147,7 @@ export default function MobileApp() {
     if (!hasLoadedFromDb) {
       console.log('No database profile found, starting fresh');
       setHasLoadedFromDb(true);
-      setCurrentPhase('welcome');
+      setCurrentPhase('profiling');
     }
     setIsLoadingProfile(false);
   }, [user?.id, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
@@ -421,29 +420,17 @@ export default function MobileApp() {
   );
 
   const renderBottomNav = () => {
-    if (currentPhase === 'cooking') return null;
+    if (currentPhase === 'cooking' || currentPhase === 'profiling') return null;
 
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-        <div className="flex justify-around items-center max-w-md mx-auto">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => setCurrentPhase('welcome')}
-            className={`flex flex-col items-center ${currentPhase === 'welcome' ? 'text-[#FF6B6B]' : 'text-gray-500'}`}
-          >
-            <Home className="h-5 w-5 mb-1" />
-            <span className="text-xs">Home</span>
-          </Button>
-          
+        <div className="flex justify-around items-center max-w-xs mx-auto">
           <Button 
             variant="ghost" 
             size="sm"
             onClick={() => {
-              if (currentPhase !== 'profiling') {
-                setShowPlanningChoice(true);
-                setCurrentPhase('planning');
-              }
+              setShowPlanningChoice(true);
+              setCurrentPhase('planning');
             }}
             className={`flex flex-col items-center ${currentPhase === 'planning' || currentPhase === 'slop-bowl' ? 'text-[#FF6B6B]' : 'text-gray-500'}`}
             disabled={userProfile.cookingSkill === ''}
@@ -468,41 +455,6 @@ export default function MobileApp() {
     );
   };
 
-  const renderWelcomeScreen = () => (
-    <div className="min-h-screen bg-gradient-to-b from-[#FF6B6B]/10 to-white flex flex-col justify-center items-center p-6">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center mx-auto mb-6">
-          <img src={laicaLogo} alt="Laica" className="h-16" />
-        </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Laica</h1>
-        <p className="text-lg text-gray-600 mb-8">Your Live Cooking Assistant</p>
-        
-        <Card className="max-w-sm mx-auto">
-          <CardContent className="p-6">
-            <p className="text-gray-700 mb-6 text-center">
-              {hasExistingProfile
-                ? "Ready for another meal? Jump straight back into planning."
-                : "Let's get started by learning about your cooking style and preferences."}
-            </p>
-            <Button 
-              onClick={() => {
-                if (hasExistingProfile) {
-                  setShowPlanningChoice(true);
-                  setCurrentPhase('planning');
-                  return;
-                }
-                setCurrentPhase('profiling');
-              }}
-              className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
-            >
-              {hasExistingProfile ? 'Start Planning' : 'Get Started'}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-
   if (isLoadingProfile) {
     return (
       <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50 flex items-center justify-center">
@@ -517,12 +469,9 @@ export default function MobileApp() {
 
   const renderCurrentPhase = () => {
     switch (currentPhase) {
-      case 'welcome':
-        return renderWelcomeScreen();
-        
       case 'profiling':
         return (
-          <div className="pb-20">
+          <div>
             <UserProfiling 
               onProfileComplete={handleProfileComplete}
               existingProfile={hasExistingProfile ? userProfile : undefined}
@@ -585,7 +534,12 @@ export default function MobileApp() {
         );
         
       default:
-        return renderWelcomeScreen();
+        return (
+          <UserProfiling
+            onProfileComplete={handleProfileComplete}
+            existingProfile={hasExistingProfile ? userProfile : undefined}
+          />
+        );
     }
   };
 

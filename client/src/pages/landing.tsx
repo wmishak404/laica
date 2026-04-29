@@ -1,124 +1,77 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Users, Clock, Smartphone, Camera } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
+import { ChefHat, ScanLine, UserRound } from "lucide-react";
+import laicaLogo from "@assets/laica_logo_v1_cropped_1763444931884.png";
+
+const helpItems = [
+  {
+    icon: UserRound,
+    title: "Personalized Profiles",
+  },
+  {
+    icon: ScanLine,
+    title: "Smart Pantry Recognition",
+  },
+  {
+    icon: ChefHat,
+    title: "Live Cooking Guidance",
+  },
+];
 
 export default function Landing() {
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Header */}
-      <header className="px-4 lg:px-6 h-14 flex items-center border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-        <div className="flex items-center justify-center">
-          <img src={laicaLogo} alt="Laica" className="h-8" />
+    <main className="min-h-screen bg-sidebar text-sidebar-foreground">
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-7 pb-8 pt-12">
+        <div className="flex flex-1 flex-col items-center justify-center text-center">
+          <div className="mb-10 rounded-[2rem] bg-accent/80 p-7 shadow-2xl shadow-black/20">
+            <img src={laicaLogo} alt="Laica" className="h-24 w-24 object-contain" />
+          </div>
+
+          <img src={laicaLogo} alt="Laica" className="mb-5 h-16 object-contain" />
+          <h1 className="max-w-xs text-4xl font-semibold leading-tight">
+            Welcome to Laica
+          </h1>
+          <p className="mt-3 text-lg text-sidebar-foreground/75">
+            Your live cooking assistant
+          </p>
         </div>
-        <div className="ml-auto">
-          <GoogleSignInButton 
-            className="bg-orange-600 hover:bg-orange-700 text-white"
-          >
-            Try Demo
+
+        <div className="space-y-5">
+          <GoogleSignInButton className="h-14 w-full rounded-lg bg-accent text-lg font-semibold text-accent-foreground hover:bg-accent/90">
+            Continue with Google
           </GoogleSignInButton>
+
+          <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+            <DialogTrigger asChild>
+              <button className="mx-auto block text-sm text-sidebar-foreground/70 underline underline-offset-4">
+                What can you help me do?
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm rounded-lg">
+              <DialogHeader>
+                <DialogTitle>Laica helps with dinner</DialogTitle>
+                <DialogDescription>
+                  A quick look at what the app can do once you sign in.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-3 pt-2">
+                {helpItems.map((item) => (
+                  <div key={item.title} className="flex items-center gap-3 rounded-lg border bg-card p-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <span className="font-medium text-card-foreground">{item.title}</span>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="flex flex-col items-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl text-gray-900 dark:text-white">
-                Your Personal
-                <span className="text-orange-600 dark:text-orange-400"> Cooking Assistant</span>
-              </h1>
-              <p className="mx-auto max-w-[700px] text-gray-600 dark:text-gray-300 md:text-xl">
-                Transform your cooking experience with intelligent meal planning, real-time guidance, 
-                and personalized recipe recommendations tailored to your preferences and pantry.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <GoogleSignInButton 
-                size="lg"
-                className="bg-orange-600 hover:bg-orange-700 text-white min-w-[240px]"
-              >
-                Try Demo
-              </GoogleSignInButton>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="w-full py-12 md:py-24 bg-white dark:bg-gray-800">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-gray-900 dark:text-white">
-              Everything You Need to Cook Better
-            </h2>
-            <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              From meal planning to live cooking guidance, our AI assistant helps you every step of the way.
-            </p>
-          </div>
-          
-          <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
-            <Card className="border-orange-200 dark:border-orange-800">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <CardTitle className="text-gray-900 dark:text-white">Personalized Profiles</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-300">
-                  Create detailed cooking profiles based on your skill level, dietary restrictions, and preferences.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-orange-200 dark:border-orange-800">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-4">
-                  <Camera className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <CardTitle className="text-gray-900 dark:text-white">Smart Pantry Recognition</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-300">
-                  Upload photos of your pantry and kitchen equipment for smart ingredient recognition.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-orange-200 dark:border-orange-800">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-4">
-                  <Clock className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <CardTitle className="text-gray-900 dark:text-white">Live Cooking Guidance</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-300">
-                  Get real-time assistance and tips while cooking with our interactive step-by-step guidance.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-
-
-
-
-
-
-      {/* Footer */}
-      <footer className="border-t bg-white dark:bg-gray-800">
-        <div className="container px-4 md:px-6 py-8 mx-auto">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="flex items-center">
-              <img src={laicaLogo} alt="Laica" className="h-8" />
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              © {new Date().getUTCFullYear()} Laica Cooking Assistant. Enhancing your culinary journey with intelligent cooking guidance.
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }
