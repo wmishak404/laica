@@ -55,4 +55,4 @@ This follow-up should not block PR #23. If manual sign-in continues slowing Phas
 - Recipe suggestions should feel like LAICA, not generic AI cards with percentage matches.
 - The app should reduce decision load without hiding safety-critical confirmations.
 
-For visual identity beyond these UX principles, read [EPIC-012 — LAICA Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use EPIC-012 alongside the linked mockups and EPIC-001: EPIC-012 defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.
+For visual identity beyond these UX principles, read the draft [Mobile Refresh Design Language](design-language.md) and [EPIC-012 — LAICA Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use these alongside the linked mockups and EPIC-001: the design-language draft defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.

@@ -43,6 +43,7 @@ This epic is distinct from `epics/001-ui-governance.md`:
 
 ## Decisions made so far
 
+- The draft mobile-refresh design-language artifact lives at `product-decisions/features/mobile-refresh/design-language.md`.
 - The approved mobile-refresh mockups are design inputs, not mood boards.
 - Functional behavior alone is not enough for phase readiness when linked mockups exist.
 - LAICA should feel warm, capable, food-native, mobile-native, and lightly playful without becoming childish or cluttered.
@@ -111,6 +112,7 @@ This epic is `Resolved` when all of the following are true:
 
 ## Linked artifacts
 
+- `product-decisions/features/mobile-refresh/design-language.md` — draft target design language for mobile refresh
 - `design_guidelines.md` — current implementation record, not yet target identity
 - `epics/001-ui-governance.md` — consistency and enforcement companion epic
 - `epics/005-testing-strategy-and-acceptance-criteria.md` — validation companion epic
@@ -123,3 +125,7 @@ This epic is `Resolved` when all of the following are true:
 ### 2026-04-29 — Epic created from Phase 2 design gap
 
 Wilson clarified that "design principles" means more than UX principles: LAICA needs a universal design system and guidance for visual identity, look and feel, colors, personality, and the aesthetic direction behind the mockups. This epic records that work and makes Phase 2 setup the first active place to apply it.
+
+### 2026-04-29 — Draft mobile-refresh design language added
+
+Codex added `product-decisions/features/mobile-refresh/design-language.md` as the first concrete design-language artifact. It is draft-status and intended to guide Phase 2 setup polish immediately while keeping final typography, palette, motif, and imagery decisions open for Wilson review.

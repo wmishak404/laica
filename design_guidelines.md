@@ -1,6 +1,6 @@
 # Laica AI Cooking Assistant - Design Guidelines
 
-> **Status: current-implementation record.** This document describes what the app *currently uses*, not the long-term target. A future refresh is planned to give Laica a more distinctive visual identity — less generic-AI-app-looking — but that is tracked as a separate workstream. Until that refresh lands, this doc is the source of truth for day-to-day code review and the UI-consistency rubric (see `docs/handoffs/2026-04-16-codex-ui-consistency-handoff-test.md`).
+> **Status: current-implementation record.** This document describes what the app *currently uses*, not the long-term target. The mobile-refresh target visual identity is now being drafted in `product-decisions/features/mobile-refresh/design-language.md` and tracked by `epics/012-laica-design-language.md`. Until that refresh graduates, this doc remains the source of truth for day-to-day code review and the UI-consistency rubric (see `docs/handoffs/2026-04-16-codex-ui-consistency-handoff-test.md`).
 
 ## Design Approach
 **System**: shadcn/ui with customization for warm, approachable cooking experience
