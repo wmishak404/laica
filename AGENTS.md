@@ -32,17 +32,24 @@ Before merging deployment-bound changes, sync the branch into Replit and verify:
 - feedback writes
 - ElevenLabs-backed speech routes
 
-## Stacked PR base refresh
+## Stacked PRs and Replit validation
 
-When work is stacked across phases or dependent PRs, always refresh the next branch after a lower-stack PR merges to `main` and before Replit validation:
+When work spans phased or dependent PRs, two rules backstop stale Replit validation.
 
-1. `git fetch origin`
-2. Switch to the next feature branch.
-3. Rebase it onto fresh `origin/main`.
-4. Push the rewritten branch with `--force-with-lease`.
-5. Have Replit fetch that branch before preview/smoke testing.
+**1. Rebase the upper-stack branch after lower-stack merges.** A branch is "stacked" when it logically depends on a lower PR: shared files, builds on the feature, or needs the lower PR's polish/docs to represent the real post-merge product. This rule does not apply to parallel independent PRs. Once a lower-stack PR merges to `main`, the agent owning the next stacked branch must:
 
-This keeps Replit previews aligned with the real post-merge state and preserves polish from newly merged lower-stack work. Handoffs and PR descriptions for stacked branches must explicitly say whether the branch has been rebased onto current `origin/main` after lower-stack merges. When auditing scope, compare the PR with `origin/main...HEAD`; avoid using a stale local `main` or an old merge base.
+- `git fetch origin`
+- Rebase the branch onto fresh `origin/main`
+- `git push --force-with-lease`
+- Have Replit fetch the rebased branch before any preview or smoke test
+
+The branch owner performs this rebase, triggered by the lower-stack merge handoff. Pair `--force-with-lease` with the one-agent-per-branch rule so rewritten branch history stays safe.
+
+**2. Re-validate if new commits land after validation.** PR descriptions and handoffs for deployment-bound work must include `Last Replit-validated at: <commit-sha>` or clearly say `not yet validated`. If new commits arrive on the branch after that SHA, the validation is stale by definition. The PR cannot merge until Replit validation is re-run and the SHA is refreshed. There are no exceptions for "small" cosmetic commits because that judgment call is where regressions slip in.
+
+**Audit hygiene.** When auditing PR scope, compare against `origin/main...HEAD`, never a stale local `main` or old merge base.
+
+**Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include the last Replit-validated commit SHA.
 
 ## Project structure
 
