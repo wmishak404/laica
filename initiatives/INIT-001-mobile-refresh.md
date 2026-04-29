@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 2 setup polish and validation
-**Active PRs:** [PR #23](https://github.com/wmishak404/laica/pull/23) and [PR #25](https://github.com/wmishak404/laica/pull/25)
+**Active PR:** [PR #23](https://github.com/wmishak404/laica/pull/23)
 
 ## Overview
 
@@ -23,11 +23,11 @@ The initiative also includes cross-phase AI privacy, prompt-injection, abuse-pre
 
 ## Current Status
 
-Phase 0 and Phase 1 are merged. Phase 2 is open as draft PR #23.
+Phase 0, Phase 1, and the INIT/process documentation split are merged. Phase 2 is open as draft PR #23.
 
-The INIT/process/design documentation stack is split from PR #23 into PR #25 (`codex/mobile-refresh-init-process-docs`) so it can merge first and become the shared workflow baseline for Phase 2 polish and later Phase 3-5 work.
+PR #25 split and merged the INIT/process/design documentation stack from PR #23, making it the shared workflow baseline for Phase 2 polish and later Phase 3-5 work.
 
-PR #23 has been rebased onto current `origin/main` after PR #22 merged. It is not merge-ready. The latest PR head is not Replit-validated, and the branch still needs Phase 2 visual conformance polish plus signed-in Replit smoke.
+PR #23 has been refreshed onto current `origin/main` after PR #25 merged and now contains the Phase 2 implementation/polish lane again. It is not merge-ready. The latest PR head is not Replit-validated, and the branch still needs Phase 2 visual conformance polish plus signed-in Replit smoke.
 
 The exact current `Last Replit-validated at` SHA lives in the PR #23 description; treat the INIT and PR body together as the source of truth.
 
@@ -64,7 +64,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Draft / active | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work exists; visual polish, Back/escape, and signed-in smoke remain |
-| INIT/process docs | Open | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; should merge before Phase 2 implementation PR is finalized |
+| INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -76,8 +76,8 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | #20 | Merged | `codex/mobile-refresh-planning-docs` | Docs/assets only |
 | #21 | Merged | `codex/mobile-refresh-phase-0-security` | Replit/security validation completed before merge |
 | #22 | Merged | `codex/mobile-refresh-phase-1-auth` | Phase 1 polish merged to `main` |
-| #23 | Draft / open | `codex/mobile-refresh-phase-2-setup` | Rebased onto `origin/main`; latest head not Replit-validated |
-| #25 | Open | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design branch intended to merge before PR #23 |
+| #23 | Draft / open | `codex/mobile-refresh-phase-2-setup` | Refreshed onto `origin/main` after PR #25; latest head not Replit-validated |
+| #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 
 ## Epics and Governance
 
@@ -106,8 +106,8 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 
 Known validation facts:
 
-- Earlier deterministic Phase 2 Replit checks passed before later docs/process commits.
-- Latest PR #23 head is not Replit-validated.
+- Earlier deterministic Phase 2 Replit checks passed before later docs/process commits and are stale.
+- Latest PR #23 head after the PR #25 refresh is not Replit-validated.
 - Full signed-in Phase 2 smoke is still needed.
 - Phase 2 visual conformance review is still needed.
 
@@ -148,3 +148,7 @@ PR #23 implemented much of the functional setup flow, but Replit/manual review s
 ### 2026-04-29 — Process and design layers added
 
 The initiative gained dev-test harness planning, mockup conformance rules, EPIC-012, the mobile-refresh design-language draft, stacked PR validation hygiene, and this INIT hub.
+
+### 2026-04-29 — INIT/process docs split and merged
+
+PR #25 merged the INIT/process/design documentation baseline separately from PR #23. PR #23 was then refreshed onto the new `origin/main` so it can continue as the Phase 2 implementation and polish branch.
