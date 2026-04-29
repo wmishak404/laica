@@ -244,6 +244,10 @@ The equipment-vision branch merged code that satisfied EPIC-006 in practice, but
 
 The mobile-refresh records in `product-decisions/features/mobile-refresh/` include explicit acceptance criteria for Phase 0 through Phase 5 plus cross-phase AI privacy/abuse rules. This does not resolve the app-wide testing strategy, but it gives implementation agents a concrete merge-readiness checklist for this feature and preserves the Replit validation gate.
 
+### 2026-04-29 — Phase 2 exposes authenticated smoke automation gap
+
+PR #23 validation showed that deterministic Replit checks can pass while authenticated UI smoke still depends on a human completing Google sign-in. Wilson and Codex agreed not to bypass Google auth for Phase 2. The planned mobile-refresh [dev-test harness](../product-decisions/features/mobile-refresh/dev-test-harness.md) records the preferred future direction: dev-only Firebase custom-token auth, deterministic test users, and hybrid fixture/live-service smoke. This is new evidence for the testing strategy, not a resolution of this epic.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

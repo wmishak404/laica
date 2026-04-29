@@ -17,6 +17,10 @@ Harden auth, cost-bearing AI routes, session ownership, body limits, logging, an
 - Replit Secrets are the production/runtime source. Local validation can use dotenvx and mocked middleware tests.
 - Remove raw token, decoded payload, and user-object logging.
 
+### Future dev-test auth
+
+Agent-driven authenticated smoke should eventually use a dev-only Firebase custom-token lane, not a backend auth bypass. Any future test harness must preserve Firebase Admin token verification on protected routes, be unavailable in production, require explicit opt-in, and stay limited to deterministic test users.
+
 ### Cost-bearing route protection
 
 All AI or paid-service routes must require Firebase auth before Phase 2-5 implementation depends on them:

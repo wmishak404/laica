@@ -21,6 +21,12 @@ This folder records the approved planning for the LAICA mobile-refresh work. It 
 4. Implement Phase 4 after authenticated AI routes and session ownership checks are live.
 5. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry.
 
+## Cross-Phase Validation Follow-Up
+
+Phase 2 validation exposed a recurring gap: agents can run deterministic checks, but authenticated UI smoke still depends on a human completing Google sign-in. The planned [dev-test harness](dev-test-harness.md) records the future direction for real Firebase custom-token dev auth and hybrid service-backed smoke.
+
+This follow-up should not block PR #23. If manual sign-in continues slowing Phase 3-5 validation, prioritize the harness before repeating the same smoke bottleneck across later phases.
+
 ## Out of Scope
 
 - Replacing TanStack Query, wouter, Firebase, or the OpenAI prompt-version model.
