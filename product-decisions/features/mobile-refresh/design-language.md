@@ -59,6 +59,126 @@ Avoid decorative clutter, constant animation, vague hype, or forced enthusiasm. 
 
 Cooking mode is a different emotional register from Planning. It should be clear, calm, cue-driven, and readable while the user's hands and attention are busy. Large type, simple controls, strong progress, and sensory cues matter more than decorative personality.
 
+## Visual Exemplars
+
+Text guidance is not enough to reproduce visual taste. The linked mockups below are canonical exemplars for the mobile refresh. Implementations should use these images as visual anchors and cite any deliberate deviations in the handoff.
+
+### Phase 1 Auth
+
+**Asset:** [phase-01-auth.png](../../../docs/assets/mobile-refresh/phase-01-auth.png)
+
+Use this as the reference for:
+
+- friendly first impression without generic AI-app chrome
+- coral-led brand presence with restrained supporting colors
+- simple auth hierarchy and uncluttered white space
+- logo treatment and top-level LAICA personality
+
+Do not copy:
+
+- a plain provider-button page with no branded LAICA feeling
+- generic gradient hero treatments
+- dense explanatory onboarding text before sign-in
+
+### Phase 2 Setup
+
+**Asset:** [phase-02-setup.png](../../../docs/assets/mobile-refresh/phase-02-setup.png)
+
+Use this as the reference for:
+
+- camera-first setup composition
+- scan surface as a designed LAICA object, not raw native camera UI with buttons attached
+- clear primary capture CTA with upload/manual/tips in a secondary hierarchy
+- warm/coral onboarding mood
+- chip, progress, and profile-choice treatment
+- enough chrome for Back/escape without turning setup into a desktop wizard
+
+Do not copy:
+
+- form-first onboarding with camera as an accessory
+- stacked generic shadcn cards
+- full-screen native camera takeover with no LAICA way back
+- teal pantry chips when the accepted direction is warm/coral
+
+### Phase 3 Planning Flow
+
+**Asset:** [phase-03-planning-flow.png](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png)
+
+Use this as the reference for:
+
+- Chef It Up as the primary route
+- Slop Bowl as scrappy, funny, and intentionally secondary
+- visual hierarchy that makes planning feel native-mobile rather than dashboard-like
+- cuisine/time controls that feel tactile and thumb-friendly
+- personality that is specific to cooking, not generic assistant UI
+
+Do not copy:
+
+- the legacy two-card Planning choice unchanged
+- equal-weight primary/secondary actions when the product direction prioritizes Chef It Up
+- percentage-match or generic recommendation-card framing
+
+### Phase 3 Ticket Pass
+
+**Asset:** [phase-03-ticket-pass.png](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png)
+
+Use this as the reference for:
+
+- Ticket Pass as LAICA's signature suggestion object
+- tactile recipe cards with a distinct shape and personality
+- useful information without generic AI match scoring
+- optional enhancement framing that avoids mandatory grocery-list language
+
+Do not copy:
+
+- ordinary recipe cards with `X% match`
+- generic AI result lists
+- grocery-list pressure as the primary visual story
+
+### Phase 4 Cooking
+
+**Asset:** [phase-04-cooking.png](../../../docs/assets/mobile-refresh/phase-04-cooking.png)
+
+Use this as the reference for:
+
+- calm, focused, hands-busy cooking mode
+- large readable instruction hierarchy
+- sensory cues and progress as first-class visual elements
+- controls that are reachable and obvious without visual noise
+
+Do not copy:
+
+- planning-level playfulness in the middle of active cooking
+- dense step lists where the current action gets lost
+- decorative motion that competes with the cooking instruction
+
+### Phase 5 Post-Cook
+
+**Asset:** [phase-05-post-cook.png](../../../docs/assets/mobile-refresh/phase-05-post-cook.png)
+
+Use this as the reference for:
+
+- light, non-punitive cleanup
+- quick pantry update decisions
+- warm retention moments that do not feel needy
+- clear accept/skip/defer hierarchy
+
+Do not copy:
+
+- heavy forms after cooking
+- guilt-driven retention copy
+- pantry update surfaces that feel like inventory administration
+
+### Anti-Examples To Avoid Across Phases
+
+- Raw shadcn composition with only coral buttons changed.
+- Generic AI-app surfaces: purple-blue gradients, abstract orbs, sparkle wallpaper, chat-first metaphors.
+- Website chrome inside core app flows.
+- Repeated floating cards for every section.
+- One-note color screens that are all coral, all beige, all teal, or all dark blue.
+- Hidden or missing Back/escape affordances in focused flows.
+- Visual changes that are not traceable to a mockup, token, or documented tone-forward exception.
+
 ## Visual System Direction
 
 ### Color
@@ -151,6 +271,7 @@ Phase 2 is the first active pilot for this design language. Before merge:
 
 Before a mobile-refresh phase is marked ready:
 
+- Has the reviewer opened the linked visual exemplar for the phase?
 - Does the primary screen visibly match the linked mockup's hierarchy and mood?
 - Does the screen feel like LAICA, not generic AI/SaaS/shadcn?
 - Is the primary action unmistakable?
