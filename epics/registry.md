@@ -22,3 +22,4 @@ Durable workflow decision: [`PD-007`](../product-decisions/007-epic-status-and-r
 | [008](008-slop-bowl-sparse-pantry-guard.md) | Slop Bowl sparse-pantry guard | `Resolved` | Wilson / Codex / Claude | 2026-04-27 | 2026-04-27 | Replit flow validated; route-contract test covers typed 422 bypass guard |
 | [009](009-consistent-comma-separated-ingredient-entry.md) | Consistent comma-separated ingredient entry | `Open` | Wilson / Codex / Claude | 2026-04-27 |  | Filed from Slop Bowl localhost testing |
 | [010](010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |  | Filed from local Neon schema drift during Slop Bowl validation |
+| [012](012-laica-design-language.md) | LAICA Design Language & Visual Identity | `In Progress` | Wilson / Codex / Claude | 2026-04-29 |  | Filed from Phase 2 mockup-conformance gap; Phase 2 setup is first pilot |

@@ -82,6 +82,7 @@ Before Phase 2 is ready to merge:
 - EPIC-007: Empty scan feedback applies to Pantry and Kitchen.
 - EPIC-009: Comma-separated manual ingredient entry expands beyond Slop Bowl into Setup.
 - EPIC-010: No local DB pushes for schema changes; Replit remains the DB authority.
+- EPIC-012: Phase 2 setup is the first active pilot for LAICA's target design language and visual mockup conformance.
 
 ## Backend Notes
 
