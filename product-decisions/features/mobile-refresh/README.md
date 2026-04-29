@@ -21,6 +21,14 @@ This folder records the approved planning for the LAICA mobile-refresh work. It 
 4. Implement Phase 4 after authenticated AI routes and session ownership checks are live.
 5. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry.
 
+## Mockup Conformance Gate
+
+For every mobile-refresh phase with linked mockups, the mockups are implementation inputs, not loose inspiration. A phase PR should carry the visible design direction of its primary surfaces: hierarchy, spacing, density, CTA prominence, control shape, motion/illustration where specified, tone, and escape/back affordances.
+
+A phase PR is not ready when the behavior is implemented but the main screens still read as the pre-refresh UI, unless the visual work is explicitly documented as deferred scope in the phase record and handoff before validation starts. Reviewers should compare the implemented primary screens with the linked mockups during smoke testing, not only run deterministic checks.
+
+If a later phase depends on an earlier surface that still has visual drift, record whether the later phase owns that polish or whether a separate Phase 2.x/3.x polish pass owns it. The goal is to avoid repeating the Phase 2 gap where camera-first behavior landed before the setup flow matched the approved visual direction.
+
 ## Cross-Phase Validation Follow-Up
 
 Phase 2 validation exposed a recurring gap: agents can run deterministic checks, but authenticated UI smoke still depends on a human completing Google sign-in. The planned [dev-test harness](dev-test-harness.md) records the future direction for real Firebase custom-token dev auth and hybrid service-backed smoke.

@@ -9,6 +9,12 @@
 
 Make meal planning feel distinctive to LAICA, reduce decision work, and stop presenting recipe suggestions like generic AI match cards.
 
+## 2026-04-29 Visual Scope Note
+
+The current two-card Planning screen is pre-refresh UI and should not be treated as acceptable Phase 3 completion if it remains visually unchanged. Phase 3 owns the Planning entry redesign unless that work is explicitly pulled forward into Phase 2 or a Phase 2.x polish pass.
+
+Implementation should match the planning mockups closely enough that the first post-setup cooking choice feels like the mobile-refresh experience, not the legacy planning choice with updated copy. If the team splits Phase 3 into behavioral and visual slices, that split must be documented before validation so reviewers do not mark deterministic behavior as full phase completion.
+
 ## Decisions
 
 ### Planning entry
@@ -55,6 +61,7 @@ Make meal planning feel distinctive to LAICA, reduce decision work, and stop pre
 ## Acceptance Criteria
 
 - Planning entry visually prioritizes Chef It Up and places Slop Bowl as the scrappy secondary path.
+- Legacy Planning cards are redesigned toward the linked Planning mockup; unchanged pre-refresh cards are not Phase 3-ready.
 - Chef It Up tagline uses the approved collaborative wording.
 - Avoid/specify step is gone.
 - Time slider has exactly the four approved positions and sits in an easy thumb zone.

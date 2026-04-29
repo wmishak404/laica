@@ -9,6 +9,18 @@
 
 Reduce setup effort by making camera scan the focal value moment, then let users review/edit results with mobile-native controls.
 
+## 2026-04-29 Scope Correction
+
+Phase 2 implementation must include setup visual conformance, not only the functional camera/manual-entry/profile wiring. Wilson's validation of PR #23 surfaced that the new behavior was visible, but the setup surface did not yet feel close enough to the approved mockup and the pantry camera step lacked an obvious Back/escape affordance.
+
+Before Phase 2 is ready to merge:
+
+- Pantry and Kitchen setup screens should visually follow the Phase 2 mockup direction: mobile-native composition, warm/coral LAICA styling, clear primary capture CTA, secondary upload/manual/tips hierarchy, tokenized spacing, and deliberate camera framing.
+- The embedded camera step must include a visible Back/escape path. That escape can return to the previous setup surface or signed-in safe landing, but incomplete users must not bypass required setup into cooking.
+- Camera previews should feel integrated into LAICA chrome rather than like a raw/native preview with functional buttons attached.
+- Any intentional visual deviation from the mockup must be documented in this phase record and handoff before readiness validation.
+- The Planning entry screen remains Phase 3 scope unless the team explicitly pulls that visual redesign forward into Phase 2 or a Phase 2.x polish pass.
+
 ## Decisions
 
 ### Pantry scan
@@ -57,6 +69,8 @@ Reduce setup effort by making camera scan the focal value moment, then let users
 - Empty scan produces clear no-detection feedback.
 - Pantry chips are readable and token-driven.
 - Skill and dietary choices are full-row tap targets.
+- Setup screens visibly conform to the Phase 2 mockup direction; functional parity alone is not sufficient.
+- Pantry and Kitchen camera steps have a clear Back/escape affordance that does not let incomplete users bypass required setup.
 - Weekly Cooking Time no longer appears in setup, settings, onboarding completion, or server readiness gates.
 - Manual entry `"buns, mayo"` creates two ingredient chips.
 

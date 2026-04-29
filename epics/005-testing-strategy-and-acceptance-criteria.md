@@ -248,6 +248,10 @@ The mobile-refresh records in `product-decisions/features/mobile-refresh/` inclu
 
 PR #23 validation showed that deterministic Replit checks can pass while authenticated UI smoke still depends on a human completing Google sign-in. Wilson and Codex agreed not to bypass Google auth for Phase 2. The planned mobile-refresh [dev-test harness](../product-decisions/features/mobile-refresh/dev-test-harness.md) records the preferred future direction: dev-only Firebase custom-token auth, deterministic test users, and hybrid fixture/live-service smoke. This is new evidence for the testing strategy, not a resolution of this epic.
 
+### 2026-04-29 — Phase 2 exposes visual acceptance gap
+
+Wilson's PR #23 walkthrough also showed that a deterministic green run can still miss a core acceptance problem: the setup behavior was present, but the visuals were not close enough to the approved mobile-refresh mockup and the camera step did not offer an obvious Back/escape path. Future phase acceptance should include a visual comparison against linked mockups for the primary screens, and any behavior-first/visual-later split must be documented before validation begins. This adds testing-strategy evidence, not a resolution.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design
