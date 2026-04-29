@@ -32,6 +32,18 @@ Before merging deployment-bound changes, sync the branch into Replit and verify:
 - feedback writes
 - ElevenLabs-backed speech routes
 
+## Stacked PR base refresh
+
+When work is stacked across phases or dependent PRs, always refresh the next branch after a lower-stack PR merges to `main` and before Replit validation:
+
+1. `git fetch origin`
+2. Switch to the next feature branch.
+3. Rebase it onto fresh `origin/main`.
+4. Push the rewritten branch with `--force-with-lease`.
+5. Have Replit fetch that branch before preview/smoke testing.
+
+This keeps Replit previews aligned with the real post-merge state and preserves polish from newly merged lower-stack work. Handoffs and PR descriptions for stacked branches must explicitly say whether the branch has been rebased onto current `origin/main` after lower-stack merges. When auditing scope, compare the PR with `origin/main...HEAD`; avoid using a stale local `main` or an old merge base.
+
 ## Project structure
 
 ```

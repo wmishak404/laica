@@ -34,6 +34,20 @@ Anything left unfinished or that requires human/Replit-side action.
 How to confirm the changes work — local checks, Replit validation steps, or manual tests.
 ```
 
+## Stacked PR note
+
+If the task is stacked on another branch or follows a recently merged lower phase, include a short line in the handoff and PR description:
+
+```markdown
+## Stack / base status
+
+- Base refreshed: yes/no
+- Current base: origin/main at <sha>
+- Notes: rebased after PR #<number> merged, or explain why not
+```
+
+Before Replit validation, the branch should be rebased onto current `origin/main` and pushed with `--force-with-lease`. Replit should fetch that updated branch so preview and smoke testing reflect the actual post-merge state. Use `origin/main...HEAD` when listing PR scope.
+
 ## PR descriptions
 
 When opening a PR, include a structured summary covering the same information. The PR description is the short-lived version; the handoff file is the durable record.
