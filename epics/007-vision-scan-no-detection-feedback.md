@@ -100,3 +100,7 @@ While validating equipment-vision fixes with living-room and luggage-only photos
 ### 2026-04-28 — Mobile refresh makes zero-result scan feedback an acceptance criterion
 
 Phase 2 setup and Phase 5 post-cook rescan both require explicit no-detection feedback. This conforms to the epic direction and broadens the expected implementation surface from current onboarding/settings scans to the new camera-first scan and cleanup-rescan flows.
+
+### 2026-04-29 — Phase 2 setup scan now treats empty results as a valid outcome
+
+The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) routes the new pantry and kitchen setup scan surfaces through explicit `No ingredients detected` / `No equipment detected` toast feedback instead of ending silently. The same branch keeps Settings scan feedback explicit. Remaining validation before resolving this epic: authenticated Replit smoke with at least one negative-control pantry/kitchen image.

@@ -11,12 +11,12 @@ import {
   SlopBowlApiError,
   type SlopBowlRecipe,
 } from '@/lib/openai';
+import { normalizeEntryKey, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { handleAPIError } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
   cookingSkill: string;
   dietaryRestrictions: string[];
-  weeklyTime: string;
   pantryIngredients: string[];
   kitchenEquipment: string[];
   favoriteChefs: string[];
@@ -85,7 +85,7 @@ const pickRandomMessageIndex = (current: number) => {
   return next;
 };
 
-const normalizeIngredient = (value: string) => value.trim().replace(/\s+/g, ' ').toLowerCase();
+const normalizeIngredient = normalizeEntryKey;
 const MIN_SLOP_BOWL_INGREDIENTS = 3;
 
 const countDistinctIngredients = (ingredients: string[]) =>
@@ -128,9 +128,12 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
 
   const pantryNames = pantryItems.map((item) => item.name);
   const distinctPantryCount = countDistinctIngredients(pantryNames);
+  const parsedIngredientInput = parseCommaSeparatedEntries(ingredientInput);
+  const newIngredientEntries = parsedIngredientInput.filter((entry) =>
+    !pantryItems.some((item) => normalizeIngredient(item.name) === normalizeIngredient(entry))
+  );
   const normalizedIngredientInput = normalizeIngredient(ingredientInput);
-  const canAddIngredient = normalizedIngredientInput.length > 0 &&
-    !pantryItems.some((item) => normalizeIngredient(item.name) === normalizedIngredientInput);
+  const canAddIngredient = newIngredientEntries.length > 0;
   const missingIngredientCount = Math.max(MIN_SLOP_BOWL_INGREDIENTS - distinctPantryCount, 0);
   const hasSparsePantry = distinctPantryCount > 0 && distinctPantryCount < MIN_SLOP_BOWL_INGREDIENTS;
   const canGenerateBowl = distinctPantryCount >= MIN_SLOP_BOWL_INGREDIENTS;
@@ -218,17 +221,16 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
   };
 
   const handleAddIngredient = () => {
-    const nextIngredient = ingredientInput.trim().replace(/\s+/g, ' ');
     if (!canAddIngredient) return;
 
     setPantryMessage(null);
     setPantryItems((items) => [
       ...items,
-      {
-        id: `manual-${Date.now()}-${normalizedIngredientInput}`,
-        name: nextIngredient,
-        source: 'manual',
-      },
+      ...newIngredientEntries.map((entry, index) => ({
+        id: `manual-${Date.now()}-${index}-${normalizeIngredient(entry)}`,
+        name: entry,
+        source: 'manual' as const,
+      })),
     ]);
     setIngredientInput('');
   };
@@ -299,7 +301,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
                 <Input
                   value={ingredientInput}
                   onChange={(event) => setIngredientInput(event.target.value)}
-                  placeholder="Add an ingredient"
+                  placeholder="Add ingredients"
                   className="flex-1"
                 />
                 <Button type="submit" variant="outline" disabled={!canAddIngredient}>
@@ -307,7 +309,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Changes here only apply to this bowl. Use profile settings if you want them to stick.
+                Use commas to add multiple. Changes here only apply to this bowl.
               </p>
               {!canAddIngredient && normalizedIngredientInput.length > 0 && (
                 <p className="text-xs text-amber-600">That ingredient is already in this bowl.</p>

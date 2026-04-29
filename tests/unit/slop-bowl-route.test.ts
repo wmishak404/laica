@@ -88,7 +88,6 @@ describe('POST /api/recipes/slop-bowl sparse pantry guard', () => {
       id: 'test-user-id',
       cookingSkill: 'intermediate',
       dietaryRestrictions: [],
-      weeklyTime: '3-5',
       pantryIngredients: ['ground beef patties', 'buns'],
       kitchenEquipment: [],
       favoriteChefs: [],

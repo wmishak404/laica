@@ -25,7 +25,6 @@ interface SavedMealPlanningSession {
 interface UserProfile {
   cookingSkill: string;
   dietaryRestrictions: string[];
-  weeklyTime: string;
   pantryIngredients: string[];
   kitchenEquipment: string[];
   favoriteChefs: string[];
@@ -233,7 +232,7 @@ export default function MealPlanning({ userProfile, onMealSelected, onBackToProf
       return;
     }
 
-    if (!userProfile.cookingSkill || !userProfile.weeklyTime) {
+    if (!userProfile.cookingSkill) {
       toast({
         title: "Profile Incomplete", 
         description: "Please complete your cooking profile before getting meal recommendations.",

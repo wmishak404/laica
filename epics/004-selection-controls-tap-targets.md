@@ -146,6 +146,10 @@ During localhost review, Wilson flagged that the cooking-profile menu selections
 
 The mobile-refresh setup and planning records apply this pattern beyond the original weekly-time/skill rows. Weekly Cooking Time is being removed, but Cooking Skill, Dietary Restrictions, cuisine chips, Slop Bowl confirmation controls, and post-cook review choices should all use mobile-appropriate full-row or full-chip tap targets rather than tiny radio/checkbox hit areas.
 
+### 2026-04-29 — Phase 2 setup implementation applies full-row profile controls
+
+The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) replaces the onboarding Cooking Skill and Dietary Restrictions controls with full-row mobile selections, and mirrors that interaction model in Settings. Weekly Cooking Time is no longer a setup/settings control, so the original weekly-time tap-target case is removed rather than restyled. Remaining validation before closeout: authenticated Replit smoke for setup/settings touch behavior and keyboard/accessibility spot checks.
+
 ## Next steps when work resumes
 
 1. Claude (or another client-owner pass) prototypes a full-row selection style for onboarding step 1 and step 3

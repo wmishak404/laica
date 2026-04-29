@@ -270,8 +270,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      if (!user.cookingSkill || !user.weeklyTime) {
-        return res.status(400).json({ message: "Complete your cooking skill and weekly time profile before generating a Slop Bowl" });
+      if (!user.cookingSkill) {
+        return res.status(400).json({ message: "Complete your cooking skill profile before generating a Slop Bowl" });
       }
 
       const sessions = await getRecentCookingSessionsOrEmpty(userId, 10, "slop-bowl");
@@ -286,7 +286,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ingredients,
         cookingSkill: user.cookingSkill,
         dietaryRestrictions: user.dietaryRestrictions ?? [],
-        weeklyTime: user.weeklyTime,
         kitchenEquipment: user.kitchenEquipment ?? [],
         recentMeals,
         feedback,

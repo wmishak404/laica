@@ -9,8 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -21,7 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload, Clock, MoreVertical, History } from 'lucide-react';
+import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload, Clock, MoreVertical, History, Check, Leaf, Sparkles, Utensils } from 'lucide-react';
+import { mergeUniqueEntries, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import type { CookingSession } from '@shared/schema';
 import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
@@ -29,7 +28,6 @@ import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
 interface UserProfile {
   cookingSkill: string;
   dietaryRestrictions: string[];
-  weeklyTime: string;
   pantryIngredients: string[];
   kitchenEquipment: string[];
   favoriteChefs: string[];
@@ -363,21 +361,14 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
   
   // Option arrays matching the initial profiling
   const skillLevels = [
-    { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes like pasta or sandwiches' },
-    { value: 'intermediate', label: 'Intermediate', description: 'I can follow recipes and cook most dishes' },
-    { value: 'expert', label: 'Expert', description: 'I can cook complex dishes and modify recipes' }
+    { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes', icon: ChefHat },
+    { value: 'intermediate', label: 'Intermediate', description: 'I follow recipes easily', icon: Utensils },
+    { value: 'expert', label: 'Expert', description: 'I riff and modify dishes', icon: Sparkles }
   ];
 
   const dietaryOptions = [
-    'None', 'Gluten Free', 'Vegetarian', 'Vegan', 'Dairy Free', 
+    'No restrictions', 'Gluten Free', 'Vegetarian', 'Vegan', 'Dairy Free',
     'No Red Meat', 'Halal', 'Kosher', 'Keto', 'Paleo'
-  ];
-
-  const timeOptions = [
-    { value: '1-2', label: '1-2 hours per week' },
-    { value: '3-5', label: '3-5 hours per week' },
-    { value: '6-10', label: '6-10 hours per week' },
-    { value: '10+', label: 'More than 10 hours per week' }
   ];
 
   const [showPantryCamera, setShowPantryCamera] = useState(false);
@@ -388,16 +379,16 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
   // Handler functions matching the initial profiling
   const handleDietaryChange = (restriction: string) => {
-    if (restriction === 'None') {
-      setProfile(prev => ({ ...prev, dietaryRestrictions: ['None'] }));
+    if (restriction === 'No restrictions') {
+      setProfile(prev => ({ ...prev, dietaryRestrictions: ['No restrictions'] }));
     } else {
       setProfile(prev => ({
         ...prev,
-        dietaryRestrictions: prev.dietaryRestrictions.includes('None')
+        dietaryRestrictions: prev.dietaryRestrictions.includes('No restrictions')
           ? [restriction]
           : prev.dietaryRestrictions.includes(restriction)
           ? prev.dietaryRestrictions.filter(r => r !== restriction)
-          : [...prev.dietaryRestrictions.filter(r => r !== 'None'), restriction]
+          : [...prev.dietaryRestrictions.filter(r => r !== 'No restrictions'), restriction]
       }));
     }
   };
@@ -494,8 +485,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Save only profile settings without navigating away
       await updateProfileMutation.mutateAsync({ 
         cookingSkill: profile.cookingSkill,
-        dietaryRestrictions: profile.dietaryRestrictions,
-        weeklyTime: profile.weeklyTime
+        dietaryRestrictions: profile.dietaryRestrictions
       });
       toast({
         title: "Profile saved!",
@@ -600,10 +590,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       if (detectedIngredients.length > 0) {
         // Clean and remove duplicates
         const cleanIngredients = detectedIngredients
-          .map(i => i.toLowerCase().trim())
+          .map(i => normalizeEntryLabel(String(i).toLowerCase()))
           .filter(i => i && i.length > 1);
-        const uniqueIngredients = Array.from(new Set(cleanIngredients)) as string[];
-        const newIngredients = Array.from(new Set([...profile.pantryIngredients, ...uniqueIngredients])) as string[];
+        const uniqueIngredients = mergeUniqueEntries([], cleanIngredients);
+        const newIngredients = mergeUniqueEntries(profile.pantryIngredients, uniqueIngredients);
         setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
         
         toast({
@@ -665,10 +655,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       if (detectedEquipment.length > 0) {
         // Clean and remove duplicates
         const cleanEquipment = detectedEquipment
-          .map(e => e.toLowerCase().trim())
+          .map(e => normalizeEntryLabel(String(e).toLowerCase()))
           .filter(e => e && e.length > 1);
-        const uniqueEquipment = Array.from(new Set(cleanEquipment)) as string[];
-        const newEquipment = Array.from(new Set([...profile.kitchenEquipment, ...uniqueEquipment])) as string[];
+        const uniqueEquipment = mergeUniqueEntries([], cleanEquipment);
+        const newEquipment = mergeUniqueEntries(profile.kitchenEquipment, uniqueEquipment);
         setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
         
         toast({
@@ -698,9 +688,11 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
   const handleMultipleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
+    const maxFiles = type === 'pantry' ? 8 : 6;
+    const selectedFiles = Array.from(files).slice(0, maxFiles);
 
     const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    const processedFiles = Array.from(files).filter(file => {
+    const processedFiles = selectedFiles.filter(file => {
       const fileType = file.type.toLowerCase();
       const fileName = file.name.toLowerCase();
       const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
@@ -717,10 +709,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       return;
     }
 
-    if (processedFiles.length !== files.length) {
+    if (processedFiles.length !== files.length || selectedFiles.length !== files.length) {
       toast({
         title: "Some files skipped",
-        description: `${files.length - processedFiles.length} files were skipped (unsupported format). Processing ${processedFiles.length} images.`
+        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} accepts up to ${maxFiles} photos per batch. Processing ${processedFiles.length} image(s).`
       });
     }
 
@@ -780,7 +772,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             
             if (detectedIngredients.length > 0) {
               const cleanIngredients = detectedIngredients
-                .map(i => i.toLowerCase().trim())
+                .map(i => normalizeEntryLabel(String(i).toLowerCase()))
                 .filter(i => i && i.length > 1);
               allNewIngredients = [...allNewIngredients, ...cleanIngredients];
               console.log('Added ingredients:', cleanIngredients);
@@ -802,7 +794,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             
             if (detectedEquipment.length > 0) {
               const cleanEquipment = detectedEquipment
-                .map(e => e.toLowerCase().trim())
+                .map(e => normalizeEntryLabel(String(e).toLowerCase()))
                 .filter(e => e && e.length > 1);
               allNewEquipment = [...allNewEquipment, ...cleanEquipment];
               console.log('Added equipment:', cleanEquipment);
@@ -821,20 +813,20 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       // Update state once with all accumulated results
       if (type === 'pantry' && allNewIngredients.length > 0) {
-        const uniqueNewIngredients = Array.from(new Set(allNewIngredients));
+        const uniqueNewIngredients = mergeUniqueEntries([], allNewIngredients);
         setProfile(prev => ({
           ...prev,
-          pantryIngredients: Array.from(new Set([...prev.pantryIngredients, ...uniqueNewIngredients]))
+          pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, uniqueNewIngredients)
         }));
         toast({
           title: `Scan complete!`,
           description: `Found ${uniqueNewIngredients.length} ingredients across ${processedFiles.length} image(s).`
         });
       } else if (type === 'kitchen' && allNewEquipment.length > 0) {
-        const uniqueNewEquipment = Array.from(new Set(allNewEquipment));
+        const uniqueNewEquipment = mergeUniqueEntries([], allNewEquipment);
         setProfile(prev => ({
           ...prev,
-          kitchenEquipment: Array.from(new Set([...prev.kitchenEquipment, ...uniqueNewEquipment]))
+          kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, uniqueNewEquipment)
         }));
         toast({
           title: `Scan complete!`,
@@ -904,6 +896,14 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             <CardContent className="space-y-4">
               <div className="flex gap-2 flex-wrap">
                 <Button
+                  onClick={() => setShowPantryCamera(true)}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingPantry}
+                >
+                  <Camera className="h-4 w-4" />
+                  Open Camera
+                </Button>
+                <Button
                   variant="outline"
                   onClick={() => document.getElementById('pantry-upload')?.click()}
                   className="flex items-center gap-2"
@@ -946,10 +946,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                     onClick={() => {
                       const input = document.getElementById('manual-ingredients') as HTMLInputElement;
                       if (input && input.value.trim()) {
-                        const newIngredients = input.value.split(',').map(i => i.trim()).filter(i => i.length > 0);
+                        const newIngredients = parseCommaSeparatedEntries(input.value);
                         setProfile(prev => ({
                           ...prev,
-                          pantryIngredients: [...prev.pantryIngredients, ...newIngredients]
+                          pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, newIngredients)
                         }));
                         input.value = '';
                       }
@@ -1028,6 +1028,14 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             <CardContent className="space-y-4">
               <div className="flex gap-2 flex-wrap">
                 <Button
+                  onClick={() => setShowEquipmentCamera(true)}
+                  className="flex items-center gap-2"
+                  disabled={isAnalyzingEquipment}
+                >
+                  <Camera className="h-4 w-4" />
+                  Open Camera
+                </Button>
+                <Button
                   variant="outline"
                   onClick={() => document.getElementById('equipment-upload')?.click()}
                   className="flex items-center gap-2"
@@ -1070,10 +1078,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                     onClick={() => {
                       const input = document.getElementById('manual-equipment') as HTMLInputElement;
                       if (input && input.value.trim()) {
-                        const newEquipment = input.value.split(',').map(i => i.trim()).filter(i => i.length > 0);
+                        const newEquipment = parseCommaSeparatedEntries(input.value);
                         setProfile(prev => ({
                           ...prev,
-                          kitchenEquipment: [...prev.kitchenEquipment, ...newEquipment]
+                          kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, newEquipment)
                         }));
                         input.value = '';
                       }
@@ -1148,51 +1156,57 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
             <CardContent className="space-y-6">
               <div>
                 <Label>Cooking Skill Level</Label>
-                <RadioGroup 
-                  value={profile.cookingSkill} 
-                  onValueChange={(value) => setProfile(prev => ({ ...prev, cookingSkill: value }))}
-                  className="mt-2"
-                >
-                  {skillLevels.map((skill) => (
-                    <div key={skill.value} className="flex items-start space-x-3 space-y-0">
-                      <RadioGroupItem value={skill.value} id={skill.value} className="mt-1" />
-                      <div className="space-y-1 leading-none">
-                        <Label htmlFor={skill.value} className="font-medium">{skill.label}</Label>
-                        <p className="text-sm text-muted-foreground">{skill.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label>Weekly Cooking Time</Label>
-                <RadioGroup 
-                  value={profile.weeklyTime} 
-                  onValueChange={(value) => setProfile(prev => ({ ...prev, weeklyTime: value }))}
-                  className="mt-2"
-                >
-                  {timeOptions.map((option) => (
-                    <div key={option.value} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option.value} id={option.value} />
-                      <Label htmlFor={option.value}>{option.label}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+                <div role="radiogroup" aria-label="Cooking skill level" className="mt-2 space-y-3">
+                  {skillLevels.map((skill) => {
+                    const Icon = skill.icon;
+                    return (
+                      <button
+                        key={skill.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={profile.cookingSkill === skill.value}
+                        onClick={() => setProfile(prev => ({ ...prev, cookingSkill: skill.value }))}
+                        className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition ${
+                          profile.cookingSkill === skill.value ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                        }`}
+                      >
+                        <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                          profile.cookingSkill === skill.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          <Icon className="h-5 w-5" />
+                        </span>
+                        <span className="flex-1">
+                          <span className="block font-semibold">{skill.label}</span>
+                          <span className="text-sm text-muted-foreground">{skill.description}</span>
+                        </span>
+                        {profile.cookingSkill === skill.value && <Check className="h-5 w-5 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
                 <Label>Dietary Restrictions</Label>
-                <div className="grid grid-cols-2 gap-3 mt-2">
+                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {dietaryOptions.map((option) => (
-                    <div key={option} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={option}
-                        checked={profile.dietaryRestrictions.includes(option)}
-                        onCheckedChange={() => handleDietaryChange(option)}
-                      />
-                      <Label htmlFor={option} className="text-sm">{option}</Label>
-                    </div>
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={profile.dietaryRestrictions.includes(option)}
+                      onClick={() => handleDietaryChange(option)}
+                      className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
+                        profile.dietaryRestrictions.includes(option) ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                      }`}
+                    >
+                      <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                        profile.dietaryRestrictions.includes(option) ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                      }`}>
+                        <Leaf className="h-4 w-4" />
+                      </span>
+                      <span className="flex-1 text-sm font-medium">{option}</span>
+                      {profile.dietaryRestrictions.includes(option) && <Check className="h-4 w-4 text-primary" />}
+                    </button>
                   ))}
                 </div>
               </div>

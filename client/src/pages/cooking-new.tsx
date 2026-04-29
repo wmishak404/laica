@@ -17,7 +17,6 @@ import { ChefHat, Users, Clock, Settings, ArrowRight } from 'lucide-react';
 interface UserProfile {
   cookingSkill: string;
   dietaryRestrictions: string[];
-  weeklyTime: string;
   pantryIngredients: string[];
   kitchenEquipment: string[];
   favoriteChefs: string[];
@@ -73,7 +72,6 @@ export default function Cooking() {
         const profile: UserProfile = {
           cookingSkill: dbProfile.cookingSkill || '',
           dietaryRestrictions: dbProfile.dietaryRestrictions || [],
-          weeklyTime: dbProfile.weeklyTime || '',
           pantryIngredients: dbProfile.pantryIngredients || [],
           kitchenEquipment: dbProfile.kitchenEquipment || [],
           favoriteChefs: dbProfile.favoriteChefs || [],
