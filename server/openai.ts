@@ -5,6 +5,8 @@ import { getActivePrompt } from "./prompt-manager";
 import { filterDetectedEquipment } from "./vision/equipment-filter";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
+import { lt } from "drizzle-orm";
+import { redactAiOutput, redactForAiLog, sanitizePromptInput } from "./ai-privacy";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 const MODEL_COMPLEX = "gpt-4.1";
@@ -43,12 +45,35 @@ const slopBowlRecipeSchema = z.object({
   pantryMatch: z.coerce.number().min(0).max(100),
 });
 
+let lastAiInteractionPruneAt = 0;
+const AI_INTERACTION_RETENTION_DAYS = 90;
+const AI_INTERACTION_PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+function pruneOldAiInteractions(): void {
+  const now = Date.now();
+  if (now - lastAiInteractionPruneAt < AI_INTERACTION_PRUNE_INTERVAL_MS) {
+    return;
+  }
+
+  lastAiInteractionPruneAt = now;
+  const cutoff = new Date(now - AI_INTERACTION_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  db.delete(aiInteractions)
+    .where(lt(aiInteractions.createdAt, cutoff))
+    .catch(err => console.error("[eval-log] Failed to prune old interactions:", err));
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Interaction logger — fire-and-forget, never blocks the user response.
 // ─────────────────────────────────────────────────────────────────────────────
 function logInteraction(featureType: string, inputData: object, outputData: string): void {
+  pruneOldAiInteractions();
   db.insert(aiInteractions)
-    .values({ featureType, inputData, outputData, evalStatus: 'pending' })
+    .values({
+      featureType,
+      inputData: redactForAiLog(inputData),
+      outputData: redactAiOutput(outputData),
+      evalStatus: 'pending',
+    })
     .catch(err => console.error(`[eval-log] Failed to log ${featureType} interaction:`, err));
 }
 
@@ -248,12 +273,13 @@ function formatRecentMeals(recentMeals: SlopBowlRecentMeal[]): string {
 
 export async function getSlopBowlRecipe(input: SlopBowlInput) {
   try {
-    const maxCookTime = getMaxCookTime(input.weeklyTime);
+    const sanitizedInput = sanitizePromptInput(input);
+    const maxCookTime = getMaxCookTime(sanitizedInput.weeklyTime);
     const inputData = {
-      ...input,
+      ...sanitizedInput,
       maxCookTime,
-      feedback: input.feedback || null,
-      previousRecipe: input.previousRecipe || null,
+      feedback: sanitizedInput.feedback || null,
+      previousRecipe: sanitizedInput.previousRecipe || null,
     };
 
     const response = await openai.chat.completions.create({
@@ -266,14 +292,14 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
         {
           role: "user",
           content: [
-            `Pantry ingredients: ${input.ingredients.join(", ")}.`,
-            `Cooking skill: ${input.cookingSkill}.`,
-            `Dietary restrictions: ${input.dietaryRestrictions.length > 0 ? input.dietaryRestrictions.join(", ") : "none"}.`,
-            `Weekly cooking time preference: ${input.weeklyTime} hours. Target a recipe that takes ${maxCookTime} minutes or less.`,
-            `Available kitchen equipment: ${input.kitchenEquipment.length > 0 ? input.kitchenEquipment.join(", ") : "not specified; stay within a basic home kitchen setup"}.`,
-            `Recent meals:\n${formatRecentMeals(input.recentMeals)}`,
-            input.feedback ? `User feedback on the last suggestion: ${input.feedback}` : null,
-            input.previousRecipe ? `Do not repeat this previous recipe: ${input.previousRecipe}` : null,
+            `Pantry ingredients: ${sanitizedInput.ingredients.join(", ")}.`,
+            `Cooking skill: ${sanitizedInput.cookingSkill}.`,
+            `Dietary restrictions: ${sanitizedInput.dietaryRestrictions.length > 0 ? sanitizedInput.dietaryRestrictions.join(", ") : "none"}.`,
+            `Weekly cooking time preference: ${sanitizedInput.weeklyTime} hours. Target a recipe that takes ${maxCookTime} minutes or less.`,
+            `Available kitchen equipment: ${sanitizedInput.kitchenEquipment.length > 0 ? sanitizedInput.kitchenEquipment.join(", ") : "not specified; stay within a basic home kitchen setup"}.`,
+            `Recent meals:\n${formatRecentMeals(sanitizedInput.recentMeals)}`,
+            sanitizedInput.feedback ? `User feedback on the last suggestion: ${sanitizedInput.feedback}` : null,
+            sanitizedInput.previousRecipe ? `Do not repeat this previous recipe: ${sanitizedInput.previousRecipe}` : null,
             "Generate exactly one Slop Bowl recipe now.",
           ]
             .filter(Boolean)
@@ -297,7 +323,9 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
 export async function getRecipeSuggestions(preferences: string, ingredients?: string[]) {
   try {
     const systemPrompt = await getActivePrompt('recipe_suggestions') || DEFAULT_RECIPE_SUGGESTIONS_PROMPT;
-    const inputData = { preferences, ingredients: ingredients || [] };
+    const sanitizedPreferences = sanitizePromptInput(preferences);
+    const sanitizedIngredients = sanitizePromptInput(ingredients || []);
+    const inputData = { preferences: sanitizedPreferences, ingredients: sanitizedIngredients };
 
     const response = await openai.chat.completions.create({
       model: MODEL_COMPLEX,
@@ -308,8 +336,8 @@ export async function getRecipeSuggestions(preferences: string, ingredients?: st
         },
         {
           role: "user",
-          content: `I have these ingredients in my pantry: ${ingredients ? ingredients.join(", ") : "basic staples only"}.
-          My preferences: ${preferences}.
+          content: `I have these ingredients in my pantry: ${sanitizedIngredients.length > 0 ? sanitizedIngredients.join(", ") : "basic staples only"}.
+          My preferences: ${sanitizedPreferences}.
           Please suggest 3 meal ideas I can make primarily with what I already have.`
         }
       ],
@@ -333,18 +361,22 @@ export async function getCookingSteps(
 ) {
   try {
     const systemPrompt = await getActivePrompt('cooking_steps') || DEFAULT_COOKING_STEPS_PROMPT;
+    const sanitizedRecipeName = sanitizePromptInput(recipeName);
+    const sanitizedIngredients = sanitizePromptInput(ingredients || []);
+    const sanitizedEquipment = sanitizePromptInput(equipment || []);
+    const sanitizedDescription = sanitizePromptInput(description || "");
     const inputData = {
-      recipeName,
-      ingredients: ingredients || [],
-      equipment: equipment || [],
-      description: description || null,
+      recipeName: sanitizedRecipeName,
+      ingredients: sanitizedIngredients,
+      equipment: sanitizedEquipment,
+      description: sanitizedDescription || null,
     };
 
     const userPrompt = [
-      `I want to cook ${recipeName}.`,
-      description ? `Description: ${description}` : null,
-      ingredients && ingredients.length > 0 ? `Using these ingredients: ${ingredients.join(", ")}` : null,
-      equipment && equipment.length > 0 ? `Available equipment: ${equipment.join(", ")}` : null,
+      `I want to cook ${sanitizedRecipeName}.`,
+      sanitizedDescription ? `Description: ${sanitizedDescription}` : null,
+      sanitizedIngredients.length > 0 ? `Using these ingredients: ${sanitizedIngredients.join(", ")}` : null,
+      sanitizedEquipment.length > 0 ? `Available equipment: ${sanitizedEquipment.join(", ")}` : null,
       "Please provide detailed home cooking instructions with visual cues I can look for at each step.",
       "Focus on practical techniques for a home kitchen, not professional chef methods.",
     ]
@@ -430,6 +462,8 @@ export async function getGroceryList(recipes: string[], pantryItems?: string[]) 
 
 export async function getIngredientAlternatives(ingredient: string, reason: string) {
   try {
+    const sanitizedIngredient = sanitizePromptInput(ingredient);
+    const sanitizedReason = sanitizePromptInput(reason);
     const response = await openai.chat.completions.create({
       model: MODEL_UTILITY,
       messages: [
@@ -439,7 +473,7 @@ export async function getIngredientAlternatives(ingredient: string, reason: stri
         },
         {
           role: "user",
-          content: `Suggest 3 alternatives for ${ingredient} that are ${reason}`
+          content: `Suggest 3 alternatives for ${sanitizedIngredient} that are ${sanitizedReason}`
         }
       ],
       response_format: { type: "json_object" }
@@ -455,10 +489,12 @@ export async function getIngredientAlternatives(ingredient: string, reason: stri
 export async function getCookingAssistance(step: string, question?: string) {
   try {
     const systemPrompt = await getActivePrompt('cooking_assistance') || DEFAULT_COOKING_ASSISTANCE_PROMPT;
+    const sanitizedStep = sanitizePromptInput(step);
+    const sanitizedQuestion = question ? sanitizePromptInput(question) : undefined;
     const userContent = question
-      ? `Provide cooking assistance for this step: ${step} The user asked: ${question}`
-      : `Provide cooking assistance for this step: ${step}`;
-    const inputData = { step, question: question || null };
+      ? `Provide cooking assistance for this step: ${sanitizedStep} The user asked: ${sanitizedQuestion}`
+      : `Provide cooking assistance for this step: ${sanitizedStep}`;
+    const inputData = { step: sanitizedStep, question: sanitizedQuestion || null };
 
     const response = await openai.chat.completions.create({
       model: MODEL_ASSISTANCE,
@@ -496,12 +532,10 @@ export async function analyzeIngredientImage(base64Image: string) {
       mimeType = 'image/webp';
     }
 
-    console.log("\n=== OpenAI Vision API Call ===");
-    console.log(`Image MIME Type: ${mimeType}`);
-    console.log(`Image Size: ${Math.round(base64Image.length / 1024)}KB`);
-    console.log(`System Prompt: ${compositions.equipmentAnalysis.system()}`);
-    console.log(`User Prompt: ${compositions.equipmentAnalysis.user()}`);
-    console.log("============================\n");
+    console.info("[vision] analyzing image", {
+      mimeType,
+      sizeKb: Math.round(imageBuffer.length / 1024),
+    });
 
     const response = await openai.chat.completions.create({
       model: MODEL_COMPLEX,
@@ -535,11 +569,6 @@ export async function analyzeIngredientImage(base64Image: string) {
       result.equipment = filterDetectedEquipment(result.equipment);
     }
     
-    console.log("\n=== OpenAI Vision API Response ===");
-    console.log(`Raw Response: ${response.choices[0].message.content}`);
-    console.log(`Parsed Result:`, result);
-    console.log("==================================\n");
-
     return result;
   } catch (error) {
     console.error("Error analyzing ingredient image:", error);

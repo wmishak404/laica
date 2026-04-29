@@ -1,18 +1,6 @@
-// Firebase Admin SDK would be used for production token verification
-// For development/testing, we use a simplified approach
-import type { RequestHandler } from 'express';
-
-// Initialize Firebase Admin (for server-side token verification)
-// Note: In production, you would use a service account key
-// For development, we'll verify tokens directly with the Firebase client SDK
-let adminAuth: any = null;
-
-try {
-  // In development, we can't easily use service account keys in Replit
-  // So we'll implement client-side token verification instead
-} catch (error) {
-  console.log('Firebase Admin not initialized - using client-side verification');
-}
+import type { Request, RequestHandler } from "express";
+import { applicationDefault, cert, getApps, initializeApp, type ServiceAccount } from "firebase-admin/app";
+import { getAuth, type DecodedIdToken } from "firebase-admin/auth";
 
 export interface FirebaseUser {
   uid: string;
@@ -22,80 +10,97 @@ export interface FirebaseUser {
   emailVerified: boolean;
 }
 
+class FirebaseAuthConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FirebaseAuthConfigError";
+  }
+}
+
+function parseServiceAccount(): ServiceAccount | null {
+  const rawJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  const rawBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  const source = rawJson || (rawBase64 ? Buffer.from(rawBase64, "base64").toString("utf8") : null);
+
+  if (!source) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(source) as Record<string, string>;
+    const serviceAccount: ServiceAccount = {
+      projectId: parsed.projectId || parsed.project_id,
+      clientEmail: parsed.clientEmail || parsed.client_email,
+      privateKey: parsed.privateKey || parsed.private_key,
+    };
+
+    if (typeof serviceAccount.privateKey === "string") {
+      serviceAccount.privateKey = serviceAccount.privateKey.replace(/\\n/g, "\n");
+    }
+    return serviceAccount;
+  } catch {
+    throw new FirebaseAuthConfigError("Invalid Firebase service account JSON");
+  }
+}
+
+function getAdminAuth() {
+  if (getApps().length === 0) {
+    const serviceAccount = parseServiceAccount();
+    const projectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || serviceAccount?.projectId;
+
+    initializeApp({
+      credential: serviceAccount ? cert(serviceAccount) : applicationDefault(),
+      ...(projectId ? { projectId } : {}),
+    });
+  }
+
+  return getAuth();
+}
+
+function firebaseUserFromDecodedToken(decodedToken: DecodedIdToken): FirebaseUser {
+  return {
+    uid: decodedToken.uid,
+    email: decodedToken.email || null,
+    displayName: decodedToken.name || null,
+    photoURL: decodedToken.picture || null,
+    emailVerified: decodedToken.email_verified || false,
+  };
+}
+
+function getBearerToken(req: Request): string | null {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+  return authHeader.substring("Bearer ".length).trim();
+}
+
+export async function getFirebaseUserFromRequest(req: Request): Promise<FirebaseUser | null> {
+  const idToken = getBearerToken(req);
+  if (!idToken) {
+    return null;
+  }
+
+  const decodedToken = await getAdminAuth().verifyIdToken(idToken);
+  return firebaseUserFromDecodedToken(decodedToken);
+}
+
 export const verifyFirebaseToken: RequestHandler = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'No Firebase token provided' });
-  }
-
-  const idToken = authHeader.substring(7);
-
   try {
-    // For development, we'll decode the JWT payload manually
-    // Note: This is not secure for production - you should verify the signature
-    console.log('Received token:', idToken.substring(0, 50) + '...');
-    
-    const tokenParts = idToken.split('.');
-    if (tokenParts.length !== 3) {
-      console.log('Invalid token format - not a JWT');
-      return res.status(401).json({ message: 'Invalid token format' });
-    }
-    
-    const payload = JSON.parse(atob(tokenParts[1]));
-    
-    console.log('Firebase token payload:', JSON.stringify(payload, null, 2));
-    
-    // Check for required fields (Firebase ID tokens have different structure)
-    const userId = payload.sub || payload.user_id || payload.uid;
-    if (!userId) {
-      console.log('No user ID found in token payload');
-      return res.status(401).json({ message: 'Invalid token payload - missing user ID' });
+    const firebaseUser = await getFirebaseUserFromRequest(req);
+    if (!firebaseUser) {
+      return res.status(401).json({ message: "No Firebase token provided" });
     }
 
-    // Add Firebase user info to request
-    (req as any).firebaseUser = {
-      uid: userId,
-      email: payload.email || null,
-      displayName: payload.name || null,
-      photoURL: payload.picture || null,
-      emailVerified: payload.email_verified || false,
-    };
-
-    console.log('Firebase user extracted:', (req as any).firebaseUser);
+    (req as any).firebaseUser = firebaseUser;
     next();
   } catch (error) {
-    console.error('Firebase token verification failed:', error);
-    return res.status(401).json({ message: 'Invalid Firebase token' });
+    if (error instanceof FirebaseAuthConfigError) {
+      console.error("Firebase Admin configuration error:", error.message);
+      return res.status(500).json({ message: "Firebase authentication is not configured" });
+    }
+
+    console.warn("Firebase token verification failed");
+    return res.status(401).json({ message: "Invalid Firebase token" });
   }
 };
-
-// For production use, implement proper Firebase Admin verification:
-/*
-export const verifyFirebaseTokenProduction: RequestHandler = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'No Firebase token provided' });
-  }
-
-  const idToken = authHeader.substring(7);
-
-  try {
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
-    (req as any).firebaseUser = {
-      uid: decodedToken.uid,
-      email: decodedToken.email || null,
-      displayName: decodedToken.name || null,
-      photoURL: decodedToken.picture || null,
-      emailVerified: decodedToken.email_verified || false,
-    };
-
-    next();
-  } catch (error) {
-    console.error('Firebase token verification failed:', error);
-    return res.status(401).json({ message: 'Invalid Firebase token' });
-  }
-};
-*/
