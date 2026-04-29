@@ -2,6 +2,7 @@
 
 **Agent:** codex
 **Branch:** codex/mobile-refresh-init-process-docs
+**PR:** [#25](https://github.com/wmishak404/laica/pull/25)
 **Date:** 2026-04-29
 **Initiative:** [INIT-001 — Mobile Refresh](../../initiatives/INIT-001-mobile-refresh.md)
 **INIT updated:** yes
