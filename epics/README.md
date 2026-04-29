@@ -1,6 +1,6 @@
 # Epics
 
-Long-lived design, architecture, and governance concerns tracked as markdown files — **stories** in the Kanban sense. Each epic is an initiative that may span multiple phases, products, or sessions before it closes.
+Long-lived design, architecture, and governance concerns tracked as markdown files — **stories** in the Kanban sense. Each epic is a cross-cutting workstream that may span multiple phases, products, or sessions before it closes.
 
 These are **agent-coordination artifacts**, not GitHub Issues and not active bug reports. Claude and Codex must read relevant active epics before starting work in a governed domain.
 
@@ -19,6 +19,8 @@ These are **agent-coordination artifacts**, not GitHub Issues and not active bug
 - Before making a decision that might collide with something parked in the backlog
 
 If your work intersects with an active epic, **cite the epic in your handoff** and note how your change interacts with it (conforms / defers / adds new signal).
+
+If an epic is created because of an active initiative or receives material evidence from one, add a `Linked Initiatives` section or dated note pointing to the relevant INIT. Update the INIT's `Epics and Governance` section at the same time when practical.
 
 ## Convention
 
@@ -51,6 +53,7 @@ Durable workflow decision: see [`product-decisions/007-epic-status-and-registry-
 | `product-decisions/features/<feature>/phase-NN-*.md` | Per-feature phase records | Durable, feature-scoped |
 | `docs/handoffs/YYYY-MM-DD-<agent>-*.md` | Point-in-time coordination artifacts | Ephemeral — frozen after write |
 | `epics/NNN-*.md` | **Open stories / backlog / governance** | **Evolves** — updated as work progresses |
+| `initiatives/INIT-NNN-*.md` | Living hub for multi-phase work across docs, assets, PRs, and validation | Evolves until initiative closeout |
 
 An epic can **graduate** to a product decision once resolution is clear. At that point, create the `PD-NNN-*.md`, flip the epic to `Resolved`, and add a pointer from the epic to the PD.
 

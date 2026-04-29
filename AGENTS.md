@@ -62,6 +62,7 @@ docs/adr/        # Architecture decision records
 docs/handoffs/   # Agent coordination handoff files
 product-decisions/ # Documented product and architecture decisions
 epics/           # Open stories / backlog / governance — agents must check before related work
+initiatives/     # Living hubs for multi-phase initiatives
 ```
 
 ## Secrets
@@ -111,6 +112,12 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 2. Keep discussion attributable and easy to follow: prefer a new handoff/reply document or a clearly labeled follow-up commit over silently rewriting the other agent's intent.
 3. Stop the automatic update process and ask Wilson to review when the next step needs human judgment, changes product direction, affects secrets/security, requires Replit-side intervention, or remains ambiguous after the agents have documented the tradeoff.
 4. For active features, record phase-by-phase decisions in `product-decisions/features/<feature>/` and promote only the durable accepted outcomes to top-level `PD-xxx` files.
+
+**INIT rule.** The `initiatives/` directory tracks living hubs for multi-phase work. Read the relevant INIT before starting or resuming initiative work, and update it when phase status, PR status, validation status, assets, major decisions, or the current resume point changes. Handoffs and PR descriptions for initiative work must cite the INIT and state whether it was updated.
+
+Current active INITs:
+
+- `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
 
 **Epics rule.** The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span features (see `epics/README.md`). These are **not** GitHub Issues and **not** bug reports. Start with `epics/README.md` for the status model and active read list; use `epics/registry.md` only when historical context is directly relevant. `Resolved` means closed/completed, while `Open`, `In Progress`, and `Blocked` are active. This workflow is durable in `product-decisions/007-epic-status-and-registry-workflow.md`. Before starting any feature work that touches a governed domain, read the relevant active epic. Each epic's *Agent checklist* section lists the exact triggers. Current active epics:
 

@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Phase owner:** Wilson
 **Date:** 2026-04-28
+**Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 **Mockups:** [phase-03-planning-flow.png](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [phase-03-ticket-pass.png](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png)
 
 ## Goal

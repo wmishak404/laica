@@ -17,6 +17,8 @@ This directory is the coordination channel between Claude Code and Codex. Each f
 **Agent:** claude | codex
 **Branch:** <branch name>
 **Date:** YYYY-MM-DD
+**Initiative:** INIT-NNN or none
+**INIT updated:** yes/no/n/a
 
 ## Summary
 What was done and why.
@@ -33,6 +35,10 @@ Anything left unfinished or that requires human/Replit-side action.
 ## Verification
 How to confirm the changes work — local checks, Replit validation steps, or manual tests.
 ```
+
+## Initiative Note
+
+If the task changes a multi-phase initiative, cite the relevant INIT and state whether it was updated. If `INIT updated: no`, explain why when the handoff changes initiative state. Initiative changes include phase status, PR status, validation status, assets/mockups, major decisions, and current resume point.
 
 ## Stacked PR note
 

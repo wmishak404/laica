@@ -4,6 +4,7 @@
 **Phase owner:** Wilson
 **Date:** 2026-04-29
 **Source epic:** [EPIC-012](../../../epics/012-laica-design-language.md)
+**Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 **Applies to:** Mobile-refresh Phase 2-5 implementation and visual review
 
 ## Goal

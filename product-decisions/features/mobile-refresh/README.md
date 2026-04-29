@@ -1,5 +1,7 @@
 # LAICA Mobile Refresh Feature Phases
 
+**Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
+
 This folder records the approved planning for the LAICA mobile-refresh work. It is the source of truth for implementation sequencing after Wilson's phase-by-phase review and Claude's planning review.
 
 ## Phase Index

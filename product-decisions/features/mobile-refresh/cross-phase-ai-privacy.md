@@ -3,6 +3,7 @@
 **Status:** Accepted
 **Owner:** Wilson
 **Date:** 2026-04-28
+**Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 
 ## Goal
 

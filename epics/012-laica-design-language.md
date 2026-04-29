@@ -9,6 +9,10 @@
 
 Define LAICA's durable visual language — look, feel, personality, color, typography, imagery, surfaces, and brand behavior — so mobile-refresh implementation does not stop at functional UX or generic component consistency.
 
+## Linked Initiatives
+
+- [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
+
 ## Context
 
 Phase 2 mobile-refresh validation surfaced a planning gap: PR #23 implemented much of the setup behavior, but the screens did not yet feel close enough to the approved visual mockups. The app had UX principles and UI governance, but not a strong enough source of truth for the target LAICA design language.
@@ -116,6 +120,7 @@ This epic is `Resolved` when all of the following are true:
 - `design_guidelines.md` — current implementation record, not yet target identity
 - `epics/001-ui-governance.md` — consistency and enforcement companion epic
 - `epics/005-testing-strategy-and-acceptance-criteria.md` — validation companion epic
+- `initiatives/INIT-001-mobile-refresh.md` — living Mobile Refresh initiative hub
 - `product-decisions/features/mobile-refresh/README.md` — mobile-refresh phase index and mockup conformance gate
 - `product-decisions/features/mobile-refresh/phase-02-setup.md` — first active correction point
 - `docs/handoffs/2026-04-29-codex-mobile-refresh-ui-conformance-plan.md`

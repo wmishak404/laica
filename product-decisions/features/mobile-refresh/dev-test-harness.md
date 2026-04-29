@@ -3,6 +3,7 @@
 **Status:** Planned
 **Phase owner:** Wilson
 **Date:** 2026-04-29
+**Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 
 ## Goal
 

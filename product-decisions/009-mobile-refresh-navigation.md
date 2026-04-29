@@ -5,6 +5,10 @@
 **Decision maker:** Wilson
 **Supersedes:** [PD-006](006-home-and-cook-remain-separate.md)
 
+## Related Initiatives
+
+- [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
+
 ## Context
 
 The mobile-refresh planning work revisited the pre-auth and first authenticated surfaces after user feedback that Laica felt like a desktop website wrapped in a mobile viewport. The previous Home/Cook separation was acceptable for the earlier app shape, but the new direction makes the first screen after sign-in action-oriented and setup-aware.
