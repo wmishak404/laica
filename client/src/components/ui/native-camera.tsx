@@ -299,17 +299,17 @@ export function NativeCamera({
           )}
 
           {isSetup && (
-            <div className="absolute bottom-4 left-0 right-0 flex items-center justify-between px-5">
+            <div className="absolute bottom-5 left-0 right-0 flex items-center justify-between px-7">
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="setup-camera-icon-button h-20 w-20"
+                className="setup-camera-icon-button h-14 w-14"
                 onClick={() => setCameraEnabled((enabled) => !enabled)}
                 aria-label={`${cameraEnabled ? 'Turn off' : 'Turn on'} ${cameraToggleLabel.toLowerCase()}`}
                 disabled={disabled}
               >
-                {cameraEnabled ? <Camera className="h-7 w-7" /> : <CameraOff className="h-7 w-7" />}
+                {cameraEnabled ? <Camera className="h-8 w-8" /> : <CameraOff className="h-8 w-8" />}
               </Button>
 
               <Button
@@ -317,22 +317,21 @@ export function NativeCamera({
                 onClick={captureFrame}
                 disabled={disabled || cameraState !== 'ready' || isCapturing}
                 variant="ghost"
-                className="setup-camera-round-button h-20 w-20"
+                size="icon"
+                className="setup-camera-round-button h-16 w-16"
                 aria-label={captureLabel}
-              >
-                <Camera className="h-7 w-7" />
-              </Button>
+              />
 
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="setup-camera-icon-button h-20 w-20"
+                className="setup-camera-icon-button h-14 w-14"
                 onClick={() => setTipsOpen((open) => !open)}
                 aria-expanded={tipsOpen}
                 aria-label="Scanning tips"
               >
-                <CircleHelp className="h-7 w-7" />
+                <CircleHelp className="h-8 w-8" />
               </Button>
             </div>
           )}

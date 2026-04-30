@@ -213,7 +213,7 @@ Do not copy:
 - First-time setup may use a compact account menu affordance inside the setup frame while Planning remains locked; this should provide account/feedback/sign-out access without bringing back a page header.
 - Setup progress should use one clear top progress treatment, visually closer to the mockup's `1/5` bar, instead of combining brand chips, repeated step pills, and section labels in the same top area.
 - Camera controls should feel familiar to mobile camera users: capture as a large circular control inside the camera object, camera on/off as an icon control inside the camera object, and scan tips as a lightweight in-context overlay rather than a separate row.
-- Camera utility controls must be visually noticeable. Avoid tiny translucent icons; keep camera on/off and tips controls large, colored, and comparable in visual weight to capture. Avoid flashlight-like icons for non-flashlight tips.
+- Camera utility controls must be visually noticeable without turning into opaque primary CTAs. Prefer smaller translucent circular controls with larger icons; keep capture as a clean shutter control without a camera glyph. Avoid flashlight-like icons for non-flashlight tips.
 - Secondary setup actions such as `Upload photos` and `Enter manually` must remain readable on a phone and use consistent type sizing, weight, and font treatment across equivalent actions.
 - Secondary setup actions should avoid technical helper labels when the main command is clear. Prefer one clear label over small explanatory subcopy like file-count or delimiter mechanics.
 - Kitchen setup can share Pantry's component model while shifting equipment-specific accents toward gray/silver and light wood, especially save actions, item chips, remove controls, and utility icons.

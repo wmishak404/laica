@@ -10,7 +10,7 @@
 
 Implemented Wilson's follow-up Replit polish for Phase 2.1 setup after the visual conformance pass.
 
-This keeps the no-header direction, adds menu access through setup and the post-setup bottom nav, softens the Pantry heading, makes in-camera utility controls much more visible, avoids a flashlight-like tips icon, removes technical helper labels from upload/manual actions, and pushes Kitchen accents further into gray/silver and light wood.
+This keeps the no-header direction, adds menu access through setup and the post-setup bottom nav, softens the Pantry heading, makes in-camera utility controls visible without opaque CTA styling, avoids a flashlight-like tips icon, removes technical helper labels from upload/manual actions, and pushes Kitchen accents further into gray/silver and light wood while keeping progress coral across setup.
 
 ## Changes
 
@@ -25,16 +25,18 @@ This keeps the no-header direction, adds menu access through setup and the post-
   - Removes helper sublabels below `Upload photos` and `Enter manually`.
   - Applies Kitchen-specific gray/silver classes to secondary action icons, manual illustration, input, save button, chips, and chip remove controls.
 - `client/src/components/ui/native-camera.tsx`
-  - Enlarges setup camera on/off and scanning tips controls to match capture-button scale.
+  - Uses smaller translucent setup camera on/off and scanning tips controls with larger icons.
+  - Removes the camera glyph from the capture shutter.
   - Switches scan tips from a lightbulb icon to a help-circle icon.
 - `client/src/index.css`
   - Adds setup menu styling.
-  - Adds large colored setup camera utility-button styling.
-  - Adds Kitchen-specific gray/silver and light-wood accents for progress, camera controls, actions, manual surfaces, and chips.
+  - Adds translucent setup camera utility-button styling.
+  - Keeps setup progress coral across Pantry and Kitchen.
+  - Adds Kitchen-specific gray/silver and light-wood accents for actions, manual surfaces, and chips.
 - `tests/unit/user-profiling.test.tsx`
   - Updates the setup flow assertion for the new Pantry heading.
 - `product-decisions/features/mobile-refresh/design-language.md`
-  - Records the setup menu affordance, large colored camera utility controls, simplified secondary action labels, and Kitchen gray/silver equipment accents as Phase 2.1 design-language signal.
+  - Records the setup menu affordance, translucent camera utility controls, simplified secondary action labels, and Kitchen gray/silver equipment accents as Phase 2.1 design-language signal.
 - `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
   - Records Wilson's follow-up feedback and the local implementation note.
 - `initiatives/INIT-001-mobile-refresh.md`
@@ -55,7 +57,7 @@ This keeps the no-header direction, adds menu access through setup and the post-
 - Pull the latest `codex/mobile-refresh-phase-2-1-setup-polish` branch into Replit after this commit is pushed.
 - Re-run the Phase 2.1 signed-in validation checklist at the latest branch head.
 - Include visual review against `docs/assets/mobile-refresh/phase-02-setup.png`.
-- Confirm in Replit: setup menu access, `Start with pantry staples.`, large camera/tips controls, help-circle scan tips icon, upload/manual labels without helper subcopy, Kitchen gray/silver save button and chips, text-only scan rejection, physical product/tool photo acceptance, Cooking Skill auto-advance, Dietary Restrictions explicit continuation, and final transition to Planning.
+- Confirm in Replit: setup menu access, `Start with pantry staples.`, smaller translucent camera/tips controls with larger icons, blank capture shutter, help-circle scan tips icon, coral progress on Pantry and Kitchen, upload/manual labels without helper subcopy, Kitchen gray/silver save button and chips, text-only scan rejection, physical product/tool photo acceptance, Cooking Skill auto-advance, Dietary Restrictions explicit continuation, and final transition to Planning.
 - Record `Last Replit-validated at: <commit-sha>` before merge.
 
 ## Verification

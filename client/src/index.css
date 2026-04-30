@@ -219,19 +219,6 @@ html, body {
     color: hsl(var(--setup-ink));
   }
 
-  .setup-ui-kitchen .setup-progress-track {
-    border-color: hsl(var(--setup-metal) / 0.3);
-  }
-
-  .setup-ui-kitchen .setup-progress-fill {
-    background: linear-gradient(90deg, hsl(var(--setup-metal)), hsl(var(--setup-wood)));
-  }
-
-  .setup-ui-kitchen .setup-progress-count {
-    border-color: hsl(var(--setup-metal) / 0.28);
-    color: hsl(216 11% 42%);
-  }
-
   .setup-ui-kitchen .setup-menu-button {
     border-color: hsl(var(--setup-metal) / 0.24);
     box-shadow: 0 0.55rem 1.2rem hsl(var(--setup-metal) / 0.09);
@@ -495,50 +482,63 @@ html, body {
 
   .setup-camera-round-button,
   .setup-ui .setup-camera-round-button {
+    position: relative;
     border-radius: 999px;
-    border: 4px solid hsl(0 0% 100% / 0.78);
-    background: hsl(var(--setup-coral-strong));
+    border: 3px solid hsl(0 0% 100% / 0.88);
+    background: hsl(0 0% 100% / 0.18);
     color: hsl(0 0% 100%);
     box-shadow: 0 0.8rem 1.4rem hsl(var(--setup-ink) / 0.26);
+    backdrop-filter: blur(10px);
+  }
+
+  .setup-camera-round-button::after,
+  .setup-ui .setup-camera-round-button::after {
+    content: '';
+    display: block;
+    width: 2.45rem;
+    height: 2.45rem;
+    border-radius: 999px;
+    background: hsl(0 0% 100% / 0.84);
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.5);
   }
 
   .setup-camera-round-button:hover,
   .setup-ui .setup-camera-round-button:hover {
-    background: hsl(var(--setup-coral-strong) / 0.92);
+    background: hsl(0 0% 100% / 0.26);
   }
 
   .setup-camera-round-button:disabled,
   .setup-ui .setup-camera-round-button:disabled {
-    background: hsl(0 0% 100% / 0.42);
+    background: hsl(0 0% 100% / 0.1);
     color: hsl(0 0% 100% / 0.72);
     box-shadow: none;
   }
 
-  .setup-ui-kitchen .setup-camera-round-button {
-    background: hsl(var(--setup-metal));
+  .setup-camera-round-button:disabled::after,
+  .setup-ui .setup-camera-round-button:disabled::after {
+    opacity: 0.42;
   }
 
   .setup-camera-icon-button,
   .setup-ui .setup-camera-icon-button {
     border-radius: 999px;
-    border: 4px solid hsl(0 0% 100% / 0.72);
-    background: hsl(var(--setup-coral-strong));
+    border: 2px solid hsl(0 0% 100% / 0.58);
+    background: hsl(0 0% 100% / 0.16);
     color: hsl(0 0% 100%);
-    box-shadow: 0 0.8rem 1.4rem hsl(var(--setup-ink) / 0.24);
+    box-shadow: 0 0.6rem 1.2rem hsl(var(--setup-ink) / 0.2);
+    backdrop-filter: blur(10px);
   }
 
   .setup-camera-icon-button:hover,
   .setup-ui .setup-camera-icon-button:hover {
-    background: hsl(var(--setup-coral-strong) / 0.92);
+    background: hsl(0 0% 100% / 0.24);
     color: hsl(0 0% 100%);
   }
 
-  .setup-ui-kitchen .setup-camera-icon-button {
-    background: hsl(var(--setup-metal));
-  }
-
-  .setup-ui-kitchen .setup-camera-icon-button:hover {
-    background: hsl(216 11% 52%);
+  .setup-camera-icon-button svg,
+  .setup-ui .setup-camera-icon-button svg {
+    width: 2rem;
+    height: 2rem;
   }
 
   .setup-tips-panel {

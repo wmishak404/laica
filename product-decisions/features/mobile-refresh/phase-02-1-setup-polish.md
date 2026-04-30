@@ -113,7 +113,7 @@ Wilson's next Replit pass kept the overall direction and requested a narrower po
 
 - **General:** keep the persistent header removed, but retain a menu affordance somewhere for account, feedback, and sign-out access.
 - **Step 1 Pantry:** replace `Tell me what you have.` with a friendlier, less privacy-invasive heading of six words or fewer. The current implementation uses `Start with pantry staples.`
-- **Camera controls:** make the camera on/off and scanning tips controls as visually noticeable as capture, with larger colored circular buttons; scanning tips should not use a lightbulb/lamp icon because that suggests flashlight behavior.
+- **Camera controls:** make the camera on/off and scanning tips controls visible but not opaque primary CTAs; use smaller translucent circles with larger icons. Scanning tips should not use a lightbulb/lamp icon because that suggests flashlight behavior.
 - **Upload/manual actions:** remove technical helper labels such as `Up to 8 at once`, `Up to 6 at once`, and `Comma-separated works`; keep the main action labels large and readable.
 - **Step 2 Kitchen:** push gray/silver accents further, especially for `Save equipment` and kitchen-list chips/items, while preserving the shared scan/manual/upload behavior.
 
@@ -124,8 +124,8 @@ Codex implemented that follow-up polish locally on `codex/mobile-refresh-phase-2
 - Added a setup-scoped account menu slot in the setup frame and a persistent `Menu` item in the post-setup bottom nav, without restoring the top header or allowing incomplete users into Planning.
 - Removed the `Kitchen warm-up` eyebrow from the Welcome page so `Yes, Chef!` is the first welcome copy users see.
 - Updated the Pantry heading to `Start with pantry staples.`
-- Enlarged the in-camera camera on/off and scanning tips controls to match the capture button's visual weight, changed tips to a help-circle icon, and kept controls inside the viewfinder.
+- Revised the in-camera controls to use smaller translucent circles with larger camera/tips icons, removed the camera glyph from the capture shutter, changed tips to a help-circle icon, and kept controls inside the viewfinder.
 - Removed the small technical helper lines below `Upload photos` and `Enter manually`.
-- Extended Kitchen's gray/silver and light-wood treatment to progress, camera controls, secondary action icons, manual save, input border, and list chips/remove controls.
+- Extended Kitchen's gray/silver and light-wood treatment to secondary action icons, manual save, input border, and list chips/remove controls while keeping the setup progress bar coral across steps for consistency.
 
 Local check, focused Vitest, and build passed after the code changes; Replit validation at the latest branch head is still required before merge.
