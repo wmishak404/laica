@@ -110,6 +110,7 @@ Wilson then reported the next Replit test results as passing except for untestab
 | [EPIC-009](../epics/009-consistent-comma-separated-ingredient-entry.md) | Shared comma-separated manual entry |
 | [EPIC-010](../epics/010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
 | [EPIC-012](../epics/012-laica-design-language.md) | Laica design language and visual identity |
+| [EPIC-013](../epics/013-pantry-manual-entry-spell-correction.md) | Future pantry manual-entry ingredient spelling correction |
 
 ## Changes Added After Initial Plan
 
@@ -239,3 +240,7 @@ Wilson's Phase 2.1 testing of the first 14 validation items found that Back from
 ### 2026-04-30 — Follow-up test results narrowed retest scope
 
 Wilson reported that the next Phase 2.1 Replit test pass succeeded except for untestable camera subcases 8a/8c, shared Pantry/Kitchen scan-limit state blocking equipment validation, period-separated manual entry being treated as one item, missing visible comma guidance, and Test 21 being blocked by the scan limit. Codex separated Pantry/Kitchen vision rate-limit meters via scan-context headers, updated setup and Settings scan calls, changed manual parsing so periods recover like commas without treating other symbols as separators, added a Pantry comma-separation note, required at least 3 Pantry ingredients before continuing, and rotated Pantry manual placeholders across staple examples. Focused Vitest, `npm run check`, and `npm run build` passed locally. The next Replit pass should restart the app and focus only on those touched risk areas plus the previously blocked physical equipment-photo acceptance test.
+
+### 2026-04-30 — Pantry spell-correction follow-up filed
+
+Wilson asked to capture a future pantry manual-entry autocorrection idea: fix ingredient spelling before adding to the pantry list, while preserving intentional spellings such as `sushiritto` and `WTR MLN WTR`; equipment should not use this because specialized tool/model spellings are riskier. Codex filed [EPIC-013](../epics/013-pantry-manual-entry-spell-correction.md) as a future, non-Phase-2.1-gating backlog item with conservative correction, rare/stylized term preservation, and user edit/undo expectations.

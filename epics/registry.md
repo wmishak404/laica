@@ -23,3 +23,4 @@ Durable workflow decision: [`PD-007`](../product-decisions/007-epic-status-and-r
 | [009](009-consistent-comma-separated-ingredient-entry.md) | Consistent comma-separated ingredient entry | `Open` | Wilson / Codex / Claude | 2026-04-27 |  | Filed from Slop Bowl localhost testing |
 | [010](010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |  | Filed from local Neon schema drift during Slop Bowl validation |
 | [012](012-laica-design-language.md) | LAICA Design Language & Visual Identity | `In Progress` | Wilson / Codex / Claude | 2026-04-29 |  | Filed from Phase 2 mockup-conformance gap; Phase 2 setup is first pilot |
+| [013](013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |  | Filed from Phase 2.1 manual-entry validation follow-up; future pantry-only conservative autocorrect with rare/stylized term preservation |
