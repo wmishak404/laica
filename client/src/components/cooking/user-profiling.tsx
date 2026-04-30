@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeCamera } from '@/components/ui/native-camera';
@@ -117,8 +117,57 @@ function compressImage(file: File): Promise<string> {
   });
 }
 
+function isAbortError(error: unknown) {
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    return true;
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  return /abort|cancelled|canceled/i.test(message);
+}
+
+function getScanErrorFeedback(error: unknown, type: ScanType, mode: 'single' | 'batch') {
+  const message = error instanceof Error ? error.message : String(error);
+  const scanLabel = type === 'pantry' ? 'Pantry' : 'Kitchen';
+
+  if (/429|too many requests|rate limit|quota/i.test(message)) {
+    return {
+      title: 'Scan limit reached',
+      description: 'You made several scans quickly. Wait a minute, then try again, or enter items manually.',
+    };
+  }
+
+  if (/413|too large|under 4 mb|smaller than 10mb|payload/i.test(message)) {
+    return {
+      title: 'Photo is too large',
+      description: 'Choose a smaller photo or retake it closer to the item, then try again.',
+    };
+  }
+
+  if (/401|403|unauthorized|forbidden/i.test(message)) {
+    return {
+      title: 'Sign-in needed',
+      description: 'Refresh your sign-in, then try the scan again.',
+    };
+  }
+
+  if (/400|invalid image|failed to load image|failed to read image|compression is unavailable/i.test(message)) {
+    return {
+      title: 'Photo could not be read',
+      description: 'Try a JPEG, PNG, WebP, GIF, or HEIC photo, or enter items manually.',
+    };
+  }
+
+  return {
+    title: mode === 'batch' ? `${scanLabel} photos were not scanned` : `${scanLabel} photo was not scanned`,
+    description: 'Nothing new was added from that attempt. Try again in a moment, upload a clearer photo, or enter items manually.',
+  };
+}
+
 export default function UserProfiling({ onProfileComplete, existingProfile, menuSlot }: UserProfilingProps) {
   const { toast } = useToast();
+  const scanRunIds = useRef<Record<ScanType, number>>({ pantry: 0, kitchen: 0 });
+  const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
   const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
     cookingSkill: '',
@@ -130,6 +179,52 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const [manualEntry, setManualEntry] = useState<Record<ScanType, string>>({ pantry: '', kitchen: '' });
   const [manualOpen, setManualOpen] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
   const [isAnalyzing, setIsAnalyzing] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
+
+  useEffect(() => () => {
+    scanControllers.current.pantry?.abort();
+    scanControllers.current.kitchen?.abort();
+  }, []);
+
+  const startScan = (type: ScanType) => {
+    scanControllers.current[type]?.abort();
+    const controller = new AbortController();
+    const id = scanRunIds.current[type] + 1;
+    scanRunIds.current[type] = id;
+    scanControllers.current[type] = controller;
+    setIsAnalyzing((prev) => ({ ...prev, [type]: true }));
+
+    return { id, controller };
+  };
+
+  const isActiveScan = (type: ScanType, id: number, controller: AbortController) =>
+    scanRunIds.current[type] === id && scanControllers.current[type] === controller && !controller.signal.aborted;
+
+  const finishScan = (type: ScanType, id: number, controller: AbortController) => {
+    if (scanRunIds.current[type] !== id || scanControllers.current[type] !== controller) {
+      return;
+    }
+
+    scanControllers.current[type] = null;
+    setIsAnalyzing((prev) => ({ ...prev, [type]: false }));
+  };
+
+  const cancelScan = (type: ScanType, showToast = false) => {
+    if (!scanControllers.current[type] && !isAnalyzing[type]) {
+      return;
+    }
+
+    scanControllers.current[type]?.abort();
+    scanControllers.current[type] = null;
+    scanRunIds.current[type] += 1;
+    setIsAnalyzing((prev) => ({ ...prev, [type]: false }));
+
+    if (showToast) {
+      toast({
+        title: 'Scan canceled',
+        description: 'No new items were added from that scan.',
+      });
+    }
+  };
 
   const currentItems = (type: ScanType) =>
     type === 'pantry' ? profile.pantryIngredients : profile.kitchenEquipment;
@@ -176,9 +271,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   };
 
   const analyzeScanImage = async (imageData: string, type: ScanType, isHEIC = false) => {
-    setIsAnalyzing((prev) => ({ ...prev, [type]: true }));
+    const scan = startScan(type);
     try {
-      const result = await analyzeImage(imageData, isHEIC) as VisionAnalysisResult;
+      const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal }) as VisionAnalysisResult;
+      if (!isActiveScan(type, scan.id, scan.controller)) return;
+
       if (isRejectedVisionResult(result)) {
         showRejectedScanFeedback(type, result);
         return;
@@ -186,14 +283,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
       applyDetectedItems(type, extractVisionLabels(result, type));
     } catch (error) {
+      if (isAbortError(error) || !isActiveScan(type, scan.id, scan.controller)) return;
+
       console.error(`Error analyzing ${type} image:`, error);
+      const feedback = getScanErrorFeedback(error, type, 'single');
       toast({
-        title: 'Scan did not finish',
-        description: 'Try again, upload a photo, or enter items manually.',
+        ...feedback,
         variant: 'destructive',
       });
     } finally {
-      setIsAnalyzing((prev) => ({ ...prev, [type]: false }));
+      finishScan(type, scan.id, scan.controller);
     }
   };
 
@@ -233,17 +332,23 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       });
     }
 
-    setIsAnalyzing((prev) => ({ ...prev, [type]: true }));
+    const scan = startScan(type);
     const detectedLabels: string[] = [];
     let rejectedCount = 0;
     let lastRejectedResult: VisionAnalysisResult | null = null;
 
     try {
       for (const file of supportedFiles) {
+        if (!isActiveScan(type, scan.id, scan.controller)) return;
+
         const name = file.name.toLowerCase();
         const isHEIC = name.endsWith('.heic') || name.endsWith('.heif');
         const imageData = isHEIC ? await readImageAsBase64(file) : await compressImage(file);
-        const result = await analyzeImage(imageData, isHEIC) as VisionAnalysisResult;
+        if (!isActiveScan(type, scan.id, scan.controller)) return;
+
+        const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal }) as VisionAnalysisResult;
+        if (!isActiveScan(type, scan.id, scan.controller)) return;
+
         if (isRejectedVisionResult(result)) {
           rejectedCount += 1;
           lastRejectedResult = result;
@@ -261,17 +366,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
         applyDetectedItems(type, []);
       }
     } catch (error) {
+      if (isAbortError(error) || !isActiveScan(type, scan.id, scan.controller)) return;
+
       console.error(`Error processing ${type} batch:`, error);
+      const feedback = getScanErrorFeedback(error, type, 'batch');
       toast({
-        title: 'Some photos could not be scanned',
-        description: 'Review what was added, then try the missed angle again.',
+        ...feedback,
         variant: 'destructive',
       });
-      if (detectedLabels.length > 0) {
-        applyDetectedItems(type, detectedLabels);
-      }
     } finally {
-      setIsAnalyzing((prev) => ({ ...prev, [type]: false }));
+      finishScan(type, scan.id, scan.controller);
     }
   };
 
@@ -318,6 +422,17 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       default:
         return true;
     }
+  };
+
+  const currentScanType: ScanType | null = currentStep === 1 ? 'pantry' : currentStep === 2 ? 'kitchen' : null;
+  const isCurrentScanAnalyzing = currentScanType ? isAnalyzing[currentScanType] : false;
+
+  const handleBack = () => {
+    if (currentScanType && isAnalyzing[currentScanType]) {
+      cancelScan(currentScanType, true);
+    }
+
+    setCurrentStep((step) => Math.max(0, step - 1));
   };
 
   const renderSetupProgress = () => {
@@ -465,6 +580,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
               disabled={isAnalyzing[type]}
               onClick={() => setManualOpen((prev) => ({ ...prev, [type]: !prev[type] }))}
               aria-expanded={manualOpen[type]}
+              aria-pressed={manualOpen[type]}
+              data-active={manualOpen[type] ? 'true' : undefined}
             >
               <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))] ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
                 <Package className="h-4 w-4" />
@@ -805,7 +922,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setCurrentStep((step) => Math.max(0, step - 1))}
+                  onClick={handleBack}
                   className="setup-secondary-button h-12 flex-1"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -822,7 +939,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                       }
                       setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
                     }}
-                    disabled={!canProceed()}
+                    disabled={!canProceed() || isCurrentScanAnalyzing}
                     className="setup-primary-button h-12 flex-[1.4]"
                   >
                     {nextLabel}

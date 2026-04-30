@@ -147,10 +147,14 @@ export async function fetchSlopBowlRecipe(options?: {
   return await response.json();
 }
 
-export async function analyzeImage(imageData: string, isHEIC?: boolean): Promise<VisionAnalysisResult> {
+export async function analyzeImage(
+  imageData: string,
+  isHEIC?: boolean,
+  options?: { signal?: AbortSignal },
+): Promise<VisionAnalysisResult> {
   const response = await apiRequest('POST', '/api/vision/analyze', {
     image: imageData,
     isHEIC: isHEIC
-  });
+  }, { signal: options?.signal });
   return await response.json();
 }

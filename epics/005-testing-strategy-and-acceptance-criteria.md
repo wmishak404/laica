@@ -256,6 +256,10 @@ Wilson's PR #23 walkthrough also showed that a deterministic green run can still
 
 After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated local gates, Replit prerequisites, Replit acceptance items, and merge acceptance into `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`. This is a useful feature-level pattern for carrying acceptance criteria from product notes into Replit validation and PR handoffs, but it does not replace the still-needed app-wide validation matrix for this epic.
 
+### 2026-04-30 — Phase 2.1 validation feedback tightened acceptance granularity
+
+Wilson's in-progress Phase 2.1 Replit validation found issues that a broad "scan works" criterion would have missed: active scan cancellation on Back, distinct text-only/no-detection/rate-limit/image-error copy, camera-device failure paths, capture-success feedback, and manual-toggle active state. The Phase 2.1 acceptance checklist now names these paths separately. This adds evidence that future feature validation should cover failure/cancellation states as first-class acceptance items, not only happy-path completion.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

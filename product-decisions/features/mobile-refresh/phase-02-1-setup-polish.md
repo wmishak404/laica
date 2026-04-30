@@ -38,6 +38,9 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Upload is represented by one clear action while preserving the validated batch limits.
 - Upload batches over the pantry/kitchen cap are canceled as a whole instead of partially processing the first allowed files; this applies in setup and Settings.
 - Capture/upload analysis shows an explicit scanning or processing state while results are pending.
+- Pressing Back during an active Pantry or Kitchen scan cancels that scan, stops the pending state, and prevents stale scan results from adding items after the user leaves the step.
+- Camera unavailable, permission-blocked, or camera-in-use paths show clear user-safe feedback and keep upload/manual alternatives available.
+- Successful camera capture gives an immediate visual flash cue before analysis continues.
 - Step 1 has a clear Back/escape affordance that does not bypass required setup.
 - Pantry copy is privacy-aware and avoids language that implies invasive inspection.
 - Cooking Skill auto-advances after one full-row selection.
@@ -46,6 +49,9 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Text-only equipment screenshots do not add kitchen equipment.
 - Physical pantry/kitchen photos with readable labels still detect real visible products or tools.
 - Rejected text-only scans show clear feedback and offer manual entry.
+- Scan failure feedback distinguishes text-only rejection, valid no-detection, rate limiting, unreadable/oversized photos, and generic service failures instead of using one ambiguous message for all paths.
+- Manual entry buttons show a lightweight active state when their entry panel is open.
+- Manual entries are normalized, deduped, length-clamped, and stripped of common prompt-marker sequences before being saved into setup/profile flows.
 - Setup screens visibly conform to the Phase 2 mockup direction and design-language draft.
 - Setup typography is scoped to setup-only utilities and does not change global app typography.
 - User-facing brand text uses `Laica`, not all-caps `LAICA`.
@@ -74,6 +80,7 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
   - `tests/unit/equipment-vision-prompts.test.ts`
   - `tests/unit/vision-analysis-result.test.ts`
   - `tests/unit/vision-result.test.ts`
+  - `tests/unit/entry-parsing.test.ts`
   - `tests/unit/native-camera.test.tsx`
   - `tests/unit/user-profiling.test.tsx`
 
@@ -90,16 +97,21 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 - **App shell:** authenticated pages do not show the old persistent top header; account/profile/feedback/sign-out access is available through the menu surface.
 - **Welcome:** first-time setup starts on `Yes, Chef!`, has no `Kitchen warm-up` eyebrow, and `Get started` enters pantry setup.
 - **Back/escape:** Back from Pantry returns to Welcome; incomplete users cannot use Back/menu paths to enter Planning.
+- **Scan cancellation:** starting a Kitchen upload/capture, then pressing Back, cancels the active scan; returning to Kitchen should not keep showing a stale processing state or add stale results.
 - **Progress/chrome:** setup uses one top progress treatment; Pantry shows `1/5`, Kitchen shows `2/5`, and both keep coral progress.
 - **Pantry visual/copy:** Pantry uses `Start with pantry staples.`, warm setup typography, readable `Upload photos` / `Enter manually` actions, and no technical helper sublabels.
 - **Camera opt-in:** Pantry and Kitchen camera previews start off; turning camera on starts a live preview, turning it off stops tracks, permission denial leaves upload/manual alternatives available.
+- **Camera errors:** camera unavailable, permission denied, and camera-in-use paths show clear `Camera issue` feedback and leave upload/manual entry usable.
+- **Capture feedback:** camera capture briefly flashes the preview so the user can tell the shot was taken before scan processing starts.
 - **Camera controls:** camera on/off and tips controls are smaller translucent circles with large icons; capture is a blank shutter; tips use a non-flashlight help icon and open an in-context overlay.
 - **Pantry upload:** uploading 1-8 supported pantry photos processes normally and shows scanning/processing state; selecting 9 or more cancels the whole batch and adds/scans nothing.
 - **Kitchen upload:** uploading 1-6 supported kitchen photos processes normally and shows scanning/processing state; selecting 7 or more cancels the whole batch and adds/scans nothing.
 - **Settings upload:** the same fail-closed upload cap behavior applies in Settings for pantry and kitchen photo uploads.
 - **Manual entry:** comma-separated pantry and kitchen manual entries create separate chips; the pantry placeholder remains `ground beef, mayo, rice, packaged salad`.
+- **Manual active state:** tapping `Enter manually` lightly shades that action while the manual-entry panel is open, on both Pantry and Kitchen.
 - **No-detection feedback:** valid pantry/kitchen photos with no detectable inventory produce clear no-detection feedback instead of ending silently.
 - **Text-only rejection:** screenshots, documents, grocery lists, receipts, menus, recipes, and notes are rejected for pantry and kitchen scans, add nothing, and route the user toward manual entry.
+- **Scan error taxonomy:** repeated scans/rate limits show a scan-limit message; unreadable/oversized images show photo-specific guidance; these paths do not add partial batch results after a fatal batch error.
 - **Physical photo allowance:** physical pantry products and kitchen tools with readable packaging/labels are still accepted when visible objects are present.
 - **Kitchen visual treatment:** Kitchen keeps the shared Pantry interaction model while using gray/silver and light wood accents for equipment-specific controls and chips.
 - **Cooking Skill:** `Beginner`, `Intermediate`, and `Expert` selections save and auto-advance immediately.
@@ -213,3 +225,25 @@ Accepted durable visual direction for setup:
 - Manual entry remains visually peer-level with photo upload.
 
 No further visual polish is required before Phase 2.1 validation unless Replit testing finds a regression.
+
+## 2026-04-30 Functional Validation Feedback
+
+Wilson's Phase 2.1 functional testing of items 1-14 surfaced a few scan-state and feedback issues before the remaining validation items:
+
+- Pressing Back during a Kitchen scan looked like a cancellation but the scan continued in the background; returning to Kitchen could still show processing or receive stale results.
+- The generic batch error `Some photos could not be scanned. Review what was added, then try the missed angle again.` was too ambiguous, especially when testing text-only rejection and repeated uploads.
+- Repeated uploads of a clear physical equipment image, such as `equipment2.png`, can surface transport or rate-limit failures that should not be confused with text-only rejection or no-detection.
+- Camera failure paths needed clearer review: unsupported camera, permission denial, and camera-in-use should all explain the issue while preserving upload/manual paths.
+- Camera capture needed a small success cue before scan processing.
+- Manual-entry toggles needed a lightweight active visual state.
+- Manual-entry prompt-injection precautions should be explicit in docs.
+
+Accepted implementation response:
+
+- Setup scans now use abortable request controllers and scan run IDs. Back cancels the active Pantry/Kitchen scan and stale results are ignored.
+- Fatal batch failures no longer apply partial detected results after the error; users get a clearer reason and can retry intentionally.
+- Text-only/document-like rejection still uses the rejection-specific manual-entry guidance; rate-limit, oversized/unreadable image, auth, and generic service failures each get distinct copy.
+- Camera unavailable/blocked paths now emit clear toast messages through `Camera issue` and keep alternatives visible.
+- Setup camera capture briefly flashes the viewfinder after a frame is captured.
+- Manual-entry action buttons use `aria-pressed` plus an active visual state while open.
+- Manual entries share the normalized comma-separated parser, clamp labels to 64 characters, dedupe entries, and strip common prompt-marker sequences client-side; server prompt paths also sanitize prompt-marker sequences before model use.

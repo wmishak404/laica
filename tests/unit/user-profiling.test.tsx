@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { analyzeImage } from '@/lib/openai';
 import UserProfiling from '../../client/src/components/cooking/user-profiling';
 
@@ -49,8 +49,15 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByText('1/5')).toBeTruthy();
     expect(screen.getByText(/camera is off/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /upload photos/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /enter manually/i })).toBeTruthy();
+    const manualButton = screen.getByRole('button', { name: /enter manually/i });
+    expect(manualButton.getAttribute('aria-pressed')).toBe('false');
+    expect(manualButton.hasAttribute('data-active')).toBe(false);
+    expect(manualButton).toBeTruthy();
     expect(screen.getByRole('button', { name: /scanning tips/i })).toBeTruthy();
+
+    fireEvent.click(manualButton);
+    expect(manualButton.getAttribute('aria-pressed')).toBe('true');
+    expect(manualButton.getAttribute('data-active')).toBe('true');
 
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
@@ -116,5 +123,63 @@ describe('UserProfiling setup flow', () => {
       description: expect.stringContaining('up to 6 photos'),
       variant: 'destructive',
     }));
+  });
+
+  it('cancels an active kitchen upload when backing out of the step', async () => {
+    let abortSignal: AbortSignal | undefined;
+    vi.mocked(analyzeImage).mockImplementation((_image, _isHEIC, options) => {
+      abortSignal = options?.signal;
+      return new Promise<never>(() => undefined);
+    });
+
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByPlaceholderText(/ground beef, mayo, rice, packaged salad/i), {
+      target: { value: 'ground beef, mayo' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    const kitchenUpload = container.querySelector('#kitchen-setup-upload') as HTMLInputElement;
+    fireEvent.change(kitchenUpload, {
+      target: { files: [new File(['image'], 'kitchen.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(1);
+    });
+    expect((screen.getByRole('button', { name: /skip for now/i }) as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+
+    expect(abortSignal?.aborted).toBe(true);
+    expect(screen.getByRole('heading', { name: /start with pantry staples/i })).toBeTruthy();
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Scan canceled',
+      description: 'No new items were added from that scan.',
+    }));
+  });
+
+  it('shows scan-limit feedback without adding partial batch results', async () => {
+    vi.mocked(analyzeImage).mockRejectedValue(new Error('429: {"message":"Too many requests. Please try again later."}'));
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+
+    const pantryUpload = container.querySelector('#pantry-setup-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, {
+      target: { files: [new File(['image'], 'pantry.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Scan limit reached',
+        description: expect.stringContaining('Wait a minute'),
+        variant: 'destructive',
+      }));
+    });
+    expect(screen.queryByText(/your pantry list/i)).toBeNull();
   });
 });

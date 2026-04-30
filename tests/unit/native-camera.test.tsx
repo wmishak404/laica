@@ -46,4 +46,29 @@ describe('NativeCamera', () => {
       expect(getUserMedia).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('surfaces a clear error when live camera is unavailable', async () => {
+    const onError = vi.fn();
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: undefined,
+    });
+
+    render(
+      <NativeCamera
+        onImageCapture={vi.fn()}
+        onError={onError}
+        showUploadButton={false}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('switch', { name: /turn on camera/i }));
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(
+        'Live camera is not available in this browser. Upload a photo or enter items manually.',
+      );
+    });
+    expect(screen.getByText(/camera is not available/i)).toBeTruthy();
+  });
 });

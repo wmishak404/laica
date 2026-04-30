@@ -1,5 +1,20 @@
+const PROMPT_MARKERS = [
+  /###/g,
+  /<\|[^|]*\|>/g,
+  /\[INST\]/gi,
+  /\[\/INST\]/gi,
+  /\[SYSTEM\]/gi,
+  /\[\/SYSTEM\]/gi,
+];
+
+export function stripPromptMarkers(value: string): string {
+  return PROMPT_MARKERS.reduce((current, pattern) => current.replace(pattern, ' '), value)
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function normalizeEntryLabel(value: string): string {
-  return value.trim().replace(/\s+/g, ' ').slice(0, 64);
+  return stripPromptMarkers(value).slice(0, 64);
 }
 
 export function normalizeEntryKey(value: string): string {

@@ -30,6 +30,8 @@ Enforce server-side limits:
 
 Strip or neutralize prompt-marker-like sequences from fields that flow into prompts, including `###`, `<|...|>`, `[INST]`, and `[SYSTEM]`.
 
+Phase 2.1 setup validation confirmed this should happen on both sides of the boundary: client manual-entry helpers strip common prompt markers before saving pantry/equipment labels, and server prompt/log helpers sanitize the same marker family before model prompts or AI logs.
+
 ## Voice Guardrails
 
 Phase 4 is tap-to-talk, not a realtime voice agent. Any future voice tools must be allowlisted:

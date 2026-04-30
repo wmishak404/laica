@@ -39,24 +39,69 @@ export function NativeCamera({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onErrorRef = useRef(onError);
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [cameraState, setCameraState] = useState<'off' | 'starting' | 'ready' | 'blocked' | 'unsupported'>('off');
   const [isCapturing, setIsCapturing] = useState(false);
+  const [flashVisible, setFlashVisible] = useState(false);
   const [tipsOpen, setTipsOpen] = useState(false);
   const isSetup = variant === 'setup';
   const setupToneClass = setupTone === 'kitchen' ? 'setup-camera-kitchen' : 'setup-camera-pantry';
 
   useEffect(() => {
-    let isMounted = true;
+    onErrorRef.current = onError;
+  }, [onError]);
 
-    function stopCamera() {
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const getCameraStartErrorMessage = (error: unknown) => {
+    if (error instanceof DOMException) {
+      if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
+        return 'Camera permission is blocked. Allow camera access in your browser settings, or upload a photo instead.';
+      }
+
+      if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        return 'No camera was found on this device. Upload a photo or enter items manually.';
+      }
+
+      if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        return 'The camera could not start. It may be in use by another app. Upload a photo or enter items manually.';
       }
     }
+
+    return 'The camera could not start on this device. Upload a photo or enter items manually.';
+  };
+
+  const triggerCaptureFlash = () => {
+    if (!isSetup) return;
+
+    if (flashTimeoutRef.current) {
+      clearTimeout(flashTimeoutRef.current);
+    }
+
+    setFlashVisible(false);
+    const showFlash = () => {
+      setFlashVisible(true);
+      flashTimeoutRef.current = setTimeout(() => setFlashVisible(false), 260);
+    };
+
+    if (typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(showFlash);
+    } else {
+      showFlash();
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
 
     if (!cameraEnabled) {
       stopCamera();
@@ -70,7 +115,10 @@ export function NativeCamera({
       setCameraState('starting');
 
       if (!navigator.mediaDevices?.getUserMedia) {
-        if (isMounted) setCameraState('unsupported');
+        if (isMounted) {
+          setCameraState('unsupported');
+          onErrorRef.current('Live camera is not available in this browser. Upload a photo or enter items manually.');
+        }
         return;
       }
 
@@ -95,7 +143,10 @@ export function NativeCamera({
         setCameraState('ready');
       } catch (error) {
         console.error('Camera permission or startup failed:', error);
-        if (isMounted) setCameraState('blocked');
+        if (isMounted) {
+          setCameraState('blocked');
+          onErrorRef.current(getCameraStartErrorMessage(error));
+        }
       }
     }
 
@@ -106,6 +157,15 @@ export function NativeCamera({
       stopCamera();
     };
   }, [cameraEnabled]);
+
+  useEffect(() => {
+    return () => {
+      stopCamera();
+      if (flashTimeoutRef.current) {
+        clearTimeout(flashTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -156,7 +216,7 @@ export function NativeCamera({
 
   const captureFrame = async () => {
     if (!videoRef.current) {
-      onError('Camera preview is not ready yet.');
+      onError('Turn on the camera and wait for the live preview before capturing.');
       return;
     }
 
@@ -177,6 +237,7 @@ export function NativeCamera({
     try {
       context.drawImage(video, 0, 0, width, height);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      triggerCaptureFlash();
       await onImageCapture(dataUrl.split(',')[1]);
     } catch (error) {
       onError(error instanceof Error ? error.message : 'Failed to capture image');
@@ -265,9 +326,9 @@ export function NativeCamera({
                     <VideoOff className={isSetup ? 'h-10 w-10' : 'h-10 w-10 text-sidebar-foreground/70'} />
                   </div>
                   <div>
-                    <p className="font-semibold">Camera is blocked</p>
+                    <p className="font-semibold">Camera could not start</p>
                     <p className="mt-1 text-sm text-sidebar-foreground/70">
-                      You can still upload a photo from your library.
+                      Check permissions, or upload a photo instead.
                     </p>
                   </div>
                 </>
@@ -290,6 +351,7 @@ export function NativeCamera({
             <span className="h-2 w-2 rounded-full bg-primary" />
             {title}
           </div>
+          {isSetup && flashVisible && <span className="setup-camera-flash" aria-hidden="true" />}
 
           {isSetup && tipsOpen && (
             <div className="setup-tips-panel absolute bottom-20 right-3 max-w-[13rem] p-3 text-left">

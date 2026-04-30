@@ -104,3 +104,7 @@ Phase 2 setup and Phase 5 post-cook rescan both require explicit no-detection fe
 ### 2026-04-29 — Phase 2 setup scan now treats empty results as a valid outcome
 
 The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) routes the new pantry and kitchen setup scan surfaces through explicit `No ingredients detected` / `No equipment detected` toast feedback instead of ending silently. The same branch keeps Settings scan feedback explicit. Remaining validation before resolving this epic: authenticated Replit smoke with at least one negative-control pantry/kitchen image.
+
+### 2026-04-30 — Phase 2.1 validation separates no-detection from scan failures
+
+Wilson's Phase 2.1 Replit testing showed that one generic batch-scan error made text-only rejection, repeated-upload/rate-limit failures, and actual no-detection outcomes feel indistinguishable. The Phase 2.1 setup branch now preserves explicit no-detection feedback for valid empty scans, keeps text-only/document-like rejection on its own manual-entry guidance path, and adds distinct copy for rate-limit, oversized/unreadable image, auth, and generic service failures. Remaining validation before resolving this epic: Replit smoke with a valid negative-control pantry/kitchen image at the latest Phase 2.1 branch head.
