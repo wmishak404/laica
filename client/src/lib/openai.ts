@@ -150,11 +150,16 @@ export async function fetchSlopBowlRecipe(options?: {
 export async function analyzeImage(
   imageData: string,
   isHEIC?: boolean,
-  options?: { signal?: AbortSignal },
+  options?: { signal?: AbortSignal; scanType?: 'pantry' | 'kitchen' },
 ): Promise<VisionAnalysisResult> {
+  const headers = new Headers();
+  if (options?.scanType) {
+    headers.set('X-Laica-Scan-Type', options.scanType);
+  }
+
   const response = await apiRequest('POST', '/api/vision/analyze', {
     image: imageData,
     isHEIC: isHEIC
-  }, { signal: options?.signal });
+  }, { signal: options?.signal, headers });
   return await response.json();
 }

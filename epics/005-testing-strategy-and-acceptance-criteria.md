@@ -260,6 +260,10 @@ After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated l
 
 Wilson's in-progress Phase 2.1 Replit validation found issues that a broad "scan works" criterion would have missed: active scan cancellation on Back, distinct text-only/no-detection/rate-limit/image-error copy, camera-device failure paths, capture-success feedback, and manual-toggle active state. The Phase 2.1 acceptance checklist now names these paths separately. This adds evidence that future feature validation should cover failure/cancellation states as first-class acceptance items, not only happy-path completion.
 
+### 2026-04-30 — Phase 2.1 adopts reduced retest scope after partial pass
+
+Wilson reported a near-complete Phase 2.1 pass with only specific constrained failures remaining. The Phase 2.1 product note now recommends a reduced next Replit test plan focused on the touched risk: Pantry/Kitchen rate-limit separation, manual delimiter recovery, Pantry minimum guard, and the blocked equipment-photo test. Previously passed visual, navigation, and choice-control checks do not need full repetition unless the new branch head shows a regression. This is useful evidence for future acceptance workflows: after a documented partial pass, retest scope should contract to changed risk areas plus a light regression spot-check.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

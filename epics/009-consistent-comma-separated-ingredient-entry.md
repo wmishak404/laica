@@ -92,3 +92,7 @@ Wilson approved comma-separated manual entry for Phase 2 setup and Phase 3 Slop 
 ## 2026-04-29 — Shared parser added in Phase 2 branch
 
 The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) adds `client/src/lib/entryParsing.ts` and uses it for setup pantry entry, settings pantry/equipment entry, and Slop Bowl quick-add. `buns, mayo` now parses as separate entries and duplicate prevention is case-insensitive through the shared normalization helper. Remaining validation before closing this epic: browser-level check of the Slop Bowl quick-add surface and any future Phase 5 cleanup quick-add reuse.
+
+## 2026-04-30 — Phase 2.1 accepts periods as typo recovery
+
+Wilson's Phase 2.1 setup validation found that `ground beef. mayo. rice` was treated as one pantry item. The shared parser now keeps comma behavior, handles missing spaces after commas, and also treats periods as comma-like separators for manual-entry typo recovery. Other punctuation/operators remain non-separators so the behavior does not broaden into arbitrary parsing. Phase 2.1 setup also shows a visible Pantry note telling users to separate items with commas.

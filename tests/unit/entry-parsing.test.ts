@@ -7,10 +7,18 @@ import {
 
 describe('entry parsing', () => {
   it('keeps comma-separated manual entries short, unique, and normalized', () => {
-    expect(parseCommaSeparatedEntries(' mayo, rice, mayo , packaged salad ')).toEqual([
+    expect(parseCommaSeparatedEntries(' mayo,rice, mayo , packaged salad ')).toEqual([
       'mayo',
       'rice',
       'packaged salad',
+    ]);
+  });
+
+  it('treats periods like commas for common manual-entry mistakes', () => {
+    expect(parseCommaSeparatedEntries('ground beef. mayo. rice')).toEqual([
+      'ground beef',
+      'mayo',
+      'rice',
     ]);
   });
 

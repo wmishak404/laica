@@ -37,12 +37,14 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Upload and manual entry are peer-level alternatives, not a primary/private-secondary hierarchy.
 - Upload is represented by one clear action while preserving the validated batch limits.
 - Upload batches over the pantry/kitchen cap are canceled as a whole instead of partially processing the first allowed files; this applies in setup and Settings.
+- Pantry and Kitchen vision scan rate-limit meters are separate so exhausting Pantry attempts does not block Kitchen/equipment validation.
 - Capture/upload analysis shows an explicit scanning or processing state while results are pending.
 - Pressing Back during an active Pantry or Kitchen scan cancels that scan, stops the pending state, and prevents stale scan results from adding items after the user leaves the step.
 - Camera unavailable, permission-blocked, or camera-in-use paths show clear user-safe feedback and keep upload/manual alternatives available.
 - Successful camera capture gives an immediate visual flash cue before analysis continues.
 - Step 1 has a clear Back/escape affordance that does not bypass required setup.
 - Pantry copy is privacy-aware and avoids language that implies invasive inspection.
+- Pantry setup requires at least 3 ingredients before continuing and explains the requirement when the user attempts to proceed with fewer.
 - Cooking Skill auto-advances after one full-row selection.
 - Multi-select steps retain explicit continuation.
 - Text-only ingredient screenshots do not add pantry ingredients.
@@ -52,6 +54,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Scan failure feedback distinguishes text-only rejection, valid no-detection, rate limiting, unreadable/oversized photos, and generic service failures instead of using one ambiguous message for all paths.
 - Manual entry buttons show a lightweight active state when their entry panel is open.
 - Manual entries are normalized, deduped, length-clamped, and stripped of common prompt-marker sequences before being saved into setup/profile flows.
+- Manual entries split on commas and also treat periods as commas for common typo recovery; other punctuation/operators are not separators.
 - Setup screens visibly conform to the Phase 2 mockup direction and design-language draft.
 - Setup typography is scoped to setup-only utilities and does not change global app typography.
 - User-facing brand text uses `Laica`, not all-caps `LAICA`.
@@ -60,7 +63,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Welcome uses the heading `Yes, Chef!` and keeps the supporting copy to one sentence.
 - The pantry/kitchen camera object uses iPhone-like in-frame controls: large circular capture button centered at the bottom of the viewfinder, camera on/off icon at bottom left, and scanning tips at bottom right as a small in-context overlay.
 - `Upload photos` and `Enter manually` labels are readable on a phone and consistent across pantry/kitchen setup.
-- Manual pantry placeholder uses the generic example `ground beef, mayo, rice, packaged salad`.
+- Manual pantry placeholder rotates among generic staple examples with at least three ingredients, while the visible note tells users pantry items can be separated by commas.
 - Kitchen scan keeps the Step 1 interaction model but shifts some accents toward gray/silver and light wood beige so it feels more utilitarian and tool-native than pantry.
 - Cooking Skill uses `How comfortable are you with cooking?` and `You will get guidance based on this. You can change this later.`
 - Cooking Skill and Dietary Restrictions use relevant multicolor illustrations rather than monochrome coral-only icons.
@@ -81,6 +84,7 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
   - `tests/unit/vision-analysis-result.test.ts`
   - `tests/unit/vision-result.test.ts`
   - `tests/unit/entry-parsing.test.ts`
+  - `tests/unit/rate-limit.test.ts`
   - `tests/unit/native-camera.test.tsx`
   - `tests/unit/user-profiling.test.tsx`
 
@@ -100,14 +104,17 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 - **Scan cancellation:** starting a Kitchen upload/capture, then pressing Back, cancels the active scan; returning to Kitchen should not keep showing a stale processing state or add stale results.
 - **Progress/chrome:** setup uses one top progress treatment; Pantry shows `1/5`, Kitchen shows `2/5`, and both keep coral progress.
 - **Pantry visual/copy:** Pantry uses `Start with pantry staples.`, warm setup typography, readable `Upload photos` / `Enter manually` actions, and no technical helper sublabels.
+- **Pantry minimum:** tapping `Next` with fewer than 3 pantry ingredients keeps the user on Pantry and shows `There's gotta be more in your pantry! Please have at least 3 ingredients to proceed.`
 - **Camera opt-in:** Pantry and Kitchen camera previews start off; turning camera on starts a live preview, turning it off stops tracks, permission denial leaves upload/manual alternatives available.
 - **Camera errors:** camera unavailable, permission denied, and camera-in-use paths show clear `Camera issue` feedback and leave upload/manual entry usable.
 - **Capture feedback:** camera capture briefly flashes the preview so the user can tell the shot was taken before scan processing starts.
 - **Camera controls:** camera on/off and tips controls are smaller translucent circles with large icons; capture is a blank shutter; tips use a non-flashlight help icon and open an in-context overlay.
 - **Pantry upload:** uploading 1-8 supported pantry photos processes normally and shows scanning/processing state; selecting 9 or more cancels the whole batch and adds/scans nothing.
 - **Kitchen upload:** uploading 1-6 supported kitchen photos processes normally and shows scanning/processing state; selecting 7 or more cancels the whole batch and adds/scans nothing.
+- **Scan abuse meters:** hitting the Pantry scan-limit path does not block Kitchen/equipment scans; hitting the Kitchen scan-limit path does not block Pantry scans.
 - **Settings upload:** the same fail-closed upload cap behavior applies in Settings for pantry and kitchen photo uploads.
-- **Manual entry:** comma-separated pantry and kitchen manual entries create separate chips; the pantry placeholder remains `ground beef, mayo, rice, packaged salad`.
+- **Manual entry:** comma-separated pantry and kitchen manual entries create separate chips; missing spaces after commas still split; periods also split common mistakes such as `ground beef. mayo. rice`; the Pantry manual panel visibly notes comma separation.
+- **Pantry placeholder rotation:** Pantry manual examples rotate among staple sets such as raw chicken/broccoli/spaghetti, parmesan/sumac/chili crisp, and hummus/eggs/rice.
 - **Manual active state:** tapping `Enter manually` lightly shades that action while the manual-entry panel is open, on both Pantry and Kitchen.
 - **No-detection feedback:** valid pantry/kitchen photos with no detectable inventory produce clear no-detection feedback instead of ending silently.
 - **Text-only rejection:** screenshots, documents, grocery lists, receipts, menus, recipes, and notes are rejected for pantry and kitchen scans, add nothing, and route the user toward manual entry.
@@ -132,7 +139,7 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 - EPIC-004: Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
 - EPIC-005: Phase 2.1 needs fresh validation because it changes runtime UI after the PR #23 Replit pass; the checklist above is the phase-level acceptance record.
 - EPIC-007: Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.
-- EPIC-009: Comma-separated manual entry behavior must remain consistent for setup pantry/kitchen entries.
+- EPIC-009: Comma-separated manual entry behavior must remain consistent for setup pantry/kitchen entries; Phase 2.1 also accepts periods as typo recovery for manual entry only.
 - EPIC-010: Phase 2.1 must not add DB schema changes or reopen the validated Phase 2 data contract.
 - EPIC-011 / PR #24: The standalone text-only scan safeguard epic is superseded by this Phase 2.1 scope.
 - EPIC-012: Phase 2.1 is the accepted setup visual-conformance pilot, pending final Replit functional validation.
@@ -152,7 +159,7 @@ Wilson reviewed the visual conformance pass in Replit and accepted the overall d
 - **Brand casing:** use `Laica` in user-facing text instead of all-caps `LAICA`.
 - **Setup chrome:** remove the redundant `Laica setup`, `Step X of 5`, and section-label chips; use that space for a single top progress bar like the mockup.
 - **Welcome:** change `Let's set up your kitchen.` to `Yes, Chef!`; keep supporting copy to one sentence by removing `Then Laica can stop guessing.`
-- **Step 1 Pantry:** move the camera on/off control into the camera view; make capture a large centered circle like iPhone camera UI; place camera mute/on-off at bottom left; place scanning tips at bottom right as a small transparent popover/overlay; enlarge `Upload photos` and `Enter manually`; change manual example to `ground beef, mayo, rice, packaged salad`.
+- **Step 1 Pantry:** move the camera on/off control into the camera view; make capture a large centered circle like iPhone camera UI; place camera mute/on-off at bottom left; place scanning tips at bottom right as a small transparent popover/overlay; enlarge `Upload photos` and `Enter manually`; use generic pantry manual examples.
 - **Step 2 Kitchen:** keep the same component behavior as Pantry but make the page feel more utilitarian by replacing some coral accents with gray/silver and light wood beige.
 - **Step 3 Cooking Skill:** change heading to `How comfortable are you with cooking?`; change helper copy to `You will get guidance based on this. You can change this later.`; replace monochrome coral icons with relevant multicolor illustrations closer to the mockup.
 - **Step 4 Dietary Restrictions:** use relevant multicolor dietary illustrations; isolate and visually distinguish `No restrictions` as the default-style choice.
@@ -165,7 +172,7 @@ Codex implemented the Replit visual feedback on `codex/mobile-refresh-phase-2-1-
 - The authenticated `/app` shell no longer renders its fixed top header, and legacy page-level `Header` imports were removed from the remaining app pages.
 - Setup now uses one top progress bar/count instead of separate `Laica setup`, `Step X of 5`, and section-label chips.
 - Welcome copy now opens with `Yes, Chef!` and uses one supporting sentence.
-- Pantry now uses `Start with pantry staples.` and the manual placeholder `ground beef, mayo, rice, packaged salad`.
+- Pantry now uses `Start with pantry staples.` and a generic manual placeholder.
 - The setup camera variant now places camera on/off, circular capture, and scanning tips inside the camera viewfinder.
 - Kitchen uses the same component pattern with a more utilitarian gray/silver and light wood accent pass.
 - Upload/manual labels were enlarged for phone readability.
@@ -247,3 +254,34 @@ Accepted implementation response:
 - Setup camera capture briefly flashes the viewfinder after a frame is captured.
 - Manual-entry action buttons use `aria-pressed` plus an active visual state while open.
 - Manual entries share the normalized comma-separated parser, clamp labels to 64 characters, dedupe entries, and strip common prompt-marker sequences client-side; server prompt paths also sanitize prompt-marker sequences before model use.
+
+## 2026-04-30 Test Results Follow-up
+
+Wilson reported the latest Replit test pass as passing except for constrained/unavailable cases:
+
+- Tests 8a and 8c could not be tested; 8b passed.
+- Test 20 passed for Pantry abuse/rate-limit behavior, but the shared meter then blocked Kitchen/equipment scans. Accepted follow-up: split vision scan rate-limit keys by Pantry and Kitchen.
+- Test 16 found that `ground beef. mayo. rice` was treated as one ingredient. Accepted follow-up: periods count as separators for manual-entry typo recovery, while other symbols/operators do not.
+- Test 16 also requested a visible note that pantry items can be separated by commas.
+- Test 21 could not be completed because Test 20 exhausted the shared scan meter.
+
+Implemented response:
+
+- `/api/vision/analyze` remains the same endpoint and body contract, but client calls now include `X-Laica-Scan-Type: pantry|kitchen`; server vision rate-limit keys include that scan context.
+- Setup and Settings both send the scan context for pantry and kitchen scan calls.
+- Manual entry now splits on commas and periods, handles missing spaces after commas, and keeps the existing normalize/dedupe/64-character clamp behavior.
+- Pantry setup now requires at least 3 ingredients before continuing and shows `There's gotta be more in your pantry! Please have at least 3 ingredients to proceed.` when the user tries to continue with fewer.
+- Pantry manual entry now includes a visible comma-separation note and rotates through more varied staple placeholders.
+
+Recommended reduced next Replit test plan:
+
+- Pull the latest branch head and restart Replit so the in-memory old shared rate-limit bucket is cleared.
+- Re-test Test 16 only around manual entry: comma without spaces, periods as separators, visible comma note, at least-3 pantry guard, and 3+ ingredients proceeding to Kitchen.
+- Re-test Test 20 by hitting the Pantry scan-limit path, then confirm Kitchen/equipment scans are not blocked by the Pantry meter.
+- Re-test Test 21 after the restart/rate-limit split using `equipment2.png` or another physical equipment photo.
+- Spot-check no regressions on upload caps and text-only rejection only if they are touched by the above path.
+- Do not repeat visually accepted setup screens, Cooking Skill auto-advance, Dietary explicit continuation, or header/menu visual checks unless Replit shows a regression.
+
+Non-gating follow-up:
+
+- Toast dismissal currently supports the existing right-swipe gesture. Multi-direction dismissal for left/up swipes is deferred as a shared toast primitive follow-up, not a Phase 2.1 merge gate; down swipe should remain non-dismissive if implemented later.

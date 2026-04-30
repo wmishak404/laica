@@ -26,7 +26,7 @@ Enforce server-side limits:
 - pantry item label: 64 characters
 - feedback text: 280 characters
 - voice transcript: 2,000 characters
-- comma-separated manual entries: trim, normalize, dedupe, and reject empty tokens
+- manual entries: split on commas, treat periods as comma-like typo recovery, trim, normalize, dedupe, and reject empty tokens
 
 Strip or neutralize prompt-marker-like sequences from fields that flow into prompts, including `###`, `<|...|>`, `[INST]`, and `[SYSTEM]`.
 
@@ -59,6 +59,7 @@ Anything outside the allowlist is handled as a non-mutating cooking question or 
 - Setup pantry scan cap: 8 photos per batch.
 - Setup kitchen scan cap: 6 photos per batch.
 - Setup and Settings upload caps are fail-closed in the client: selecting more than the cap cancels the whole batch so users are not left guessing which photos were processed.
+- Vision scan route rate-limit keys separate Pantry and Kitchen contexts so Pantry abuse testing does not block equipment validation, while both contexts remain route-limited.
 - Post-cook rescan cap: 4 photos per batch.
 - Recipe generation, speech, vision, and feedback routes use Phase 0 route-class and per-uid limits.
 - Reject unsupported file/body types early and fail closed on malformed base64 image payloads.

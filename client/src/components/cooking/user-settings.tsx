@@ -582,7 +582,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      const result = await analyzeImage(imageData, isHEIC) as VisionAnalysisResult;
+      const result = await analyzeImage(imageData, isHEIC, { scanType: 'pantry' }) as VisionAnalysisResult;
       console.log('Pantry image analysis result:', result);
 
       if (isRejectedVisionResult(result)) {
@@ -631,7 +631,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      const result = await analyzeImage(imageData, isHEIC) as VisionAnalysisResult;
+      const result = await analyzeImage(imageData, isHEIC, { scanType: 'kitchen' }) as VisionAnalysisResult;
       console.log('Equipment image analysis result:', result);
 
       if (isRejectedVisionResult(result)) {
@@ -746,7 +746,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
                 try {
                   const base64 = e.target?.result as string;
                   const base64Data = base64.split(',')[1];
-                  const analysisResult = await analyzeImage(base64Data, true);
+                  const analysisResult = await analyzeImage(base64Data, true, { scanType: type });
                   resolve(analysisResult);
                 } catch (error) {
                   reject(error);
@@ -758,7 +758,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           } else {
             // Handle regular image files
             const compressedBase64 = await compressImage(file);
-            result = await analyzeImage(compressedBase64, false) as VisionAnalysisResult;
+            result = await analyzeImage(compressedBase64, false, { scanType: type }) as VisionAnalysisResult;
           }
 
           if (isRejectedVisionResult(result)) {

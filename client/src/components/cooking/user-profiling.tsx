@@ -46,6 +46,13 @@ const MAX_UPLOADS: Record<ScanType, number> = {
   pantry: 8,
   kitchen: 6,
 };
+const MIN_PANTRY_INGREDIENTS = 3;
+const PANTRY_PLACEHOLDERS = [
+  'raw chicken, broccoli, spaghetti',
+  'parmesan, sumac, chili crisp',
+  'hummus, eggs, rice',
+  'ground beef, mayo, packaged salad',
+];
 
 const skillLevels = [
   { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes', illustration: '🥄' },
@@ -168,6 +175,9 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const { toast } = useToast();
   const scanRunIds = useRef<Record<ScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
+  const [pantryPlaceholder] = useState(() => (
+    PANTRY_PLACEHOLDERS[Math.floor(Math.random() * PANTRY_PLACEHOLDERS.length)]
+  ));
   const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
     cookingSkill: '',
@@ -273,7 +283,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const analyzeScanImage = async (imageData: string, type: ScanType, isHEIC = false) => {
     const scan = startScan(type);
     try {
-      const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal }) as VisionAnalysisResult;
+      const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal, scanType: type }) as VisionAnalysisResult;
       if (!isActiveScan(type, scan.id, scan.controller)) return;
 
       if (isRejectedVisionResult(result)) {
@@ -346,7 +356,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
         const imageData = isHEIC ? await readImageAsBase64(file) : await compressImage(file);
         if (!isActiveScan(type, scan.id, scan.controller)) return;
 
-        const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal }) as VisionAnalysisResult;
+        const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal, scanType: type }) as VisionAnalysisResult;
         if (!isActiveScan(type, scan.id, scan.controller)) return;
 
         if (isRejectedVisionResult(result)) {
@@ -412,7 +422,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return profile.pantryIngredients.length > 0;
+        return profile.pantryIngredients.length >= MIN_PANTRY_INGREDIENTS;
       case 2:
         return true;
       case 3:
@@ -433,6 +443,24 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     setCurrentStep((step) => Math.max(0, step - 1));
+  };
+
+  const handleNext = () => {
+    if (currentStep === 1 && profile.pantryIngredients.length < MIN_PANTRY_INGREDIENTS) {
+      toast({
+        title: "There's gotta be more in your pantry!",
+        description: 'Please have at least 3 ingredients to proceed.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (currentStep === TOTAL_STEPS) {
+      onProfileComplete(profile);
+      return;
+    }
+
+    setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
   };
 
   const renderSetupProgress = () => {
@@ -511,7 +539,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     const description = isPantry
       ? 'Point at shelves, fridge, or freezer. Labels are welcome when the food is physically visible.'
       : "Add the tools and appliances you actually cook with. Skip anything you don't want tracked.";
-    const manualPlaceholder = isPantry ? 'ground beef, mayo, rice, packaged salad' : 'oven, blender, sheet pan';
+    const manualPlaceholder = isPantry ? pantryPlaceholder : 'oven, blender, sheet pan';
 
     return (
       <div className="space-y-5">
@@ -607,6 +635,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
               </div>
               <div className="space-y-3">
                 <Input
+                  aria-label={isPantry ? 'Pantry items' : 'Kitchen tools'}
                   value={manualEntry[type]}
                   onChange={(event) => setManualEntry((prev) => ({ ...prev, [type]: event.target.value }))}
                   placeholder={manualPlaceholder}
@@ -618,6 +647,9 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                     }
                   }}
                 />
+                {isPantry && (
+                  <p className="setup-copy px-1 text-xs">Separate pantry items with commas.</p>
+                )}
                 <Button
                   type="button"
                   variant="ghost"
@@ -932,14 +964,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => {
-                      if (currentStep === TOTAL_STEPS) {
-                        onProfileComplete(profile);
-                        return;
-                      }
-                      setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
-                    }}
-                    disabled={!canProceed() || isCurrentScanAnalyzing}
+                    onClick={handleNext}
+                    disabled={(currentStep !== 1 && !canProceed()) || isCurrentScanAnalyzing}
                     className="setup-primary-button h-12 flex-[1.4]"
                   >
                     {nextLabel}

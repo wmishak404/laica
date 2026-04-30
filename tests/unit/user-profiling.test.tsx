@@ -70,8 +70,8 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByPlaceholderText(/ground beef, mayo, rice, packaged salad/i), {
-      target: { value: 'ground beef, mayo' },
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
@@ -108,8 +108,8 @@ describe('UserProfiling setup flow', () => {
     }));
 
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByPlaceholderText(/ground beef, mayo, rice, packaged salad/i), {
-      target: { value: 'ground beef, mayo' },
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
@@ -136,8 +136,8 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByPlaceholderText(/ground beef, mayo, rice, packaged salad/i), {
-      target: { value: 'ground beef, mayo' },
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
@@ -150,6 +150,9 @@ describe('UserProfiling setup flow', () => {
     await waitFor(() => {
       expect(analyzeImage).toHaveBeenCalledTimes(1);
     });
+    expect(analyzeImage).toHaveBeenCalledWith(expect.any(String), true, expect.objectContaining({
+      scanType: 'kitchen',
+    }));
     expect((screen.getByRole('button', { name: /skip for now/i }) as HTMLButtonElement).disabled).toBe(true);
 
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
@@ -180,6 +183,39 @@ describe('UserProfiling setup flow', () => {
         variant: 'destructive',
       }));
     });
+    expect(analyzeImage).toHaveBeenCalledWith(expect.any(String), true, expect.objectContaining({
+      scanType: 'pantry',
+    }));
     expect(screen.queryByText(/your pantry list/i)).toBeNull();
+  });
+
+  it('requires at least three pantry ingredients before continuing', () => {
+    render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+
+    expect(screen.getByText(/separate pantry items with commas/i)).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef. mayo' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: "There's gotta be more in your pantry!",
+      description: 'Please have at least 3 ingredients to proceed.',
+      variant: 'destructive',
+    }));
+    expect(screen.getByRole('heading', { name: /start with pantry staples/i })).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    expect(screen.getByRole('heading', { name: /tell me what tools you use/i })).toBeTruthy();
   });
 });

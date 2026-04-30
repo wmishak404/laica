@@ -25,7 +25,7 @@ export function parseCommaSeparatedEntries(value: string): string[] {
   const seen = new Set<string>();
   const entries: string[] = [];
 
-  value.split(',').forEach((rawEntry) => {
+  value.split(/[,.]/).forEach((rawEntry) => {
     const entry = normalizeEntryLabel(rawEntry);
     const key = entry.toLowerCase();
 
