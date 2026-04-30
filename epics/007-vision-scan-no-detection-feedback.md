@@ -112,3 +112,7 @@ Wilson's Phase 2.1 Replit testing showed that one generic batch-scan error made 
 ### 2026-04-30 — Duplicate-only scans get explicit feedback
 
 Wilson's mobile Phase 2.1 smoke found that repeated uploads/captures of the same Pantry or Kitchen angle could add duplicate entries. The Phase 2.1 setup branch now treats duplicate-only detections as their own valid scan outcome with `Already saved` feedback, while mixed duplicate/new scans add only the new items and mention that already-saved items were skipped. This keeps duplicate prevention separate from no-detection and service-failure messaging.
+
+### 2026-04-30 — Label-drift duplicate cleanup split to EPIC-014
+
+Wilson's follow-up mobile retest confirmed the current duplicate mitigation can skip some items, but duplicate-like labels can still appear when repeated scans describe the same object differently. The deeper scan-session review pattern now lives in [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md). EPIC-007 remains focused on clear scan outcome feedback, while EPIC-014 owns latest-scan/new-vs-overlap indicators and duplicate cleanup UX.

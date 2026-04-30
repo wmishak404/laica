@@ -40,7 +40,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Pantry and Kitchen vision scan rate-limit meters are separate so exhausting Pantry attempts does not block Kitchen/equipment validation.
 - Capture/upload analysis shows an explicit scanning or processing state while results are pending.
 - Pressing Back during an active Pantry or Kitchen scan cancels that scan, stops the pending state, and prevents stale scan results from adding items after the user leaves the step.
-- Repeated exact or near-exact Pantry/Kitchen scan labels do not create duplicate chips/list rows; duplicate-only scans show `Already saved`, and mixed scans count only newly added items.
+- Repeated exact or near-exact Pantry/Kitchen scan labels are mitigated; duplicate-only scans show `Already saved`, and mixed scans count only newly added items. Deeper semantic/label-drift duplicate refinement is deferred to [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
 - Camera unavailable, permission-blocked, or camera-in-use paths show clear user-safe feedback and keep upload/manual alternatives available.
 - Successful camera capture gives an immediate visual flash cue before analysis continues.
 - Step 1 has a clear Back/escape affordance that does not bypass required setup.
@@ -118,7 +118,7 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 - **Pantry placeholder rotation:** Pantry manual examples cycle across setup mounts/page refreshes among staple sets such as raw chicken/broccoli/spaghetti, parmesan/sumac/chili crisp, and hummus/eggs/rice; the example stays stable while the user remains in the current setup flow.
 - **Manual active state:** tapping `Enter manually` lightly shades that action while the manual-entry panel is open, on both Pantry and Kitchen.
 - **No-detection feedback:** valid pantry/kitchen photos with no detectable inventory produce clear no-detection feedback instead of ending silently.
-- **Duplicate scans:** re-uploading the same Pantry/Kitchen photo or scanning the same angle after uploading it does not create duplicate chips/list rows; duplicate-only scans show `Already saved`, while mixed scans add only genuinely new items.
+- **Duplicate scans:** exact and near-exact duplicate labels from repeated Pantry/Kitchen uploads or captures are skipped, duplicate-only scans show `Already saved`, and mixed scans add only genuinely new items. Model-label drift and session-review indicators are deferred to [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
 - **Text-only rejection:** screenshots, documents, grocery lists, receipts, menus, recipes, and notes are rejected for pantry and kitchen scans, add nothing, and route the user toward manual entry.
 - **Scan error taxonomy:** repeated scans/rate limits show a scan-limit message; unreadable/oversized images show photo-specific guidance; these paths do not add partial batch results after a fatal batch error.
 - **Physical photo allowance:** physical pantry products and kitchen tools with readable packaging/labels are still accepted when visible objects are present.
@@ -324,3 +324,19 @@ Recommended final Replit retest:
 - On mobile, re-upload the same Pantry and Kitchen photo and confirm no duplicate entries are added.
 - On mobile, upload a saved Kitchen photo and then capture the same angle with the native camera; confirm no duplicate entries are added.
 - Spot-check one mixed duplicate/new scan and one light setup completion/profile-save path.
+
+### Mobile Retest Outcome and Deferred Refinement
+
+Wilson retested mobile uploads after the duplicate-prevention pass. Upload smoke from different sources passed, and the app did skip some already-saved items. Duplicate-like entries still appeared because the model can return different labels for the same physical item across repeated scans.
+
+Phase 2.1 decision:
+
+- Keep the current exact/near-exact duplicate mitigation in Phase 2.1.
+- Do not keep blocking setup merge on ultra-refined semantic duplicate cleanup.
+- Defer scan-session review, latest-scan chip indicators, and richer duplicate cleanup to [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
+
+Future UX direction:
+
+- Pantry/Equipment chips should eventually distinguish items that are new from the latest scan from items that were already present.
+- A different chip hue or lightweight indicator can help users understand overlap and decide which duplicate-like entries to remove.
+- The review pattern should invite user judgment without making first-time setup feel heavy.

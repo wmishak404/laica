@@ -80,6 +80,7 @@ The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cuttin
 - `epics/010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
 - `epics/012-laica-design-language.md` — read before implementing/polishing mobile-refresh screens, translating mockups, or changing visual identity/look-and-feel
 - `epics/013-pantry-manual-entry-spell-correction.md` — read before adding pantry ingredient spellcheck/autocorrect, ingredient dictionaries, or pantry label canonicalization
+- `epics/014-scan-session-diff-and-duplicate-refinement.md` — read before changing Pantry/Kitchen scan chip states, latest-scan indicators, duplicate cleanup, or found-again/overlap messaging
 
 If your work intersects with an active epic, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
 

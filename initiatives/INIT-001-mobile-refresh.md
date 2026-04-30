@@ -141,25 +141,23 @@ Required before Phase 2.1 merge:
 - Wilson's 2026-04-30 Replit visual feedback and follow-up setup polish captured in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) have been implemented and visually accepted.
 - Wilson's 2026-04-30 functional validation feedback on scan cancellation, scan-error taxonomy, camera errors, capture flash, manual toggle state, and manual-entry prompt-marker stripping has been implemented locally and documented in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
 - Wilson's follow-up test results on scan-limit separation, period-separated manual entry, visible comma guidance, 3-ingredient Pantry minimum, and the blocked Test 21 equipment-photo path have been implemented or captured in the reduced retest plan.
-- Wilson's mobile smoke confirmed setup generally works and profile persistence saves correctly, then found one final in-scope duplicate-scan issue. Duplicate-aware Pantry/Kitchen scan merging is now part of Phase 2.1 and documented in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
+- Wilson's mobile smoke confirmed setup generally works, upload smoke from different sources passed, and profile persistence saves correctly. Duplicate-aware Pantry/Kitchen scan merging mitigates exact/near-exact duplicates in Phase 2.1, while deeper semantic duplicate cleanup and latest-scan chip indicators are deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 - Re-run Replit validation at the latest Phase 2.1 runtime head before merge using the checklist in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
 - Record `Last Replit-validated at: <commit-sha>` after validation passes.
 
 ## Current Resume Point
 
-Resume at Phase 2.1 duplicate-prevention validation on `codex/mobile-refresh-phase-2-1-setup-polish`.
+Resume at Phase 2.1 validation closeout on `codex/mobile-refresh-phase-2-1-setup-polish`.
 
 Next implementation focus:
 
-1. Pull the updated `codex/mobile-refresh-phase-2-1-setup-polish` branch into Replit after the duplicate-prevention commit.
-2. Restart Replit after pulling so old in-memory scan-limit buckets do not affect validation.
-3. On mobile, retest the duplicate paths Wilson found: same Pantry/Kitchen photo uploaded twice, saved/uploaded Kitchen photo followed by native camera capture of the same angle, and one mixed duplicate/new scan.
-4. Lightly spot-check setup completion/profile persistence with a disposable or reset account; Wilson already confirmed the profile saves correctly, but the new branch head needs its own smoke.
-5. Do not repeat visually accepted setup screens, Cooking Skill auto-advance, Dietary explicit continuation, or header/menu checks unless the latest branch head shows a regression.
-6. Record `Last Replit-validated at: <commit-sha>` in the handoff and PR description after validation passes.
-7. Open the Phase 2.1 PR after validation state is recorded.
-8. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
-9. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
+1. Pull the latest `codex/mobile-refresh-phase-2-1-setup-polish` docs branch into Replit/GitHub context.
+2. Record the final Replit validation state: mobile setup generally worked, upload smoke from different sources passed, disposable-account profile persistence passed, and ultra-refined duplicate cleanup is deferred to EPIC-014.
+3. Do not repeat visually accepted setup screens, Cooking Skill auto-advance, Dietary explicit continuation, or header/menu checks unless the latest branch head shows a regression.
+4. Record `Last Replit-validated at: <commit-sha>` in the handoff and PR description once Wilson confirms the commit SHA to treat as validated.
+5. Open the Phase 2.1 PR after validation state is recorded.
+6. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
+7. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
 
 ## Chronology
 
@@ -254,3 +252,7 @@ Wilson asked to capture a future pantry manual-entry autocorrection idea: fix in
 ### 2026-04-30 — Mobile duplicate scan prevention added
 
 Wilson's mobile smoke found that setup generally worked and disposable-account profile persistence saved correctly, but repeated uploads/captures of the same Pantry or Kitchen angle could create duplicate chips/list rows. Codex accepted this as Phase 2.1 scope and added duplicate-aware merge metadata for setup and Settings scan paths. The next Replit pass should focus on repeated-photo and upload-plus-native-camera duplicate checks, plus a light profile-save smoke at the latest branch head.
+
+### 2026-04-30 — Scan-session duplicate refinement deferred
+
+Wilson's follow-up mobile retest found that the duplicate-prevention pass skipped some already-saved items and that upload smoke from different sources passed, but duplicate-like entries can still appear when the model labels the same physical item differently across scans. Wilson deferred ultra-refined duplicate cleanup out of Phase 2.1. Codex filed [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md) to track latest-scan chip indicators, overlap/found-again states, and duplicate cleanup UX for a future pass.

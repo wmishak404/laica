@@ -268,6 +268,10 @@ Wilson reported a near-complete Phase 2.1 pass with only specific constrained fa
 
 Wilson's mobile Phase 2.1 smoke passed the broad setup/profile-save path but found a final duplicate-entry bug when the same Pantry/Kitchen angle was uploaded or captured again. The Phase 2.1 record now narrows the final retest to duplicate scan prevention plus a light setup completion smoke. This adds another validation-workflow signal: mobile-specific repeated-action checks can expose issues that a desktop happy path and one-time scan do not.
 
+### 2026-04-30 — Phase 2.1 defers ultra-refined duplicate cleanup
+
+Wilson retested the duplicate-prevention pass on mobile and confirmed upload smoke from different sources passed. The current implementation skips some already-saved entries, but model-label drift can still create duplicate-like chips. The accepted validation outcome is to ship the Phase 2.1 mitigation and file [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md) for latest-scan indicators and richer duplicate cleanup. This is useful acceptance-criteria evidence: not every discovered edge must block merge when the product owner explicitly defers it and creates a tracked follow-up.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

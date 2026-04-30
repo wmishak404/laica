@@ -83,3 +83,4 @@ Read these before starting work in their governed domains:
 | [010](010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [012](012-laica-design-language.md) | LAICA Design Language & Visual Identity | `In Progress` | Wilson / Codex / Claude | 2026-04-29 |
 | [013](013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |
+| [014](014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |
