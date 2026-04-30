@@ -5,9 +5,30 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
-import { mergeUniqueEntries, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
+import { mergeUniqueEntries, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
-import { Camera, Check, ChefHat, ImagePlus, Leaf, Lightbulb, Package, Sparkles, Utensils, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  Camera,
+  Check,
+  ChefHat,
+  ImagePlus,
+  Leaf,
+  Lightbulb,
+  Loader2,
+  Package,
+  ScanLine,
+  ShieldCheck,
+  Sparkles,
+  Utensils,
+  X,
+} from 'lucide-react';
+import {
+  extractVisionLabels,
+  getVisionRejectionFeedback,
+  isRejectedVisionResult,
+  type VisionAnalysisResult,
+} from '@/lib/visionResult';
 
 interface UserProfile {
   cookingSkill: string;
@@ -48,24 +69,6 @@ const dietaryOptions = [
   'Keto',
   'Paleo',
 ];
-
-function extractDetectedLabels(result: any, type: ScanType): string[] {
-  const primaryKey = type === 'pantry' ? 'ingredients' : 'equipment';
-  const legacyKey = type === 'pantry' ? 'detectedIngredients' : 'detectedEquipment';
-  const primary = Array.isArray(result?.[primaryKey]) ? result[primaryKey] : [];
-  const legacy = Array.isArray(result?.[legacyKey]) ? result[legacyKey] : [];
-
-  return [...primary, ...legacy]
-    .map((item: any) => {
-      if (typeof item === 'string') return item;
-      if (item && typeof item === 'object') {
-        return item.name || item.ingredient || item.item || item.equipment || item.description || '';
-      }
-      return '';
-    })
-    .map((item: string) => normalizeEntryLabel(item.toLowerCase()))
-    .filter(Boolean);
-}
 
 function readImageAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -120,7 +123,7 @@ function compressImage(file: File): Promise<string> {
 
 export default function UserProfiling({ onProfileComplete, existingProfile }: UserProfilingProps) {
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
     cookingSkill: '',
     dietaryRestrictions: [],
@@ -142,7 +145,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     }));
   };
 
-  const applyDetectedItems = (type: ScanType, labels: string[]) => {
+  const applyDetectedItems = (type: ScanType, labels: string[], skippedCount = 0) => {
     if (labels.length === 0) {
       toast({
         title: type === 'pantry' ? 'No ingredients detected' : 'No equipment detected',
@@ -161,15 +164,31 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
 
     toast({
       title: type === 'pantry' ? 'Pantry scan added items' : 'Kitchen scan added items',
-      description: `Found ${labels.length} item${labels.length === 1 ? '' : 's'}. Review the list before moving on.`,
+      description: `Found ${labels.length} item${labels.length === 1 ? '' : 's'}. Review the list before moving on.${
+        skippedCount > 0 ? ` ${skippedCount} text-only photo${skippedCount === 1 ? ' was' : 's were'} skipped.` : ''
+      }`,
     });
+  };
+
+  const showRejectedScanFeedback = (type: ScanType, result: VisionAnalysisResult) => {
+    const feedback = getVisionRejectionFeedback(result, type);
+    toast({
+      ...feedback,
+      variant: 'destructive',
+    });
+    setManualOpen((prev) => ({ ...prev, [type]: true }));
   };
 
   const analyzeScanImage = async (imageData: string, type: ScanType, isHEIC = false) => {
     setIsAnalyzing((prev) => ({ ...prev, [type]: true }));
     try {
-      const result = await analyzeImage(imageData, isHEIC);
-      applyDetectedItems(type, extractDetectedLabels(result, type));
+      const result = await analyzeImage(imageData, isHEIC) as VisionAnalysisResult;
+      if (isRejectedVisionResult(result)) {
+        showRejectedScanFeedback(type, result);
+        return;
+      }
+
+      applyDetectedItems(type, extractVisionLabels(result, type));
     } catch (error) {
       console.error(`Error analyzing ${type} image:`, error);
       toast({
@@ -213,17 +232,31 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
 
     setIsAnalyzing((prev) => ({ ...prev, [type]: true }));
     const detectedLabels: string[] = [];
+    let rejectedCount = 0;
+    let lastRejectedResult: VisionAnalysisResult | null = null;
 
     try {
       for (const file of supportedFiles) {
         const name = file.name.toLowerCase();
         const isHEIC = name.endsWith('.heic') || name.endsWith('.heif');
         const imageData = isHEIC ? await readImageAsBase64(file) : await compressImage(file);
-        const result = await analyzeImage(imageData, isHEIC);
-        detectedLabels.push(...extractDetectedLabels(result, type));
+        const result = await analyzeImage(imageData, isHEIC) as VisionAnalysisResult;
+        if (isRejectedVisionResult(result)) {
+          rejectedCount += 1;
+          lastRejectedResult = result;
+          continue;
+        }
+
+        detectedLabels.push(...extractVisionLabels(result, type));
       }
 
-      applyDetectedItems(type, detectedLabels);
+      if (detectedLabels.length > 0) {
+        applyDetectedItems(type, detectedLabels, rejectedCount);
+      } else if (rejectedCount > 0 && lastRejectedResult) {
+        showRejectedScanFeedback(type, lastRejectedResult);
+      } else {
+        applyDetectedItems(type, []);
+      }
     } catch (error) {
       console.error(`Error processing ${type} batch:`, error);
       toast({
@@ -284,10 +317,59 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     }
   };
 
+  const renderWelcomeStep = () => (
+    <div className="flex min-h-[68vh] flex-col justify-center space-y-6 text-center">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <ChefHat className="h-8 w-8" />
+      </div>
+
+      <div>
+        <h1 className="text-4xl font-bold leading-tight text-foreground">Let&apos;s set up your kitchen.</h1>
+        <p className="mx-auto mt-3 max-w-xs text-base leading-relaxed text-muted-foreground">
+          A few quick notes help LAICA suggest meals that fit what you have, what you use, and how you like to cook.
+        </p>
+      </div>
+
+      <div className="grid gap-3 text-left">
+        {[
+          {
+            icon: ScanLine,
+            title: 'Start with what is visible',
+            description: 'Scan photos, upload them, or type items in yourself.',
+          },
+          {
+            icon: ShieldCheck,
+            title: 'You stay in control',
+            description: 'Camera is off until you turn it on, and every list is editable.',
+          },
+          {
+            icon: ChefHat,
+            title: 'Cook with less guessing',
+            description: 'Skill and dietary notes shape the recipes LAICA suggests.',
+          },
+        ].map((item) => (
+          <div key={item.title} className="flex items-start gap-3 rounded-xl border bg-card p-3 shadow-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <item.icon className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-card-foreground">{item.title}</p>
+              <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{item.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderScanStep = (type: ScanType) => {
     const isPantry = type === 'pantry';
     const items = currentItems(type);
     const uploadId = `${type}-setup-upload`;
+    const title = isPantry ? "Let's take note of what you have." : "Now let's note your kitchen tools.";
+    const description = isPantry
+      ? 'Scan shelves, fridge, or freezer photos. You can upload instead, or type only what you want saved.'
+      : "Add the tools and appliances you actually cook with, then skip anything you don't want tracked.";
 
     return (
       <div className="space-y-5">
@@ -296,19 +378,19 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             {currentStep} of {TOTAL_STEPS}
           </p>
           <h2 className="text-3xl font-bold text-foreground">
-            {isPantry ? 'Show me your pantry.' : 'Now your kitchen tools.'}
+            {title}
           </h2>
           <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
-            {isPantry
-              ? "Scan a shelf, fridge, or freezer. I'll pull out the usable ingredients."
-              : "A quick scan helps me avoid recipes that need gear you don't have."}
+            {description}
           </p>
         </div>
 
         <NativeCamera
-          title="Live camera"
+          title={isPantry ? 'Pantry preview' : 'Kitchen preview'}
           captureLabel={isPantry ? 'Capture pantry' : 'Capture kitchen'}
-          uploadLabel="Upload one photo"
+          cameraToggleLabel={isPantry ? 'Pantry camera' : 'Kitchen camera'}
+          showUploadButton={false}
+          disabled={isAnalyzing[type]}
           onImageCapture={(imageData) => analyzeScanImage(imageData, type)}
           onError={(error) => {
             toast({
@@ -328,28 +410,33 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             className="hidden"
             onChange={(event) => handleBatchUpload(event, type)}
           />
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 w-full"
-            disabled={isAnalyzing[type]}
-            onClick={() => document.getElementById(uploadId)?.click()}
-          >
-            <ImagePlus className="mr-2 h-4 w-4" />
-            Upload photos
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-14 flex-col gap-1"
+              disabled={isAnalyzing[type]}
+              onClick={() => document.getElementById(uploadId)?.click()}
+            >
+              <ImagePlus className="h-4 w-4" />
+              <span>Upload photos</span>
+            </Button>
 
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-10 w-full text-muted-foreground"
-            onClick={() => setManualOpen((prev) => ({ ...prev, [type]: !prev[type] }))}
-          >
-            Enter manually
-          </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-14 flex-col gap-1"
+              disabled={isAnalyzing[type]}
+              onClick={() => setManualOpen((prev) => ({ ...prev, [type]: !prev[type] }))}
+              aria-expanded={manualOpen[type]}
+            >
+              <Package className="h-4 w-4" />
+              <span>Enter manually</span>
+            </Button>
+          </div>
 
           {manualOpen[type] && (
-            <Card className="border-primary/15 bg-primary/5">
+            <Card className="border-primary/15 bg-primary/5 shadow-sm">
               <CardContent className="space-y-3 p-3">
                 <Input
                   value={manualEntry[type]}
@@ -393,9 +480,13 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
         </div>
 
         {isAnalyzing[type] && (
-          <p className="text-center text-sm text-primary">
-            Scanning...
-          </p>
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center text-primary">
+            <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+            <p className="mt-2 text-sm font-semibold">
+              {isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
+            </p>
+            <p className="mt-1 text-xs text-primary/75">Keeping only visible food and cooking items.</p>
+          </div>
         )}
 
         {items.length > 0 && (
@@ -464,7 +555,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
               type="button"
               role="radio"
               aria-checked={selected}
-              onClick={() => setProfile((prev) => ({ ...prev, cookingSkill: skill.value }))}
+              onClick={() => {
+                setProfile((prev) => ({ ...prev, cookingSkill: skill.value }));
+                setCurrentStep(4);
+              }}
               className={`flex w-full items-center gap-4 rounded-lg border p-4 text-left transition ${
                 selected ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card'
               }`}
@@ -590,6 +684,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
         return renderDietaryStep();
       case 5:
         return renderConfirmStep();
+      case 0:
+        return renderWelcomeStep();
       default:
         return null;
     }
@@ -612,31 +708,41 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
         {renderStep()}
       </div>
 
-      <div className="mt-6 flex gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setCurrentStep((step) => Math.max(1, step - 1))}
-          disabled={currentStep === 1}
-          className="h-12 flex-1"
-        >
-          Back
-        </Button>
-        <Button
-          type="button"
-          onClick={() => {
-            if (currentStep === TOTAL_STEPS) {
-              onProfileComplete(profile);
-              return;
-            }
-            setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
-          }}
-          disabled={!canProceed()}
-          className="h-12 flex-[1.4]"
-        >
-          {nextLabel}
-        </Button>
-      </div>
+      {currentStep === 0 ? (
+        <div className="mt-6">
+          <Button type="button" onClick={() => setCurrentStep(1)} className="h-12 w-full">
+            Get started
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-6 flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setCurrentStep((step) => Math.max(0, step - 1))}
+            className="h-12 flex-1"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          {currentStep !== 3 && (
+            <Button
+              type="button"
+              onClick={() => {
+                if (currentStep === TOTAL_STEPS) {
+                  onProfileComplete(profile);
+                  return;
+                }
+                setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
+              }}
+              disabled={!canProceed()}
+              className="h-12 flex-[1.4]"
+            >
+              {nextLabel}
+            </Button>
+          )}
+        </div>
+      )}
     </main>
   );
 }

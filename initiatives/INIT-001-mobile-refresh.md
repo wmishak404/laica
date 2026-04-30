@@ -3,8 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 2.1 setup polish planned
+**Current phase:** Phase 2.1 setup polish in implementation
 **Active PR:** None
+**Active branch:** `codex/mobile-refresh-phase-2-1-setup-polish`
 
 ## Overview
 
@@ -29,7 +30,7 @@ PR #25 split and merged the INIT/process/design documentation stack from PR #23,
 
 PR #23 merged functional Phase 2 setup after Replit validation passed. Wilson decided to defer the latest UI trust/privacy and visual-flow feedback to Phase 2.1 because PR #23 was already large.
 
-Next work should start from fresh `origin/main` and use Phase 2.1 setup polish as the active scope.
+Phase 2.1 implementation started from fresh `origin/main` at `4ef300cda6778bbd562e918fc5b835a246b65bd8` on `codex/mobile-refresh-phase-2-1-setup-polish`. Local TypeScript, focused Vitest, and production build checks have passed; Replit validation is still required before merge.
 
 ## Source Docs
 
@@ -65,7 +66,7 @@ Next work should start from fresh `origin/main` and use Phase 2.1 setup polish a
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit and merged; latest visual/trust feedback deferred |
-| Phase 2.1 | Planned | TBD | Setup polish: camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance |
+| Phase 2.1 | In Progress | `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -81,6 +82,8 @@ Next work should start from fresh `origin/main` and use Phase 2.1 setup polish a
 | #23 | Merged | `codex/mobile-refresh-phase-2-setup` | Functional Replit validation passed at `f037552`; merged as functional Phase 2 |
 | #24 | Closed / superseded | `codex/vision-text-only-scan-epic` | Standalone EPIC-011 PR superseded by Phase 2.1 scope |
 | #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
+| #26 | Merged | `codex/mobile-refresh-phase-2-closeout` | Phase 2 closeout moved resume point to Phase 2.1 |
+| TBD | In progress | `codex/mobile-refresh-phase-2-1-setup-polish` | Local checks passed; Replit validation not yet run |
 
 ## Epics and Governance
 
@@ -123,14 +126,15 @@ Required before Phase 2.1 merge:
 
 ## Current Resume Point
 
-Resume at Phase 2.1 setup polish.
+Resume at Phase 2.1 setup polish on `codex/mobile-refresh-phase-2-1-setup-polish`.
 
 Next implementation focus:
 
-1. Create a new Phase 2.1 branch from fresh `origin/main`.
-2. Read [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md), [Mobile Refresh Design Language](../product-decisions/features/mobile-refresh/design-language.md), [EPIC-004](../epics/004-selection-controls-tap-targets.md), [EPIC-005](../epics/005-testing-strategy-and-acceptance-criteria.md), and [EPIC-012](../epics/012-laica-design-language.md).
-3. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
-4. Implement Phase 2.1 without reopening the validated Phase 2 backend/data contract.
+1. Pull `codex/mobile-refresh-phase-2-1-setup-polish` into Replit.
+2. Run the Phase 2.1 signed-in Replit validation checklist at the latest branch head.
+3. Open the Phase 2.1 PR after validation state is recorded.
+4. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
+5. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
 
 ## Chronology
 
@@ -177,3 +181,7 @@ Wilson decided the text-only vision scan safeguard from PR #24 belongs in Phase 
 ### 2026-04-29 — Phase 2 merged
 
 PR #23 merged functional Phase 2 setup into `main` as merge commit `eca3d1b504e8eb33edbeb74e78cf2755b760577f`. The remote feature branch was deleted. Phase 2.1 is now the next active Mobile Refresh scope.
+
+### 2026-04-30 — Phase 2.1 implementation branch started
+
+Codex started `codex/mobile-refresh-phase-2-1-setup-polish` from `origin/main` at `4ef300cda6778bbd562e918fc5b835a246b65bd8`. The branch implements the first-time welcome screen, camera opt-in, upload/manual hierarchy, scanning state, privacy-aware copy, Cooking Skill auto-advance, and text-only scan rejection contract. Local checks passed; Replit validation is not yet run.

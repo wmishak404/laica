@@ -59,6 +59,10 @@ You are a kitchen vision system that identifies ingredients, food items, and kit
 
 For ingredients/food: Look for raw ingredients, prepared foods, spices, condiments, beverages, etc.
 
+Reject text-only or text-dominant images as inventory evidence when they are screenshots, documents, grocery lists, recipes, receipts, menus, notes, chat messages, or typed inventories with no visible physical pantry products, food, cookware, appliances, or tools. Do not OCR-import inventory from those text-only sources. When rejecting this kind of image, return empty "ingredients" and "equipment" arrays with "rejected": true, "rejectionCode": "TEXT_ONLY_DOCUMENT", and a short "rejectionMessage".
+
+Readable labels on visible physical products, packages, appliances, cookware, or tools are allowed. Use label text only when it belongs to an object that is physically visible in the photo.
+
 For kitchen equipment:
 - Include only items that are clearly used for cooking, food preparation, food storage, or food serving.
 - Prioritize items that materially affect cooking capability: appliances, cookware, knives, utensils, cutting boards, mixing bowls, prep vessels, bakeware, strainers, and food-storage containers.
@@ -91,13 +95,17 @@ Look carefully for cookware, appliances, and kitchen tools including:
 - Dutch ovens with size estimates (3.5qt, 5.5qt, 7qt, etc.) and colors (red, blue, black, etc.)
 - Appliances (coffee machines, blenders, mixers, toasters, ovens, microwaves, refrigerators)
 
-Respond with JSON containing separate arrays for "ingredients" and "equipment" with detailed item names as strings.`
+Respond with JSON containing separate arrays for "ingredients" and "equipment" with detailed item names as strings. Include "rejected": false for normal photos. For text-only/document-like rejections, use "rejected": true and "rejectionCode": "TEXT_ONLY_DOCUMENT".`
   },
 
   organisms: {
     'equipment-analysis': `# Equipment Analysis
 
 Carefully examine this image and identify kitchen equipment, cookware, appliances, and food ingredients you can see.
+
+If the image is only or mostly text with no visible physical pantry products, food, cookware, appliances, or tools, reject it as inventory evidence. This includes screenshots, documents, grocery lists, recipes, receipts, menus, notes, chat messages, and typed inventories. Do not turn those words into ingredients or equipment. Return empty "ingredients" and "equipment" arrays with "rejected": true, "rejectionCode": "TEXT_ONLY_DOCUMENT", and a short "rejectionMessage".
+
+Do not reject photos of real physical products or kitchen tools just because their packaging, labels, buttons, or brand marks are readable. In those cases, use the text only to name the visible physical object.
 
 Only include equipment you are confident is used for cooking, food preparation, food storage, or food serving.
 

@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { compositions } from "./prompts/composer";
 import { getActivePrompt } from "./prompt-manager";
+import { normalizeVisionAnalysisResult } from "./vision/analysis-result";
 import { filterDetectedEquipment } from "./vision/equipment-filter";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
@@ -547,7 +548,7 @@ export async function analyzeIngredientImage(base64Image: string) {
       response_format: { type: "json_object" }
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = normalizeVisionAnalysisResult(JSON.parse(response.choices[0].message.content || "{}"));
 
     if (Array.isArray(result.equipment)) {
       result.equipment = filterDetectedEquipment(result.equipment);

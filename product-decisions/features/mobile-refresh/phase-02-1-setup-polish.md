@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 2.1 — Setup Polish: Trust, Privacy, and Visual Conformance
 
-**Status:** Planned
+**Status:** In Progress
 **Phase owner:** Wilson
 **Date:** 2026-04-29
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)

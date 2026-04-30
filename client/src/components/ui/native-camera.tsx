@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Camera, Upload, Video, VideoOff } from 'lucide-react';
 
 interface NativeCameraProps {
@@ -9,6 +11,9 @@ interface NativeCameraProps {
   captureLabel?: string;
   uploadLabel?: string;
   accept?: string;
+  showUploadButton?: boolean;
+  disabled?: boolean;
+  cameraToggleLabel?: string;
 }
 
 export function NativeCamera({ 
@@ -17,18 +22,42 @@ export function NativeCamera({
   title = "Live camera",
   captureLabel = "Capture photo",
   uploadLabel = "Upload photo instead",
-  accept = "image/*"
+  accept = "image/*",
+  showUploadButton = true,
+  disabled = false,
+  cameraToggleLabel = "Camera"
 }: NativeCameraProps) {
+  const toggleId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [cameraState, setCameraState] = useState<'starting' | 'ready' | 'blocked' | 'unsupported'>('starting');
+  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [cameraState, setCameraState] = useState<'off' | 'starting' | 'ready' | 'blocked' | 'unsupported'>('off');
   const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
+    function stopCamera() {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    }
+
+    if (!cameraEnabled) {
+      stopCamera();
+      setCameraState('off');
+      return () => {
+        isMounted = false;
+      };
+    }
+
     async function startCamera() {
+      setCameraState('starting');
+
       if (!navigator.mediaDevices?.getUserMedia) {
         if (isMounted) setCameraState('unsupported');
         return;
@@ -63,10 +92,9 @@ export function NativeCamera({
 
     return () => {
       isMounted = false;
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
+      stopCamera();
     };
-  }, []);
+  }, [cameraEnabled]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -156,7 +184,25 @@ export function NativeCamera({
         className="hidden"
       />
 
-      <div className="overflow-hidden rounded-lg border bg-sidebar text-sidebar-foreground">
+      <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+        <div>
+          <Label htmlFor={toggleId} className="text-sm font-semibold">
+            {cameraToggleLabel}
+          </Label>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {cameraEnabled ? 'Live preview is on' : 'Off until you turn it on'}
+          </p>
+        </div>
+        <Switch
+          id={toggleId}
+          checked={cameraEnabled}
+          onCheckedChange={setCameraEnabled}
+          aria-label={`${cameraEnabled ? 'Turn off' : 'Turn on'} ${cameraToggleLabel.toLowerCase()}`}
+          disabled={disabled}
+        />
+      </div>
+
+      <div className="overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-sm">
         <div className="relative aspect-[4/5] w-full bg-sidebar">
           <video
             ref={videoRef}
@@ -168,10 +214,30 @@ export function NativeCamera({
 
           {cameraState !== 'ready' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
-              {cameraState === 'starting' ? (
+              {cameraState === 'off' ? (
+                <>
+                  <VideoOff className="h-10 w-10 text-sidebar-foreground/70" />
+                  <div>
+                    <p className="font-semibold">Camera is off</p>
+                    <p className="mt-1 text-sm text-sidebar-foreground/70">
+                      Turn it on when you want a live preview.
+                    </p>
+                  </div>
+                </>
+              ) : cameraState === 'starting' ? (
                 <>
                   <Video className="h-10 w-10 text-sidebar-foreground/70" />
                   <p className="text-sm text-sidebar-foreground/70">Starting camera...</p>
+                </>
+              ) : cameraState === 'unsupported' ? (
+                <>
+                  <VideoOff className="h-10 w-10 text-sidebar-foreground/70" />
+                  <div>
+                    <p className="font-semibold">Camera is not available</p>
+                    <p className="mt-1 text-sm text-sidebar-foreground/70">
+                      Upload a photo or enter items manually.
+                    </p>
+                  </div>
                 </>
               ) : (
                 <>
@@ -197,22 +263,25 @@ export function NativeCamera({
 
       <Button
         onClick={captureFrame}
-        disabled={cameraState !== 'ready' || isCapturing}
+        disabled={disabled || cameraState !== 'ready' || isCapturing}
         className="h-12 w-full"
       >
         <Camera className="mr-2 h-4 w-4" />
         {isCapturing ? 'Capturing...' : captureLabel}
       </Button>
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={triggerCamera}
-        className="h-11 w-full"
-      >
-        <Upload className="mr-2 h-4 w-4" />
-        {uploadLabel}
-      </Button>
+      {showUploadButton && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={triggerCamera}
+          className="h-11 w-full"
+          disabled={disabled}
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          {uploadLabel}
+        </Button>
+      )}
     </div>
   );
 }

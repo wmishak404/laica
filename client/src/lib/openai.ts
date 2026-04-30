@@ -1,4 +1,5 @@
 import { apiFetch, apiRequest } from './queryClient';
+import type { VisionAnalysisResult } from './visionResult';
 
 interface CookingStepObject {
   instruction?: string;
@@ -146,7 +147,7 @@ export async function fetchSlopBowlRecipe(options?: {
   return await response.json();
 }
 
-export async function analyzeImage(imageData: string, isHEIC?: boolean) {
+export async function analyzeImage(imageData: string, isHEIC?: boolean): Promise<VisionAnalysisResult> {
   const response = await apiRequest('POST', '/api/vision/analyze', {
     image: imageData,
     isHEIC: isHEIC
