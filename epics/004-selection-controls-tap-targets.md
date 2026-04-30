@@ -60,6 +60,7 @@ In `client/src/components/ui/radio-group.tsx`:
 - **The UI should feel like a big selectable button/card**, not a bullet-point list
 - **This is a utilitarian form-control fix**, not a playful/tone-forward surface experiment
 - **Onboarding and settings should stay aligned** — the same profile concepts should not have different hit-area behavior in different screens
+- **Single-choice setup steps can auto-advance after selection** when the choice fully completes the input, such as Cooking Skill. Multi-select steps should keep an explicit continuation action because the user needs time to finish choosing.
 
 ## Open questions
 
@@ -126,8 +127,9 @@ This epic is `Resolved` when all of the following are true:
 2. In onboarding, users can click/tap anywhere in a weekly-time option row to select it
 3. In settings, the matching profile-edit controls use the same full-row interaction model
 4. The selected state is visually legible as a button/card choice, not just a tiny filled dot
-5. Keyboard and assistive-technology behavior still works correctly for the radio groups
-6. A durable implementation note exists in a handoff, feature phase note, or product decision, and this epic has a final `## YYYY-MM-DD — Resolved` section pointing to it
+5. Single-choice setup rows that are designed as one-tap decisions auto-advance after selection, while multi-select rows retain explicit continuation
+6. Keyboard and assistive-technology behavior still works correctly for the radio groups
+7. A durable implementation note exists in a handoff, feature phase note, or product decision, and this epic has a final `## YYYY-MM-DD — Resolved` section pointing to it
 
 ## Linked artifacts
 
@@ -150,9 +152,13 @@ The mobile-refresh setup and planning records apply this pattern beyond the orig
 
 The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) replaces the onboarding Cooking Skill and Dietary Restrictions controls with full-row mobile selections, and mirrors that interaction model in Settings. Weekly Cooking Time is no longer a setup/settings control, so the original weekly-time tap-target case is removed rather than restyled. Remaining validation before closeout: authenticated Replit smoke for setup/settings touch behavior and keyboard/accessibility spot checks.
 
+### 2026-04-29 — Single-choice auto-advance rule added
+
+Wilson's Step 3 setup testing clarified the desired interaction split: single-choice multiple-choice steps such as Cooking Skill should accept `Beginner`, `Intermediate`, or `Expert` on tap and advance immediately, because the input is complete. Multi-select steps, including future cuisine selection, should retain an explicit `Next`/continue action so users can make multiple choices before moving on.
+
 ## Next steps when work resumes
 
-1. Claude (or another client-owner pass) prototypes a full-row selection style for onboarding step 1 and step 3
-2. Reuse the same interaction model in settings so profile editing stays consistent
-3. Validate keyboard, focus, and mobile tap behavior
+1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings
+2. Make setup Cooking Skill auto-advance after one selection, while keeping explicit continuation for Dietary Restrictions and future multi-select screens
+3. Validate keyboard, focus, assistive-technology, and mobile tap behavior
 4. Record the accepted pattern in a durable implementation note and resolve this epic

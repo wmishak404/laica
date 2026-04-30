@@ -96,7 +96,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 - Dev-test harness planned for future Firebase custom-token dev auth, not backend bypass.
 - Mockup conformance gate added: linked mockups are implementation inputs, not loose inspiration.
 - Phase 2 scope corrected: setup visual polish and Pantry/Kitchen Back/escape are merge-readiness items.
-- PR #23 UI feedback added: camera off by default with toggle, one upload action, peer manual entry, processing animation, privacy-aware copy, and first-time welcome follow-up.
+- PR #23 UI feedback added: camera off by default with toggle, one upload action, peer manual entry, processing animation, privacy-aware copy, single-choice auto-advance, and first-time welcome follow-up.
 - EPIC-012 added for LAICA design language and visual identity.
 - Mobile Refresh Design Language drafted and annotated with visual exemplars.
 - Stacked PR base refresh rule added after PR #22 polish was missing from early PR #23 preview.
@@ -120,6 +120,7 @@ Required before PR #23 merge:
 - Setup screens conform to Phase 2 mockup and design-language draft.
 - Pantry/Kitchen camera flows include a clear Back/escape path.
 - Capture/upload scan processing shows a visible scanning state.
+- Cooking Skill auto-advances after selecting `Beginner`, `Intermediate`, or `Expert`; multi-select steps retain explicit continuation.
 
 ## Current Resume Point
 
@@ -131,9 +132,10 @@ Next implementation focus:
 2. Polish setup UI toward the Phase 2 mockup and latest PR #23 UI feedback.
 3. Add Back/escape affordances to Pantry/Kitchen camera steps without letting incomplete users bypass required setup into cooking.
 4. Make camera opt-in/off by default with an accessible on/off toggle, combine upload actions, give manual entry peer visual weight, show scanning/processing animation, and revise pantry copy away from privacy-invasive language.
-5. Decide whether the first-time welcome/get-started page is pulled into PR #23 or captured as Phase 2.1 follow-up.
-6. Run local checks.
-7. Have Replit fetch latest branch and re-run validation at the latest commit SHA.
+5. Make Cooking Skill a one-tap single-choice step that auto-advances after `Beginner`, `Intermediate`, or `Expert`, while keeping explicit continuation for multi-select steps.
+6. Decide whether the first-time welcome/get-started page is pulled into PR #23 or captured as Phase 2.1 follow-up.
+7. Run local checks.
+8. Have Replit fetch latest branch and re-run validation at the latest commit SHA.
 
 ## Chronology
 
@@ -160,3 +162,7 @@ PR #25 merged the INIT/process/design documentation baseline separately from PR 
 ### 2026-04-29 — Phase 2 UI trust/privacy feedback added
 
 Wilson's PR #23 testing added concrete setup polish feedback: simplify upload actions, make camera opt-in with an accessible toggle, show a scanning/processing state, provide real Back/escape from step 1, elevate manual entry for privacy-sensitive users, soften pantry copy, and consider a first-time welcome page follow-up.
+
+### 2026-04-29 — Single-choice setup auto-advance feedback added
+
+Wilson's Step 3 testing clarified that Cooking Skill should behave as a one-tap single-choice input: selecting `Beginner`, `Intermediate`, or `Expert` should accept and advance without a separate `Next` button. The same rule should apply to future single-choice multiple-choice screens, while multi-select screens should keep explicit continuation.

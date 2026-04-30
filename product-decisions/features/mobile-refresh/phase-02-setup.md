@@ -32,6 +32,8 @@ Wilson's in-flow Phase 2 testing added trust, privacy, and action-hierarchy feed
 - Step 1 needs a real Back/escape path, not a disabled Back button.
 - Manual entry should have the same visual importance as photo upload because some users will prefer it for privacy.
 - Pantry copy should avoid privacy-invasive language like "Show me your pantry." Candidate direction: "Let's take note of what you have."
+- Cooking Skill is a single-choice step, so selecting `Beginner`, `Intermediate`, or `Expert` should accept the input and advance immediately without requiring the `Next` button. Users can still return with Back.
+- The auto-advance pattern is for single-input multiple-choice screens only. Multi-select screens, such as future cuisine selection, should keep an explicit `Next` or continue action because users may choose more than one option.
 - A first-time-user welcome/get-started page with useful introductory context is desirable, similar in spirit to the pre-auth "What can you help me do?" content. This should be captured as Phase 2.1 or a follow-up unless the team explicitly pulls it into PR #23.
 
 ## Decisions
@@ -83,6 +85,7 @@ Wilson's in-flow Phase 2 testing added trust, privacy, and action-hierarchy feed
 - Capture/upload analysis shows an explicit scanning or processing state while results are pending.
 - Pantry chips are readable and token-driven.
 - Skill and dietary choices are full-row tap targets.
+- Cooking Skill auto-advances after one full-row selection; Dietary Restrictions stays on-screen until the user explicitly continues.
 - Setup screens visibly conform to the Phase 2 mockup direction; functional parity alone is not sufficient.
 - Pantry and Kitchen camera steps have a clear Back/escape affordance that does not let incomplete users bypass required setup.
 - Camera starts off by default and can be toggled on/off through an accessible control.
