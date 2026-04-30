@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Claude (next implementation pass) / Codex (doc capture)
 **Created:** 2026-04-17
-**Updated:** 2026-04-28
+**Updated:** 2026-04-30
 
 ## One-line summary
 
@@ -155,6 +155,10 @@ The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) replaces the onb
 ### 2026-04-29 — Single-choice auto-advance rule added
 
 Wilson's Step 3 setup testing clarified the desired interaction split: single-choice multiple-choice steps such as Cooking Skill should accept `Beginner`, `Intermediate`, or `Expert` on tap and advance immediately, because the input is complete. Multi-select steps, including future cuisine selection, should retain an explicit `Next`/continue action so users can make multiple choices before moving on.
+
+### 2026-04-30 — Dietary default option should be visually isolated
+
+Wilson's Phase 2.1 Replit visual review clarified that `No restrictions` should not sit as just another peer in the dietary restrictions list. It should be an isolated, visually distinguished button with extra separation so users with no restrictions can quickly choose the default path without scanning the entire multi-select list.
 
 ## Next steps when work resumes
 

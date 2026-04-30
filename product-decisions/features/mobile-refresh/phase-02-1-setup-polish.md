@@ -9,7 +9,7 @@
 
 ## Goal
 
-Polish the functional Phase 2 setup flow so it matches LAICA's intended mobile-refresh design language, communicates trust and user control, and resolves the UI feedback found during PR #23 testing.
+Polish the functional Phase 2 setup flow so it matches Laica's intended mobile-refresh design language, communicates trust and user control, and resolves the UI feedback found during PR #23 testing.
 
 Phase 2.1 exists because PR #23 passed functional Replit validation but became too large to absorb another visual/interaction pass safely.
 
@@ -17,7 +17,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 
 - Combine `Upload one photo` and `Upload photos` into one clear `Upload photos` action.
 - Make camera off by default. Users explicitly turn it on with a clear, accessible toggle and can turn it off again from the same control.
-- Show an explicit scanning/processing animation after capture or upload while LAICA analyzes results.
+- Show an explicit scanning/processing animation after capture or upload while Laica analyzes results.
 - Provide a real Back/escape path from setup step 1 without allowing incomplete users into cooking flows.
 - Give manual entry the same visual importance as photo upload for privacy-sensitive users.
 - Replace privacy-invasive pantry copy such as `Show me your pantry` with softer language. Candidate direction: `Let's take note of what you have.`
@@ -29,6 +29,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Route rejected text-only scans to clear feedback and manual entry instead of silently doing nothing.
 - Bring setup screens closer to the Phase 2 mockup and mobile-refresh design language without changing the already-validated backend/data contract.
 - Apply the Phase 2.1 visual conformance pass in setup only: cream/coral phone-flow shell, designed scan object, warm chips, illustrated setup states, sticky bottom actions, and `Fraunces` / `Nunito` setup typography as a documented pilot for later phases.
+- Apply Wilson's 2026-04-30 Replit visual feedback before merge: remove setup's redundant top brand/section chips, use a single top progress bar, move camera controls into the camera object, improve button readability, update copy, and introduce more illustration-led setup choice icons.
 
 ## Acceptance Criteria
 
@@ -46,6 +47,18 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Rejected text-only scans show clear feedback and offer manual entry.
 - Setup screens visibly conform to the Phase 2 mockup direction and design-language draft.
 - Setup typography is scoped to setup-only utilities and does not change global app typography.
+- User-facing brand text uses `Laica`, not all-caps `LAICA`.
+- Setup uses a single top progress treatment like the mockup's `1/5` bar instead of a `Laica setup` chip plus `Step X of 5` and section labels.
+- Pantry scan uses the heading `Tell me what you have.`
+- Welcome uses the heading `Yes, Chef!` and keeps the supporting copy to one sentence.
+- The pantry/kitchen camera object uses iPhone-like in-frame controls: large circular capture button centered at the bottom of the viewfinder, camera on/off icon at bottom left, and scanning tips at bottom right as a small in-context overlay.
+- `Upload photos` and `Enter manually` labels are readable on a phone and consistent across pantry/kitchen setup.
+- Manual pantry placeholder uses the generic example `ground beef, mayo, rice, packaged salad`.
+- Kitchen scan keeps the Step 1 interaction model but shifts some accents toward gray/silver and light wood beige so it feels more utilitarian and tool-native than pantry.
+- Cooking Skill uses `How comfortable are you with cooking?` and `You will get guidance based on this. You can change this later.`
+- Cooking Skill and Dietary Restrictions use relevant multicolor illustrations rather than monochrome coral-only icons.
+- `No restrictions` is isolated and visually distinguished from the other dietary options.
+- Confirmation keeps its current page structure, while its icons should stay consistent with the accepted illustration direction.
 - Replit validation is rerun at the latest Phase 2.1 runtime head before merge.
 
 ## Epic Interactions
@@ -62,3 +75,17 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Building OCR import for grocery lists, recipes, receipts, screenshots, or typed inventories.
 - Dropping the legacy `weekly_time` DB column.
 - Redesigning the Phase 3 Planning entry screen, except where a first-time welcome handoff touches setup-to-planning transition copy.
+
+## 2026-04-30 Replit Visual Feedback
+
+Wilson reviewed the visual conformance pass in Replit and accepted the overall direction but requested another setup polish iteration before merge:
+
+- **All app pages:** remove the persistent header from the app; users should access account info, sign-out, and profile through the bottom menu/account surface.
+- **Brand casing:** use `Laica` in user-facing text instead of all-caps `LAICA`.
+- **Setup chrome:** remove the redundant `Laica setup`, `Step X of 5`, and section-label chips; use that space for a single top progress bar like the mockup.
+- **Welcome:** change `Let's set up your kitchen.` to `Yes, Chef!`; keep supporting copy to one sentence by removing `Then Laica can stop guessing.`
+- **Step 1 Pantry:** change heading to `Tell me what you have.`; move the camera on/off control into the camera view; make capture a large centered circle like iPhone camera UI; place camera mute/on-off at bottom left; place scanning tips at bottom right as a small transparent popover/overlay; enlarge `Upload photos` and `Enter manually`; change manual example to `ground beef, mayo, rice, packaged salad`.
+- **Step 2 Kitchen:** keep the same component behavior as Pantry but make the page feel more utilitarian by replacing some coral accents with gray/silver and light wood beige.
+- **Step 3 Cooking Skill:** change heading to `How comfortable are you with cooking?`; change helper copy to `You will get guidance based on this. You can change this later.`; replace monochrome coral icons with relevant multicolor illustrations closer to the mockup.
+- **Step 4 Dietary Restrictions:** use relevant multicolor dietary illustrations; isolate and visually distinguish `No restrictions` as the default-style choice.
+- **Step 5 Confirmation:** current page direction is accepted; preserve it while aligning icon treatment with the new illustration direction.

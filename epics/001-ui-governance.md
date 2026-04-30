@@ -225,6 +225,12 @@ The Phase 2.1 visual conformance pass added Google font imports for `Fraunces` a
 
 The branch also reinforces that new visual-system pilots need explicit handoff notes, INIT updates, and Replit visual review against the linked mockup before merge readiness.
 
+## 2026-04-30 — Replit review clarifies app-shell and reusable setup control governance
+
+Wilson's Phase 2.1 Replit review added two durable governance signals. First, authenticated app pages should not regain a persistent website-like top header; bottom navigation/account surfaces own account, profile, and sign-out access. Second, reusable setup controls need consistent sizing and placement across pantry/kitchen: one progress treatment, readable secondary action labels, and camera controls inside the designed scan object rather than mixed into separate header/row chrome.
+
+Future mobile-refresh implementations should treat these as app-shell and component-pattern expectations, not one-off setup preferences.
+
 ## Next steps when work resumes
 
 1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean

@@ -1,8 +1,8 @@
-# LAICA Mobile Refresh Feature Phases
+# Laica Mobile Refresh Feature Phases
 
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 
-This folder records the approved planning for the LAICA mobile-refresh work. It is the source of truth for implementation sequencing after Wilson's phase-by-phase review and Claude's planning review.
+This folder records the approved planning for the Laica mobile-refresh work. It is the source of truth for implementation sequencing after Wilson's phase-by-phase review and Claude's planning review.
 
 ## Phase Index
 
@@ -56,7 +56,8 @@ This follow-up should not block PR #23. If manual sign-in continues slowing Phas
 - Thumb-zone actions for primary decisions.
 - Warm, coral-led palette with tokenized colors and no ad hoc hex literals.
 - Full-row selection controls on mobile choice surfaces.
-- Recipe suggestions should feel like LAICA, not generic AI cards with percentage matches.
+- Recipe suggestions should feel like Laica, not generic AI cards with percentage matches.
+- User-facing brand copy should use `Laica`, not all-caps `LAICA`.
 - The app should reduce decision load without hiding safety-critical confirmations.
 
-For visual identity beyond these UX principles, read the draft [Mobile Refresh Design Language](design-language.md) and [EPIC-012 — LAICA Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use these alongside the linked mockups and EPIC-001: the design-language draft defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.
+For visual identity beyond these UX principles, read the draft [Mobile Refresh Design Language](design-language.md) and [EPIC-012 — Laica Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use these alongside the linked mockups and EPIC-001: the design-language draft defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.
