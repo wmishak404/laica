@@ -49,7 +49,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Setup typography is scoped to setup-only utilities and does not change global app typography.
 - User-facing brand text uses `Laica`, not all-caps `LAICA`.
 - Setup uses a single top progress treatment like the mockup's `1/5` bar instead of a `Laica setup` chip plus `Step X of 5` and section labels.
-- Pantry scan uses the heading `Tell me what you have.`
+- Pantry scan uses the heading `Start with pantry staples.`
 - Welcome uses the heading `Yes, Chef!` and keeps the supporting copy to one sentence.
 - The pantry/kitchen camera object uses iPhone-like in-frame controls: large circular capture button centered at the bottom of the viewfinder, camera on/off icon at bottom left, and scanning tips at bottom right as a small in-context overlay.
 - `Upload photos` and `Enter manually` labels are readable on a phone and consistent across pantry/kitchen setup.
@@ -84,7 +84,7 @@ Wilson reviewed the visual conformance pass in Replit and accepted the overall d
 - **Brand casing:** use `Laica` in user-facing text instead of all-caps `LAICA`.
 - **Setup chrome:** remove the redundant `Laica setup`, `Step X of 5`, and section-label chips; use that space for a single top progress bar like the mockup.
 - **Welcome:** change `Let's set up your kitchen.` to `Yes, Chef!`; keep supporting copy to one sentence by removing `Then Laica can stop guessing.`
-- **Step 1 Pantry:** change heading to `Tell me what you have.`; move the camera on/off control into the camera view; make capture a large centered circle like iPhone camera UI; place camera mute/on-off at bottom left; place scanning tips at bottom right as a small transparent popover/overlay; enlarge `Upload photos` and `Enter manually`; change manual example to `ground beef, mayo, rice, packaged salad`.
+- **Step 1 Pantry:** move the camera on/off control into the camera view; make capture a large centered circle like iPhone camera UI; place camera mute/on-off at bottom left; place scanning tips at bottom right as a small transparent popover/overlay; enlarge `Upload photos` and `Enter manually`; change manual example to `ground beef, mayo, rice, packaged salad`.
 - **Step 2 Kitchen:** keep the same component behavior as Pantry but make the page feel more utilitarian by replacing some coral accents with gray/silver and light wood beige.
 - **Step 3 Cooking Skill:** change heading to `How comfortable are you with cooking?`; change helper copy to `You will get guidance based on this. You can change this later.`; replace monochrome coral icons with relevant multicolor illustrations closer to the mockup.
 - **Step 4 Dietary Restrictions:** use relevant multicolor dietary illustrations; isolate and visually distinguish `No restrictions` as the default-style choice.
@@ -97,7 +97,7 @@ Codex implemented the Replit visual feedback on `codex/mobile-refresh-phase-2-1-
 - The authenticated `/app` shell no longer renders its fixed top header, and legacy page-level `Header` imports were removed from the remaining app pages.
 - Setup now uses one top progress bar/count instead of separate `Laica setup`, `Step X of 5`, and section-label chips.
 - Welcome copy now opens with `Yes, Chef!` and uses one supporting sentence.
-- Pantry now uses `Tell me what you have.` and the manual placeholder `ground beef, mayo, rice, packaged salad`.
+- Pantry now uses `Start with pantry staples.` and the manual placeholder `ground beef, mayo, rice, packaged salad`.
 - The setup camera variant now places camera on/off, circular capture, and scanning tips inside the camera viewfinder.
 - Kitchen uses the same component pattern with a more utilitarian gray/silver and light wood accent pass.
 - Upload/manual labels were enlarged for phone readability.
@@ -106,3 +106,25 @@ Codex implemented the Replit visual feedback on `codex/mobile-refresh-phase-2-1-
 - Confirmation keeps its accepted structure while aligning row icons with the illustration token direction.
 
 Local checks passed; Replit validation at the implementation head is still required before merge.
+
+## 2026-04-30 Follow-up Replit Polish
+
+Wilson's next Replit pass kept the overall direction and requested a narrower polish update before merge:
+
+- **General:** keep the persistent header removed, but retain a menu affordance somewhere for account, feedback, and sign-out access.
+- **Step 1 Pantry:** replace `Tell me what you have.` with a friendlier, less privacy-invasive heading of six words or fewer. The current implementation uses `Start with pantry staples.`
+- **Camera controls:** make the camera on/off and scanning tips controls as visually noticeable as capture, with larger colored circular buttons; scanning tips should not use a lightbulb/lamp icon because that suggests flashlight behavior.
+- **Upload/manual actions:** remove technical helper labels such as `Up to 8 at once`, `Up to 6 at once`, and `Comma-separated works`; keep the main action labels large and readable.
+- **Step 2 Kitchen:** push gray/silver accents further, especially for `Save equipment` and kitchen-list chips/items, while preserving the shared scan/manual/upload behavior.
+
+## 2026-04-30 Follow-up Implementation Note
+
+Codex implemented that follow-up polish locally on `codex/mobile-refresh-phase-2-1-setup-polish`:
+
+- Added a setup-scoped account menu slot in the setup frame and a persistent `Menu` item in the post-setup bottom nav, without restoring the top header or allowing incomplete users into Planning.
+- Updated the Pantry heading to `Start with pantry staples.`
+- Enlarged the in-camera camera on/off and scanning tips controls to match the capture button's visual weight, changed tips to a help-circle icon, and kept controls inside the viewfinder.
+- Removed the small technical helper lines below `Upload photos` and `Enter manually`.
+- Extended Kitchen's gray/silver and light-wood treatment to progress, camera controls, secondary action icons, manual save, input border, and list chips/remove controls.
+
+Local check, focused Vitest, and build passed after the code changes; Replit validation at the latest branch head is still required before merge.

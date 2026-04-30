@@ -209,9 +209,14 @@ Do not copy:
 - Buttons should have clear command roles. Use icons where the action is familiar: back, close, camera, upload, check, add, save.
 - The primary CTA should be visually obvious without requiring explanatory copy.
 - Authenticated app pages should not carry a persistent top header. Account, profile, and sign-out access belongs in the bottom menu/account surface so core mobile flows keep vertical space for the task.
+- Removing the top header does not mean removing navigation affordance. Authenticated flows need a bottom-menu entry for account/profile/sign-out/feedback access.
+- First-time setup may use a compact account menu affordance inside the setup frame while Planning remains locked; this should provide account/feedback/sign-out access without bringing back a page header.
 - Setup progress should use one clear top progress treatment, visually closer to the mockup's `1/5` bar, instead of combining brand chips, repeated step pills, and section labels in the same top area.
 - Camera controls should feel familiar to mobile camera users: capture as a large circular control inside the camera object, camera on/off as an icon control inside the camera object, and scan tips as a lightweight in-context overlay rather than a separate row.
+- Camera utility controls must be visually noticeable. Avoid tiny translucent icons; keep camera on/off and tips controls large, colored, and comparable in visual weight to capture. Avoid flashlight-like icons for non-flashlight tips.
 - Secondary setup actions such as `Upload photos` and `Enter manually` must remain readable on a phone and use consistent type sizing, weight, and font treatment across equivalent actions.
+- Secondary setup actions should avoid technical helper labels when the main command is clear. Prefer one clear label over small explanatory subcopy like file-count or delimiter mechanics.
+- Kitchen setup can share Pantry's component model while shifting equipment-specific accents toward gray/silver and light wood, especially save actions, item chips, remove controls, and utility icons.
 
 ### Iconography and Emoji
 
@@ -257,6 +262,7 @@ Phase 2 is the first active pilot for this design language. Before merge:
 - Cooking Skill and Dietary Restrictions should feel like full-row mobile choices, not small radio controls.
 - Chips should look warm, readable, and tokenized.
 - Pantry and Kitchen should share component structure, but Kitchen may shift selected accents toward gray/silver and light wood beige to reflect modern kitchen tools while retaining enough coral to stay within the Laica system.
+- Kitchen-specific action buttons, saved-equipment chips, and review/list states should lean gray/silver where possible so the tool page feels distinct from the warmer pantry page without becoming a separate design system.
 - `No restrictions` should be visually separated from the rest of the dietary options so users who have nothing to add can choose the default quickly.
 
 ### Phase 3 Planning

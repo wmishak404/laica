@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Camera, CameraOff, Lightbulb, Sparkles, Upload, Video, VideoOff } from 'lucide-react';
+import { Camera, CameraOff, CircleHelp, Sparkles, Upload, Video, VideoOff } from 'lucide-react';
 
 interface NativeCameraProps {
   onImageCapture: (imageData: string) => Promise<void>;
@@ -304,12 +304,12 @@ export function NativeCamera({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="setup-camera-icon-button h-12 w-12"
+                className="setup-camera-icon-button h-20 w-20"
                 onClick={() => setCameraEnabled((enabled) => !enabled)}
                 aria-label={`${cameraEnabled ? 'Turn off' : 'Turn on'} ${cameraToggleLabel.toLowerCase()}`}
                 disabled={disabled}
               >
-                {cameraEnabled ? <Camera className="h-5 w-5" /> : <CameraOff className="h-5 w-5" />}
+                {cameraEnabled ? <Camera className="h-7 w-7" /> : <CameraOff className="h-7 w-7" />}
               </Button>
 
               <Button
@@ -327,12 +327,12 @@ export function NativeCamera({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="setup-camera-icon-button h-12 w-12"
+                className="setup-camera-icon-button h-20 w-20"
                 onClick={() => setTipsOpen((open) => !open)}
                 aria-expanded={tipsOpen}
                 aria-label="Scanning tips"
               >
-                <Lightbulb className="h-5 w-5" />
+                <CircleHelp className="h-7 w-7" />
               </Button>
             </div>
           )}

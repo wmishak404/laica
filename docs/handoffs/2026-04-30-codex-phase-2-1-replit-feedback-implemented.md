@@ -12,12 +12,14 @@ Implemented Wilson's 2026-04-30 Replit visual feedback on top of the Phase 2.1 s
 
 The implementation removes visible app headers, simplifies setup chrome to one progress bar, moves camera controls into the viewfinder, updates setup copy, improves setup action readability, gives Kitchen a more utilitarian accent treatment, replaces monochrome setup choice icons with multicolor illustration tokens, isolates `No restrictions`, and preserves the liked confirmation page while aligning its icon treatment.
 
+Follow-up note: Wilson's next Replit pass superseded the Pantry heading from this handoff. The current branch now uses `Start with pantry staples.` and is documented in `2026-04-30-codex-phase-2-1-menu-scan-polish.md`.
+
 ## Changes
 
 - `client/src/components/cooking/user-profiling.tsx`
   - Updates Welcome to `Yes, Chef!` and a single supporting sentence.
   - Replaces scan step chips with the shared top progress bar.
-  - Updates Pantry heading to `Tell me what you have.` and the pantry manual placeholder to `ground beef, mayo, rice, packaged salad`.
+  - Updates Pantry heading, later superseded to `Start with pantry staples.`, and the pantry manual placeholder to `ground beef, mayo, rice, packaged salad`.
   - Passes scan tips and pantry/kitchen tone into `NativeCamera`.
   - Enlarges Upload/Manual action text.
   - Updates Cooking Skill copy and uses multicolor illustration tokens for skill choices.
@@ -34,7 +36,7 @@ The implementation removes visible app headers, simplifies setup chrome to one p
 - `client/src/pages/{home,settings,grocery-list,recipes,cooking-new}.tsx`
   - Removes legacy shared `Header` imports/usages so app pages do not reintroduce top website chrome.
 - `tests/unit/user-profiling.test.tsx`
-  - Updates assertions for `Yes, Chef!`, `Tell me what you have.`, the `1/5` progress count, and the new pantry placeholder.
+  - Updates assertions for `Yes, Chef!`, the pantry heading, the `1/5` progress count, and the new pantry placeholder.
 - `initiatives/INIT-001-mobile-refresh.md`, `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
   - Record that Wilson's Replit feedback is now implemented locally and Replit validation is the next gate.
 

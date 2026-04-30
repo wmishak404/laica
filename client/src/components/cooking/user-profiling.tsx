@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeCamera } from '@/components/ui/native-camera';
@@ -36,6 +36,7 @@ interface UserProfile {
 interface UserProfilingProps {
   onProfileComplete: (profile: UserProfile) => void;
   existingProfile?: UserProfile;
+  menuSlot?: ReactNode;
 }
 
 type ScanType = 'pantry' | 'kitchen';
@@ -116,7 +117,7 @@ function compressImage(file: File): Promise<string> {
   });
 }
 
-export default function UserProfiling({ onProfileComplete, existingProfile }: UserProfilingProps) {
+export default function UserProfiling({ onProfileComplete, existingProfile, menuSlot }: UserProfilingProps) {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
@@ -385,7 +386,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     const isPantry = type === 'pantry';
     const items = currentItems(type);
     const uploadId = `${type}-setup-upload`;
-    const title = isPantry ? 'Tell me what you have.' : 'Tell me what tools you use.';
+    const title = isPantry ? 'Start with pantry staples.' : 'Tell me what tools you use.';
     const description = isPantry
       ? 'Point at shelves, fridge, or freezer. Labels are welcome when the food is physically visible.'
       : "Add the tools and appliances you actually cook with. Skip anything you don't want tracked.";
@@ -443,14 +444,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
               disabled={isAnalyzing[type]}
               onClick={() => document.getElementById(uploadId)?.click()}
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.85)] text-primary">
+              <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.85)] text-primary ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
                 <ImagePlus className="h-4 w-4" />
               </span>
               <span className="flex flex-col items-start leading-tight">
                 <span className="setup-action-title">Upload photos</span>
-                <span className="text-xs font-bold text-[hsl(var(--setup-ink)/0.58)]">
-                  Up to {MAX_UPLOADS[type]} at once
-                </span>
               </span>
             </Button>
 
@@ -462,14 +460,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
               onClick={() => setManualOpen((prev) => ({ ...prev, [type]: !prev[type] }))}
               aria-expanded={manualOpen[type]}
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))]">
+              <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))] ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
                 <Package className="h-4 w-4" />
               </span>
               <span className="flex flex-col items-start leading-tight">
                 <span className="setup-action-title">Enter manually</span>
-                <span className="text-xs font-bold text-[hsl(var(--setup-ink)/0.58)]">
-                  Comma-separated works
-                </span>
               </span>
             </Button>
           </div>
@@ -477,7 +472,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
           {manualOpen[type] && (
             <div className="setup-surface space-y-3 p-4">
               <div className="flex items-center gap-3">
-                <div className="setup-illustration flex h-12 w-12 shrink-0 items-center justify-center text-primary">
+                <div className={`setup-illustration flex h-12 w-12 shrink-0 items-center justify-center text-primary ${!isPantry ? 'setup-kitchen-illustration' : ''}`}>
                   <Package className="h-5 w-5" />
                 </div>
                 <div>
@@ -492,7 +487,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                   value={manualEntry[type]}
                   onChange={(event) => setManualEntry((prev) => ({ ...prev, [type]: event.target.value }))}
                   placeholder={manualPlaceholder}
-                  className="h-12 rounded-2xl border-primary/20 bg-white/75 text-base font-bold placeholder:text-muted-foreground"
+                  className={`h-12 rounded-2xl border-primary/20 bg-white/75 text-base font-bold placeholder:text-muted-foreground ${!isPantry ? 'setup-kitchen-input' : ''}`}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') {
                       event.preventDefault();
@@ -500,7 +495,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                     }
                   }}
                 />
-                <Button type="button" variant="ghost" className="setup-primary-button h-12 w-full" onClick={() => addManualItems(type)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={`setup-primary-button h-12 w-full ${!isPantry ? 'setup-kitchen-primary-button' : ''}`}
+                  onClick={() => addManualItems(type)}
+                >
                   Save {isPantry ? 'ingredients' : 'equipment'}
                 </Button>
               </div>
@@ -543,12 +543,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
 
             <div className="flex flex-wrap gap-2">
               {items.map((item) => (
-                <span key={item} className="setup-chip">
+                <span key={item} className={`setup-chip ${!isPantry ? 'setup-kitchen-chip' : ''}`}>
                   <span className="truncate">{item}</span>
                   <button
                     type="button"
                     aria-label={`Remove ${item}`}
-                    className="rounded-full p-0.5 text-primary/70 hover:bg-primary/10 hover:text-primary"
+                    className={`rounded-full p-0.5 ${
+                      isPantry
+                        ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
+                        : 'setup-kitchen-chip-remove'
+                    }`}
                     onClick={() => removeItem(type, item)}
                   >
                     <X className="h-3 w-3" />
@@ -765,7 +769,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     <main className={`setup-ui ${isKitchenSetup ? 'setup-ui-kitchen' : ''}`}>
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-3 pt-3">
         <section className="setup-phone-frame flex flex-1 flex-col px-4 pt-4">
-          {renderSetupProgress()}
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              {renderSetupProgress()}
+            </div>
+            {menuSlot && (
+              <div className={currentStep === 0 ? '' : 'pt-0.5'}>
+                {menuSlot}
+              </div>
+            )}
+          </div>
 
           <div className="flex-1 pb-5">
             {renderStep()}

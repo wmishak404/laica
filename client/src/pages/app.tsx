@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { type ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
@@ -8,7 +8,16 @@ import LiveCooking from '@/components/cooking/live-cooking';
 import UserSettings from '@/components/cooking/user-settings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, ChefHat } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { FeedbackModal } from '@/components/feedback/feedback-modal';
+import { ChefHat, LogOut, Menu, MessageCircle, Settings } from 'lucide-react';
 
 interface UserProfile {
   cookingSkill: string;
@@ -63,6 +72,7 @@ export default function MobileApp() {
   const { data: dbProfile, isLoading: isLoadingDbProfile } = useUserProfile();
   const updateProfileMutation = useUpdateUserProfile();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('profiling');
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     cookingSkill: '',
     dietaryRestrictions: [],
@@ -243,6 +253,86 @@ export default function MobileApp() {
     }
   };
 
+  const getUserDisplayName = () => {
+    if (!user) return 'Account';
+
+    if ('firstName' in user && 'lastName' in user && user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+
+    if ('username' in user && user.username) {
+      return user.username;
+    }
+
+    return user.email || 'Account';
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      await FirebaseAuthService.signOut();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/';
+    }
+  };
+
+  const renderAccountMenu = (
+    trigger: ReactNode,
+    options: { allowSettings?: boolean; side?: 'top' | 'bottom' } = {},
+  ) => {
+    const { allowSettings = true, side = 'top' } = options;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+        <DropdownMenuContent side={side} align="end" className={`${side === 'top' ? 'mb-2' : 'mt-2'} w-60`}>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-semibold leading-none">{getUserDisplayName()}</p>
+              <p className="text-xs leading-none text-muted-foreground">{user?.email || 'Signed in'}</p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            disabled={!allowSettings}
+            onClick={() => {
+              if (allowSettings) setCurrentPhase('settings');
+            }}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Profile & settings</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsFeedbackOpen(true)}>
+            <MessageCircle className="mr-2 h-4 w-4" />
+            <span>Feedback</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Sign out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
+  const renderSetupMenu = () => (
+    renderAccountMenu(
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="setup-menu-button h-10 w-10"
+        aria-label="Open account menu"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>,
+      { allowSettings: hasExistingProfile, side: 'bottom' },
+    )
+  );
+
   const renderPlanningChoice = () => (
     <div className="w-full max-w-md mx-auto p-4 space-y-6">
       <div className="text-center pt-4">
@@ -331,7 +421,7 @@ export default function MobileApp() {
 
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-        <div className="flex justify-around items-center max-w-xs mx-auto">
+        <div className="flex justify-around items-center max-w-sm mx-auto">
           <Button 
             variant="ghost" 
             size="sm"
@@ -357,6 +447,18 @@ export default function MobileApp() {
             <Settings className="h-5 w-5 mb-1" />
             <span className="text-xs">Settings</span>
           </Button>
+
+          {renderAccountMenu(
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex flex-col items-center text-gray-500"
+              disabled={userProfile.cookingSkill === ''}
+            >
+              <Menu className="h-5 w-5 mb-1" />
+              <span className="text-xs">Menu</span>
+            </Button>,
+          )}
         </div>
       </div>
     );
@@ -382,6 +484,7 @@ export default function MobileApp() {
             <UserProfiling 
               onProfileComplete={handleProfileComplete}
               existingProfile={hasExistingProfile ? userProfile : undefined}
+              menuSlot={renderSetupMenu()}
             />
           </div>
         );
@@ -445,6 +548,7 @@ export default function MobileApp() {
           <UserProfiling
             onProfileComplete={handleProfileComplete}
             existingProfile={hasExistingProfile ? userProfile : undefined}
+            menuSlot={renderSetupMenu()}
           />
         );
     }
@@ -454,6 +558,11 @@ export default function MobileApp() {
     <div className="min-h-screen bg-gray-50">
       {renderCurrentPhase()}
       {renderBottomNav()}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        currentPage={`/app-${currentPhase}`}
+      />
     </div>
   );
 }

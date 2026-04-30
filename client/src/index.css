@@ -204,6 +204,39 @@ html, body {
     padding: 0.65rem 0.78rem;
   }
 
+  .setup-menu-button,
+  .setup-ui .setup-menu-button {
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
+    border-radius: 999px;
+    background: hsl(0 0% 100% / 0.74);
+    color: hsl(var(--setup-ink) / 0.72);
+    box-shadow: 0 0.55rem 1.2rem hsl(var(--setup-coral-strong) / 0.08);
+  }
+
+  .setup-menu-button:hover,
+  .setup-ui .setup-menu-button:hover {
+    background: hsl(0 0% 100% / 0.9);
+    color: hsl(var(--setup-ink));
+  }
+
+  .setup-ui-kitchen .setup-progress-track {
+    border-color: hsl(var(--setup-metal) / 0.3);
+  }
+
+  .setup-ui-kitchen .setup-progress-fill {
+    background: linear-gradient(90deg, hsl(var(--setup-metal)), hsl(var(--setup-wood)));
+  }
+
+  .setup-ui-kitchen .setup-progress-count {
+    border-color: hsl(var(--setup-metal) / 0.28);
+    color: hsl(216 11% 42%);
+  }
+
+  .setup-ui-kitchen .setup-menu-button {
+    border-color: hsl(var(--setup-metal) / 0.24);
+    box-shadow: 0 0.55rem 1.2rem hsl(var(--setup-metal) / 0.09);
+  }
+
   .setup-brand-chip,
   .setup-step-pill {
     display: inline-flex;
@@ -357,6 +390,21 @@ html, body {
     padding: 0.52rem 0.75rem;
   }
 
+  .setup-kitchen-chip {
+    border-color: hsl(var(--setup-metal) / 0.28);
+    background: hsl(var(--setup-wood) / 0.28);
+    color: hsl(216 11% 28%);
+  }
+
+  .setup-kitchen-chip-remove {
+    color: hsl(216 11% 46%);
+  }
+
+  .setup-kitchen-chip-remove:hover {
+    background: hsl(var(--setup-metal) / 0.12);
+    color: hsl(216 11% 30%);
+  }
+
   .setup-bottom-bar {
     border-top: 1px solid hsl(var(--setup-coral-strong) / 0.14);
     background: linear-gradient(180deg, hsl(var(--setup-cream) / 0.58), hsl(var(--setup-cream) / 0.96));
@@ -377,6 +425,34 @@ html, body {
       linear-gradient(180deg, hsl(0 0% 100% / 0.72), hsl(var(--setup-wood) / 0.28)),
       hsl(0 0% 100% / 0.42);
     box-shadow: 0 1.1rem 2.4rem hsl(var(--setup-metal) / 0.12);
+  }
+
+  .setup-ui-kitchen .setup-surface {
+    border-color: hsl(var(--setup-metal) / 0.2);
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.78), hsl(var(--setup-wood) / 0.24)),
+      hsl(0 0% 100% / 0.56);
+    box-shadow: 0 1rem 2.2rem hsl(var(--setup-metal) / 0.09);
+  }
+
+  .setup-ui-kitchen .setup-illustration,
+  .setup-kitchen-illustration {
+    background:
+      radial-gradient(circle at 25% 24%, hsl(var(--setup-wood) / 0.46), transparent 2.4rem),
+      radial-gradient(circle at 76% 68%, hsl(var(--setup-metal) / 0.18), transparent 2.9rem),
+      hsl(0 0% 100% / 0.58);
+    color: hsl(216 11% 42%);
+  }
+
+  .setup-kitchen-primary-button,
+  .setup-ui .setup-kitchen-primary-button {
+    background: hsl(var(--setup-metal));
+    box-shadow: 0 0.9rem 1.8rem hsl(var(--setup-metal) / 0.2);
+  }
+
+  .setup-kitchen-primary-button:hover,
+  .setup-ui .setup-kitchen-primary-button:hover {
+    background: hsl(216 11% 52%);
   }
 
   .setup-camera-toggle {
@@ -454,15 +530,24 @@ html, body {
   .setup-camera-icon-button,
   .setup-ui .setup-camera-icon-button {
     border-radius: 999px;
-    background: hsl(var(--setup-ink) / 0.56);
+    border: 4px solid hsl(0 0% 100% / 0.72);
+    background: hsl(var(--setup-coral-strong));
     color: hsl(0 0% 100%);
-    box-shadow: 0 0.55rem 1.1rem hsl(var(--setup-ink) / 0.22);
+    box-shadow: 0 0.8rem 1.4rem hsl(var(--setup-ink) / 0.24);
   }
 
   .setup-camera-icon-button:hover,
   .setup-ui .setup-camera-icon-button:hover {
-    background: hsl(var(--setup-ink) / 0.7);
+    background: hsl(var(--setup-coral-strong) / 0.92);
     color: hsl(0 0% 100%);
+  }
+
+  .setup-ui-kitchen .setup-camera-icon-button {
+    background: hsl(var(--setup-metal));
+  }
+
+  .setup-ui-kitchen .setup-camera-icon-button:hover {
+    background: hsl(216 11% 52%);
   }
 
   .setup-tips-panel {
@@ -482,6 +567,16 @@ html, body {
   .setup-ui-kitchen .setup-secondary-button {
     border-color: hsl(var(--setup-metal) / 0.24);
     box-shadow: 0 0.8rem 1.7rem hsl(var(--setup-metal) / 0.09);
+  }
+
+  .setup-ui-kitchen .setup-action-icon,
+  .setup-kitchen-action-icon {
+    background: hsl(var(--setup-wood) / 0.34);
+    color: hsl(216 11% 44%);
+  }
+
+  .setup-ui-kitchen .setup-kitchen-input {
+    border-color: hsl(var(--setup-metal) / 0.24);
   }
 
   .setup-focus-ring {
