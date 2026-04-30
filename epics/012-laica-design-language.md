@@ -138,3 +138,7 @@ Codex added `product-decisions/features/mobile-refresh/design-language.md` as th
 ### 2026-04-29 — Phase 2 privacy and trust feedback added
 
 Wilson's PR #23 setup testing added design-language evidence that camera-first does not mean camera-forced. Phase 2 setup should present camera as an explicit opt-in capability, keep manual entry visually equal to upload for privacy-sensitive users, show a clear scanning/processing animation after capture/upload, avoid intrusive pantry language, and build Back/escape into the setup chrome. This reinforces that LAICA's visual language needs to communicate user control and trust, not only warmth and playfulness.
+
+### 2026-04-29 — Setup polish deferred to Phase 2.1
+
+After PR #23 passed functional Replit validation, Wilson split the latest setup visual/trust feedback into Phase 2.1 so the large functional Phase 2 PR can close. Phase 2.1 is now the active pilot for setup visual conformance, camera opt-in, privacy-forward copy, manual/upload hierarchy, scanning feedback, Back/escape, and single-choice auto-advance.

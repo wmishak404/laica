@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 2 setup polish and validation
+**Current phase:** Phase 2 functional closeout / Phase 2.1 setup polish planned
 **Active PR:** [PR #23](https://github.com/wmishak404/laica/pull/23)
 
 ## Overview
@@ -27,7 +27,7 @@ Phase 0, Phase 1, and the INIT/process documentation split are merged. Phase 2 i
 
 PR #25 split and merged the INIT/process/design documentation stack from PR #23, making it the shared workflow baseline for Phase 2 polish and later Phase 3-5 work.
 
-PR #23 has been refreshed onto current `origin/main` after PR #25 merged and now contains the Phase 2 implementation/polish lane again. It is not merge-ready. The latest PR head is not Replit-validated, and the branch still needs Phase 2 visual conformance polish plus signed-in Replit smoke.
+PR #23 has been refreshed onto current `origin/main` after PR #25 merged and now contains the functional Phase 2 implementation lane plus documentation updates. Functional Replit validation passed. Wilson decided to defer the latest UI trust/privacy and visual-flow feedback to Phase 2.1 because PR #23 is already large.
 
 The exact current `Last Replit-validated at` SHA lives in the PR #23 description; treat the INIT and PR body together as the source of truth.
 
@@ -37,6 +37,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 - [Phase 0 security/backend readiness](../product-decisions/features/mobile-refresh/phase-00-cross-phase-security.md)
 - [Phase 1 auth](../product-decisions/features/mobile-refresh/phase-01-auth.md)
 - [Phase 2 setup](../product-decisions/features/mobile-refresh/phase-02-setup.md)
+- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
 - [Phase 3 planning](../product-decisions/features/mobile-refresh/phase-03-planning.md)
 - [Phase 4 cooking](../product-decisions/features/mobile-refresh/phase-04-cooking.md)
 - [Phase 5 post-cook](../product-decisions/features/mobile-refresh/phase-05-post-cook.md)
@@ -63,7 +64,8 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | Planning docs | Merged | PR #20 / `codex/mobile-refresh-planning-docs` | Phase 0-5 docs and mockups added |
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
-| Phase 2 | Draft / active | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work exists; visual polish, Back/escape, and signed-in smoke remain |
+| Phase 2 | Draft / functionally validated | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit; latest visual/trust feedback deferred |
+| Phase 2.1 | Planned | TBD | Setup polish: camera opt-in, upload/manual hierarchy, scanning state, Back/escape, copy, auto-advance |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -76,7 +78,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | #20 | Merged | `codex/mobile-refresh-planning-docs` | Docs/assets only |
 | #21 | Merged | `codex/mobile-refresh-phase-0-security` | Replit/security validation completed before merge |
 | #22 | Merged | `codex/mobile-refresh-phase-1-auth` | Phase 1 polish merged to `main` |
-| #23 | Draft / open | `codex/mobile-refresh-phase-2-setup` | Refreshed onto `origin/main` after PR #25; latest head not Replit-validated |
+| #23 | Draft / open | `codex/mobile-refresh-phase-2-setup` | Functional Replit validation passed at `f037552`; latest head adds docs-only records |
 | #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 
 ## Epics and Governance
@@ -96,7 +98,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 - Dev-test harness planned for future Firebase custom-token dev auth, not backend bypass.
 - Mockup conformance gate added: linked mockups are implementation inputs, not loose inspiration.
 - Phase 2 scope corrected: setup visual polish and Pantry/Kitchen Back/escape are merge-readiness items.
-- PR #23 UI feedback added: camera off by default with toggle, one upload action, peer manual entry, processing animation, privacy-aware copy, single-choice auto-advance, and first-time welcome follow-up.
+- PR #23 UI feedback added and deferred to Phase 2.1: camera off by default with toggle, one upload action, peer manual entry, processing animation, privacy-aware copy, single-choice auto-advance, and first-time welcome follow-up.
 - EPIC-012 added for LAICA design language and visual identity.
 - Mobile Refresh Design Language drafted and annotated with visual exemplars.
 - Stacked PR base refresh rule added after PR #22 polish was missing from early PR #23 preview.
@@ -109,25 +111,23 @@ Known validation facts:
 
 - Replit validation passed at PR #23 head `f037552b37169f26e5fe2fe872f68150138812a6` per Wilson.
 - The 16 signed-in post-auth functional smoke items passed in Replit.
-- Phase 2 visual conformance review is still needed.
-- Newer UI trust/privacy feedback remains tracked for the next polish decision: implement in PR #23 before merge, or explicitly defer to Phase 2.1.
+- Latest UI trust/privacy feedback is deferred to Phase 2.1.
 
 Required before PR #23 merge:
 
-- Decide whether the latest UI trust/privacy feedback is implemented in PR #23 or explicitly deferred to Phase 2.1.
-- If deferred, update PR #23, this INIT, and the Phase 2 record so the merge bar is functional Phase 2 rather than visual-flow completion.
-- If implemented now, Replit must revalidate latest head after those code changes.
+- Confirm PR #23 stays docs-only after the validated runtime SHA, or rerun Replit if runtime files change.
+- Mark PR #23 ready when Wilson is comfortable closing functional Phase 2 and opening Phase 2.1 as follow-up.
 
 ## Current Resume Point
 
-Resume at PR #23, merge-readiness decision.
+Resume at PR #23, functional closeout.
 
 Next implementation focus:
 
-1. Read [Mobile Refresh Design Language](../product-decisions/features/mobile-refresh/design-language.md), [Phase 2 setup](../product-decisions/features/mobile-refresh/phase-02-setup.md), and [EPIC-012](../epics/012-laica-design-language.md).
-2. Decide whether PR #23 should close as functional Phase 2, with the newest visual/trust feedback deferred, or remain open for that polish implementation.
-3. If closing functional Phase 2, update PR #23 and Phase 2 docs to make the deferral explicit before marking ready.
-4. If implementing polish now, apply the UI feedback, run local checks, have Replit fetch latest branch, and re-run validation at the latest commit SHA.
+1. Keep PR #23 scoped to functional Phase 2 closeout.
+2. If no runtime files change after `f037552`, rely on the completed Replit functional validation and docs-only checks.
+3. Mark PR #23 ready/merge when Wilson approves.
+4. Start Phase 2.1 from fresh `origin/main` after PR #23 merges, using [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) as the scope.
 
 ## Chronology
 
@@ -161,4 +161,8 @@ Wilson's Step 3 testing clarified that Cooking Skill should behave as a one-tap 
 
 ### 2026-04-29 — Phase 2 functional Replit validation passed
 
-Wilson reported that Replit validation and the 16 signed-in post-auth functional smoke items passed at PR #23 head `f037552b37169f26e5fe2fe872f68150138812a6`. The remaining question is whether the later UI trust/privacy feedback is implemented in PR #23 before merge or explicitly deferred to Phase 2.1.
+Wilson reported that Replit validation and the 16 signed-in post-auth functional smoke items passed at PR #23 head `f037552b37169f26e5fe2fe872f68150138812a6`.
+
+### 2026-04-29 — Phase 2.1 setup polish split
+
+Wilson decided to defer the latest visual/trust/privacy feedback to Phase 2.1 because PR #23 is already large. PR #23 should close functional Phase 2; Phase 2.1 owns setup polish, camera opt-in, manual/upload hierarchy, scanning state, Back/escape, softer copy, single-choice auto-advance, and optional welcome/get-started context.

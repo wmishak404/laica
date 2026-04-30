@@ -14,7 +14,7 @@ Reduce setup effort by making camera scan the focal value moment, then let users
 
 Phase 2 implementation must include setup visual conformance, not only the functional camera/manual-entry/profile wiring. Wilson's validation of PR #23 surfaced that the new behavior was visible, but the setup surface did not yet feel close enough to the approved mockup and the pantry camera step lacked an obvious Back/escape affordance.
 
-Before Phase 2 is ready to merge:
+This was later narrowed by the Phase 2.1 deferral below. The following items remain important setup-polish requirements, but they no longer block PR #23's functional Phase 2 closeout:
 
 - Pantry and Kitchen setup screens should visually follow the Phase 2 mockup direction: mobile-native composition, warm/coral LAICA styling, clear primary capture CTA, secondary upload/manual/tips hierarchy, tokenized spacing, and deliberate camera framing.
 - The embedded camera step must include a visible Back/escape path. That escape can return to the previous setup surface or signed-in safe landing, but incomplete users must not bypass required setup into cooking.
@@ -35,6 +35,12 @@ Wilson's in-flow Phase 2 testing added trust, privacy, and action-hierarchy feed
 - Cooking Skill is a single-choice step, so selecting `Beginner`, `Intermediate`, or `Expert` should accept the input and advance immediately without requiring the `Next` button. Users can still return with Back.
 - The auto-advance pattern is for single-input multiple-choice screens only. Multi-select screens, such as future cuisine selection, should keep an explicit `Next` or continue action because users may choose more than one option.
 - A first-time-user welcome/get-started page with useful introductory context is desirable, similar in spirit to the pre-auth "What can you help me do?" content. This should be captured as Phase 2.1 or a follow-up unless the team explicitly pulls it into PR #23.
+
+## 2026-04-29 Deferral To Phase 2.1
+
+After PR #23 passed functional Replit validation, Wilson decided not to add another visual/interaction pass to PR #23 because the branch is already large and messy. PR #23 should close the functional Phase 2 setup scope. The latest UI trust/privacy feedback above is deferred to [Phase 2.1 setup polish](phase-02-1-setup-polish.md).
+
+This means PR #23's merge bar is functional correctness plus the recorded Replit validation, not completion of Phase 2.1 visual-flow polish.
 
 ## Decisions
 
@@ -82,14 +88,9 @@ Wilson's in-flow Phase 2 testing added trust, privacy, and action-hierarchy feed
 - Pantry accepts up to 8 photos per batch client-side; Kitchen accepts up to 6.
 - Repeated scans of the same pantry/fridge from different angles do not create overlapping duplicates.
 - Empty scan produces clear no-detection feedback.
-- Capture/upload analysis shows an explicit scanning or processing state while results are pending.
 - Pantry chips are readable and token-driven.
 - Skill and dietary choices are full-row tap targets.
-- Cooking Skill auto-advances after one full-row selection; Dietary Restrictions stays on-screen until the user explicitly continues.
-- Setup screens visibly conform to the Phase 2 mockup direction; functional parity alone is not sufficient.
-- Pantry and Kitchen camera steps have a clear Back/escape affordance that does not let incomplete users bypass required setup.
-- Camera starts off by default and can be toggled on/off through an accessible control.
-- Upload and manual entry are peer-level alternatives, not a primary/private-secondary hierarchy.
+- Phase 2.1 setup polish is deferred and tracked separately; PR #23 does not need to complete visual-flow conformance before functional merge.
 - Weekly Cooking Time no longer appears in setup, settings, onboarding completion, or server readiness gates.
 - Manual entry `"buns, mayo"` creates two ingredient chips.
 
