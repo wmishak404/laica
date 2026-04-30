@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useUpdateUserProfile } from '@/hooks/useAuth';
-import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
@@ -274,7 +273,6 @@ export default function Cooking() {
 
   return (
     <>
-      <Header />
       <main>
         <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-6 md:py-8">
           <div className="container mx-auto px-4">

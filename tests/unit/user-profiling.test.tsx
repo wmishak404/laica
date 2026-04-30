@@ -20,11 +20,13 @@ describe('UserProfiling setup flow', () => {
   it('starts with a welcome screen and lets pantry back return there', () => {
     render(<UserProfiling onProfileComplete={vi.fn()} />);
 
-    expect(screen.getByRole('heading', { name: /let's set up your kitchen/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /yes, chef/i })).toBeTruthy();
+    expect(screen.queryByText(/laica setup/i)).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
 
-    expect(screen.getByRole('heading', { name: /let's take note of what you have/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /tell me what you have/i })).toBeTruthy();
+    expect(screen.getByText('1/5')).toBeTruthy();
     expect(screen.getByText(/camera is off/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /upload photos/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /enter manually/i })).toBeTruthy();
@@ -32,7 +34,7 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
-    expect(screen.getByRole('heading', { name: /let's set up your kitchen/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /yes, chef/i })).toBeTruthy();
   });
 
   it('auto-advances from Cooking Skill after one selection', () => {
@@ -41,14 +43,14 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByPlaceholderText(/buns, mayo, tomatoes/i), {
-      target: { value: 'buns, mayo' },
+    fireEvent.change(screen.getByPlaceholderText(/ground beef, mayo, rice, packaged salad/i), {
+      target: { value: 'ground beef, mayo' },
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     fireEvent.click(screen.getByRole('button', { name: /skip for now/i }));
 
-    expect(screen.getByRole('heading', { name: /how comfortable are you cooking/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /how comfortable are you with cooking/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('radio', { name: /beginner/i }));
 

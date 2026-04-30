@@ -1,25 +1,21 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { mergeUniqueEntries, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
   ArrowLeft,
-  Camera,
   Check,
   ChefHat,
   ImagePlus,
   Leaf,
-  Lightbulb,
   Loader2,
   Package,
   ScanLine,
   ShieldCheck,
   Sparkles,
-  Utensils,
   X,
 } from 'lucide-react';
 import {
@@ -51,22 +47,22 @@ const MAX_UPLOADS: Record<ScanType, number> = {
 };
 
 const skillLevels = [
-  { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes', icon: ChefHat },
-  { value: 'intermediate', label: 'Intermediate', description: 'I follow recipes easily', icon: Utensils },
-  { value: 'expert', label: 'Expert', description: 'I riff and modify dishes', icon: Sparkles },
+  { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes', illustration: '🥄' },
+  { value: 'intermediate', label: 'Intermediate', description: 'I follow recipes easily', illustration: '🍳' },
+  { value: 'expert', label: 'Expert', description: 'I riff and modify dishes', illustration: '🔥' },
 ];
 
 const dietaryOptions = [
-  'No restrictions',
-  'Gluten Free',
-  'Dairy Free',
-  'Vegetarian',
-  'Vegan',
-  'No Red Meat',
-  'Halal',
-  'Kosher',
-  'Keto',
-  'Paleo',
+  { label: 'No restrictions', illustration: '✅' },
+  { label: 'Gluten Free', illustration: '🌾' },
+  { label: 'Dairy Free', illustration: '🥛' },
+  { label: 'Vegetarian', illustration: '🥗' },
+  { label: 'Vegan', illustration: '🌱' },
+  { label: 'No Red Meat', illustration: '🍗' },
+  { label: 'Halal', illustration: '🍽️' },
+  { label: 'Kosher', illustration: '🫓' },
+  { label: 'Keto', illustration: '🥑' },
+  { label: 'Paleo', illustration: '🥩' },
 ];
 
 function readImageAsBase64(file: File): Promise<string> {
@@ -316,6 +312,22 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     }
   };
 
+  const renderSetupProgress = () => {
+    if (currentStep === 0) return null;
+
+    return (
+      <div className="setup-progress-shell mb-5" aria-label={`Setup step ${currentStep} of ${TOTAL_STEPS}`}>
+        <div className="setup-progress-track" aria-hidden="true">
+          <div
+            className="setup-progress-fill"
+            style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
+          />
+        </div>
+        <span className="setup-progress-count">{currentStep}/{TOTAL_STEPS}</span>
+      </div>
+    );
+  };
+
   const renderWelcomeStep = () => (
     <div className="flex min-h-[66vh] flex-col justify-center gap-6 py-5 text-center">
       <div className="setup-illustration mx-auto flex h-32 w-32 items-center justify-center text-primary shadow-sm">
@@ -330,10 +342,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
       <div className="space-y-3">
         <p className="setup-kicker">Kitchen warm-up</p>
         <h1 className="setup-display text-[2.65rem] font-extrabold leading-[0.98] text-[hsl(var(--setup-ink))]">
-          Let&apos;s set up your kitchen.
+          Yes, Chef!
         </h1>
         <p className="setup-copy mx-auto max-w-[19rem] text-base leading-relaxed">
-          A quick pantry pass, a few tools, and your cooking style. Then LAICA can stop guessing.
+          A quick pantry pass, a few tools, and your cooking style help Laica adapt to your kitchen.
         </p>
       </div>
 
@@ -373,20 +385,15 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     const isPantry = type === 'pantry';
     const items = currentItems(type);
     const uploadId = `${type}-setup-upload`;
-    const title = isPantry ? "Let's take note of what you have." : "Now let's note your kitchen tools.";
+    const title = isPantry ? 'Tell me what you have.' : 'Tell me what tools you use.';
     const description = isPantry
       ? 'Point at shelves, fridge, or freezer. Labels are welcome when the food is physically visible.'
       : "Add the tools and appliances you actually cook with. Skip anything you don't want tracked.";
-    const scanLabel = isPantry ? 'Pantry scan' : 'Kitchen scan';
-    const manualPlaceholder = isPantry ? 'buns, mayo, tomatoes' : 'oven, blender, sheet pan';
+    const manualPlaceholder = isPantry ? 'ground beef, mayo, rice, packaged salad' : 'oven, blender, sheet pan';
 
     return (
       <div className="space-y-5">
         <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="setup-step-pill">Step {currentStep} of {TOTAL_STEPS}</span>
-            <span className="setup-kicker">{scanLabel}</span>
-          </div>
           <div className="space-y-2 text-left">
             <h2 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">
               {title}
@@ -399,9 +406,14 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
 
         <NativeCamera
           variant="setup"
+          setupTone={isPantry ? 'pantry' : 'kitchen'}
           title={isPantry ? 'Pantry preview' : 'Kitchen preview'}
           captureLabel={isPantry ? 'Capture pantry' : 'Capture kitchen'}
           cameraToggleLabel={isPantry ? 'Pantry camera' : 'Kitchen camera'}
+          tipsTitle={isPantry ? 'Pantry scan tips' : 'Kitchen scan tips'}
+          tipsDescription={isPantry
+            ? 'Open cabinets, use good light, and scan one area at a time.'
+            : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
           showUploadButton={false}
           disabled={isAnalyzing[type]}
           onImageCapture={(imageData) => analyzeScanImage(imageData, type)}
@@ -435,7 +447,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                 <ImagePlus className="h-4 w-4" />
               </span>
               <span className="flex flex-col items-start leading-tight">
-                <span>Upload photos</span>
+                <span className="setup-action-title">Upload photos</span>
                 <span className="text-xs font-bold text-[hsl(var(--setup-ink)/0.58)]">
                   Up to {MAX_UPLOADS[type]} at once
                 </span>
@@ -454,7 +466,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
                 <Package className="h-4 w-4" />
               </span>
               <span className="flex flex-col items-start leading-tight">
-                <span>Enter manually</span>
+                <span className="setup-action-title">Enter manually</span>
                 <span className="text-xs font-bold text-[hsl(var(--setup-ink)/0.58)]">
                   Comma-separated works
                 </span>
@@ -495,24 +507,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             </div>
           )}
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button type="button" variant="ghost" className="setup-ghost-button h-10 w-full">
-                <Lightbulb className="mr-2 h-4 w-4" />
-                Scanning tips
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm rounded-lg">
-              <DialogHeader>
-                <DialogTitle>{isPantry ? 'Pantry scan tips' : 'Kitchen scan tips'}</DialogTitle>
-                <DialogDescription>
-                  {isPantry
-                    ? 'Open cabinets, use good light, and scan one area at a time.'
-                    : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
         </div>
 
         {isAnalyzing[type] && (
@@ -571,21 +565,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
   const renderSkillStep = () => (
     <div className="space-y-5">
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <span className="setup-step-pill">Step {currentStep} of {TOTAL_STEPS}</span>
-          <span className="setup-kicker">Cooking skill</span>
-        </div>
         <h2 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">
-          How comfortable are you cooking?
+          How comfortable are you with cooking?
         </h2>
         <p className="setup-copy max-w-[19rem] text-sm leading-relaxed">
-          This helps me guide you better.
+          You will get guidance based on this. You can change this later.
         </p>
       </div>
 
       <div role="radiogroup" aria-label="Cooking skill level" className="space-y-3">
         {skillLevels.map((skill) => {
-          const Icon = skill.icon;
           const selected = profile.cookingSkill === skill.value;
           return (
             <button
@@ -600,8 +589,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
               data-selected={selected}
               className="setup-choice flex w-full items-center gap-4 p-4 text-left transition"
             >
-              <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${selected ? 'bg-primary text-primary-foreground' : 'bg-[hsl(var(--setup-coral-soft)/0.74)] text-primary'}`}>
-                <Icon className="h-5 w-5" />
+              <span className="setup-illustration-token h-14 w-14 shrink-0" aria-hidden="true">
+                {skill.illustration}
               </span>
               <span className="flex-1">
                 <span className="block font-extrabold text-[hsl(var(--setup-ink))]">{skill.label}</span>
@@ -618,10 +607,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
   const renderDietaryStep = () => (
     <div className="space-y-5">
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <span className="setup-step-pill">Step {currentStep} of {TOTAL_STEPS}</span>
-          <span className="setup-kicker">Diet notes</span>
-        </div>
         <h2 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">
           Anything I should avoid?
         </h2>
@@ -631,7 +616,34 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
       </div>
 
       <div className="space-y-2">
-        {dietaryOptions.map((option) => {
+        {dietaryOptions.slice(0, 1).map((diet) => {
+          const option = diet.label;
+          const selected = profile.dietaryRestrictions.includes(option);
+          return (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => handleDietaryToggle(option)}
+              data-selected={selected}
+              className="setup-choice setup-none-choice mb-5 flex w-full items-center gap-4 p-4 text-left transition"
+            >
+              <span className="setup-illustration-token h-14 w-14 shrink-0" aria-hidden="true">
+                {diet.illustration}
+              </span>
+              <span className="flex-1">
+                <span className="block font-extrabold text-[hsl(var(--setup-ink))]">{option}</span>
+                <span className="setup-copy text-sm">Use this when there is nothing special to avoid.</span>
+              </span>
+              <span className={`flex h-6 w-6 items-center justify-center rounded-full border ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-[hsl(var(--setup-ink)/0.24)]'}`}>
+                {selected && <Check className="h-3.5 w-3.5" />}
+              </span>
+            </button>
+          );
+        })}
+
+        {dietaryOptions.slice(1).map((diet) => {
+          const option = diet.label;
           const selected = profile.dietaryRestrictions.includes(option);
           return (
             <button
@@ -642,8 +654,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
               data-selected={selected}
               className="setup-choice flex w-full items-center gap-3 p-3 text-left transition"
             >
-              <span className={`flex h-10 w-10 items-center justify-center rounded-2xl ${selected ? 'bg-primary text-primary-foreground' : 'bg-[hsl(var(--setup-coral-soft)/0.68)] text-primary'}`}>
-                <Leaf className="h-4 w-4" />
+              <span className="setup-illustration-token h-11 w-11 shrink-0 text-[1.35rem]" aria-hidden="true">
+                {diet.illustration}
               </span>
               <span className="flex-1 font-extrabold text-[hsl(var(--setup-ink))]">{option}</span>
               <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-[hsl(var(--setup-ink)/0.24)]'}`}>
@@ -659,7 +671,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
   const renderConfirmStep = () => (
     <div className="space-y-5">
       <div className="space-y-3 text-center">
-        <span className="setup-step-pill mx-auto">Step {currentStep} of {TOTAL_STEPS}</span>
         <div className="setup-illustration mx-auto flex h-28 w-28 items-center justify-center text-primary">
           <div className="relative">
             <ChefHat className="h-12 w-12" />
@@ -677,8 +688,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
 
       <div className="setup-surface space-y-4 p-4">
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.78)] text-primary">
-              <Package className="h-5 w-5" />
+            <span className="setup-illustration-token h-11 w-11 shrink-0 text-[1.35rem]" aria-hidden="true">
+              🧺
             </span>
             <div>
               <p className="font-extrabold text-[hsl(var(--setup-ink))]">Pantry</p>
@@ -688,8 +699,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))]">
-              <Utensils className="h-5 w-5" />
+            <span className="setup-illustration-token h-11 w-11 shrink-0 text-[1.35rem]" aria-hidden="true">
+              🍳
             </span>
             <div>
               <p className="font-extrabold text-[hsl(var(--setup-ink))]">Kitchen tools</p>
@@ -701,8 +712,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.78)] text-primary">
-              <ChefHat className="h-5 w-5" />
+            <span className="setup-illustration-token h-11 w-11 shrink-0 text-[1.35rem]" aria-hidden="true">
+              👩‍🍳
             </span>
             <div>
               <p className="font-extrabold text-[hsl(var(--setup-ink))]">Skill</p>
@@ -710,8 +721,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))]">
-              <Leaf className="h-5 w-5" />
+            <span className="setup-illustration-token h-11 w-11 shrink-0 text-[1.35rem]" aria-hidden="true">
+              🥗
             </span>
             <div>
               <p className="font-extrabold text-[hsl(var(--setup-ink))]">Dietary notes</p>
@@ -748,22 +759,13 @@ export default function UserProfiling({ onProfileComplete, existingProfile }: Us
     : currentStep === TOTAL_STEPS
       ? 'Finish setup'
       : 'Next';
+  const isKitchenSetup = currentStep === 2;
 
   return (
-    <main className="setup-ui">
+    <main className={`setup-ui ${isKitchenSetup ? 'setup-ui-kitchen' : ''}`}>
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-3 pt-3">
         <section className="setup-phone-frame flex flex-1 flex-col px-4 pt-4">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <span className="setup-brand-chip">
-              <Camera className="h-4 w-4" />
-              Laica setup
-            </span>
-            {currentStep > 0 && (
-              <span className="setup-step-pill">
-                {currentStep}/{TOTAL_STEPS}
-              </span>
-            )}
-          </div>
+          {renderSetupProgress()}
 
           <div className="flex-1 pb-5">
             {renderStep()}

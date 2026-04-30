@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Camera, Sparkles, Upload, Video, VideoOff } from 'lucide-react';
+import { Camera, CameraOff, Lightbulb, Sparkles, Upload, Video, VideoOff } from 'lucide-react';
 
 interface NativeCameraProps {
   onImageCapture: (imageData: string) => Promise<void>;
@@ -15,6 +15,9 @@ interface NativeCameraProps {
   disabled?: boolean;
   cameraToggleLabel?: string;
   variant?: 'default' | 'setup';
+  setupTone?: 'pantry' | 'kitchen';
+  tipsTitle?: string;
+  tipsDescription?: string;
 }
 
 export function NativeCamera({ 
@@ -27,7 +30,10 @@ export function NativeCamera({
   showUploadButton = true,
   disabled = false,
   cameraToggleLabel = "Camera",
-  variant = 'default'
+  variant = 'default',
+  setupTone = 'pantry',
+  tipsTitle = 'Scanning tips',
+  tipsDescription = 'Use good light and scan one area at a time.'
 }: NativeCameraProps) {
   const toggleId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +42,9 @@ export function NativeCamera({
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [cameraState, setCameraState] = useState<'off' | 'starting' | 'ready' | 'blocked' | 'unsupported'>('off');
   const [isCapturing, setIsCapturing] = useState(false);
+  const [tipsOpen, setTipsOpen] = useState(false);
   const isSetup = variant === 'setup';
+  const setupToneClass = setupTone === 'kitchen' ? 'setup-camera-kitchen' : 'setup-camera-pantry';
 
   useEffect(() => {
     let isMounted = true;
@@ -178,7 +186,7 @@ export function NativeCamera({
   };
 
   return (
-    <div className={isSetup ? 'setup-camera-card space-y-4 p-3' : 'space-y-4'}>
+    <div className={isSetup ? `setup-camera-card ${setupToneClass} space-y-3 p-3` : 'space-y-4'}>
       <input
         ref={fileInputRef}
         type="file"
@@ -187,23 +195,25 @@ export function NativeCamera({
         className="hidden"
       />
 
-      <div className={isSetup ? 'setup-camera-toggle flex items-center justify-between px-3 py-2.5' : 'flex items-center justify-between rounded-lg border bg-card px-4 py-3'}>
-        <div>
-          <Label htmlFor={toggleId} className={isSetup ? 'text-sm font-extrabold text-[hsl(var(--setup-ink))]' : 'text-sm font-semibold'}>
-            {cameraToggleLabel}
-          </Label>
-          <p className={isSetup ? 'mt-0.5 text-xs font-bold text-[hsl(var(--setup-ink)/0.62)]' : 'mt-0.5 text-xs text-muted-foreground'}>
-            {cameraEnabled ? 'Live preview is on' : 'Off until you turn it on'}
-          </p>
+      {!isSetup && (
+        <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+          <div>
+            <Label htmlFor={toggleId} className="text-sm font-semibold">
+              {cameraToggleLabel}
+            </Label>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {cameraEnabled ? 'Live preview is on' : 'Off until you turn it on'}
+            </p>
+          </div>
+          <Switch
+            id={toggleId}
+            checked={cameraEnabled}
+            onCheckedChange={setCameraEnabled}
+            aria-label={`${cameraEnabled ? 'Turn off' : 'Turn on'} ${cameraToggleLabel.toLowerCase()}`}
+            disabled={disabled}
+          />
         </div>
-        <Switch
-          id={toggleId}
-          checked={cameraEnabled}
-          onCheckedChange={setCameraEnabled}
-          aria-label={`${cameraEnabled ? 'Turn off' : 'Turn on'} ${cameraToggleLabel.toLowerCase()}`}
-          disabled={disabled}
-        />
-      </div>
+      )}
 
       <div className={isSetup ? 'setup-viewfinder text-sidebar-foreground' : 'overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-sm'}>
         <div className="relative aspect-[4/5] w-full">
@@ -276,22 +286,69 @@ export function NativeCamera({
           ) : (
             <div className="pointer-events-none absolute inset-3 rounded-lg border-2 border-white/70" />
           )}
-          <div className={isSetup ? 'setup-live-badge absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5' : 'absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/45 px-3 py-1 text-xs'}>
+          <div className={isSetup ? 'setup-live-badge absolute left-1/2 top-3 -translate-x-1/2 px-3 py-1.5' : 'absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/45 px-3 py-1 text-xs'}>
             <span className="h-2 w-2 rounded-full bg-primary" />
             {title}
           </div>
+
+          {isSetup && tipsOpen && (
+            <div className="setup-tips-panel absolute bottom-20 right-3 max-w-[13rem] p-3 text-left">
+              <p className="text-sm font-extrabold">{tipsTitle}</p>
+              <p className="mt-1 text-xs font-semibold leading-snug text-white/78">{tipsDescription}</p>
+            </div>
+          )}
+
+          {isSetup && (
+            <div className="absolute bottom-4 left-0 right-0 flex items-center justify-between px-5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="setup-camera-icon-button h-12 w-12"
+                onClick={() => setCameraEnabled((enabled) => !enabled)}
+                aria-label={`${cameraEnabled ? 'Turn off' : 'Turn on'} ${cameraToggleLabel.toLowerCase()}`}
+                disabled={disabled}
+              >
+                {cameraEnabled ? <Camera className="h-5 w-5" /> : <CameraOff className="h-5 w-5" />}
+              </Button>
+
+              <Button
+                type="button"
+                onClick={captureFrame}
+                disabled={disabled || cameraState !== 'ready' || isCapturing}
+                variant="ghost"
+                className="setup-camera-round-button h-20 w-20"
+                aria-label={captureLabel}
+              >
+                <Camera className="h-7 w-7" />
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="setup-camera-icon-button h-12 w-12"
+                onClick={() => setTipsOpen((open) => !open)}
+                aria-expanded={tipsOpen}
+                aria-label="Scanning tips"
+              >
+                <Lightbulb className="h-5 w-5" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
-      <Button
-        onClick={captureFrame}
-        disabled={disabled || cameraState !== 'ready' || isCapturing}
-        variant={isSetup ? 'ghost' : 'default'}
-        className={isSetup ? 'setup-primary-button h-14 w-full text-base' : 'h-12 w-full'}
-      >
-        <Camera className="mr-2 h-4 w-4" />
-        {isCapturing ? 'Capturing...' : captureLabel}
-      </Button>
+      {!isSetup && (
+        <Button
+          onClick={captureFrame}
+          disabled={disabled || cameraState !== 'ready' || isCapturing}
+          className="h-12 w-full"
+        >
+          <Camera className="mr-2 h-4 w-4" />
+          {isCapturing ? 'Capturing...' : captureLabel}
+        </Button>
+      )}
 
       {showUploadButton && (
         <Button

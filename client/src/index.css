@@ -132,6 +132,8 @@ html, body {
     --setup-herb: 139 32% 44%;
     --setup-butter: 43 100% 76%;
     --setup-teal: 174 50% 46%;
+    --setup-metal: 214 12% 60%;
+    --setup-wood: 33 46% 72%;
     min-height: 100vh;
     background:
       radial-gradient(circle at 14% 2%, hsl(var(--setup-butter) / 0.36), transparent 18rem),
@@ -139,6 +141,13 @@ html, body {
       linear-gradient(180deg, hsl(var(--setup-cream)), hsl(var(--setup-cream-deep)));
     color: hsl(var(--setup-ink));
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .setup-ui-kitchen {
+    --setup-coral-soft: 31 53% 90%;
+    --setup-peach: 33 44% 84%;
+    --setup-butter: 37 48% 74%;
+    --setup-teal: 214 12% 60%;
   }
 
   .setup-ui h1,
@@ -158,6 +167,41 @@ html, body {
       linear-gradient(180deg, hsl(0 0% 100% / 0.54), hsl(0 0% 100% / 0.2)),
       hsl(var(--setup-cream) / 0.72);
     box-shadow: 0 1.5rem 3.5rem hsl(var(--setup-coral-strong) / 0.12);
+  }
+
+  .setup-progress-shell {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 2.6rem;
+  }
+
+  .setup-progress-track {
+    overflow: hidden;
+    height: 0.72rem;
+    border-radius: 999px;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
+    background: hsl(0 0% 100% / 0.72);
+  }
+
+  .setup-progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, hsl(var(--setup-coral-strong)), hsl(var(--setup-butter)));
+    transition: width 0.28s ease;
+  }
+
+  .setup-progress-count {
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.2);
+    border-radius: 999px;
+    background: hsl(0 0% 100% / 0.76);
+    color: hsl(var(--setup-coral-strong));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+    font-size: 0.86rem;
+    font-weight: 900;
+    line-height: 1;
+    padding: 0.65rem 0.78rem;
   }
 
   .setup-brand-chip,
@@ -269,6 +313,26 @@ html, body {
     background: hsl(var(--setup-coral-soft) / 0.74);
   }
 
+  .setup-none-choice {
+    border-width: 2px;
+    background:
+      radial-gradient(circle at 90% 10%, hsl(var(--setup-butter) / 0.24), transparent 5rem),
+      hsl(0 0% 100% / 0.78);
+  }
+
+  .setup-illustration-token {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.1rem;
+    background:
+      radial-gradient(circle at 28% 20%, hsl(var(--setup-butter) / 0.48), transparent 1.9rem),
+      radial-gradient(circle at 78% 80%, hsl(var(--setup-teal) / 0.18), transparent 1.9rem),
+      hsl(0 0% 100% / 0.72);
+    box-shadow: inset 0 0 0 1px hsl(var(--setup-coral-strong) / 0.12);
+    font-size: 1.65rem;
+  }
+
   .setup-illustration {
     border-radius: 1.4rem;
     background:
@@ -307,6 +371,14 @@ html, body {
     box-shadow: 0 1.1rem 2.4rem hsl(var(--setup-coral-strong) / 0.1);
   }
 
+  .setup-ui-kitchen .setup-camera-card {
+    border-color: hsl(var(--setup-metal) / 0.28);
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.72), hsl(var(--setup-wood) / 0.28)),
+      hsl(0 0% 100% / 0.42);
+    box-shadow: 0 1.1rem 2.4rem hsl(var(--setup-metal) / 0.12);
+  }
+
   .setup-camera-toggle {
     border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
     border-radius: 999px;
@@ -322,6 +394,15 @@ html, body {
       linear-gradient(145deg, hsl(var(--setup-ink)), hsl(223 26% 24%));
     box-shadow:
       inset 0 0 0 1px hsl(var(--setup-coral-strong) / 0.22),
+      0 1rem 2rem hsl(var(--setup-ink) / 0.18);
+  }
+
+  .setup-ui-kitchen .setup-viewfinder {
+    background:
+      radial-gradient(circle at 48% 42%, hsl(var(--setup-metal) / 0.18), transparent 5.5rem),
+      linear-gradient(145deg, hsl(var(--setup-ink)), hsl(216 13% 27%));
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--setup-metal) / 0.24),
       0 1rem 2rem hsl(var(--setup-ink) / 0.18);
   }
 
@@ -343,6 +424,64 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-size: 0.74rem;
     font-weight: 800;
+  }
+
+  .setup-camera-round-button,
+  .setup-ui .setup-camera-round-button {
+    border-radius: 999px;
+    border: 4px solid hsl(0 0% 100% / 0.78);
+    background: hsl(var(--setup-coral-strong));
+    color: hsl(0 0% 100%);
+    box-shadow: 0 0.8rem 1.4rem hsl(var(--setup-ink) / 0.26);
+  }
+
+  .setup-camera-round-button:hover,
+  .setup-ui .setup-camera-round-button:hover {
+    background: hsl(var(--setup-coral-strong) / 0.92);
+  }
+
+  .setup-camera-round-button:disabled,
+  .setup-ui .setup-camera-round-button:disabled {
+    background: hsl(0 0% 100% / 0.42);
+    color: hsl(0 0% 100% / 0.72);
+    box-shadow: none;
+  }
+
+  .setup-ui-kitchen .setup-camera-round-button {
+    background: hsl(var(--setup-metal));
+  }
+
+  .setup-camera-icon-button,
+  .setup-ui .setup-camera-icon-button {
+    border-radius: 999px;
+    background: hsl(var(--setup-ink) / 0.56);
+    color: hsl(0 0% 100%);
+    box-shadow: 0 0.55rem 1.1rem hsl(var(--setup-ink) / 0.22);
+  }
+
+  .setup-camera-icon-button:hover,
+  .setup-ui .setup-camera-icon-button:hover {
+    background: hsl(var(--setup-ink) / 0.7);
+    color: hsl(0 0% 100%);
+  }
+
+  .setup-tips-panel {
+    border: 1px solid hsl(0 0% 100% / 0.42);
+    border-radius: 1rem;
+    background: hsl(var(--setup-ink) / 0.66);
+    color: hsl(0 0% 100%);
+    box-shadow: 0 0.9rem 1.8rem hsl(var(--setup-ink) / 0.22);
+    backdrop-filter: blur(12px);
+  }
+
+  .setup-action-title {
+    font-size: 1.05rem;
+    line-height: 1.1;
+  }
+
+  .setup-ui-kitchen .setup-secondary-button {
+    border-color: hsl(var(--setup-metal) / 0.24);
+    box-shadow: 0 0.8rem 1.7rem hsl(var(--setup-metal) / 0.09);
   }
 
   .setup-focus-ring {

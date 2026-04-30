@@ -89,3 +89,20 @@ Wilson reviewed the visual conformance pass in Replit and accepted the overall d
 - **Step 3 Cooking Skill:** change heading to `How comfortable are you with cooking?`; change helper copy to `You will get guidance based on this. You can change this later.`; replace monochrome coral icons with relevant multicolor illustrations closer to the mockup.
 - **Step 4 Dietary Restrictions:** use relevant multicolor dietary illustrations; isolate and visually distinguish `No restrictions` as the default-style choice.
 - **Step 5 Confirmation:** current page direction is accepted; preserve it while aligning icon treatment with the new illustration direction.
+
+## 2026-04-30 Implementation Note
+
+Codex implemented the Replit visual feedback on `codex/mobile-refresh-phase-2-1-setup-polish` after the docs capture:
+
+- The authenticated `/app` shell no longer renders its fixed top header, and legacy page-level `Header` imports were removed from the remaining app pages.
+- Setup now uses one top progress bar/count instead of separate `Laica setup`, `Step X of 5`, and section-label chips.
+- Welcome copy now opens with `Yes, Chef!` and uses one supporting sentence.
+- Pantry now uses `Tell me what you have.` and the manual placeholder `ground beef, mayo, rice, packaged salad`.
+- The setup camera variant now places camera on/off, circular capture, and scanning tips inside the camera viewfinder.
+- Kitchen uses the same component pattern with a more utilitarian gray/silver and light wood accent pass.
+- Upload/manual labels were enlarged for phone readability.
+- Cooking Skill copy was updated and skill/dietary rows use multicolor illustration tokens.
+- `No restrictions` is isolated as a distinct default-style dietary choice.
+- Confirmation keeps its accepted structure while aligning row icons with the illustration token direction.
+
+Local checks passed; Replit validation at the implementation head is still required before merge.
