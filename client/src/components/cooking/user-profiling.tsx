@@ -53,6 +53,7 @@ const PANTRY_PLACEHOLDERS = [
   'hummus, eggs, rice',
   'ground beef, mayo, packaged salad',
 ];
+const PANTRY_PLACEHOLDER_INDEX_KEY = 'laica:setup:pantry-placeholder-index';
 
 const skillLevels = [
   { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes', illustration: '🥄' },
@@ -171,13 +172,29 @@ function getScanErrorFeedback(error: unknown, type: ScanType, mode: 'single' | '
   };
 }
 
+function getNextPantryPlaceholder() {
+  if (typeof window === 'undefined') {
+    return PANTRY_PLACEHOLDERS[0];
+  }
+
+  try {
+    const rawIndex = window.localStorage.getItem(PANTRY_PLACEHOLDER_INDEX_KEY);
+    const currentIndex = rawIndex === null ? -1 : Number.parseInt(rawIndex, 10);
+    const nextIndex = Number.isInteger(currentIndex)
+      ? (currentIndex + 1) % PANTRY_PLACEHOLDERS.length
+      : 0;
+    window.localStorage.setItem(PANTRY_PLACEHOLDER_INDEX_KEY, String(nextIndex));
+    return PANTRY_PLACEHOLDERS[nextIndex];
+  } catch {
+    return PANTRY_PLACEHOLDERS[0];
+  }
+}
+
 export default function UserProfiling({ onProfileComplete, existingProfile, menuSlot }: UserProfilingProps) {
   const { toast } = useToast();
   const scanRunIds = useRef<Record<ScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
-  const [pantryPlaceholder] = useState(() => (
-    PANTRY_PLACEHOLDERS[Math.floor(Math.random() * PANTRY_PLACEHOLDERS.length)]
-  ));
+  const [pantryPlaceholder] = useState(getNextPantryPlaceholder);
   const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
     cookingSkill: '',

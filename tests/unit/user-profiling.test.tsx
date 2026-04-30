@@ -29,6 +29,7 @@ describe('UserProfiling setup flow', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    window.localStorage.clear();
   });
 
   it('starts with a welcome screen and lets pantry back return there', () => {
@@ -217,5 +218,29 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
     expect(screen.getByRole('heading', { name: /tell me what tools you use/i })).toBeTruthy();
+  });
+
+  it('cycles pantry manual placeholders across setup mounts', () => {
+    const firstRender = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+
+    const firstInput = screen.getByLabelText(/pantry items/i) as HTMLInputElement;
+    expect(firstInput.placeholder).toBe('raw chicken, broccoli, spaghetti');
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    expect((screen.getByLabelText(/pantry items/i) as HTMLInputElement).placeholder).toBe(firstInput.placeholder);
+
+    firstRender.unmount();
+
+    render(<UserProfiling onProfileComplete={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+
+    expect((screen.getByLabelText(/pantry items/i) as HTMLInputElement).placeholder).toBe(
+      'parmesan, sumac, chili crisp',
+    );
   });
 });

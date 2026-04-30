@@ -63,7 +63,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Welcome uses the heading `Yes, Chef!` and keeps the supporting copy to one sentence.
 - The pantry/kitchen camera object uses iPhone-like in-frame controls: large circular capture button centered at the bottom of the viewfinder, camera on/off icon at bottom left, and scanning tips at bottom right as a small in-context overlay.
 - `Upload photos` and `Enter manually` labels are readable on a phone and consistent across pantry/kitchen setup.
-- Manual pantry placeholder rotates among generic staple examples with at least three ingredients, while the visible note tells users pantry items can be separated by commas.
+- Manual pantry placeholder cycles among generic staple examples with at least three ingredients on each setup mount/page refresh, while staying stable during the current setup flow; the visible note tells users pantry items can be separated by commas.
 - Kitchen scan keeps the Step 1 interaction model but shifts some accents toward gray/silver and light wood beige so it feels more utilitarian and tool-native than pantry.
 - Cooking Skill uses `How comfortable are you with cooking?` and `You will get guidance based on this. You can change this later.`
 - Cooking Skill and Dietary Restrictions use relevant multicolor illustrations rather than monochrome coral-only icons.
@@ -114,7 +114,7 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 - **Scan abuse meters:** hitting the Pantry scan-limit path does not block Kitchen/equipment scans; hitting the Kitchen scan-limit path does not block Pantry scans.
 - **Settings upload:** the same fail-closed upload cap behavior applies in Settings for pantry and kitchen photo uploads.
 - **Manual entry:** comma-separated pantry and kitchen manual entries create separate chips; missing spaces after commas still split; periods also split common mistakes such as `ground beef. mayo. rice`; the Pantry manual panel visibly notes comma separation.
-- **Pantry placeholder rotation:** Pantry manual examples rotate among staple sets such as raw chicken/broccoli/spaghetti, parmesan/sumac/chili crisp, and hummus/eggs/rice.
+- **Pantry placeholder rotation:** Pantry manual examples cycle across setup mounts/page refreshes among staple sets such as raw chicken/broccoli/spaghetti, parmesan/sumac/chili crisp, and hummus/eggs/rice; the example stays stable while the user remains in the current setup flow.
 - **Manual active state:** tapping `Enter manually` lightly shades that action while the manual-entry panel is open, on both Pantry and Kitchen.
 - **No-detection feedback:** valid pantry/kitchen photos with no detectable inventory produce clear no-detection feedback instead of ending silently.
 - **Text-only rejection:** screenshots, documents, grocery lists, receipts, menus, recipes, and notes are rejected for pantry and kitchen scans, add nothing, and route the user toward manual entry.
@@ -271,12 +271,24 @@ Implemented response:
 - Setup and Settings both send the scan context for pantry and kitchen scan calls.
 - Manual entry now splits on commas and periods, handles missing spaces after commas, and keeps the existing normalize/dedupe/64-character clamp behavior.
 - Pantry setup now requires at least 3 ingredients before continuing and shows `There's gotta be more in your pantry! Please have at least 3 ingredients to proceed.` when the user tries to continue with fewer.
-- Pantry manual entry now includes a visible comma-separation note and rotates through more varied staple placeholders.
+- Pantry manual entry now includes a visible comma-separation note and cycles through more varied staple placeholders.
+
+### Test 19 Placeholder Rotation Clarification
+
+Wilson found that the placeholder could remain stuck on `parmesan, sumac, chili crisp` across refresh and re-login because the implementation used random selection instead of a guaranteed rotation.
+
+Accepted behavior:
+
+- Pantry manual placeholder examples cycle deterministically across setup component mounts using local browser storage.
+- Page refresh or a login/remount that shows setup advances to the next example.
+- Opening/closing manual entry or moving between setup steps keeps the current example stable.
+- If browser storage is unavailable, the first placeholder is used as a safe fallback.
 
 Recommended reduced next Replit test plan:
 
 - Pull the latest branch head and restart Replit so the in-memory old shared rate-limit bucket is cleared.
 - Re-test Test 16 only around manual entry: comma without spaces, periods as separators, visible comma note, at least-3 pantry guard, and 3+ ingredients proceeding to Kitchen.
+- Re-test Test 19 by refreshing or remounting setup and confirming the Pantry manual placeholder advances, while staying stable within the current setup flow.
 - Re-test Test 20 by hitting the Pantry scan-limit path, then confirm Kitchen/equipment scans are not blocked by the Pantry meter.
 - Re-test Test 21 after the restart/rate-limit split using `equipment2.png` or another physical equipment photo.
 - Spot-check no regressions on upload caps and text-only rejection only if they are touched by the above path.
