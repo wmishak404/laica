@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-29
-**Updated:** 2026-04-29
+**Updated:** 2026-04-30
 
 ## One-line summary
 
@@ -55,6 +55,7 @@ This epic is distinct from `epics/001-ui-governance.md`:
 - Warm/coral remains the leading brand energy for the current mobile refresh, but future palette work should avoid one-note coral-only screens.
 - Design implementation should use reusable tokens and component patterns where practical, with deliberate documented exceptions for tone-forward surfaces.
 - Phase 2 setup is the first active correction point for this epic.
+- Phase 2.1 setup pilots `Fraunces` display typography and `Nunito` UI/body typography, scoped to setup only until later mobile-refresh phases either adopt or revise it.
 
 ## Phase 2 starting point
 
@@ -76,7 +77,7 @@ The Phase 2 setup polish pass should use this epic as an active design-language 
 
 ## Open questions
 
-1. What is the target typography direction after the current Merriweather / SF Pro / Source Sans Pro implementation?
+1. Should the Phase 2.1 setup typography pilot (`Fraunces` display + `Nunito` UI/body) become the broader mobile-refresh typography direction?
 2. Should the current coral/teal/yellow palette be refined, expanded, or replaced for the durable LAICA identity?
 3. What are the canonical visual motifs for LAICA: camera frame, ticket, pantry chip, cooking cue, chef companion, or something else?
 4. How playful should LAICA be by surface type: setup, planning, cooking, settings, errors, feedback, and empty states?
@@ -142,3 +143,9 @@ Wilson's PR #23 setup testing added design-language evidence that camera-first d
 ### 2026-04-29 — Setup polish deferred to Phase 2.1
 
 After PR #23 passed functional Replit validation, Wilson split the latest setup visual/trust feedback into Phase 2.1 so the large functional Phase 2 PR can close. Phase 2.1 is now the active pilot for setup visual conformance, camera opt-in, privacy-forward copy, manual/upload hierarchy, scanning feedback, Back/escape, and single-choice auto-advance.
+
+### 2026-04-30 — Setup visual conformance pass implements typography pilot
+
+Wilson clarified that Phase 2.1 setup still read as the old UI and should more closely match `docs/assets/mobile-refresh/phase-02-setup.png`, including typography. Codex applied a setup-scoped visual pass with a cream/coral phone-flow shell, `Fraunces` setup headings, `Nunito` setup body/buttons/chips, a designed scan viewfinder, warmer off/blocked camera states, short coral chips, illustrated setup states, and sticky bottom actions.
+
+This adds a reusable design-language signal, not a global mandate: the setup typography and treatment are the pilot direction for later Phase 3-5 work, pending Replit visual validation and Wilson review.

@@ -32,6 +32,8 @@ PR #23 merged functional Phase 2 setup after Replit validation passed. Wilson de
 
 Phase 2.1 implementation started from fresh `origin/main` at `4ef300cda6778bbd562e918fc5b835a246b65bd8` on `codex/mobile-refresh-phase-2-1-setup-polish`. Local TypeScript, focused Vitest, and production build checks have passed; Replit validation is still required before merge.
 
+Wilson's visual review found that the first Phase 2.1 pass still felt too close to the old shadcn-like setup UI. A follow-up setup visual conformance pass now scopes the mockup-led cream/coral phone-flow treatment, designed scan object, warm chips, setup illustrations, sticky bottom actions, and setup-only `Fraunces` / `Nunito` typography to `UserProfiling` and the setup `NativeCamera` variant. Replit validation still needs to include visual review against `docs/assets/mobile-refresh/phase-02-setup.png`.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -66,7 +68,7 @@ Phase 2.1 implementation started from fresh `origin/main` at `4ef300cda6778bbd56
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit and merged; latest visual/trust feedback deferred |
-| Phase 2.1 | In Progress | `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance |
+| Phase 2.1 | In Progress | `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance, setup-only typography and mockup-led cream/coral treatment |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -122,7 +124,7 @@ Required before Phase 2.1 merge:
 
 - Start Phase 2.1 from fresh `origin/main`.
 - Implement the setup polish and text-only scan safeguard scope in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
-- Re-run Replit validation at the latest Phase 2.1 runtime head before merge.
+- Re-run Replit validation at the latest Phase 2.1 runtime head before merge, including visual review against [phase-02-setup.png](../docs/assets/mobile-refresh/phase-02-setup.png).
 
 ## Current Resume Point
 
@@ -131,7 +133,7 @@ Resume at Phase 2.1 setup polish on `codex/mobile-refresh-phase-2-1-setup-polish
 Next implementation focus:
 
 1. Pull `codex/mobile-refresh-phase-2-1-setup-polish` into Replit.
-2. Run the Phase 2.1 signed-in Replit validation checklist at the latest branch head.
+2. Run the Phase 2.1 signed-in Replit validation checklist at the latest branch head, including the setup visual conformance review against the Phase 2 mockup.
 3. Open the Phase 2.1 PR after validation state is recorded.
 4. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
 5. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
@@ -185,3 +187,7 @@ PR #23 merged functional Phase 2 setup into `main` as merge commit `eca3d1b504e8
 ### 2026-04-30 — Phase 2.1 implementation branch started
 
 Codex started `codex/mobile-refresh-phase-2-1-setup-polish` from `origin/main` at `4ef300cda6778bbd562e918fc5b835a246b65bd8`. The branch implements the first-time welcome screen, camera opt-in, upload/manual hierarchy, scanning state, privacy-aware copy, Cooking Skill auto-advance, and text-only scan rejection contract. Local checks passed; Replit validation is not yet run.
+
+### 2026-04-30 — Phase 2.1 setup visual conformance pass added
+
+Wilson clarified that Phase 2.1 setup still looked too close to the old UI and should match the visual mockup's warmer, more whimsical setup language. Codex added a setup-scoped visual pass on the same branch: `Fraunces` / `Nunito` setup typography, cream/coral phone-flow shell, designed scan viewfinder, integrated camera toggle, warm manual/upload/review surfaces, short coral chips, illustrated setup states, and sticky bottom actions. This is setup-only for now and documented as the typography pilot for future Phase 3-5 consistency. Replit visual validation is still not yet run.

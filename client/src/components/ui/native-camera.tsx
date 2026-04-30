@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Camera, Upload, Video, VideoOff } from 'lucide-react';
+import { Camera, Sparkles, Upload, Video, VideoOff } from 'lucide-react';
 
 interface NativeCameraProps {
   onImageCapture: (imageData: string) => Promise<void>;
@@ -14,6 +14,7 @@ interface NativeCameraProps {
   showUploadButton?: boolean;
   disabled?: boolean;
   cameraToggleLabel?: string;
+  variant?: 'default' | 'setup';
 }
 
 export function NativeCamera({ 
@@ -25,7 +26,8 @@ export function NativeCamera({
   accept = "image/*",
   showUploadButton = true,
   disabled = false,
-  cameraToggleLabel = "Camera"
+  cameraToggleLabel = "Camera",
+  variant = 'default'
 }: NativeCameraProps) {
   const toggleId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,6 +36,7 @@ export function NativeCamera({
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [cameraState, setCameraState] = useState<'off' | 'starting' | 'ready' | 'blocked' | 'unsupported'>('off');
   const [isCapturing, setIsCapturing] = useState(false);
+  const isSetup = variant === 'setup';
 
   useEffect(() => {
     let isMounted = true;
@@ -175,7 +178,7 @@ export function NativeCamera({
   };
 
   return (
-    <div className="space-y-4">
+    <div className={isSetup ? 'setup-camera-card space-y-4 p-3' : 'space-y-4'}>
       <input
         ref={fileInputRef}
         type="file"
@@ -184,12 +187,12 @@ export function NativeCamera({
         className="hidden"
       />
 
-      <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+      <div className={isSetup ? 'setup-camera-toggle flex items-center justify-between px-3 py-2.5' : 'flex items-center justify-between rounded-lg border bg-card px-4 py-3'}>
         <div>
-          <Label htmlFor={toggleId} className="text-sm font-semibold">
+          <Label htmlFor={toggleId} className={isSetup ? 'text-sm font-extrabold text-[hsl(var(--setup-ink))]' : 'text-sm font-semibold'}>
             {cameraToggleLabel}
           </Label>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className={isSetup ? 'mt-0.5 text-xs font-bold text-[hsl(var(--setup-ink)/0.62)]' : 'mt-0.5 text-xs text-muted-foreground'}>
             {cameraEnabled ? 'Live preview is on' : 'Off until you turn it on'}
           </p>
         </div>
@@ -202,8 +205,8 @@ export function NativeCamera({
         />
       </div>
 
-      <div className="overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-sm">
-        <div className="relative aspect-[4/5] w-full bg-sidebar">
+      <div className={isSetup ? 'setup-viewfinder text-sidebar-foreground' : 'overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-sm'}>
+        <div className="relative aspect-[4/5] w-full">
           <video
             ref={videoRef}
             autoPlay
@@ -216,7 +219,10 @@ export function NativeCamera({
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
               {cameraState === 'off' ? (
                 <>
-                  <VideoOff className="h-10 w-10 text-sidebar-foreground/70" />
+                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                    <VideoOff className={isSetup ? 'h-10 w-10' : 'h-10 w-10 text-sidebar-foreground/70'} />
+                    {isSetup && <Sparkles className="absolute right-4 top-4 h-4 w-4 text-[hsl(var(--setup-butter))]" />}
+                  </div>
                   <div>
                     <p className="font-semibold">Camera is off</p>
                     <p className="mt-1 text-sm text-sidebar-foreground/70">
@@ -226,12 +232,16 @@ export function NativeCamera({
                 </>
               ) : cameraState === 'starting' ? (
                 <>
-                  <Video className="h-10 w-10 text-sidebar-foreground/70" />
+                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                    <Video className={isSetup ? 'h-10 w-10 animate-pulse' : 'h-10 w-10 text-sidebar-foreground/70'} />
+                  </div>
                   <p className="text-sm text-sidebar-foreground/70">Starting camera...</p>
                 </>
               ) : cameraState === 'unsupported' ? (
                 <>
-                  <VideoOff className="h-10 w-10 text-sidebar-foreground/70" />
+                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                    <VideoOff className={isSetup ? 'h-10 w-10' : 'h-10 w-10 text-sidebar-foreground/70'} />
+                  </div>
                   <div>
                     <p className="font-semibold">Camera is not available</p>
                     <p className="mt-1 text-sm text-sidebar-foreground/70">
@@ -241,7 +251,9 @@ export function NativeCamera({
                 </>
               ) : (
                 <>
-                  <VideoOff className="h-10 w-10 text-sidebar-foreground/70" />
+                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                    <VideoOff className={isSetup ? 'h-10 w-10' : 'h-10 w-10 text-sidebar-foreground/70'} />
+                  </div>
                   <div>
                     <p className="font-semibold">Camera is blocked</p>
                     <p className="mt-1 text-sm text-sidebar-foreground/70">
@@ -253,8 +265,18 @@ export function NativeCamera({
             </div>
           )}
 
-          <div className="pointer-events-none absolute inset-3 rounded-lg border-2 border-white/70" />
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/45 px-3 py-1 text-xs">
+          {isSetup ? (
+            <>
+              <span className="setup-viewfinder-corner left-4 top-4 border-l-4 border-t-4" />
+              <span className="setup-viewfinder-corner right-4 top-4 border-r-4 border-t-4" />
+              <span className="setup-viewfinder-corner bottom-4 left-4 border-b-4 border-l-4" />
+              <span className="setup-viewfinder-corner bottom-4 right-4 border-b-4 border-r-4" />
+              {cameraState === 'ready' && <span className="setup-focus-ring pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2" />}
+            </>
+          ) : (
+            <div className="pointer-events-none absolute inset-3 rounded-lg border-2 border-white/70" />
+          )}
+          <div className={isSetup ? 'setup-live-badge absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5' : 'absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/45 px-3 py-1 text-xs'}>
             <span className="h-2 w-2 rounded-full bg-primary" />
             {title}
           </div>
@@ -264,7 +286,8 @@ export function NativeCamera({
       <Button
         onClick={captureFrame}
         disabled={disabled || cameraState !== 'ready' || isCapturing}
-        className="h-12 w-full"
+        variant={isSetup ? 'ghost' : 'default'}
+        className={isSetup ? 'setup-primary-button h-14 w-full text-base' : 'h-12 w-full'}
       >
         <Camera className="mr-2 h-4 w-4" />
         {isCapturing ? 'Capturing...' : captureLabel}
@@ -275,7 +298,7 @@ export function NativeCamera({
           type="button"
           variant="outline"
           onClick={triggerCamera}
-          className="h-11 w-full"
+          className={isSetup ? 'setup-secondary-button h-12 w-full' : 'h-11 w-full'}
           disabled={disabled}
         >
           <Upload className="mr-2 h-4 w-4" />

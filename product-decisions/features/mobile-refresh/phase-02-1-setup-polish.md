@@ -28,6 +28,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Keep packaging labels valid when they appear on visible physical pantry products or kitchen equipment; reject only text-only/document-like inputs with no physical objects.
 - Route rejected text-only scans to clear feedback and manual entry instead of silently doing nothing.
 - Bring setup screens closer to the Phase 2 mockup and mobile-refresh design language without changing the already-validated backend/data contract.
+- Apply the Phase 2.1 visual conformance pass in setup only: cream/coral phone-flow shell, designed scan object, warm chips, illustrated setup states, sticky bottom actions, and `Fraunces` / `Nunito` setup typography as a documented pilot for later phases.
 
 ## Acceptance Criteria
 
@@ -44,10 +45,12 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Physical pantry/kitchen photos with readable labels still detect real visible products or tools.
 - Rejected text-only scans show clear feedback and offer manual entry.
 - Setup screens visibly conform to the Phase 2 mockup direction and design-language draft.
+- Setup typography is scoped to setup-only utilities and does not change global app typography.
 - Replit validation is rerun at the latest Phase 2.1 runtime head before merge.
 
 ## Epic Interactions
 
+- EPIC-001: New setup typography and visual utilities must remain scoped and documented as a pilot rather than a silent global primitive/font change.
 - EPIC-004: Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
 - EPIC-005: Phase 2.1 needs fresh validation because it changes runtime UI after the PR #23 Replit pass.
 - EPIC-011 / PR #24: The standalone text-only scan safeguard epic is superseded by this Phase 2.1 scope.

@@ -193,7 +193,8 @@ Do not copy:
 
 ### Typography
 
-- Current implementation fonts remain the working baseline until a typography decision is made.
+- Phase 2.1 setup pilots the mobile-refresh typography direction in setup only: `Fraunces` for expressive setup headings and `Nunito` for setup body, buttons, chips, and controls.
+- This is not a global typography rollout yet. Auth, Planning, Cooking, Settings, and other surfaces keep their current typography until their phase-specific pass adopts or revises this direction.
 - Headings should be confident, rounded, and readable, with enough personality to feel LAICA-branded.
 - Do not use hero-scale type inside compact app panels, cards, setup steps, or tool surfaces.
 - Recipe names and Ticket Pass surfaces may use a more expressive title treatment if it remains legible.
@@ -241,6 +242,7 @@ Do not copy:
 
 Phase 2 is the first active pilot for this design language. Before merge:
 
+- Setup-specific typography should use the Phase 2.1 pilot direction: `Fraunces` display headings plus `Nunito` UI/body text, scoped behind setup-only classes such as `.setup-ui`, `.setup-display`, and `.setup-copy`.
 - Pantry/Kitchen setup should look like intentional LAICA onboarding, not a form with camera buttons.
 - Camera preview should be framed as a designed scan surface with an obvious capture action.
 - Upload/manual/tips should sit below capture in a secondary hierarchy.
@@ -293,7 +295,7 @@ Before a mobile-refresh phase is marked ready:
 
 ## Open Decisions
 
-- Final typography direction.
+- Whether the Phase 2.1 setup typography pilot becomes the global mobile-refresh typography direction or stays setup-specific.
 - Whether the coral/teal/yellow palette is refined or replaced.
 - Canonical motif set: camera frame, Ticket Pass, prep tray, pantry chip, cooking cue, or another visual object.
 - How much illustration versus real/generated food imagery belongs in the app.

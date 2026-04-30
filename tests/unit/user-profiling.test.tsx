@@ -25,6 +25,10 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
 
     expect(screen.getByRole('heading', { name: /let's take note of what you have/i })).toBeTruthy();
+    expect(screen.getByText(/camera is off/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /upload photos/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /enter manually/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /scanning tips/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
@@ -32,7 +36,8 @@ describe('UserProfiling setup flow', () => {
   });
 
   it('auto-advances from Cooking Skill after one selection', () => {
-    render(<UserProfiling onProfileComplete={vi.fn()} />);
+    const onProfileComplete = vi.fn();
+    render(<UserProfiling onProfileComplete={onProfileComplete} />);
 
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
@@ -48,5 +53,12 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('radio', { name: /beginner/i }));
 
     expect(screen.getByRole('heading', { name: /anything i should avoid/i })).toBeTruthy();
+    expect(onProfileComplete).not.toHaveBeenCalled();
+
+    const nextButton = screen.getByRole('button', { name: /next/i }) as HTMLButtonElement;
+    expect(nextButton.disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: /no restrictions/i }));
+    expect(nextButton.disabled).toBe(false);
   });
 });

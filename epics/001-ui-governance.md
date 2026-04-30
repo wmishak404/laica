@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (plan drafting) / Claude (review + pilot-surface feedback)
 **Created:** 2026-04-16
-**Updated:** 2026-04-17
+**Updated:** 2026-04-30
 
 ## One-line summary
 
@@ -218,6 +218,12 @@ Implementation should treat these phase records as the next pilot surface for UI
 Wilson's Phase 2 review found that PR #23 implemented the new setup behavior but did not yet carry enough of the approved mockup aesthetics, and the pantry camera flow lacked an obvious Back/escape affordance. This is new governance evidence: mobile-refresh mockups should be treated as acceptance inputs, not mood boards, and a feature branch should not be marked ready when the primary user surfaces still read as the pre-refresh UI.
 
 The mobile-refresh README now records a cross-phase mockup conformance gate. Future Phase 3-5 work should include visual comparison against the linked mockups as part of smoke testing, alongside functional checks.
+
+## 2026-04-30 — Phase 2.1 setup typography pilot scoped behind setup utilities
+
+The Phase 2.1 visual conformance pass added Google font imports for `Fraunces` and `Nunito`, but constrained their use to setup-scoped utilities such as `.setup-ui`, `.setup-display`, and `.setup-copy`. This is useful governance evidence for future tone-forward work: typography and visual identity can be piloted in a narrow phase surface without changing global app typography or shared shadcn primitives.
+
+The branch also reinforces that new visual-system pilots need explicit handoff notes, INIT updates, and Replit visual review against the linked mockup before merge readiness.
 
 ## Next steps when work resumes
 
