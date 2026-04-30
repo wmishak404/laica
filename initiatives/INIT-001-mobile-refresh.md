@@ -107,35 +107,27 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 
 Known validation facts:
 
-- Earlier deterministic Phase 2 Replit checks passed before later docs/process commits and are stale.
-- Latest PR #23 head after the PR #25 refresh is not Replit-validated.
-- Full signed-in Phase 2 smoke is still needed.
+- Replit validation passed at PR #23 head `f037552b37169f26e5fe2fe872f68150138812a6` per Wilson.
+- The 16 signed-in post-auth functional smoke items passed in Replit.
 - Phase 2 visual conformance review is still needed.
+- Newer UI trust/privacy feedback remains tracked for the next polish decision: implement in PR #23 before merge, or explicitly defer to Phase 2.1.
 
 Required before PR #23 merge:
 
-- Replit fetches latest `codex/mobile-refresh-phase-2-setup`.
-- Deterministic checks pass at latest head.
-- Signed-in smoke covers setup routing, camera, upload/manual fallback, no-detection feedback, batch caps, comma parsing, settings, and profile gates.
-- Setup screens conform to Phase 2 mockup and design-language draft.
-- Pantry/Kitchen camera flows include a clear Back/escape path.
-- Capture/upload scan processing shows a visible scanning state.
-- Cooking Skill auto-advances after selecting `Beginner`, `Intermediate`, or `Expert`; multi-select steps retain explicit continuation.
+- Decide whether the latest UI trust/privacy feedback is implemented in PR #23 or explicitly deferred to Phase 2.1.
+- If deferred, update PR #23, this INIT, and the Phase 2 record so the merge bar is functional Phase 2 rather than visual-flow completion.
+- If implemented now, Replit must revalidate latest head after those code changes.
 
 ## Current Resume Point
 
-Resume at PR #23, Phase 2 setup polish.
+Resume at PR #23, merge-readiness decision.
 
 Next implementation focus:
 
 1. Read [Mobile Refresh Design Language](../product-decisions/features/mobile-refresh/design-language.md), [Phase 2 setup](../product-decisions/features/mobile-refresh/phase-02-setup.md), and [EPIC-012](../epics/012-laica-design-language.md).
-2. Polish setup UI toward the Phase 2 mockup and latest PR #23 UI feedback.
-3. Add Back/escape affordances to Pantry/Kitchen camera steps without letting incomplete users bypass required setup into cooking.
-4. Make camera opt-in/off by default with an accessible on/off toggle, combine upload actions, give manual entry peer visual weight, show scanning/processing animation, and revise pantry copy away from privacy-invasive language.
-5. Make Cooking Skill a one-tap single-choice step that auto-advances after `Beginner`, `Intermediate`, or `Expert`, while keeping explicit continuation for multi-select steps.
-6. Decide whether the first-time welcome/get-started page is pulled into PR #23 or captured as Phase 2.1 follow-up.
-7. Run local checks.
-8. Have Replit fetch latest branch and re-run validation at the latest commit SHA.
+2. Decide whether PR #23 should close as functional Phase 2, with the newest visual/trust feedback deferred, or remain open for that polish implementation.
+3. If closing functional Phase 2, update PR #23 and Phase 2 docs to make the deferral explicit before marking ready.
+4. If implementing polish now, apply the UI feedback, run local checks, have Replit fetch latest branch, and re-run validation at the latest commit SHA.
 
 ## Chronology
 
@@ -166,3 +158,7 @@ Wilson's PR #23 testing added concrete setup polish feedback: simplify upload ac
 ### 2026-04-29 — Single-choice setup auto-advance feedback added
 
 Wilson's Step 3 testing clarified that Cooking Skill should behave as a one-tap single-choice input: selecting `Beginner`, `Intermediate`, or `Expert` should accept and advance without a separate `Next` button. The same rule should apply to future single-choice multiple-choice screens, while multi-select screens should keep explicit continuation.
+
+### 2026-04-29 — Phase 2 functional Replit validation passed
+
+Wilson reported that Replit validation and the 16 signed-in post-auth functional smoke items passed at PR #23 head `f037552b37169f26e5fe2fe872f68150138812a6`. The remaining question is whether the later UI trust/privacy feedback is implemented in PR #23 before merge or explicitly deferred to Phase 2.1.
