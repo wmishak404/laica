@@ -5,6 +5,7 @@
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 **Mockup:** [phase-02-setup.png](../../../docs/assets/mobile-refresh/phase-02-setup.png)
+**Implementation:** Merged in [PR #23](https://github.com/wmishak404/laica/pull/23)
 
 ## Goal
 
