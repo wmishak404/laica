@@ -96,6 +96,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 - Dev-test harness planned for future Firebase custom-token dev auth, not backend bypass.
 - Mockup conformance gate added: linked mockups are implementation inputs, not loose inspiration.
 - Phase 2 scope corrected: setup visual polish and Pantry/Kitchen Back/escape are merge-readiness items.
+- PR #23 UI feedback added: camera off by default with toggle, one upload action, peer manual entry, processing animation, privacy-aware copy, and first-time welcome follow-up.
 - EPIC-012 added for LAICA design language and visual identity.
 - Mobile Refresh Design Language drafted and annotated with visual exemplars.
 - Stacked PR base refresh rule added after PR #22 polish was missing from early PR #23 preview.
@@ -118,6 +119,7 @@ Required before PR #23 merge:
 - Signed-in smoke covers setup routing, camera, upload/manual fallback, no-detection feedback, batch caps, comma parsing, settings, and profile gates.
 - Setup screens conform to Phase 2 mockup and design-language draft.
 - Pantry/Kitchen camera flows include a clear Back/escape path.
+- Capture/upload scan processing shows a visible scanning state.
 
 ## Current Resume Point
 
@@ -126,10 +128,12 @@ Resume at PR #23, Phase 2 setup polish.
 Next implementation focus:
 
 1. Read [Mobile Refresh Design Language](../product-decisions/features/mobile-refresh/design-language.md), [Phase 2 setup](../product-decisions/features/mobile-refresh/phase-02-setup.md), and [EPIC-012](../epics/012-laica-design-language.md).
-2. Polish setup UI toward the Phase 2 mockup.
+2. Polish setup UI toward the Phase 2 mockup and latest PR #23 UI feedback.
 3. Add Back/escape affordances to Pantry/Kitchen camera steps without letting incomplete users bypass required setup into cooking.
-4. Run local checks.
-5. Have Replit fetch latest branch and re-run validation at the latest commit SHA.
+4. Make camera opt-in/off by default with an accessible on/off toggle, combine upload actions, give manual entry peer visual weight, show scanning/processing animation, and revise pantry copy away from privacy-invasive language.
+5. Decide whether the first-time welcome/get-started page is pulled into PR #23 or captured as Phase 2.1 follow-up.
+6. Run local checks.
+7. Have Replit fetch latest branch and re-run validation at the latest commit SHA.
 
 ## Chronology
 
@@ -152,3 +156,7 @@ The initiative gained dev-test harness planning, mockup conformance rules, EPIC-
 ### 2026-04-29 — INIT/process docs split and merged
 
 PR #25 merged the INIT/process/design documentation baseline separately from PR #23. PR #23 was then refreshed onto the new `origin/main` so it can continue as the Phase 2 implementation and polish branch.
+
+### 2026-04-29 — Phase 2 UI trust/privacy feedback added
+
+Wilson's PR #23 testing added concrete setup polish feedback: simplify upload actions, make camera opt-in with an accessible toggle, show a scanning/processing state, provide real Back/escape from step 1, elevate manual entry for privacy-sensitive users, soften pantry copy, and consider a first-time welcome page follow-up.

@@ -22,6 +22,18 @@ Before Phase 2 is ready to merge:
 - Any intentional visual deviation from the mockup must be documented in this phase record and handoff before readiness validation.
 - The Planning entry screen remains Phase 3 scope unless the team explicitly pulls that visual redesign forward into Phase 2 or a Phase 2.x polish pass.
 
+## 2026-04-29 PR #23 UI Feedback
+
+Wilson's in-flow Phase 2 testing added trust, privacy, and action-hierarchy feedback that should guide the next setup polish pass:
+
+- `Upload one photo` and `Upload photos` should become one clear `Upload photos` action.
+- Camera should be off by default. Users should explicitly turn it on with a clear, accessible camera toggle, then be able to turn it off again from the same control.
+- Pantry/Kitchen scan analysis should show a visible "Scanning" or processing animation after capture/upload so users know LAICA is working.
+- Step 1 needs a real Back/escape path, not a disabled Back button.
+- Manual entry should have the same visual importance as photo upload because some users will prefer it for privacy.
+- Pantry copy should avoid privacy-invasive language like "Show me your pantry." Candidate direction: "Let's take note of what you have."
+- A first-time-user welcome/get-started page with useful introductory context is desirable, similar in spirit to the pre-auth "What can you help me do?" content. This should be captured as Phase 2.1 or a follow-up unless the team explicitly pulls it into PR #23.
+
 ## Decisions
 
 ### Pantry scan
@@ -68,10 +80,13 @@ Before Phase 2 is ready to merge:
 - Pantry accepts up to 8 photos per batch client-side; Kitchen accepts up to 6.
 - Repeated scans of the same pantry/fridge from different angles do not create overlapping duplicates.
 - Empty scan produces clear no-detection feedback.
+- Capture/upload analysis shows an explicit scanning or processing state while results are pending.
 - Pantry chips are readable and token-driven.
 - Skill and dietary choices are full-row tap targets.
 - Setup screens visibly conform to the Phase 2 mockup direction; functional parity alone is not sufficient.
 - Pantry and Kitchen camera steps have a clear Back/escape affordance that does not let incomplete users bypass required setup.
+- Camera starts off by default and can be toggled on/off through an accessible control.
+- Upload and manual entry are peer-level alternatives, not a primary/private-secondary hierarchy.
 - Weekly Cooking Time no longer appears in setup, settings, onboarding completion, or server readiness gates.
 - Manual entry `"buns, mayo"` creates two ingredient chips.
 

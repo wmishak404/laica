@@ -134,3 +134,7 @@ Wilson clarified that "design principles" means more than UX principles: LAICA n
 ### 2026-04-29 — Draft mobile-refresh design language added
 
 Codex added `product-decisions/features/mobile-refresh/design-language.md` as the first concrete design-language artifact. It is draft-status and intended to guide Phase 2 setup polish immediately while keeping final typography, palette, motif, and imagery decisions open for Wilson review.
+
+### 2026-04-29 — Phase 2 privacy and trust feedback added
+
+Wilson's PR #23 setup testing added design-language evidence that camera-first does not mean camera-forced. Phase 2 setup should present camera as an explicit opt-in capability, keep manual entry visually equal to upload for privacy-sensitive users, show a clear scanning/processing animation after capture/upload, avoid intrusive pantry language, and build Back/escape into the setup chrome. This reinforces that LAICA's visual language needs to communicate user control and trust, not only warmth and playfulness.
