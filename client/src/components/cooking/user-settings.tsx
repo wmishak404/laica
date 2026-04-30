@@ -678,7 +678,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     const files = event.target.files;
     if (!files || files.length === 0) return;
     const maxFiles = type === 'pantry' ? 8 : 6;
-    const selectedFiles = Array.from(files).slice(0, maxFiles);
+    const selectedFiles = Array.from(files);
+
+    if (selectedFiles.length > maxFiles) {
+      toast({
+        title: "Too many photos",
+        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch. Select ${maxFiles} or fewer and try again.`,
+        variant: "destructive"
+      });
+      event.target.value = '';
+      return;
+    }
 
     const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const processedFiles = selectedFiles.filter(file => {
@@ -698,7 +708,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       return;
     }
 
-    if (processedFiles.length !== files.length || selectedFiles.length !== files.length) {
+    if (processedFiles.length !== selectedFiles.length) {
       toast({
         title: "Some files skipped",
         description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} accepts up to ${maxFiles} photos per batch. Processing ${processedFiles.length} image(s).`

@@ -86,7 +86,7 @@ This means PR #23's merge bar is functional correctness plus the recorded Replit
 - Embedded camera preview loads on supported browsers.
 - Camera permission denial leaves users on the setup page with upload/manual alternatives.
 - Upload from library still works.
-- Pantry accepts up to 8 photos per batch client-side; Kitchen accepts up to 6.
+- Pantry accepts up to 8 photos per batch client-side; Kitchen accepts up to 6. If a user selects more than the cap, cancel the whole upload batch instead of partially processing the first allowed photos.
 - Repeated scans of the same pantry/fridge from different angles do not create overlapping duplicates.
 - Empty scan produces clear no-detection feedback.
 - Pantry chips are readable and token-driven.

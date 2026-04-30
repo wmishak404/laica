@@ -56,6 +56,7 @@ Anything outside the allowlist is handled as a non-mutating cooking question or 
 - Server limits are authoritative; client caps only improve UX.
 - Setup pantry scan cap: 8 photos per batch.
 - Setup kitchen scan cap: 6 photos per batch.
+- Setup and Settings upload caps are fail-closed in the client: selecting more than the cap cancels the whole batch so users are not left guessing which photos were processed.
 - Post-cook rescan cap: 4 photos per batch.
 - Recipe generation, speech, vision, and feedback routes use Phase 0 route-class and per-uid limits.
 - Reject unsupported file/body types early and fail closed on malformed base64 image payloads.

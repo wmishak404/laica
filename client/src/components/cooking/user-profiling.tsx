@@ -203,9 +203,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     if (files.length === 0) return;
 
     const maxFiles = MAX_UPLOADS[type];
-    const selectedFiles = files.slice(0, maxFiles);
-    const skippedForLimit = Math.max(files.length - selectedFiles.length, 0);
-    const supportedFiles = selectedFiles.filter((file) => {
+    if (files.length > maxFiles) {
+      toast({
+        title: 'Too many photos',
+        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch. Select ${maxFiles} or fewer and try again.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const supportedFiles = files.filter((file) => {
       const name = file.name.toLowerCase();
       return file.type.startsWith('image/') || name.endsWith('.heic') || name.endsWith('.heif');
     });
@@ -219,7 +226,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       return;
     }
 
-    if (skippedForLimit > 0 || supportedFiles.length !== files.length) {
+    if (supportedFiles.length !== files.length) {
       toast({
         title: 'Some photos were skipped',
         description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch.`,

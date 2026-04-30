@@ -38,6 +38,8 @@ Wilson's Replit review of that conformance pass accepted the overall direction b
 
 Wilson's follow-up Replit review kept the direction and narrowed the remaining polish: retain a menu affordance after removing the header, replace the too-dominant Pantry heading with friendlier copy, make the in-camera camera/tips controls visible but not opaque CTAs, avoid a lightbulb icon for scanning tips, remove the capture camera glyph, keep progress coral across Pantry and Kitchen, remove technical helper labels below upload/manual actions, and push Kitchen's gray/silver accents further for equipment actions and list items. Codex has implemented this follow-up locally; Replit validation is still required at the latest branch head.
 
+Wilson's functionality testing then clarified upload-limit behavior: selecting more than the pantry cap of 8 photos or kitchen cap of 6 photos should cancel the entire batch, not silently process the first allowed files. Codex has implemented the fail-closed upload limit behavior locally for setup and Settings; Replit validation remains required at the latest branch head.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -138,7 +140,7 @@ Resume at Phase 2.1 setup polish on `codex/mobile-refresh-phase-2-1-setup-polish
 Next implementation focus:
 
 1. Pull the updated `codex/mobile-refresh-phase-2-1-setup-polish` branch into Replit.
-2. Run the Phase 2.1 signed-in Replit validation checklist at the latest branch head, including menu access, the friendlier Pantry heading, smaller translucent in-camera controls with larger icons, the blank capture shutter, the non-flashlight tips icon, coral progress across Pantry and Kitchen, simplified upload/manual labels, Kitchen gray/silver accents, and setup visual conformance review against the Phase 2 mockup.
+2. Run the Phase 2.1 signed-in Replit validation checklist at the latest branch head, including menu access, the friendlier Pantry heading, smaller translucent in-camera controls with larger icons, the blank capture shutter, the non-flashlight tips icon, coral progress across Pantry and Kitchen, simplified upload/manual labels, fail-closed upload batches over 8 pantry or 6 kitchen photos in setup and Settings, Kitchen gray/silver accents, and setup visual conformance review against the Phase 2 mockup.
 3. Open the Phase 2.1 PR after validation state is recorded.
 4. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
 5. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
@@ -208,3 +210,7 @@ Codex implemented Wilson's Replit feedback on `codex/mobile-refresh-phase-2-1-se
 ### 2026-04-30 — Follow-up setup menu and scan-control polish implemented locally
 
 Wilson's next Replit pass clarified that the app still needs menu access without restoring the header, Pantry copy should be friendlier than `Tell me what you have.`, camera/tips controls should be visible but not opaque CTAs, capture should be a blank shutter, tips should not use a flashlight-like icon, Kitchen should keep the coral progress bar, upload/manual actions should not carry technical helper labels, and Kitchen should lean further into gray/silver equipment accents. Codex added a setup-scoped account menu plus bottom-nav menu, changed Pantry to `Start with pantry staples.`, revised the in-camera controls to smaller translucent circles with larger icons, switched tips to a help-circle icon, removed the capture camera glyph, removed upload/manual helper labels, and extended gray/silver Kitchen treatment to save buttons, chips, icons, and inputs while keeping progress coral. Local checks passed; Replit validation is not yet run at this implementation head.
+
+### 2026-04-30 — Setup upload limit behavior changed to fail closed
+
+Wilson's functionality testing found that partially processing oversized upload selections creates uncertainty about which photos were scanned. Codex changed setup and Settings upload handling so selecting more than 8 pantry photos or more than 6 kitchen photos cancels the entire batch, shows the limit message, and sends no photo to vision analysis. Focused unit coverage now verifies both setup caps. Replit validation is not yet run at this implementation head.

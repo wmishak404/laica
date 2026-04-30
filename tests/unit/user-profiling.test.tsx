@@ -5,11 +5,25 @@
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { analyzeImage } from '@/lib/openai';
 import UserProfiling from '../../client/src/components/cooking/user-profiling';
+
+const toastMock = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/openai', () => ({
   analyzeImage: vi.fn(),
 }));
+
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({ toast: toastMock }),
+}));
+
+function makeImageFiles(count: number) {
+  return Array.from(
+    { length: count },
+    (_, index) => new File(['image'], `setup-photo-${index + 1}.jpg`, { type: 'image/jpeg' }),
+  );
+}
 
 describe('UserProfiling setup flow', () => {
   afterEach(() => {
@@ -68,5 +82,39 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /no restrictions/i }));
     expect(nextButton.disabled).toBe(false);
+  });
+
+  it('cancels oversized pantry and kitchen upload batches without partial analysis', () => {
+    const analyzeImageMock = vi.mocked(analyzeImage);
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+
+    const pantryUpload = container.querySelector('#pantry-setup-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, { target: { files: makeImageFiles(9) } });
+
+    expect(analyzeImageMock).not.toHaveBeenCalled();
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Too many photos',
+      description: expect.stringContaining('up to 8 photos'),
+      variant: 'destructive',
+    }));
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByPlaceholderText(/ground beef, mayo, rice, packaged salad/i), {
+      target: { value: 'ground beef, mayo' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    const kitchenUpload = container.querySelector('#kitchen-setup-upload') as HTMLInputElement;
+    fireEvent.change(kitchenUpload, { target: { files: makeImageFiles(7) } });
+
+    expect(analyzeImageMock).not.toHaveBeenCalled();
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Too many photos',
+      description: expect.stringContaining('up to 6 photos'),
+      variant: 'destructive',
+    }));
   });
 });

@@ -36,6 +36,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Camera starts off by default and can be toggled on/off through an accessible control.
 - Upload and manual entry are peer-level alternatives, not a primary/private-secondary hierarchy.
 - Upload is represented by one clear action while preserving the validated batch limits.
+- Upload batches over the pantry/kitchen cap are canceled as a whole instead of partially processing the first allowed files; this applies in setup and Settings.
 - Capture/upload analysis shows an explicit scanning or processing state while results are pending.
 - Step 1 has a clear Back/escape affordance that does not bypass required setup.
 - Pantry copy is privacy-aware and avoids language that implies invasive inspection.
@@ -129,3 +130,15 @@ Codex implemented that follow-up polish locally on `codex/mobile-refresh-phase-2
 - Extended Kitchen's gray/silver and light-wood treatment to secondary action icons, manual save, input border, and list chips/remove controls while keeping the setup progress bar coral across steps for consistency.
 
 Local check, focused Vitest, and build passed after the code changes; Replit validation at the latest branch head is still required before merge.
+
+## 2026-04-30 Upload Limit Behavior
+
+Wilson's functionality testing clarified that partial batch processing is confusing: if a user selects more than the pantry or kitchen photo limit, processing only the first allowed photos leaves them guessing which pantry/kitchen angles were actually scanned.
+
+Accepted behavior:
+
+- Pantry still caps setup uploads at 8 photos per batch.
+- Kitchen still caps setup uploads at 6 photos per batch.
+- Selecting more than the cap cancels the whole batch, shows the limit message, and does not send any selected photo for analysis.
+- The same fail-closed rule applies to setup and Settings so users do not have to learn different upload behavior later.
+- Users can then reselect a smaller, intentional batch.
