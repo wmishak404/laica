@@ -88,3 +88,7 @@ This epic is `Resolved` when all of the following are true:
 ## 2026-04-28 — Mobile refresh broadens scope beyond Slop Bowl
 
 Wilson approved comma-separated manual entry for Phase 2 setup and Phase 3 Slop Bowl, with the implementation preference to extract shared parsing rather than duplicating split/trim/filter logic. Phase 5 cleanup should reuse the same parser for any quick-add surface. This broadens the epic from a Slop Bowl-only fix into a shared ingredient-entry consistency rule.
+
+## 2026-04-29 — Shared parser added in Phase 2 branch
+
+The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) adds `client/src/lib/entryParsing.ts` and uses it for setup pantry entry, settings pantry/equipment entry, and Slop Bowl quick-add. `buns, mayo` now parses as separate entries and duplicate prevention is case-insensitive through the shared normalization helper. Remaining validation before closing this epic: browser-level check of the Slop Bowl quick-add surface and any future Phase 5 cleanup quick-add reuse.

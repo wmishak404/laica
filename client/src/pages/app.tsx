@@ -24,7 +24,6 @@ import { FeedbackModal } from '@/components/feedback/feedback-modal';
 interface UserProfile {
   cookingSkill: string;
   dietaryRestrictions: string[];
-  weeklyTime: string;
   pantryIngredients: string[];
   kitchenEquipment: string[];
   favoriteChefs: string[];
@@ -51,9 +50,11 @@ type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-b
 const hasPlanningProfile = (profile: UserProfile) =>
   Boolean(
     profile.cookingSkill &&
-    profile.weeklyTime &&
-    (profile.pantryIngredients.length > 0 || profile.kitchenEquipment.length > 0)
+    profile.pantryIngredients.length > 0
   );
+
+const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined) =>
+  (restrictions || []).map((restriction) => restriction === 'None' ? 'No restrictions' : restriction);
 
 const SLOP_BOWL_STICKER_TAGLINES = [
   'MAKE GOOD SLOP',
@@ -77,7 +78,6 @@ export default function MobileApp() {
   const [userProfile, setUserProfile] = useState<UserProfile>({
     cookingSkill: '',
     dietaryRestrictions: [],
-    weeklyTime: '',
     pantryIngredients: [],
     kitchenEquipment: [],
     favoriteChefs: []
@@ -115,8 +115,7 @@ export default function MobileApp() {
       const dbUser = dbProfile.user;
       const profileFromDb: UserProfile = {
         cookingSkill: dbUser.cookingSkill || '',
-        dietaryRestrictions: dbUser.dietaryRestrictions || [],
-        weeklyTime: dbUser.weeklyTime || '',
+        dietaryRestrictions: normalizeDietaryRestrictions(dbUser.dietaryRestrictions),
         pantryIngredients: dbUser.pantryIngredients || [],
         kitchenEquipment: dbUser.kitchenEquipment || [],
         favoriteChefs: dbUser.favoriteChefs || []
@@ -158,7 +157,6 @@ export default function MobileApp() {
       await updateProfileMutation.mutateAsync({
         cookingSkill: profile.cookingSkill || undefined,
         dietaryRestrictions: profile.dietaryRestrictions,
-        weeklyTime: profile.weeklyTime || undefined,
         pantryIngredients: profile.pantryIngredients,
         kitchenEquipment: profile.kitchenEquipment,
         favoriteChefs: profile.favoriteChefs,
@@ -291,7 +289,6 @@ export default function MobileApp() {
   const handleBackToPlanning = () => {
     // Check if profile is complete before allowing access to planning
     const isProfileComplete = userProfile.cookingSkill &&
-      userProfile.weeklyTime &&
       userProfile.pantryIngredients.length > 0;
 
     if (isProfileComplete) {
@@ -309,7 +306,6 @@ export default function MobileApp() {
     
     // Check if profile is complete before going to planning
     const isProfileComplete = updatedProfile.cookingSkill && 
-      updatedProfile.weeklyTime && 
       updatedProfile.pantryIngredients.length > 0;
     
     if (isProfileComplete) {

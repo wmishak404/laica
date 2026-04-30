@@ -24,7 +24,6 @@ interface SlopBowlInput {
   ingredients: string[];
   cookingSkill: string;
   dietaryRestrictions: string[];
-  weeklyTime: string;
   kitchenEquipment: string[];
   recentMeals: SlopBowlRecentMeal[];
   feedback?: string;
@@ -241,21 +240,6 @@ const DEFAULT_COOKING_STEPS_PROMPT = `You are a home-cooking expert that provide
 
 const DEFAULT_COOKING_ASSISTANCE_PROMPT = `You are a helpful cooking assistant providing guidance during the cooking process. Keep responses concise, helpful and a neutral tone (i.e. not too encouraging or enthusiastic, but also not too discouraging to the point they would not like to continue anymore.)`;
 
-function getMaxCookTime(weeklyTime: string): number {
-  switch (weeklyTime) {
-    case "1-2":
-      return 30;
-    case "3-5":
-      return 60;
-    case "6-10":
-      return 90;
-    case "10+":
-      return 120;
-    default:
-      return 60;
-  }
-}
-
 function formatRecentMeals(recentMeals: SlopBowlRecentMeal[]): string {
   if (recentMeals.length === 0) {
     return "No recent meals recorded.";
@@ -274,7 +258,7 @@ function formatRecentMeals(recentMeals: SlopBowlRecentMeal[]): string {
 export async function getSlopBowlRecipe(input: SlopBowlInput) {
   try {
     const sanitizedInput = sanitizePromptInput(input);
-    const maxCookTime = getMaxCookTime(sanitizedInput.weeklyTime);
+    const maxCookTime = 60;
     const inputData = {
       ...sanitizedInput,
       maxCookTime,
@@ -295,7 +279,7 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
             `Pantry ingredients: ${sanitizedInput.ingredients.join(", ")}.`,
             `Cooking skill: ${sanitizedInput.cookingSkill}.`,
             `Dietary restrictions: ${sanitizedInput.dietaryRestrictions.length > 0 ? sanitizedInput.dietaryRestrictions.join(", ") : "none"}.`,
-            `Weekly cooking time preference: ${sanitizedInput.weeklyTime} hours. Target a recipe that takes ${maxCookTime} minutes or less.`,
+            `Target a recipe that takes ${maxCookTime} minutes or less unless the ingredients clearly need less time.`,
             `Available kitchen equipment: ${sanitizedInput.kitchenEquipment.length > 0 ? sanitizedInput.kitchenEquipment.join(", ") : "not specified; stay within a basic home kitchen setup"}.`,
             `Recent meals:\n${formatRecentMeals(sanitizedInput.recentMeals)}`,
             sanitizedInput.feedback ? `User feedback on the last suggestion: ${sanitizedInput.feedback}` : null,
