@@ -40,6 +40,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Pantry and Kitchen vision scan rate-limit meters are separate so exhausting Pantry attempts does not block Kitchen/equipment validation.
 - Capture/upload analysis shows an explicit scanning or processing state while results are pending.
 - Pressing Back during an active Pantry or Kitchen scan cancels that scan, stops the pending state, and prevents stale scan results from adding items after the user leaves the step.
+- Repeated exact or near-exact Pantry/Kitchen scan labels do not create duplicate chips/list rows; duplicate-only scans show `Already saved`, and mixed scans count only newly added items.
 - Camera unavailable, permission-blocked, or camera-in-use paths show clear user-safe feedback and keep upload/manual alternatives available.
 - Successful camera capture gives an immediate visual flash cue before analysis continues.
 - Step 1 has a clear Back/escape affordance that does not bypass required setup.
@@ -117,6 +118,7 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 - **Pantry placeholder rotation:** Pantry manual examples cycle across setup mounts/page refreshes among staple sets such as raw chicken/broccoli/spaghetti, parmesan/sumac/chili crisp, and hummus/eggs/rice; the example stays stable while the user remains in the current setup flow.
 - **Manual active state:** tapping `Enter manually` lightly shades that action while the manual-entry panel is open, on both Pantry and Kitchen.
 - **No-detection feedback:** valid pantry/kitchen photos with no detectable inventory produce clear no-detection feedback instead of ending silently.
+- **Duplicate scans:** re-uploading the same Pantry/Kitchen photo or scanning the same angle after uploading it does not create duplicate chips/list rows; duplicate-only scans show `Already saved`, while mixed scans add only genuinely new items.
 - **Text-only rejection:** screenshots, documents, grocery lists, receipts, menus, recipes, and notes are rejected for pantry and kitchen scans, add nothing, and route the user toward manual entry.
 - **Scan error taxonomy:** repeated scans/rate limits show a scan-limit message; unreadable/oversized images show photo-specific guidance; these paths do not add partial batch results after a fatal batch error.
 - **Physical photo allowance:** physical pantry products and kitchen tools with readable packaging/labels are still accepted when visible objects are present.
@@ -297,3 +299,28 @@ Recommended reduced next Replit test plan:
 Non-gating follow-up:
 
 - Toast dismissal currently supports the existing right-swipe gesture. Multi-direction dismissal for left/up swipes is deferred as a shared toast primitive follow-up, not a Phase 2.1 merge gate; down swipe should remain non-dismissive if implemented later.
+
+## 2026-04-30 Mobile Duplicate Scan Follow-up
+
+Wilson's final mobile smoke found that the recent setup flow generally worked on mobile and that a disposable account saved the profile correctly. The remaining in-scope issue was duplicate inventory rows when the same kitchen photo was uploaded more than once, or when a saved/uploaded photo and a native camera scan captured the same angle.
+
+Accepted Phase 2.1 behavior:
+
+- Exact and near-exact duplicate labels from repeated uploads, native camera captures, and same-batch detections should be skipped for both Pantry and Kitchen.
+- Duplicate comparison should normalize case, whitespace, apostrophes/possessives, and simple punctuation/hyphen variants.
+- The app should not attempt semantic canonicalization in this phase; `knife`, `chef knife`, and `santoku` can remain distinct unless the model returns the same near-exact label.
+- Duplicate-only scans should show `Already saved` with no new pantry/kitchen additions.
+- Mixed scans should add only new items and mention already-saved items were skipped.
+
+Implemented response:
+
+- The shared entry merge helper now exposes duplicate-aware merge metadata while preserving the existing `mergeUniqueEntries(...)` API.
+- Setup and Settings scan paths use that metadata so repeated Pantry/Kitchen scan results do not create duplicate chips/list rows.
+- Focused tests cover duplicate-key normalization plus duplicate-only and mixed duplicate/new setup scan behavior.
+
+Recommended final Replit retest:
+
+- Pull the latest branch head after the duplicate-prevention commit.
+- On mobile, re-upload the same Pantry and Kitchen photo and confirm no duplicate entries are added.
+- On mobile, upload a saved Kitchen photo and then capture the same angle with the native camera; confirm no duplicate entries are added.
+- Spot-check one mixed duplicate/new scan and one light setup completion/profile-save path.

@@ -264,6 +264,10 @@ Wilson's in-progress Phase 2.1 Replit validation found issues that a broad "scan
 
 Wilson reported a near-complete Phase 2.1 pass with only specific constrained failures remaining. The Phase 2.1 product note now recommends a reduced next Replit test plan focused on the touched risk: Pantry/Kitchen rate-limit separation, manual delimiter recovery, Pantry minimum guard, and the blocked equipment-photo test. Previously passed visual, navigation, and choice-control checks do not need full repetition unless the new branch head shows a regression. This is useful evidence for future acceptance workflows: after a documented partial pass, retest scope should contract to changed risk areas plus a light regression spot-check.
 
+### 2026-04-30 — Mobile smoke adds duplicate-scan retest focus
+
+Wilson's mobile Phase 2.1 smoke passed the broad setup/profile-save path but found a final duplicate-entry bug when the same Pantry/Kitchen angle was uploaded or captured again. The Phase 2.1 record now narrows the final retest to duplicate scan prevention plus a light setup completion smoke. This adds another validation-workflow signal: mobile-specific repeated-action checks can expose issues that a desktop happy path and one-time scan do not.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

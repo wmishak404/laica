@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
-import { mergeUniqueEntries, parseCommaSeparatedEntries } from '@/lib/entryParsing';
+import { mergeUniqueEntriesWithMetadata, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
   ArrowLeft,
@@ -272,17 +272,22 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       return;
     }
 
-    setProfile((prev) => {
-      const key = type === 'pantry' ? 'pantryIngredients' : 'kitchenEquipment';
-      return {
-        ...prev,
-        [key]: mergeUniqueEntries(prev[key], labels),
-      };
-    });
+    const mergeResult = mergeUniqueEntriesWithMetadata(currentItems(type), labels);
+    updateItems(type, mergeResult.items);
+
+    if (mergeResult.added.length === 0) {
+      toast({
+        title: 'Already saved',
+        description: `No new ${type === 'pantry' ? 'pantry items' : 'kitchen tools'} were added from that scan.`,
+      });
+      return;
+    }
 
     toast({
       title: type === 'pantry' ? 'Pantry scan added items' : 'Kitchen scan added items',
-      description: `Found ${labels.length} item${labels.length === 1 ? '' : 's'}. Review the list before moving on.${
+      description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}. Review the list before moving on.${
+        mergeResult.duplicateCount > 0 ? ` ${mergeResult.duplicateCount} already-saved item${mergeResult.duplicateCount === 1 ? ' was' : 's were'} skipped.` : ''
+      }${
         skippedCount > 0 ? ` ${skippedCount} text-only photo${skippedCount === 1 ? ' was' : 's were'} skipped.` : ''
       }`,
     });
@@ -410,8 +415,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     const parsed = parseCommaSeparatedEntries(manualEntry[type]);
     if (parsed.length === 0) return;
 
-    const merged = mergeUniqueEntries(currentItems(type), parsed);
-    updateItems(type, merged);
+    const mergeResult = mergeUniqueEntriesWithMetadata(currentItems(type), parsed);
+    updateItems(type, mergeResult.items);
     setManualEntry((prev) => ({ ...prev, [type]: '' }));
     setManualOpen((prev) => ({ ...prev, [type]: true }));
   };

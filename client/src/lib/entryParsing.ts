@@ -18,7 +18,23 @@ export function normalizeEntryLabel(value: string): string {
 }
 
 export function normalizeEntryKey(value: string): string {
-  return normalizeEntryLabel(value).toLowerCase();
+  return normalizeEntryDuplicateKey(value);
+}
+
+export function normalizeEntryDuplicateKey(value: string): string {
+  const label = normalizeEntryLabel(value);
+  const key = label
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\b([a-z0-9]+)['`\u2019]s\b/g, '$1')
+    .replace(/['`\u2019]/g, '')
+    .replace(/[-\u2010-\u2015_./]+/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return key || label.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
 export function parseCommaSeparatedEntries(value: string): string[] {
@@ -41,20 +57,50 @@ export function parseCommaSeparatedEntries(value: string): string[] {
 }
 
 export function mergeUniqueEntries(existing: string[], incoming: string[]): string[] {
-  const seen = new Set<string>();
-  const merged: string[] = [];
+  return mergeUniqueEntriesWithMetadata(existing, incoming).items;
+}
 
-  [...existing, ...incoming].forEach((rawEntry) => {
+export interface EntryMergeResult {
+  items: string[];
+  added: string[];
+  duplicateCount: number;
+}
+
+export function mergeUniqueEntriesWithMetadata(existing: string[], incoming: string[]): EntryMergeResult {
+  const seen = new Set<string>();
+  const items: string[] = [];
+  const added: string[] = [];
+  let duplicateCount = 0;
+
+  existing.forEach((rawEntry) => {
     const entry = normalizeEntryLabel(rawEntry);
-    const key = entry.toLowerCase();
+    const key = normalizeEntryDuplicateKey(entry);
 
     if (!entry || seen.has(key)) {
       return;
     }
 
     seen.add(key);
-    merged.push(entry);
+    items.push(entry);
   });
 
-  return merged;
+  incoming.forEach((rawEntry) => {
+    const entry = normalizeEntryLabel(rawEntry);
+    const key = normalizeEntryDuplicateKey(entry);
+
+    if (!entry) {
+      return;
+    }
+
+    if (seen.has(key)) {
+      duplicateCount += 1;
+      return;
+    }
+
+    seen.add(key);
+    items.push(entry);
+    added.push(entry);
+  });
+
+  return { items, added, duplicateCount };
 }

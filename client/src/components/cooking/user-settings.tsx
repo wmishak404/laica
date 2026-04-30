@@ -20,7 +20,7 @@ import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload, Clock, MoreVertical, History, Check, Leaf, Sparkles, Utensils } from 'lucide-react';
-import { mergeUniqueEntries, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
+import { mergeUniqueEntries, mergeUniqueEntriesWithMetadata, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
   extractVisionLabels,
@@ -576,6 +576,18 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     });
   };
 
+  const showAlreadySavedFeedback = (type: VisionScanType) => {
+    toast({
+      title: "Already saved",
+      description: `No new ${type === 'pantry' ? 'pantry items' : 'kitchen tools'} were added from that scan.`,
+    });
+  };
+
+  const duplicateSkipCopy = (duplicateCount: number) =>
+    duplicateCount > 0
+      ? ` ${duplicateCount} already-saved item${duplicateCount === 1 ? ' was' : 's were'} skipped.`
+      : '';
+
   const handlePantryImageAnalysis = async (imageData: string) => {
     setIsAnalyzingPantry(true);
     try {
@@ -597,13 +609,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
         const cleanIngredients = detectedIngredients
           .map(i => normalizeEntryLabel(String(i).toLowerCase()))
           .filter(i => i && i.length > 1);
-        const uniqueIngredients = mergeUniqueEntries([], cleanIngredients);
-        const newIngredients = mergeUniqueEntries(profile.pantryIngredients, uniqueIngredients);
-        setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, cleanIngredients);
+        setProfile(prev => ({ ...prev, pantryIngredients: mergeResult.items }));
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('pantry');
+          return;
+        }
         
         toast({
           title: "Pantry scan complete",
-          description: `Found ${uniqueIngredients.length} ingredients: ${uniqueIngredients.slice(0, 3).join(', ')}${uniqueIngredients.length > 3 ? '...' : ''}`
+          description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${duplicateSkipCopy(mergeResult.duplicateCount)}`
         });
       } else {
         toast({
@@ -646,13 +662,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
         const cleanEquipment = detectedEquipment
           .map(e => normalizeEntryLabel(String(e).toLowerCase()))
           .filter(e => e && e.length > 1);
-        const uniqueEquipment = mergeUniqueEntries([], cleanEquipment);
-        const newEquipment = mergeUniqueEntries(profile.kitchenEquipment, uniqueEquipment);
-        setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.kitchenEquipment, cleanEquipment);
+        setProfile(prev => ({ ...prev, kitchenEquipment: mergeResult.items }));
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('kitchen');
+          return;
+        }
         
         toast({
           title: "Kitchen scan complete",
-          description: `Found ${uniqueEquipment.length} items: ${uniqueEquipment.slice(0, 3).join(', ')}${uniqueEquipment.length > 3 ? '...' : ''}`
+          description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${duplicateSkipCopy(mergeResult.duplicateCount)}`
         });
       } else {
         toast({
@@ -802,29 +822,39 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       // Update state once with all accumulated results
       if (type === 'pantry' && allNewIngredients.length > 0) {
-        const uniqueNewIngredients = mergeUniqueEntries([], allNewIngredients);
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, allNewIngredients);
         setProfile(prev => ({
           ...prev,
-          pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, uniqueNewIngredients)
+          pantryIngredients: mergeResult.items
         }));
-        toast({
-          title: `Scan complete!`,
-          description: `Found ${uniqueNewIngredients.length} ingredients across ${processedFiles.length} image(s).${
-            rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
-          }`
-        });
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('pantry');
+        } else {
+          toast({
+            title: `Scan complete!`,
+            description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
+              rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }`
+          });
+        }
       } else if (type === 'kitchen' && allNewEquipment.length > 0) {
-        const uniqueNewEquipment = mergeUniqueEntries([], allNewEquipment);
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.kitchenEquipment, allNewEquipment);
         setProfile(prev => ({
           ...prev,
-          kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, uniqueNewEquipment)
+          kitchenEquipment: mergeResult.items
         }));
-        toast({
-          title: `Scan complete!`,
-          description: `Found ${uniqueNewEquipment.length} equipment items across ${processedFiles.length} image(s).${
-            rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
-          }`
-        });
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('kitchen');
+        } else {
+          toast({
+            title: `Scan complete!`,
+            description: `Found ${mergeResult.added.length} new equipment item${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
+              rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }`
+          });
+        }
       } else if (rejectedCount > 0 && lastRejectedResult) {
         showRejectedScanFeedback(type, lastRejectedResult);
       } else {

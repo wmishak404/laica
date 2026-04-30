@@ -190,6 +190,86 @@ describe('UserProfiling setup flow', () => {
     expect(screen.queryByText(/your pantry list/i)).toBeNull();
   });
 
+  it('skips repeated pantry scan labels and tells the user nothing new was added', async () => {
+    vi.mocked(analyzeImage)
+      .mockResolvedValueOnce({ ingredients: ['Rice'] })
+      .mockResolvedValueOnce({ ingredients: ['rice'] });
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+
+    const pantryUpload = container.querySelector('#pantry-setup-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, {
+      target: { files: [new File(['image'], 'pantry-1.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('rice')).toBeTruthy();
+    });
+
+    fireEvent.change(pantryUpload, {
+      target: { files: [new File(['image'], 'pantry-2.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Already saved',
+        description: 'No new pantry items were added from that scan.',
+      }));
+    });
+    expect(screen.getAllByText('rice')).toHaveLength(1);
+  });
+
+  it('skips repeated kitchen scan labels while adding genuinely new tools', async () => {
+    vi.mocked(analyzeImage)
+      .mockResolvedValueOnce({ equipment: ['Chef Knife'] })
+      .mockResolvedValueOnce({ equipment: ["chef's knife"] })
+      .mockResolvedValueOnce({ equipment: ['chef-knife', 'Cutting Board'] });
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    const kitchenUpload = container.querySelector('#kitchen-setup-upload') as HTMLInputElement;
+    fireEvent.change(kitchenUpload, {
+      target: { files: [new File(['image'], 'kitchen-1.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('chef knife')).toBeTruthy();
+    });
+
+    fireEvent.change(kitchenUpload, {
+      target: { files: [new File(['image'], 'kitchen-2.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Already saved',
+        description: 'No new kitchen tools were added from that scan.',
+      }));
+    });
+    expect(screen.getAllByText('chef knife')).toHaveLength(1);
+
+    fireEvent.change(kitchenUpload, {
+      target: { files: [new File(['image'], 'kitchen-3.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('cutting board')).toBeTruthy();
+    });
+    expect(screen.getAllByText('chef knife')).toHaveLength(1);
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Kitchen scan added items',
+      description: expect.stringContaining('1 already-saved item was skipped'),
+    }));
+  });
+
   it('requires at least three pantry ingredients before continuing', () => {
     render(<UserProfiling onProfileComplete={vi.fn()} />);
 

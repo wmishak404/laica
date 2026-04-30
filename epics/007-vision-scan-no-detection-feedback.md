@@ -108,3 +108,7 @@ The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) routes the new p
 ### 2026-04-30 — Phase 2.1 validation separates no-detection from scan failures
 
 Wilson's Phase 2.1 Replit testing showed that one generic batch-scan error made text-only rejection, repeated-upload/rate-limit failures, and actual no-detection outcomes feel indistinguishable. The Phase 2.1 setup branch now preserves explicit no-detection feedback for valid empty scans, keeps text-only/document-like rejection on its own manual-entry guidance path, and adds distinct copy for rate-limit, oversized/unreadable image, auth, and generic service failures. Remaining validation before resolving this epic: Replit smoke with a valid negative-control pantry/kitchen image at the latest Phase 2.1 branch head.
+
+### 2026-04-30 — Duplicate-only scans get explicit feedback
+
+Wilson's mobile Phase 2.1 smoke found that repeated uploads/captures of the same Pantry or Kitchen angle could add duplicate entries. The Phase 2.1 setup branch now treats duplicate-only detections as their own valid scan outcome with `Already saved` feedback, while mixed duplicate/new scans add only the new items and mention that already-saved items were skipped. This keeps duplicate prevention separate from no-detection and service-failure messaging.
