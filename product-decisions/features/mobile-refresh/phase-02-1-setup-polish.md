@@ -24,6 +24,9 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Make Cooking Skill a one-tap single-choice step: selecting `Beginner`, `Intermediate`, or `Expert` accepts the answer and advances immediately.
 - Preserve explicit continuation for multi-select steps such as Dietary Restrictions and future cuisine selection.
 - Consider a first-time-user welcome/get-started page with useful introductory context similar in spirit to the pre-auth `What can you help me do?` content.
+- Add the former EPIC-011 text-only scan safeguard: pantry and kitchen scans should reject text-only or text-dominant screenshots, documents, grocery lists, recipes, receipts, menus, or notes as inventory evidence.
+- Keep packaging labels valid when they appear on visible physical pantry products or kitchen equipment; reject only text-only/document-like inputs with no physical objects.
+- Route rejected text-only scans to clear feedback and manual entry instead of silently doing nothing.
 - Bring setup screens closer to the Phase 2 mockup and mobile-refresh design language without changing the already-validated backend/data contract.
 
 ## Acceptance Criteria
@@ -36,6 +39,10 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Pantry copy is privacy-aware and avoids language that implies invasive inspection.
 - Cooking Skill auto-advances after one full-row selection.
 - Multi-select steps retain explicit continuation.
+- Text-only ingredient screenshots do not add pantry ingredients.
+- Text-only equipment screenshots do not add kitchen equipment.
+- Physical pantry/kitchen photos with readable labels still detect real visible products or tools.
+- Rejected text-only scans show clear feedback and offer manual entry.
 - Setup screens visibly conform to the Phase 2 mockup direction and design-language draft.
 - Replit validation is rerun at the latest Phase 2.1 runtime head before merge.
 
@@ -43,10 +50,12 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 
 - EPIC-004: Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
 - EPIC-005: Phase 2.1 needs fresh validation because it changes runtime UI after the PR #23 Replit pass.
+- EPIC-011 / PR #24: The standalone text-only scan safeguard epic is superseded by this Phase 2.1 scope.
 - EPIC-012: Phase 2.1 is the active setup visual-conformance and trust/privacy polish pass.
 
 ## Out Of Scope
 
 - Reopening the Phase 2 backend contract.
+- Building OCR import for grocery lists, recipes, receipts, screenshots, or typed inventories.
 - Dropping the legacy `weekly_time` DB column.
 - Redesigning the Phase 3 Planning entry screen, except where a first-time welcome handoff touches setup-to-planning transition copy.

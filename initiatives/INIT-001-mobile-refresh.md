@@ -65,7 +65,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Draft / functionally validated | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit; latest visual/trust feedback deferred |
-| Phase 2.1 | Planned | TBD | Setup polish: camera opt-in, upload/manual hierarchy, scanning state, Back/escape, copy, auto-advance |
+| Phase 2.1 | Planned | TBD | Setup polish: camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -79,6 +79,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 | #21 | Merged | `codex/mobile-refresh-phase-0-security` | Replit/security validation completed before merge |
 | #22 | Merged | `codex/mobile-refresh-phase-1-auth` | Phase 1 polish merged to `main` |
 | #23 | Draft / open | `codex/mobile-refresh-phase-2-setup` | Functional Replit validation passed at `f037552`; latest head adds docs-only records |
+| #24 | Closed / superseded | `codex/vision-text-only-scan-epic` | Standalone EPIC-011 PR superseded by Phase 2.1 scope |
 | #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 
 ## Epics and Governance
@@ -98,7 +99,7 @@ The exact current `Last Replit-validated at` SHA lives in the PR #23 description
 - Dev-test harness planned for future Firebase custom-token dev auth, not backend bypass.
 - Mockup conformance gate added: linked mockups are implementation inputs, not loose inspiration.
 - Phase 2 scope corrected: setup visual polish and Pantry/Kitchen Back/escape are merge-readiness items.
-- PR #23 UI feedback added and deferred to Phase 2.1: camera off by default with toggle, one upload action, peer manual entry, processing animation, privacy-aware copy, single-choice auto-advance, and first-time welcome follow-up.
+- PR #23 UI feedback added and deferred to Phase 2.1: camera off by default with toggle, one upload action, peer manual entry, processing animation, text-only scan safeguard, privacy-aware copy, single-choice auto-advance, and first-time welcome follow-up.
 - EPIC-012 added for LAICA design language and visual identity.
 - Mobile Refresh Design Language drafted and annotated with visual exemplars.
 - Stacked PR base refresh rule added after PR #22 polish was missing from early PR #23 preview.
@@ -128,6 +129,7 @@ Next implementation focus:
 2. If no runtime files change after `f037552`, rely on the completed Replit functional validation and docs-only checks.
 3. Mark PR #23 ready/merge when Wilson approves.
 4. Start Phase 2.1 from fresh `origin/main` after PR #23 merges, using [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) as the scope.
+5. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
 
 ## Chronology
 
@@ -166,3 +168,7 @@ Wilson reported that Replit validation and the 16 signed-in post-auth functional
 ### 2026-04-29 — Phase 2.1 setup polish split
 
 Wilson decided to defer the latest visual/trust/privacy feedback to Phase 2.1 because PR #23 is already large. PR #23 should close functional Phase 2; Phase 2.1 owns setup polish, camera opt-in, manual/upload hierarchy, scanning state, Back/escape, softer copy, single-choice auto-advance, and optional welcome/get-started context.
+
+### 2026-04-29 — EPIC-011 / PR #24 folded into Phase 2.1
+
+Wilson decided the text-only vision scan safeguard from PR #24 belongs in Phase 2.1 because it affects the same pantry/kitchen scan surfaces and trust model. PR #24 is superseded; Phase 2.1 owns rejecting text-only/document-like scan inputs while preserving labels on visible physical products.
