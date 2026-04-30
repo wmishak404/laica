@@ -122,6 +122,7 @@ Wilson's next Replit pass kept the overall direction and requested a narrower po
 Codex implemented that follow-up polish locally on `codex/mobile-refresh-phase-2-1-setup-polish`:
 
 - Added a setup-scoped account menu slot in the setup frame and a persistent `Menu` item in the post-setup bottom nav, without restoring the top header or allowing incomplete users into Planning.
+- Removed the `Kitchen warm-up` eyebrow from the Welcome page so `Yes, Chef!` is the first welcome copy users see.
 - Updated the Pantry heading to `Start with pantry staples.`
 - Enlarged the in-camera camera on/off and scanning tips controls to match the capture button's visual weight, changed tips to a help-circle icon, and kept controls inside the viewfinder.
 - Removed the small technical helper lines below `Upload photos` and `Enter manually`.

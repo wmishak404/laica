@@ -341,7 +341,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       </div>
 
       <div className="space-y-3">
-        <p className="setup-kicker">Kitchen warm-up</p>
         <h1 className="setup-display text-[2.65rem] font-extrabold leading-[0.98] text-[hsl(var(--setup-ink))]">
           Yes, Chef!
         </h1>

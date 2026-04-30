@@ -262,15 +262,6 @@ html, body {
     text-transform: uppercase;
   }
 
-  .setup-kicker {
-    color: hsl(var(--setup-coral-strong));
-    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
-    font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
   .setup-copy {
     color: hsl(var(--setup-ink) / 0.68);
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;

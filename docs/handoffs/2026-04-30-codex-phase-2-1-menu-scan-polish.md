@@ -20,6 +20,7 @@ This keeps the no-header direction, adds menu access through setup and the post-
   - Passes a compact setup menu into `UserProfiling` so first-time setup has account/feedback/sign-out access without restoring the header or unlocking Planning.
 - `client/src/components/cooking/user-profiling.tsx`
   - Adds the optional setup menu slot.
+  - Removes the `Kitchen warm-up` eyebrow from the Welcome page.
   - Changes the Pantry heading to `Start with pantry staples.`
   - Removes helper sublabels below `Upload photos` and `Enter manually`.
   - Applies Kitchen-specific gray/silver classes to secondary action icons, manual illustration, input, save button, chips, and chip remove controls.
