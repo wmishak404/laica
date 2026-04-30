@@ -218,6 +218,18 @@ Do not copy:
 - Secondary setup actions should avoid technical helper labels when the main command is clear. Prefer one clear label over small explanatory subcopy like file-count or delimiter mechanics.
 - Kitchen setup can share Pantry's component model while shifting equipment-specific accents toward gray/silver and light wood, especially save actions, item chips, remove controls, and utility icons.
 
+### Phase 2.1 Setup Pilot Checkpoint
+
+Wilson accepted the Phase 2.1 setup visual direction on 2026-04-30 after the setup conformance, menu/camera-control, welcome-copy, Kitchen-accent, and upload-limit passes.
+
+Carry this forward as design-language signal, not as a mandatory global rollout:
+
+- Setup can use `Fraunces` display type and `Nunito` body/control type as the current mobile-refresh typography pilot.
+- Setup should open with friendly direct copy, not an explanatory eyebrow before the primary welcome heading.
+- Camera-first surfaces should keep user control visible: camera off by default, camera controls inside the scan object, blank shutter capture, translucent utility controls, and upload/manual paths nearby.
+- Warm coral remains the setup progress and primary action anchor; Kitchen can introduce gray/silver and light wood accents only for tool-specific surfaces.
+- Technical helper labels should not sit under obvious secondary commands when they make the UI feel more complicated than the task.
+
 ### Iconography and Emoji
 
 - Use `lucide-react` as the default icon language.

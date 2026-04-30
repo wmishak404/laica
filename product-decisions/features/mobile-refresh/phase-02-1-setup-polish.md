@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 2.1 — Setup Polish: Trust, Privacy, and Visual Conformance
 
-**Status:** In Progress
+**Status:** Validation Ready / Replit validation pending
 **Phase owner:** Wilson
 **Date:** 2026-04-29
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -62,13 +62,68 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 - Confirmation keeps its current page structure, while its icons should stay consistent with the accepted illustration direction.
 - Replit validation is rerun at the latest Phase 2.1 runtime head before merge.
 
+## Validation Checklist
+
+Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge readiness now depends on validating the implemented behavior at the latest branch head in Replit and recording the validated commit SHA.
+
+### Local Gates
+
+- `npm run check`
+- `npm run build`
+- Focused Vitest coverage:
+  - `tests/unit/equipment-vision-prompts.test.ts`
+  - `tests/unit/vision-analysis-result.test.ts`
+  - `tests/unit/vision-result.test.ts`
+  - `tests/unit/native-camera.test.tsx`
+  - `tests/unit/user-profiling.test.tsx`
+
+### Replit Prerequisites
+
+- Replit has fetched the latest `codex/mobile-refresh-phase-2-1-setup-polish` branch head.
+- Validator is signed in with Google.
+- Test with a first-time or reset profile user so setup starts from Welcome.
+- Test Settings upload behavior with an already completed profile.
+- Record `Last Replit-validated at: <commit-sha>` in the PR description and handoff after validation passes.
+
+### Replit Acceptance Checklist
+
+- **App shell:** authenticated pages do not show the old persistent top header; account/profile/feedback/sign-out access is available through the menu surface.
+- **Welcome:** first-time setup starts on `Yes, Chef!`, has no `Kitchen warm-up` eyebrow, and `Get started` enters pantry setup.
+- **Back/escape:** Back from Pantry returns to Welcome; incomplete users cannot use Back/menu paths to enter Planning.
+- **Progress/chrome:** setup uses one top progress treatment; Pantry shows `1/5`, Kitchen shows `2/5`, and both keep coral progress.
+- **Pantry visual/copy:** Pantry uses `Start with pantry staples.`, warm setup typography, readable `Upload photos` / `Enter manually` actions, and no technical helper sublabels.
+- **Camera opt-in:** Pantry and Kitchen camera previews start off; turning camera on starts a live preview, turning it off stops tracks, permission denial leaves upload/manual alternatives available.
+- **Camera controls:** camera on/off and tips controls are smaller translucent circles with large icons; capture is a blank shutter; tips use a non-flashlight help icon and open an in-context overlay.
+- **Pantry upload:** uploading 1-8 supported pantry photos processes normally and shows scanning/processing state; selecting 9 or more cancels the whole batch and adds/scans nothing.
+- **Kitchen upload:** uploading 1-6 supported kitchen photos processes normally and shows scanning/processing state; selecting 7 or more cancels the whole batch and adds/scans nothing.
+- **Settings upload:** the same fail-closed upload cap behavior applies in Settings for pantry and kitchen photo uploads.
+- **Manual entry:** comma-separated pantry and kitchen manual entries create separate chips; the pantry placeholder remains `ground beef, mayo, rice, packaged salad`.
+- **No-detection feedback:** valid pantry/kitchen photos with no detectable inventory produce clear no-detection feedback instead of ending silently.
+- **Text-only rejection:** screenshots, documents, grocery lists, receipts, menus, recipes, and notes are rejected for pantry and kitchen scans, add nothing, and route the user toward manual entry.
+- **Physical photo allowance:** physical pantry products and kitchen tools with readable packaging/labels are still accepted when visible objects are present.
+- **Kitchen visual treatment:** Kitchen keeps the shared Pantry interaction model while using gray/silver and light wood accents for equipment-specific controls and chips.
+- **Cooking Skill:** `Beginner`, `Intermediate`, and `Expert` selections save and auto-advance immediately.
+- **Dietary Restrictions:** `No restrictions` is isolated and visually distinct; multi-select choices keep explicit `Next` continuation.
+- **Confirmation:** Step 5 keeps the accepted visual direction, summarizes saved setup data, and `Finish setup` transitions to Planning.
+- **Contracts:** `/api/vision/analyze` input remains unchanged, response additions remain backward-compatible, and no DB schema changes are introduced.
+
+### Merge Acceptance
+
+- All local gates pass at the branch head being validated.
+- Replit validation passes at the same commit SHA.
+- The PR description and latest handoff record `Last Replit-validated at: <commit-sha>`.
+- Any later commit after that SHA makes validation stale and requires a fresh Replit pass before merge.
+
 ## Epic Interactions
 
 - EPIC-001: New setup typography and visual utilities must remain scoped and documented as a pilot rather than a silent global primitive/font change.
 - EPIC-004: Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
-- EPIC-005: Phase 2.1 needs fresh validation because it changes runtime UI after the PR #23 Replit pass.
+- EPIC-005: Phase 2.1 needs fresh validation because it changes runtime UI after the PR #23 Replit pass; the checklist above is the phase-level acceptance record.
+- EPIC-007: Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.
+- EPIC-009: Comma-separated manual entry behavior must remain consistent for setup pantry/kitchen entries.
+- EPIC-010: Phase 2.1 must not add DB schema changes or reopen the validated Phase 2 data contract.
 - EPIC-011 / PR #24: The standalone text-only scan safeguard epic is superseded by this Phase 2.1 scope.
-- EPIC-012: Phase 2.1 is the active setup visual-conformance and trust/privacy polish pass.
+- EPIC-012: Phase 2.1 is the accepted setup visual-conformance pilot, pending final Replit functional validation.
 
 ## Out Of Scope
 
@@ -142,3 +197,19 @@ Accepted behavior:
 - Selecting more than the cap cancels the whole batch, shows the limit message, and does not send any selected photo for analysis.
 - The same fail-closed rule applies to setup and Settings so users do not have to learn different upload behavior later.
 - Users can then reselect a smaller, intentional batch.
+
+## 2026-04-30 Visual Acceptance Checkpoint
+
+Wilson confirmed the Phase 2.1 setup design now looks great after the visual conformance, menu/camera-control, welcome-copy, Kitchen-accent, and upload-limit passes.
+
+Accepted durable visual direction for setup:
+
+- Setup-scoped `Fraunces` display type and `Nunito` UI/body type remain the Phase 2.1 pilot direction.
+- Welcome starts directly with `Yes, Chef!`.
+- Setup uses the warm cream/coral phone-flow treatment and one top progress bar.
+- Pantry and Kitchen share the same scan/manual/upload component model.
+- Kitchen can use gray/silver and light wood accents for equipment-specific actions and chips, but setup progress stays coral across steps.
+- Camera controls live inside the scan object, with translucent utility controls and a blank capture shutter.
+- Manual entry remains visually peer-level with photo upload.
+
+No further visual polish is required before Phase 2.1 validation unless Replit testing finds a regression.

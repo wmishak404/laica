@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 2.1 setup polish in implementation
+**Current phase:** Phase 2.1 setup polish validation-ready
 **Active PR:** None
 **Active branch:** `codex/mobile-refresh-phase-2-1-setup-polish`
 
@@ -40,6 +40,8 @@ Wilson's follow-up Replit review kept the direction and narrowed the remaining p
 
 Wilson's functionality testing then clarified upload-limit behavior: selecting more than the pantry cap of 8 photos or kitchen cap of 6 photos should cancel the entire batch, not silently process the first allowed files. Codex has implemented the fail-closed upload limit behavior locally for setup and Settings; Replit validation remains required at the latest branch head.
 
+Wilson has now accepted the Phase 2.1 setup visual direction. The current branch should be treated as implementation-complete for Phase 2.1 unless validation finds a regression. The next step is the Replit validation checklist in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md), then recording the validated commit SHA before opening/merging the PR.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -74,7 +76,7 @@ Wilson's functionality testing then clarified upload-limit behavior: selecting m
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit and merged; latest visual/trust feedback deferred |
-| Phase 2.1 | In Progress | `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance, setup-only typography, mockup-led cream/coral treatment, bottom/account menu access, and Replit visual-feedback polish |
+| Phase 2.1 | Validation Ready | `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance, setup-only typography, mockup-led cream/coral treatment, bottom/account menu access, fail-closed upload caps, and accepted visual polish; Replit validation pending |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -91,7 +93,7 @@ Wilson's functionality testing then clarified upload-limit behavior: selecting m
 | #24 | Closed / superseded | `codex/vision-text-only-scan-epic` | Standalone EPIC-011 PR superseded by Phase 2.1 scope |
 | #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 | #26 | Merged | `codex/mobile-refresh-phase-2-closeout` | Phase 2 closeout moved resume point to Phase 2.1 |
-| TBD | In progress | `codex/mobile-refresh-phase-2-1-setup-polish` | Local checks passed; Replit validation not yet run |
+| TBD | Validation ready | `codex/mobile-refresh-phase-2-1-setup-polish` | Visual direction accepted by Wilson; local checks passed; Replit validation not yet run |
 
 ## Epics and Governance
 
@@ -125,25 +127,28 @@ Known validation facts:
 - The 16 signed-in post-auth functional smoke items passed in Replit.
 - Latest UI trust/privacy feedback is deferred to Phase 2.1.
 - PR #23 merged into `main` as merge commit `eca3d1b504e8eb33edbeb74e78cf2755b760577f`.
+- Wilson accepted the Phase 2.1 setup visual direction after the latest visual/camera-control polish.
 
 Required before Phase 2.1 merge:
 
 - Start Phase 2.1 from fresh `origin/main`.
 - Implement the setup polish and text-only scan safeguard scope in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
-- Wilson's 2026-04-30 Replit visual feedback and follow-up setup polish captured in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) have been implemented locally and must be re-reviewed in Replit.
-- Re-run Replit validation at the latest Phase 2.1 runtime head before merge, including visual review against [phase-02-setup.png](../docs/assets/mobile-refresh/phase-02-setup.png).
+- Wilson's 2026-04-30 Replit visual feedback and follow-up setup polish captured in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) have been implemented and visually accepted.
+- Re-run Replit validation at the latest Phase 2.1 runtime head before merge using the checklist in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
+- Record `Last Replit-validated at: <commit-sha>` after validation passes.
 
 ## Current Resume Point
 
-Resume at Phase 2.1 setup polish on `codex/mobile-refresh-phase-2-1-setup-polish`.
+Resume at Phase 2.1 validation on `codex/mobile-refresh-phase-2-1-setup-polish`.
 
 Next implementation focus:
 
 1. Pull the updated `codex/mobile-refresh-phase-2-1-setup-polish` branch into Replit.
-2. Run the Phase 2.1 signed-in Replit validation checklist at the latest branch head, including menu access, the friendlier Pantry heading, smaller translucent in-camera controls with larger icons, the blank capture shutter, the non-flashlight tips icon, coral progress across Pantry and Kitchen, simplified upload/manual labels, fail-closed upload batches over 8 pantry or 6 kitchen photos in setup and Settings, Kitchen gray/silver accents, and setup visual conformance review against the Phase 2 mockup.
-3. Open the Phase 2.1 PR after validation state is recorded.
-4. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
-5. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
+2. Run the Phase 2.1 signed-in Replit validation checklist in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) at the latest branch head.
+3. Record `Last Replit-validated at: <commit-sha>` in the handoff and PR description after validation passes.
+4. Open the Phase 2.1 PR after validation state is recorded.
+5. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
+6. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
 
 ## Chronology
 
@@ -214,3 +219,7 @@ Wilson's next Replit pass clarified that the app still needs menu access without
 ### 2026-04-30 — Setup upload limit behavior changed to fail closed
 
 Wilson's functionality testing found that partially processing oversized upload selections creates uncertainty about which photos were scanned. Codex changed setup and Settings upload handling so selecting more than 8 pantry photos or more than 6 kitchen photos cancels the entire batch, shows the limit message, and sends no photo to vision analysis. Focused unit coverage now verifies both setup caps. Replit validation is not yet run at this implementation head.
+
+### 2026-04-30 — Phase 2.1 visual acceptance and validation checklist consolidated
+
+Wilson confirmed that the Phase 2.1 setup design now looks great. Codex marked the phase as validation-ready, consolidated the Replit acceptance checklist in the Phase 2.1 product note, and moved the resume point from implementation to validation. Replit validation is still not yet run at the latest branch head.

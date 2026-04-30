@@ -157,3 +157,9 @@ This adds a reusable design-language signal, not a global mandate: the setup typ
 Wilson reviewed the Phase 2.1 setup visuals in Replit and clarified the next design-language refinements: remove app headers from authenticated pages, simplify setup chrome to a single top progress bar, use `Laica` casing in user-facing copy, move pantry/kitchen camera controls into the camera object with iPhone-like capture/on-off/tips placement, make secondary setup buttons more readable on phones, distinguish Kitchen with some gray/silver and light wood accents, and replace monochrome coral setup-choice icons with relevant multicolor illustrations.
 
 The review also adds one durable selection-surface detail: `No restrictions` should be isolated and visually distinguished from the other dietary choices because it is the quick/default path for users with nothing to add.
+
+### 2026-04-30 — Phase 2.1 setup visual direction accepted
+
+Wilson confirmed that the Phase 2.1 setup design now looks great after the final welcome, camera-control, Kitchen-accent, and upload-limit polish passes. This is the first accepted pilot signal for the mobile-refresh design language: setup-scoped `Fraunces` / `Nunito` typography, warm cream/coral phone-flow shell, one top progress treatment, camera controls inside the scan object, translucent utility controls, blank shutter capture, peer-level upload/manual actions, multicolor setup-choice illustrations, isolated `No restrictions`, and a Kitchen-specific gray/silver/light-wood accent layer while keeping progress coral.
+
+This does not resolve EPIC-012 yet because Phase 2.1 still needs full Replit functional validation and the design language still needs later Phase 3-5 proof points, but it gives future agents a concrete accepted setup reference.

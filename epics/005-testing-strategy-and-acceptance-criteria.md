@@ -252,6 +252,10 @@ PR #23 validation showed that deterministic Replit checks can pass while authent
 
 Wilson's PR #23 walkthrough also showed that a deterministic green run can still miss a core acceptance problem: the setup behavior was present, but the visuals were not close enough to the approved mobile-refresh mockup and the camera step did not offer an obvious Back/escape path. Future phase acceptance should include a visual comparison against linked mockups for the primary screens, and any behavior-first/visual-later split must be documented before validation begins. This adds testing-strategy evidence, not a resolution.
 
+### 2026-04-30 — Phase 2.1 uses a consolidated phase validation checklist
+
+After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated local gates, Replit prerequisites, Replit acceptance items, and merge acceptance into `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`. This is a useful feature-level pattern for carrying acceptance criteria from product notes into Replit validation and PR handoffs, but it does not replace the still-needed app-wide validation matrix for this epic.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design
