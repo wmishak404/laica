@@ -116,3 +116,7 @@ Wilson's mobile Phase 2.1 smoke found that repeated uploads/captures of the same
 ### 2026-04-30 — Label-drift duplicate cleanup split to EPIC-014
 
 Wilson's follow-up mobile retest confirmed the current duplicate mitigation can skip some items, but duplicate-like labels can still appear when repeated scans describe the same object differently. The deeper scan-session review pattern now lives in [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md). EPIC-007 remains focused on clear scan outcome feedback, while EPIC-014 owns latest-scan/new-vs-overlap indicators and duplicate cleanup UX.
+
+### 2026-05-01 — Phase 2.1 merged, but epic remains open
+
+PR #27 merged Phase 2.1's explicit scan outcome feedback into `main`. This satisfies the implementation direction for setup/settings scan messaging, but this epic remains open because its resolution criteria still require a named negative-control pantry/kitchen image validation note. Future scan-feedback work should either supply that validation evidence or deliberately split the remaining criterion.
