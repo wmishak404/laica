@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-29
-**Updated:** 2026-04-30
+**Updated:** 2026-05-01
 
 ## One-line summary
 
@@ -171,3 +171,7 @@ Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language s
 ### 2026-05-01 — Phase 2.1 setup pilot merged
 
 PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scoped `Fraunces` / `Nunito`, warm cream/coral phone-flow surfaces, designed camera object, single top progress treatment, translucent camera controls, peer upload/manual actions, multicolor choice illustrations, and Kitchen-specific gray/silver/light-wood accents. This is a major proof point for EPIC-012, but the epic stays `In Progress` until the durable design-language artifact is promoted and later Phase 3-5 proof points clarify whether the setup typography/palette become global or stay setup-scoped.
+
+### 2026-05-01 — Phase 2.2 extends setup language to returning edits
+
+Wilson decided that returning-user Pantry/Kitchen/Profile edits should be a bridge phase before Phase 3, not a Phase 5 cleanup detail. Phase 2.2 extends the Phase 2.1 setup direction into Settings while keeping it quieter and more utilitarian: Menu becomes the global destination surface, Settings owns Pantry/Kitchen/Profile, and History separates into its own cooking-memory surface. The Phase 2.2 storyboard is now a visual exemplar for this transition, and Phase 5 remains responsible for deeper History sharing/cook-again behavior.

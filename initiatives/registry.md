@@ -10,4 +10,4 @@ Default agent workflow:
 
 | INIT | Title | Status | Owner | Created | Current phase | Active PRs | Last signal |
 |---|---|---|---|---|---|---|---|
-| [INIT-001](INIT-001-mobile-refresh.md) | Mobile Refresh | `In Progress` | Wilson / Codex / Claude / Replit | 2026-04-29 | Phase 2.1 setup polish planned | None | PR #23 merged; Phase 2.1 is next |
+| [INIT-001](INIT-001-mobile-refresh.md) | Mobile Refresh | `In Progress` | Wilson / Codex / Claude / Replit | 2026-04-29 | Phase 2.2 implementation | None | Phase 2.2 inserted before Phase 3 for returning setup, Menu, Settings, and History IA |

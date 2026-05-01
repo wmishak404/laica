@@ -44,7 +44,10 @@ interface UserSettingsProps {
   userProfile: UserProfile;
   onProfileUpdate: (profile: UserProfile) => void;
   onBackToPlanning: () => void;
+  initialSection?: SettingsSection;
 }
+
+export type SettingsSection = 'hub' | 'pantry' | 'kitchen' | 'profile';
 
 function HistoryTab() {
   const { toast } = useToast();
@@ -358,13 +361,18 @@ function HistoryTab() {
   );
 }
 
-export default function UserSettings({ userProfile, onProfileUpdate, onBackToPlanning }: UserSettingsProps) {
+export default function UserSettings({ userProfile, onProfileUpdate: _onProfileUpdate, onBackToPlanning, initialSection = 'hub' }: UserSettingsProps) {
   const [profile, setProfile] = useState<UserProfile>(userProfile);
+  const [activeSection, setActiveSection] = useState<SettingsSection>(initialSection);
   
   // Sync local state with prop changes (e.g., after profile reset)
   useEffect(() => {
     setProfile(userProfile);
   }, [userProfile]);
+
+  useEffect(() => {
+    setActiveSection(initialSection);
+  }, [initialSection]);
   
   // Option arrays matching the initial profiling
   const skillLevels = [
@@ -885,378 +893,383 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     event.target.value = '';
   };
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Kitchen & Settings</h1>
-        <p className="text-muted-foreground">Manage your kitchen setup and preferences</p>
+  const handleManualEntry = (type: 'pantry' | 'kitchen') => {
+    const inputId = type === 'pantry' ? 'manual-ingredients' : 'manual-equipment';
+    const input = document.getElementById(inputId) as HTMLInputElement | null;
+    if (!input || !input.value.trim()) return;
+
+    const newEntries = parseCommaSeparatedEntries(input.value);
+    if (type === 'pantry') {
+      setProfile(prev => ({
+        ...prev,
+        pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, newEntries)
+      }));
+    } else {
+      setProfile(prev => ({
+        ...prev,
+        kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, newEntries)
+      }));
+    }
+    input.value = '';
+  };
+
+  const sectionCards = [
+    {
+      id: 'pantry' as const,
+      title: 'Pantry',
+      description: `${profile.pantryIngredients.length} item${profile.pantryIngredients.length === 1 ? '' : 's'} saved`,
+      icon: Package,
+      tone: 'pantry',
+    },
+    {
+      id: 'kitchen' as const,
+      title: 'Kitchen',
+      description: `${profile.kitchenEquipment.length} tool${profile.kitchenEquipment.length === 1 ? '' : 's'} saved`,
+      icon: Settings,
+      tone: 'kitchen',
+    },
+    {
+      id: 'profile' as const,
+      title: 'Cooking Profile',
+      description: profile.cookingSkill ? `${profile.cookingSkill} skill and dietary notes` : 'Skill and dietary notes',
+      icon: User,
+      tone: 'profile',
+    },
+  ];
+
+  const renderSectionNav = () => (
+    <div className="returning-section-nav" aria-label="Settings sections">
+      {sectionCards.map((section) => {
+        const Icon = section.icon;
+        return (
+          <button
+            key={section.id}
+            type="button"
+            className="returning-nav-pill"
+            data-active={activeSection === section.id}
+            onClick={() => setActiveSection(section.id)}
+          >
+            <Icon className="h-4 w-4" />
+            <span>{section.title}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const renderHub = () => (
+    <div className="space-y-4">
+      <div className="returning-hero">
+        <p className="returning-kicker">Settings</p>
+        <h1 className="returning-display text-[2.45rem] font-extrabold leading-none">Keep Laica matched to your kitchen.</h1>
+        <p className="returning-copy mt-3 max-w-sm text-sm leading-relaxed">
+          Update the pantry, tools, and cooking profile Laica uses for Planning and Slop Bowl.
+        </p>
       </div>
 
-      <Tabs defaultValue="pantry" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="pantry" className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            Pantry
-          </TabsTrigger>
-          <TabsTrigger value="equipment" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Equipment
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            History
-          </TabsTrigger>
-        </TabsList>
+      <div className="space-y-3">
+        {sectionCards.map((section) => {
+          const Icon = section.icon;
+          return (
+            <button
+              key={section.id}
+              type="button"
+              className="returning-hub-card"
+              data-tone={section.tone}
+              onClick={() => setActiveSection(section.id)}
+            >
+              <span className="returning-hub-icon" data-tone={section.tone}>
+                <Icon className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1 text-left">
+                <span className="block font-extrabold text-[hsl(var(--returning-ink))]">{section.title}</span>
+                <span className="returning-copy block text-sm">{section.description}</span>
+              </span>
+              <span className="text-xl font-black text-primary">›</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-        {/* Pantry Tab - Matching onboarding Step 4 */}
-        <TabsContent value="pantry" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>What ingredients do you have in your pantry?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  onClick={() => setShowPantryCamera(true)}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingPantry}
-                >
-                  <Camera className="h-4 w-4" />
-                  Open Camera
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => document.getElementById('pantry-upload')?.click()}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingPantry}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload Images
-                </Button>
-                <input
-                  id="pantry-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleMultipleImageUpload(e, 'pantry')}
-                  className="hidden"
-                />
-                {isAnalyzingPantry && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    Analyzing image...
-                  </div>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Upload images of your pantry, or add ingredients manually below
-              </p>
-              
-              {/* Manual ingredient entry */}
-              <div className="mt-4">
-                <Label htmlFor="manual-ingredients">Add ingredients manually:</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="manual-ingredients"
-                    placeholder="e.g., onions"
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.getElementById('manual-ingredients') as HTMLInputElement;
-                      if (input && input.value.trim()) {
-                        const newIngredients = parseCommaSeparatedEntries(input.value);
-                        setProfile(prev => ({
-                          ...prev,
-                          pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, newIngredients)
-                        }));
-                        input.value = '';
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  You may enter "onions" or multiple ingredients separated by a comma (e.g. apples, oranges)
-                </p>
-              </div>
-              
-              {/* Show added ingredients */}
-              {profile.pantryIngredients.length > 0 && (
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Ingredients added:</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResetPantry}
-                      className="text-xs h-7 px-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                    >
-                      Reset Pantry
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {profile.pantryIngredients.map((ingredient, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                      >
-                        {ingredient}
-                        <button
-                          onClick={() => {
-                            setProfile(prev => ({
-                              ...prev,
-                              pantryIngredients: prev.pantryIngredients.filter((_, i) => i !== index)
-                            }));
-                          }}
-                          className="text-secondary/60 hover:text-secondary text-xs"
-                          type="button"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Having trouble with accuracy? Use "Reset Pantry" to clear everything and start fresh.
-                  </p>
-                </div>
-              )}
+  const renderInventorySection = (type: 'pantry' | 'kitchen') => {
+    const isPantry = type === 'pantry';
+    const items = isPantry ? profile.pantryIngredients : profile.kitchenEquipment;
+    const isAnalyzing = isPantry ? isAnalyzingPantry : isAnalyzingEquipment;
+    const uploadId = isPantry ? 'pantry-upload' : 'equipment-upload';
+    const manualId = isPantry ? 'manual-ingredients' : 'manual-equipment';
+    const title = isPantry ? 'Pantry' : 'Kitchen';
+    const description = isPantry
+      ? 'Update what Laica can cook with.'
+      : 'Update tools, pans, heat, and appliances.';
+    const placeholder = isPantry ? 'rice, eggs, spinach' : 'oven, blender, sheet pan';
+    const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
+    const handleReset = isPantry ? handleResetPantry : handleResetEquipment;
+    const setCameraOpen = isPantry ? setShowPantryCamera : setShowEquipmentCamera;
 
-              {/* Action buttons at bottom */}
-              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
-                <Button variant="outline" onClick={onBackToPlanning}>
-                  Back to Planning
-                </Button>
-                <Button onClick={handleSavePantry}>
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+    return (
+      <div className={`space-y-4 ${isPantry ? '' : 'returning-kitchen-tone'}`}>
+        {renderSectionNav()}
+        <section className="returning-panel">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="returning-kicker">{isPantry ? 'Returning setup' : 'Equipment setup'}</p>
+              <h1 className="returning-display text-[2.25rem] font-extrabold leading-none">{title}</h1>
+              <p className="returning-copy mt-2 text-sm leading-relaxed">{description}</p>
+            </div>
+            <span className="returning-count">{items.length}</span>
+          </div>
 
-        {/* Equipment Tab - Matching onboarding Step 5 */}
-        <TabsContent value="equipment" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>What kitchen equipment do you have?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  onClick={() => setShowEquipmentCamera(true)}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingEquipment}
-                >
-                  <Camera className="h-4 w-4" />
-                  Open Camera
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => document.getElementById('equipment-upload')?.click()}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingEquipment}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload Images
-                </Button>
-                <input
-                  id="equipment-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleMultipleImageUpload(e, 'kitchen')}
-                  className="hidden"
-                />
-                {isAnalyzingEquipment && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    Analyzing image...
-                  </div>
-                )}
+          <div className="returning-scan-object mt-5" data-tone={isPantry ? 'pantry' : 'kitchen'}>
+            <div className="returning-scan-frame">
+              <Camera className="h-8 w-8 text-white/85" />
+              <span className="returning-focus-ring" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                className="returning-action-button h-14 justify-start"
+                variant="outline"
+                onClick={() => setCameraOpen(true)}
+                disabled={isAnalyzing}
+              >
+                <Camera className="mr-2 h-4 w-4" />
+                Scan
+              </Button>
+              <Button
+                type="button"
+                className="returning-action-button h-14 justify-start"
+                variant="outline"
+                onClick={() => document.getElementById(uploadId)?.click()}
+                disabled={isAnalyzing}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Upload
+              </Button>
+            </div>
+            <input
+              id={uploadId}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => handleMultipleImageUpload(e, type)}
+              className="hidden"
+            />
+            {isAnalyzing && (
+              <div className="returning-status">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary/25 border-t-primary" />
+                <span>{isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}</span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Upload images of your kitchen, or add equipment manually below
-              </p>
-              
-              {/* Manual equipment entry */}
-              <div className="mt-4">
-                <Label htmlFor="manual-equipment">Add equipment manually:</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="manual-equipment"
-                    placeholder="e.g., stove"
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.getElementById('manual-equipment') as HTMLInputElement;
-                      if (input && input.value.trim()) {
-                        const newEquipment = parseCommaSeparatedEntries(input.value);
-                        setProfile(prev => ({
-                          ...prev,
-                          kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, newEquipment)
-                        }));
-                        input.value = '';
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  You may enter "stove" or multiple equipment separated by a comma (e.g. oven, blender)
-                </p>
-              </div>
-              
-              {/* Show added equipment */}
-              {profile.kitchenEquipment.length > 0 && (
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Equipment added:</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResetEquipment}
-                      className="text-xs h-7 px-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                    >
-                      Reset Equipment
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {profile.kitchenEquipment.map((equipment, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                      >
-                        {equipment}
-                        <button
-                          onClick={() => {
-                            setProfile(prev => ({
-                              ...prev,
-                              kitchenEquipment: prev.kitchenEquipment.filter((_, i) => i !== index)
-                            }));
-                          }}
-                          className="text-secondary/60 hover:text-secondary text-xs"
-                          type="button"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+            )}
+          </div>
 
-              {/* Action buttons at bottom */}
-              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
-                <Button variant="outline" onClick={onBackToPlanning}>
-                  Back to Planning
-                </Button>
-                <Button onClick={handleSaveEquipment}>
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div className="returning-manual mt-4">
+            <Label htmlFor={manualId} className="text-sm font-extrabold text-[hsl(var(--returning-ink))]">
+              {isPantry ? 'Add pantry items' : 'Add kitchen tools'}
+            </Label>
+            <div className="mt-2 flex gap-2">
+              <Input
+                id={manualId}
+                placeholder={placeholder}
+                className="h-12 rounded-2xl border-primary/20 bg-white/80 text-base font-bold"
+              />
+              <Button
+                type="button"
+                className={`h-12 rounded-2xl px-4 font-extrabold ${isPantry ? 'bg-primary hover:bg-primary/90' : 'returning-kitchen-save'}`}
+                onClick={() => handleManualEntry(type)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+            {isPantry && <p className="returning-copy mt-2 px-1 text-xs">Separate pantry items with commas.</p>}
+          </div>
 
-        <TabsContent value="profile" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Cooking Profile</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <div className="returning-list mt-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
               <div>
-                <Label>Cooking Skill Level</Label>
-                <div role="radiogroup" aria-label="Cooking skill level" className="mt-2 space-y-3">
-                  {skillLevels.map((skill) => {
-                    const Icon = skill.icon;
-                    return (
-                      <button
-                        key={skill.value}
-                        type="button"
-                        role="radio"
-                        aria-checked={profile.cookingSkill === skill.value}
-                        onClick={() => setProfile(prev => ({ ...prev, cookingSkill: skill.value }))}
-                        className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition ${
-                          profile.cookingSkill === skill.value ? 'border-primary bg-primary/10' : 'border-border bg-card'
-                        }`}
-                      >
-                        <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                          profile.cookingSkill === skill.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                        }`}>
-                          <Icon className="h-5 w-5" />
-                        </span>
-                        <span className="flex-1">
-                          <span className="block font-semibold">{skill.label}</span>
-                          <span className="text-sm text-muted-foreground">{skill.description}</span>
-                        </span>
-                        {profile.cookingSkill === skill.value && <Check className="h-5 w-5 text-primary" />}
-                      </button>
-                    );
-                  })}
-                </div>
+                <p className="font-extrabold text-[hsl(var(--returning-ink))]">{isPantry ? 'Saved pantry' : 'Saved tools'}</p>
+                <p className="returning-copy text-xs">Remove anything Laica should ignore.</p>
               </div>
+              {items.length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReset}
+                  className="h-9 rounded-full border-destructive/20 px-3 text-xs font-extrabold text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                  Reset
+                </Button>
+              )}
+            </div>
 
-              <div>
-                <Label>Dietary Restrictions</Label>
-                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {dietaryOptions.map((option) => (
+            {items.length === 0 ? (
+              <div className="returning-empty">
+                <Package className="h-8 w-8 text-primary/70" />
+                <p>{isPantry ? 'No pantry items saved yet.' : 'No kitchen tools saved yet.'}</p>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {items.map((item, index) => (
+                  <span key={`${item}-${index}`} className={`returning-chip ${isPantry ? '' : 'returning-chip-kitchen'}`}>
+                    {item}
                     <button
-                      key={option}
                       type="button"
-                      aria-pressed={profile.dietaryRestrictions.includes(option)}
-                      onClick={() => handleDietaryChange(option)}
-                      className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
-                        profile.dietaryRestrictions.includes(option) ? 'border-primary bg-primary/10' : 'border-border bg-card'
-                      }`}
+                      aria-label={`Remove ${item}`}
+                      onClick={() => {
+                        setProfile(prev => ({
+                          ...prev,
+                          [isPantry ? 'pantryIngredients' : 'kitchenEquipment']: items.filter((_, i) => i !== index)
+                        }));
+                      }}
                     >
-                      <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                        profile.dietaryRestrictions.includes(option) ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        <Leaf className="h-4 w-4" />
-                      </span>
-                      <span className="flex-1 text-sm font-medium">{option}</span>
-                      {profile.dietaryRestrictions.includes(option) && <Check className="h-4 w-4 text-primary" />}
+                      ×
                     </button>
-                  ))}
-                </div>
+                  </span>
+                ))}
               </div>
+            )}
+          </div>
 
-              {/* Action buttons at bottom */}
-              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
-                <Button variant="outline" onClick={onBackToPlanning}>
-                  Back to Planning
-                </Button>
-                <Button onClick={handleSaveProfile}>
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <div className="returning-actions">
+            <Button variant="outline" className="returning-secondary-cta" onClick={() => setActiveSection('hub')}>
+              Settings
+            </Button>
+            <Button className={`returning-primary-cta ${isPantry ? '' : 'returning-kitchen-save'}`} onClick={handleSave}>
+              {isPantry ? 'Save pantry' : 'Save kitchen'}
+            </Button>
+          </div>
+        </section>
+      </div>
+    );
+  };
 
-        <TabsContent value="history" className="space-y-4">
-          <HistoryTab />
-        </TabsContent>
-      </Tabs>
+  const renderProfileSection = () => {
+    const selectedDietary = new Set(profile.dietaryRestrictions);
+    const remainingDietaryOptions = dietaryOptions.filter(option => option !== 'No restrictions');
+
+    return (
+      <div className="space-y-4">
+        {renderSectionNav()}
+        <section className="returning-panel">
+          <p className="returning-kicker">Cooking Profile</p>
+          <h1 className="returning-display text-[2.25rem] font-extrabold leading-none">How Laica adapts.</h1>
+          <p className="returning-copy mt-2 text-sm leading-relaxed">
+            Keep skill level and dietary notes current so suggestions stay useful.
+          </p>
+
+          <div className="mt-6 space-y-3">
+            <Label className="text-sm font-extrabold text-[hsl(var(--returning-ink))]">Cooking skill</Label>
+            <div role="radiogroup" aria-label="Cooking skill level" className="space-y-3">
+              {skillLevels.map((skill) => {
+                const Icon = skill.icon;
+                const selected = profile.cookingSkill === skill.value;
+                return (
+                  <button
+                    key={skill.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    data-selected={selected}
+                    onClick={() => setProfile(prev => ({ ...prev, cookingSkill: skill.value }))}
+                    className="returning-choice-row"
+                  >
+                    <span className="returning-choice-icon">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-extrabold text-[hsl(var(--returning-ink))]">{skill.label}</span>
+                      <span className="returning-copy text-sm">{skill.description}</span>
+                    </span>
+                    {selected && <Check className="h-5 w-5 text-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-7 space-y-3">
+            <Label className="text-sm font-extrabold text-[hsl(var(--returning-ink))]">Dietary notes</Label>
+            <button
+              type="button"
+              aria-pressed={selectedDietary.has('No restrictions')}
+              data-selected={selectedDietary.has('No restrictions')}
+              onClick={() => handleDietaryChange('No restrictions')}
+              className="returning-choice-row returning-none-choice"
+            >
+              <span className="returning-choice-icon">
+                <Leaf className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-extrabold text-[hsl(var(--returning-ink))]">No restrictions</span>
+                <span className="returning-copy text-sm">Use this when there is nothing special to avoid.</span>
+              </span>
+              {selectedDietary.has('No restrictions') && <Check className="h-5 w-5 text-primary" />}
+            </button>
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {remainingDietaryOptions.map((option) => {
+                const selected = selectedDietary.has(option);
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={selected}
+                    data-selected={selected}
+                    onClick={() => handleDietaryChange(option)}
+                    className="returning-diet-chip"
+                  >
+                    <span>{option}</span>
+                    {selected && <Check className="h-4 w-4 text-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="returning-actions">
+            <Button variant="outline" className="returning-secondary-cta" onClick={() => setActiveSection('hub')}>
+              Settings
+            </Button>
+            <Button className="returning-primary-cta" onClick={handleSaveProfile}>
+              Save profile
+            </Button>
+          </div>
+        </section>
+      </div>
+    );
+  };
+
+  const renderActiveSection = () => {
+    if (activeSection === 'pantry') return renderInventorySection('pantry');
+    if (activeSection === 'kitchen') return renderInventorySection('kitchen');
+    if (activeSection === 'profile') return renderProfileSection();
+    return renderHub();
+  };
+
+  return (
+    <main className="returning-ui min-h-screen pb-24">
+      <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            className="returning-back-button"
+            onClick={onBackToPlanning}
+          >
+            Back to cook
+          </Button>
+          <span className="returning-mini-chip">Settings</span>
+        </div>
+
+        {renderActiveSection()}
+      </div>
 
       {/* Pantry Camera Dialog */}
       <Dialog open={showPantryCamera} onOpenChange={setShowPantryCamera}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="settings-camera-dialog sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Scan Your Pantry</DialogTitle>
             <DialogDescription>
@@ -1265,7 +1278,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           </DialogHeader>
           
           <NativeCamera
-            title="Take Photo"
+            title="Scan pantry"
+            variant="setup"
+            setupTone="pantry"
+            captureLabel="Capture pantry"
             onImageCapture={handlePantryImageCapture}
             onError={(error) => {
               toast({
@@ -1281,7 +1297,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       {/* Equipment Camera Dialog */}
       <Dialog open={showEquipmentCamera} onOpenChange={setShowEquipmentCamera}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="settings-camera-dialog settings-camera-dialog-kitchen sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Scan Your Kitchen</DialogTitle>
             <DialogDescription>
@@ -1290,7 +1306,10 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           </DialogHeader>
           
           <NativeCamera
-            title="Take Photo"
+            title="Scan kitchen"
+            variant="setup"
+            setupTone="kitchen"
+            captureLabel="Capture kitchen"
             onImageCapture={handleEquipmentImageCapture}
             onError={(error) => {
               toast({
@@ -1303,6 +1322,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   );
 }

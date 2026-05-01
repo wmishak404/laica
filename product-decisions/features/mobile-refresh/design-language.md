@@ -103,6 +103,24 @@ Do not copy:
 - full-screen native camera takeover with no Laica way back
 - teal pantry chips when the accepted direction is warm/coral
 
+### Phase 2.2 Returning Setup, Settings, And History IA
+
+**Asset:** [phase-02-2-returning-setup-settings-storyboard.svg](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg)
+
+Use this as the reference for:
+
+- Menu as the global returning-user destination surface
+- Settings as a calm, utilitarian, mobile-native place to edit Pantry, Kitchen, and Cooking Profile
+- History as cooking memory, not account configuration
+- separating History from Settings while keeping both visually consistent with mobile refresh
+- carrying the Phase 2.1 scan/manual/profile patterns into returning-user edits without making Settings feel like a second onboarding wizard
+
+Do not copy:
+
+- the old tabbed `Kitchen & Settings` admin page
+- a History tab buried inside Settings
+- a Settings surface that relies on later visual polish to feel like Laica
+
 ### Phase 3 Planning Flow
 
 **Asset:** [phase-03-planning-flow.png](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png)
@@ -277,6 +295,13 @@ Phase 2 is the first active pilot for this design language. Before merge:
 - Kitchen-specific action buttons, saved-equipment chips, and review/list states should lean gray/silver where possible so the tool page feels distinct from the warmer pantry page without becoming a separate design system.
 - Future scan-review chips may need session-state colors or indicators for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should build on the Pantry/Kitchen chip palette without creating a noisy third design system; see [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
 - `No restrictions` should be visually separated from the rest of the dietary options so users who have nothing to add can choose the default quickly.
+
+### Phase 2.2 Returning Setup, Settings, And History IA
+
+- Menu should be the global returning-user destination surface for Settings, History, Feedback, Account, and Sign out.
+- Settings should stay utilitarian but inherit the Phase 2.1 setup language where it manages the same concepts: designed scan object, peer scan/upload/manual actions, warm Pantry chips, gray/silver Kitchen accents, and full-row profile choices.
+- Settings should not include History. History is its own memory surface and should feel warmer and more meal-oriented than account configuration.
+- The Phase 2.2 storyboard is a conformance input. If implementation misses the storyboard's hierarchy or mood, treat that as phase work, not a later polish ticket.
 
 ### Phase 3 Planning
 

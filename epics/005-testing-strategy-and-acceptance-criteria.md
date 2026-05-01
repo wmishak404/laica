@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (workflow review)
 **Created:** 2026-04-17
-**Updated:** 2026-04-28
+**Updated:** 2026-05-01
 
 ## One-line summary
 
@@ -218,6 +218,10 @@ This epic is `Resolved` when all of the following are true:
 2. The project has a documented validation matrix for common change types
 3. The canonical location and carry-forward format for feature acceptance criteria is defined
 4. Verification expectations for handoffs / PRs are standardized
+
+## 2026-05-01 — Phase 2.2 adds explicit visual IA acceptance gates
+
+Phase 2.2 records acceptance criteria before implementation for Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, and History list/expand/delete/undo. It also makes storyboard visual review an explicit merge-readiness item, continuing the Phase 2.1 precedent that visual conformance is not a separate post-implementation polish pass.
 5. If adopted, standard test scripts are wired into `package.json` and documented
 6. This epic has a final `## YYYY-MM-DD — Resolved` section pointing to the accepted product decision / workflow doc
 

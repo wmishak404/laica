@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (plan drafting) / Claude (review + pilot-surface feedback)
 **Created:** 2026-04-16
-**Updated:** 2026-04-30
+**Updated:** 2026-05-01
 
 ## One-line summary
 
@@ -230,6 +230,10 @@ The branch also reinforces that new visual-system pilots need explicit handoff n
 Wilson's Phase 2.1 Replit review added two durable governance signals. First, authenticated app pages should not regain a persistent website-like top header; bottom navigation/account surfaces own account, profile, and sign-out access. Second, reusable setup controls need consistent sizing and placement across pantry/kitchen: one progress treatment, readable secondary action labels, and camera controls inside the designed scan object rather than mixed into separate header/row chrome.
 
 Future mobile-refresh implementations should treat these as app-shell and component-pattern expectations, not one-off setup preferences.
+
+## 2026-05-01 — Phase 2.2 treats design conformance as implementation scope
+
+Phase 2.2 adds a new governance signal: returning-user Settings and History cannot ship as legacy admin/tab UI with a later polish ticket. Menu, Settings, and History now have a storyboard-backed conformance gate, Settings and History are separate IA destinations, and Menu is the global returning-user access point. This reinforces that mockup/storyboard conformance is part of phase readiness for both tone-forward and utilitarian surfaces.
 
 ## Next steps when work resumes
 

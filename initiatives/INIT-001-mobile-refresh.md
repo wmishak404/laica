@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 3 planning kickoff
+**Current phase:** Phase 2.2 implementation
 **Active PR:** None
-**Active branch:** None
+**Active branch:** `codex/mobile-refresh-phase-2-2-settings-history`
 
 ## Overview
 
@@ -16,6 +16,7 @@ The original plan spans Phase 0 through Phase 5:
 - Phase 0: security/backend readiness
 - Phase 1: auth and first authenticated routing
 - Phase 2: setup, pantry scan, kitchen scan, and profile
+- Phase 2.2: returning setup edits, Menu, Settings, and History IA
 - Phase 3: planning, Chef It Up, Slop Bowl, and Ticket Pass
 - Phase 4: cooking guidance
 - Phase 5: post-cook cleanup and retention
@@ -48,6 +49,8 @@ Wilson then reported the next Replit test results as passing except for untestab
 
 PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`. Runtime Replit/mobile validation was recorded at `ac698a3`; the final branch head `eaff0e8` was docs-only after validation. Phase 2.1 is closed for implementation, with deeper scan-session duplicate refinement deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 
+Wilson added a Phase 2.2 bridge before Phase 3: returning users need a consistent way to revisit Pantry, Kitchen, and Cooking Profile after setup. Menu is now the global access point for Settings and History; History is separated from Settings because it is cooking memory, not account configuration. Phase 2.2 is active on `codex/mobile-refresh-phase-2-2-settings-history`; Replit validation is not yet run.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -55,6 +58,7 @@ PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813
 - [Phase 1 auth](../product-decisions/features/mobile-refresh/phase-01-auth.md)
 - [Phase 2 setup](../product-decisions/features/mobile-refresh/phase-02-setup.md)
 - [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
+- [Phase 2.2 returning setup/settings/history IA](../product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md)
 - [Phase 3 planning](../product-decisions/features/mobile-refresh/phase-03-planning.md)
 - [Phase 4 cooking](../product-decisions/features/mobile-refresh/phase-04-cooking.md)
 - [Phase 5 post-cook](../product-decisions/features/mobile-refresh/phase-05-post-cook.md)
@@ -69,6 +73,7 @@ PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813
 |---|---|
 | [phase-01-auth.png](../docs/assets/mobile-refresh/phase-01-auth.png) | Auth/landing visual exemplar |
 | [phase-02-setup.png](../docs/assets/mobile-refresh/phase-02-setup.png) | Setup and camera-first onboarding exemplar |
+| [phase-02-2-returning-setup-settings-storyboard.svg](../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) | Returning setup, Menu, Settings, and History storyboard |
 | [phase-03-planning-flow.png](../docs/assets/mobile-refresh/phase-03-planning-flow.png) | Planning entry and Chef It Up / Slop Bowl hierarchy exemplar |
 | [phase-03-ticket-pass.png](../docs/assets/mobile-refresh/phase-03-ticket-pass.png) | Ticket Pass recipe suggestion exemplar |
 | [phase-04-cooking.png](../docs/assets/mobile-refresh/phase-04-cooking.png) | Cooking guidance exemplar |
@@ -83,6 +88,7 @@ PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit and merged; latest visual/trust feedback deferred |
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape with active-scan cancellation, clearer scan/camera error paths, Pantry/Kitchen scan-limit separation, capture flash, manual active state and period/comma parsing, 3-ingredient Pantry minimum, copy, auto-advance, setup-only typography, mockup-led cream/coral treatment, bottom/account menu access, fail-closed upload caps, accepted visual polish, and exact/near-exact duplicate mitigation; merged as `5419a90` |
+| Phase 2.2 | In Progress | `codex/mobile-refresh-phase-2-2-settings-history` | Returning setup edits and IA bridge before Phase 3: Menu -> Settings, Menu -> History, Settings hub/Pantry/Kitchen/Profile, Slop Bowl deep-link to Pantry, standalone History shell, and storyboard-backed design gate |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -140,17 +146,18 @@ Known validation facts:
 - Phase 2.1 final branch head `eaff0e8` was docs-only after validation.
 - PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`.
 - Deeper scan-session duplicate refinement is deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
+- Phase 2.2 is not yet Replit-validated.
 
 ## Current Resume Point
 
-Resume at Phase 3 planning kickoff from `main`.
+Resume in Phase 2.2 implementation on `codex/mobile-refresh-phase-2-2-settings-history`.
 
 Next implementation focus:
 
-1. Start the next implementation branch from fresh `origin/main`.
-2. Use the merged Phase 2.1 setup as the baseline for Phase 3 Planning.
-3. Before Phase 3 work, reread [Phase 3 planning](../product-decisions/features/mobile-refresh/phase-03-planning.md), [Mobile Refresh Design Language](../product-decisions/features/mobile-refresh/design-language.md), EPIC-001, EPIC-005, EPIC-012, and any Phase 3-specific active epics.
-4. Keep old Profile/Settings visual refresh, pantry spell correction, and scan-session duplicate refinement out of Phase 3 unless Wilson explicitly pulls them forward.
+1. Finish Phase 2.2 local checks and visual review against [phase-02-2-returning-setup-settings-storyboard.svg](../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg).
+2. Validate in Replit: Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, and History list/expand/delete/undo.
+3. Record the validated commit SHA before PR merge.
+4. After Phase 2.2 merges, resume Phase 3 Planning from fresh `origin/main`.
 
 ## Chronology
 
@@ -253,3 +260,7 @@ Wilson's follow-up mobile retest found that the duplicate-prevention pass skippe
 ### 2026-05-01 — Phase 2.1 merged
 
 PR #27 merged Phase 2.1 setup polish into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`. Runtime Replit/mobile validation was recorded at `ac698a3`; final branch head `eaff0e8` was docs-only after validation. Phase 2.1 is closed for implementation, and INIT-001 now resumes at Phase 3 Planning kickoff from fresh `main`.
+
+### 2026-05-01 — Phase 2.2 inserted before Phase 3
+
+Wilson reviewed INIT-001 from a 30k-foot lens and decided returning setup edits should not wait until Phase 5 or be buried inside Phase 3. Codex started `codex/mobile-refresh-phase-2-2-settings-history` from fresh `origin/main`, added the Phase 2.2 product note and storyboard, separated History from Settings in the IA, and made Menu the global entry point for Settings and History. Phase 5 still owns richer History behavior such as share, cook again, taste memory, cleanup continuity, and retention.

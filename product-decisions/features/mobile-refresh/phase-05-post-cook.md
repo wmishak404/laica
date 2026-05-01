@@ -61,6 +61,13 @@ updatedPantry =
 - Next-meal seed generation is lazy on view, not automatic at Finish.
 - Full Cook Again Hub is deferred.
 
+### History memory surface
+
+- Phase 2.2 separates History from Settings and refreshes the standalone History shell only.
+- Phase 5 owns the richer History purpose: users return after cooking to remember a meal, share it with friends/family, or cook it again because they liked it.
+- History detail should become the natural home for `Share`, `Cook again`, taste context, cleanup continuity, and any next-meal seed that follows the completed meal.
+- Do not treat History as account configuration or hide it inside Settings.
+
 ## Flow Diagrams
 
 ### Cleanup path
@@ -76,7 +83,9 @@ flowchart TD
   G --> F
   F --> H["Write pantry and clear cleanup"]
   H --> I["Taste signal"]
-  I --> J["Optional next-meal seed lazy on view"]
+  I --> J["History detail"]
+  J --> K["Optional next-meal seed lazy on view"]
+  J --> L["Share / Cook again"]
 ```
 
 ### Do-this-later path
@@ -101,6 +110,7 @@ flowchart TD
 - Rescan merge produces no duplicates and clearly labels already saved/found again/new items.
 - Taste signal persists as `yes`, `maybe`, or `nope`.
 - Next-meal seed is generated only when viewed.
+- History detail supports the Phase 5 memory intent: share and cook-again direction, without turning History back into Settings.
 - Pantry/session mutations require explicit user confirmation and session ownership.
 
 ## Epic Interactions
