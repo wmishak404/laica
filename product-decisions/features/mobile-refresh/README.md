@@ -62,5 +62,6 @@ This follow-up should not block PR #23. If manual sign-in continues slowing Phas
 - User-facing brand copy should use `Laica`, not all-caps `LAICA`.
 - The app should reduce decision load without hiding safety-critical confirmations.
 - Menu is the global destination surface for returning users; Settings and History are separate destinations, not one combined admin tab.
+- First-time setup and returning Settings are separate by user intent but share the same profile database and setup look/feel foundation for Pantry, Kitchen, and Cooking Profile.
 
 For visual identity beyond these UX principles, read the draft [Mobile Refresh Design Language](design-language.md) and [EPIC-012 — Laica Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use these alongside the linked mockups and EPIC-001: the design-language draft defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.

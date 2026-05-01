@@ -53,6 +53,8 @@ Wilson added a Phase 2.2 bridge before Phase 3: returning users need a consisten
 
 Wilson's first Phase 2.2 review accepted the IA direction but flagged fundamentals before more testing: bottom nav should be icon-only, History needs warmer rotating copy, feedback submissions should retain precise page context, and returning Pantry/Kitchen/Profile should not drift away from the accepted first-time setup experience. Codex's recommendation is to keep first-time setup and returning Settings as separate top-level flows but centralize the repeated Pantry/Kitchen/Profile components so shared tasks share UI, copy, scan behavior, and validation logic.
 
+Wilson accepted that recommendation. Phase 2.2 now records the product decision that first-time setup and returning Settings remain separate pages because their user intent differs, but both use the same authenticated profile database and the same setup look/feel foundation wherever the underlying Pantry/Kitchen/Profile task is the same. Codex implemented the returning Settings alignment without intentionally changing first-time setup.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -149,7 +151,7 @@ Known validation facts:
 - PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`.
 - Deeper scan-session duplicate refinement is deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 - Phase 2.2 is not yet Replit-validated.
-- Phase 2.2 follow-up feedback is in progress: icon-only bottom nav, History copy, precise feedback page context, and the setup/settings component-convergence decision.
+- Phase 2.2 follow-up alignment is implemented locally but not yet Replit-validated: icon-only bottom nav, History copy, precise feedback page context, and returning Settings visual/UX alignment to first-time setup.
 
 ## Current Resume Point
 
@@ -157,9 +159,9 @@ Resume in Phase 2.2 implementation on `codex/mobile-refresh-phase-2-2-settings-h
 
 Next implementation focus:
 
-1. Decide/implement the Phase 2.2 Settings convergence follow-up: centralize first-time and returning Pantry/Kitchen/Profile building blocks while keeping separate top-level flows.
-2. Finish Phase 2.2 local checks and visual review against [phase-02-2-returning-setup-settings-storyboard.svg](../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg).
-3. Validate in Replit: Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, precise feedback page context, and History list/expand/delete/undo.
+1. Finish Phase 2.2 local checks and visual review against [phase-02-2-returning-setup-settings-storyboard.svg](../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg), with extra comparison against accepted first-time setup.
+2. Validate in Replit: Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, precise feedback page context, and History list/expand/delete/undo.
+3. Confirm Settings edits reflect in Planning/Slop Bowl through the existing `/api/user/profile` profile data.
 4. Record the validated commit SHA before PR merge.
 5. After Phase 2.2 merges, resume Phase 3 Planning from fresh `origin/main`.
 
@@ -272,3 +274,7 @@ Wilson reviewed INIT-001 from a 30k-foot lens and decided returning setup edits 
 ### 2026-05-01 — Phase 2.2 first review narrows fundamentals
 
 Wilson's first Phase 2.2 test pass accepted the improved Menu/Settings/History flow but paused further testing on fundamentals: bottom nav should be icon-only, History copy should be warmer and rotate across a small roster, feedback should preserve precise page context, and returning Pantry/Kitchen/Profile should not feel like a separate product from first-time setup. Codex implemented the low-risk UI/metadata fixes and documented the recommended architecture: keep first-time setup and returning Settings as separate destinations, but extract shared Pantry/Kitchen/Profile editor components so equivalent tasks share behavior, copy, and visual language.
+
+### 2026-05-01 — Returning Settings alignment implemented
+
+Wilson accepted the separate-flow/shared-look recommendation and asked to record the database, page-separation intent, and look/feel preservation as product decisions. Codex aligned returning Settings Pantry/Kitchen/Profile to the Phase 2.1 setup anchor: inline setup-style camera object with camera off by default, setup-style upload/manual actions, setup scanning state, setup chips/list surfaces, setup profile choices, and isolated `No restrictions`. The implementation keeps first-time setup unchanged and continues to use the same `/api/user/profile` fields for both flows.

@@ -113,6 +113,14 @@ UX recommendation:
 
 This follow-up means Phase 2.2 should not be considered visually accepted until the Settings sub-surfaces either share the setup component pattern or document a deliberate, reviewed exception.
 
+## 2026-05-01 Accepted Alignment Decisions
+
+Phase 2.2 accepts three durable product decisions for returning Settings:
+
+1. **Same database, different entry intent.** First-time setup and returning Settings both read and write the same authenticated profile record through `/api/user/profile`. Pantry, Kitchen, and Cooking Profile map to `auth_users.pantry_ingredients`, `auth_users.kitchen_equipment`, `auth_users.cooking_skill`, `auth_users.dietary_restrictions`, and `auth_users.favorite_chefs`. No duplicate Settings store, Settings-only table, or new profile API should be introduced for Phase 2.2.
+2. **Separate pages because the user intent is different.** First-time setup remains a sequential, completion-gated onboarding flow. Returning Settings remains a hub/deep-link edit flow for already-saved data, including independent save, remove, reset, and Slop Bowl -> Pantry entry. The top-level flows should stay separate even when their controls converge.
+3. **Unified look and feel unless returning context requires a difference.** First-time setup is the visual/UX anchor. Returning Pantry/Kitchen/Profile should reuse or mirror setup's camera object, upload/manual hierarchy, scanning state, chips, full-row profile choices, and isolated `No restrictions`. Differences are allowed only for returning-user needs: existing saved data is visible immediately, reset/remove/save controls are explicit, and camera stays off until the user turns it on.
+
 ## Acceptance Criteria
 
 - Returning users can open `Menu -> Settings` without starting a Planning flow.

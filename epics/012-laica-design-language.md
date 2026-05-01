@@ -179,3 +179,7 @@ Wilson decided that returning-user Pantry/Kitchen/Profile edits should be a brid
 ### 2026-05-01 — Phase 2.2 review challenges Settings divergence
 
 Wilson's first Phase 2.2 review flagged that returning Pantry/Kitchen/Profile felt too different from first-time setup. This is new design-language evidence: returning edits can be quieter and more utilitarian, but the same kitchen-data tasks should use the same scan/upload/manual/profile language unless a flow-specific reason is documented. History copy also needs warmer, more culturally natural phrasing than `Your cooking memory.`, with small rotating headline rosters acceptable when they stay within the Laica voice.
+
+### 2026-05-01 — Returning Settings aligned to first-time setup anchor
+
+Wilson accepted the recommendation that first-time setup and returning Settings stay separate by intent but share one look/feel foundation. The Settings alignment pass now uses setup-scoped display/body typography, the setup `NativeCamera` object inline with camera off by default, setup-style upload/manual buttons, setup scanning state, setup chips/list surfaces, and setup profile choice rows. The durable rule: returning Settings may be calmer and edit-led, but it should not look like a different product from setup.

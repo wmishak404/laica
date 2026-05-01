@@ -284,6 +284,10 @@ Phase 2.2 records acceptance criteria before implementation for Menu -> Settings
 
 Wilson's Phase 2.2 review asked whether Feedback still records where the user is when submitting. The implementation now preserves more specific Phase 2.2 context such as Settings subsection and Planning choice/manual state. The same review also reinforced that operational lessons and product rationale must land in durable docs, not only chat, which is now captured in `AGENTS.md` and `CLAUDE.md`.
 
+### 2026-05-01 — Settings alignment adds data-consistency validation
+
+Phase 2.2's returning Settings alignment now explicitly includes a database consistency gate: first-time setup and returning Settings both use the same `/api/user/profile` data and `auth_users` profile fields. Validation should confirm values saved during setup appear in Settings, and values edited in Settings are used by Planning/Slop Bowl after the shared profile query invalidates/refetches.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

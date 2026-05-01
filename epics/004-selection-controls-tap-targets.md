@@ -164,6 +164,10 @@ Wilson's Phase 2.1 Replit visual review clarified that `No restrictions` should 
 
 Wilson's Phase 2.2 review challenged the difference between first-time setup and returning Settings. This adds a direct EPIC-004 signal: Cooking Profile controls in Settings should not duplicate and drift from setup-only full-row choices. The recommended implementation direction is a shared profile-choice composition used by both flows, with first-time setup retaining auto-advance/completion behavior and returning Settings retaining independent save behavior.
 
+### 2026-05-01 — Returning Settings profile choices aligned to setup rows
+
+The Phase 2.2 Settings alignment pass mirrors the accepted setup Cooking Skill and Dietary Restrictions rows in returning Settings: full-row choices, setup illustration tokens, selected-state indicators, and isolated `No restrictions`. Returning Settings keeps independent save behavior rather than setup's auto-advance/completion behavior.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

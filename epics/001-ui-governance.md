@@ -239,6 +239,10 @@ Phase 2.2 adds a new governance signal: returning-user Settings and History cann
 
 Wilson's first Phase 2.2 review found that returning Settings should not become a separate visual/control system from first-time setup. This adds governance signal that shared tasks need shared component patterns, not only matching colors: Pantry/Kitchen scan/upload/manual controls, Cooking Profile choices, bottom navigation, and feedback entry points should converge at the component/composition level where practical.
 
+## 2026-05-01 — Returning Settings alignment uses setup patterns without changing setup
+
+Phase 2.2 now applies the accepted setup control language to returning Settings while keeping first-time setup untouched. This is useful governance signal for future refactors: when a shared task already has an accepted pattern, prefer reusing or mirroring that pattern in a scoped way before creating a new visual system. Full component extraction can follow once the rendered behavior is stable.
+
 ## Next steps when work resumes
 
 1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean

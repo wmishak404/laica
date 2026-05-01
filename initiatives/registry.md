@@ -10,4 +10,4 @@ Default agent workflow:
 
 | INIT | Title | Status | Owner | Created | Current phase | Active PRs | Last signal |
 |---|---|---|---|---|---|---|---|
-| [INIT-001](INIT-001-mobile-refresh.md) | Mobile Refresh | `In Progress` | Wilson / Codex / Claude / Replit | 2026-04-29 | Phase 2.2 implementation | None | Phase 2.2 first review narrowed icon nav, History copy, feedback context, and setup/settings component convergence |
+| [INIT-001](INIT-001-mobile-refresh.md) | Mobile Refresh | `In Progress` | Wilson / Codex / Claude / Replit | 2026-04-29 | Phase 2.2 implementation | None | Returning Settings alignment implemented against the first-time setup anchor; Replit validation pending |
