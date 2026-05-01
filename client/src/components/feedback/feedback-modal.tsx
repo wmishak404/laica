@@ -100,7 +100,7 @@ export function FeedbackModal({ isOpen, onClose, currentPage }: FeedbackModalPro
             <Button 
               onClick={handleSubmit}
               disabled={isSubmitting || !feedback.trim()}
-              className="bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isSubmitting ? "Submitting..." : "Submit"}
             </Button>

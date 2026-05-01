@@ -96,6 +96,12 @@ export default function MobileApp() {
     [showPlanningChoice]
   );
   const hasExistingProfile = hasPlanningProfile(userProfile);
+  const feedbackCurrentPage = useMemo(() => {
+    if (currentPhase === 'settings') return `/app-settings-${settingsSection}`;
+    if (currentPhase === 'planning') return showPlanningChoice ? '/app-planning-choice' : '/app-planning-manual';
+    if (currentPhase === 'profiling') return hasExistingProfile ? '/app-returning-setup' : '/app-first-time-setup';
+    return `/app-${currentPhase}`;
+  }, [currentPhase, hasExistingProfile, settingsSection, showPlanningChoice]);
 
   // Load profile from database - database is the single source of truth
   useEffect(() => {
@@ -486,29 +492,31 @@ export default function MobileApp() {
         <div className="mx-auto flex max-w-xs items-center justify-around">
           <Button 
             variant="ghost" 
-            size="sm"
+            size="icon"
             onClick={() => {
               setShowPlanningChoice(true);
               setCurrentPhase('planning');
             }}
-            className="app-bottom-button flex flex-col items-center"
+            className="app-bottom-button"
             data-active={currentPhase === 'planning' || currentPhase === 'slop-bowl'}
             disabled={userProfile.cookingSkill === ''}
+            aria-label="Cook"
+            title="Cook"
           >
-            <ChefHat className="h-5 w-5 mb-1" />
-            <span className="text-xs">Cook</span>
+            <ChefHat className="h-5 w-5" aria-hidden="true" />
           </Button>
 
           {renderAppMenu(
             <Button
               variant="ghost"
-              size="sm"
-              className="app-bottom-button flex flex-col items-center"
+              size="icon"
+              className="app-bottom-button"
               data-active={currentPhase === 'settings' || currentPhase === 'history'}
               disabled={userProfile.cookingSkill === ''}
+              aria-label="Menu"
+              title="Menu"
             >
-              <Menu className="h-5 w-5 mb-1" />
-              <span className="text-xs">Menu</span>
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </Button>,
           )}
         </div>
@@ -621,7 +629,7 @@ export default function MobileApp() {
       <FeedbackModal
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}
-        currentPage={`/app-${currentPhase}`}
+        currentPage={feedbackCurrentPage}
       />
     </div>
   );

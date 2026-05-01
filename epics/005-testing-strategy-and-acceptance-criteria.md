@@ -218,10 +218,6 @@ This epic is `Resolved` when all of the following are true:
 2. The project has a documented validation matrix for common change types
 3. The canonical location and carry-forward format for feature acceptance criteria is defined
 4. Verification expectations for handoffs / PRs are standardized
-
-## 2026-05-01 — Phase 2.2 adds explicit visual IA acceptance gates
-
-Phase 2.2 records acceptance criteria before implementation for Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, and History list/expand/delete/undo. It also makes storyboard visual review an explicit merge-readiness item, continuing the Phase 2.1 precedent that visual conformance is not a separate post-implementation polish pass.
 5. If adopted, standard test scripts are wired into `package.json` and documented
 6. This epic has a final `## YYYY-MM-DD — Resolved` section pointing to the accepted product decision / workflow doc
 
@@ -279,6 +275,14 @@ Wilson retested the duplicate-prevention pass on mobile and confirmed upload smo
 ### 2026-05-01 — Phase 2.1 merge records docs-only-after-validation nuance
 
 PR #27 merged Phase 2.1 with runtime Replit/mobile validation recorded at `ac698a3` and final branch head `eaff0e8` documented as docs-only after validation. This adds a useful validation hygiene precedent: docs-only closeout commits after runtime QA do not need redundant app smoke if the PR and handoff explicitly call out the runtime-validated SHA and the docs-only head.
+
+### 2026-05-01 — Phase 2.2 adds explicit visual IA acceptance gates
+
+Phase 2.2 records acceptance criteria before implementation for Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, and History list/expand/delete/undo. It also makes storyboard visual review an explicit merge-readiness item, continuing the Phase 2.1 precedent that visual conformance is not a separate post-implementation polish pass.
+
+### 2026-05-01 — Feedback context and docs foundation added to acceptance thinking
+
+Wilson's Phase 2.2 review asked whether Feedback still records where the user is when submitting. The implementation now preserves more specific Phase 2.2 context such as Settings subsection and Planning choice/manual state. The same review also reinforced that operational lessons and product rationale must land in durable docs, not only chat, which is now captured in `AGENTS.md` and `CLAUDE.md`.
 
 ## Next steps when work resumes
 

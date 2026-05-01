@@ -1032,8 +1032,12 @@ html, body {
 
   .app-bottom-button,
   .app-bottom-button:hover {
-    min-width: 5rem;
-    border-radius: 1rem;
+    display: inline-flex;
+    height: 3.25rem;
+    min-width: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
     color: hsl(var(--returning-ink) / 0.58);
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-weight: 900;

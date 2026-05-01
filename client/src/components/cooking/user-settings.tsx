@@ -1259,7 +1259,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
             className="returning-back-button"
             onClick={onBackToPlanning}
           >
-            Back to cook
+            Back
           </Button>
           <span className="returning-mini-chip">Settings</span>
         </div>

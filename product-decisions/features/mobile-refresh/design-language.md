@@ -300,6 +300,7 @@ Phase 2 is the first active pilot for this design language. Before merge:
 
 - Menu should be the global returning-user destination surface for Settings, History, Feedback, Account, and Sign out.
 - Settings should stay utilitarian but inherit the Phase 2.1 setup language where it manages the same concepts: designed scan object, peer scan/upload/manual actions, warm Pantry chips, gray/silver Kitchen accents, and full-row profile choices.
+- Returning Pantry/Kitchen/Profile should reuse the first-time setup component language wherever the underlying task is the same; flow wrappers may differ, but scan/upload/manual/profile controls should not drift into separate products.
 - Settings should not include History. History is its own memory surface and should feel warmer and more meal-oriented than account configuration.
 - The Phase 2.2 storyboard is a conformance input. If implementation misses the storyboard's hierarchy or mood, treat that as phase work, not a later polish ticket.
 

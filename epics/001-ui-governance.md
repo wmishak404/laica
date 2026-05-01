@@ -235,6 +235,10 @@ Future mobile-refresh implementations should treat these as app-shell and compon
 
 Phase 2.2 adds a new governance signal: returning-user Settings and History cannot ship as legacy admin/tab UI with a later polish ticket. Menu, Settings, and History now have a storyboard-backed conformance gate, Settings and History are separate IA destinations, and Menu is the global returning-user access point. This reinforces that mockup/storyboard conformance is part of phase readiness for both tone-forward and utilitarian surfaces.
 
+## 2026-05-01 — Phase 2.2 review reinforces component-level governance
+
+Wilson's first Phase 2.2 review found that returning Settings should not become a separate visual/control system from first-time setup. This adds governance signal that shared tasks need shared component patterns, not only matching colors: Pantry/Kitchen scan/upload/manual controls, Cooking Profile choices, bottom navigation, and feedback entry points should converge at the component/composition level where practical.
+
 ## Next steps when work resumes
 
 1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean

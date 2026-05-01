@@ -17,6 +17,28 @@ interface CookingHistoryProps {
   onBackToPlanning: () => void;
 }
 
+const HISTORY_HEADLINES = [
+  'Recipes worth passing down.',
+  'Dear Cooking Diary...',
+  'Worth making again.',
+  "Your kitchen's greatest hits.",
+  'Meals with a story.',
+];
+
+function getNextHistoryHeadline() {
+  if (typeof window === 'undefined') return HISTORY_HEADLINES[0];
+
+  try {
+    const key = 'laica-history-headline-index';
+    const storedIndex = Number(window.sessionStorage.getItem(key) ?? '-1');
+    const nextIndex = (Number.isFinite(storedIndex) ? storedIndex + 1 : 0) % HISTORY_HEADLINES.length;
+    window.sessionStorage.setItem(key, String(nextIndex));
+    return HISTORY_HEADLINES[nextIndex];
+  } catch {
+    return HISTORY_HEADLINES[Math.floor(Math.random() * HISTORY_HEADLINES.length)];
+  }
+}
+
 export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps) {
   const { toast } = useToast();
   const { data: sessions, isLoading } = useQuery<CookingSession[]>({
@@ -28,6 +50,7 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const [historyHeadline] = useState(getNextHistoryHeadline);
   const deleteTimersRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
   const deleteAllTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -157,7 +180,7 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
             className="returning-back-button"
             onClick={onBackToPlanning}
           >
-            Back to cook
+            Back
           </Button>
           <span className="returning-mini-chip">History</span>
         </div>
@@ -165,7 +188,7 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
         <section className="history-hero">
           <div>
             <p className="returning-kicker">Cooked meals</p>
-            <h1 className="returning-display text-[2.45rem] font-extrabold leading-none">Your cooking memory.</h1>
+            <h1 className="returning-display text-[2.45rem] font-extrabold leading-none">{historyHeadline}</h1>
             <p className="returning-copy mt-3 text-sm leading-relaxed">
               Meals you finished live here, separate from kitchen settings.
             </p>

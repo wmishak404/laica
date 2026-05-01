@@ -160,6 +160,10 @@ Wilson's Step 3 setup testing clarified the desired interaction split: single-ch
 
 Wilson's Phase 2.1 Replit visual review clarified that `No restrictions` should not sit as just another peer in the dietary restrictions list. It should be an isolated, visually distinguished button with extra separation so users with no restrictions can quickly choose the default path without scanning the entire multi-select list.
 
+### 2026-05-01 — Returning Settings should share profile-control composition
+
+Wilson's Phase 2.2 review challenged the difference between first-time setup and returning Settings. This adds a direct EPIC-004 signal: Cooking Profile controls in Settings should not duplicate and drift from setup-only full-row choices. The recommended implementation direction is a shared profile-choice composition used by both flows, with first-time setup retaining auto-advance/completion behavior and returning Settings retaining independent save behavior.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

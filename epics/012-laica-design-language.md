@@ -175,3 +175,7 @@ PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scope
 ### 2026-05-01 — Phase 2.2 extends setup language to returning edits
 
 Wilson decided that returning-user Pantry/Kitchen/Profile edits should be a bridge phase before Phase 3, not a Phase 5 cleanup detail. Phase 2.2 extends the Phase 2.1 setup direction into Settings while keeping it quieter and more utilitarian: Menu becomes the global destination surface, Settings owns Pantry/Kitchen/Profile, and History separates into its own cooking-memory surface. The Phase 2.2 storyboard is now a visual exemplar for this transition, and Phase 5 remains responsible for deeper History sharing/cook-again behavior.
+
+### 2026-05-01 — Phase 2.2 review challenges Settings divergence
+
+Wilson's first Phase 2.2 review flagged that returning Pantry/Kitchen/Profile felt too different from first-time setup. This is new design-language evidence: returning edits can be quieter and more utilitarian, but the same kitchen-data tasks should use the same scan/upload/manual/profile language unless a flow-specific reason is documented. History copy also needs warmer, more culturally natural phrasing than `Your cooking memory.`, with small rotating headline rosters acceptable when they stay within the Laica voice.

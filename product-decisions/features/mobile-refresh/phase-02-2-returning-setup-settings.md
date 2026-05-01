@@ -94,6 +94,25 @@ The storyboard asset includes:
 - Keep History v1 light in this phase: standalone destination, existing list/detail/delete behavior, refreshed shell only.
 - Do not add new History share/cook-again behavior until Phase 5.
 
+## 2026-05-01 Feedback Follow-Up: Setup/Settings Consistency
+
+Wilson's first Replit review of Phase 2.2 flagged that Pantry, Kitchen, and Cooking Profile in returning Settings felt more different from first-time setup than intended. The implementation rationale was that returning Settings has a different job: it edits already-saved data, supports independent saves/resets, and deep-links from Slop Bowl, while first-time setup is a gated, sequential onboarding flow. That distinction is still valid at the top-level flow.
+
+The recommended product/codebase direction is **not** to keep two fully separate implementations. Keep first-time setup and returning Settings as separate destinations because their navigation and completion rules differ, but centralize the repeated Pantry/Kitchen/Profile building blocks:
+
+- Shared inventory editor composition for Pantry/Kitchen scan, upload, manual entry, scanning state, chip list, and feedback copy.
+- Shared cooking-profile choice composition for skill and dietary restrictions.
+- Flow-specific wrappers only for step progress, completion gating, back behavior, destructive reset, and independent save/deep-link behavior.
+
+UX recommendation:
+
+- Returning Pantry/Kitchen should visually track first-time setup more closely than the first Phase 2.2 pass.
+- Do not auto-initialize the camera when a returning user opens Settings; that would feel heavy and privacy-sensitive.
+- Reduce cognitive load by making `Scan` reveal the same camera object inline or in an unmistakably connected sheet, while `Upload photos` remains a direct file picker and `Enter manually` remains a peer path.
+- Preserve the returning-user utility needs: visible saved inventory, remove/reset/save controls, and direct deep-link entry from Slop Bowl.
+
+This follow-up means Phase 2.2 should not be considered visually accepted until the Settings sub-surfaces either share the setup component pattern or document a deliberate, reviewed exception.
+
 ## Acceptance Criteria
 
 - Returning users can open `Menu -> Settings` without starting a Planning flow.
@@ -104,7 +123,10 @@ The storyboard asset includes:
 - Cooking Skill and Dietary Restrictions save correctly.
 - History list, expand, delete, and undo-delete still work after moving out of Settings.
 - Settings no longer contains a History tab.
+- Feedback submissions include the active app surface, including Settings subsection where applicable.
+- Bottom navigation uses icon-only Cook/Menu actions with accessible labels.
 - Visual review confirms Menu, Settings, and History match the Phase 2.2 storyboard and mobile-refresh design principles.
+- Visual review confirms returning Pantry/Kitchen/Profile remain consistent with the accepted Phase 2.1 first-time setup direction while honoring returning-user edit needs.
 
 ## Epic Interactions
 
