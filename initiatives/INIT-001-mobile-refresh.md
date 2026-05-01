@@ -55,6 +55,8 @@ Wilson's first Phase 2.2 review accepted the IA direction but flagged fundamenta
 
 Wilson accepted that recommendation. Phase 2.2 now records the product decision that first-time setup and returning Settings remain separate pages because their user intent differs, but both use the same authenticated profile database and the same setup look/feel foundation wherever the underlying Pantry/Kitchen/Profile task is the same. Codex implemented the returning Settings alignment without intentionally changing first-time setup.
 
+Wilson's next Replit screenshot review caught a more subtle implementation drift: returning Settings reused the setup class names, but not the `.setup-ui` root specificity that made shadcn/Tailwind Button utilities render as the accepted first-time setup controls. Codex corrected the shared setup-control CSS for the returning wrapper and documented the governance lesson: design consistency docs need implementation guardrails for root wrappers, specificity, and computed-style comparison, not only product-intent statements.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -151,7 +153,7 @@ Known validation facts:
 - PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`.
 - Deeper scan-session duplicate refinement is deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 - Phase 2.2 is not yet Replit-validated.
-- Phase 2.2 follow-up alignment is implemented locally but not yet Replit-validated: icon-only bottom nav, History copy, precise feedback page context, and returning Settings visual/UX alignment to first-time setup.
+- Phase 2.2 follow-up alignment is implemented locally but not yet Replit-validated: icon-only bottom nav, History copy, precise feedback page context, returning Settings visual/UX alignment to first-time setup, and the returning wrapper specificity fix for setup-derived camera/action controls.
 
 ## Current Resume Point
 
@@ -159,7 +161,7 @@ Resume in Phase 2.2 implementation on `codex/mobile-refresh-phase-2-2-settings-h
 
 Next implementation focus:
 
-1. Finish Phase 2.2 local checks and visual review against [phase-02-2-returning-setup-settings-storyboard.svg](../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg), with extra comparison against accepted first-time setup.
+1. Finish Phase 2.2 local checks and visual review against [phase-02-2-returning-setup-settings-storyboard.svg](../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg), with extra comparison against accepted first-time setup's camera controls and upload/manual action typography.
 2. Validate in Replit: Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, precise feedback page context, and History list/expand/delete/undo.
 3. Confirm Settings edits reflect in Planning/Slop Bowl through the existing `/api/user/profile` profile data.
 4. Record the validated commit SHA before PR merge.
@@ -278,3 +280,7 @@ Wilson's first Phase 2.2 test pass accepted the improved Menu/Settings/History f
 ### 2026-05-01 — Returning Settings alignment implemented
 
 Wilson accepted the separate-flow/shared-look recommendation and asked to record the database, page-separation intent, and look/feel preservation as product decisions. Codex aligned returning Settings Pantry/Kitchen/Profile to the Phase 2.1 setup anchor: inline setup-style camera object with camera off by default, setup-style upload/manual actions, setup scanning state, setup chips/list surfaces, setup profile choices, and isolated `No restrictions`. The implementation keeps first-time setup unchanged and continues to use the same `/api/user/profile` fields for both flows.
+
+### 2026-05-01 — Returning Settings computed-style drift corrected
+
+Wilson's Replit screenshots showed that returning Settings still diverged in two specific setup-derived controls: the camera capture/video/help buttons rendered as rounded squares, and `Upload photos` / `Enter manually` did not match first-time setup's action typography. Codex traced the cause to CSS specificity: first-time setup's accepted styles were protected by `.setup-ui .setup-*`, while returning Settings used a different root. The fix gives `returning-setup-anchor` the same override specificity for setup Button/camera controls and makes `setup-action-title` declare the accepted setup typography directly.

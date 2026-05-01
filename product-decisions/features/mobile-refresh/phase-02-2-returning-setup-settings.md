@@ -121,6 +121,19 @@ Phase 2.2 accepts three durable product decisions for returning Settings:
 2. **Separate pages because the user intent is different.** First-time setup remains a sequential, completion-gated onboarding flow. Returning Settings remains a hub/deep-link edit flow for already-saved data, including independent save, remove, reset, and Slop Bowl -> Pantry entry. The top-level flows should stay separate even when their controls converge.
 3. **Unified look and feel unless returning context requires a difference.** First-time setup is the visual/UX anchor. Returning Pantry/Kitchen/Profile should reuse or mirror setup's camera object, upload/manual hierarchy, scanning state, chips, full-row profile choices, and isolated `No restrictions`. Differences are allowed only for returning-user needs: existing saved data is visible immediately, reset/remove/save controls are explicit, and camera stays off until the user turns it on.
 
+## 2026-05-01 Visual Consistency Correction
+
+Wilson's Replit screenshot review caught a portability gap in the first returning Settings alignment pass: the code reused the accepted setup class names, but the returned surface did not render all computed styles the same way. The camera capture/video/help controls appeared as rounded squares instead of setup's circular controls, and the upload/manual labels inherited a different Button typography than first-time setup.
+
+Root cause: the accepted setup CSS used `.setup-ui .setup-*` selectors to beat Tailwind/shadcn primitive utilities. Returning Settings used the new `returning-setup-anchor` root, so same class names were not enough to preserve the accepted rendered output.
+
+Corrected implementation direction:
+
+- Returning setup-aligned surfaces must carry the same specificity guarantees as first-time setup for shared setup controls.
+- `setup-action-title` should declare the accepted setup button typography directly, not rely only on parent inheritance.
+- Visual review must compare computed control shape, typography, icon size, active state, disabled state, and hierarchy against first-time setup whenever setup patterns are reused under a different root wrapper.
+- Future component extraction should move these setup/returning shared controls behind a small shared component layer so wrappers cannot silently diverge.
+
 ## Acceptance Criteria
 
 - Returning users can open `Menu -> Settings` without starting a Planning flow.
@@ -135,6 +148,7 @@ Phase 2.2 accepts three durable product decisions for returning Settings:
 - Bottom navigation uses icon-only Cook/Menu actions with accessible labels.
 - Visual review confirms Menu, Settings, and History match the Phase 2.2 storyboard and mobile-refresh design principles.
 - Visual review confirms returning Pantry/Kitchen/Profile remain consistent with the accepted Phase 2.1 first-time setup direction while honoring returning-user edit needs.
+- Visual review confirms setup-derived controls in returning Settings preserve first-time setup's computed circular camera controls and `Nunito`/800 upload/manual action typography.
 
 ## Epic Interactions
 

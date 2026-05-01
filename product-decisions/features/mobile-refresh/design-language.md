@@ -114,12 +114,14 @@ Use this as the reference for:
 - History as cooking memory, not account configuration
 - separating History from Settings while keeping both visually consistent with mobile refresh
 - carrying the Phase 2.1 scan/manual/profile patterns into returning-user edits without making Settings feel like a second onboarding wizard
+- preserving the same rendered setup control shapes and typography when setup patterns move into Settings, not only reusing similar class names
 
 Do not copy:
 
 - the old tabbed `Kitchen & Settings` admin page
 - a History tab buried inside Settings
 - a Settings surface that relies on later visual polish to feel like Laica
+- setup-derived controls under a new wrapper without verifying computed radius, font, icon size, active state, and disabled state against the accepted first-time setup surface
 
 ### Phase 3 Planning Flow
 
@@ -215,6 +217,7 @@ Do not copy:
 
 - Phase 2.1 setup pilots the mobile-refresh typography direction in setup only: `Fraunces` for expressive setup headings and `Nunito` for setup body, buttons, chips, and controls.
 - This is not a global typography rollout yet. Auth, Planning, Cooking, Settings, and other surfaces keep their current typography until their phase-specific pass adopts or revises this direction.
+- When a later phase or returning-user surface adopts setup patterns, the implementation must preserve computed typography under that surface's root wrapper. Do not rely on inheritance that only works under `.setup-ui`.
 - Headings should be confident, rounded, and readable, with enough personality to feel Laica-branded.
 - Do not use hero-scale type inside compact app panels, cards, setup steps, or tool surfaces.
 - Recipe names and Ticket Pass surfaces may use a more expressive title treatment if it remains legible.

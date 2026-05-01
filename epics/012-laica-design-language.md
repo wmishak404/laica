@@ -95,6 +95,7 @@ Read EPIC-012 before starting any of the following:
 - [ ] Translating a mockup into code
 - [ ] Changing colors, typography, radius, shadows, spacing density, icon style, imagery, illustration, or motion
 - [ ] Creating a new tone-forward surface or branded UI moment
+- [ ] Reusing an accepted visual pattern on a new wrapper or destination, including setup patterns inside returning Settings
 - [ ] Deciding whether a phase is visually ready to merge
 - [ ] Updating `design_guidelines.md` or UI-governance rules that affect look and feel
 - [ ] Writing a handoff that claims visual conformance or defers visual polish
@@ -183,3 +184,7 @@ Wilson's first Phase 2.2 review flagged that returning Pantry/Kitchen/Profile fe
 ### 2026-05-01 — Returning Settings aligned to first-time setup anchor
 
 Wilson accepted the recommendation that first-time setup and returning Settings stay separate by intent but share one look/feel foundation. The Settings alignment pass now uses setup-scoped display/body typography, the setup `NativeCamera` object inline with camera off by default, setup-style upload/manual buttons, setup scanning state, setup chips/list surfaces, and setup profile choice rows. The durable rule: returning Settings may be calmer and edit-led, but it should not look like a different product from setup.
+
+### 2026-05-01 — Returning Settings visual drift found after class reuse
+
+Wilson's follow-up Replit screenshots showed that visual conformance cannot be inferred from using the same `setup-*` class names. Returning Settings inherited the setup classes under a different root wrapper, so Tailwind/shadcn Button utilities overrode the accepted setup typography and round camera-control shapes. This adds a design-language review requirement: when an accepted pattern moves to another surface, compare the rendered controls against the accepted source surface and verify computed typography, radius, icon size, active state, disabled state, and control hierarchy. Documentation should record the implementation guardrail that preserves the look, not only the product intent.

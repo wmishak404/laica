@@ -256,7 +256,8 @@ html, body {
   }
 
   .setup-primary-button,
-  .setup-ui .setup-primary-button {
+  .setup-ui .setup-primary-button,
+  .returning-setup-anchor .setup-primary-button {
     border-radius: 1rem;
     background: hsl(var(--setup-coral-strong));
     color: hsl(0 0% 100%);
@@ -266,12 +267,14 @@ html, body {
   }
 
   .setup-primary-button:hover,
-  .setup-ui .setup-primary-button:hover {
+  .setup-ui .setup-primary-button:hover,
+  .returning-setup-anchor .setup-primary-button:hover {
     background: hsl(var(--setup-coral-strong) / 0.92);
   }
 
   .setup-secondary-button,
-  .setup-ui .setup-secondary-button {
+  .setup-ui .setup-secondary-button,
+  .returning-setup-anchor .setup-secondary-button {
     border: 1px solid hsl(var(--setup-coral-strong) / 0.24);
     border-radius: 1rem;
     background: hsl(0 0% 100% / 0.66);
@@ -282,13 +285,15 @@ html, body {
   }
 
   .setup-secondary-button:hover,
-  .setup-ui .setup-secondary-button:hover {
+  .setup-ui .setup-secondary-button:hover,
+  .returning-setup-anchor .setup-secondary-button:hover {
     background: hsl(0 0% 100% / 0.88);
     color: hsl(var(--setup-ink));
   }
 
   .setup-secondary-button[data-active='true'],
-  .setup-ui .setup-secondary-button[data-active='true'] {
+  .setup-ui .setup-secondary-button[data-active='true'],
+  .returning-setup-anchor .setup-secondary-button[data-active='true'] {
     border-color: hsl(var(--setup-coral-strong) / 0.38);
     background: hsl(var(--setup-coral-soft) / 0.52);
     box-shadow:
@@ -297,7 +302,8 @@ html, body {
   }
 
   .setup-ghost-button,
-  .setup-ui .setup-ghost-button {
+  .setup-ui .setup-ghost-button,
+  .returning-setup-anchor .setup-ghost-button {
     border-radius: 999px;
     color: hsl(var(--setup-ink) / 0.66);
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
@@ -305,7 +311,8 @@ html, body {
   }
 
   .setup-ghost-button:hover,
-  .setup-ui .setup-ghost-button:hover {
+  .setup-ui .setup-ghost-button:hover,
+  .returning-setup-anchor .setup-ghost-button:hover {
     background: hsl(0 0% 100% / 0.42);
     color: hsl(var(--setup-ink));
   }
@@ -432,13 +439,15 @@ html, body {
   }
 
   .setup-kitchen-primary-button,
-  .setup-ui .setup-kitchen-primary-button {
+  .setup-ui .setup-kitchen-primary-button,
+  .returning-setup-anchor .setup-kitchen-primary-button {
     background: hsl(var(--setup-metal));
     box-shadow: 0 0.9rem 1.8rem hsl(var(--setup-metal) / 0.2);
   }
 
   .setup-kitchen-primary-button:hover,
-  .setup-ui .setup-kitchen-primary-button:hover {
+  .setup-ui .setup-kitchen-primary-button:hover,
+  .returning-setup-anchor .setup-kitchen-primary-button:hover {
     background: hsl(216 11% 52%);
   }
 
@@ -490,7 +499,8 @@ html, body {
   }
 
   .setup-camera-round-button,
-  .setup-ui .setup-camera-round-button {
+  .setup-ui .setup-camera-round-button,
+  .returning-setup-anchor .setup-camera-round-button {
     position: relative;
     border-radius: 999px;
     border: 3px solid hsl(0 0% 100% / 0.88);
@@ -501,7 +511,8 @@ html, body {
   }
 
   .setup-camera-round-button::after,
-  .setup-ui .setup-camera-round-button::after {
+  .setup-ui .setup-camera-round-button::after,
+  .returning-setup-anchor .setup-camera-round-button::after {
     content: '';
     display: block;
     width: 2.45rem;
@@ -512,24 +523,28 @@ html, body {
   }
 
   .setup-camera-round-button:hover,
-  .setup-ui .setup-camera-round-button:hover {
+  .setup-ui .setup-camera-round-button:hover,
+  .returning-setup-anchor .setup-camera-round-button:hover {
     background: hsl(0 0% 100% / 0.26);
   }
 
   .setup-camera-round-button:disabled,
-  .setup-ui .setup-camera-round-button:disabled {
+  .setup-ui .setup-camera-round-button:disabled,
+  .returning-setup-anchor .setup-camera-round-button:disabled {
     background: hsl(0 0% 100% / 0.1);
     color: hsl(0 0% 100% / 0.72);
     box-shadow: none;
   }
 
   .setup-camera-round-button:disabled::after,
-  .setup-ui .setup-camera-round-button:disabled::after {
+  .setup-ui .setup-camera-round-button:disabled::after,
+  .returning-setup-anchor .setup-camera-round-button:disabled::after {
     opacity: 0.42;
   }
 
   .setup-camera-icon-button,
-  .setup-ui .setup-camera-icon-button {
+  .setup-ui .setup-camera-icon-button,
+  .returning-setup-anchor .setup-camera-icon-button {
     border-radius: 999px;
     border: 2px solid hsl(0 0% 100% / 0.58);
     background: hsl(0 0% 100% / 0.16);
@@ -539,13 +554,15 @@ html, body {
   }
 
   .setup-camera-icon-button:hover,
-  .setup-ui .setup-camera-icon-button:hover {
+  .setup-ui .setup-camera-icon-button:hover,
+  .returning-setup-anchor .setup-camera-icon-button:hover {
     background: hsl(0 0% 100% / 0.24);
     color: hsl(0 0% 100%);
   }
 
   .setup-camera-icon-button svg,
-  .setup-ui .setup-camera-icon-button svg {
+  .setup-ui .setup-camera-icon-button svg,
+  .returning-setup-anchor .setup-camera-icon-button svg {
     width: 2rem;
     height: 2rem;
   }
@@ -568,7 +585,9 @@ html, body {
   }
 
   .setup-action-title {
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-size: 1.05rem;
+    font-weight: 800;
     line-height: 1.1;
   }
 
