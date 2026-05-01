@@ -1,4 +1,5 @@
 import { apiFetch, apiRequest } from './queryClient';
+import type { VisionAnalysisResult } from './visionResult';
 
 interface CookingStepObject {
   instruction?: string;
@@ -146,10 +147,19 @@ export async function fetchSlopBowlRecipe(options?: {
   return await response.json();
 }
 
-export async function analyzeImage(imageData: string, isHEIC?: boolean) {
+export async function analyzeImage(
+  imageData: string,
+  isHEIC?: boolean,
+  options?: { signal?: AbortSignal; scanType?: 'pantry' | 'kitchen' },
+): Promise<VisionAnalysisResult> {
+  const headers = new Headers();
+  if (options?.scanType) {
+    headers.set('X-Laica-Scan-Type', options.scanType);
+  }
+
   const response = await apiRequest('POST', '/api/vision/analyze', {
     image: imageData,
     isHEIC: isHEIC
-  });
+  }, { signal: options?.signal, headers });
   return await response.json();
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { type ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
@@ -8,7 +8,6 @@ import LiveCooking from '@/components/cooking/live-cooking';
 import UserSettings from '@/components/cooking/user-settings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, LogOut, ChefHat } from 'lucide-react';
-import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
+import { ChefHat, LogOut, Menu, MessageCircle, Settings } from 'lucide-react';
 
 interface UserProfile {
   cookingSkill: string;
@@ -179,83 +177,6 @@ export default function MobileApp() {
     }
   }, [user?.id, saveProfileToDb]);
 
-  const getUserInitials = () => {
-    if (!user) return 'U';
-    
-    // Check if it's an AuthUser (external auth)
-    if ('firstName' in user && 'lastName' in user) {
-      const firstName = user.firstName;
-      const lastName = user.lastName;
-      if (firstName && lastName) {
-        return `${firstName[0]}${lastName[0]}`;
-      }
-    }
-    
-    // Check if it's a User (local auth)
-    if ('username' in user) {
-      const username = user.username;
-      if (username) {
-        return username[0].toUpperCase();
-      }
-    }
-    
-    // Fall back to email for both types
-    const email = user.email;
-    if (email) {
-      return email[0].toUpperCase();
-    }
-    
-    return 'U';
-  };
-
-  const getUserDisplayName = () => {
-    if (!user) return 'User';
-    
-    // Check if it's an AuthUser (external auth)
-    if ('firstName' in user && 'lastName' in user) {
-      const firstName = user.firstName;
-      const lastName = user.lastName;
-      if (firstName && lastName) {
-        return `${firstName} ${lastName}`;
-      }
-    }
-    
-    // Check if it's a User (local auth)
-    if ('username' in user) {
-      const username = user.username;
-      if (username) {
-        return username;
-      }
-    }
-    
-    // Fall back to email for both types
-    const email = user.email;
-    if (email) {
-      return email;
-    }
-    
-    return 'User';
-  };
-
-  const handleLogout = async () => {
-    try {
-      console.log('Logging out with Google/Firebase authentication');
-      
-      // Use Firebase authentication to sign out
-      const { FirebaseAuthService } = await import('@/lib/firebase');
-      await FirebaseAuthService.signOut();
-      
-      console.log('Firebase logout successful - redirecting to home');
-      
-      // Clear any cached data and redirect
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Force redirect even if logout fails
-      window.location.href = '/';
-    }
-  };
-
   const handleProfileComplete = (profile: UserProfile) => {
     setUserProfile(profile);
     saveProfile(profile);
@@ -331,6 +252,86 @@ export default function MobileApp() {
       setCurrentPhase('profiling');
     }
   };
+
+  const getUserDisplayName = () => {
+    if (!user) return 'Account';
+
+    if ('firstName' in user && 'lastName' in user && user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+
+    if ('username' in user && user.username) {
+      return user.username;
+    }
+
+    return user.email || 'Account';
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      await FirebaseAuthService.signOut();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/';
+    }
+  };
+
+  const renderAccountMenu = (
+    trigger: ReactNode,
+    options: { allowSettings?: boolean; side?: 'top' | 'bottom' } = {},
+  ) => {
+    const { allowSettings = true, side = 'top' } = options;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+        <DropdownMenuContent side={side} align="end" className={`${side === 'top' ? 'mb-2' : 'mt-2'} w-60`}>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-semibold leading-none">{getUserDisplayName()}</p>
+              <p className="text-xs leading-none text-muted-foreground">{user?.email || 'Signed in'}</p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            disabled={!allowSettings}
+            onClick={() => {
+              if (allowSettings) setCurrentPhase('settings');
+            }}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Profile & settings</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsFeedbackOpen(true)}>
+            <MessageCircle className="mr-2 h-4 w-4" />
+            <span>Feedback</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Sign out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
+  const renderSetupMenu = () => (
+    renderAccountMenu(
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="setup-menu-button h-10 w-10"
+        aria-label="Open account menu"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>,
+      { allowSettings: hasExistingProfile, side: 'bottom' },
+    )
+  );
 
   const renderPlanningChoice = () => (
     <div className="w-full max-w-md mx-auto p-4 space-y-6">
@@ -420,7 +421,7 @@ export default function MobileApp() {
 
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-        <div className="flex justify-around items-center max-w-xs mx-auto">
+        <div className="flex justify-around items-center max-w-sm mx-auto">
           <Button 
             variant="ghost" 
             size="sm"
@@ -446,6 +447,18 @@ export default function MobileApp() {
             <Settings className="h-5 w-5 mb-1" />
             <span className="text-xs">Settings</span>
           </Button>
+
+          {renderAccountMenu(
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex flex-col items-center text-gray-500"
+              disabled={userProfile.cookingSkill === ''}
+            >
+              <Menu className="h-5 w-5 mb-1" />
+              <span className="text-xs">Menu</span>
+            </Button>,
+          )}
         </div>
       </div>
     );
@@ -471,6 +484,7 @@ export default function MobileApp() {
             <UserProfiling 
               onProfileComplete={handleProfileComplete}
               existingProfile={hasExistingProfile ? userProfile : undefined}
+              menuSlot={renderSetupMenu()}
             />
           </div>
         );
@@ -534,77 +548,16 @@ export default function MobileApp() {
           <UserProfiling
             onProfileComplete={handleProfileComplete}
             existingProfile={hasExistingProfile ? userProfile : undefined}
+            menuSlot={renderSetupMenu()}
           />
         );
     }
   };
 
-  const renderHeader = () => (
-    <div className="fixed top-0 left-0 right-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
-      <div className="flex items-center justify-between max-w-md mx-auto">
-        <div className="flex items-center">
-          <img src={laicaLogo} alt="Laica" className="h-8" />
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          {/* Feedback Button */}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setIsFeedbackOpen(true)}
-            className="text-[#FF6B6B] border-[#FF6B6B] bg-transparent hover:bg-[#FF6B6B]/10 text-xs rounded-lg px-2 py-0.5 h-6"
-          >
-            Feedback
-          </Button>
-          
-          {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage 
-                      src={user && 'profileImageUrl' in user ? user.profileImageUrl || undefined : undefined} 
-                      alt="User avatar" 
-                    />
-                    <AvatarFallback>
-                      {getUserInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user?.email || 'No email'}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setCurrentPhase('settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      {renderHeader()}
+    <div className="min-h-screen bg-gray-50">
       {renderCurrentPhase()}
       {renderBottomNav()}
-      
       <FeedbackModal
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}

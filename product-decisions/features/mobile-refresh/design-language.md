@@ -9,13 +9,15 @@
 
 ## Goal
 
-Define the target LAICA look and feel for the mobile refresh so implementation does not stop at functional UX, generic shadcn composition, or isolated screen polish. This document is the working design-language source for Phase 2 setup polish and the later planning, cooking, and post-cook phases.
+Define the target Laica look and feel for the mobile refresh so implementation does not stop at functional UX, generic shadcn composition, or isolated screen polish. This document is the working design-language source for Phase 2 setup polish and the later planning, cooking, and post-cook phases.
 
 ## Positioning
 
-LAICA is a warm, capable mobile cooking companion. It should feel like it belongs in a kitchen, understands the messiness of home cooking, and helps the user move forward without making every choice feel like a form.
+Laica is a warm, capable mobile cooking companion. It should feel like it belongs in a kitchen, understands the messiness of home cooking, and helps the user move forward without making every choice feel like a form.
 
-LAICA should not feel like:
+User-facing prose should write the brand as `Laica`, not all-caps `LAICA`, unless a specific logo asset or legal/artwork context requires otherwise.
+
+Laica should not feel like:
 
 - a generic AI chatbot app
 - a sterile SaaS dashboard
@@ -30,7 +32,7 @@ LAICA should not feel like:
 
 Core cooking flows should feel guided and alive, not like profile administration. Screens should reduce the user's next decision to a clear action: scan, choose, start, cook, confirm, clean up.
 
-Use administrative density only in settings and management surfaces. Setup, Planning, Cooking, and Post-cook should feel like LAICA is walking with the user through a cooking moment.
+Use administrative density only in settings and management surfaces. Setup, Planning, Cooking, and Post-cook should feel like Laica is walking with the user through a cooking moment.
 
 ### 2. Food-Native, Not Abstract AI
 
@@ -52,7 +54,7 @@ Do not put cards inside cards or style every section as a floating card. Reserve
 
 ### 5. Playful Specificity, Not Noise
 
-LAICA can be funny and specific, especially in Slop Bowl and celebratory moments. The personality should come from precise wording, object shapes, small stickers/labels, and the occasional food-native emoji.
+Laica can be funny and specific, especially in Slop Bowl and celebratory moments. The personality should come from precise wording, object shapes, small stickers/labels, and the occasional food-native emoji.
 
 Avoid decorative clutter, constant animation, vague hype, or forced enthusiasm. Playfulness should make the app feel more human, not less capable.
 
@@ -73,11 +75,11 @@ Use this as the reference for:
 - friendly first impression without generic AI-app chrome
 - coral-led brand presence with restrained supporting colors
 - simple auth hierarchy and uncluttered white space
-- logo treatment and top-level LAICA personality
+- logo treatment and top-level Laica personality
 
 Do not copy:
 
-- a plain provider-button page with no branded LAICA feeling
+- a plain provider-button page with no branded Laica feeling
 - generic gradient hero treatments
 - dense explanatory onboarding text before sign-in
 
@@ -88,7 +90,7 @@ Do not copy:
 Use this as the reference for:
 
 - camera-first setup composition
-- scan surface as a designed LAICA object, not raw native camera UI with buttons attached
+- scan surface as a designed Laica object, not raw native camera UI with buttons attached
 - clear primary capture CTA with upload/manual/tips in a secondary hierarchy
 - warm/coral onboarding mood
 - chip, progress, and profile-choice treatment
@@ -98,7 +100,7 @@ Do not copy:
 
 - form-first onboarding with camera as an accessory
 - stacked generic shadcn cards
-- full-screen native camera takeover with no LAICA way back
+- full-screen native camera takeover with no Laica way back
 - teal pantry chips when the accepted direction is warm/coral
 
 ### Phase 3 Planning Flow
@@ -125,7 +127,7 @@ Do not copy:
 
 Use this as the reference for:
 
-- Ticket Pass as LAICA's signature suggestion object
+- Ticket Pass as Laica's signature suggestion object
 - tactile recipe cards with a distinct shape and personality
 - useful information without generic AI match scoring
 - optional enhancement framing that avoids mandatory grocery-list language
@@ -193,8 +195,9 @@ Do not copy:
 
 ### Typography
 
-- Current implementation fonts remain the working baseline until a typography decision is made.
-- Headings should be confident, rounded, and readable, with enough personality to feel LAICA-branded.
+- Phase 2.1 setup pilots the mobile-refresh typography direction in setup only: `Fraunces` for expressive setup headings and `Nunito` for setup body, buttons, chips, and controls.
+- This is not a global typography rollout yet. Auth, Planning, Cooking, Settings, and other surfaces keep their current typography until their phase-specific pass adopts or revises this direction.
+- Headings should be confident, rounded, and readable, with enough personality to feel Laica-branded.
 - Do not use hero-scale type inside compact app panels, cards, setup steps, or tool surfaces.
 - Recipe names and Ticket Pass surfaces may use a more expressive title treatment if it remains legible.
 - Body copy should be plain, direct, and supportive. Avoid feature-explainer text inside the app chrome.
@@ -205,10 +208,32 @@ Do not copy:
 - Compact cards and controls should stay disciplined; larger radii belong on intentional feature objects, not every container.
 - Buttons should have clear command roles. Use icons where the action is familiar: back, close, camera, upload, check, add, save.
 - The primary CTA should be visually obvious without requiring explanatory copy.
+- Authenticated app pages should not carry a persistent top header. Account, profile, and sign-out access belongs in the bottom menu/account surface so core mobile flows keep vertical space for the task.
+- Removing the top header does not mean removing navigation affordance. Authenticated flows need a bottom-menu entry for account/profile/sign-out/feedback access.
+- First-time setup may use a compact account menu affordance inside the setup frame while Planning remains locked; this should provide account/feedback/sign-out access without bringing back a page header.
+- Setup progress should use one clear top progress treatment, visually closer to the mockup's `1/5` bar, instead of combining brand chips, repeated step pills, and section labels in the same top area.
+- Camera controls should feel familiar to mobile camera users: capture as a large circular control inside the camera object, camera on/off as an icon control inside the camera object, and scan tips as a lightweight in-context overlay rather than a separate row.
+- Camera utility controls must be visually noticeable without turning into opaque primary CTAs. Prefer smaller translucent circular controls with larger icons; keep capture as a clean shutter control without a camera glyph. Avoid flashlight-like icons for non-flashlight tips.
+- Secondary setup actions such as `Upload photos` and `Enter manually` must remain readable on a phone and use consistent type sizing, weight, and font treatment across equivalent actions.
+- Secondary setup actions should avoid technical helper labels when the main command is clear. Prefer one clear label over small explanatory subcopy like file-count or delimiter mechanics.
+- Kitchen setup can share Pantry's component model while shifting equipment-specific accents toward gray/silver and light wood, especially save actions, item chips, remove controls, and utility icons.
+
+### Phase 2.1 Setup Pilot Checkpoint
+
+Wilson accepted the Phase 2.1 setup visual direction on 2026-04-30 after the setup conformance, menu/camera-control, welcome-copy, Kitchen-accent, and upload-limit passes.
+
+Carry this forward as design-language signal, not as a mandatory global rollout:
+
+- Setup can use `Fraunces` display type and `Nunito` body/control type as the current mobile-refresh typography pilot.
+- Setup should open with friendly direct copy, not an explanatory eyebrow before the primary welcome heading.
+- Camera-first surfaces should keep user control visible: camera off by default, camera controls inside the scan object, blank shutter capture, translucent utility controls, and upload/manual paths nearby.
+- Warm coral remains the setup progress and primary action anchor; Kitchen can introduce gray/silver and light wood accents only for tool-specific surfaces.
+- Technical helper labels should not sit under obvious secondary commands when they make the UI feel more complicated than the task.
 
 ### Iconography and Emoji
 
 - Use `lucide-react` as the default icon language.
+- Setup choice icons may use small multicolor food/tool/dietary illustrations when the mockup calls for a warmer, less monochrome surface.
 - Emoji is allowed on tone-forward surfaces when it carries product voice better than a generic icon. Use it sparingly.
 - Settings, auth, errors, and safety-critical flows should prefer clear icons and text over emoji.
 
@@ -241,12 +266,17 @@ Do not copy:
 
 Phase 2 is the first active pilot for this design language. Before merge:
 
-- Pantry/Kitchen setup should look like intentional LAICA onboarding, not a form with camera buttons.
+- Setup-specific typography should use the Phase 2.1 pilot direction: `Fraunces` display headings plus `Nunito` UI/body text, scoped behind setup-only classes such as `.setup-ui`, `.setup-display`, and `.setup-copy`.
+- Pantry/Kitchen setup should look like intentional Laica onboarding, not a form with camera buttons.
 - Camera preview should be framed as a designed scan surface with an obvious capture action.
-- Upload/manual/tips should sit below capture in a secondary hierarchy.
+- Upload/manual should sit below capture in a secondary hierarchy; tips should move into the camera object as a lightweight overlay.
 - Back/escape must be part of the setup chrome.
 - Cooking Skill and Dietary Restrictions should feel like full-row mobile choices, not small radio controls.
 - Chips should look warm, readable, and tokenized.
+- Pantry and Kitchen should share component structure, but Kitchen may shift selected accents toward gray/silver and light wood beige to reflect modern kitchen tools while retaining enough coral to stay within the Laica system.
+- Kitchen-specific action buttons, saved-equipment chips, and review/list states should lean gray/silver where possible so the tool page feels distinct from the warmer pantry page without becoming a separate design system.
+- Future scan-review chips may need session-state colors or indicators for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should build on the Pantry/Kitchen chip palette without creating a noisy third design system; see [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
+- `No restrictions` should be visually separated from the rest of the dietary options so users who have nothing to add can choose the default quickly.
 
 ### Phase 3 Planning
 
@@ -274,7 +304,7 @@ Before a mobile-refresh phase is marked ready:
 
 - Has the reviewer opened the linked visual exemplar for the phase?
 - Does the primary screen visibly match the linked mockup's hierarchy and mood?
-- Does the screen feel like LAICA, not generic AI/SaaS/shadcn?
+- Does the screen feel like Laica, not generic AI/SaaS/shadcn?
 - Is the primary action unmistakable?
 - Are secondary actions available without competing with the primary action?
 - Are back/escape paths visible where users can enter a focused flow?
@@ -293,7 +323,7 @@ Before a mobile-refresh phase is marked ready:
 
 ## Open Decisions
 
-- Final typography direction.
+- Whether the Phase 2.1 setup typography pilot becomes the global mobile-refresh typography direction or stays setup-specific.
 - Whether the coral/teal/yellow palette is refined or replaced.
 - Canonical motif set: camera frame, Ticket Pass, prep tray, pantry chip, cooking cue, or another visual object.
 - How much illustration versus real/generated food imagery belongs in the app.

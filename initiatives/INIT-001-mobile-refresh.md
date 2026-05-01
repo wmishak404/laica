@@ -3,12 +3,13 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 2.1 setup polish planned
+**Current phase:** Phase 2.1 setup polish validation-ready
 **Active PR:** None
+**Active branch:** `codex/mobile-refresh-phase-2-1-setup-polish`
 
 ## Overview
 
-Mobile Refresh is the phased effort to make LAICA feel like a native, camera-forward, cooking-first mobile product rather than a desktop website wrapped in a mobile viewport.
+Mobile Refresh is the phased effort to make Laica feel like a native, camera-forward, cooking-first mobile product rather than a desktop website wrapped in a mobile viewport.
 
 The original plan spans Phase 0 through Phase 5:
 
@@ -29,7 +30,21 @@ PR #25 split and merged the INIT/process/design documentation stack from PR #23,
 
 PR #23 merged functional Phase 2 setup after Replit validation passed. Wilson decided to defer the latest UI trust/privacy and visual-flow feedback to Phase 2.1 because PR #23 was already large.
 
-Next work should start from fresh `origin/main` and use Phase 2.1 setup polish as the active scope.
+Phase 2.1 implementation started from fresh `origin/main` at `4ef300cda6778bbd562e918fc5b835a246b65bd8` on `codex/mobile-refresh-phase-2-1-setup-polish`. Local TypeScript, focused Vitest, and production build checks have passed; Replit validation is still required before merge.
+
+Wilson's visual review found that the first Phase 2.1 pass still felt too close to the old shadcn-like setup UI. A follow-up setup visual conformance pass now scopes the mockup-led cream/coral phone-flow treatment, designed scan object, warm chips, setup illustrations, sticky bottom actions, and setup-only `Fraunces` / `Nunito` typography to `UserProfiling` and the setup `NativeCamera` variant. Replit validation still needs to include visual review against `docs/assets/mobile-refresh/phase-02-setup.png`.
+
+Wilson's Replit review of that conformance pass accepted the overall direction but added another Phase 2.1 polish pass before merge: remove persistent app headers, use `Laica` casing in user-facing text, simplify setup chrome to one top progress bar, move camera controls into the camera object, update welcome/pantry/skill copy, enlarge upload/manual labels, make Kitchen slightly more utilitarian with gray/silver and light wood accents, use multicolor illustration-style icons for skill/dietary choices, isolate `No restrictions`, and preserve the liked confirmation page while aligning its icon treatment. Codex implemented this feedback locally on the Phase 2.1 branch.
+
+Wilson's follow-up Replit review kept the direction and narrowed the remaining polish: retain a menu affordance after removing the header, replace the too-dominant Pantry heading with friendlier copy, make the in-camera camera/tips controls visible but not opaque CTAs, avoid a lightbulb icon for scanning tips, remove the capture camera glyph, keep progress coral across Pantry and Kitchen, remove technical helper labels below upload/manual actions, and push Kitchen's gray/silver accents further for equipment actions and list items. Codex has implemented this follow-up locally; Replit validation is still required at the latest branch head.
+
+Wilson's functionality testing then clarified upload-limit behavior: selecting more than the pantry cap of 8 photos or kitchen cap of 6 photos should cancel the entire batch, not silently process the first allowed files. Codex has implemented the fail-closed upload limit behavior locally for setup and Settings; Replit validation remains required at the latest branch head.
+
+Wilson has now accepted the Phase 2.1 setup visual direction. The current branch should be treated as implementation-complete for Phase 2.1 unless validation finds a regression. The next step is the Replit validation checklist in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md), then recording the validated commit SHA before opening/merging the PR.
+
+Wilson's Phase 2.1 functional testing then found validation-feedback issues around scan cancellation, ambiguous scan-error copy, camera-device error paths, capture-success feedback, manual-entry active state, and prompt-injection precautions for manual labels. Codex implemented those fixes on the Phase 2.1 branch: active setup scans are abortable and ignored after Back, fatal batch failures no longer apply partial results, scan errors now distinguish rejection/no-detection/rate-limit/image/auth/service paths, camera failure paths show clearer feedback, capture flashes the viewfinder, manual-entry actions show active state, and manual labels strip common prompt markers before being saved. Focused Vitest, `npm run check`, and `npm run build` pass locally; Replit validation remains required at the latest branch head.
+
+Wilson then reported the next Replit test results as passing except for untestable 8a/8c, Test 20's shared scan-limit meter blocking later Kitchen/equipment testing, Test 16's period-separated manual entry issue and missing comma note, Test 19's placeholder not actually rotating, and Test 21 being blocked by the scan limit. Codex implemented the follow-up locally: Pantry/Kitchen vision rate-limit keys are separated by scan context, setup and Settings send the scan context, manual entry treats periods as comma-like typo recovery, Pantry shows a comma-separation note, Pantry requires at least 3 ingredients before proceeding, and Pantry manual placeholders cycle deterministically through varied staple examples on setup mount/page refresh. Focused Vitest, `npm run check`, and `npm run build` pass locally. The recommended next Replit plan is reduced to those changed risk areas plus the previously blocked equipment-photo test.
 
 ## Source Docs
 
@@ -65,7 +80,7 @@ Next work should start from fresh `origin/main` and use Phase 2.1 setup polish a
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit and merged; latest visual/trust feedback deferred |
-| Phase 2.1 | Planned | TBD | Setup polish: camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape, copy, auto-advance |
+| Phase 2.1 | Validation Ready | `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape with active-scan cancellation, clearer scan/camera error paths, Pantry/Kitchen scan-limit separation, capture flash, manual active state and period/comma parsing, 3-ingredient Pantry minimum, copy, auto-advance, setup-only typography, mockup-led cream/coral treatment, bottom/account menu access, fail-closed upload caps, and accepted visual polish; Replit validation pending |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -81,6 +96,8 @@ Next work should start from fresh `origin/main` and use Phase 2.1 setup polish a
 | #23 | Merged | `codex/mobile-refresh-phase-2-setup` | Functional Replit validation passed at `f037552`; merged as functional Phase 2 |
 | #24 | Closed / superseded | `codex/vision-text-only-scan-epic` | Standalone EPIC-011 PR superseded by Phase 2.1 scope |
 | #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
+| #26 | Merged | `codex/mobile-refresh-phase-2-closeout` | Phase 2 closeout moved resume point to Phase 2.1 |
+| TBD | Validation ready | `codex/mobile-refresh-phase-2-1-setup-polish` | Visual direction accepted by Wilson; local checks passed; Replit validation not yet run |
 
 ## Epics and Governance
 
@@ -92,7 +109,8 @@ Next work should start from fresh `origin/main` and use Phase 2.1 setup polish a
 | [EPIC-007](../epics/007-vision-scan-no-detection-feedback.md) | Pantry/kitchen no-detection feedback |
 | [EPIC-009](../epics/009-consistent-comma-separated-ingredient-entry.md) | Shared comma-separated manual entry |
 | [EPIC-010](../epics/010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
-| [EPIC-012](../epics/012-laica-design-language.md) | LAICA design language and visual identity |
+| [EPIC-012](../epics/012-laica-design-language.md) | Laica design language and visual identity |
+| [EPIC-013](../epics/013-pantry-manual-entry-spell-correction.md) | Future pantry manual-entry ingredient spelling correction |
 
 ## Changes Added After Initial Plan
 
@@ -100,7 +118,7 @@ Next work should start from fresh `origin/main` and use Phase 2.1 setup polish a
 - Mockup conformance gate added: linked mockups are implementation inputs, not loose inspiration.
 - Phase 2 scope corrected: setup visual polish and Pantry/Kitchen Back/escape are merge-readiness items.
 - PR #23 UI feedback added and deferred to Phase 2.1: camera off by default with toggle, one upload action, peer manual entry, processing animation, text-only scan safeguard, privacy-aware copy, single-choice auto-advance, and first-time welcome follow-up.
-- EPIC-012 added for LAICA design language and visual identity.
+- EPIC-012 added for Laica design language and visual identity.
 - Mobile Refresh Design Language drafted and annotated with visual exemplars.
 - Stacked PR base refresh rule added after PR #22 polish was missing from early PR #23 preview.
 - Replit validation hygiene added: validation is tied to commit SHA and becomes stale after any later branch commit.
@@ -114,23 +132,32 @@ Known validation facts:
 - The 16 signed-in post-auth functional smoke items passed in Replit.
 - Latest UI trust/privacy feedback is deferred to Phase 2.1.
 - PR #23 merged into `main` as merge commit `eca3d1b504e8eb33edbeb74e78cf2755b760577f`.
+- Wilson accepted the Phase 2.1 setup visual direction after the latest visual/camera-control polish.
 
 Required before Phase 2.1 merge:
 
 - Start Phase 2.1 from fresh `origin/main`.
 - Implement the setup polish and text-only scan safeguard scope in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
-- Re-run Replit validation at the latest Phase 2.1 runtime head before merge.
+- Wilson's 2026-04-30 Replit visual feedback and follow-up setup polish captured in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) have been implemented and visually accepted.
+- Wilson's 2026-04-30 functional validation feedback on scan cancellation, scan-error taxonomy, camera errors, capture flash, manual toggle state, and manual-entry prompt-marker stripping has been implemented locally and documented in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
+- Wilson's follow-up test results on scan-limit separation, period-separated manual entry, visible comma guidance, 3-ingredient Pantry minimum, and the blocked Test 21 equipment-photo path have been implemented or captured in the reduced retest plan.
+- Wilson's mobile smoke confirmed setup generally works, upload smoke from different sources passed, and profile persistence saves correctly. Duplicate-aware Pantry/Kitchen scan merging mitigates exact/near-exact duplicates in Phase 2.1, while deeper semantic duplicate cleanup and latest-scan chip indicators are deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
+- Re-run Replit validation at the latest Phase 2.1 runtime head before merge using the checklist in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
+- Record `Last Replit-validated at: <commit-sha>` after validation passes.
 
 ## Current Resume Point
 
-Resume at Phase 2.1 setup polish.
+Resume at Phase 2.1 validation closeout on `codex/mobile-refresh-phase-2-1-setup-polish`.
 
 Next implementation focus:
 
-1. Create a new Phase 2.1 branch from fresh `origin/main`.
-2. Read [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md), [Mobile Refresh Design Language](../product-decisions/features/mobile-refresh/design-language.md), [EPIC-004](../epics/004-selection-controls-tap-targets.md), [EPIC-005](../epics/005-testing-strategy-and-acceptance-criteria.md), and [EPIC-012](../epics/012-laica-design-language.md).
-3. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
-4. Implement Phase 2.1 without reopening the validated Phase 2 backend/data contract.
+1. Pull the latest `codex/mobile-refresh-phase-2-1-setup-polish` docs branch into Replit/GitHub context.
+2. Record the final Replit validation state: mobile setup generally worked, upload smoke from different sources passed, disposable-account profile persistence passed, and ultra-refined duplicate cleanup is deferred to EPIC-014.
+3. Do not repeat visually accepted setup screens, Cooking Skill auto-advance, Dietary explicit continuation, or header/menu checks unless the latest branch head shows a regression.
+4. Record `Last Replit-validated at: <commit-sha>` in the handoff and PR description once Wilson confirms the commit SHA to treat as validated.
+5. Open the Phase 2.1 PR after validation state is recorded.
+6. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
+7. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
 
 ## Chronology
 
@@ -177,3 +204,55 @@ Wilson decided the text-only vision scan safeguard from PR #24 belongs in Phase 
 ### 2026-04-29 — Phase 2 merged
 
 PR #23 merged functional Phase 2 setup into `main` as merge commit `eca3d1b504e8eb33edbeb74e78cf2755b760577f`. The remote feature branch was deleted. Phase 2.1 is now the next active Mobile Refresh scope.
+
+### 2026-04-30 — Phase 2.1 implementation branch started
+
+Codex started `codex/mobile-refresh-phase-2-1-setup-polish` from `origin/main` at `4ef300cda6778bbd562e918fc5b835a246b65bd8`. The branch implements the first-time welcome screen, camera opt-in, upload/manual hierarchy, scanning state, privacy-aware copy, Cooking Skill auto-advance, and text-only scan rejection contract. Local checks passed; Replit validation is not yet run.
+
+### 2026-04-30 — Phase 2.1 setup visual conformance pass added
+
+Wilson clarified that Phase 2.1 setup still looked too close to the old UI and should match the visual mockup's warmer, more whimsical setup language. Codex added a setup-scoped visual pass on the same branch: `Fraunces` / `Nunito` setup typography, cream/coral phone-flow shell, designed scan viewfinder, integrated camera toggle, warm manual/upload/review surfaces, short coral chips, illustrated setup states, and sticky bottom actions. This is setup-only for now and documented as the typography pilot for future Phase 3-5 consistency. Replit visual validation is still not yet run.
+
+### 2026-04-30 — Replit visual feedback captured for next Phase 2.1 pass
+
+Wilson reviewed the Phase 2.1 setup visuals in Replit and requested another polish iteration before merge. The accepted next pass removes persistent app headers, simplifies setup chrome to a single top progress bar, switches user-facing brand copy to `Laica`, updates welcome/pantry/skill copy, moves camera controls into the viewfinder with mobile-camera-style controls, enlarges upload/manual labels, makes Kitchen slightly more gray/silver and wood-beige, adds multicolor illustration-style skill/dietary icons, isolates `No restrictions`, and preserves the liked confirmation page. This feedback is captured in the Phase 2.1 product note and handoff; implementation is still pending.
+
+### 2026-04-30 — Replit visual feedback implemented locally
+
+Codex implemented Wilson's Replit feedback on `codex/mobile-refresh-phase-2-1-setup-polish`: the authenticated `/app` shell no longer renders the fixed top header, legacy page header imports were removed, setup uses one progress bar instead of brand/step/section chips, the camera toggle/capture/tips controls are inside the viewfinder, Pantry and Welcome copy was updated, Kitchen gets a more utilitarian gray/silver and wood-beige accent pass, upload/manual labels are larger, skill/dietary choices use multicolor illustration tokens, `No restrictions` is isolated, and confirmation icons are aligned to that illustration direction. Local check, focused Vitest, and build passed; Replit validation is not yet run at this implementation head.
+
+### 2026-04-30 — Follow-up setup menu and scan-control polish implemented locally
+
+Wilson's next Replit pass clarified that the app still needs menu access without restoring the header, Pantry copy should be friendlier than `Tell me what you have.`, camera/tips controls should be visible but not opaque CTAs, capture should be a blank shutter, tips should not use a flashlight-like icon, Kitchen should keep the coral progress bar, upload/manual actions should not carry technical helper labels, and Kitchen should lean further into gray/silver equipment accents. Codex added a setup-scoped account menu plus bottom-nav menu, changed Pantry to `Start with pantry staples.`, revised the in-camera controls to smaller translucent circles with larger icons, switched tips to a help-circle icon, removed the capture camera glyph, removed upload/manual helper labels, and extended gray/silver Kitchen treatment to save buttons, chips, icons, and inputs while keeping progress coral. Local checks passed; Replit validation is not yet run at this implementation head.
+
+### 2026-04-30 — Setup upload limit behavior changed to fail closed
+
+Wilson's functionality testing found that partially processing oversized upload selections creates uncertainty about which photos were scanned. Codex changed setup and Settings upload handling so selecting more than 8 pantry photos or more than 6 kitchen photos cancels the entire batch, shows the limit message, and sends no photo to vision analysis. Focused unit coverage now verifies both setup caps. Replit validation is not yet run at this implementation head.
+
+### 2026-04-30 — Phase 2.1 visual acceptance and validation checklist consolidated
+
+Wilson confirmed that the Phase 2.1 setup design now looks great. Codex marked the phase as validation-ready, consolidated the Replit acceptance checklist in the Phase 2.1 product note, and moved the resume point from implementation to validation. Replit validation is still not yet run at the latest branch head.
+
+### 2026-04-30 — Functional validation feedback fixes added
+
+Wilson's Phase 2.1 testing of the first 14 validation items found that Back from an active Kitchen scan did not cancel the in-flight work, the generic batch scan error was not helpful for text-only rejection or repeated-upload/rate-limit cases, camera-device failure paths needed clearer user feedback, capture needed an immediate visual success cue, manual-entry toggles needed an active state, and manual labels needed explicit prompt-injection safeguards. Codex implemented abortable setup scans, stale-result guards, clearer scan-error taxonomy, no partial results on fatal batch error, camera-unavailable/blocked messages, setup capture flash, manual action active shading, and client-side prompt-marker stripping for manual entries. Focused Vitest, `npm run check`, and `npm run build` passed locally. Replit validation remains pending at the latest branch head.
+
+### 2026-04-30 — Follow-up test results narrowed retest scope
+
+Wilson reported that the next Phase 2.1 Replit test pass succeeded except for untestable camera subcases 8a/8c, shared Pantry/Kitchen scan-limit state blocking equipment validation, period-separated manual entry being treated as one item, missing visible comma guidance, and Test 21 being blocked by the scan limit. Codex separated Pantry/Kitchen vision rate-limit meters via scan-context headers, updated setup and Settings scan calls, changed manual parsing so periods recover like commas without treating other symbols as separators, added a Pantry comma-separation note, required at least 3 Pantry ingredients before continuing, and cycled Pantry manual placeholders across staple examples. Focused Vitest, `npm run check`, and `npm run build` passed locally. The next Replit pass should restart the app and focus only on those touched risk areas plus the previously blocked physical equipment-photo acceptance test.
+
+### 2026-04-30 — Test 19 placeholder rotation clarified
+
+Wilson observed that Test 19's Pantry manual placeholder stayed on `parmesan, sumac, chili crisp` across refresh and re-login, revealing that the prior random selection was not an actual rotation. Codex changed Pantry placeholder examples to cycle deterministically on setup component mount/page refresh using local browser storage, while staying stable during the current setup flow. Replit should retest Test 19 by refreshing or remounting setup and confirming the example advances.
+
+### 2026-04-30 — Pantry spell-correction follow-up filed
+
+Wilson asked to capture a future pantry manual-entry autocorrection idea: fix ingredient spelling before adding to the pantry list, while preserving intentional spellings such as `sushiritto` and `WTR MLN WTR`; equipment should not use this because specialized tool/model spellings are riskier. Codex filed [EPIC-013](../epics/013-pantry-manual-entry-spell-correction.md) as a future, non-Phase-2.1-gating backlog item with conservative correction, rare/stylized term preservation, and user edit/undo expectations.
+
+### 2026-04-30 — Mobile duplicate scan prevention added
+
+Wilson's mobile smoke found that setup generally worked and disposable-account profile persistence saved correctly, but repeated uploads/captures of the same Pantry or Kitchen angle could create duplicate chips/list rows. Codex accepted this as Phase 2.1 scope and added duplicate-aware merge metadata for setup and Settings scan paths. The next Replit pass should focus on repeated-photo and upload-plus-native-camera duplicate checks, plus a light profile-save smoke at the latest branch head.
+
+### 2026-04-30 — Scan-session duplicate refinement deferred
+
+Wilson's follow-up mobile retest found that the duplicate-prevention pass skipped some already-saved items and that upload smoke from different sources passed, but duplicate-like entries can still appear when the model labels the same physical item differently across scans. Wilson deferred ultra-refined duplicate cleanup out of Phase 2.1. Codex filed [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md) to track latest-scan chip indicators, overlap/found-again states, and duplicate cleanup UX for a future pass.

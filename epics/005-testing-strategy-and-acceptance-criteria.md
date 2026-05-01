@@ -252,6 +252,26 @@ PR #23 validation showed that deterministic Replit checks can pass while authent
 
 Wilson's PR #23 walkthrough also showed that a deterministic green run can still miss a core acceptance problem: the setup behavior was present, but the visuals were not close enough to the approved mobile-refresh mockup and the camera step did not offer an obvious Back/escape path. Future phase acceptance should include a visual comparison against linked mockups for the primary screens, and any behavior-first/visual-later split must be documented before validation begins. This adds testing-strategy evidence, not a resolution.
 
+### 2026-04-30 — Phase 2.1 uses a consolidated phase validation checklist
+
+After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated local gates, Replit prerequisites, Replit acceptance items, and merge acceptance into `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`. This is a useful feature-level pattern for carrying acceptance criteria from product notes into Replit validation and PR handoffs, but it does not replace the still-needed app-wide validation matrix for this epic.
+
+### 2026-04-30 — Phase 2.1 validation feedback tightened acceptance granularity
+
+Wilson's in-progress Phase 2.1 Replit validation found issues that a broad "scan works" criterion would have missed: active scan cancellation on Back, distinct text-only/no-detection/rate-limit/image-error copy, camera-device failure paths, capture-success feedback, and manual-toggle active state. The Phase 2.1 acceptance checklist now names these paths separately. This adds evidence that future feature validation should cover failure/cancellation states as first-class acceptance items, not only happy-path completion.
+
+### 2026-04-30 — Phase 2.1 adopts reduced retest scope after partial pass
+
+Wilson reported a near-complete Phase 2.1 pass with only specific constrained failures remaining. The Phase 2.1 product note now recommends a reduced next Replit test plan focused on the touched risk: Pantry/Kitchen rate-limit separation, manual delimiter recovery, Pantry minimum guard, and the blocked equipment-photo test. Previously passed visual, navigation, and choice-control checks do not need full repetition unless the new branch head shows a regression. This is useful evidence for future acceptance workflows: after a documented partial pass, retest scope should contract to changed risk areas plus a light regression spot-check.
+
+### 2026-04-30 — Mobile smoke adds duplicate-scan retest focus
+
+Wilson's mobile Phase 2.1 smoke passed the broad setup/profile-save path but found a final duplicate-entry bug when the same Pantry/Kitchen angle was uploaded or captured again. The Phase 2.1 record now narrows the final retest to duplicate scan prevention plus a light setup completion smoke. This adds another validation-workflow signal: mobile-specific repeated-action checks can expose issues that a desktop happy path and one-time scan do not.
+
+### 2026-04-30 — Phase 2.1 defers ultra-refined duplicate cleanup
+
+Wilson retested the duplicate-prevention pass on mobile and confirmed upload smoke from different sources passed. The current implementation skips some already-saved entries, but model-label drift can still create duplicate-like chips. The accepted validation outcome is to ship the Phase 2.1 mitigation and file [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md) for latest-scan indicators and richer duplicate cleanup. This is useful acceptance-criteria evidence: not every discovered edge must block merge when the product owner explicitly defers it and creates a tracked follow-up.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

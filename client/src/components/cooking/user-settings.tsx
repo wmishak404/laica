@@ -20,8 +20,15 @@ import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload, Clock, MoreVertical, History, Check, Leaf, Sparkles, Utensils } from 'lucide-react';
-import { mergeUniqueEntries, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
+import { mergeUniqueEntries, mergeUniqueEntriesWithMetadata, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
+import {
+  extractVisionLabels,
+  getVisionRejectionFeedback,
+  isRejectedVisionResult,
+  type VisionAnalysisResult,
+  type VisionScanType,
+} from '@/lib/visionResult';
 import type { CookingSession } from '@shared/schema';
 import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
 
@@ -561,44 +568,58 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     });
   };
 
+  const showRejectedScanFeedback = (type: VisionScanType, result: VisionAnalysisResult) => {
+    const feedback = getVisionRejectionFeedback(result, type);
+    toast({
+      ...feedback,
+      variant: "destructive",
+    });
+  };
+
+  const showAlreadySavedFeedback = (type: VisionScanType) => {
+    toast({
+      title: "Already saved",
+      description: `No new ${type === 'pantry' ? 'pantry items' : 'kitchen tools'} were added from that scan.`,
+    });
+  };
+
+  const duplicateSkipCopy = (duplicateCount: number) =>
+    duplicateCount > 0
+      ? ` ${duplicateCount} already-saved item${duplicateCount === 1 ? ' was' : 's were'} skipped.`
+      : '';
+
   const handlePantryImageAnalysis = async (imageData: string) => {
     setIsAnalyzingPantry(true);
     try {
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      const result = await analyzeImage(imageData, isHEIC);
+      const result = await analyzeImage(imageData, isHEIC, { scanType: 'pantry' }) as VisionAnalysisResult;
       console.log('Pantry image analysis result:', result);
-      
-      // Parse the response to extract ingredients from the ingredients array
-      let detectedIngredients: string[] = [];
-      
-      // Check if result has ingredients array
-      if (result.ingredients && Array.isArray(result.ingredients)) {
-        detectedIngredients = result.ingredients.map((item: any) => 
-          typeof item === 'string' ? item : item.name || item.ingredient || String(item)
-        );
+
+      if (isRejectedVisionResult(result)) {
+        showRejectedScanFeedback('pantry', result);
+        return;
       }
-      
-      // Also try to extract from text fields as fallback
-      const analysisText = result.analysis || result.description || '';
-      if (analysisText && detectedIngredients.length === 0) {
-        const textIngredients = analysisText.match(/\b(?:flour|sugar|eggs|milk|butter|oil|onions|garlic|tomatoes|cheese|bread|rice|pasta|chicken|beef|fish|salt|pepper|herbs|spices|vegetables|fruits|beans|nuts|potatoes|carrots|lettuce|spinach|broccoli|mushrooms|bell peppers|cucumbers|avocado|bananas|apples|oranges|lemons|limes|berries|yogurt|cream|vinegar|soy sauce|olive oil|coconut oil|honey|maple syrup|vanilla|cinnamon|paprika|cumin|oregano|basil|thyme|rosemary|ginger|turmeric|chili|hot sauce|ketchup|mustard|mayonnaise|pasta sauce|coconut milk|almond milk|quinoa|oats|cereal|crackers|cookies|chocolate|coffee|tea|wine|beer|juice|water|ice|frozen foods|canned goods|condiments|sauces|dressings|seasonings|baking powder|baking soda|yeast|stock|broth)\b/gi) || [];
-        detectedIngredients = [...detectedIngredients, ...textIngredients];
-      }
+
+      const detectedIngredients = extractVisionLabels(result, 'pantry');
       
       if (detectedIngredients.length > 0) {
         // Clean and remove duplicates
         const cleanIngredients = detectedIngredients
           .map(i => normalizeEntryLabel(String(i).toLowerCase()))
           .filter(i => i && i.length > 1);
-        const uniqueIngredients = mergeUniqueEntries([], cleanIngredients);
-        const newIngredients = mergeUniqueEntries(profile.pantryIngredients, uniqueIngredients);
-        setProfile(prev => ({ ...prev, pantryIngredients: newIngredients }));
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, cleanIngredients);
+        setProfile(prev => ({ ...prev, pantryIngredients: mergeResult.items }));
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('pantry');
+          return;
+        }
         
         toast({
           title: "Pantry scan complete",
-          description: `Found ${uniqueIngredients.length} ingredients: ${uniqueIngredients.slice(0, 3).join(', ')}${uniqueIngredients.length > 3 ? '...' : ''}`
+          description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${duplicateSkipCopy(mergeResult.duplicateCount)}`
         });
       } else {
         toast({
@@ -626,44 +647,32 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      const result = await analyzeImage(imageData, isHEIC);
+      const result = await analyzeImage(imageData, isHEIC, { scanType: 'kitchen' }) as VisionAnalysisResult;
       console.log('Equipment image analysis result:', result);
-      
-      // Parse the response to extract kitchen equipment from the equipment array
-      let detectedEquipment: string[] = [];
-      
-      // Check if result has equipment array
-      if (result.equipment && Array.isArray(result.equipment)) {
-        detectedEquipment = result.equipment.map((item: any) => {
-          if (typeof item === 'string') {
-            return item;
-          } else if (typeof item === 'object' && item !== null) {
-            return item.name || item.item || item.equipment || item.description || '';
-          } else {
-            return '';
-          }
-        }).filter((item: string) => item && typeof item === 'string' && item.trim().length > 0);
+
+      if (isRejectedVisionResult(result)) {
+        showRejectedScanFeedback('kitchen', result);
+        return;
       }
-      
-      // Also try to extract from text fields as fallback
-      const analysisText = result.analysis || result.description || '';
-      if (analysisText && detectedEquipment.length === 0) {
-        const textEquipment = analysisText.match(/\b(?:stove|oven|microwave|refrigerator|freezer|dishwasher|blender|mixer|food processor|toaster|coffee maker|coffee machine|espresso machine|kettle|slow cooker|pressure cooker|air fryer|grill|griddle|wok|skillet|frying pan|pan|pot|small pot|large pot|saucepan|stockpot|dutch oven|red dutch oven|blue dutch oven|baking sheet|cutting board|knife|chef knife|santoku|santoku knife|paring knife|bread knife|cleaver|peeler|grater|whisk|spatula|tongs|ladle|colander|strainer|measuring cups|measuring spoons|scale|thermometer|timer|can opener|bottle opener|corkscrew|rolling pin|pastry brush|mortar pestle|stand mixer|hand mixer|immersion blender|juicer|mandoline|kitchen shears|salad spinner|ice cream maker|bread maker|rice cooker|steamer|fondue pot|waffle maker|pancake griddle|deep fryer|smoker|dehydrator|vacuum sealer|sous vide|instant pot|ninja|kitchenaid|cuisinart|vitamix|breville)\b/gi) || [];
-        detectedEquipment = [...detectedEquipment, ...textEquipment];
-      }
+
+      const detectedEquipment = extractVisionLabels(result, 'kitchen');
       
       if (detectedEquipment.length > 0) {
         // Clean and remove duplicates
         const cleanEquipment = detectedEquipment
           .map(e => normalizeEntryLabel(String(e).toLowerCase()))
           .filter(e => e && e.length > 1);
-        const uniqueEquipment = mergeUniqueEntries([], cleanEquipment);
-        const newEquipment = mergeUniqueEntries(profile.kitchenEquipment, uniqueEquipment);
-        setProfile(prev => ({ ...prev, kitchenEquipment: newEquipment }));
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.kitchenEquipment, cleanEquipment);
+        setProfile(prev => ({ ...prev, kitchenEquipment: mergeResult.items }));
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('kitchen');
+          return;
+        }
         
         toast({
           title: "Kitchen scan complete",
-          description: `Found ${uniqueEquipment.length} items: ${uniqueEquipment.slice(0, 3).join(', ')}${uniqueEquipment.length > 3 ? '...' : ''}`
+          description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${duplicateSkipCopy(mergeResult.duplicateCount)}`
         });
       } else {
         toast({
@@ -689,7 +698,17 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     const files = event.target.files;
     if (!files || files.length === 0) return;
     const maxFiles = type === 'pantry' ? 8 : 6;
-    const selectedFiles = Array.from(files).slice(0, maxFiles);
+    const selectedFiles = Array.from(files);
+
+    if (selectedFiles.length > maxFiles) {
+      toast({
+        title: "Too many photos",
+        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch. Select ${maxFiles} or fewer and try again.`,
+        variant: "destructive"
+      });
+      event.target.value = '';
+      return;
+    }
 
     const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const processedFiles = selectedFiles.filter(file => {
@@ -709,7 +728,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       return;
     }
 
-    if (processedFiles.length !== files.length || selectedFiles.length !== files.length) {
+    if (processedFiles.length !== selectedFiles.length) {
       toast({
         title: "Some files skipped",
         description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} accepts up to ${maxFiles} photos per batch. Processing ${processedFiles.length} image(s).`
@@ -726,6 +745,8 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
     // Collect all results first, then update state once
     let allNewIngredients: string[] = [];
     let allNewEquipment: string[] = [];
+    let rejectedCount = 0;
+    let lastRejectedResult: VisionAnalysisResult | null = null;
 
     try {
       // Process files sequentially to avoid overwhelming the API
@@ -736,16 +757,16 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
         const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
 
         try {
-          let result;
+          let result: VisionAnalysisResult;
           if (isHEIC) {
             // Handle HEIC files
             const reader = new FileReader();
-            result = await new Promise<any>((resolve, reject) => {
+            result = await new Promise<VisionAnalysisResult>((resolve, reject) => {
               reader.onload = async (e) => {
                 try {
                   const base64 = e.target?.result as string;
                   const base64Data = base64.split(',')[1];
-                  const analysisResult = await analyzeImage(base64Data, true);
+                  const analysisResult = await analyzeImage(base64Data, true, { scanType: type });
                   resolve(analysisResult);
                 } catch (error) {
                   reject(error);
@@ -757,18 +778,18 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
           } else {
             // Handle regular image files
             const compressedBase64 = await compressImage(file);
-            result = await analyzeImage(compressedBase64, false);
+            result = await analyzeImage(compressedBase64, false, { scanType: type }) as VisionAnalysisResult;
+          }
+
+          if (isRejectedVisionResult(result)) {
+            rejectedCount += 1;
+            lastRejectedResult = result;
+            continue;
           }
 
           // Extract ingredients or equipment from this image
           if (type === 'pantry' && result) {
-            let detectedIngredients: string[] = [];
-            
-            if (result.ingredients && Array.isArray(result.ingredients)) {
-              detectedIngredients = result.ingredients.map((item: any) => 
-                typeof item === 'string' ? item : item.name || item.ingredient || String(item)
-              );
-            }
+            const detectedIngredients = extractVisionLabels(result, 'pantry');
             
             if (detectedIngredients.length > 0) {
               const cleanIngredients = detectedIngredients
@@ -778,19 +799,7 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
               console.log('Added ingredients:', cleanIngredients);
             }
           } else if (type === 'kitchen' && result) {
-            let detectedEquipment: string[] = [];
-            
-            if (result.equipment && Array.isArray(result.equipment)) {
-              detectedEquipment = result.equipment.map((item: any) => {
-                if (typeof item === 'string') {
-                  return item;
-                } else if (typeof item === 'object' && item !== null) {
-                  return item.name || item.item || item.equipment || item.description || '';
-                } else {
-                  return '';
-                }
-              }).filter((item: string) => item && typeof item === 'string' && item.trim().length > 0);
-            }
+            const detectedEquipment = extractVisionLabels(result, 'kitchen');
             
             if (detectedEquipment.length > 0) {
               const cleanEquipment = detectedEquipment
@@ -813,25 +822,41 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
 
       // Update state once with all accumulated results
       if (type === 'pantry' && allNewIngredients.length > 0) {
-        const uniqueNewIngredients = mergeUniqueEntries([], allNewIngredients);
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, allNewIngredients);
         setProfile(prev => ({
           ...prev,
-          pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, uniqueNewIngredients)
+          pantryIngredients: mergeResult.items
         }));
-        toast({
-          title: `Scan complete!`,
-          description: `Found ${uniqueNewIngredients.length} ingredients across ${processedFiles.length} image(s).`
-        });
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('pantry');
+        } else {
+          toast({
+            title: `Scan complete!`,
+            description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
+              rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }`
+          });
+        }
       } else if (type === 'kitchen' && allNewEquipment.length > 0) {
-        const uniqueNewEquipment = mergeUniqueEntries([], allNewEquipment);
+        const mergeResult = mergeUniqueEntriesWithMetadata(profile.kitchenEquipment, allNewEquipment);
         setProfile(prev => ({
           ...prev,
-          kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, uniqueNewEquipment)
+          kitchenEquipment: mergeResult.items
         }));
-        toast({
-          title: `Scan complete!`,
-          description: `Found ${uniqueNewEquipment.length} equipment items across ${processedFiles.length} image(s).`
-        });
+
+        if (mergeResult.added.length === 0) {
+          showAlreadySavedFeedback('kitchen');
+        } else {
+          toast({
+            title: `Scan complete!`,
+            description: `Found ${mergeResult.added.length} new equipment item${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
+              rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }`
+          });
+        }
+      } else if (rejectedCount > 0 && lastRejectedResult) {
+        showRejectedScanFeedback(type, lastRejectedResult);
       } else {
         toast({
           title: "No items detected",

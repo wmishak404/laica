@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import GroceryListGenerator from '@/components/grocery/grocery-list-generator';
 import GroceryItem from '@/components/grocery/grocery-item';
@@ -177,7 +176,6 @@ export default function GroceryList() {
 
   return (
     <>
-      <Header />
       <main>
         <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-6 md:py-8">
           <div className="container mx-auto px-4">

@@ -1,6 +1,7 @@
 # PD-009: Mobile refresh consolidates authenticated entry into Planning
 
 **Date:** 2026-04-28
+**Updated:** 2026-04-30
 **Status:** Accepted
 **Decision maker:** Wilson
 **Supersedes:** [PD-006](006-home-and-cook-remain-separate.md)
@@ -21,6 +22,7 @@ Consolidate the authenticated Home/Cook entry so users land directly where their
 - Returning setup-complete users go directly into Planning.
 - The redundant authenticated Home tab is removed from the mobile-refresh implementation.
 - Planning becomes the primary authenticated start surface.
+- Authenticated app pages should not show a persistent top app header. Account info, profile access, and sign-out belong in the bottom-menu/account surface instead. Future mobile-refresh designs should preserve that app-shell direction unless a new product decision supersedes it.
 
 ## Rationale
 
@@ -42,3 +44,9 @@ Consolidate the authenticated Home/Cook entry so users land directly where their
 - [PD-006](006-home-and-cook-remain-separate.md) is superseded.
 - Phase 1 implementation must update routing, bottom navigation, and onboarding gates together.
 - Any future "Home Dashboard" should be scoped as a new feature rather than reviving the old Home/Cook split by default.
+
+## 2026-04-30 Amendment — No Authenticated App Header
+
+During Phase 2.1 Replit visual review, Wilson clarified that the app should remove the header from all authenticated pages. Users can access account information, sign-out, and profile through the bottom menu/account area, so the top header costs vertical space without adding value in the mobile app shell.
+
+This applies to future mobile-refresh work: core app pages should not reintroduce a website-like top header by default.

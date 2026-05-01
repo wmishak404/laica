@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Recipe } from '@shared/schema';
-import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import RecipeCard from '@/components/recipes/recipe-card';
 import { Input } from '@/components/ui/input';
@@ -151,7 +150,6 @@ export default function Recipes() {
 
   return (
     <>
-      <Header />
       <main>
         <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-8 md:py-12">
           <div className="container mx-auto px-4">

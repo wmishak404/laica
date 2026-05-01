@@ -46,13 +46,18 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  init: RequestInit = {},
 ): Promise<Response> {
-  const headers: HeadersInit = data ? { "Content-Type": "application/json" } : {};
+  const headers = new Headers(init.headers);
+  if (data) {
+    headers.set("Content-Type", "application/json");
+  }
 
   const res = await apiFetch(url, {
+    ...init,
     method,
     headers,
-    body: data ? JSON.stringify(data) : undefined,
+    body: data ? JSON.stringify(data) : init.body,
   });
 
   await throwIfResNotOk(res);

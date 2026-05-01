@@ -1,8 +1,8 @@
-# LAICA Mobile Refresh Feature Phases
+# Laica Mobile Refresh Feature Phases
 
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 
-This folder records the approved planning for the LAICA mobile-refresh work. It is the source of truth for implementation sequencing after Wilson's phase-by-phase review and Claude's planning review.
+This folder records the approved planning for the Laica mobile-refresh work. It is the source of truth for implementation sequencing after Wilson's phase-by-phase review and Claude's planning review.
 
 ## Phase Index
 
@@ -11,7 +11,7 @@ This folder records the approved planning for the LAICA mobile-refresh work. It 
 | 0 | Cross-phase security and backend readiness | Accepted | [phase-00-cross-phase-security.md](phase-00-cross-phase-security.md), [cross-phase-ai-privacy.md](cross-phase-ai-privacy.md) | None |
 | 1 | Auth and first authenticated routing | Accepted | [phase-01-auth.md](phase-01-auth.md), [PD-009](../../009-mobile-refresh-navigation.md) | [Auth mockup](../../../docs/assets/mobile-refresh/phase-01-auth.png) |
 | 2 | Setup: pantry, kitchen, profile | Accepted | [phase-02-setup.md](phase-02-setup.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
-| 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Planned | [phase-02-1-setup-polish.md](phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
+| 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Validation Ready | [phase-02-1-setup-polish.md](phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
 | 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted | [phase-03-planning.md](phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 4 | Cooking guidance | Accepted | [phase-04-cooking.md](phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
 | 5 | Post-cook cleanup and retention | Accepted | [phase-05-post-cook.md](phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
@@ -56,7 +56,8 @@ This follow-up should not block PR #23. If manual sign-in continues slowing Phas
 - Thumb-zone actions for primary decisions.
 - Warm, coral-led palette with tokenized colors and no ad hoc hex literals.
 - Full-row selection controls on mobile choice surfaces.
-- Recipe suggestions should feel like LAICA, not generic AI cards with percentage matches.
+- Recipe suggestions should feel like Laica, not generic AI cards with percentage matches.
+- User-facing brand copy should use `Laica`, not all-caps `LAICA`.
 - The app should reduce decision load without hiding safety-critical confirmations.
 
-For visual identity beyond these UX principles, read the draft [Mobile Refresh Design Language](design-language.md) and [EPIC-012 — LAICA Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use these alongside the linked mockups and EPIC-001: the design-language draft defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.
+For visual identity beyond these UX principles, read the draft [Mobile Refresh Design Language](design-language.md) and [EPIC-012 — Laica Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use these alongside the linked mockups and EPIC-001: the design-language draft defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.

@@ -36,6 +36,25 @@ export function getUserRateLimitKey(req: Request): string {
   return (req as any).firebaseUser?.uid || getClientIp(req);
 }
 
+function getVisionScanContext(req: Request): string {
+  const rawContext = req.headers["x-laica-scan-type"];
+  const context = Array.isArray(rawContext) ? rawContext[0] : rawContext;
+
+  if (context === "pantry" || context === "kitchen") {
+    return context;
+  }
+
+  return "generic";
+}
+
+export function getVisionUserRateLimitKey(req: Request): string {
+  return `${getUserRateLimitKey(req)}:${getVisionScanContext(req)}`;
+}
+
+export function getVisionIpRateLimitKey(req: Request): string {
+  return `${getClientIp(req)}:${getVisionScanContext(req)}`;
+}
+
 export function createRateLimit({ name, windowMs, max, keyGenerator }: RateLimitOptions): RequestHandler {
   return (req, res, next) => {
     const now = Date.now();
@@ -76,21 +95,21 @@ export const visionUserShortLimit = createRateLimit({
   name: "vision:user:15m",
   windowMs: FIFTEEN_MINUTES,
   max: envLimit("vision", "short", 12),
-  keyGenerator: getUserRateLimitKey,
+  keyGenerator: getVisionUserRateLimitKey,
 });
 
 export const visionIpShortLimit = createRateLimit({
   name: "vision:ip:15m",
   windowMs: FIFTEEN_MINUTES,
   max: 60,
-  keyGenerator: getClientIp,
+  keyGenerator: getVisionIpRateLimitKey,
 });
 
 export const visionUserDayLimit = createRateLimit({
   name: "vision:user:day",
   windowMs: ONE_DAY,
   max: envLimit("vision", "day", 40),
-  keyGenerator: getUserRateLimitKey,
+  keyGenerator: getVisionUserRateLimitKey,
 });
 
 export const recipeUserHourLimit = createRateLimit({

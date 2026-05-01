@@ -6,6 +6,9 @@ describe('Equipment vision prompts', () => {
     const systemPrompt = compositions.equipmentAnalysis.system();
 
     expect(systemPrompt).toContain('Include only items that are clearly used for cooking, food preparation, food storage, or food serving.');
+    expect(systemPrompt).toContain('Reject text-only or text-dominant images as inventory evidence when they are screenshots, documents, grocery lists, recipes, receipts, menus, notes, chat messages, or typed inventories with no visible physical pantry products, food, cookware, appliances, or tools.');
+    expect(systemPrompt).toContain('Readable labels on visible physical products, packages, appliances, cookware, or tools are allowed.');
+    expect(systemPrompt).toContain('"rejectionCode": "TEXT_ONLY_DOCUMENT"');
     expect(systemPrompt).toContain('Prioritize items that materially affect cooking capability: appliances, cookware, knives, utensils, cutting boards, mixing bowls, prep vessels, bakeware, strainers, and food-storage containers.');
     expect(systemPrompt).toContain('Judge each object by its function, not by whether the overall room looks like a kitchen.');
     expect(systemPrompt).toContain('Do not include bathroom items such as soap dispensers, toothbrush holders, or towel racks.');
@@ -25,6 +28,10 @@ describe('Equipment vision prompts', () => {
   it('reinforces the exclusions in the user prompt', () => {
     const userPrompt = compositions.equipmentAnalysis.user();
 
+    expect(userPrompt).toContain('If the image is only or mostly text with no visible physical pantry products, food, cookware, appliances, or tools, reject it as inventory evidence.');
+    expect(userPrompt).toContain('Do not turn those words into ingredients or equipment.');
+    expect(userPrompt).toContain('"rejectionCode": "TEXT_ONLY_DOCUMENT"');
+    expect(userPrompt).toContain('Do not reject photos of real physical products or kitchen tools just because their packaging, labels, buttons, or brand marks are readable.');
     expect(userPrompt).toContain('Only include equipment you are confident is used for cooking, food preparation, food storage, or food serving.');
     expect(userPrompt).toContain('Prioritize equipment that materially affects cooking capability: appliances, cookware, knives, utensils, cutting boards, mixing bowls, prep vessels, bakeware, strainers, and food-storage containers.');
     expect(userPrompt).toContain('Judge each object by its function, not by whether the room looks like a kitchen.');
