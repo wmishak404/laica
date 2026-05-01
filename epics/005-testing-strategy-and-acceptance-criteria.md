@@ -272,6 +272,10 @@ Wilson's mobile Phase 2.1 smoke passed the broad setup/profile-save path but fou
 
 Wilson retested the duplicate-prevention pass on mobile and confirmed upload smoke from different sources passed. The current implementation skips some already-saved entries, but model-label drift can still create duplicate-like chips. The accepted validation outcome is to ship the Phase 2.1 mitigation and file [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md) for latest-scan indicators and richer duplicate cleanup. This is useful acceptance-criteria evidence: not every discovered edge must block merge when the product owner explicitly defers it and creates a tracked follow-up.
 
+### 2026-05-01 — Phase 2.1 merge records docs-only-after-validation nuance
+
+PR #27 merged Phase 2.1 with runtime Replit/mobile validation recorded at `ac698a3` and final branch head `eaff0e8` documented as docs-only after validation. This adds a useful validation hygiene precedent: docs-only closeout commits after runtime QA do not need redundant app smoke if the PR and handoff explicitly call out the runtime-validated SHA and the docs-only head.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

@@ -11,7 +11,7 @@ This folder records the approved planning for the Laica mobile-refresh work. It 
 | 0 | Cross-phase security and backend readiness | Accepted | [phase-00-cross-phase-security.md](phase-00-cross-phase-security.md), [cross-phase-ai-privacy.md](cross-phase-ai-privacy.md) | None |
 | 1 | Auth and first authenticated routing | Accepted | [phase-01-auth.md](phase-01-auth.md), [PD-009](../../009-mobile-refresh-navigation.md) | [Auth mockup](../../../docs/assets/mobile-refresh/phase-01-auth.png) |
 | 2 | Setup: pantry, kitchen, profile | Accepted | [phase-02-setup.md](phase-02-setup.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
-| 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Validation Ready | [phase-02-1-setup-polish.md](phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
+| 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Accepted / Merged PR #27 | [phase-02-1-setup-polish.md](phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
 | 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted | [phase-03-planning.md](phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 4 | Cooking guidance | Accepted | [phase-04-cooking.md](phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
 | 5 | Post-cook cleanup and retention | Accepted | [phase-05-post-cook.md](phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
@@ -20,8 +20,8 @@ This folder records the approved planning for the Laica mobile-refresh work. It 
 
 1. Ship Phase 0 security/backend readiness first.
 2. Implement Phase 1 and Phase 2 together or in tight sequence because routing depends on setup completion.
-3. Use Phase 2.1 for setup visual/trust polish if Phase 2 closes functionally before the setup UI reaches the mockup/design-language bar.
-4. Implement Phase 3 after `weeklyTime` references are removed from readiness gates and prompts.
+3. Phase 2.1 has shipped the setup visual/trust polish after Phase 2 closed functionally.
+4. Implement Phase 3 from fresh `main` after Phase 2.1.
 5. Implement Phase 4 after authenticated AI routes and session ownership checks are live.
 6. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry.
 

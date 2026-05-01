@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 2.1 — Setup Polish: Trust, Privacy, and Visual Conformance
 
-**Status:** Validation Ready / Replit validation pending
+**Status:** Merged via PR #27
 **Phase owner:** Wilson
 **Date:** 2026-04-29
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -74,7 +74,7 @@ Phase 2.1 exists because PR #23 passed functional Replit validation but became t
 
 ## Validation Checklist
 
-Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge readiness now depends on validating the implemented behavior at the latest branch head in Replit and recording the validated commit SHA.
+Phase 2.1 was visually accepted by Wilson, runtime Replit/mobile validation was recorded at `ac698a3`, and PR #27 merged the phase into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`. Final branch head `eaff0e8` was docs-only after runtime validation.
 
 ### Local Gates
 
@@ -91,11 +91,9 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 
 ### Replit Prerequisites
 
-- Replit has fetched the latest `codex/mobile-refresh-phase-2-1-setup-polish` branch head.
-- Validator is signed in with Google.
-- Test with a first-time or reset profile user so setup starts from Welcome.
-- Test Settings upload behavior with an already completed profile.
-- Record `Last Replit-validated at: <commit-sha>` in the PR description and handoff after validation passes.
+- Completed before PR #27 merge.
+- Runtime validation was recorded at `ac698a3`.
+- Final branch head `eaff0e8` was docs-only after validation.
 
 ### Replit Acceptance Checklist
 
@@ -130,10 +128,10 @@ Phase 2.1 is visually accepted by Wilson as of the latest setup review. Merge re
 
 ### Merge Acceptance
 
-- All local gates pass at the branch head being validated.
-- Replit validation passes at the same commit SHA.
-- The PR description and latest handoff record `Last Replit-validated at: <commit-sha>`.
-- Any later commit after that SHA makes validation stale and requires a fresh Replit pass before merge.
+- Local gates passed.
+- Runtime Replit/mobile validation was recorded at `ac698a3`.
+- PR #27 documented that `eaff0e8` was docs-only after validation.
+- PR #27 merged into `main` as `5419a901af45f0e1a8e40fbc813ee52978c14f86`.
 
 ## Epic Interactions
 
@@ -340,3 +338,18 @@ Future UX direction:
 - Pantry/Equipment chips should eventually distinguish items that are new from the latest scan from items that were already present.
 - A different chip hue or lightweight indicator can help users understand overlap and decide which duplicate-like entries to remove.
 - The review pattern should invite user judgment without making first-time setup feel heavy.
+
+## 2026-05-01 Merge Closeout
+
+PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`.
+
+Final validation state:
+
+- Local checks passed before merge: focused Vitest, `npm run check`, and `npm run build`.
+- Runtime Replit/mobile validation was recorded at `ac698a3`.
+- Final branch head `eaff0e8` was docs-only after runtime validation.
+- Wilson confirmed mobile setup generally worked, upload smoke from different sources passed, and disposable-account setup saved profile data correctly.
+- Existing Profile/Settings visual UI remains deferred to a later Mobile Refresh phase.
+- Ultra-refined duplicate cleanup and latest-scan chip indicators remain deferred to [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
+
+Phase 2.1 is closed for implementation. The next INIT-001 resume point is Phase 3 Planning kickoff from fresh `main`.

@@ -220,7 +220,7 @@ Do not copy:
 
 ### Phase 2.1 Setup Pilot Checkpoint
 
-Wilson accepted the Phase 2.1 setup visual direction on 2026-04-30 after the setup conformance, menu/camera-control, welcome-copy, Kitchen-accent, and upload-limit passes.
+Wilson accepted the Phase 2.1 setup visual direction on 2026-04-30 after the setup conformance, menu/camera-control, welcome-copy, Kitchen-accent, and upload-limit passes. PR #27 merged this pilot into `main` on 2026-05-01.
 
 Carry this forward as design-language signal, not as a mandatory global rollout:
 

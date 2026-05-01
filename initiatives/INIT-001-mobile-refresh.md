@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 2.1 setup polish validation-ready
+**Current phase:** Phase 3 planning kickoff
 **Active PR:** None
-**Active branch:** `codex/mobile-refresh-phase-2-1-setup-polish`
+**Active branch:** None
 
 ## Overview
 
@@ -24,7 +24,7 @@ The initiative also includes cross-phase AI privacy, prompt-injection, abuse-pre
 
 ## Current Status
 
-Phase 0, Phase 1, Phase 2, and the INIT/process documentation split are merged.
+Phase 0, Phase 1, Phase 2, Phase 2.1, and the INIT/process documentation split are merged.
 
 PR #25 split and merged the INIT/process/design documentation stack from PR #23, making it the shared workflow baseline for Phase 2 polish and later Phase 3-5 work.
 
@@ -44,7 +44,9 @@ Wilson has now accepted the Phase 2.1 setup visual direction. The current branch
 
 Wilson's Phase 2.1 functional testing then found validation-feedback issues around scan cancellation, ambiguous scan-error copy, camera-device error paths, capture-success feedback, manual-entry active state, and prompt-injection precautions for manual labels. Codex implemented those fixes on the Phase 2.1 branch: active setup scans are abortable and ignored after Back, fatal batch failures no longer apply partial results, scan errors now distinguish rejection/no-detection/rate-limit/image/auth/service paths, camera failure paths show clearer feedback, capture flashes the viewfinder, manual-entry actions show active state, and manual labels strip common prompt markers before being saved. Focused Vitest, `npm run check`, and `npm run build` pass locally; Replit validation remains required at the latest branch head.
 
-Wilson then reported the next Replit test results as passing except for untestable 8a/8c, Test 20's shared scan-limit meter blocking later Kitchen/equipment testing, Test 16's period-separated manual entry issue and missing comma note, Test 19's placeholder not actually rotating, and Test 21 being blocked by the scan limit. Codex implemented the follow-up locally: Pantry/Kitchen vision rate-limit keys are separated by scan context, setup and Settings send the scan context, manual entry treats periods as comma-like typo recovery, Pantry shows a comma-separation note, Pantry requires at least 3 ingredients before proceeding, and Pantry manual placeholders cycle deterministically through varied staple examples on setup mount/page refresh. Focused Vitest, `npm run check`, and `npm run build` pass locally. The recommended next Replit plan is reduced to those changed risk areas plus the previously blocked equipment-photo test.
+Wilson then reported the next Replit test results as passing except for untestable 8a/8c, Test 20's shared scan-limit meter blocking later Kitchen/equipment testing, Test 16's period-separated manual entry issue and missing comma note, Test 19's placeholder not actually rotating, and Test 21 being blocked by the scan limit. Codex implemented the follow-up locally: Pantry/Kitchen vision rate-limit keys are separated by scan context, setup and Settings send the scan context, manual entry treats periods as comma-like typo recovery, Pantry shows a comma-separation note, Pantry requires at least 3 ingredients before proceeding, and Pantry manual placeholders cycle deterministically through varied staple examples on setup mount/page refresh. Focused Vitest, `npm run check`, and `npm run build` passed locally.
+
+PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`. Runtime Replit/mobile validation was recorded at `ac698a3`; the final branch head `eaff0e8` was docs-only after validation. Phase 2.1 is closed for implementation, with deeper scan-session duplicate refinement deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 
 ## Source Docs
 
@@ -80,7 +82,7 @@ Wilson then reported the next Replit test results as passing except for untestab
 | Phase 0 | Merged | PR #21 / `codex/mobile-refresh-phase-0-security` | Firebase Admin auth, AI route protection, rate limits, ownership, body limits |
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit and merged; latest visual/trust feedback deferred |
-| Phase 2.1 | Validation Ready | `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape with active-scan cancellation, clearer scan/camera error paths, Pantry/Kitchen scan-limit separation, capture flash, manual active state and period/comma parsing, 3-ingredient Pantry minimum, copy, auto-advance, setup-only typography, mockup-led cream/coral treatment, bottom/account menu access, fail-closed upload caps, and accepted visual polish; Replit validation pending |
+| Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape with active-scan cancellation, clearer scan/camera error paths, Pantry/Kitchen scan-limit separation, capture flash, manual active state and period/comma parsing, 3-ingredient Pantry minimum, copy, auto-advance, setup-only typography, mockup-led cream/coral treatment, bottom/account menu access, fail-closed upload caps, accepted visual polish, and exact/near-exact duplicate mitigation; merged as `5419a90` |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -97,7 +99,7 @@ Wilson then reported the next Replit test results as passing except for untestab
 | #24 | Closed / superseded | `codex/vision-text-only-scan-epic` | Standalone EPIC-011 PR superseded by Phase 2.1 scope |
 | #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 | #26 | Merged | `codex/mobile-refresh-phase-2-closeout` | Phase 2 closeout moved resume point to Phase 2.1 |
-| TBD | Validation ready | `codex/mobile-refresh-phase-2-1-setup-polish` | Visual direction accepted by Wilson; local checks passed; Replit validation not yet run |
+| #27 | Merged | `codex/mobile-refresh-phase-2-1-setup-polish` | Runtime Replit/mobile validation recorded at `ac698a3`; final branch head `eaff0e8` was docs-only; merged as `5419a90` |
 
 ## Epics and Governance
 
@@ -111,6 +113,7 @@ Wilson then reported the next Replit test results as passing except for untestab
 | [EPIC-010](../epics/010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
 | [EPIC-012](../epics/012-laica-design-language.md) | Laica design language and visual identity |
 | [EPIC-013](../epics/013-pantry-manual-entry-spell-correction.md) | Future pantry manual-entry ingredient spelling correction |
+| [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md) | Future latest-scan chip indicators and duplicate-like scan cleanup |
 
 ## Changes Added After Initial Plan
 
@@ -133,31 +136,21 @@ Known validation facts:
 - Latest UI trust/privacy feedback is deferred to Phase 2.1.
 - PR #23 merged into `main` as merge commit `eca3d1b504e8eb33edbeb74e78cf2755b760577f`.
 - Wilson accepted the Phase 2.1 setup visual direction after the latest visual/camera-control polish.
-
-Required before Phase 2.1 merge:
-
-- Start Phase 2.1 from fresh `origin/main`.
-- Implement the setup polish and text-only scan safeguard scope in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
-- Wilson's 2026-04-30 Replit visual feedback and follow-up setup polish captured in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) have been implemented and visually accepted.
-- Wilson's 2026-04-30 functional validation feedback on scan cancellation, scan-error taxonomy, camera errors, capture flash, manual toggle state, and manual-entry prompt-marker stripping has been implemented locally and documented in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
-- Wilson's follow-up test results on scan-limit separation, period-separated manual entry, visible comma guidance, 3-ingredient Pantry minimum, and the blocked Test 21 equipment-photo path have been implemented or captured in the reduced retest plan.
-- Wilson's mobile smoke confirmed setup generally works, upload smoke from different sources passed, and profile persistence saves correctly. Duplicate-aware Pantry/Kitchen scan merging mitigates exact/near-exact duplicates in Phase 2.1, while deeper semantic duplicate cleanup and latest-scan chip indicators are deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
-- Re-run Replit validation at the latest Phase 2.1 runtime head before merge using the checklist in [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md).
-- Record `Last Replit-validated at: <commit-sha>` after validation passes.
+- Phase 2.1 runtime Replit/mobile validation was recorded at `ac698a3`.
+- Phase 2.1 final branch head `eaff0e8` was docs-only after validation.
+- PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`.
+- Deeper scan-session duplicate refinement is deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 
 ## Current Resume Point
 
-Resume at Phase 2.1 validation closeout on `codex/mobile-refresh-phase-2-1-setup-polish`.
+Resume at Phase 3 planning kickoff from `main`.
 
 Next implementation focus:
 
-1. Pull the latest `codex/mobile-refresh-phase-2-1-setup-polish` docs branch into Replit/GitHub context.
-2. Record the final Replit validation state: mobile setup generally worked, upload smoke from different sources passed, disposable-account profile persistence passed, and ultra-refined duplicate cleanup is deferred to EPIC-014.
-3. Do not repeat visually accepted setup screens, Cooking Skill auto-advance, Dietary explicit continuation, or header/menu checks unless the latest branch head shows a regression.
-4. Record `Last Replit-validated at: <commit-sha>` in the handoff and PR description once Wilson confirms the commit SHA to treat as validated.
-5. Open the Phase 2.1 PR after validation state is recorded.
-6. Treat PR #24 as superseded by Phase 2.1, not as a separate epic branch to merge.
-7. Keep Phase 2.1 within the validated Phase 2 backend/data contract.
+1. Start the next implementation branch from fresh `origin/main`.
+2. Use the merged Phase 2.1 setup as the baseline for Phase 3 Planning.
+3. Before Phase 3 work, reread [Phase 3 planning](../product-decisions/features/mobile-refresh/phase-03-planning.md), [Mobile Refresh Design Language](../product-decisions/features/mobile-refresh/design-language.md), EPIC-001, EPIC-005, EPIC-012, and any Phase 3-specific active epics.
+4. Keep old Profile/Settings visual refresh, pantry spell correction, and scan-session duplicate refinement out of Phase 3 unless Wilson explicitly pulls them forward.
 
 ## Chronology
 
@@ -256,3 +249,7 @@ Wilson's mobile smoke found that setup generally worked and disposable-account p
 ### 2026-04-30 — Scan-session duplicate refinement deferred
 
 Wilson's follow-up mobile retest found that the duplicate-prevention pass skipped some already-saved items and that upload smoke from different sources passed, but duplicate-like entries can still appear when the model labels the same physical item differently across scans. Wilson deferred ultra-refined duplicate cleanup out of Phase 2.1. Codex filed [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md) to track latest-scan chip indicators, overlap/found-again states, and duplicate cleanup UX for a future pass.
+
+### 2026-05-01 — Phase 2.1 merged
+
+PR #27 merged Phase 2.1 setup polish into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`. Runtime Replit/mobile validation was recorded at `ac698a3`; final branch head `eaff0e8` was docs-only after validation. Phase 2.1 is closed for implementation, and INIT-001 now resumes at Phase 3 Planning kickoff from fresh `main`.

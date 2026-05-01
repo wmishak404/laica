@@ -167,3 +167,7 @@ This does not resolve EPIC-012 yet because Phase 2.1 still needs full Replit fun
 ### 2026-04-30 — Future scan-session chip states identified
 
 Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language signal: Pantry/Equipment chips may need visual state for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should probably use a different hue or lightweight indicator so users can understand overlap and clean up duplicate-like entries without a heavy review screen. The detailed product work is tracked in [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md), while the design-language note is captured in `product-decisions/features/mobile-refresh/design-language.md`.
+
+### 2026-05-01 — Phase 2.1 setup pilot merged
+
+PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scoped `Fraunces` / `Nunito`, warm cream/coral phone-flow surfaces, designed camera object, single top progress treatment, translucent camera controls, peer upload/manual actions, multicolor choice illustrations, and Kitchen-specific gray/silver/light-wood accents. This is a major proof point for EPIC-012, but the epic stays `In Progress` until the durable design-language artifact is promoted and later Phase 3-5 proof points clarify whether the setup typography/palette become global or stay setup-scoped.
