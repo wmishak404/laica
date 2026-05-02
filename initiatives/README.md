@@ -77,6 +77,20 @@ Update the relevant INIT whenever initiative context changes:
 
 The agent making the change owns the INIT update in the same branch/PR when practical.
 
+## Post-Merge Closeout
+
+When an INIT-bound PR merges, the agent who performed or confirmed the merge owns a short follow-up docs closeout from fresh `origin/main`. This closeout should happen before the agent treats the work as finished.
+
+Required closeout updates:
+
+- INIT status, phase table, PR table, validation state, current resume point, and chronology
+- initiative registry
+- related feature phase/product-decision docs
+- active epic files and `epics/registry.md` when the merge adds governance, design, or validation signal
+- a `docs/handoffs/YYYY-MM-DD-<agent>-<phase>-merge-closeout.md` file with merge commit, validation SHA, impact, open items, and verification
+
+If closeout cannot happen immediately, the agent must document the deferral in the final response or handoff with owner, branch/PR, merge commit, validation SHA, and the next exact action.
+
 ## Cross-Artifact Linking Rules
 
 - Product decisions that materially affect an active INIT should include `Related Initiatives`.
