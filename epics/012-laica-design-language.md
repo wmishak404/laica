@@ -1,9 +1,11 @@
 # EPIC-012 — Laica Design Language & Visual Identity
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-29
-**Updated:** 2026-05-01
+**Updated:** 2026-05-02
+**Resolved:** 2026-05-02
+**Superseded by:** [`design_guidelines.md`](../design_guidelines.md) — canonical living UI/design standard. Governance rules: [PD-005](../product-decisions/005-ui-governance.md).
 
 ## One-line summary
 
@@ -192,3 +194,11 @@ Wilson's follow-up Replit screenshots showed that visual conformance cannot be i
 ### 2026-05-01 — Phase 2.2 merged as returning-user design proof point
 
 PR #30 merged Phase 2.2 into `main` after Replit validation at `dc59796ae1602af4643c5fc640be47ab19a59e04`. This gives EPIC-012 a second accepted proof point after Phase 2.1 setup: Menu is the global returning-user destination surface, Settings is utilitarian but Laica-native, returning Pantry/Kitchen/Profile reuse the setup look/feel foundation, and History is separated as a warmer cooking-memory surface while richer share/cook-again behavior stays in Phase 5.
+
+### 2026-05-02 — Resolved; graduated to design_guidelines.md
+
+The visual identity, tokens, surface taxonomy, accepted Phase 2.1 + 2.2 directions, mockup conformance gate, anti-patterns, and review checklist have moved into [`design_guidelines.md`](../design_guidelines.md) as the canonical living UI/design standard. Governance enforcement lives in [PD-005](../product-decisions/005-ui-governance.md).
+
+The seven open identity questions (typography globalization, palette refinement, canonical motifs, playfulness by surface, imagery approach, mockup hardness, scan-session chip states) are now an "Open Visual Decisions" section inside `design_guidelines.md` and will be edited inline as Phase 3-5 lands evidence — no separate active epic is needed unless one grows into its own multi-phase concern.
+
+This file is preserved as historical evidence. Active read lists in `epics/README.md`, `AGENTS.md`, `CLAUDE.md`, and `INIT-001` now point at `design_guidelines.md` + PD-005 instead.

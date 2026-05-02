@@ -1,11 +1,13 @@
 # Mobile Refresh Design Language
 
-**Status:** Draft
+> **Status: Superseded by [`design_guidelines.md`](../../../design_guidelines.md) on 2026-05-02.** This document is retained as Phase 2.x design-language evidence (Phase 2.1 setup pilot direction, Phase 2.2 returning Settings alignment). Future visual direction lives in `design_guidelines.md`; governance rules in [PD-005](../../005-ui-governance.md). EPIC-012 history is in [`epics/012-laica-design-language.md`](../../../epics/012-laica-design-language.md).
+
+**Status:** Superseded
 **Phase owner:** Wilson
 **Date:** 2026-04-29
-**Source epic:** [EPIC-012](../../../epics/012-laica-design-language.md)
+**Source epic:** [EPIC-012](../../../epics/012-laica-design-language.md) (resolved 2026-05-02)
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
-**Applies to:** Mobile-refresh Phase 2-5 implementation and visual review
+**Applies to:** Mobile-refresh Phase 2-5 implementation and visual review (historical reference)
 
 ## Goal
 
