@@ -906,8 +906,8 @@ html, body {
   .app-bottom-button,
   .app-bottom-button:hover {
     display: inline-flex;
-    height: 3.25rem;
-    min-width: 3.25rem;
+    height: 3.4rem;
+    min-width: 3.4rem;
     align-items: center;
     justify-content: center;
     border-radius: 999px;

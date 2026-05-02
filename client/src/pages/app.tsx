@@ -503,7 +503,7 @@ export default function MobileApp() {
             aria-label="Cook"
             title="Cook"
           >
-            <ChefHat className="h-5 w-5" aria-hidden="true" />
+            <ChefHat className="h-6 w-6" aria-hidden="true" />
           </Button>
 
           {renderAppMenu(
@@ -516,7 +516,7 @@ export default function MobileApp() {
               aria-label="Menu"
               title="Menu"
             >
-              <Menu className="h-5 w-5" aria-hidden="true" />
+              <Menu className="h-6 w-6" aria-hidden="true" />
             </Button>,
           )}
         </div>
