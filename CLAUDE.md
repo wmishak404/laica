@@ -68,19 +68,21 @@ Current active INITs:
 
 - `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
 
+## UI governance — check before any UI work
+
+UI governance and visual standards are **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/005-ui-governance.md`](product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). These graduated from EPIC-001 and EPIC-012 on 2026-05-02.
+
 ## Active epics — check before starting work in a governed domain
 
 The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span multiple features. These are **not** GitHub Issues and **not** bug reports. See `epics/README.md` for the convention, status model, and current active read list. Use `epics/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/007-epic-status-and-registry-workflow.md`.
 
 **When to read `epics/NNN-*.md`:** start with the `epics/README.md` active read list. `Resolved` means closed/completed; `Open`, `In Progress`, and `Blocked` are active. Read an active epic every time you start work that touches its governed domain. Use `epics/registry.md` only if you need resolved/deferred history. Each epic has an *Agent checklist* section listing the exact triggers. Current active epics:
 
-- `epics/001-ui-governance.md` — read before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, or font/icon changes
 - `epics/004-selection-controls-tap-targets.md` — read before changing onboarding/settings radio-style menus, selection-row hit areas, or the shared radio-group composition
 - `epics/005-testing-strategy-and-acceptance-criteria.md` — read before deciding merge readiness, defining feature acceptance criteria, or changing the app-wide verification workflow
 - `epics/007-vision-scan-no-detection-feedback.md` — read before changing image-scan result messaging or zero-result scan behavior
 - `epics/009-consistent-comma-separated-ingredient-entry.md` — read before changing multi-ingredient manual entry or delimiter behavior
 - `epics/010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
-- `epics/012-laica-design-language.md` — read before implementing/polishing mobile-refresh screens, translating mockups, or changing visual identity/look-and-feel
 - `epics/013-pantry-manual-entry-spell-correction.md` — read before adding pantry ingredient spellcheck/autocorrect, ingredient dictionaries, or pantry label canonicalization
 - `epics/014-scan-session-diff-and-duplicate-refinement.md` — read before changing Pantry/Kitchen scan chip states, latest-scan indicators, duplicate cleanup, or found-again/overlap messaging
 

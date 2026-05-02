@@ -118,15 +118,15 @@ PR #30 merged Phase 2.2 into `main` as merge commit `bc25ef35cb14f32cf6b05507ede
 
 ## Epics and Governance
 
-| Epic | Relevance |
+| Reference | Relevance |
 |---|---|
-| [EPIC-001](../epics/001-ui-governance.md) | UI consistency, tokens, primitives, design governance |
+| [PD-005](../product-decisions/005-ui-governance.md) | UI governance operating model — graduated from EPIC-001 on 2026-05-02 |
+| [`design_guidelines.md`](../design_guidelines.md) | Canonical visual identity / design standard — graduated from EPIC-012 on 2026-05-02 |
 | [EPIC-004](../epics/004-selection-controls-tap-targets.md) | Full-row mobile selection controls |
 | [EPIC-005](../epics/005-testing-strategy-and-acceptance-criteria.md) | Merge readiness, validation workflow, visual acceptance gap |
 | [EPIC-007](../epics/007-vision-scan-no-detection-feedback.md) | Pantry/kitchen no-detection feedback |
 | [EPIC-009](../epics/009-consistent-comma-separated-ingredient-entry.md) | Shared comma-separated manual entry |
 | [EPIC-010](../epics/010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
-| [EPIC-012](../epics/012-laica-design-language.md) | Laica design language and visual identity |
 | [EPIC-013](../epics/013-pantry-manual-entry-spell-correction.md) | Future pantry manual-entry ingredient spelling correction |
 | [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md) | Future latest-scan chip indicators and duplicate-like scan cleanup |
 

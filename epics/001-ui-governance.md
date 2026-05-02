@@ -1,9 +1,11 @@
 # EPIC-001 — UI Consistency & Design Governance
 
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson (product direction) / Codex (plan drafting) / Claude (review + pilot-surface feedback)
 **Created:** 2026-04-16
-**Updated:** 2026-05-01
+**Updated:** 2026-05-02
+**Resolved:** 2026-05-02
+**Superseded by:** [PD-005](../product-decisions/005-ui-governance.md) — UI Governance Operating Model. Visual targets: [`design_guidelines.md`](../design_guidelines.md).
 
 ## One-line summary
 
@@ -254,11 +256,10 @@ This is a governance failure mode, not only a CSS bug. Future docs and handoffs 
 
 PR #30 merged Phase 2.2 after Replit validation confirmed the specific drift fixes Wilson flagged: icon-only bottom navigation, circular returning Settings camera controls, first-time setup-matched upload/manual typography, and precise feedback context. This does not resolve EPIC-001, but it adds a concrete pilot example for future UI governance: visual conformance should be proven at rendered-control level before merge, and the PR/handoff should name any specificity or wrapper contracts that preserve the accepted look.
 
-## Next steps when work resumes
+## 2026-05-02 — Resolved; graduated to PD-005
 
-1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean
-2. Wilson decides page-headers scope (Phase 1 with primitive creation OR Phase 2 deferred)
-3. Claude re-reviews v2 against this issue's evidence
-4. One of Claude/Codex lands the enforcement mechanism (lint rule + PR template as starting point)
-5. Slop Bowl's 6+ `bg-[#FF6B6B]` / `hover:bg-[#FF5252]` callsites migrate to `bg-primary` / `hover:bg-primary/90` as the first pilot-surface cleanup
-6. Epic graduates to `PD-005-ui-governance.md`; this file flips to `Resolved`
+The rubric, primitive lock order, tone-override convention, surface taxonomy, coexistence rule, rollout model, and the Phase 2.2 scoped-style reuse contract have moved into [PD-005](../product-decisions/005-ui-governance.md). Visual targets are now in [`design_guidelines.md`](../design_guidelines.md).
+
+The "enforcement mechanism shipped on `main`" criterion was deferred from this epic's resolution: enforcement is implementation, the operating model is durable independently. PD-005 records this as an open follow-up; a narrow active epic will be filed when work begins.
+
+This file is preserved as historical evidence — the four-month accumulation that produced the operating model. Active read lists in `epics/README.md`, `AGENTS.md`, `CLAUDE.md`, and `INIT-001` now point at PD-005 + `design_guidelines.md` instead.

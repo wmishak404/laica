@@ -19,6 +19,7 @@ This folder documents key product and technical decisions for the Laica project.
 | [PD-002](002-slop-bowl.md) | Slop Bowl — Zero-Decision Cooking Path | 2026-04-09 | Accepted |
 | [PD-003](003-openai-model-strategy.md) | OpenAI Model Strategy — Tiered Model Selection | 2026-04-09 | Accepted |
 | [PD-004](004-feature-phase-records.md) | Feature Phase Decision Records | 2026-04-09 | Accepted |
+| [PD-005](005-ui-governance.md) | UI Governance Operating Model | 2026-05-02 | Accepted |
 | [PD-006](006-home-and-cook-remain-separate.md) | Home and Cook remain separate navigation surfaces | 2026-04-17 | Superseded by PD-009 |
 | [PD-007](007-epic-status-and-registry-workflow.md) | Epic status and registry workflow | 2026-04-21 | Accepted |
 | [PD-008](008-optional-context-and-local-validation-boundaries.md) | Optional context and local validation boundaries | 2026-04-27 | Accepted |

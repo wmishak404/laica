@@ -69,18 +69,20 @@ Per `CLAUDE.md`, changes to `epics/*.md` follow the planning-doc collaboration r
 
 Use [`registry.md`](registry.md) when you need searchable historical context or need to verify the status of a resolved/deferred epic. Agents should not load the full registry by default during ordinary feature work.
 
+## UI governance and visual standards
+
+UI governance is **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or any visual change tied to mobile-refresh phases, read [`PD-005`](../product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](../design_guidelines.md) (canonical visual standard). These graduated from EPIC-001 and EPIC-012 on 2026-05-02; see the [registry](registry.md) for resolved-state pointers.
+
 ## Active epic read list
 
 Read these before starting work in their governed domains:
 
 | # | Title | Status | Owner | Created |
 |---|---|---|---|---|
-| [001](001-ui-governance.md) | UI Consistency & Design Governance | `Open` | Wilson / Codex / Claude | 2026-04-16 |
 | [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Open` | Wilson / Claude / Codex | 2026-04-17 |
 | [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 |
 | [007](007-vision-scan-no-detection-feedback.md) | Vision scan should explicitly say when nothing was detected | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [009](009-consistent-comma-separated-ingredient-entry.md) | Consistent comma-separated ingredient entry | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [010](010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
-| [012](012-laica-design-language.md) | LAICA Design Language & Visual Identity | `In Progress` | Wilson / Codex / Claude | 2026-04-29 |
 | [013](013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |
 | [014](014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |

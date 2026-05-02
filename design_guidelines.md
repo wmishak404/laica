@@ -1,34 +1,23 @@
-# Laica AI Cooking Assistant - Design Guidelines
+# Laica — Design Guidelines
 
-> **Status: current-implementation record.** This document describes what the app *currently uses*, not the long-term target. The mobile-refresh target visual identity is now being drafted in `product-decisions/features/mobile-refresh/design-language.md` and tracked by `epics/012-laica-design-language.md`. Until that refresh graduates, this doc remains the source of truth for day-to-day code review and the UI-consistency rubric (see `docs/handoffs/2026-04-16-codex-ui-consistency-handoff-test.md`).
+> **Status: canonical living standard.** Visual identity, tokens, surface posture, and mockup-conformance expectations live here. Governance rules (token enforcement, primitive lock order, tone-override convention, scoped-style reuse contract) live in [PD-005](product-decisions/005-ui-governance.md). Historical context: [EPIC-001](epics/001-ui-governance.md) (resolved) and [EPIC-012](epics/012-laica-design-language.md) (resolved).
 
-## Design Approach
-**System**: shadcn/ui with customization for warm, approachable cooking experience
-**Inspiration**: Notion's clean information hierarchy + Instagram's visual recipe presentation + Headspace's friendly, guided experience
-**Mobile-First Philosophy**: All layouts designed for thumb-friendly interaction, optimized for one-handed cooking use
+## Visual Identity
 
-## Typography System
+Laica is a warm, capable mobile cooking companion. It should feel food-native and mobile-native, not like a generic AI app, SaaS dashboard, or shadcn demo.
 
-Current fonts loaded in `client/src/index.css`:
+User-facing prose writes the brand as `Laica`, not all-caps `LAICA`, unless a logo asset or legal/artwork context requires otherwise.
 
-```css
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
-```
+### Six principles
 
-- **Body**: Tailwind default `font-sans` stack (system UI on each platform) — applied via `body { @apply font-sans; }`
-- **Headings** (`h1`–`h6`): `'SF Pro Display', 'Source Sans Pro', sans-serif` — picks up SF Pro natively on macOS/iOS, falls back to Source Sans Pro (loaded from Google Fonts) elsewhere
-- **Recipe titles** (`.recipe-title` utility class): `'Merriweather', serif` — used on full recipe-detail surfaces for warmth
+1. **Cooking companion, not control panel.** Setup, Planning, Cooking, and Post-cook should reduce the user's next decision to a clear action: scan, choose, start, cook, confirm, clean up. Reserve administrative density for Settings and management surfaces.
+2. **Food-native, not abstract AI.** Visual motifs come from cooking: camera frames, ingredient chips, kitchen tools, tickets, trays, cooking cues, timers, check marks. Avoid AI tropes (purple-blue gradients, floating orbs, sparkle decoration, chat bubbles as primary metaphor).
+3. **Warm energy with restraint.** Coral leads primary actions and active states. Use warm neutrals, charcoal text, and food-adjacent accent colors so coral moments feel intentional. No one-note screens.
+4. **Tactile mobile objects.** Camera viewfinders, ingredient chips, full-row choices, Ticket Pass cards, prep trays, cooking-step cards, cleanup prompts feel tangible in one hand. Don't put cards inside cards.
+5. **Playful specificity, not noise.** Personality comes from precise wording, object shapes, small stickers/labels, and occasional food-native emoji. Avoid decorative clutter, constant animation, vague hype.
+6. **Calm confidence when cooking.** Cooking mode is a different register from Planning — clear, calm, cue-driven, readable while hands and attention are busy.
 
-**Scale** (Tailwind utility classes in active use):
-  - Hero/Recipe Titles: `text-3xl` to `text-4xl`, `font-semibold`, `.recipe-title` (Merriweather)
-  - Section Headers: `text-xl` to `text-2xl`, `font-semibold` (SF Pro / Source Sans Pro stack)
-  - Body Text: `text-base`, `font-normal` (system sans)
-  - Step Numbers: `text-5xl` to `text-6xl`, `font-bold`, subtle opacity
-  - Captions/Meta: `text-sm`, `font-medium`
-
-> **Future direction**: Wilson plans to move away from the current Merriweather + SF Pro / Source Sans Pro stack toward a more distinctive type identity. Tracked as a separate workstream; no in-flight changes.
-
-## Color Palette & Tokens
+## Tokens
 
 Brand colors live as CSS variables in `client/src/index.css` and are exposed to Tailwind via `bg-primary`, `text-secondary`, `bg-accent`, etc.
 
@@ -40,150 +29,165 @@ Brand colors live as CSS variables in `client/src/index.css` and are exposed to 
 | `--sidebar-background` | `222 14.3% 19.1%` | `#2D3436` | Charcoal — sidebar / dark surfaces |
 | `--destructive` | `0 84.2% 60.2%` | — | Standard red for destructive actions |
 
-Additional hover/shade values in active use: `#FF5252` (primary hover), `#FFB347`, `#FFD93D` (accent shades).
+Hover/shade values in active use: `#FF5252` (primary hover), `#FFB347`, `#FFD93D`. Per PD-005, new code reaches the brand palette via tokens (`bg-primary`, `hover:bg-primary/90`, `bg-accent`) — not hex literals.
 
-**Rubric rule (Phase 0):** new code must reach the brand palette via tokens (`bg-primary`, `hover:bg-primary/90`, `bg-accent`) rather than hex literals (`bg-[#FF6B6B]`). Existing hex callsites will migrate incrementally — see the UI-consistency plan for enforcement details.
+### Typography
 
-## Layout System
-**Spacing Primitives**: Tailwind units of 3, 4, 6, 8, 12, 16
-- Mobile padding: px-4, py-6
-- Desktop padding: px-8, py-12
-- Card spacing: p-6
-- Section gaps: gap-8 to gap-12
-- Component spacing: space-y-4, space-y-6
+Loaded in `client/src/index.css`:
 
-**Container Strategy**:
-- Mobile: Full width with px-4 gutters
-- Desktop: max-w-6xl centered (when needed for recipe detail views)
-- Cards: default shadcn `Card` primitive uses `rounded-lg` with `shadow-sm`. Featured / hero cards (marketing and home sections) use `rounded-xl` with `shadow-sm hover:shadow-md`. Reserve `rounded-2xl` for genuinely hero-sized imagery; avoid arbitrary-value radii (`rounded-[N]`).
+```css
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap');
+```
 
-## Core Component Library
+Global stack (current accepted state):
 
-### Navigation
-**Bottom Navigation Bar** (Mobile Primary):
-- Fixed bottom bar with 4 icons: Home, Recipes, Pantry, Profile
-- Active state: Coral background pill around icon + label
-- Icons from Heroicons
-- Height: h-16 with safe-area-inset padding
+- **Body:** Tailwind `font-sans` (system UI per platform).
+- **Headings (`h1`–`h6`):** `'SF Pro Display', 'Source Sans Pro', sans-serif`.
+- **Recipe titles** (`.recipe-title`): `'Merriweather', serif`.
 
-**Top App Bar**:
-- Sticky position with backdrop blur
-- Search bar (rounded-full) prominently featured
-- Voice assistant trigger button (right-aligned, coral accent)
+Mobile-refresh setup pilot (Phase 2.1 + Phase 2.2 returning Settings, accepted):
 
-### Recipe Cards
-**Featured Recipe Card** (Home Hero):
-- Rounded-2xl with image aspect-ratio-[4/3]
-- Gradient overlay (bottom) for text readability
-- Recipe title (text-2xl, white, DM Serif Display)
-- Quick stats row: time, difficulty, servings (icons + text-sm)
-- CTA button with backdrop blur effect
+- **Setup display:** `Fraunces` — scoped to `.setup-ui .setup-display` and equivalent setup surfaces.
+- **Setup body / controls:** `Nunito` — scoped to `.setup-ui .setup-copy`, `.setup-action-label`, etc.
 
-**Grid Recipe Cards**:
-- Rounded-xl, image aspect-ratio-[3/2]
-- Compact info overlay (bottom-aligned)
-- Heart icon (save/favorite) top-right
-- grid-cols-2 on mobile, grid-cols-3 on desktop
+Whether `Fraunces` / `Nunito` graduate to the global stack is an open visual decision (see below).
 
-### Live Cooking Mode
-**Full-Screen Step Display**:
-- Current step number: Massive watermark-style (text-8xl, opacity-10)
-- Step instruction: text-xl, center-aligned, max-w-prose
-- Timer component: Circular progress indicator (teal accent)
-- Navigation: Large previous/next buttons (bottom, h-14)
-- Voice indicator: Pulsing animation when assistant is speaking
-- Emergency pause button: Top-right, coral background
+### Spacing
 
-### Pantry Management
-**Ingredient List Items**:
-- Checkbox (rounded-md, teal when checked)
-- Ingredient name + quantity (text-base)
-- Expiry indicator: Color-coded badge (green/yellow/red)
-- Swipe actions: Delete (coral) and Edit (teal)
+Tailwind units `3, 4, 6, 8, 12, 16`. Mobile gutters `px-4 py-6`; cards `p-6`; section gaps `gap-8` to `gap-12`; component spacing `space-y-4` / `space-y-6`. Mobile containers full-width with `px-4`; desktop `max-w-6xl` centered when needed.
 
-### Forms & Inputs
-**Search Bar**:
-- rounded-full, h-12
-- Prominent on home screen
-- Voice input icon (right-side)
+## Surface Taxonomy
 
-**Filter Pills**:
-- rounded-full, px-4, h-10
-- Active state: coral background
-- Horizontal scroll on mobile
+(Mirrors PD-005. Both files keep the same vocabulary; PD-005 governs conformance, this file shapes posture.)
 
-### Modals & Overlays
-**Voice Assistant Sheet**:
-- Bottom sheet (mobile), slide-up animation
-- Waveform visualization (teal)
-- Suggestion chips below (rounded-full)
-- "Listening..." pulsing indicator
+| Posture | Examples | Visual posture |
+|---|---|---|
+| Tone-forward | Slop Bowl card, Planning entry, Ticket Pass, celebrations | Playful, distinctive, still task-clear |
+| Branded utility | Setup, returning Settings (Pantry/Kitchen/Profile), scan review | Warm, focused, mobile-native, mockup-led |
+| Utilitarian | Account, grocery list, history list shell, bottom navigation | Quiet, dense enough for repeated use, no unnecessary decoration |
+| Focus mode | Active cooking guidance | Calm, large, legible, low clutter |
+| Safety/error | Auth errors, rate limits, no-detection feedback | Direct, reassuring, readable; no jokes that obscure action |
 
-## Icons
-**Library**: `lucide-react` (53 import sites across `client/src`). Default variant is outline-style; use the same icon at a different size/weight rather than swapping libraries for an emphasis shift.
-**Common icons already in use**: `ChefHat`, `Clock`, `Home`, `Settings`, `User`, `MessageCircle`, `Camera`, `Mic` / `MicOff`, `Play` / `Pause`, `Check` / `CheckCircle`, `ArrowLeft` / `ArrowRight`, `Plus`, `Info`, `AlertTriangle`, `Loader2`, `LogOut`, `Bell`, `Calendar`, `Copy`, `Menu`, `MoreVertical`.
-**Emoji as iconography**: acceptable on tone-forward surfaces (e.g. 🥣 on the Slop Bowl card, 👨‍🍳 / 👩‍🍳 on the planning-choice card) when the emoji carries product voice better than a lucide glyph would. Use sparingly on utilitarian surfaces.
+## Mockup conformance gate
 
-## Images
-**Hero Section** (Home Screen):
-- Large featured recipe image at top
-- Aspect ratio: 4:3 on mobile, 16:9 on desktop
-- Warm, well-lit food photography with shallow depth of field
-- Gradient overlay from transparent to black (bottom 40%)
+Linked mockups are **acceptance inputs**, not mood boards. A phase is not visually ready when the primary user surfaces still read as the pre-refresh UI.
 
-**Recipe Detail Header**:
-- Full-width hero image, aspect-ratio-[16/9]
-- Professional food photography, bright and appetizing
-- Blurred background effect for floating action buttons
+Before a mobile-refresh phase merges:
 
-**Recipe Grid Images**:
-- Square cropped food photos showing finished dish
-- Consistent lighting and styling across all images
-- High-quality, vibrant colors that complement coral/teal palette
+- The reviewer opens the linked exemplar and compares hierarchy, mood, and key controls.
+- Deliberate deviations are documented in the handoff and PR description.
+- For tone-forward surfaces, the tone-override comment from PD-005 names the customized element.
+- For surfaces reusing accepted phase-scoped class names, the reviewer verifies *rendered/computed style* (typography, radius, icon size, hover/active/disabled states), not just class-name reuse.
 
-**Pantry Items** (Optional):
-- Small thumbnail images (w-12, h-12, rounded-lg) for ingredient recognition
+| Phase | Exemplar |
+|---|---|
+| Phase 1 Auth | [phase-01-auth.png](docs/assets/mobile-refresh/phase-01-auth.png) |
+| Phase 2 Setup | [phase-02-setup.png](docs/assets/mobile-refresh/phase-02-setup.png) |
+| Phase 2.2 Returning Settings | [phase-02-2-returning-setup-settings-storyboard.svg](docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
+| Phase 3 Planning | [phase-03-planning-flow.png](docs/assets/mobile-refresh/phase-03-planning-flow.png) |
+| Phase 3 Ticket Pass | [phase-03-ticket-pass.png](docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
+| Phase 4 Cooking | [phase-04-cooking.png](docs/assets/mobile-refresh/phase-04-cooking.png) |
+| Phase 5 Post-cook | [phase-05-post-cook.png](docs/assets/mobile-refresh/phase-05-post-cook.png) |
 
-## Screen-Specific Layouts
+## Visual System Direction
 
-### Home Dashboard
-Status: deferred / aspirational. Per `product-decisions/006-home-and-cook-remain-separate.md`, the current accepted IA keeps **Home** and **Cook** as separate surfaces. Home remains the landing/welcome surface, Cook remains the planning entry, and Cook is disabled until profile setup is complete. The richer dashboard ideas below remain a future direction, not a current implementation requirement.
+### Color
 
-- Hero featured recipe with image + CTA
-- "Quick Start" section: Voice-activated cooking button (prominent, rounded-2xl, coral gradient)
-- Horizontal scroll: "Continue Cooking" saved recipes
-- Grid: "Recommended for You" (2 columns mobile)
-- Categories filter pills (top, horizontal scroll)
+- Lead with tokenized coral for primary actions, active states, progress emphasis, branded moments.
+- Charcoal/dark neutral text for clarity.
+- Warm light surfaces, but avoid screens that read entirely beige/cream/coral/teal/dark-blue.
+- Teal, yellow, green, food-adjacent accents by role, not random decoration.
+- No purple/blue AI-gradient identity unless a future accepted decision picks it.
 
-### Recipe Detail
-- Hero image with back button (top-left, blurred background)
-- Title (DM Serif Display, text-3xl)
-- Metadata row: time, servings, difficulty badges
-- Tabs: Ingredients | Instructions | Tips
-- "Start Cooking" FAB (coral, bottom-right, with voice icon)
+### Shape and surface
 
-### Active Cooking View
-- Minimal chrome, full focus on current step
-- Ingredient checklist (collapsible drawer)
-- Timer (always visible, sticky)
-- Hands-free mode toggle (voice-only navigation)
+- Repeatable surface types: camera frame, chip, full-row selection, ticket, prep tray, cue card, bottom action bar.
+- Compact cards stay disciplined; larger radii belong on intentional feature objects.
+- Buttons have clear command roles; the primary CTA is visually obvious without explanatory copy.
+- Authenticated app pages do not carry a persistent top header (per PD-009). Account, profile, and sign-out access live in the bottom menu/account surface.
+- Setup progress uses one clear top progress treatment (`1/N` bar style), not stacked brand chips + step pills + section labels.
+- Camera utility controls inside the camera object: large circular capture, smaller translucent circular toggles for camera on/off and tips. No flashlight-like icons for non-flashlight tips. Capture is a clean shutter without a camera glyph.
+- Secondary setup actions (`Upload photos`, `Enter manually`) keep consistent type sizing and weight across equivalent surfaces. No technical helper labels under obvious commands.
+- Kitchen-specific surfaces shift accents toward gray/silver and light wood for tool-specific actions, chips, save buttons, and item icons; coral progress is preserved.
 
-### Pantry Screen
-- Search/add ingredient bar (top)
-- Category tabs: All, Expiring Soon, Shopping List
-- Grouped list with section headers
-- FAB: Quick add (scan or manual)
+### Iconography and emoji
 
-## Interaction Patterns
-- Swipe gestures: Recipe cards (save/skip), pantry items (edit/delete)
-- Pull-to-refresh: Recipe feed
-- Long-press: Quick actions menu
-- Voice wake word: "Hey Laica" for hands-free control
-- Haptic feedback: Step completion, timer alerts, voice recognition start/stop
+- `lucide-react` is the default icon language.
+- Setup choice icons may use small multicolor food/tool/dietary illustrations when the mockup calls for warmer, less monochrome surfaces.
+- Emoji is allowed on tone-forward surfaces when it carries product voice better than a generic icon. Use sparingly; avoid in Settings, auth, errors, safety-critical flows.
+
+### Imagery and illustration
+
+- Prefer visuals that reveal product state: camera preview, ingredients, tools, tickets, cooking cues, meal state.
+- Avoid stock-like, dark, blurred, or atmospheric images when the user needs to inspect.
+- Avoid decorative blobs/orbs and abstract backgrounds as substitutes for product-specific visuals.
+- Generated food imagery is deferred until a future accepted feature direction.
+
+### Motion
+
+- Motion clarifies state change or adds a small moment of delight.
+- No constant ambient motion on task surfaces.
+- Cooking-mode motion stays calm and functional: progress, timers, listening/speaking state, step transitions.
+
+## Accepted Phase Directions
+
+### Phase 2.1 setup pilot — accepted (PR #27, 2026-05-01)
+
+Setup uses `Fraunces` display + `Nunito` body/control type, scoped to `.setup-ui` and friends. Cream/coral phone-flow shell. Designed scan viewfinder with camera off by default. Camera/tips controls inside the scan object as small translucent circles. Blank shutter capture. Single top progress bar. Peer-level upload/manual actions. Multicolor setup-choice illustrations. `No restrictions` isolated from other dietary choices. Kitchen accents shift toward gray/silver/light-wood while progress stays coral. Setup-only — does not change global app typography or shared shadcn primitives.
+
+### Phase 2.2 returning Settings — accepted (PR #30, 2026-05-01, validated at `dc59796`)
+
+Menu is the global returning-user destination surface. Settings owns Pantry/Kitchen/Profile edits; History is a separate cooking-memory surface. Returning Settings reuses the setup look/feel foundation: setup-scoped display/body typography, the setup `NativeCamera` object inline with camera off by default, setup-style upload/manual buttons, setup scanning state, setup chips/list surfaces, setup profile choice rows. Returning Settings is calmer and edit-led, not a different product from setup. Bottom nav is icon-only.
+
+**Implementation guardrail.** Reusing `setup-*` class names alone does not preserve the setup look — the accepted CSS depends on `.setup-ui .setup-*` selector specificity, which a new wrapper does not provide. Either render under a wrapper that carries the specificity contract, or extract a shared component/style primitive. Visual review verifies *computed* typography, radius, icon size, hover/active/disabled state on the destination surface. (Codified in PD-005 rule 5.)
+
+## Open Visual Decisions
+
+These are the unresolved identity questions. Edit this section inline as Phase 3-5 lands evidence; do not file a separate epic unless one of them grows into its own multi-phase concern.
+
+1. **Setup typography globalization.** Whether `Fraunces` / `Nunito` graduates from setup-scoped to the global mobile-refresh typography. Pending Phase 3-5 evidence.
+2. **Palette refinement.** Whether coral/teal/yellow stays, expands, or is replaced for the durable Laica identity.
+3. **Canonical motif set.** Which visual motifs become signature Laica objects: camera frame, Ticket Pass, prep tray, pantry chip, cooking cue, chef companion.
+4. **Playfulness by surface.** How playful Laica should feel by surface type (setup vs Planning vs Cooking vs Settings vs errors vs empty states).
+5. **Imagery approach.** Real food photography, generated food images, illustration, emoji-led, icon-led, or hybrid.
+6. **Mockup hardness.** Which mockup elements are hard requirements vs directional examples.
+7. **Future scan-session chip states.** How `new from latest scan` / `already saved/found again` / normal saved inventory differentiate visually without creating a noisy third design system. Product work in [EPIC-014](epics/014-scan-session-diff-and-duplicate-refinement.md).
+
+## Anti-patterns
+
+- Raw shadcn composition with only coral buttons changed.
+- Generic AI-app surfaces: purple-blue gradients, abstract orbs, sparkle wallpaper, chat-first metaphors.
+- Website chrome inside core app flows.
+- Repeated floating cards for every section.
+- One-note color screens (all coral, all beige, all teal, all dark blue).
+- Hidden or missing Back/escape affordances in focused flows.
+- Visual changes not traceable to a mockup, token, or documented tone-forward exception.
+- Hex color literals (`bg-[#FF6B6B]`) when a token resolves to the same value.
+- Custom `<Button className="...">` overrides instead of extending `buttonVariants`.
+- Reusing phase-scoped utility classes without verifying computed style on the destination surface.
+
+## Review checklist
+
+Before a feature or phase is marked visually ready:
+
+- Reviewer opened the linked exemplar (if a phase mockup exists).
+- Primary screen visibly matches the exemplar's hierarchy and mood.
+- Screen feels like Laica, not generic AI/SaaS/shadcn.
+- Primary action is unmistakable; secondary actions don't compete with it.
+- Back/escape paths are visible from focused flows.
+- Color usage has a clear role; no one-note saturation.
+- Type sizes appropriate to the surface; no oversized hero type inside compact panels.
+- Icons, emoji, imagery, and motion serve product meaning.
+- Repeated patterns are reusable or documented as intentional one-offs.
+- For surfaces reusing phase-scoped class names: rendered control comparison done (typography, radius, icon size, hover/active/disabled states) — not just class-name reuse.
+- Handoff names any deliberate deviation from the mockup or governance rule.
+- Tone-forward overrides carry the `// design:tone-override — <reason>` comment from PD-005.
 
 ## Accessibility
-- Minimum touch targets: 44x44px
-- High contrast text on all image overlays
-- Voice control for entire cooking flow
-- Large, readable fonts during active cooking
-- Clear focus states for keyboard navigation
+
+- Minimum touch targets: 44x44px.
+- High contrast text on all image overlays.
+- Voice control across the cooking flow.
+- Large, readable fonts during active cooking.
+- Clear focus states for keyboard navigation.
