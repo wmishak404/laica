@@ -40,6 +40,8 @@ How to confirm the changes work — local checks, Replit validation steps, or ma
 
 If the task changes a multi-phase initiative, cite the relevant INIT and state whether it was updated. If `INIT updated: no`, explain why when the handoff changes initiative state. Initiative changes include phase status, PR status, validation status, assets/mockups, major decisions, and current resume point.
 
+For INIT-bound merge closeouts, create a dedicated handoff named like `YYYY-MM-DD-<agent>-<phase>-merge-closeout.md`. Include the merged PR number, merge commit, last validated SHA, docs updated, next resume point, and any explicit deferrals. This handoff must be pushed to `origin`; otherwise future agents cannot rely on it.
+
 ## Stacked PR note
 
 If the task is stacked on another branch or follows a recently merged lower phase, include this block in the handoff and PR description. A branch is stacked when it logically depends on a lower PR through shared files, feature behavior, or polish/docs that need to be present in the preview; independent parallel PRs do not need this block.
