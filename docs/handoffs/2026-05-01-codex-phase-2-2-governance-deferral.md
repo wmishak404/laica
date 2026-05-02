@@ -40,6 +40,11 @@ Claude should use the current EPIC-001 and EPIC-012 files as active sources for 
   - no accepted `PD-005` exists on `main`
   - no enforcement mechanism has shipped
   - UI governance just gained new specificity/computed-style evidence from Phase 2.2
+- The Phase 2.2 evidence is concrete and should inform the later governance closeout:
+  - Returning Settings reused first-time setup `setup-*` class names, but the controls still drifted because the accepted setup styles depended on `.setup-ui .setup-*` specificity.
+  - The capture shutter, camera/video toggle, and help/tips controls rendered as rounded squares instead of the accepted circular setup camera controls.
+  - `Upload photos` and `Enter manually` inherited different Button typography instead of matching first-time setup's `Nunito` / 800 action-label treatment.
+  - This means future governance needs to require rendered/computed-style comparison for reused patterns, not only class-name reuse or product-intent documentation.
 - EPIC-012 still has open identity questions:
   - typography rollout beyond setup
   - palette refinement
