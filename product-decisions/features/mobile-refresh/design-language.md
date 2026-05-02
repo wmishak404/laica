@@ -307,6 +307,7 @@ Phase 2 is the first active pilot for this design language. Before merge:
 - The visual difference between first-time setup and returning Settings should come from intent, not a new aesthetic: setup is guided/progress-led, while Settings is edit/review/save-led. Typography, camera object, action hierarchy, chips, and choice rows should remain recognizably the same system.
 - Settings should not include History. History is its own memory surface and should feel warmer and more meal-oriented than account configuration.
 - The Phase 2.2 storyboard is a conformance input. If implementation misses the storyboard's hierarchy or mood, treat that as phase work, not a later polish ticket.
+- PR #30 merged this bridge as the second accepted mobile-refresh visual proof point after Phase 2.1 setup. Future phases should treat the Phase 2.2 Menu, Settings, and History shell as accepted IA/design context rather than reintroducing legacy Settings tabs.
 
 ### Phase 3 Planning
 

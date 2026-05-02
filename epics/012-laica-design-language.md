@@ -188,3 +188,7 @@ Wilson accepted the recommendation that first-time setup and returning Settings 
 ### 2026-05-01 — Returning Settings visual drift found after class reuse
 
 Wilson's follow-up Replit screenshots showed that visual conformance cannot be inferred from using the same `setup-*` class names. Returning Settings inherited the setup classes under a different root wrapper, so Tailwind/shadcn Button utilities overrode the accepted setup typography and round camera-control shapes. This adds a design-language review requirement: when an accepted pattern moves to another surface, compare the rendered controls against the accepted source surface and verify computed typography, radius, icon size, active state, disabled state, and control hierarchy. Documentation should record the implementation guardrail that preserves the look, not only the product intent.
+
+### 2026-05-01 — Phase 2.2 merged as returning-user design proof point
+
+PR #30 merged Phase 2.2 into `main` after Replit validation at `dc59796ae1602af4643c5fc640be47ab19a59e04`. This gives EPIC-012 a second accepted proof point after Phase 2.1 setup: Menu is the global returning-user destination surface, Settings is utilitarian but Laica-native, returning Pantry/Kitchen/Profile reuse the setup look/feel foundation, and History is separated as a warmer cooking-memory surface while richer share/cook-again behavior stays in Phase 5.

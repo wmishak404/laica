@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 2.2 implementation
+**Current phase:** Phase 3 planning kickoff
 **Active PR:** None
-**Active branch:** `codex/mobile-refresh-phase-2-2-settings-history`
+**Active branch:** TBD
 
 ## Overview
 
@@ -25,7 +25,7 @@ The initiative also includes cross-phase AI privacy, prompt-injection, abuse-pre
 
 ## Current Status
 
-Phase 0, Phase 1, Phase 2, Phase 2.1, and the INIT/process documentation split are merged.
+Phase 0, Phase 1, Phase 2, Phase 2.1, Phase 2.2, and the INIT/process documentation split are merged.
 
 PR #25 split and merged the INIT/process/design documentation stack from PR #23, making it the shared workflow baseline for Phase 2 polish and later Phase 3-5 work.
 
@@ -49,13 +49,15 @@ Wilson then reported the next Replit test results as passing except for untestab
 
 PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`. Runtime Replit/mobile validation was recorded at `ac698a3`; the final branch head `eaff0e8` was docs-only after validation. Phase 2.1 is closed for implementation, with deeper scan-session duplicate refinement deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 
-Wilson added a Phase 2.2 bridge before Phase 3: returning users need a consistent way to revisit Pantry, Kitchen, and Cooking Profile after setup. Menu is now the global access point for Settings and History; History is separated from Settings because it is cooking memory, not account configuration. Phase 2.2 is active on `codex/mobile-refresh-phase-2-2-settings-history`; Replit validation is not yet run.
+Wilson added a Phase 2.2 bridge before Phase 3: returning users need a consistent way to revisit Pantry, Kitchen, and Cooking Profile after setup. Menu is now the global access point for Settings and History; History is separated from Settings because it is cooking memory, not account configuration. Phase 2.2 shipped in PR #30 after Replit validation at `dc59796`.
 
 Wilson's first Phase 2.2 review accepted the IA direction but flagged fundamentals before more testing: bottom nav should be icon-only, History needs warmer rotating copy, feedback submissions should retain precise page context, and returning Pantry/Kitchen/Profile should not drift away from the accepted first-time setup experience. Codex's recommendation is to keep first-time setup and returning Settings as separate top-level flows but centralize the repeated Pantry/Kitchen/Profile components so shared tasks share UI, copy, scan behavior, and validation logic.
 
 Wilson accepted that recommendation. Phase 2.2 now records the product decision that first-time setup and returning Settings remain separate pages because their user intent differs, but both use the same authenticated profile database and the same setup look/feel foundation wherever the underlying Pantry/Kitchen/Profile task is the same. Codex implemented the returning Settings alignment without intentionally changing first-time setup.
 
 Wilson's next Replit screenshot review caught a more subtle implementation drift: returning Settings reused the setup class names, but not the `.setup-ui` root specificity that made shadcn/Tailwind Button utilities render as the accepted first-time setup controls. Codex corrected the shared setup-control CSS for the returning wrapper and documented the governance lesson: design consistency docs need implementation guardrails for root wrappers, specificity, and computed-style comparison, not only product-intent statements.
+
+PR #30 merged Phase 2.2 into `main` as merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`. Replit validation passed at branch head `dc59796ae1602af4643c5fc640be47ab19a59e04`, including Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, History list/expand/delete/undo, feedback context, returning Settings visual parity, local typecheck/build, and relevant Vitest coverage. Phase 2.2 is closed for implementation; INIT-001 now resumes at Phase 3 Planning from fresh `origin/main`.
 
 ## Source Docs
 
@@ -94,7 +96,7 @@ Wilson's next Replit screenshot review caught a more subtle implementation drift
 | Phase 1 | Merged | PR #22 / `codex/mobile-refresh-phase-1-auth` | Auth landing and first authenticated routing; polish commit preserved after rebase |
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup work validated in Replit and merged; latest visual/trust feedback deferred |
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | Setup polish plus visual conformance: welcome/get-started, camera opt-in, upload/manual hierarchy, scanning state, text-only scan safeguard, Back/escape with active-scan cancellation, clearer scan/camera error paths, Pantry/Kitchen scan-limit separation, capture flash, manual active state and period/comma parsing, 3-ingredient Pantry minimum, copy, auto-advance, setup-only typography, mockup-led cream/coral treatment, bottom/account menu access, fail-closed upload caps, accepted visual polish, and exact/near-exact duplicate mitigation; merged as `5419a90` |
-| Phase 2.2 | In Progress | `codex/mobile-refresh-phase-2-2-settings-history` | Returning setup edits and IA bridge before Phase 3: Menu -> Settings, Menu -> History, Settings hub/Pantry/Kitchen/Profile, Slop Bowl deep-link to Pantry, standalone History shell, and storyboard-backed design gate |
+| Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning setup edits and IA bridge before Phase 3: Menu -> Settings, Menu -> History, Settings hub/Pantry/Kitchen/Profile, Slop Bowl deep-link to Pantry, standalone History shell, and storyboard-backed design gate; merged as `bc25ef3` |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only branch split from PR #23; now baseline for remaining Phase 2-5 work |
 | Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
@@ -112,6 +114,7 @@ Wilson's next Replit screenshot review caught a more subtle implementation drift
 | #25 | Merged | `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 | #26 | Merged | `codex/mobile-refresh-phase-2-closeout` | Phase 2 closeout moved resume point to Phase 2.1 |
 | #27 | Merged | `codex/mobile-refresh-phase-2-1-setup-polish` | Runtime Replit/mobile validation recorded at `ac698a3`; final branch head `eaff0e8` was docs-only; merged as `5419a90` |
+| #30 | Merged | `codex/mobile-refresh-phase-2-2-settings-history` | Replit validation passed at `dc59796`; merged as `bc25ef3` |
 
 ## Epics and Governance
 
@@ -152,20 +155,20 @@ Known validation facts:
 - Phase 2.1 final branch head `eaff0e8` was docs-only after validation.
 - PR #27 merged Phase 2.1 into `main` as merge commit `5419a901af45f0e1a8e40fbc813ee52978c14f86`.
 - Deeper scan-session duplicate refinement is deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
-- Phase 2.2 is not yet Replit-validated.
-- Phase 2.2 follow-up alignment is implemented locally but not yet Replit-validated: icon-only bottom nav, History copy, precise feedback page context, returning Settings visual/UX alignment to first-time setup, and the returning wrapper specificity fix for setup-derived camera/action controls.
+- Phase 2.2 Replit validation passed at `dc59796ae1602af4643c5fc640be47ab19a59e04`.
+- PR #30 merged Phase 2.2 into `main` as merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`.
+- Phase 2.2 validated icon-only bottom nav, History copy, precise feedback page context, returning Settings visual/UX alignment to first-time setup, the returning wrapper specificity fix for setup-derived camera/action controls, Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, and History list/expand/delete/undo.
 
 ## Current Resume Point
 
-Resume in Phase 2.2 implementation on `codex/mobile-refresh-phase-2-2-settings-history`.
+Resume in Phase 3 Planning from fresh `origin/main`.
 
 Next implementation focus:
 
-1. Finish Phase 2.2 local checks and visual review against [phase-02-2-returning-setup-settings-storyboard.svg](../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg), with extra comparison against accepted first-time setup's camera controls and upload/manual action typography.
-2. Validate in Replit: Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, precise feedback page context, and History list/expand/delete/undo.
-3. Confirm Settings edits reflect in Planning/Slop Bowl through the existing `/api/user/profile` profile data.
-4. Record the validated commit SHA before PR merge.
-5. After Phase 2.2 merges, resume Phase 3 Planning from fresh `origin/main`.
+1. Open the Phase 3 branch from fresh `origin/main` at or after merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`.
+2. Use Phase 2.1 setup and Phase 2.2 returning Settings as accepted visual anchors before touching Planning, Chef It Up, Slop Bowl, or Ticket Pass.
+3. Implement Phase 3 Planning against [phase-03-planning.md](../product-decisions/features/mobile-refresh/phase-03-planning.md), [phase-03-planning-flow.png](../docs/assets/mobile-refresh/phase-03-planning-flow.png), and [phase-03-ticket-pass.png](../docs/assets/mobile-refresh/phase-03-ticket-pass.png).
+4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 
 ## Chronology
 
@@ -284,3 +287,7 @@ Wilson accepted the separate-flow/shared-look recommendation and asked to record
 ### 2026-05-01 — Returning Settings computed-style drift corrected
 
 Wilson's Replit screenshots showed that returning Settings still diverged in two specific setup-derived controls: the camera capture/video/help buttons rendered as rounded squares, and `Upload photos` / `Enter manually` did not match first-time setup's action typography. Codex traced the cause to CSS specificity: first-time setup's accepted styles were protected by `.setup-ui .setup-*`, while returning Settings used a different root. The fix gives `returning-setup-anchor` the same override specificity for setup Button/camera controls and makes `setup-action-title` declare the accepted setup typography directly.
+
+### 2026-05-01 — Phase 2.2 merged
+
+PR #30 merged Phase 2.2 into `main` as merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`. Replit validation passed at branch head `dc59796ae1602af4643c5fc640be47ab19a59e04`; Wilson confirmed the remaining Replit checklist passed before merge, including Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, History list/expand/delete/undo, Feedback context, and returning Settings visual parity. Phase 2.2 is closed, and the next INIT-001 branch should start Phase 3 Planning from fresh `origin/main`.

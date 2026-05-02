@@ -288,6 +288,10 @@ Wilson's Phase 2.2 review asked whether Feedback still records where the user is
 
 Phase 2.2's returning Settings alignment now explicitly includes a database consistency gate: first-time setup and returning Settings both use the same `/api/user/profile` data and `auth_users` profile fields. Validation should confirm values saved during setup appear in Settings, and values edited in Settings are used by Planning/Slop Bowl after the shared profile query invalidates/refetches.
 
+### 2026-05-01 — Phase 2.2 merge records combined functional and visual Replit gate
+
+PR #30 merged only after Wilson confirmed the Replit checklist at `dc59796ae1602af4643c5fc640be47ab19a59e04`: Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, History list/expand/delete/undo, Feedback context, and returning Settings visual parity. This adds a validation-workflow precedent for small post-review polish: even icon-only bottom-nav sizing and CSS specificity fixes should refresh the validated SHA before merge when they land after the previous Replit pass.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

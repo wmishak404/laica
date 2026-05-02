@@ -250,6 +250,10 @@ Wilson's Replit review caught that returning Settings used the same `setup-*` cl
 
 This is a governance failure mode, not only a CSS bug. Future docs and handoffs must distinguish "same class name" from "same computed style." When moving an accepted phase-scoped pattern into a different wrapper, document the shared root/specificity contract or extract a component/style primitive that carries it. Visual review should check shape, type, icon size, hover/active states, and disabled states on the destination surface, especially for shadcn primitives with `className` overrides.
 
+## 2026-05-01 — Phase 2.2 merged with visual-conformance gate intact
+
+PR #30 merged Phase 2.2 after Replit validation confirmed the specific drift fixes Wilson flagged: icon-only bottom navigation, circular returning Settings camera controls, first-time setup-matched upload/manual typography, and precise feedback context. This does not resolve EPIC-001, but it adds a concrete pilot example for future UI governance: visual conformance should be proven at rendered-control level before merge, and the PR/handoff should name any specificity or wrapper contracts that preserve the accepted look.
+
 ## Next steps when work resumes
 
 1. Codex publishes Phase 1 v2 plan (either `codex/ui-consistency-v2` branch or update to the existing `codex/ui-consistency-handoff-test`) incorporating Claude's review + Codex's v2 lean
