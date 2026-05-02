@@ -103,5 +103,5 @@ Rule 5 (scoped-style reuse contract) is the only rule added after EPIC-001 was f
 
 ## Open follow-ups
 
-- ESLint rule + PR-template gate. File a narrow active epic when work begins.
-- Migrate Slop Bowl's `bg-[#FF6B6B]` / `hover:bg-[#FF5252]` callsites to `bg-primary` / `hover:bg-primary/90` as the first pilot-surface cleanup.
+- [EPIC-015](../epics/015-ui-governance-enforcement.md) — ESLint rule rejecting hex literals in `className` + PR-template gate citing this PD. Closes the enforcement-mechanism criterion deferred from EPIC-001 at graduation.
+- [EPIC-016](../epics/016-slop-bowl-hex-literal-cleanup.md) — Slop Bowl hex-literal cleanup so EPIC-015's lint rule passes on existing code. Independent of EPIC-015 sequencing; gate-then-cleanup is the recommended order.

@@ -86,3 +86,5 @@ Read these before starting work in their governed domains:
 | [010](010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [013](013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |
 | [014](014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |
+| [015](015-ui-governance-enforcement.md) | UI governance enforcement (lint + PR template) | `Open` | Wilson / Codex / Claude | 2026-05-02 |
+| [016](016-slop-bowl-hex-literal-cleanup.md) | Slop Bowl hex literal cleanup | `Open` | Wilson / Codex / Claude | 2026-05-02 |
