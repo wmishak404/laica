@@ -12,7 +12,7 @@ This folder records the approved planning for the Laica mobile-refresh work. It 
 | 1 | Auth and first authenticated routing | Accepted | [phase-01-auth.md](phase-01-auth.md), [PD-009](../../009-mobile-refresh-navigation.md) | [Auth mockup](../../../docs/assets/mobile-refresh/phase-01-auth.png) |
 | 2 | Setup: pantry, kitchen, profile | Accepted | [phase-02-setup.md](phase-02-setup.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
 | 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Accepted / Merged PR #27 | [phase-02-1-setup-polish.md](phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
-| 2.2 | Returning setup, Settings, and History IA | Accepted / In Progress | [phase-02-2-returning-setup-settings.md](phase-02-2-returning-setup-settings.md) | [Phase 2.2 storyboard](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
+| 2.2 | Returning setup, Settings, and History IA | Accepted / Merged PR #30 | [phase-02-2-returning-setup-settings.md](phase-02-2-returning-setup-settings.md) | [Phase 2.2 storyboard](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
 | 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted | [phase-03-planning.md](phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 4 | Cooking guidance | Accepted | [phase-04-cooking.md](phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
 | 5 | Post-cook cleanup and retention | Accepted | [phase-05-post-cook.md](phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
@@ -22,8 +22,8 @@ This folder records the approved planning for the Laica mobile-refresh work. It 
 1. Ship Phase 0 security/backend readiness first.
 2. Implement Phase 1 and Phase 2 together or in tight sequence because routing depends on setup completion.
 3. Phase 2.1 has shipped the setup visual/trust polish after Phase 2 closed functionally.
-4. Implement Phase 2.2 from fresh `main` before Phase 3 so returning setup edits, Menu, Settings, and standalone History match the accepted mobile-refresh design direction.
-5. Implement Phase 3 after Phase 2.2 so Slop Bowl and Planning links do not route into legacy Settings UI.
+4. Phase 2.2 has shipped the returning setup edit, Menu, Settings, and standalone History IA bridge before Phase 3.
+5. Implement Phase 3 from fresh `main` after PR #30 so Slop Bowl and Planning links build on the refreshed Settings/History IA rather than legacy Settings UI.
 6. Implement Phase 4 after authenticated AI routes and session ownership checks are live.
 7. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry; Phase 5 owns the richer History share/cook-again/retention behavior.
 

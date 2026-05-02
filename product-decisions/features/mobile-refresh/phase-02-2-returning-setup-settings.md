@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 2.2 — Returning Setup, Settings, And History IA
 
-**Status:** Accepted for implementation
+**Status:** Accepted / Merged PR #30
 **Phase owner:** Wilson
 **Date:** 2026-05-01
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -133,6 +133,24 @@ Corrected implementation direction:
 - `setup-action-title` should declare the accepted setup button typography directly, not rely only on parent inheritance.
 - Visual review must compare computed control shape, typography, icon size, active state, disabled state, and hierarchy against first-time setup whenever setup patterns are reused under a different root wrapper.
 - Future component extraction should move these setup/returning shared controls behind a small shared component layer so wrappers cannot silently diverge.
+
+## 2026-05-01 Merge Closeout
+
+PR #30 merged Phase 2.2 into `main` as merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`.
+
+Last Replit-validated at: `dc59796ae1602af4643c5fc640be47ab19a59e04`.
+
+Validated scope:
+
+- Menu -> Settings and Menu -> History.
+- Slop Bowl -> Edit pantry deep-link to Pantry Settings.
+- Pantry, Kitchen, and Cooking Profile saves.
+- History list, expand, delete, and undo-delete after moving History out of Settings.
+- Feedback context, including the active surface/subsection.
+- Returning Settings visual parity with first-time setup for circular camera controls and upload/manual typography.
+- Local `git diff --check`, `npm run check`, `npm run build`, and relevant Vitest coverage.
+
+Phase 2.2 is closed for implementation. Phase 3 should start from fresh `origin/main`; richer History detail/share/cook-again/taste-memory behavior remains Phase 5 scope.
 
 ## Acceptance Criteria
 
