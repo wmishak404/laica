@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (workflow review)
 **Created:** 2026-04-17
-**Updated:** 2026-04-28
+**Updated:** 2026-05-01
 
 ## One-line summary
 
@@ -275,6 +275,18 @@ Wilson retested the duplicate-prevention pass on mobile and confirmed upload smo
 ### 2026-05-01 — Phase 2.1 merge records docs-only-after-validation nuance
 
 PR #27 merged Phase 2.1 with runtime Replit/mobile validation recorded at `ac698a3` and final branch head `eaff0e8` documented as docs-only after validation. This adds a useful validation hygiene precedent: docs-only closeout commits after runtime QA do not need redundant app smoke if the PR and handoff explicitly call out the runtime-validated SHA and the docs-only head.
+
+### 2026-05-01 — Phase 2.2 adds explicit visual IA acceptance gates
+
+Phase 2.2 records acceptance criteria before implementation for Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, and History list/expand/delete/undo. It also makes storyboard visual review an explicit merge-readiness item, continuing the Phase 2.1 precedent that visual conformance is not a separate post-implementation polish pass.
+
+### 2026-05-01 — Feedback context and docs foundation added to acceptance thinking
+
+Wilson's Phase 2.2 review asked whether Feedback still records where the user is when submitting. The implementation now preserves more specific Phase 2.2 context such as Settings subsection and Planning choice/manual state. The same review also reinforced that operational lessons and product rationale must land in durable docs, not only chat, which is now captured in `AGENTS.md` and `CLAUDE.md`.
+
+### 2026-05-01 — Settings alignment adds data-consistency validation
+
+Phase 2.2's returning Settings alignment now explicitly includes a database consistency gate: first-time setup and returning Settings both use the same `/api/user/profile` data and `auth_users` profile fields. Validation should confirm values saved during setup appear in Settings, and values edited in Settings are used by Planning/Slop Bowl after the shared profile query invalidates/refetches.
 
 ## Next steps when work resumes
 

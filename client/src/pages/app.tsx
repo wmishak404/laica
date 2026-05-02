@@ -5,19 +5,13 @@ import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
 import SlopBowl from '@/components/cooking/slop-bowl';
 import LiveCooking from '@/components/cooking/live-cooking';
-import UserSettings from '@/components/cooking/user-settings';
+import UserSettings, { type SettingsSection } from '@/components/cooking/user-settings';
+import CookingHistory from '@/components/cooking/cooking-history';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
-import { ChefHat, LogOut, Menu, MessageCircle, Settings } from 'lucide-react';
+import { ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
 
 interface UserProfile {
   cookingSkill: string;
@@ -43,7 +37,7 @@ interface RecipeRecommendation {
   overview?: string;           // short tagline from slop-bowl response
 }
 
-type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'slop-bowl';
+type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'history' | 'slop-bowl';
 
 const hasPlanningProfile = (profile: UserProfile) =>
   Boolean(
@@ -85,6 +79,8 @@ export default function MobileApp() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [hasLoadedFromDb, setHasLoadedFromDb] = useState(false);
   const [showPlanningChoice, setShowPlanningChoice] = useState(true);
+  const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Picks a fresh random tagline for the Slop Bowl sticker each time the
   // planning-choice screen is shown. Stable across re-renders while visible.
@@ -100,6 +96,12 @@ export default function MobileApp() {
     [showPlanningChoice]
   );
   const hasExistingProfile = hasPlanningProfile(userProfile);
+  const feedbackCurrentPage = useMemo(() => {
+    if (currentPhase === 'settings') return `/app-settings-${settingsSection}`;
+    if (currentPhase === 'planning') return showPlanningChoice ? '/app-planning-choice' : '/app-planning-manual';
+    if (currentPhase === 'profiling') return hasExistingProfile ? '/app-returning-setup' : '/app-first-time-setup';
+    return `/app-${currentPhase}`;
+  }, [currentPhase, hasExistingProfile, settingsSection, showPlanningChoice]);
 
   // Load profile from database - database is the single source of truth
   useEffect(() => {
@@ -188,8 +190,11 @@ export default function MobileApp() {
         <div>
           Your cooking profile has been saved. Ready to find your perfect meal?{' '}
           <button 
-            onClick={() => setCurrentPhase('settings')}
-            className="underline text-blue-600 hover:text-blue-800"
+            onClick={() => {
+              setSettingsSection('hub');
+              setCurrentPhase('settings');
+            }}
+            className="underline text-primary hover:text-primary/80"
           >
             Make changes here
           </button>
@@ -237,8 +242,11 @@ export default function MobileApp() {
           <div>
             Your cooking profile has been updated. Ready to find your perfect meal?{' '}
             <button 
-              onClick={() => setCurrentPhase('settings')}
-              className="underline text-blue-600 hover:text-blue-800"
+              onClick={() => {
+                setSettingsSection('hub');
+                setCurrentPhase('settings');
+              }}
+              className="underline text-primary hover:text-primary/80"
             >
               Make changes here
             </button>
@@ -278,48 +286,108 @@ export default function MobileApp() {
     }
   };
 
-  const renderAccountMenu = (
+  const openSettings = (section: SettingsSection = 'hub') => {
+    setSettingsSection(section);
+    setCurrentPhase('settings');
+    setIsMenuOpen(false);
+  };
+
+  const openHistory = () => {
+    setCurrentPhase('history');
+    setIsMenuOpen(false);
+  };
+
+  const renderAppMenu = (
     trigger: ReactNode,
-    options: { allowSettings?: boolean; side?: 'top' | 'bottom' } = {},
+    options: { allowSettings?: boolean; allowHistory?: boolean } = {},
   ) => {
-    const { allowSettings = true, side = 'top' } = options;
+    const { allowSettings = true, allowHistory = allowSettings } = options;
 
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-        <DropdownMenuContent side={side} align="end" className={`${side === 'top' ? 'mb-2' : 'mt-2'} w-60`}>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-semibold leading-none">{getUserDisplayName()}</p>
-              <p className="text-xs leading-none text-muted-foreground">{user?.email || 'Signed in'}</p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            disabled={!allowSettings}
-            onClick={() => {
-              if (allowSettings) setCurrentPhase('settings');
-            }}
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Profile & settings</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsFeedbackOpen(true)}>
-            <MessageCircle className="mr-2 h-4 w-4" />
-            <span>Feedback</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Sign out</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+        <DrawerContent className="menu-sheet px-4 pb-6 pt-2">
+          <DrawerHeader className="px-0 text-left">
+            <DrawerTitle className="menu-sheet-title text-3xl">Menu</DrawerTitle>
+            <DrawerDescription className="text-sm font-bold text-[hsl(var(--returning-ink)/0.62)]">
+              {getUserDisplayName()} · {user?.email || 'Signed in'}
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              className="menu-destination"
+              disabled={!allowSettings}
+              onClick={() => {
+                if (allowSettings) openSettings('hub');
+              }}
+            >
+              <span className="menu-destination-icon">
+                <Settings className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold">Settings</span>
+                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Pantry, kitchen, and cooking profile</span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="menu-destination"
+              disabled={!allowHistory}
+              onClick={() => {
+                if (allowHistory) openHistory();
+              }}
+            >
+              <span className="menu-destination-icon">
+                <History className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold">History</span>
+                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Meals you cooked</span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="menu-destination"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsFeedbackOpen(true);
+              }}
+            >
+              <span className="menu-destination-icon">
+                <MessageCircle className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold">Feedback</span>
+                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Send a note from this screen</span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="menu-destination"
+              onClick={handleLogout}
+            >
+              <span className="menu-destination-icon">
+                <UserCircle className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold">Account</span>
+                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Sign out</span>
+              </span>
+              <LogOut className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
     );
   };
 
   const renderSetupMenu = () => (
-    renderAccountMenu(
+    renderAppMenu(
       <Button
         type="button"
         variant="ghost"
@@ -329,7 +397,7 @@ export default function MobileApp() {
       >
         <Menu className="h-5 w-5" />
       </Button>,
-      { allowSettings: hasExistingProfile, side: 'bottom' },
+      { allowSettings: hasExistingProfile, allowHistory: hasExistingProfile },
     )
   );
 
@@ -420,43 +488,35 @@ export default function MobileApp() {
     if (currentPhase === 'cooking' || currentPhase === 'profiling') return null;
 
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-        <div className="flex justify-around items-center max-w-sm mx-auto">
+      <div className="app-bottom-nav fixed bottom-0 left-0 right-0 p-4">
+        <div className="mx-auto flex max-w-xs items-center justify-around">
           <Button 
             variant="ghost" 
-            size="sm"
+            size="icon"
             onClick={() => {
               setShowPlanningChoice(true);
               setCurrentPhase('planning');
             }}
-            className={`flex flex-col items-center ${currentPhase === 'planning' || currentPhase === 'slop-bowl' ? 'text-[#FF6B6B]' : 'text-gray-500'}`}
+            className="app-bottom-button"
+            data-active={currentPhase === 'planning' || currentPhase === 'slop-bowl'}
             disabled={userProfile.cookingSkill === ''}
+            aria-label="Cook"
+            title="Cook"
           >
-            <ChefHat className="h-5 w-5 mb-1" />
-            <span className="text-xs">Cook</span>
+            <ChefHat className="h-6 w-6" aria-hidden="true" />
           </Button>
 
-
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => setCurrentPhase('settings')}
-            className={`flex flex-col items-center ${currentPhase === 'settings' ? 'text-[#FF6B6B]' : 'text-gray-500'}`}
-            disabled={userProfile.cookingSkill === ''}
-          >
-            <Settings className="h-5 w-5 mb-1" />
-            <span className="text-xs">Settings</span>
-          </Button>
-
-          {renderAccountMenu(
+          {renderAppMenu(
             <Button
               variant="ghost"
-              size="sm"
-              className="flex flex-col items-center text-gray-500"
+              size="icon"
+              className="app-bottom-button"
+              data-active={currentPhase === 'settings' || currentPhase === 'history'}
               disabled={userProfile.cookingSkill === ''}
+              aria-label="Menu"
+              title="Menu"
             >
-              <Menu className="h-5 w-5 mb-1" />
-              <span className="text-xs">Menu</span>
+              <Menu className="h-6 w-6" aria-hidden="true" />
             </Button>,
           )}
         </div>
@@ -518,7 +578,7 @@ export default function MobileApp() {
                 setShowPlanningChoice(true);
                 setCurrentPhase('planning');
               }}
-              onEditPantry={() => setCurrentPhase('settings')}
+              onEditPantry={() => openSettings('pantry')}
             />
           </div>
         );
@@ -539,7 +599,15 @@ export default function MobileApp() {
               userProfile={userProfile}
               onProfileUpdate={handleProfileUpdate}
               onBackToPlanning={handleBackToPlanning}
+              initialSection={settingsSection}
             />
+          </div>
+        );
+
+      case 'history':
+        return (
+          <div className="pb-20">
+            <CookingHistory onBackToPlanning={handleBackToPlanning} />
           </div>
         );
         
@@ -561,7 +629,7 @@ export default function MobileApp() {
       <FeedbackModal
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}
-        currentPage={`/app-${currentPhase}`}
+        currentPage={feedbackCurrentPage}
       />
     </div>
   );

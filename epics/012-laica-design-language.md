@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-29
-**Updated:** 2026-04-30
+**Updated:** 2026-05-01
 
 ## One-line summary
 
@@ -95,6 +95,7 @@ Read EPIC-012 before starting any of the following:
 - [ ] Translating a mockup into code
 - [ ] Changing colors, typography, radius, shadows, spacing density, icon style, imagery, illustration, or motion
 - [ ] Creating a new tone-forward surface or branded UI moment
+- [ ] Reusing an accepted visual pattern on a new wrapper or destination, including setup patterns inside returning Settings
 - [ ] Deciding whether a phase is visually ready to merge
 - [ ] Updating `design_guidelines.md` or UI-governance rules that affect look and feel
 - [ ] Writing a handoff that claims visual conformance or defers visual polish
@@ -171,3 +172,19 @@ Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language s
 ### 2026-05-01 — Phase 2.1 setup pilot merged
 
 PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scoped `Fraunces` / `Nunito`, warm cream/coral phone-flow surfaces, designed camera object, single top progress treatment, translucent camera controls, peer upload/manual actions, multicolor choice illustrations, and Kitchen-specific gray/silver/light-wood accents. This is a major proof point for EPIC-012, but the epic stays `In Progress` until the durable design-language artifact is promoted and later Phase 3-5 proof points clarify whether the setup typography/palette become global or stay setup-scoped.
+
+### 2026-05-01 — Phase 2.2 extends setup language to returning edits
+
+Wilson decided that returning-user Pantry/Kitchen/Profile edits should be a bridge phase before Phase 3, not a Phase 5 cleanup detail. Phase 2.2 extends the Phase 2.1 setup direction into Settings while keeping it quieter and more utilitarian: Menu becomes the global destination surface, Settings owns Pantry/Kitchen/Profile, and History separates into its own cooking-memory surface. The Phase 2.2 storyboard is now a visual exemplar for this transition, and Phase 5 remains responsible for deeper History sharing/cook-again behavior.
+
+### 2026-05-01 — Phase 2.2 review challenges Settings divergence
+
+Wilson's first Phase 2.2 review flagged that returning Pantry/Kitchen/Profile felt too different from first-time setup. This is new design-language evidence: returning edits can be quieter and more utilitarian, but the same kitchen-data tasks should use the same scan/upload/manual/profile language unless a flow-specific reason is documented. History copy also needs warmer, more culturally natural phrasing than `Your cooking memory.`, with small rotating headline rosters acceptable when they stay within the Laica voice.
+
+### 2026-05-01 — Returning Settings aligned to first-time setup anchor
+
+Wilson accepted the recommendation that first-time setup and returning Settings stay separate by intent but share one look/feel foundation. The Settings alignment pass now uses setup-scoped display/body typography, the setup `NativeCamera` object inline with camera off by default, setup-style upload/manual buttons, setup scanning state, setup chips/list surfaces, and setup profile choice rows. The durable rule: returning Settings may be calmer and edit-led, but it should not look like a different product from setup.
+
+### 2026-05-01 — Returning Settings visual drift found after class reuse
+
+Wilson's follow-up Replit screenshots showed that visual conformance cannot be inferred from using the same `setup-*` class names. Returning Settings inherited the setup classes under a different root wrapper, so Tailwind/shadcn Button utilities overrode the accepted setup typography and round camera-control shapes. This adds a design-language review requirement: when an accepted pattern moves to another surface, compare the rendered controls against the accepted source surface and verify computed typography, radius, icon size, active state, disabled state, and control hierarchy. Documentation should record the implementation guardrail that preserves the look, not only the product intent.

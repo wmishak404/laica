@@ -103,6 +103,26 @@ Do not copy:
 - full-screen native camera takeover with no Laica way back
 - teal pantry chips when the accepted direction is warm/coral
 
+### Phase 2.2 Returning Setup, Settings, And History IA
+
+**Asset:** [phase-02-2-returning-setup-settings-storyboard.svg](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg)
+
+Use this as the reference for:
+
+- Menu as the global returning-user destination surface
+- Settings as a calm, utilitarian, mobile-native place to edit Pantry, Kitchen, and Cooking Profile
+- History as cooking memory, not account configuration
+- separating History from Settings while keeping both visually consistent with mobile refresh
+- carrying the Phase 2.1 scan/manual/profile patterns into returning-user edits without making Settings feel like a second onboarding wizard
+- preserving the same rendered setup control shapes and typography when setup patterns move into Settings, not only reusing similar class names
+
+Do not copy:
+
+- the old tabbed `Kitchen & Settings` admin page
+- a History tab buried inside Settings
+- a Settings surface that relies on later visual polish to feel like Laica
+- setup-derived controls under a new wrapper without verifying computed radius, font, icon size, active state, and disabled state against the accepted first-time setup surface
+
 ### Phase 3 Planning Flow
 
 **Asset:** [phase-03-planning-flow.png](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png)
@@ -197,6 +217,7 @@ Do not copy:
 
 - Phase 2.1 setup pilots the mobile-refresh typography direction in setup only: `Fraunces` for expressive setup headings and `Nunito` for setup body, buttons, chips, and controls.
 - This is not a global typography rollout yet. Auth, Planning, Cooking, Settings, and other surfaces keep their current typography until their phase-specific pass adopts or revises this direction.
+- When a later phase or returning-user surface adopts setup patterns, the implementation must preserve computed typography under that surface's root wrapper. Do not rely on inheritance that only works under `.setup-ui`.
 - Headings should be confident, rounded, and readable, with enough personality to feel Laica-branded.
 - Do not use hero-scale type inside compact app panels, cards, setup steps, or tool surfaces.
 - Recipe names and Ticket Pass surfaces may use a more expressive title treatment if it remains legible.
@@ -277,6 +298,15 @@ Phase 2 is the first active pilot for this design language. Before merge:
 - Kitchen-specific action buttons, saved-equipment chips, and review/list states should lean gray/silver where possible so the tool page feels distinct from the warmer pantry page without becoming a separate design system.
 - Future scan-review chips may need session-state colors or indicators for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should build on the Pantry/Kitchen chip palette without creating a noisy third design system; see [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
 - `No restrictions` should be visually separated from the rest of the dietary options so users who have nothing to add can choose the default quickly.
+
+### Phase 2.2 Returning Setup, Settings, And History IA
+
+- Menu should be the global returning-user destination surface for Settings, History, Feedback, Account, and Sign out.
+- Settings should stay utilitarian but inherit the Phase 2.1 setup language where it manages the same concepts: designed scan object, peer scan/upload/manual actions, warm Pantry chips, gray/silver Kitchen accents, and full-row profile choices.
+- Returning Pantry/Kitchen/Profile should reuse the first-time setup component language wherever the underlying task is the same; flow wrappers may differ, but scan/upload/manual/profile controls should not drift into separate products.
+- The visual difference between first-time setup and returning Settings should come from intent, not a new aesthetic: setup is guided/progress-led, while Settings is edit/review/save-led. Typography, camera object, action hierarchy, chips, and choice rows should remain recognizably the same system.
+- Settings should not include History. History is its own memory surface and should feel warmer and more meal-oriented than account configuration.
+- The Phase 2.2 storyboard is a conformance input. If implementation misses the storyboard's hierarchy or mood, treat that as phase work, not a later polish ticket.
 
 ### Phase 3 Planning
 

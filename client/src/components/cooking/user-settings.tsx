@@ -15,11 +15,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useResetPantry, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useDeleteCookingSession, useDeleteAllCookingSessions } from '@/hooks/useCookingSession';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import { Camera, Trash2, Plus, Settings, ChefHat, Package, Bell, User, Upload, Clock, MoreVertical, History, Check, Leaf, Sparkles, Utensils } from 'lucide-react';
+import { Trash2, Settings, Package, User, Clock, MoreVertical, History, Check, ImagePlus, Loader2, X } from 'lucide-react';
 import { mergeUniqueEntries, mergeUniqueEntriesWithMetadata, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
@@ -44,7 +43,10 @@ interface UserSettingsProps {
   userProfile: UserProfile;
   onProfileUpdate: (profile: UserProfile) => void;
   onBackToPlanning: () => void;
+  initialSection?: SettingsSection;
 }
+
+export type SettingsSection = 'hub' | 'pantry' | 'kitchen' | 'profile';
 
 function HistoryTab() {
   const { toast } = useToast();
@@ -358,28 +360,41 @@ function HistoryTab() {
   );
 }
 
-export default function UserSettings({ userProfile, onProfileUpdate, onBackToPlanning }: UserSettingsProps) {
+export default function UserSettings({ userProfile, onProfileUpdate: _onProfileUpdate, onBackToPlanning, initialSection = 'hub' }: UserSettingsProps) {
   const [profile, setProfile] = useState<UserProfile>(userProfile);
+  const [activeSection, setActiveSection] = useState<SettingsSection>(initialSection);
   
   // Sync local state with prop changes (e.g., after profile reset)
   useEffect(() => {
     setProfile(userProfile);
   }, [userProfile]);
+
+  useEffect(() => {
+    setActiveSection(initialSection);
+  }, [initialSection]);
   
   // Option arrays matching the initial profiling
   const skillLevels = [
-    { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes', icon: ChefHat },
-    { value: 'intermediate', label: 'Intermediate', description: 'I follow recipes easily', icon: Utensils },
-    { value: 'expert', label: 'Expert', description: 'I riff and modify dishes', icon: Sparkles }
+    { value: 'beginner', label: 'Beginner', description: 'I can make basic dishes', illustration: '🥄' },
+    { value: 'intermediate', label: 'Intermediate', description: 'I follow recipes easily', illustration: '🍳' },
+    { value: 'expert', label: 'Expert', description: 'I riff and modify dishes', illustration: '🔥' }
   ];
 
   const dietaryOptions = [
-    'No restrictions', 'Gluten Free', 'Vegetarian', 'Vegan', 'Dairy Free',
-    'No Red Meat', 'Halal', 'Kosher', 'Keto', 'Paleo'
+    { label: 'No restrictions', illustration: '✅' },
+    { label: 'Gluten Free', illustration: '🌾' },
+    { label: 'Dairy Free', illustration: '🥛' },
+    { label: 'Vegetarian', illustration: '🥗' },
+    { label: 'Vegan', illustration: '🌱' },
+    { label: 'No Red Meat', illustration: '🍗' },
+    { label: 'Halal', illustration: '🍽️' },
+    { label: 'Kosher', illustration: '🫓' },
+    { label: 'Keto', illustration: '🥑' },
+    { label: 'Paleo', illustration: '🥩' },
   ];
 
-  const [showPantryCamera, setShowPantryCamera] = useState(false);
-  const [showEquipmentCamera, setShowEquipmentCamera] = useState(false);
+  const [manualEntry, setManualEntry] = useState<Record<'pantry' | 'kitchen', string>>({ pantry: '', kitchen: '' });
+  const [manualOpen, setManualOpen] = useState<Record<'pantry' | 'kitchen', boolean>>({ pantry: false, kitchen: false });
   const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
   const { toast } = useToast();
@@ -637,7 +652,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       });
     } finally {
       setIsAnalyzingPantry(false);
-      setShowPantryCamera(false);
     }
   };
 
@@ -690,7 +704,6 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       });
     } finally {
       setIsAnalyzingEquipment(false);
-      setShowEquipmentCamera(false);
     }
   };
 
@@ -875,434 +888,457 @@ export default function UserSettings({ userProfile, onProfileUpdate, onBackToPla
       // Reset analyzing state
       if (type === 'pantry') {
         setIsAnalyzingPantry(false);
-        setShowPantryCamera(false);
       } else {
         setIsAnalyzingEquipment(false);
-        setShowEquipmentCamera(false);
       }
     }
     
     event.target.value = '';
   };
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Kitchen & Settings</h1>
-        <p className="text-muted-foreground">Manage your kitchen setup and preferences</p>
+  const handleManualEntry = (type: 'pantry' | 'kitchen') => {
+    const value = manualEntry[type];
+    if (!value.trim()) return;
+
+    const newEntries = parseCommaSeparatedEntries(value);
+    if (type === 'pantry') {
+      setProfile(prev => ({
+        ...prev,
+        pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, newEntries)
+      }));
+    } else {
+      setProfile(prev => ({
+        ...prev,
+        kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, newEntries)
+      }));
+    }
+    setManualEntry(prev => ({ ...prev, [type]: '' }));
+  };
+
+  const sectionCards = [
+    {
+      id: 'pantry' as const,
+      title: 'Pantry',
+      description: `${profile.pantryIngredients.length} item${profile.pantryIngredients.length === 1 ? '' : 's'} saved`,
+      icon: Package,
+      tone: 'pantry',
+    },
+    {
+      id: 'kitchen' as const,
+      title: 'Kitchen',
+      description: `${profile.kitchenEquipment.length} tool${profile.kitchenEquipment.length === 1 ? '' : 's'} saved`,
+      icon: Settings,
+      tone: 'kitchen',
+    },
+    {
+      id: 'profile' as const,
+      title: 'Cooking Profile',
+      description: profile.cookingSkill ? `${profile.cookingSkill} skill and dietary notes` : 'Skill and dietary notes',
+      icon: User,
+      tone: 'profile',
+    },
+  ];
+
+  const renderSectionNav = () => (
+    <div className="returning-section-nav" aria-label="Settings sections">
+      {sectionCards.map((section) => {
+        const Icon = section.icon;
+        return (
+          <button
+            key={section.id}
+            type="button"
+            className="returning-nav-pill"
+            data-active={activeSection === section.id}
+            onClick={() => setActiveSection(section.id)}
+          >
+            <Icon className="h-4 w-4" />
+            <span>{section.title}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const renderHub = () => (
+    <div className="space-y-4">
+      <div className="returning-hero">
+        <p className="returning-kicker">Settings</p>
+        <h1 className="returning-display text-[2.45rem] font-extrabold leading-none">Keep Laica matched to your kitchen.</h1>
+        <p className="returning-copy mt-3 max-w-sm text-sm leading-relaxed">
+          Update the pantry, tools, and cooking profile Laica uses for Planning and Slop Bowl.
+        </p>
       </div>
 
-      <Tabs defaultValue="pantry" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="pantry" className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            Pantry
-          </TabsTrigger>
-          <TabsTrigger value="equipment" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Equipment
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            History
-          </TabsTrigger>
-        </TabsList>
+      <div className="space-y-3">
+        {sectionCards.map((section) => {
+          const Icon = section.icon;
+          return (
+            <button
+              key={section.id}
+              type="button"
+              className="returning-hub-card"
+              data-tone={section.tone}
+              onClick={() => setActiveSection(section.id)}
+            >
+              <span className="returning-hub-icon" data-tone={section.tone}>
+                <Icon className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1 text-left">
+                <span className="block font-extrabold text-[hsl(var(--returning-ink))]">{section.title}</span>
+                <span className="returning-copy block text-sm">{section.description}</span>
+              </span>
+              <span className="text-xl font-black text-primary">›</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-        {/* Pantry Tab - Matching onboarding Step 4 */}
-        <TabsContent value="pantry" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>What ingredients do you have in your pantry?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2 flex-wrap">
+  const renderInventorySection = (type: 'pantry' | 'kitchen') => {
+    const isPantry = type === 'pantry';
+    const items = isPantry ? profile.pantryIngredients : profile.kitchenEquipment;
+    const isAnalyzing = isPantry ? isAnalyzingPantry : isAnalyzingEquipment;
+    const uploadId = isPantry ? 'pantry-upload' : 'equipment-upload';
+    const manualId = isPantry ? 'manual-ingredients' : 'manual-equipment';
+    const title = isPantry ? 'Pantry' : 'Kitchen';
+    const description = isPantry
+      ? 'Update what Laica can cook with.'
+      : 'Update tools, pans, heat, and appliances.';
+    const placeholder = isPantry ? 'rice, eggs, spinach' : 'oven, blender, sheet pan';
+    const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
+    const handleReset = isPantry ? handleResetPantry : handleResetEquipment;
+
+    return (
+      <div className={`returning-setup-anchor space-y-4 ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}>
+        {renderSectionNav()}
+        <section className="returning-panel">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="returning-kicker">{isPantry ? 'Returning setup' : 'Equipment setup'}</p>
+              <h1 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">{title}</h1>
+              <p className="setup-copy mt-2 max-w-[20rem] text-sm leading-relaxed">{description}</p>
+            </div>
+            <span className="returning-count">{items.length}</span>
+          </div>
+
+          <div className="mt-5 space-y-5">
+            <NativeCamera
+              variant="setup"
+              setupTone={isPantry ? 'pantry' : 'kitchen'}
+              title={isPantry ? 'Pantry preview' : 'Kitchen preview'}
+              captureLabel={isPantry ? 'Capture pantry' : 'Capture kitchen'}
+              cameraToggleLabel={isPantry ? 'Pantry camera' : 'Kitchen camera'}
+              tipsTitle={isPantry ? 'Pantry scan tips' : 'Kitchen scan tips'}
+              tipsDescription={isPantry
+                ? 'Open cabinets, use good light, and scan one area at a time.'
+                : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
+              showUploadButton={false}
+              disabled={isAnalyzing}
+              onImageCapture={isPantry ? handlePantryImageCapture : handleEquipmentImageCapture}
+              onError={(error) => {
+                toast({
+                  title: 'Camera issue',
+                  description: error,
+                  variant: 'destructive',
+                });
+              }}
+            />
+
+            <div className="space-y-3">
+              <input
+                id={uploadId}
+                type="file"
+                accept="image/*,.heic,.heif"
+                multiple
+                onChange={(e) => handleMultipleImageUpload(e, type)}
+                className="hidden"
+              />
+              <div className="grid gap-3">
                 <Button
-                  onClick={() => setShowPantryCamera(true)}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingPantry}
+                  type="button"
+                  className="setup-secondary-button h-14 w-full justify-start px-4"
+                  variant="ghost"
+                  onClick={() => document.getElementById(uploadId)?.click()}
+                  disabled={isAnalyzing}
                 >
-                  <Camera className="h-4 w-4" />
-                  Open Camera
+                  <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.85)] text-primary ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
+                    <ImagePlus className="h-4 w-4" />
+                  </span>
+                  <span className="flex flex-col items-start leading-tight">
+                    <span className="setup-action-title">Upload photos</span>
+                  </span>
                 </Button>
+
                 <Button
-                  variant="outline"
-                  onClick={() => document.getElementById('pantry-upload')?.click()}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingPantry}
+                  type="button"
+                  className="setup-secondary-button h-14 w-full justify-start px-4"
+                  variant="ghost"
+                  onClick={() => setManualOpen(prev => ({ ...prev, [type]: !prev[type] }))}
+                  aria-expanded={manualOpen[type]}
+                  aria-pressed={manualOpen[type]}
+                  data-active={manualOpen[type] ? 'true' : undefined}
+                  disabled={isAnalyzing}
                 >
-                  <Upload className="h-4 w-4" />
-                  Upload Images
+                  <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))] ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
+                    <Package className="h-4 w-4" />
+                  </span>
+                  <span className="flex flex-col items-start leading-tight">
+                    <span className="setup-action-title">Enter manually</span>
+                  </span>
                 </Button>
-                <input
-                  id="pantry-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleMultipleImageUpload(e, 'pantry')}
-                  className="hidden"
-                />
-                {isAnalyzingPantry && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    Analyzing image...
+              </div>
+
+              {manualOpen[type] && (
+                <div className="setup-surface space-y-3 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`setup-illustration flex h-12 w-12 shrink-0 items-center justify-center text-primary ${!isPantry ? 'setup-kitchen-illustration' : ''}`}>
+                      <Package className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-[hsl(var(--setup-ink))]">
+                        {isPantry ? 'Add pantry items' : 'Add kitchen tools'}
+                      </p>
+                      <p className="setup-copy text-xs">Use short names so the list stays easy to skim.</p>
+                    </div>
                   </div>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Upload images of your pantry, or add ingredients manually below
-              </p>
-              
-              {/* Manual ingredient entry */}
-              <div className="mt-4">
-                <Label htmlFor="manual-ingredients">Add ingredients manually:</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="manual-ingredients"
-                    placeholder="e.g., onions"
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.getElementById('manual-ingredients') as HTMLInputElement;
-                      if (input && input.value.trim()) {
-                        const newIngredients = parseCommaSeparatedEntries(input.value);
-                        setProfile(prev => ({
-                          ...prev,
-                          pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, newIngredients)
-                        }));
-                        input.value = '';
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  You may enter "onions" or multiple ingredients separated by a comma (e.g. apples, oranges)
-                </p>
-              </div>
-              
-              {/* Show added ingredients */}
-              {profile.pantryIngredients.length > 0 && (
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Ingredients added:</p>
+                  <div className="space-y-3">
+                    <Input
+                      id={manualId}
+                      aria-label={isPantry ? 'Pantry items' : 'Kitchen tools'}
+                      value={manualEntry[type]}
+                      onChange={(event) => setManualEntry(prev => ({ ...prev, [type]: event.target.value }))}
+                      placeholder={placeholder}
+                      className={`h-12 rounded-2xl border-primary/20 bg-white/75 text-base font-bold placeholder:text-muted-foreground ${!isPantry ? 'setup-kitchen-input' : ''}`}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          handleManualEntry(type);
+                        }
+                      }}
+                    />
+                    {isPantry && <p className="setup-copy px-1 text-xs">Separate pantry items with commas.</p>}
                     <Button
                       type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResetPantry}
-                      className="text-xs h-7 px-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                      variant="ghost"
+                      className={`setup-primary-button h-12 w-full ${!isPantry ? 'setup-kitchen-primary-button' : ''}`}
+                      onClick={() => handleManualEntry(type)}
                     >
-                      Reset Pantry
+                      Save {isPantry ? 'ingredients' : 'equipment'}
                     </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {profile.pantryIngredients.map((ingredient, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                      >
-                        {ingredient}
-                        <button
-                          onClick={() => {
-                            setProfile(prev => ({
-                              ...prev,
-                              pantryIngredients: prev.pantryIngredients.filter((_, i) => i !== index)
-                            }));
-                          }}
-                          className="text-secondary/60 hover:text-secondary text-xs"
-                          type="button"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Having trouble with accuracy? Use "Reset Pantry" to clear everything and start fresh.
-                  </p>
-                </div>
-              )}
-
-              {/* Action buttons at bottom */}
-              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
-                <Button variant="outline" onClick={onBackToPlanning}>
-                  Back to Planning
-                </Button>
-                <Button onClick={handleSavePantry}>
-                  Save Changes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Equipment Tab - Matching onboarding Step 5 */}
-        <TabsContent value="equipment" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>What kitchen equipment do you have?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  onClick={() => setShowEquipmentCamera(true)}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingEquipment}
-                >
-                  <Camera className="h-4 w-4" />
-                  Open Camera
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => document.getElementById('equipment-upload')?.click()}
-                  className="flex items-center gap-2"
-                  disabled={isAnalyzingEquipment}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload Images
-                </Button>
-                <input
-                  id="equipment-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleMultipleImageUpload(e, 'kitchen')}
-                  className="hidden"
-                />
-                {isAnalyzingEquipment && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    Analyzing image...
-                  </div>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Upload images of your kitchen, or add equipment manually below
-              </p>
-              
-              {/* Manual equipment entry */}
-              <div className="mt-4">
-                <Label htmlFor="manual-equipment">Add equipment manually:</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="manual-equipment"
-                    placeholder="e.g., stove"
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const input = document.getElementById('manual-equipment') as HTMLInputElement;
-                      if (input && input.value.trim()) {
-                        const newEquipment = parseCommaSeparatedEntries(input.value);
-                        setProfile(prev => ({
-                          ...prev,
-                          kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, newEquipment)
-                        }));
-                        input.value = '';
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  You may enter "stove" or multiple equipment separated by a comma (e.g. oven, blender)
-                </p>
-              </div>
-              
-              {/* Show added equipment */}
-              {profile.kitchenEquipment.length > 0 && (
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Equipment added:</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResetEquipment}
-                      className="text-xs h-7 px-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                    >
-                      Reset Equipment
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {profile.kitchenEquipment.map((equipment, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full flex items-center gap-1"
-                      >
-                        {equipment}
-                        <button
-                          onClick={() => {
-                            setProfile(prev => ({
-                              ...prev,
-                              kitchenEquipment: prev.kitchenEquipment.filter((_, i) => i !== index)
-                            }));
-                          }}
-                          className="text-secondary/60 hover:text-secondary text-xs"
-                          type="button"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
                   </div>
                 </div>
               )}
+            </div>
 
-              {/* Action buttons at bottom */}
-              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
-                <Button variant="outline" onClick={onBackToPlanning}>
-                  Back to Planning
-                </Button>
-                <Button onClick={handleSaveEquipment}>
-                  Save Changes
-                </Button>
+            {isAnalyzing && (
+              <div className="setup-surface p-4 text-center text-primary">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--setup-coral-soft)/0.9)]">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                </div>
+                <p className="mt-2 text-sm font-extrabold">
+                  {isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
+                </p>
+                <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            )}
 
-        <TabsContent value="profile" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Cooking Profile</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label>Cooking Skill Level</Label>
-                <div role="radiogroup" aria-label="Cooking skill level" className="mt-2 space-y-3">
-                  {skillLevels.map((skill) => {
-                    const Icon = skill.icon;
-                    return (
+            <div className="setup-surface space-y-3 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-extrabold text-[hsl(var(--setup-ink))]">{isPantry ? 'Your pantry list' : 'Your kitchen list'}</p>
+                  <p className="setup-copy text-xs">Remove anything Laica should ignore.</p>
+                </div>
+                {items.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    className="setup-ghost-button text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                    Reset
+                  </Button>
+                )}
+              </div>
+
+              {items.length === 0 ? (
+                <div className="returning-empty min-h-24">
+                  <Package className="h-8 w-8 text-primary/70" />
+                  <p className="setup-copy text-sm">{isPantry ? 'No pantry items saved yet.' : 'No kitchen tools saved yet.'}</p>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {items.map((item, index) => (
+                    <span key={`${item}-${index}`} className={`setup-chip ${isPantry ? '' : 'setup-kitchen-chip'}`}>
+                      <span className="truncate">{item}</span>
                       <button
-                        key={skill.value}
                         type="button"
-                        role="radio"
-                        aria-checked={profile.cookingSkill === skill.value}
-                        onClick={() => setProfile(prev => ({ ...prev, cookingSkill: skill.value }))}
-                        className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition ${
-                          profile.cookingSkill === skill.value ? 'border-primary bg-primary/10' : 'border-border bg-card'
+                        aria-label={`Remove ${item}`}
+                        className={`rounded-full p-0.5 ${
+                          isPantry
+                            ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
+                            : 'setup-kitchen-chip-remove'
                         }`}
+                        onClick={() => {
+                          setProfile(prev => ({
+                            ...prev,
+                            [isPantry ? 'pantryIngredients' : 'kitchenEquipment']: items.filter((_, i) => i !== index)
+                          }));
+                        }}
                       >
-                        <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                          profile.cookingSkill === skill.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                        }`}>
-                          <Icon className="h-5 w-5" />
-                        </span>
-                        <span className="flex-1">
-                          <span className="block font-semibold">{skill.label}</span>
-                          <span className="text-sm text-muted-foreground">{skill.description}</span>
-                        </span>
-                        {profile.cookingSkill === skill.value && <Check className="h-5 w-5 text-primary" />}
+                        <X className="h-3 w-3" />
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <Label>Dietary Restrictions</Label>
-                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {dietaryOptions.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      aria-pressed={profile.dietaryRestrictions.includes(option)}
-                      onClick={() => handleDietaryChange(option)}
-                      className={`flex items-center gap-3 rounded-lg border p-3 text-left transition ${
-                        profile.dietaryRestrictions.includes(option) ? 'border-primary bg-primary/10' : 'border-border bg-card'
-                      }`}
-                    >
-                      <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                        profile.dietaryRestrictions.includes(option) ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        <Leaf className="h-4 w-4" />
-                      </span>
-                      <span className="flex-1 text-sm font-medium">{option}</span>
-                      {profile.dietaryRestrictions.includes(option) && <Check className="h-4 w-4 text-primary" />}
-                    </button>
+                    </span>
                   ))}
                 </div>
+              )}
+            </div>
+          </div>
+
+          <div className="returning-actions">
+            <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => setActiveSection('hub')}>
+              Settings
+            </Button>
+            <Button variant="ghost" className={`setup-primary-button h-12 ${isPantry ? '' : 'setup-kitchen-primary-button'}`} onClick={handleSave}>
+              {isPantry ? 'Save pantry' : 'Save kitchen'}
+            </Button>
+          </div>
+        </section>
+      </div>
+    );
+  };
+
+  const renderProfileSection = () => {
+    const selectedDietary = new Set(profile.dietaryRestrictions);
+    const noRestrictionsOption = dietaryOptions[0];
+    const remainingDietaryOptions = dietaryOptions.slice(1);
+
+    return (
+      <div className="returning-setup-anchor space-y-4">
+        {renderSectionNav()}
+        <section className="returning-panel">
+          <p className="returning-kicker">Cooking Profile</p>
+          <h1 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">How Laica adapts.</h1>
+          <p className="setup-copy mt-2 max-w-[20rem] text-sm leading-relaxed">
+            Keep skill level and dietary notes current so suggestions stay useful.
+          </p>
+
+          <div className="mt-6 space-y-5">
+            <div className="space-y-3">
+              <Label className="text-sm font-extrabold text-[hsl(var(--setup-ink))]">Cooking skill</Label>
+              <div role="radiogroup" aria-label="Cooking skill level" className="space-y-3">
+                {skillLevels.map((skill) => {
+                  const selected = profile.cookingSkill === skill.value;
+                  return (
+                    <button
+                      key={skill.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      data-selected={selected}
+                      onClick={() => setProfile(prev => ({ ...prev, cookingSkill: skill.value }))}
+                      className="setup-choice flex w-full items-center gap-4 p-4 text-left transition"
+                    >
+                      <span className="setup-illustration-token h-14 w-14 shrink-0" aria-hidden="true">
+                        {skill.illustration}
+                      </span>
+                      <span className="flex-1">
+                        <span className="block font-extrabold text-[hsl(var(--setup-ink))]">{skill.label}</span>
+                        <span className="setup-copy text-sm">{skill.description}</span>
+                      </span>
+                      {selected && <Check className="h-5 w-5 text-primary" />}
+                    </button>
+                  );
+                })}
               </div>
+            </div>
 
-              {/* Action buttons at bottom */}
-              <div className="flex gap-2 justify-end pt-4 mt-6 border-t">
-                <Button variant="outline" onClick={onBackToPlanning}>
-                  Back to Planning
-                </Button>
-                <Button onClick={handleSaveProfile}>
-                  Save Changes
-                </Button>
+            <div className="space-y-3">
+              <Label className="text-sm font-extrabold text-[hsl(var(--setup-ink))]">Dietary notes</Label>
+              <button
+                type="button"
+                aria-pressed={selectedDietary.has('No restrictions')}
+                data-selected={selectedDietary.has('No restrictions')}
+                onClick={() => handleDietaryChange('No restrictions')}
+                className="setup-choice setup-none-choice mb-5 flex w-full items-center gap-4 p-4 text-left transition"
+              >
+                <span className="setup-illustration-token h-14 w-14 shrink-0" aria-hidden="true">
+                  {noRestrictionsOption.illustration}
+                </span>
+                <span className="flex-1">
+                  <span className="block font-extrabold text-[hsl(var(--setup-ink))]">No restrictions</span>
+                  <span className="setup-copy text-sm">Use this when there is nothing special to avoid.</span>
+                </span>
+                <span className={`flex h-6 w-6 items-center justify-center rounded-full border ${selectedDietary.has('No restrictions') ? 'border-primary bg-primary text-primary-foreground' : 'border-[hsl(var(--setup-ink)/0.24)]'}`}>
+                  {selectedDietary.has('No restrictions') && <Check className="h-3.5 w-3.5" />}
+                </span>
+              </button>
+
+              <div className="space-y-2">
+                {remainingDietaryOptions.map((diet) => {
+                  const selected = selectedDietary.has(diet.label);
+                  return (
+                    <button
+                      key={diet.label}
+                      type="button"
+                      aria-pressed={selected}
+                      data-selected={selected}
+                      onClick={() => handleDietaryChange(diet.label)}
+                      className="setup-choice flex w-full items-center gap-3 p-3 text-left transition"
+                    >
+                      <span className="setup-illustration-token h-11 w-11 shrink-0 text-[1.35rem]" aria-hidden="true">
+                        {diet.illustration}
+                      </span>
+                      <span className="flex-1 font-extrabold text-[hsl(var(--setup-ink))]">{diet.label}</span>
+                      <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-[hsl(var(--setup-ink)/0.24)]'}`}>
+                        {selected && <Check className="h-3 w-3" />}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </div>
 
-        <TabsContent value="history" className="space-y-4">
-          <HistoryTab />
-        </TabsContent>
-      </Tabs>
+          <div className="returning-actions">
+            <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => setActiveSection('hub')}>
+              Settings
+            </Button>
+            <Button variant="ghost" className="setup-primary-button h-12" onClick={handleSaveProfile}>
+              Save profile
+            </Button>
+          </div>
+        </section>
+      </div>
+    );
+  };
 
-      {/* Pantry Camera Dialog */}
-      <Dialog open={showPantryCamera} onOpenChange={setShowPantryCamera}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Scan Your Pantry</DialogTitle>
-            <DialogDescription>
-              Take a photo of your pantry and I'll identify the ingredients for you.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <NativeCamera
-            title="Take Photo"
-            onImageCapture={handlePantryImageCapture}
-            onError={(error) => {
-              toast({
-                title: "Camera Error",
-                description: error,
-                variant: "destructive"
-              });
-              setShowPantryCamera(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+  const renderActiveSection = () => {
+    if (activeSection === 'pantry') return renderInventorySection('pantry');
+    if (activeSection === 'kitchen') return renderInventorySection('kitchen');
+    if (activeSection === 'profile') return renderProfileSection();
+    return renderHub();
+  };
 
-      {/* Equipment Camera Dialog */}
-      <Dialog open={showEquipmentCamera} onOpenChange={setShowEquipmentCamera}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Scan Your Kitchen</DialogTitle>
-            <DialogDescription>
-              Take a photo of your kitchen and I'll identify the equipment you have.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <NativeCamera
-            title="Take Photo"
-            onImageCapture={handleEquipmentImageCapture}
-            onError={(error) => {
-              toast({
-                title: "Camera Error",
-                description: error,
-                variant: "destructive"
-              });
-              setShowEquipmentCamera(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
-    </div>
+  return (
+    <main className="returning-ui min-h-screen pb-24">
+      <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            className="returning-back-button"
+            onClick={onBackToPlanning}
+          >
+            Back
+          </Button>
+          <span className="returning-mini-chip">Settings</span>
+        </div>
+
+        {renderActiveSection()}
+      </div>
+    </main>
   );
 }

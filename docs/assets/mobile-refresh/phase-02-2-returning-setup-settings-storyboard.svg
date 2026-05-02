@@ -1,0 +1,220 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1320" viewBox="0 0 1800 1320" role="img" aria-labelledby="title desc">
+  <title id="title">Phase 2.2 Returning Setup, Settings, and History storyboard</title>
+  <desc id="desc">Storyboard mockups for the Planning shell, Menu, Settings hub, Pantry edit, Kitchen edit, Profile edit, History list, and future History detail.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#D45E5E" flood-opacity="0.16"/>
+    </filter>
+    <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF8EA"/>
+      <stop offset="1" stop-color="#FBE8D6"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#FFF0EA" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="kitchen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#EEE3D5" stop-opacity="0.86"/>
+    </linearGradient>
+    <style>
+      .label{font:800 24px Nunito,Arial,sans-serif;fill:#2E3342}
+      .small{font:700 14px Nunito,Arial,sans-serif;fill:#7D6F67}
+      .tiny{font:700 12px Nunito,Arial,sans-serif;fill:#8D7D72}
+      .display{font:800 32px Fraunces,Georgia,serif;fill:#252B38}
+      .phone-title{font:800 23px Fraunces,Georgia,serif;fill:#252B38}
+      .copy{font:700 14px Nunito,Arial,sans-serif;fill:#6E635F}
+      .button{font:800 13px Nunito,Arial,sans-serif;fill:#FFFFFF}
+      .button-dark{font:800 13px Nunito,Arial,sans-serif;fill:#252B38}
+      .phone{fill:url(#cream);stroke:#F5B8A9;stroke-width:2;filter:url(#shadow)}
+      .surface{fill:url(#panel);stroke:#F3B9AD;stroke-width:1.5}
+      .kitchen-surface{fill:url(#kitchen);stroke:#C7B7A6;stroke-width:1.5}
+      .chip{fill:#FFE4DF;stroke:#EF8E82;stroke-width:1}
+      .metal-chip{fill:#EDE6DE;stroke:#B9A99A;stroke-width:1}
+      .coral{fill:#F16D67}
+      .teal{fill:#45BDB7}
+      .butter{fill:#FFD870}
+      .ink{fill:#252B38}
+      .muted{fill:#F8EFE6}
+      .line{stroke:#F16D67;stroke-width:5;stroke-linecap:round}
+    </style>
+  </defs>
+
+  <rect width="1800" height="1320" fill="#FFF8EC"/>
+  <circle cx="120" cy="70" r="150" fill="#FFD870" opacity="0.25"/>
+  <circle cx="1675" cy="170" r="190" fill="#45BDB7" opacity="0.13"/>
+  <text x="70" y="78" class="display">Phase 2.2 storyboard</text>
+  <text x="70" y="112" class="copy">Returning setup edits, global Menu, standalone History, and future Phase 5 memory direction.</text>
+
+  <!-- Phone 1 -->
+  <g transform="translate(70 165)">
+    <text x="0" y="-28" class="label">1. Planning shell</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <rect x="28" y="28" width="304" height="48" rx="24" fill="#FFFFFF" opacity="0.75"/>
+    <text x="52" y="59" class="small">Laica is ready</text>
+    <text x="28" y="120" class="phone-title">What are we cooking?</text>
+    <rect x="28" y="150" width="304" height="160" rx="24" fill="#FFFFFF" opacity="0.8" stroke="#F3B9AD"/>
+    <text x="50" y="194" class="display" font-size="24">Chef It Up</text>
+    <text x="50" y="222" class="copy">We will shape dinner from what you have.</text>
+    <rect x="50" y="252" width="130" height="34" rx="17" class="coral"/>
+    <text x="79" y="274" class="button">Start</text>
+    <rect x="28" y="326" width="304" height="82" rx="22" fill="#FFF3DE" stroke="#F5C98C"/>
+    <text x="50" y="363" class="small">Slop Bowl</text>
+    <text x="50" y="387" class="tiny">Zero decisions, scrappy dinner.</text>
+    <rect x="0" y="426" width="360" height="74" rx="0" fill="#FFFFFF" opacity="0.88"/>
+    <circle cx="120" cy="462" r="23" fill="#FFE4DF"/>
+    <text x="104" y="485" class="tiny">Cook</text>
+    <circle cx="240" cy="462" r="23" class="coral"/>
+    <text x="224" y="485" class="tiny">Menu</text>
+  </g>
+
+  <!-- Phone 2 -->
+  <g transform="translate(510 165)">
+    <text x="0" y="-28" class="label">2. Menu destination sheet</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <rect x="0" y="190" width="360" height="310" rx="30" fill="#FFFFFF" stroke="#F3B9AD" stroke-width="2"/>
+    <rect x="132" y="210" width="96" height="7" rx="4" fill="#E5D4CA"/>
+    <text x="28" y="254" class="phone-title">Menu</text>
+    <text x="28" y="280" class="copy">Jump where you need.</text>
+    <rect x="28" y="306" width="304" height="48" rx="18" class="muted" stroke="#F3B9AD"/>
+    <text x="54" y="336" class="small">Settings</text>
+    <text x="250" y="336" class="tiny">Pantry, kitchen, profile</text>
+    <rect x="28" y="364" width="304" height="48" rx="18" class="muted" stroke="#E0C7A8"/>
+    <text x="54" y="394" class="small">History</text>
+    <text x="253" y="394" class="tiny">Cooked meals</text>
+    <rect x="28" y="422" width="144" height="44" rx="18" fill="#F8EFE6" stroke="#ECD4C5"/>
+    <text x="70" y="450" class="small">Feedback</text>
+    <rect x="188" y="422" width="144" height="44" rx="18" fill="#F8EFE6" stroke="#ECD4C5"/>
+    <text x="232" y="450" class="small">Account</text>
+  </g>
+
+  <!-- Phone 3 -->
+  <g transform="translate(950 165)">
+    <text x="0" y="-28" class="label">3. Settings hub</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <text x="28" y="66" class="phone-title">Settings</text>
+    <text x="28" y="93" class="copy">Keep Laica matched to your kitchen.</text>
+    <rect x="28" y="126" width="304" height="82" rx="22" class="surface"/>
+    <circle cx="68" cy="167" r="23" fill="#FFE4DF"/>
+    <text x="104" y="160" class="small">Pantry</text>
+    <text x="104" y="184" class="tiny">18 items saved</text>
+    <rect x="28" y="222" width="304" height="82" rx="22" class="kitchen-surface"/>
+    <circle cx="68" cy="263" r="23" fill="#EDE6DE"/>
+    <text x="104" y="256" class="small">Kitchen</text>
+    <text x="104" y="280" class="tiny">9 tools saved</text>
+    <rect x="28" y="318" width="304" height="82" rx="22" fill="#FFFFFF" opacity="0.82" stroke="#F3B9AD"/>
+    <circle cx="68" cy="359" r="23" fill="#FFF0D0"/>
+    <text x="104" y="352" class="small">Cooking Profile</text>
+    <text x="104" y="376" class="tiny">Skill and dietary notes</text>
+  </g>
+
+  <!-- Phone 4 -->
+  <g transform="translate(1390 165)">
+    <text x="0" y="-28" class="label">4. Pantry edit</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <text x="28" y="60" class="phone-title">Pantry</text>
+    <text x="28" y="88" class="copy">Update what Laica can cook with.</text>
+    <rect x="28" y="116" width="304" height="118" rx="24" fill="#252B38"/>
+    <path d="M74 160h212M106 196h148" class="line"/>
+    <circle cx="180" cy="205" r="22" fill="#FFFFFF" opacity="0.88"/>
+    <rect x="28" y="250" width="145" height="52" rx="18" fill="#FFFFFF" opacity="0.82" stroke="#F3B9AD"/>
+    <text x="66" y="282" class="small">Upload</text>
+    <rect x="187" y="250" width="145" height="52" rx="18" fill="#FFFFFF" opacity="0.82" stroke="#F3B9AD"/>
+    <text x="226" y="282" class="small">Manual</text>
+    <rect x="28" y="320" width="304" height="96" rx="22" class="surface"/>
+    <rect x="50" y="350" width="76" height="30" rx="15" class="chip"/>
+    <rect x="134" y="350" width="74" height="30" rx="15" class="chip"/>
+    <rect x="216" y="350" width="92" height="30" rx="15" class="chip"/>
+    <text x="58" y="369" class="tiny">rice</text>
+    <text x="144" y="369" class="tiny">eggs</text>
+    <text x="226" y="369" class="tiny">spinach</text>
+    <rect x="28" y="438" width="304" height="42" rx="18" class="coral"/>
+    <text x="135" y="465" class="button">Save pantry</text>
+  </g>
+
+  <!-- Phone 5 -->
+  <g transform="translate(70 790)">
+    <text x="0" y="-28" class="label">5. Kitchen edit</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <text x="28" y="60" class="phone-title">Kitchen</text>
+    <text x="28" y="88" class="copy">Tools, pans, heat, and appliances.</text>
+    <rect x="28" y="116" width="304" height="118" rx="24" fill="#303642"/>
+    <rect x="72" y="158" width="216" height="44" rx="12" fill="#FFFFFF" opacity="0.18"/>
+    <circle cx="180" cy="203" r="22" fill="#FFFFFF" opacity="0.88"/>
+    <rect x="28" y="250" width="145" height="52" rx="18" fill="#FFFFFF" opacity="0.82" stroke="#C7B7A6"/>
+    <text x="66" y="282" class="small">Upload</text>
+    <rect x="187" y="250" width="145" height="52" rx="18" fill="#FFFFFF" opacity="0.82" stroke="#C7B7A6"/>
+    <text x="226" y="282" class="small">Manual</text>
+    <rect x="28" y="320" width="304" height="96" rx="22" class="kitchen-surface"/>
+    <rect x="50" y="350" width="76" height="30" rx="15" class="metal-chip"/>
+    <rect x="134" y="350" width="86" height="30" rx="15" class="metal-chip"/>
+    <rect x="228" y="350" width="82" height="30" rx="15" class="metal-chip"/>
+    <text x="58" y="369" class="tiny">oven</text>
+    <text x="144" y="369" class="tiny">blender</text>
+    <text x="238" y="369" class="tiny">skillet</text>
+    <rect x="28" y="438" width="304" height="42" rx="18" fill="#8F959D"/>
+    <text x="131" y="465" class="button">Save kitchen</text>
+  </g>
+
+  <!-- Phone 6 -->
+  <g transform="translate(510 790)">
+    <text x="0" y="-28" class="label">6. Cooking profile</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <text x="28" y="60" class="phone-title">Cooking profile</text>
+    <text x="28" y="88" class="copy">Skill and dietary notes stay editable.</text>
+    <rect x="28" y="118" width="304" height="64" rx="20" fill="#FFE4DF" stroke="#EF8E82"/>
+    <circle cx="62" cy="150" r="18" fill="#F16D67"/>
+    <text x="94" y="145" class="small">Intermediate</text>
+    <text x="94" y="166" class="tiny">I follow recipes easily</text>
+    <rect x="28" y="194" width="304" height="56" rx="18" fill="#FFFFFF" opacity="0.78" stroke="#F3B9AD"/>
+    <text x="94" y="228" class="small">Beginner</text>
+    <rect x="28" y="262" width="304" height="64" rx="20" fill="#FFFFFF" opacity="0.86" stroke="#F3B9AD"/>
+    <circle cx="62" cy="294" r="18" fill="#FFF0D0"/>
+    <text x="94" y="289" class="small">No restrictions</text>
+    <text x="94" y="310" class="tiny">Default path stays isolated</text>
+    <rect x="28" y="344" width="142" height="44" rx="17" fill="#FFFFFF" opacity="0.78" stroke="#F3B9AD"/>
+    <text x="62" y="372" class="small">Vegan</text>
+    <rect x="188" y="344" width="142" height="44" rx="17" fill="#FFFFFF" opacity="0.78" stroke="#F3B9AD"/>
+    <text x="220" y="372" class="small">Halal</text>
+    <rect x="28" y="438" width="304" height="42" rx="18" class="coral"/>
+    <text x="130" y="465" class="button">Save profile</text>
+  </g>
+
+  <!-- Phone 7 -->
+  <g transform="translate(950 790)">
+    <text x="0" y="-28" class="label">7. History list</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <text x="28" y="60" class="phone-title">History</text>
+    <text x="28" y="88" class="copy">Meals you cooked, outside Settings.</text>
+    <rect x="28" y="120" width="304" height="96" rx="22" fill="#FFFFFF" opacity="0.84" stroke="#E0C7A8"/>
+    <rect x="48" y="142" width="48" height="48" rx="16" fill="#FFF0D0"/>
+    <text x="112" y="154" class="small">Crispy rice bowl</text>
+    <text x="112" y="178" class="tiny">Apr 30 · 38 min · Fusion</text>
+    <rect x="112" y="190" width="70" height="18" rx="9" fill="#FFE4DF"/>
+    <rect x="192" y="190" width="82" height="18" rx="9" fill="#E7F5F3"/>
+    <rect x="28" y="234" width="304" height="96" rx="22" fill="#FFFFFF" opacity="0.84" stroke="#E0C7A8"/>
+    <rect x="48" y="256" width="48" height="48" rx="16" fill="#E7F5F3"/>
+    <text x="112" y="268" class="small">Pasta pantry night</text>
+    <text x="112" y="292" class="tiny">Apr 27 · 25 min · Italian</text>
+    <rect x="28" y="348" width="304" height="96" rx="22" fill="#FFFFFF" opacity="0.84" stroke="#E0C7A8"/>
+    <rect x="48" y="370" width="48" height="48" rx="16" fill="#FFE4DF"/>
+    <text x="112" y="382" class="small">Egg and greens skillet</text>
+    <text x="112" y="406" class="tiny">Apr 25 · 18 min</text>
+  </g>
+
+  <!-- Phone 8 -->
+  <g transform="translate(1390 790)">
+    <text x="0" y="-28" class="label">8. Future Phase 5 memory</text>
+    <rect class="phone" width="360" height="500" rx="32"/>
+    <text x="28" y="60" class="phone-title">Crispy rice bowl</text>
+    <text x="28" y="88" class="copy">History becomes share + cook again later.</text>
+    <rect x="28" y="118" width="304" height="138" rx="24" fill="#FFF0D0" stroke="#E0C7A8"/>
+    <circle cx="180" cy="172" r="42" fill="#F16D67" opacity="0.85"/>
+    <rect x="78" y="284" width="204" height="42" rx="18" class="coral"/>
+    <text x="139" y="311" class="button">Cook again</text>
+    <rect x="78" y="340" width="204" height="42" rx="18" fill="#FFFFFF" stroke="#F3B9AD"/>
+    <text x="151" y="367" class="button-dark">Share</text>
+    <rect x="28" y="410" width="304" height="58" rx="20" fill="#FFFFFF" opacity="0.82" stroke="#F3B9AD"/>
+    <text x="52" y="442" class="tiny">Phase 5: taste, cleanup, next-meal seed.</text>
+  </g>
+</svg>

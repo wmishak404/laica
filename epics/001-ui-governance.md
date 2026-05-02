@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Codex (plan drafting) / Claude (review + pilot-surface feedback)
 **Created:** 2026-04-16
-**Updated:** 2026-04-30
+**Updated:** 2026-05-01
 
 ## One-line summary
 
@@ -149,6 +149,7 @@ Read EPIC-001 before starting any of the following:
 - [ ] Introducing a **hex color literal** in `className` (`bg-[#...]`, `text-[#...]`, `border-[#...]`) — check tokens first
 - [ ] Adding custom `className` overrides to a shadcn primitive (`<Button className="bg-... text-...">`, etc.)
 - [ ] Changing `client/src/components/ui/*.tsx` — these primitives are the governance boundary
+- [ ] Reusing scoped visual utilities outside their original root wrapper, especially phase-scoped classes such as `setup-*`
 - [ ] Adding a new icon library (or swapping lucide for Heroicons anywhere)
 - [ ] Changing fonts in `client/src/index.css` or adding new `@import url(...)` for Google Fonts
 - [ ] Writing a feature handoff that describes a new UX pattern
@@ -230,6 +231,24 @@ The branch also reinforces that new visual-system pilots need explicit handoff n
 Wilson's Phase 2.1 Replit review added two durable governance signals. First, authenticated app pages should not regain a persistent website-like top header; bottom navigation/account surfaces own account, profile, and sign-out access. Second, reusable setup controls need consistent sizing and placement across pantry/kitchen: one progress treatment, readable secondary action labels, and camera controls inside the designed scan object rather than mixed into separate header/row chrome.
 
 Future mobile-refresh implementations should treat these as app-shell and component-pattern expectations, not one-off setup preferences.
+
+## 2026-05-01 — Phase 2.2 treats design conformance as implementation scope
+
+Phase 2.2 adds a new governance signal: returning-user Settings and History cannot ship as legacy admin/tab UI with a later polish ticket. Menu, Settings, and History now have a storyboard-backed conformance gate, Settings and History are separate IA destinations, and Menu is the global returning-user access point. This reinforces that mockup/storyboard conformance is part of phase readiness for both tone-forward and utilitarian surfaces.
+
+## 2026-05-01 — Phase 2.2 review reinforces component-level governance
+
+Wilson's first Phase 2.2 review found that returning Settings should not become a separate visual/control system from first-time setup. This adds governance signal that shared tasks need shared component patterns, not only matching colors: Pantry/Kitchen scan/upload/manual controls, Cooking Profile choices, bottom navigation, and feedback entry points should converge at the component/composition level where practical.
+
+## 2026-05-01 — Returning Settings alignment uses setup patterns without changing setup
+
+Phase 2.2 now applies the accepted setup control language to returning Settings while keeping first-time setup untouched. This is useful governance signal for future refactors: when a shared task already has an accepted pattern, prefer reusing or mirroring that pattern in a scoped way before creating a new visual system. Full component extraction can follow once the rendered behavior is stable.
+
+## 2026-05-01 — Scoped style reuse exposed computed-style drift
+
+Wilson's Replit review caught that returning Settings used the same `setup-*` class names as first-time setup, but some controls rendered differently: the camera capture/video/help buttons became rounded squares, and the upload/manual labels fell back toward the shadcn Button typography. Root cause: the accepted setup CSS relied on `.setup-ui .setup-*` selector specificity to override Tailwind utility classes emitted by the shared Button primitive, while returning Settings used `returning-setup-anchor` instead of `.setup-ui`.
+
+This is a governance failure mode, not only a CSS bug. Future docs and handoffs must distinguish "same class name" from "same computed style." When moving an accepted phase-scoped pattern into a different wrapper, document the shared root/specificity contract or extract a component/style primitive that carries it. Visual review should check shape, type, icon size, hover/active states, and disabled states on the destination surface, especially for shadcn primitives with `className` overrides.
 
 ## Next steps when work resumes
 
