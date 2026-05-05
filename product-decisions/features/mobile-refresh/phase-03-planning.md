@@ -106,6 +106,12 @@ Implemented locally:
 - Slop Bowl confirmation now uses the approved "one more check" framing, keeps 3+ distinct ingredient gating, keeps shared comma/period parser behavior, and uses the user's last planning time setting with fallback `30m`.
 - Slop Bowl direct hex-literal callsites touched by this phase were migrated to token/CSS-variable styling with tone-forward comments, adding implementation signal for [EPIC-016](../../../epics/016-slop-bowl-hex-literal-cleanup.md).
 
+2026-05-05 logo drift follow-up:
+
+- Wilson's Replit screenshot review found that Phase 3 had recreated `Laica` as a CSS text wordmark with a pseudo-mark, while other branded surfaces use the canonical cropped logo asset.
+- Planning entry and Ticket Pass now use `@assets/laica_logo_v1_cropped_1763444931884.png`.
+- [`design_guidelines.md`](../../../design_guidelines.md) now explicitly requires the canonical logo asset when a surface displays the product mark as a brand object. This closes the docs-system gap that allowed the drift: previous guidance covered casing (`Laica` vs `LAICA`) and mockup conformance, but not product-mark asset reuse.
+
 Local validation:
 
 - `npm ci`

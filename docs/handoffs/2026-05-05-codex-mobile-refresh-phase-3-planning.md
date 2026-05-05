@@ -39,6 +39,23 @@ Last Replit-validated at: not yet validated.
 - Refresh `Last Replit-validated at` in the PR/handoff after Replit passes.
 - Wilson decision still open if last planning time should become a real server-side profile field in a later pass. Current branch deliberately avoids that schema change.
 
+## 2026-05-05 logo drift follow-up
+
+Wilson's Replit screenshot review caught a brand-mark drift on the Phase 3 Planning entry: the implementation had recreated `Laica` as CSS text plus a pseudo-mark instead of reusing the canonical cropped logo asset used by the landing/auth surface.
+
+Root cause in the docs system:
+
+- `design_guidelines.md` preserved the casing rule (`Laica`, not `LAICA`) and the mockup-conformance rule.
+- It did not explicitly say that visible product marks should reuse the canonical logo asset.
+- The Phase 3 mockup showed a simple mark, so implementation matched the rough shape with CSS instead of checking the existing logo source of truth.
+
+Follow-up patch:
+
+- `client/src/pages/app.tsx` and `client/src/components/cooking/meal-planning.tsx` now import `@assets/laica_logo_v1_cropped_1763444931884.png`.
+- `.planning-brand` text/pseudo-mark CSS was removed and replaced with `.planning-logo`.
+- `design_guidelines.md` now includes the canonical-logo guardrail and review checklist item.
+- `product-decisions/features/mobile-refresh/phase-03-planning.md` records this as Phase 3 implementation evidence.
+
 ## Verification
 
 Passed:

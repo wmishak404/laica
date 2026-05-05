@@ -8,6 +8,8 @@ Laica is a warm, capable mobile cooking companion. It should feel food-native an
 
 User-facing prose writes the brand as `Laica`, not all-caps `LAICA`, unless a logo asset or legal/artwork context requires otherwise.
 
+When a surface displays the product mark as a brand object, use the canonical cropped logo asset (`@assets/laica_logo_v1_cropped_1763444931884.png`) rather than recreating a one-off text wordmark in CSS. Text-only `Laica` is acceptable in body copy, headings, metadata, or deliberately documented mockup deviations, but not as a silent replacement for the logo on branded app surfaces.
+
 ### Six principles
 
 1. **Cooking companion, not control panel.** Setup, Planning, Cooking, and Post-cook should reduce the user's next decision to a clear action: scan, choose, start, cook, confirm, clean up. Reserve administrative density for Settings and management surfaces.
@@ -173,6 +175,7 @@ Before a feature or phase is marked visually ready:
 
 - Reviewer opened the linked exemplar (if a phase mockup exists).
 - Primary screen visibly matches the exemplar's hierarchy and mood.
+- Any visible product mark uses the canonical logo asset, or the handoff documents why text-only brand treatment is intentional.
 - Screen feels like Laica, not generic AI/SaaS/shadcn.
 - Primary action is unmistakable; secondary actions don't compete with it.
 - Back/escape paths are visible from focused flows.

@@ -1015,26 +1015,11 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
   }
 
-  .planning-brand {
-    display: inline-flex;
-    align-items: center;
-    color: hsl(var(--planning-coral));
-    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
-    font-size: 1.72rem;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: 0;
-  }
-
-  .planning-brand::before {
-    content: '';
-    display: inline-block;
-    width: 0.24rem;
-    height: 0.8rem;
-    margin-right: 0.28rem;
-    border-radius: 999px;
-    background: hsl(var(--planning-coral));
-    transform: rotate(8deg);
+  .planning-logo {
+    display: block;
+    height: 2.45rem;
+    width: auto;
+    object-fit: contain;
   }
 
   .planning-back-button {
