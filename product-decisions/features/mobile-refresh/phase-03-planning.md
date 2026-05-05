@@ -118,6 +118,13 @@ Implemented locally:
 - Root cause: the Radix slider stops were distributed across the full track (`0%`, `33%`, `67%`, `100%`), while the four labels were visually centered in equal columns (`12.5%`, `37.5%`, `62.5%`, `87.5%`).
 - The slider track now uses `12.5%` inline padding and a no-gap four-column label grid so the thumb stop positions align with the label centers.
 
+2026-05-05 cuisine-list/default follow-up:
+
+- Wilson's Replit screenshot review found that the cuisine picker appeared capped at the six visible mockup examples.
+- Root cause: implementation overfit the mockup's visible slice instead of treating it as a longer cuisine menu.
+- The cuisine menu now restores a broader starter cuisine set and scrolls when options exceed one screen.
+- `No preference` is selected by default, remains exclusive, and sits outside the scroll list in the lower thumb zone next to the primary action. Selecting any cuisine clears the default; clearing all cuisines restores it.
+
 Local validation:
 
 - `npm ci`

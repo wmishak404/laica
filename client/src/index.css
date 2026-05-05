@@ -1217,6 +1217,34 @@ html, body {
     color: hsl(var(--planning-coral));
   }
 
+  .planning-cuisine-screen {
+    display: flex;
+    height: calc(100vh - 6rem);
+    height: calc(100svh - 6rem);
+    max-height: calc(100vh - 6rem);
+    max-height: calc(100svh - 6rem);
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .planning-cuisine-scroll {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.15rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .planning-cuisine-actions {
+    flex-shrink: 0;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    background:
+      linear-gradient(180deg, hsl(var(--planning-cream-deep) / 0), hsl(var(--planning-cream-deep) / 0.96) 1.35rem),
+      hsl(var(--planning-cream-deep) / 0.96);
+  }
+
   .planning-cuisine-row,
   .planning-no-preference {
     display: flex;

@@ -71,6 +71,22 @@ Follow-up patch:
 - `client/src/components/cooking/meal-planning.tsx` now wraps the slider in `planning-slider-track`.
 - `client/src/index.css` gives the track `12.5%` inline padding and uses a no-gap four-column label grid, so each Radix stop aligns with the matching label center.
 
+## 2026-05-05 cuisine-list/default follow-up
+
+Wilson's Replit screenshot review caught that the cuisine picker appeared limited to six cuisines and did not make the default path clear.
+
+Root cause:
+
+- The implementation treated the six visible mockup examples as the complete cuisine set.
+- `No preference` was exclusive, but it started unselected, so the user had to make an unnecessary choice before asking Laica to surprise them.
+
+Follow-up patch:
+
+- `client/src/components/cooking/meal-planning.tsx` now exposes a broader starter cuisine set.
+- The cuisine options live in a scrollable picker region, so the list can grow beyond one screen without pushing the primary action away.
+- `No preference` is selected by default and stays in the lower thumb zone outside the scroll region. Selecting a cuisine clears it; clearing all selected cuisines restores it.
+- `client/src/index.css` adds the fixed-height cuisine screen, scroll region, and lower action block styling without raw hex literals.
+
 ## Verification
 
 Passed:

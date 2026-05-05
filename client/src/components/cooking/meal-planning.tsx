@@ -70,7 +70,17 @@ const cuisineOptions = [
   { name: 'Japanese', icon: '🍣' },
   { name: 'Mediterranean', icon: '🥙' },
   { name: 'Thai', icon: '🍜' },
+  { name: 'Indian', icon: '🍛' },
+  { name: 'Chinese', icon: '🥟' },
+  { name: 'Vietnamese', icon: '🍲' },
+  { name: 'American', icon: '🍔' },
+  { name: 'French', icon: '🥖' },
+  { name: 'Greek', icon: '🫒' },
+  { name: 'Middle Eastern', icon: '🧆' },
+  { name: 'Spanish', icon: '🥘' },
 ];
+
+const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
 
 const isPlanningStep = (value: unknown): value is PlanningStep =>
   value === 'time' || value === 'cuisine' || value === 'tickets' || value === 'prep-tray';
@@ -79,6 +89,17 @@ const stringArray = (value: unknown): string[] =>
   Array.isArray(value)
     ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
     : [];
+
+const normalizeCuisinePreference = (value: unknown): string[] => {
+  const entries = stringArray(value);
+  if (entries.includes(NO_PREFERENCE)) return [NO_PREFERENCE];
+
+  const selected = entries.filter((entry, index) =>
+    cuisineNames.has(entry) && entries.indexOf(entry) === index
+  );
+
+  return selected.length > 0 ? selected : [NO_PREFERENCE];
+};
 
 const calculatePantryMatch = (pantryCount: number, additionalCount: number) => {
   if (pantryCount <= 0) return 0;
@@ -95,7 +116,7 @@ export default function MealPlanning({
   const [currentStep, setCurrentStep] = useState<PlanningStep>('time');
   const [mealPrefs, setMealPrefs] = useState<MealPreferences>({
     timeAvailable: normalizePlanningTimeValue(initialTimeAvailable),
-    cuisinePreference: [],
+    cuisinePreference: [NO_PREFERENCE],
   });
   const [recommendations, setRecommendations] = useState<RecipeRecommendation[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
@@ -126,7 +147,7 @@ export default function MealPlanning({
         currentStep: data.currentStep,
         mealPrefs: {
           timeAvailable: normalizePlanningTimeValue(data.mealPrefs?.timeAvailable),
-          cuisinePreference: stringArray(data.mealPrefs?.cuisinePreference),
+          cuisinePreference: normalizeCuisinePreference(data.mealPrefs?.cuisinePreference),
         },
         recommendations,
         selectedMeal,
@@ -203,7 +224,7 @@ export default function MealPlanning({
       if (cuisine === NO_PREFERENCE) {
         return {
           ...prev,
-          cuisinePreference: prev.cuisinePreference.includes(NO_PREFERENCE) ? [] : [NO_PREFERENCE],
+          cuisinePreference: [NO_PREFERENCE],
         };
       }
 
@@ -212,7 +233,10 @@ export default function MealPlanning({
         ? withoutNoPreference.filter((item) => item !== cuisine)
         : [...withoutNoPreference, cuisine];
 
-      return { ...prev, cuisinePreference };
+      return {
+        ...prev,
+        cuisinePreference: cuisinePreference.length > 0 ? cuisinePreference : [NO_PREFERENCE],
+      };
     });
   };
 
@@ -390,7 +414,7 @@ export default function MealPlanning({
   );
 
   const renderCuisineStep = () => (
-    <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+    <section className="planning-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to time">
         <ArrowLeft className="h-5 w-5" />
       </button>
@@ -400,51 +424,55 @@ export default function MealPlanning({
         <p className="planning-copy mt-3 text-sm font-bold">Pick as many as you like</p>
       </div>
 
-      <div className="mt-8 space-y-3">
-        {cuisineOptions.map((cuisine) => {
-          const selected = mealPrefs.cuisinePreference.includes(cuisine.name);
-          return (
-            <button
-              type="button"
-              key={cuisine.name}
-              className="planning-cuisine-row"
-              data-selected={selected}
-              onClick={() => toggleCuisine(cuisine.name)}
-            >
-              <span className="planning-cuisine-icon" aria-hidden="true">{cuisine.icon}</span>
-              <span className="min-w-0 flex-1 text-left">{cuisine.name}</span>
-              <span className="planning-cuisine-check" aria-hidden="true">
-                {selected && <CheckCircle2 className="h-5 w-5" />}
-              </span>
-            </button>
-          );
-        })}
+      <div className="planning-cuisine-scroll mt-8" aria-label="Cuisine options">
+        <div className="space-y-3 pb-3">
+          {cuisineOptions.map((cuisine) => {
+            const selected = mealPrefs.cuisinePreference.includes(cuisine.name);
+            return (
+              <button
+                type="button"
+                key={cuisine.name}
+                className="planning-cuisine-row"
+                data-selected={selected}
+                onClick={() => toggleCuisine(cuisine.name)}
+              >
+                <span className="planning-cuisine-icon" aria-hidden="true">{cuisine.icon}</span>
+                <span className="min-w-0 flex-1 text-left">{cuisine.name}</span>
+                <span className="planning-cuisine-check" aria-hidden="true">
+                  {selected && <CheckCircle2 className="h-5 w-5" />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <button
-        type="button"
-        className="planning-no-preference mt-6"
-        data-selected={mealPrefs.cuisinePreference.includes(NO_PREFERENCE)}
-        onClick={() => toggleCuisine(NO_PREFERENCE)}
-      >
-        <Sparkles className="h-5 w-5" aria-hidden="true" />
-        <span>No preference</span>
-      </button>
+      <div className="planning-cuisine-actions">
+        <button
+          type="button"
+          className="planning-no-preference"
+          data-selected={mealPrefs.cuisinePreference.includes(NO_PREFERENCE)}
+          onClick={() => toggleCuisine(NO_PREFERENCE)}
+        >
+          <Sparkles className="h-5 w-5" aria-hidden="true" />
+          <span>No preference</span>
+        </button>
 
-      <Button
-        className="mt-6 h-12 w-full rounded-xl font-extrabold"
-        onClick={generateRecommendations}
-        disabled={!canProceedFromCuisine || isLoading}
-      >
-        {isLoading ? (
-          <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-            Making three ideas...
-          </>
-        ) : (
-          'Show me three ideas'
-        )}
-      </Button>
+        <Button
+          className="mt-4 h-12 w-full rounded-xl font-extrabold"
+          onClick={generateRecommendations}
+          disabled={!canProceedFromCuisine || isLoading}
+        >
+          {isLoading ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              Making three ideas...
+            </>
+          ) : (
+            'Show me three ideas'
+          )}
+        </Button>
+      </div>
     </section>
   );
 

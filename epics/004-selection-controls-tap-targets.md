@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson (product direction) / Claude (next implementation pass) / Codex (doc capture)
 **Created:** 2026-04-17
-**Updated:** 2026-04-30
+**Updated:** 2026-05-05
 
 ## One-line summary
 
@@ -173,6 +173,12 @@ The Phase 2.2 Settings alignment pass mirrors the accepted setup Cooking Skill a
 `codex/mobile-refresh-phase-3-planning` applies the full-row tap-target rule to the Chef It Up cuisine screen. Cuisine options render as illustrated full-width buttons, support multi-select, and keep `No preference` as an isolated exclusive row in the lower thumb zone.
 
 This adds Phase 3 evidence for the pattern. It does not resolve the epic because the original resolution criteria still require a final documented closeout across setup/settings selection controls and validation.
+
+### 2026-05-05 — Cuisine picker defaults and scroll behavior clarified
+
+Wilson's Phase 3 review clarified that `No preference` should be the default state, not an extra required tap, and that the cuisine menu must support more than one screen of options. The Phase 3 branch now keeps the longer cuisine list in a dedicated scroll region while pinning the exclusive `No preference` row outside the scroll area near the primary action.
+
+This reinforces the full-row selection pattern for long mobile multi-select menus: defaults should remain reachable and visually isolated even when the option list grows.
 
 ## Next steps when work resumes
 
