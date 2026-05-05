@@ -38,8 +38,7 @@ Hover/shade values in active use: `#FF5252` (primary hover), `#FFB347`, `#FFD93D
 Loaded in `client/src/index.css`:
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Merriweather:wght@400;700&family=Nunito:wght@400;500;600;700;800&family=Patrick+Hand&family=Source+Sans+Pro:wght@400;600&display=swap');
 ```
 
 Global stack (current accepted state):
@@ -52,6 +51,7 @@ Mobile-refresh setup pilot (Phase 2.1 + Phase 2.2 returning Settings, accepted):
 
 - **Setup display:** `Fraunces` — scoped to `.setup-ui .setup-display` and equivalent setup surfaces.
 - **Setup body / controls:** `Nunito` — scoped to `.setup-ui .setup-copy`, `.setup-action-label`, etc.
+- **Planning handwritten labels:** `Patrick Hand` — scoped to small tone-forward labels such as Planning card titles and Slop Bowl stickers, not body copy or safety-critical controls.
 
 Whether `Fraunces` / `Nunito` graduate to the global stack is an open visual decision (see below).
 

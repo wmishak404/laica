@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Merriweather:wght@400;700&family=Nunito:wght@400;500;600;700;800&family=Source+Sans+Pro:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Merriweather:wght@400;700&family=Nunito:wght@400;500;600;700;800&family=Patrick+Hand&family=Source+Sans+Pro:wght@400;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -1096,32 +1096,39 @@ html, body {
 
   .planning-slop-mark {
     position: relative;
+    overflow: hidden;
     background:
-      radial-gradient(circle at 32% 22%, hsl(var(--planning-coral-soft) / 0.55), transparent 2.5rem),
+      radial-gradient(circle at 65% 74%, hsl(var(--planning-coral) / 0.12), transparent 2rem),
+      radial-gradient(circle at 32% 22%, hsl(var(--planning-butter) / 0.46), transparent 2.5rem),
       hsl(0 0% 100% / 0.72);
   }
 
   .planning-slop-sticker {
     position: absolute;
-    right: 0.8rem;
+    left: 50%;
     top: 0.7rem;
     z-index: 1;
     border-radius: 999px;
     background: hsl(var(--planning-coral));
     color: hsl(0 0% 100%);
-    font-size: 0.62rem;
-    font-weight: 900;
-    line-height: 1;
-    padding: 0.35rem 0.55rem;
-    transform: rotate(4deg);
+    font-family: 'Patrick Hand', 'Nunito', system-ui, sans-serif;
+    font-size: 0.76rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 0.95;
+    padding: 0.38rem 0.78rem 0.42rem;
+    transform: translateX(-50%) rotate(3deg);
+    white-space: nowrap;
+    box-shadow: 0 0.45rem 0.9rem hsl(var(--planning-coral) / 0.18);
   }
 
   .planning-choice-title {
     display: block;
     color: hsl(var(--planning-coral));
-    font-size: 1.22rem;
-    font-weight: 900;
-    line-height: 1.1;
+    font-family: 'Patrick Hand', 'Nunito', system-ui, sans-serif;
+    font-size: 1.7rem;
+    font-weight: 400;
+    line-height: 0.95;
   }
 
   .planning-choice-copy {
@@ -1710,12 +1717,68 @@ html, body {
   display: inline-block;
   position: absolute;
   top: 0;
+  z-index: 2;
   pointer-events: none;
 }
 
 .slop-ingredient-d1 { animation-delay: 0.6s; }
 .slop-ingredient-d2 { animation-delay: 1.2s; }
 .slop-ingredient-d3 { animation-delay: 1.8s; }
+.slop-ingredient-d4 { animation-delay: 2.1s; }
+
+.slop-splash {
+  position: absolute;
+  z-index: 1;
+  border-radius: 52% 48% 45% 55%;
+  background: hsl(var(--planning-coral) / 0.18);
+  pointer-events: none;
+}
+
+.slop-splash-a {
+  right: 1.1rem;
+  bottom: 1.55rem;
+  height: 1.1rem;
+  width: 1.6rem;
+  transform: rotate(-22deg);
+}
+
+.slop-splash-b {
+  left: 1rem;
+  bottom: 2rem;
+  height: 0.8rem;
+  width: 1.15rem;
+  background: hsl(var(--planning-butter) / 0.34);
+  transform: rotate(18deg);
+}
+
+.slop-scribble {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.65rem;
+  z-index: 2;
+  color: hsl(var(--planning-coral));
+  font-family: 'Patrick Hand', 'Nunito', system-ui, sans-serif;
+  font-size: 0.85rem;
+  line-height: 1;
+  transform: rotate(12deg);
+}
+
+.slop-spoon {
+  position: absolute;
+  right: 1rem;
+  bottom: 1.15rem;
+  z-index: 3;
+  display: inline-block;
+  font-size: 1.55rem;
+  line-height: 1;
+  transform: rotate(-34deg);
+}
+
+.slop-emoji {
+  position: relative;
+  z-index: 2;
+  transform: rotate(-4deg);
+}
 
 .slop-bowl-card:hover .slop-emoji {
   animation: slop-wobble 0.7s ease-in-out;

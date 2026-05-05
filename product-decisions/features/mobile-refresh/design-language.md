@@ -317,6 +317,8 @@ Phase 2 is the first active pilot for this design language. Before merge:
 
 - Planning entry should no longer look like the legacy two-card choice.
 - Chef It Up should be the primary path; Slop Bowl should be scrappy, funny, and clearly secondary.
+- Planning entry can use a scoped handwritten label font for small kitchen-diary accents; keep main headings and body copy highly readable.
+- Slop Bowl art should preserve the humor context: messy, chaotic, and intentionally scrappy rather than a generic clean bowl icon.
 - Ticket Pass should become the signature recipe-suggestion object.
 - Recipe suggestions should not look like generic AI match cards.
 

@@ -67,3 +67,9 @@ This epic is `Resolved` when all of the following are true:
 `codex/mobile-refresh-phase-3-planning` touches Slop Bowl as part of INIT-001 Phase 3. The branch removes direct `bg-[#hex]` / `hover:bg-[#hex]` / `border-[#hex]` callsites from `client/src/components/cooking/slop-bowl.tsx` and the Slop Bowl planning-entry card in `client/src/pages/app.tsx`, moving the refreshed tone-forward styling behind `planning-*` / `slop-check-*` CSS-variable classes and PD-005 tone-override comments.
 
 This does not close EPIC-016 yet. Resolution still needs visual comparison against the accepted Slop Bowl direction and the future EPIC-015 lint gate signal once enforcement ships.
+
+## 2026-05-05 — Planning-entry Slop Bowl art restored without hex drift
+
+Wilson's Phase 3 Replit review found the Slop Bowl planning-entry card had become too vanilla and no longer carried the joke/slang identity. The follow-up keeps the styling under tokenized `planning-*` / `slop-*` classes, centers the `MAKE GOOD SLOP` sticker mechanically, adds a scoped handwritten label treatment, and restores a messier ingredient-storm bowl doodle.
+
+This adds design evidence for Slop Bowl tone while preserving the EPIC-016 cleanup direction: no new raw hex literals were added.

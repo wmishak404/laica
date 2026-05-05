@@ -458,10 +458,15 @@ export default function MobileApp() {
         >
           <span className="planning-slop-sticker">{slopBowlStickerTagline}</span>
           <span className="planning-slop-mark" aria-hidden="true">
-            <span className="slop-ingredient left-[22%] text-sm">🍖</span>
-            <span className="slop-ingredient slop-ingredient-d1 left-[42%] text-sm">🥦</span>
-            <span className="slop-ingredient slop-ingredient-d2 left-[58%] text-sm">🍚</span>
-            <span className="slop-ingredient slop-ingredient-d3 left-[76%] text-sm">🍅</span>
+            <span className="slop-splash slop-splash-a" />
+            <span className="slop-splash slop-splash-b" />
+            <span className="slop-scribble">???</span>
+            <span className="slop-ingredient left-[16%] text-sm">🥦</span>
+            <span className="slop-ingredient slop-ingredient-d1 left-[33%] text-sm">🧅</span>
+            <span className="slop-ingredient slop-ingredient-d2 left-[52%] text-sm">🍚</span>
+            <span className="slop-ingredient slop-ingredient-d3 left-[70%] text-sm">🧀</span>
+            <span className="slop-ingredient slop-ingredient-d4 left-[82%] text-sm">🧂</span>
+            <span className="slop-spoon">🥄</span>
             <span className="slop-emoji text-5xl leading-none">🥣</span>
           </span>
           <span className="min-w-0 flex-1 text-left">

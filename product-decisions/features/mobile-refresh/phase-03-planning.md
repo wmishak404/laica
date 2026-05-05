@@ -153,6 +153,13 @@ Implemented locally:
 - Per [PD-009](../../009-mobile-refresh-navigation.md), bottom navigation is now a neutral access surface, not a selected-state tab bar.
 - Phase 3 removes the active-state fill from Cook/Menu and increases the icon touch target/visual weight so the menu feels neutral and easier to tap.
 
+2026-05-05 Planning entry handwriting/Slop Bowl art follow-up:
+
+- Wilson's Replit screenshot review found the `MAKE GOOD SLOP` sticker was not centered, the Planning entry lost the handwritten/diary kitchen-note edge from the mockups, and the Slop Bowl art felt too vanilla to carry the joke.
+- Planning card titles and the Slop Bowl sticker now use a scoped handwritten `Patrick Hand` label treatment while keeping readable `Fraunces` display headings and `Nunito` body/control copy.
+- The Slop Bowl card art now adds a messier ingredient storm, splashes, spoon tilt, and `???` scribble around the bowl. The sticker is mechanically centered with `left: 50%` / translate, not eyeballed from the right edge.
+- Styling remains tokenized through planning CSS variables and does not reintroduce Slop Bowl raw hex literals.
+
 Local validation:
 
 - `npm ci`

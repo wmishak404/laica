@@ -141,6 +141,18 @@ Follow-up patch:
 - `client/src/index.css` makes bottom nav buttons larger and neutral, with no coral selected pill.
 - `product-decisions/009-mobile-refresh-navigation.md` records the neutral bottom-nav rule: screen content communicates process status; bottom nav remains neutral access to Cook/Planning and Menu.
 
+## 2026-05-05 Planning entry handwriting/Slop Bowl art follow-up
+
+Wilson's Replit screenshot review caught three planning-entry tone issues: the `MAKE GOOD SLOP` sticker was not centered, the card type lost the handwrite-y kitchen diary edge from the mockups, and the Slop Bowl art had become too clean to carry the humor.
+
+Follow-up patch:
+
+- `client/src/index.css` imports `Patrick Hand` and scopes it to Planning card titles and Slop Bowl sticker labels.
+- `client/src/index.css` centers `.planning-slop-sticker` with `left: 50%` and `translateX(-50%)`.
+- `client/src/pages/app.tsx` and `client/src/index.css` rebuild the Slop Bowl art as a messier ingredient-storm doodle with splashes, a tilted spoon, and a `???` scribble.
+- `design_guidelines.md` records that `Patrick Hand` is appropriate for small tone-forward Planning labels, not body copy or safety-critical controls.
+- EPIC-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
+
 ## Verification
 
 Passed:
