@@ -1,6 +1,8 @@
 # Feature Phase Records
 
-This subtree tracks active feature decisions by delivery phase. It is the working layer between `docs/handoffs/` and top-level product decisions.
+This subtree tracks feature decisions by delivery phase. It is the working layer between `docs/handoffs/` and top-level product decisions.
+
+Feature phase records are not top-level PDs. They may evolve while a feature is active, then should close with the accepted outcome, validation facts, and explicit deferrals once the phase merges.
 
 ## When to Use
 
@@ -8,6 +10,7 @@ This subtree tracks active feature decisions by delivery phase. It is the workin
 - Record decisions that are stable enough to matter beyond a single handoff, but not yet final enough to deserve a top-level `PD-xxx`
 - Capture open questions, assumptions, and cross-agent alignment notes in the phase where they belong
 - Link the relevant INIT when the feature belongs to an active multi-phase initiative
+- Put branch diary material in `docs/handoffs/` unless it distills into an accepted rule or final phase outcome
 
 ## Convention
 
@@ -26,6 +29,8 @@ Suggested phases:
 
 - If a decision becomes durable and should stay easy to discover later, promote it to a top-level `PD-xxx` file
 - If a note is just about branch context or who should do what next, put it in a handoff instead
+- If a phase-level lesson becomes cross-phase or cross-feature policy, promote the distilled rule rather than copying the whole phase history
+- After merge/validation, prefer final outcome and deferral summaries at the top of the phase record; historical detail can remain in handoffs
 
 ## Current Feature Folders
 

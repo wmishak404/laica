@@ -4,6 +4,9 @@
 **Updated:** 2026-04-30
 **Status:** Accepted
 **Decision maker:** Wilson
+**Type:** Product/UX
+**Scope:** Initiative
+**Applies when:** Changing authenticated entry, setup routing, Planning entry, bottom navigation, or authenticated app-shell chrome.
 **Supersedes:** [PD-006](006-home-and-cook-remain-separate.md)
 
 ## Related Initiatives

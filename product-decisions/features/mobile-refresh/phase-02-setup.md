@@ -1,6 +1,7 @@
 # Mobile Refresh Phase 2 — Setup: Pantry, Kitchen, and Profile
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -97,13 +98,13 @@ This means PR #23's merge bar is functional correctness plus the recorded Replit
 
 ## Epic Interactions
 
-- EPIC-001: Applies the mobile-refresh design principles and tokenized warm palette.
+- PD-005 / `design_guidelines.md`: Applies the mobile-refresh design principles and tokenized warm palette.
 - EPIC-004: Skill and dietary rows must be full-row tap targets.
 - EPIC-006: Kitchen/equipment scan excludes non-kitchen items.
 - EPIC-007: Empty scan feedback applies to Pantry and Kitchen.
 - EPIC-009: Comma-separated manual ingredient entry expands beyond Slop Bowl into Setup.
 - EPIC-010: No local DB pushes for schema changes; Replit remains the DB authority.
-- EPIC-012: Phase 2 setup is the first active pilot for LAICA's target design language and visual mockup conformance.
+- `design_guidelines.md`: Phase 2 setup is the first active pilot for Laica's target design language and visual mockup conformance.
 
 ## Backend Notes
 

@@ -3,6 +3,9 @@
 **Date:** 2026-04-17
 **Status:** Superseded by [PD-009](009-mobile-refresh-navigation.md)
 **Decision maker:** Wilson
+**Type:** Product/UX
+**Scope:** Surface
+**Applies when:** Reading historical Home/Cook navigation rationale; new implementation should follow PD-009.
 
 > Superseded on 2026-04-28 by the mobile-refresh navigation direction. The earlier decision remains as historical context for EPIC-002, but implementation should follow [PD-009](009-mobile-refresh-navigation.md).
 

@@ -1,6 +1,7 @@
 # Slop Bowl Phase 1 — Product Direction
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-09
 

@@ -1,6 +1,7 @@
 # Slop Bowl Phase 3 — Simplified Bowl & Cooking Steps Enrichment
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-09
 

@@ -3,6 +3,9 @@
 **Date:** 2026-04-21
 **Status:** Accepted
 **Decision maker:** Wilson
+**Type:** Process
+**Scope:** Global
+**Applies when:** Creating, reading, updating, resolving, or indexing epics.
 
 ## Context
 

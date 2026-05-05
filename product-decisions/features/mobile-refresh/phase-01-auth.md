@@ -1,6 +1,7 @@
 # Mobile Refresh Phase 1 — Auth and First Authenticated Routing
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -34,7 +35,7 @@ Make the first screen feel like a native mobile app instead of a desktop website
 
 ## Epic Interactions
 
-- EPIC-001: New auth surface must use existing tokens/icons/type primitives and avoid ad hoc hex literals.
+- PD-005 / `design_guidelines.md`: New auth surface must use existing tokens/icons/type primitives and avoid ad hoc hex literals.
 - EPIC-005: Readiness depends on manual Replit smoke for Firebase sign-in and routing states.
 
 ## Open Questions

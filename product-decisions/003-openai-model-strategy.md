@@ -3,6 +3,9 @@
 **Date:** 2026-04-09
 **Status:** Accepted
 **Decision maker:** Wilson
+**Type:** Technical/Architecture
+**Scope:** Global
+**Applies when:** Choosing or updating OpenAI models for Laica AI endpoints.
 
 ## Context
 

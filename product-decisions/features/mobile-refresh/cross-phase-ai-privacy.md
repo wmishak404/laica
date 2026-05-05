@@ -1,6 +1,7 @@
 # Mobile Refresh — AI Privacy, Prompt Injection, and Abuse Rules
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Owner:** Wilson
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)

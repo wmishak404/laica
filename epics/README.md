@@ -71,7 +71,7 @@ Use [`registry.md`](registry.md) when you need searchable historical context or 
 
 ## UI governance and visual standards
 
-UI governance is **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or any visual change tied to mobile-refresh phases, read [`PD-005`](../product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](../design_guidelines.md) (canonical visual standard). These graduated from EPIC-001 and EPIC-012 on 2026-05-02; see the [registry](registry.md) for resolved-state pointers.
+UI governance is **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or any visual change tied to mobile-refresh phases, read [`PD-005`](../product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](../design_guidelines.md) (canonical visual standard). See the [registry](registry.md) for resolved-state pointers.
 
 ## Active epic read list
 
