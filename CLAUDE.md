@@ -70,7 +70,7 @@ Current active INITs:
 
 ## UI governance — check before any UI work
 
-UI governance and visual standards are **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/005-ui-governance.md`](product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). These graduated from EPIC-001 and EPIC-012 on 2026-05-02.
+UI governance and visual standards are **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/005-ui-governance.md`](product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`epics/registry.md`](epics/registry.md).
 
 ## Active epics — check before starting work in a governed domain
 

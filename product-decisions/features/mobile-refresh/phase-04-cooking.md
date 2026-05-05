@@ -1,6 +1,7 @@
 # Mobile Refresh Phase 4 — Cooking Guidance
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -67,7 +68,7 @@ suggestedTimer?: {
 
 ## Epic Interactions
 
-- EPIC-001: Establishes the Warm Focus cooking surface and avoids generic AI-chat styling.
+- PD-005 / `design_guidelines.md`: Establishes the Warm Focus cooking surface and avoids generic AI-chat styling.
 - EPIC-005: Requires Replit smoke for cooking-session persistence and speech routes.
 
 ## Backend Notes

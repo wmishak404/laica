@@ -1,6 +1,7 @@
 # Slop Bowl Phase 4 — Implementation Polish & UX Decisions
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-16
 

@@ -1,6 +1,7 @@
 # Mobile Refresh Phase 0 — Cross-Phase Security and Backend Readiness
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)

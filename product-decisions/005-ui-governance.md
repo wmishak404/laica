@@ -3,6 +3,9 @@
 **Date:** 2026-05-02
 **Status:** Accepted
 **Decision maker:** Wilson
+**Type:** Governance
+**Scope:** Global
+**Applies when:** Adding UI surfaces, custom styling, primitive changes, token changes, or scoped-class reuse.
 **Supersedes:** [EPIC-001](../epics/001-ui-governance.md) (graduated)
 
 ## Related Initiatives

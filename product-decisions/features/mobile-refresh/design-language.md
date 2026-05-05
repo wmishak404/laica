@@ -3,6 +3,7 @@
 > **Status: Superseded by [`design_guidelines.md`](../../../design_guidelines.md) on 2026-05-02.** This document is retained as Phase 2.x design-language evidence (Phase 2.1 setup pilot direction, Phase 2.2 returning Settings alignment). Future visual direction lives in `design_guidelines.md`; governance rules in [PD-005](../../005-ui-governance.md). EPIC-012 history is in [`epics/012-laica-design-language.md`](../../../epics/012-laica-design-language.md).
 
 **Status:** Superseded
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-29
 **Source epic:** [EPIC-012](../../../epics/012-laica-design-language.md) (resolved 2026-05-02)
@@ -349,9 +350,9 @@ Before a mobile-refresh phase is marked ready:
 
 ## Relationship to Other Docs
 
-- EPIC-012 owns the open design-language work and tracks unresolved identity decisions.
-- EPIC-001 owns implementation governance and enforcement once the direction is accepted.
-- `design_guidelines.md` remains the current-implementation record until this draft graduates.
+- `design_guidelines.md` owns the living visual standard and open visual decisions.
+- PD-005 owns implementation governance and enforcement once the direction is accepted.
+- This file remains historical Phase 2.x design-language evidence after graduation.
 - Phase records own surface-specific acceptance criteria.
 
 ## Open Decisions

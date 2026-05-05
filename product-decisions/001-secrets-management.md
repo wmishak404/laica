@@ -3,6 +3,9 @@
 **Date:** 2026-04-07
 **Status:** Accepted
 **Decision maker:** Wilson
+**Type:** Technical/Architecture
+**Scope:** Global
+**Applies when:** Managing secrets, local runtime configuration, or Replit/local secret parity.
 
 ## Context
 

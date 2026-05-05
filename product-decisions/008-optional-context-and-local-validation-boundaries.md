@@ -3,6 +3,9 @@
 **Date:** 2026-04-27
 **Status:** Accepted
 **Decision maker:** Wilson
+**Type:** Technical/Architecture
+**Scope:** Global
+**Applies when:** Deciding whether missing context should block, degrade gracefully, or remain an environment/schema issue.
 
 ## Context
 

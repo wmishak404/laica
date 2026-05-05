@@ -1,6 +1,7 @@
 # Mobile Refresh Phase 5 — Post-Cook Cleanup and Retention
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -115,7 +116,7 @@ flowchart TD
 
 ## Epic Interactions
 
-- EPIC-001: Post-cook review follows mobile-refresh design principles.
+- PD-005 / `design_guidelines.md`: Post-cook review follows mobile-refresh design principles.
 - EPIC-007: Empty rescan must show explicit no-detection feedback.
 - EPIC-009: Any quick-add in cleanup uses the shared comma parser.
 - EPIC-010: New cooking-session fields require Replit-first schema handling.

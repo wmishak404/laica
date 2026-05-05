@@ -1,6 +1,7 @@
 # Mobile Refresh Phase 3 — Planning: Chef It Up, Slop Bowl, and Ticket Pass
 
 **Status:** Accepted
+**Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-28
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
@@ -77,7 +78,7 @@ Implementation should match the planning mockups closely enough that the first p
 
 ## Epic Interactions
 
-- EPIC-001: Ticket Pass establishes the distinctive mobile-refresh recipe-suggestion pattern.
+- PD-005 / `design_guidelines.md`: Ticket Pass establishes the distinctive mobile-refresh recipe-suggestion pattern.
 - EPIC-004: Cuisine chips and Slop Bowl confirmation controls must have mobile-appropriate tap targets.
 - EPIC-009: Slop Bowl quick-add uses the shared comma parser.
 - EPIC-010: Last planning time setting must follow the repo's DB-change policy if persisted server-side.

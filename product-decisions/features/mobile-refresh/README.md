@@ -2,7 +2,7 @@
 
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 
-This folder records the approved planning for the Laica mobile-refresh work. It is the source of truth for implementation sequencing after Wilson's phase-by-phase review and Claude's planning review.
+This folder records feature phase records for the Laica mobile-refresh work. It is the source of truth for implementation sequencing after Wilson's phase-by-phase review and Claude's planning review.
 
 ## Phase Index
 
@@ -65,4 +65,4 @@ This follow-up should not block PR #23. If manual sign-in continues slowing Phas
 - First-time setup and returning Settings are separate by user intent but share the same profile database and setup look/feel foundation for Pantry, Kitchen, and Cooking Profile.
 - When a phase reuses accepted visual patterns under a different wrapper, visual consistency means matching rendered/computed typography, radius, icon sizing, and states, not only matching class names.
 
-For visual identity beyond these UX principles, read the draft [Mobile Refresh Design Language](design-language.md) and [EPIC-012 — Laica Design Language & Visual Identity](../../../epics/012-laica-design-language.md). Mobile-refresh implementation should use these alongside the linked mockups and EPIC-001: the design-language draft defines the target look and feel, EPIC-001 governs consistent implementation, and the phase records define surface-specific acceptance.
+For visual identity beyond these UX principles, read [`design_guidelines.md`](../../../design_guidelines.md) and [PD-005](../../005-ui-governance.md). Mobile-refresh implementation should use these alongside the linked mockups: `design_guidelines.md` defines the target look and feel, PD-005 governs consistent implementation, and the phase records define surface-specific acceptance.

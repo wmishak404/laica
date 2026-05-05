@@ -3,6 +3,9 @@
 **Date:** 2026-04-09
 **Status:** Accepted
 **Decision maker:** Wilson
+**Type:** Product/UX
+**Scope:** Feature
+**Applies when:** Building or changing Slop Bowl, zero-decision cooking, or its planning entry point.
 
 ## Context
 
