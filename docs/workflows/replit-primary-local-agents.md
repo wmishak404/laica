@@ -1,5 +1,7 @@
 # Replit-primary local agent workflow
 
+For the detailed “Replit vs local macOS” parity spec (drift vectors, decisions, and enforcement plan), see `docs/workflows/environment-parity-spec.md`.
+
 ## Source of truth
 
 - Replit is the primary runtime, secrets, database, and deployment environment.
