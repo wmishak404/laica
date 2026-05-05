@@ -51,7 +51,7 @@ Root cause in the docs system:
 
 Follow-up patch:
 
-- `client/src/pages/app.tsx` and `client/src/components/cooking/meal-planning.tsx` now import `@assets/laica_logo_v1_cropped_1763444931884.png`.
+- Initial correction made `client/src/pages/app.tsx` and `client/src/components/cooking/meal-planning.tsx` import `@assets/laica_logo_v1_cropped_1763444931884.png`; the later brand-mark restraint follow-up below removes visible logos from Phase 3 process screens.
 - `.planning-brand` text/pseudo-mark CSS was removed and replaced with `.planning-logo`.
 - `design_guidelines.md` now includes the canonical-logo guardrail and review checklist item.
 - `product-decisions/features/mobile-refresh/phase-03-planning.md` records this as Phase 3 implementation evidence.
@@ -96,6 +96,17 @@ Follow-up patch:
 - Cuisine CTA/loading copy now says `View recipe suggestions` / `Finding recipes...`.
 - Ticket Pass heading/action copy now says `Recipe suggestions from your pantry` and `Refresh suggestions`.
 - Ticket badges now say `Pick` instead of numbering the suggestions.
+
+## 2026-05-05 brand-mark restraint follow-up
+
+Wilson clarified that Phase 3 should remove logos from in-app task flows instead of repeating the product mark on process screens. The earlier canonical-logo patch fixed the drift, but the better product direction is restraint: the app is already inside Laica, so Planning does not need to keep announcing the brand.
+
+Follow-up patch:
+
+- `client/src/pages/app.tsx` removes the logo from the Planning choice screen and drops the unused asset import.
+- `client/src/components/cooking/meal-planning.tsx` removes the logo from the Ticket Pass/suggestions screen and drops the unused asset import.
+- `client/src/index.css` removes the now-unused `.planning-logo` class.
+- `design_guidelines.md` keeps the canonical-logo rule for actual branded surfaces and adds the complementary rule that ordinary setup/planning/selection/cooking/confirmation/settings process screens should not repeat the product mark unless explicitly designed as a branded entry/sign-in/landing moment.
 
 ## Verification
 

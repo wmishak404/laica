@@ -109,7 +109,7 @@ Implemented locally:
 2026-05-05 logo drift follow-up:
 
 - Wilson's Replit screenshot review found that Phase 3 had recreated `Laica` as a CSS text wordmark with a pseudo-mark, while other branded surfaces use the canonical cropped logo asset.
-- Planning entry and Ticket Pass now use `@assets/laica_logo_v1_cropped_1763444931884.png`.
+- Initial correction replaced the CSS text wordmark with `@assets/laica_logo_v1_cropped_1763444931884.png`; the later brand-mark restraint follow-up below removes visible logos from Phase 3 process screens.
 - [`design_guidelines.md`](../../../design_guidelines.md) now explicitly requires the canonical logo asset when a surface displays the product mark as a brand object. This closes the docs-system gap that allowed the drift: previous guidance covered casing (`Laica` vs `LAICA`) and mockup conformance, but not product-mark asset reuse.
 
 2026-05-05 time-slider geometry follow-up:
@@ -130,6 +130,12 @@ Implemented locally:
 - Wilson clarified that the UI should not expose the exact suggestion count as visible copy; that is a generation/validation constraint, not product language.
 - Cuisine CTA/loading copy now says `View recipe suggestions` / `Finding recipes...`.
 - Ticket Pass copy now says `Recipe suggestions from your pantry`, `Refresh suggestions`, and `Pick` instead of foregrounding "three" or numeric ranks.
+
+2026-05-05 brand-mark restraint follow-up:
+
+- Wilson clarified that Phase 3 should not keep showing the Laica logo inside in-app task flows; most app processes do not need repeated branding once the user is already inside the product.
+- Planning entry and Ticket Pass now remove the logo entirely while keeping the canonical logo rule for genuinely branded surfaces.
+- [`design_guidelines.md`](../../../design_guidelines.md) now adds the complementary guardrail: ordinary setup, planning, selection, cooking, confirmation, and settings process screens should not repeat the product mark unless explicitly designed as a branded entry/sign-in/landing moment.
 
 Local validation:
 

@@ -12,7 +12,6 @@ import { Card } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 import { ArrowRight, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
-import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
 import {
   DEFAULT_PLANNING_TIME_VALUE,
   PLANNING_TIME_STORAGE_KEY,
@@ -423,8 +422,7 @@ export default function MobileApp() {
     <div className="planning-choice-shell mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <img src={laicaLogo} alt="Laica" className="planning-logo" />
-          <h2 className="planning-display mt-5 text-3xl font-extrabold leading-tight">
+          <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
         </div>

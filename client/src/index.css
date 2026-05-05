@@ -1015,13 +1015,6 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
   }
 
-  .planning-logo {
-    display: block;
-    height: 2.45rem;
-    width: auto;
-    object-fit: contain;
-  }
-
   .planning-back-button {
     display: inline-flex;
     height: 2.75rem;

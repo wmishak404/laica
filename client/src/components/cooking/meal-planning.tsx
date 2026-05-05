@@ -5,7 +5,6 @@ import { Slider } from '@/components/ui/slider';
 import { fetchPantryRecipes } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
-import laicaLogo from '@assets/laica_logo_v1_cropped_1763444931884.png';
 import {
   PLANNING_TIME_OPTIONS,
   getPlanningTimePrompt,
@@ -532,8 +531,7 @@ export default function MealPlanning({
         </button>
 
         <div className="text-center">
-          <img src={laicaLogo} alt="Laica" className="planning-logo mx-auto" />
-          <h1 className="planning-display mt-4 text-3xl font-extrabold leading-tight">
+          <h1 className="planning-display text-3xl font-extrabold leading-tight">
             Recipe suggestions from your pantry
           </h1>
           <Utensils className="mx-auto mt-3 h-5 w-5 text-primary" aria-hidden="true" />
