@@ -1174,11 +1174,20 @@ html, body {
     padding: 1rem;
   }
 
+  .planning-slider-track {
+    padding-inline: 12.5%;
+  }
+
   .planning-slider-card [role='slider'] {
     height: 1.8rem;
     width: 1.8rem;
     border-width: 0.32rem;
     box-shadow: 0 0.45rem 1rem hsl(var(--planning-coral) / 0.2);
+  }
+
+  .planning-time-label-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .planning-time-label {

@@ -349,18 +349,20 @@ export default function MealPlanning({
         </div>
 
         <div className="planning-slider-card">
-          <Slider
-            value={[selectedTimeIndex]}
-            min={0}
-            max={PLANNING_TIME_OPTIONS.length - 1}
-            step={1}
-            onValueChange={(value) => {
-              const option = PLANNING_TIME_OPTIONS[value[0]] ?? PLANNING_TIME_OPTIONS[0];
-              setPlanningTime(option.value);
-            }}
-            aria-label="Planning time"
-          />
-          <div className="mt-5 grid grid-cols-4 gap-2">
+          <div className="planning-slider-track">
+            <Slider
+              value={[selectedTimeIndex]}
+              min={0}
+              max={PLANNING_TIME_OPTIONS.length - 1}
+              step={1}
+              onValueChange={(value) => {
+                const option = PLANNING_TIME_OPTIONS[value[0]] ?? PLANNING_TIME_OPTIONS[0];
+                setPlanningTime(option.value);
+              }}
+              aria-label="Planning time"
+            />
+          </div>
+          <div className="planning-time-label-grid mt-5">
             {PLANNING_TIME_OPTIONS.map((option) => (
               <button
                 type="button"

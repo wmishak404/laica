@@ -112,6 +112,12 @@ Implemented locally:
 - Planning entry and Ticket Pass now use `@assets/laica_logo_v1_cropped_1763444931884.png`.
 - [`design_guidelines.md`](../../../design_guidelines.md) now explicitly requires the canonical logo asset when a surface displays the product mark as a brand object. This closes the docs-system gap that allowed the drift: previous guidance covered casing (`Laica` vs `LAICA`) and mockup conformance, but not product-mark asset reuse.
 
+2026-05-05 time-slider geometry follow-up:
+
+- Wilson's Replit screenshot review found the slider thumb did not land exactly over `30m`, `1hr`, `1.5hrs`, or `Got all the time`.
+- Root cause: the Radix slider stops were distributed across the full track (`0%`, `33%`, `67%`, `100%`), while the four labels were visually centered in equal columns (`12.5%`, `37.5%`, `62.5%`, `87.5%`).
+- The slider track now uses `12.5%` inline padding and a no-gap four-column label grid so the thumb stop positions align with the label centers.
+
 Local validation:
 
 - `npm ci`

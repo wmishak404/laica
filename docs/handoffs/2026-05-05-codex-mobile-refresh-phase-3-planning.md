@@ -56,6 +56,21 @@ Follow-up patch:
 - `design_guidelines.md` now includes the canonical-logo guardrail and review checklist item.
 - `product-decisions/features/mobile-refresh/phase-03-planning.md` records this as Phase 3 implementation evidence.
 
+## 2026-05-05 time-slider geometry follow-up
+
+Wilson's Replit screenshot review caught that the time-slider thumb was not visually landing on the approved labels.
+
+Root cause:
+
+- Radix placed four discrete slider values across the full physical track at `0%`, `33%`, `67%`, and `100%`.
+- The labels were centered in four equal visual columns, so their centers were `12.5%`, `37.5%`, `62.5%`, and `87.5%`.
+- The slider thumb was technically correct for the track but visually misaligned with the labels.
+
+Follow-up patch:
+
+- `client/src/components/cooking/meal-planning.tsx` now wraps the slider in `planning-slider-track`.
+- `client/src/index.css` gives the track `12.5%` inline padding and uses a no-gap four-column label grid, so each Radix stop aligns with the matching label center.
+
 ## Verification
 
 Passed:
