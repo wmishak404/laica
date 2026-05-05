@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 3 planning kickoff
-**Active PR:** None
-**Active branch:** TBD
+**Active PR:** PR #34
+**Active branch:** `codex/init-process-pd-taxonomy`
 
 ## Overview
 
@@ -89,6 +89,7 @@ INIT-001 now resumes at Phase 3 Planning from fresh `origin/main` after merge co
 | #26 | Merged | `codex/mobile-refresh-phase-2-closeout` | Phase 2 closeout moved resume point to Phase 2.1 |
 | #27 | Merged | `codex/mobile-refresh-phase-2-1-setup-polish` | Runtime validation at `ac698a3`; final branch head `eaff0e8` docs-only; merged as `5419a90` |
 | #30 | Merged | `codex/mobile-refresh-phase-2-2-settings-history` | Replit validation passed at `dc59796`; merged as `bc25ef3` |
+| #34 | Draft | `codex/init-process-pd-taxonomy` | Docs-only process/PD taxonomy cleanup; Claude architectural review completed with follow-up fixes folded in |
 
 ## Epics and Governance
 
@@ -169,4 +170,4 @@ Resolved UI governance and design-language epics graduated to [PD-005](../produc
 
 ### 2026-05-05 - Process and product-decision taxonomy cleanup
 
-Codex compacted INIT-001, clarified product-decision taxonomy, labeled feature-phase records, and prepared the branch for Claude review before merge.
+Codex compacted INIT-001, clarified product-decision taxonomy, labeled feature-phase records, and opened draft PR #34 for Claude review before merge. Claude's substantive taxonomy findings were folded into the PR branch.
