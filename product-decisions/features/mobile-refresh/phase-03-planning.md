@@ -125,6 +125,12 @@ Implemented locally:
 - The cuisine menu now restores a broader starter cuisine set and scrolls when options exceed one screen.
 - `No preference` is selected by default, remains exclusive, and sits outside the scroll list in the lower thumb zone next to the primary action. Selecting any cuisine clears the default; clearing all cuisines restores it.
 
+2026-05-05 suggestion-copy follow-up:
+
+- Wilson clarified that the UI should not expose the exact suggestion count as visible copy; that is a generation/validation constraint, not product language.
+- Cuisine CTA/loading copy now says `View recipe suggestions` / `Finding recipes...`.
+- Ticket Pass copy now says `Recipe suggestions from your pantry`, `Refresh suggestions`, and `Pick` instead of foregrounding "three" or numeric ranks.
+
 Local validation:
 
 - `npm ci`

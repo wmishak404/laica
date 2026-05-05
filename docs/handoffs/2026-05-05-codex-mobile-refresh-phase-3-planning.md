@@ -35,7 +35,7 @@ Last Replit-validated at: not yet validated.
 ## Open items
 
 - Wilson/Replit visual review against `phase-03-planning-flow.png` and `phase-03-ticket-pass.png`.
-- Replit validation for authenticated Planning entry, Chef It Up time/cuisine flow, recipe generation, exactly-three Ticket Pass results, Prep Tray -> Cooking, New three, Slop Bowl quick-add/remove, Slop Bowl sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry.
+- Replit validation for authenticated Planning entry, Chef It Up time/cuisine flow, recipe generation, exactly-three Ticket Pass results, Prep Tray -> Cooking, Refresh suggestions, Slop Bowl quick-add/remove, Slop Bowl sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry.
 - Refresh `Last Replit-validated at` in the PR/handoff after Replit passes.
 - Wilson decision still open if last planning time should become a real server-side profile field in a later pass. Current branch deliberately avoids that schema change.
 
@@ -86,6 +86,16 @@ Follow-up patch:
 - The cuisine options live in a scrollable picker region, so the list can grow beyond one screen without pushing the primary action away.
 - `No preference` is selected by default and stays in the lower thumb zone outside the scroll region. Selecting a cuisine clears it; clearing all selected cuisines restores it.
 - `client/src/index.css` adds the fixed-height cuisine screen, scroll region, and lower action block styling without raw hex literals.
+
+## 2026-05-05 suggestion-copy follow-up
+
+Wilson clarified that visible Planning copy should not talk about "three" suggestions. The exact count remains a hidden generation and validation constraint, but the UI should read like recipe browsing.
+
+Follow-up patch:
+
+- Cuisine CTA/loading copy now says `View recipe suggestions` / `Finding recipes...`.
+- Ticket Pass heading/action copy now says `Recipe suggestions from your pantry` and `Refresh suggestions`.
+- Ticket badges now say `Pick` instead of numbering the suggestions.
 
 ## Verification
 

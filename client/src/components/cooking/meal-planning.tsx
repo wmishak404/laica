@@ -466,17 +466,17 @@ export default function MealPlanning({
           {isLoading ? (
             <>
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Making three ideas...
+              Finding recipes...
             </>
           ) : (
-            'Show me three ideas'
+            'View recipe suggestions'
           )}
         </Button>
       </div>
     </section>
   );
 
-  const renderTicket = (recipe: RecipeRecommendation, index: number, isLarge = false) => {
+  const renderTicket = (recipe: RecipeRecommendation, isLarge = false) => {
     const selected = selectedMeal?.id === recipe.id;
 
     return (
@@ -490,7 +490,7 @@ export default function MealPlanning({
         <span className="planning-ticket-rip" aria-hidden="true" />
         <span className="planning-ticket-rank">
           <ChefHat className="h-4 w-4" />
-          #{index + 1}
+          Pick
         </span>
         <span className="planning-ticket-title">{recipe.recipeName}</span>
         {isLarge && (
@@ -534,14 +534,14 @@ export default function MealPlanning({
         <div className="text-center">
           <img src={laicaLogo} alt="Laica" className="planning-logo mx-auto" />
           <h1 className="planning-display mt-4 text-3xl font-extrabold leading-tight">
-            Three ideas from your pantry
+            Recipe suggestions from your pantry
           </h1>
           <Utensils className="mx-auto mt-3 h-5 w-5 text-primary" aria-hidden="true" />
         </div>
 
         <div className="mt-7 space-y-3">
-          {featuredRecipe && renderTicket(featuredRecipe, visibleRecommendations.findIndex((recipe) => recipe.id === featuredRecipe.id), true)}
-          {sideRecipes.map((recipe) => renderTicket(recipe, visibleRecommendations.findIndex((item) => item.id === recipe.id)))}
+          {featuredRecipe && renderTicket(featuredRecipe, true)}
+          {sideRecipes.map((recipe) => renderTicket(recipe))}
         </div>
 
         <div className="mt-6 space-y-3">
@@ -567,7 +567,7 @@ export default function MealPlanning({
             ) : (
               <>
                 <RefreshCw className="h-5 w-5" />
-                New three
+                Refresh suggestions
               </>
             )}
           </Button>
@@ -580,7 +580,7 @@ export default function MealPlanning({
     if (!selectedMeal) {
       return (
         <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
-          <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to three ideas">
+          <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="planning-note">
@@ -593,7 +593,7 @@ export default function MealPlanning({
 
     return (
       <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
-        <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to three ideas">
+        <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
           <ArrowLeft className="h-5 w-5" />
         </button>
 
