@@ -53,3 +53,14 @@ Consolidate the authenticated Home/Cook entry so users land directly where their
 During Phase 2.1 Replit visual review, Wilson clarified that the app should remove the header from all authenticated pages. Users can access account information, sign-out, and profile through the bottom menu/account area, so the top header costs vertical space without adding value in the mobile app shell.
 
 This applies to future mobile-refresh work: core app pages should not reintroduce a website-like top header by default.
+
+## 2026-05-05 Amendment — Neutral Bottom Navigation
+
+During Phase 3 Replit visual review, Wilson clarified that the two-icon bottom navigation should not behave like a selected-state tab bar. Planning/Chef It Up/Slop Bowl are the active process, but the chef icon should not appear as a shaded "Cook" status badge.
+
+The bottom navigation is a neutral access surface:
+
+- Keep icon-only Cook and Menu controls with accessible labels.
+- Do not show a coral selected pill or phase-status fill for the current process.
+- Use a comfortable touch target and clear neutral icon sizing.
+- Let the screen content, not the nav icon, communicate where the user is.

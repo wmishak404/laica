@@ -131,6 +131,16 @@ Speed guidance:
 - Phase 3 should not generate food images on the critical path. Suggestions should reveal as soon as the recipe response returns.
 - Phase 3.1 generated recipe imagery, if accepted, should be async/cached and allowed to hydrate after the Ticket Pass is already usable.
 
+## 2026-05-05 bottom-navigation follow-up
+
+Wilson's Replit screenshot review caught that the bottom nav made the chef icon look like a selected Cook status badge during Planning. The coral active fill was also visually heavier than needed for a utilitarian access surface.
+
+Follow-up patch:
+
+- `client/src/pages/app.tsx` no longer marks Cook/Menu bottom buttons as active based on the current phase.
+- `client/src/index.css` makes bottom nav buttons larger and neutral, with no coral selected pill.
+- `product-decisions/009-mobile-refresh-navigation.md` records the neutral bottom-nav rule: screen content communicates process status; bottom nav remains neutral access to Cook/Planning and Menu.
+
 ## Verification
 
 Passed:

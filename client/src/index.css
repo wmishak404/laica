@@ -909,19 +909,30 @@ html, body {
   .app-bottom-button,
   .app-bottom-button:hover {
     display: inline-flex;
-    height: 3.4rem;
-    min-width: 3.4rem;
+    height: 4rem;
+    min-width: 4rem;
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    color: hsl(var(--returning-ink) / 0.58);
+    background: transparent;
+    color: hsl(var(--returning-ink) / 0.62);
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-weight: 900;
   }
 
+  .app-bottom-button:hover {
+    background: hsl(var(--returning-ink) / 0.05);
+    color: hsl(var(--returning-ink) / 0.74);
+  }
+
+  .app-bottom-button svg {
+    height: 1.65rem;
+    width: 1.65rem;
+  }
+
   .app-bottom-button[data-active='true'] {
-    background: hsl(var(--returning-coral-soft) / 0.68);
-    color: hsl(var(--returning-coral));
+    background: transparent;
+    color: hsl(var(--returning-ink) / 0.62);
   }
 
   .menu-sheet {

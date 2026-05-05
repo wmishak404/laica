@@ -492,7 +492,6 @@ export default function MobileApp() {
               setCurrentPhase('planning');
             }}
             className="app-bottom-button"
-            data-active={currentPhase === 'planning' || currentPhase === 'slop-bowl'}
             disabled={userProfile.cookingSkill === ''}
             aria-label="Cook"
             title="Cook"
@@ -505,7 +504,6 @@ export default function MobileApp() {
               variant="ghost"
               size="icon"
               className="app-bottom-button"
-              data-active={currentPhase === 'settings' || currentPhase === 'history'}
               disabled={userProfile.cookingSkill === ''}
               aria-label="Menu"
               title="Menu"

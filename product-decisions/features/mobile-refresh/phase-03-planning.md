@@ -147,6 +147,12 @@ Implemented locally:
 - Ticket Pass and Prep Tray now reserve generated-image slots and render designed placeholders in Phase 3. The recipe object also accepts optional `imageUrl` so Phase 3.1 can hydrate generated/illustrated imagery without reshaping the UI.
 - The suggestion layout now uses a featured ticket with compact alternate tickets beneath it, closer to the `phase-03-ticket-pass.png` stack/selected-ticket visual model. Actual recipe imagery is tracked in [Phase 3.1](phase-03-1-recipe-imagery.md) and should be async/cached when introduced.
 
+2026-05-05 bottom-navigation follow-up:
+
+- Wilson's Replit screenshot review found the bottom nav made the chef icon look like a selected Cook status badge during Planning because of the coral active pill.
+- Per [PD-009](../../009-mobile-refresh-navigation.md), bottom navigation is now a neutral access surface, not a selected-state tab bar.
+- Phase 3 removes the active-state fill from Cook/Menu and increases the icon touch target/visual weight so the menu feels neutral and easier to tap.
+
 Local validation:
 
 - `npm ci`
