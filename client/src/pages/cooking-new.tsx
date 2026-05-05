@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useUpdateUserProfile } from '@/hooks/useAuth';
@@ -12,6 +12,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ChefHat, Users, Clock, Settings, ArrowRight } from 'lucide-react';
+import {
+  DEFAULT_PLANNING_TIME_VALUE,
+  PLANNING_TIME_STORAGE_KEY,
+  normalizePlanningTimeValue,
+  type PlanningTimeValue,
+} from '@shared/planning';
 
 interface UserProfile {
   cookingSkill: string;
@@ -41,6 +47,10 @@ export default function Cooking() {
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
   const [isReturningUser, setIsReturningUser] = useState(false);
+  const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() => {
+    if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
+    return normalizePlanningTimeValue(window.localStorage.getItem(PLANNING_TIME_STORAGE_KEY));
+  });
   const { toast } = useToast();
 
   // Fetch user profile from database
@@ -117,6 +127,13 @@ export default function Cooking() {
       description: `I'll guide you through making ${meal.recipeName}.`
     });
   };
+
+  const handlePlanningTimeChange = useCallback((value: PlanningTimeValue) => {
+    setLastPlanningTime(value);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(PLANNING_TIME_STORAGE_KEY, value);
+    }
+  }, []);
 
   const resetToWelcome = () => {
     setCurrentPhase('welcome');
@@ -228,11 +245,15 @@ export default function Cooking() {
 
       case 'planning':
         return userProfile ? (
-          <MealPlanning 
-            userProfile={userProfile}
-            onMealSelected={handleMealSelected}
-            onBackToProfile={() => setCurrentPhase('welcome')}
-          />
+          <div className="planning-ui">
+            <MealPlanning
+              userProfile={userProfile}
+              onMealSelected={handleMealSelected}
+              initialTimeAvailable={lastPlanningTime}
+              onPlanningTimeChange={handlePlanningTimeChange}
+              onBackToProfile={() => setCurrentPhase('welcome')}
+            />
+          </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="text-center">

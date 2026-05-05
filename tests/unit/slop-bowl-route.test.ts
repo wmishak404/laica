@@ -151,4 +151,53 @@ describe('POST /api/recipes/slop-bowl sparse pantry guard', () => {
       await closeServer(server);
     }
   });
+
+  it('passes the Phase 3 planning time setting through to generation', async () => {
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/slop-bowl`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+        body: JSON.stringify({
+          pantryOverride: ['rice', 'eggs', 'soy sauce'],
+          planningTimeAvailable: '90',
+        }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(mocks.getSlopBowlRecipe).toHaveBeenCalledWith(expect.objectContaining({
+        ingredients: ['rice', 'eggs', 'soy sauce'],
+        planningTimeAvailable: '90',
+      }));
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it('rejects unknown planning time values before generation', async () => {
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/slop-bowl`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+        body: JSON.stringify({
+          pantryOverride: ['rice', 'eggs', 'soy sauce'],
+          planningTimeAvailable: '120',
+        }),
+      });
+
+      expect(response.status).toBe(400);
+      expect(mocks.getSlopBowlRecipe).not.toHaveBeenCalled();
+    } finally {
+      await closeServer(server);
+    }
+  });
 });

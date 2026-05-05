@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 3 planning kickoff
+**Current phase:** Phase 3 implementation
 **Active PR:** None
-**Active branch:** TBD
+**Active branch:** `codex/mobile-refresh-phase-3-planning`
 
 ## Overview
 
@@ -30,7 +30,9 @@ Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shippe
 
 Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Pantry/Kitchen/Profile edits; History is separate cooking memory. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
 
-PR #34 merged the process and product-decision taxonomy cleanup. INIT-001 now resumes at Phase 3 Planning from fresh `origin/main` after merge commit `6288aefce3d923092d496ace535f7a3e8841f506`.
+PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation is now in progress on `codex/mobile-refresh-phase-3-planning` from `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`.
+
+Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisine flow, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Local `npm run check`, `npm run build`, focused Vitest coverage, and dotenvx dev-server boot smoke have passed. Replit validation is not yet run.
 
 ## Source Docs
 
@@ -72,7 +74,7 @@ PR #34 merged the process and product-decision taxonomy cleanup. INIT-001 now re
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
-| Phase 3 | Planned | TBD | Planning entry, Chef It Up, Slop Bowl update, Ticket Pass |
+| Phase 3 | In Progress | `codex/mobile-refresh-phase-3-planning` | Planning entry, Chef It Up, Ticket Pass, Prep Tray, Slop Bowl update implemented locally; Replit validation pending |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
 
@@ -132,16 +134,18 @@ Known validation facts:
 - Phase 2.2 Replit validation passed at `dc59796ae1602af4643c5fc640be47ab19a59e04`.
 - PR #30 merged Phase 2.2 into `main` as merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`.
 - Phase 2.2 validated Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, History list/expand/delete/undo, feedback context, returning Settings visual parity, local typecheck/build, and relevant Vitest coverage.
+- Phase 3 local validation on `codex/mobile-refresh-phase-3-planning` has passed `npm run check`, `npm run build`, `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`, `git diff --check`, and a dotenvx dev-server boot smoke returning HTTP 200 on port 3000.
+- Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
 
-Resume in Phase 3 Planning from fresh `origin/main`.
+Continue Phase 3 implementation on `codex/mobile-refresh-phase-3-planning`.
 
-Next implementation focus:
+Next implementation / validation focus:
 
-1. Open the Phase 3 branch from fresh `origin/main` at or after merge commit `6288aefce3d923092d496ace535f7a3e8841f506`.
-2. Use Phase 2.1 setup and Phase 2.2 returning Settings as accepted visual anchors before touching Planning, Chef It Up, Slop Bowl, or Ticket Pass.
-3. Implement Phase 3 Planning against [phase-03-planning.md](../product-decisions/features/mobile-refresh/phase-03-planning.md), [phase-03-planning-flow.png](../docs/assets/mobile-refresh/phase-03-planning-flow.png), and [phase-03-ticket-pass.png](../docs/assets/mobile-refresh/phase-03-ticket-pass.png).
+1. Review Phase 3 surfaces against [phase-03-planning-flow.png](../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [phase-03-ticket-pass.png](../docs/assets/mobile-refresh/phase-03-ticket-pass.png), especially Ticket Pass hierarchy and Prep Tray density.
+2. Run Replit validation for authenticated Planning, Chef It Up generation, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, and Slop Bowl -> Edit pantry.
+3. Refresh the PR/handoff `Last Replit-validated at` SHA after Replit passes.
 4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 
 ## Chronology

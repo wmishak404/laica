@@ -61,3 +61,9 @@ This epic is `Resolved` when all of the following are true:
 2. Visual comparison confirms no rendering regression.
 3. EPIC-015's ESLint rule passes on Slop Bowl files (when EPIC-015 has shipped).
 4. This epic file has a final dated resolution note pointing at the merged PR.
+
+## 2026-05-05 — Phase 3 planning implementation signal
+
+`codex/mobile-refresh-phase-3-planning` touches Slop Bowl as part of INIT-001 Phase 3. The branch removes direct `bg-[#hex]` / `hover:bg-[#hex]` / `border-[#hex]` callsites from `client/src/components/cooking/slop-bowl.tsx` and the Slop Bowl planning-entry card in `client/src/pages/app.tsx`, moving the refreshed tone-forward styling behind `planning-*` / `slop-check-*` CSS-variable classes and PD-005 tone-override comments.
+
+This does not close EPIC-016 yet. Resolution still needs visual comparison against the accepted Slop Bowl direction and the future EPIC-015 lint gate signal once enforcement ships.

@@ -897,6 +897,9 @@ html, body {
   }
 
   .app-bottom-nav {
+    --returning-coral: 0 84% 67%;
+    --returning-coral-soft: 0 100% 94%;
+    --returning-ink: 223 21% 18%;
     border-top: 1px solid hsl(20 18% 88%);
     background: hsl(0 0% 100% / 0.94);
     box-shadow: 0 -0.8rem 2rem hsl(0 0% 0% / 0.05);
@@ -973,6 +976,512 @@ html, body {
     border-radius: 0.95rem;
     background: hsl(var(--returning-coral-soft) / 0.82);
     color: hsl(var(--returning-coral));
+  }
+
+  .planning-ui {
+    --planning-cream: 38 100% 97%;
+    --planning-cream-deep: 35 86% 94%;
+    --planning-coral: 0 84% 67%;
+    --planning-coral-soft: 0 100% 94%;
+    --planning-ink: 223 21% 18%;
+    --planning-muted: 25 28% 46%;
+    --planning-ticket: 38 82% 94%;
+    --planning-ticket-edge: 33 40% 76%;
+    --planning-herb: 111 31% 43%;
+    --planning-herb-soft: 104 42% 88%;
+    --planning-butter: 43 100% 76%;
+    --planning-teal: 174 48% 46%;
+    background:
+      radial-gradient(circle at 12% 0%, hsl(var(--planning-butter) / 0.2), transparent 16rem),
+      radial-gradient(circle at 92% 14%, hsl(var(--planning-teal) / 0.1), transparent 18rem),
+      linear-gradient(180deg, hsl(var(--planning-cream)), hsl(var(--planning-cream-deep)));
+    color: hsl(var(--planning-ink));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .planning-screen,
+  .planning-choice-shell {
+    color: hsl(var(--planning-ink));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .planning-display {
+    font-family: 'Fraunces', 'Merriweather', Georgia, serif;
+    letter-spacing: 0;
+  }
+
+  .planning-copy {
+    color: hsl(var(--planning-ink) / 0.66);
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .planning-brand {
+    display: inline-flex;
+    align-items: center;
+    color: hsl(var(--planning-coral));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+    font-size: 1.72rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  .planning-brand::before {
+    content: '';
+    display: inline-block;
+    width: 0.24rem;
+    height: 0.8rem;
+    margin-right: 0.28rem;
+    border-radius: 999px;
+    background: hsl(var(--planning-coral));
+    transform: rotate(8deg);
+  }
+
+  .planning-back-button {
+    display: inline-flex;
+    height: 2.75rem;
+    width: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: hsl(var(--planning-coral));
+  }
+
+  .planning-back-button:hover {
+    background: hsl(0 0% 100% / 0.5);
+  }
+
+  .planning-choice-card {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 12.5rem;
+    align-items: center;
+    gap: 1rem;
+    overflow: hidden;
+    border: 1px solid hsl(var(--planning-coral) / 0.24);
+    border-radius: 1.3rem;
+    padding: 1.1rem;
+    text-align: left;
+    box-shadow: 0 1rem 2.3rem hsl(var(--planning-coral) / 0.09);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  }
+
+  .planning-choice-card:hover {
+    border-color: hsl(var(--planning-coral) / 0.42);
+    box-shadow: 0 1.1rem 2.6rem hsl(var(--planning-coral) / 0.13);
+    transform: translateY(-1px);
+  }
+
+  .planning-choice-primary {
+    background:
+      radial-gradient(circle at 11% 16%, hsl(0 0% 100% / 0.84), transparent 5rem),
+      linear-gradient(135deg, hsl(0 0% 100% / 0.86), hsl(var(--planning-coral-soft) / 0.7)),
+      hsl(0 0% 100% / 0.62);
+  }
+
+  .planning-choice-secondary {
+    min-height: 10.8rem;
+    border-color: hsl(var(--planning-ticket-edge) / 0.48);
+    background:
+      radial-gradient(circle at 86% 18%, hsl(var(--planning-butter) / 0.28), transparent 4.5rem),
+      linear-gradient(135deg, hsl(0 0% 100% / 0.76), hsl(var(--planning-ticket) / 0.88)),
+      hsl(0 0% 100% / 0.56);
+  }
+
+  .planning-chef-mark,
+  .planning-slop-mark {
+    display: inline-flex;
+    height: 5.8rem;
+    width: 5.8rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.45rem;
+    background:
+      radial-gradient(circle at 28% 22%, hsl(var(--planning-butter) / 0.46), transparent 2.8rem),
+      hsl(0 0% 100% / 0.76);
+    box-shadow: inset 0 0 0 1px hsl(var(--planning-coral) / 0.12);
+    font-size: 3rem;
+  }
+
+  .planning-slop-mark {
+    position: relative;
+    background:
+      radial-gradient(circle at 32% 22%, hsl(var(--planning-coral-soft) / 0.55), transparent 2.5rem),
+      hsl(0 0% 100% / 0.72);
+  }
+
+  .planning-slop-sticker {
+    position: absolute;
+    right: 0.8rem;
+    top: 0.7rem;
+    z-index: 1;
+    border-radius: 999px;
+    background: hsl(var(--planning-coral));
+    color: hsl(0 0% 100%);
+    font-size: 0.62rem;
+    font-weight: 900;
+    line-height: 1;
+    padding: 0.35rem 0.55rem;
+    transform: rotate(4deg);
+  }
+
+  .planning-choice-title {
+    display: block;
+    color: hsl(var(--planning-coral));
+    font-size: 1.22rem;
+    font-weight: 900;
+    line-height: 1.1;
+  }
+
+  .planning-choice-copy {
+    display: block;
+    margin-top: 0.45rem;
+    color: hsl(var(--planning-ink) / 0.76);
+    font-size: 0.92rem;
+    font-weight: 800;
+    line-height: 1.22;
+  }
+
+  .planning-choice-arrow {
+    display: inline-flex;
+    height: 3.1rem;
+    width: 3.1rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: hsl(var(--planning-coral));
+    color: hsl(0 0% 100%);
+    box-shadow: 0 0.85rem 1.5rem hsl(var(--planning-coral) / 0.2);
+  }
+
+  .planning-choice-arrow-secondary {
+    border: 1px solid hsl(var(--planning-coral) / 0.32);
+    background: hsl(0 0% 100% / 0.72);
+    color: hsl(var(--planning-coral));
+    box-shadow: none;
+  }
+
+  .planning-clock {
+    display: flex;
+    height: 11rem;
+    width: 11rem;
+    align-items: center;
+    justify-content: center;
+    border: 0.65rem solid hsl(var(--planning-coral));
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 50% 50%, hsl(0 0% 100%), hsl(var(--planning-ticket)));
+    color: hsl(var(--planning-ink));
+    box-shadow:
+      0 1.2rem 2.6rem hsl(var(--planning-coral) / 0.16),
+      inset 0 0 0 1px hsl(var(--planning-ticket-edge) / 0.32);
+  }
+
+  .planning-slider-card,
+  .planning-note {
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.4);
+    border-radius: 1.15rem;
+    background: hsl(0 0% 100% / 0.62);
+    box-shadow: 0 0.8rem 1.8rem hsl(var(--planning-coral) / 0.07);
+    padding: 1rem;
+  }
+
+  .planning-slider-card [role='slider'] {
+    height: 1.8rem;
+    width: 1.8rem;
+    border-width: 0.32rem;
+    box-shadow: 0 0.45rem 1rem hsl(var(--planning-coral) / 0.2);
+  }
+
+  .planning-time-label {
+    min-height: 2.75rem;
+    color: hsl(var(--planning-ink) / 0.72);
+    font-size: 0.86rem;
+    font-weight: 900;
+    line-height: 1.05;
+    text-align: center;
+  }
+
+  .planning-time-label[data-active='true'] {
+    color: hsl(var(--planning-coral));
+  }
+
+  .planning-note {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: hsl(var(--planning-ink) / 0.76);
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
+  .planning-note svg {
+    flex-shrink: 0;
+    color: hsl(var(--planning-coral));
+  }
+
+  .planning-cuisine-row,
+  .planning-no-preference {
+    display: flex;
+    min-height: 4.25rem;
+    width: 100%;
+    align-items: center;
+    gap: 0.8rem;
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.48);
+    border-radius: 1rem;
+    background: hsl(0 0% 100% / 0.68);
+    color: hsl(var(--planning-ink));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+    font-weight: 900;
+    padding: 0.75rem;
+    box-shadow: 0 0.7rem 1.6rem hsl(var(--planning-coral) / 0.05);
+    transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  }
+
+  .planning-cuisine-row:hover,
+  .planning-no-preference:hover {
+    background: hsl(0 0% 100% / 0.86);
+    transform: translateY(-1px);
+  }
+
+  .planning-cuisine-row[data-selected='true'],
+  .planning-no-preference[data-selected='true'] {
+    border-color: hsl(var(--planning-coral) / 0.62);
+    background: hsl(var(--planning-coral-soft) / 0.72);
+  }
+
+  .planning-cuisine-icon {
+    display: inline-flex;
+    height: 2.9rem;
+    width: 2.9rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.95rem;
+    background:
+      radial-gradient(circle at 30% 20%, hsl(var(--planning-butter) / 0.48), transparent 1.8rem),
+      hsl(0 0% 100% / 0.7);
+    font-size: 1.65rem;
+  }
+
+  .planning-cuisine-check {
+    display: inline-flex;
+    height: 2rem;
+    width: 2rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--planning-coral) / 0.26);
+    border-radius: 999px;
+    color: hsl(var(--planning-coral));
+  }
+
+  .planning-no-preference {
+    justify-content: center;
+    border-width: 2px;
+    background:
+      radial-gradient(circle at 88% 10%, hsl(var(--planning-butter) / 0.26), transparent 5rem),
+      hsl(0 0% 100% / 0.74);
+  }
+
+  .planning-ticket {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.6);
+    border-radius: 0.7rem;
+    background:
+      radial-gradient(circle at 18% 12%, hsl(0 0% 100% / 0.55), transparent 5rem),
+      linear-gradient(180deg, hsl(var(--planning-ticket)), hsl(36 67% 91%));
+    color: hsl(var(--planning-ink));
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 0.9rem 1.9rem hsl(30 35% 38% / 0.13);
+  }
+
+  .planning-ticket[data-selected='true'] {
+    border-color: hsl(var(--planning-coral) / 0.56);
+    box-shadow:
+      0 1rem 2.1rem hsl(30 35% 38% / 0.16),
+      0 0 0 2px hsl(var(--planning-coral) / 0.12);
+  }
+
+  .planning-ticket-large {
+    min-height: 22rem;
+    padding-top: 1.25rem;
+  }
+
+  .planning-ticket-row {
+    min-height: 6.2rem;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+
+  .planning-ticket-rip {
+    position: absolute;
+    inset: 0.3rem 0.55rem auto;
+    height: 0.35rem;
+    border-top: 1px dashed hsl(var(--planning-ticket-edge) / 0.72);
+    pointer-events: none;
+  }
+
+  .planning-ticket-rank {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: hsl(var(--planning-coral));
+    font-size: 0.82rem;
+    font-weight: 900;
+  }
+
+  .planning-ticket-title {
+    display: block;
+    margin-top: 0.55rem;
+    max-width: 18rem;
+    color: hsl(var(--planning-ink));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+    font-size: 1.38rem;
+    font-weight: 900;
+    line-height: 1.06;
+  }
+
+  .planning-ticket-large .planning-ticket-title {
+    font-size: 1.7rem;
+  }
+
+  .planning-ticket-illustration {
+    display: inline-flex;
+    margin-top: 1rem;
+    font-size: 4.2rem;
+    line-height: 1;
+  }
+
+  .planning-ticket-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.65rem;
+    color: hsl(var(--planning-ink) / 0.72);
+    font-size: 0.88rem;
+    font-weight: 900;
+  }
+
+  .planning-ticket-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .planning-ticket-divider {
+    display: block;
+    width: 100%;
+    border-top: 1px solid hsl(var(--planning-ticket-edge) / 0.48);
+    margin: 0.75rem 0;
+  }
+
+  .planning-ticket-section,
+  .planning-ticket-optional {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+
+  .planning-ticket-section-label,
+  .planning-ticket-optional span,
+  .planning-prep-label {
+    color: hsl(var(--planning-coral));
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+
+  .planning-ticket-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .planning-use-chip {
+    border-color: hsl(var(--planning-herb) / 0.18);
+    background: hsl(var(--planning-herb-soft) / 0.82);
+    color: hsl(112 28% 24%);
+    font-weight: 800;
+  }
+
+  .planning-optional-chip {
+    border-color: hsl(var(--planning-ticket-edge) / 0.48);
+    background: hsl(0 0% 100% / 0.62);
+    color: hsl(var(--planning-muted));
+    font-weight: 800;
+  }
+
+  .planning-ticket-optional {
+    color: hsl(var(--planning-ink) / 0.74);
+    font-size: 0.84rem;
+    font-weight: 800;
+    margin-top: 0.65rem;
+  }
+
+  .planning-prep-tray {
+    overflow: hidden;
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.52);
+    border-radius: 1.15rem;
+    background: hsl(0 0% 100% / 0.7);
+    box-shadow: 0 1rem 2.2rem hsl(var(--planning-coral) / 0.09);
+  }
+
+  .planning-prep-hero {
+    display: flex;
+    min-height: 9.5rem;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 50% 48%, hsl(0 0% 100% / 0.24), transparent 5rem),
+      linear-gradient(180deg, hsl(31 61% 78%), hsl(30 54% 86%));
+    font-size: 5rem;
+  }
+
+  .planning-prep-body {
+    padding: 1rem;
+  }
+
+  .planning-prep-section {
+    border: 1px solid hsl(var(--planning-herb) / 0.16);
+    border-radius: 1rem;
+    background: hsl(var(--planning-herb-soft) / 0.5);
+    padding: 0.85rem;
+  }
+
+  .planning-prep-optional {
+    border-color: hsl(var(--planning-ticket-edge) / 0.42);
+    background: hsl(var(--planning-ticket) / 0.68);
+  }
+
+  .slop-check-card {
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.48);
+    border-radius: 1.15rem;
+    background: hsl(0 0% 100% / 0.64);
+    box-shadow: 0 0.85rem 1.9rem hsl(var(--planning-coral) / 0.08);
+  }
+
+  .slop-check-chip {
+    gap: 0.35rem;
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.42);
+    background: hsl(var(--planning-ticket) / 0.76);
+    color: hsl(var(--planning-ink) / 0.8);
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 0.58rem 0.72rem;
+  }
+
+  .slop-check-chip-added {
+    border-color: hsl(var(--planning-coral) / 0.22);
+    background: hsl(var(--planning-coral-soft) / 0.64);
+    color: hsl(var(--planning-coral));
   }
 
 }

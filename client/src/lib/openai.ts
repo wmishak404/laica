@@ -1,5 +1,6 @@
 import { apiFetch, apiRequest } from './queryClient';
 import type { VisionAnalysisResult } from './visionResult';
+import type { PlanningTimeValue } from '@shared/planning';
 
 interface CookingStepObject {
   instruction?: string;
@@ -120,6 +121,7 @@ export class SlopBowlApiError extends Error {
 
 export async function fetchSlopBowlRecipe(options?: {
   pantryOverride?: string[];
+  planningTimeAvailable?: PlanningTimeValue;
   feedback?: string;
   previousRecipe?: string;
 }): Promise<{ recipe: SlopBowlRecipe }> {

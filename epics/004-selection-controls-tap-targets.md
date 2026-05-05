@@ -168,6 +168,12 @@ Wilson's Phase 2.2 review challenged the difference between first-time setup and
 
 The Phase 2.2 Settings alignment pass mirrors the accepted setup Cooking Skill and Dietary Restrictions rows in returning Settings: full-row choices, setup illustration tokens, selected-state indicators, and isolated `No restrictions`. Returning Settings keeps independent save behavior rather than setup's auto-advance/completion behavior.
 
+### 2026-05-05 — Phase 3 cuisine choices use full-row multi-select chips
+
+`codex/mobile-refresh-phase-3-planning` applies the full-row tap-target rule to the Chef It Up cuisine screen. Cuisine options render as illustrated full-width buttons, support multi-select, and keep `No preference` as an isolated exclusive row in the lower thumb zone.
+
+This adds Phase 3 evidence for the pattern. It does not resolve the epic because the original resolution criteria still require a final documented closeout across setup/settings selection controls and validation.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

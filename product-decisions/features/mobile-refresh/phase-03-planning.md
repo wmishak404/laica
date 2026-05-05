@@ -88,3 +88,34 @@ Implementation should match the planning mockups closely enough that the first p
 - Remove `weeklyTime` from Slop Bowl inputs, readiness gates, and prompts.
 - Do not drop the `weekly_time` DB column in this implementation cycle; leave it nullable/ignored until a later cleanup.
 - Prompt inputs should include the current planning time bound when available.
+
+## 2026-05-05 Implementation Pass
+
+**Branch:** `codex/mobile-refresh-phase-3-planning`
+**Base:** `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`
+**Last Replit-validated at:** not yet validated
+
+Implemented locally:
+
+- Planning entry now prioritizes Chef It Up as the primary route and places Slop Bowl below it as the scrappy secondary route.
+- Chef It Up removes the avoid/specify step and uses the approved four-stop planning time control: `30m`, `1hr`, `1.5hrs`, and `Got all the time`.
+- Last planning time is stored as a client-side planning preference for this phase, then passed into Slop Bowl generation. This avoids repurposing the legacy `weekly_time` column or adding a schema change before [EPIC-010](../../../epics/010-local-db-schema-strategy.md) resolves the DB workflow.
+- Cuisine selection uses full-row illustrated multi-select chips. `No preference` is exclusive.
+- Suggestions now render as exactly three Ticket Pass tickets, with no visible percentage match and no mandatory grocery-list copy. Internal `pantryMatch`, `missingIngredients`, and `additionalIngredientsNeeded` fields remain available for compatibility/history/cooking-session paths.
+- Selected tickets open a Prep Tray showing ingredients Laica will use, optional enhancements if around, and the primary Cook action.
+- Slop Bowl confirmation now uses the approved "one more check" framing, keeps 3+ distinct ingredient gating, keeps shared comma/period parser behavior, and uses the user's last planning time setting with fallback `30m`.
+- Slop Bowl direct hex-literal callsites touched by this phase were migrated to token/CSS-variable styling with tone-forward comments, adding implementation signal for [EPIC-016](../../../epics/016-slop-bowl-hex-literal-cleanup.md).
+
+Local validation:
+
+- `npm ci`
+- `npm run check`
+- `npm run build`
+- `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`
+- `git diff --check`
+- Dotenvx dev-server boot smoke returned HTTP 200 on port 3000.
+
+Known validation gap:
+
+- Authenticated Replit validation is still required for recipe generation, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl generation, Slop Bowl quick-add/remove, Slop Bowl -> Edit pantry, and visual comparison against the Phase 3 mockups.
+- Full `npx vitest run` is not a merge signal yet because existing repo-wide harness issues remain: the Playwright E2E file is collected by Vitest, and voice-recording tests expect `MediaStream` in the unit-test environment.

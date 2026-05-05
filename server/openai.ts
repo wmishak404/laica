@@ -6,6 +6,13 @@ import { normalizeVisionAnalysisResult } from "./vision/analysis-result";
 import { filterDetectedEquipment } from "./vision/equipment-filter";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
+import {
+  DEFAULT_PLANNING_TIME_VALUE,
+  getPlanningTimeMinutes,
+  getPlanningTimePrompt,
+  normalizePlanningTimeValue,
+  type PlanningTimeValue,
+} from "@shared/planning";
 import { lt } from "drizzle-orm";
 import { redactAiOutput, redactForAiLog, sanitizePromptInput } from "./ai-privacy";
 
@@ -27,6 +34,7 @@ interface SlopBowlInput {
   dietaryRestrictions: string[];
   kitchenEquipment: string[];
   recentMeals: SlopBowlRecentMeal[];
+  planningTimeAvailable?: PlanningTimeValue;
   feedback?: string;
   previousRecipe?: string;
 }
@@ -97,14 +105,14 @@ User will send you a list of
 
 # Output
 
-Respond with JSON containing 3 practical recipe suggestions that can be made with minimal additional shopping.
+Respond with JSON containing exactly 3 practical recipe suggestions that prioritize the user's pantry.
 Each recipe should include:
   - recipeName: The recipe name
   - description: A brief description
   - difficulty: Easy, Medium, or Hard
   - cookTime: Estimated cooking time in minutes. Give an answer in intervals of 15 minutes and always round up.
   - pantryIngredientsUsed: Array of ingredients from their pantry that are used for this recipe.
-  - additionalIngredientsNeeded: Array of ingredients they might need to buy (keep this minimal).
+  - additionalIngredientsNeeded: Optional enhancements that would improve the dish if the user happens to have them or wants to add them (keep this minimal; do not make the recipe depend on shopping).
   - overview: Brief overview of the cooking process in 1-3 sentences. Tone should be friendly and concise.
   - instructions: Step by step instructions on how to cook this recipe.
   - isFusion: Boolean indicating if this recipe combines culinary traditions from multiple cuisines (e.g., Korean-Mexican tacos, Italian-Asian ramen, Indian-French fusion). Only mark as true if the recipe intentionally blends techniques, flavors, or ingredients from distinctly different culinary traditions.
@@ -173,7 +181,7 @@ Each recipe should include:
 
 ## Guidelines for "additionalIngredientsNeeded"
 
-1. Keep this minimal and only include when its brings a great addition to the dish, but not absolutely necessary.
+1. Keep this minimal and only include ingredients that bring a useful enhancement to the dish but are not required.
 2. Do not recommend the recipe as a whole at all if these ingredients are absolutely essential to the dish and recommend another. (For example, do not recommend Chicken Parmiggiana if chicken or tomatoes are not part of the pantry). If the ingredient is a good addition but not necessary, keep recommending this recipe.
 3. Exclude pantry essentials like salt and black pepper if its not captured from the user's input.`;
 
@@ -199,7 +207,7 @@ Rules:
 2. Maximize the pantry ingredients already available and keep additionalIngredientsNeeded minimal.
 3. Respect dietary restrictions strictly, including allergy, medical, and religious restrictions.
 4. Respect the available kitchen equipment. Do not require tools the user does not have.
-5. Keep the recipe realistic for the user's cooking skill and time budget.
+5. Keep the recipe realistic for the user's cooking skill and planning time budget.
 6. Avoid exact repeats from the last 7 days. If the most recent meal has a known cuisine, vary away from that cuisine when reasonable.
 7. Use ratings as directional feedback: lean toward highly rated meals and away from poorly rated meals.
 8. If a recent meal has cuisine "unknown", only use it to avoid repeating the recipe name.
@@ -259,10 +267,16 @@ function formatRecentMeals(recentMeals: SlopBowlRecentMeal[]): string {
 export async function getSlopBowlRecipe(input: SlopBowlInput) {
   try {
     const sanitizedInput = sanitizePromptInput(input);
-    const maxCookTime = 60;
+    const planningTimeAvailable = normalizePlanningTimeValue(
+      sanitizedInput.planningTimeAvailable || DEFAULT_PLANNING_TIME_VALUE,
+    );
+    const maxCookTime = getPlanningTimeMinutes(planningTimeAvailable);
+    const planningTimePrompt = getPlanningTimePrompt(planningTimeAvailable);
     const inputData = {
       ...sanitizedInput,
+      planningTimeAvailable,
       maxCookTime,
+      planningTimePrompt,
       feedback: sanitizedInput.feedback || null,
       previousRecipe: sanitizedInput.previousRecipe || null,
     };
@@ -280,7 +294,10 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
             `Pantry ingredients: ${sanitizedInput.ingredients.join(", ")}.`,
             `Cooking skill: ${sanitizedInput.cookingSkill}.`,
             `Dietary restrictions: ${sanitizedInput.dietaryRestrictions.length > 0 ? sanitizedInput.dietaryRestrictions.join(", ") : "none"}.`,
-            `Target a recipe that takes ${maxCookTime} minutes or less unless the ingredients clearly need less time.`,
+            maxCookTime === null
+              ? "No strict cook-time cap; keep the bowl realistic for a home cook and avoid needless complexity."
+              : `Target a recipe that takes ${maxCookTime} minutes or less unless the ingredients clearly need less time.`,
+            `User's planning time setting: ${planningTimePrompt}.`,
             `Available kitchen equipment: ${sanitizedInput.kitchenEquipment.length > 0 ? sanitizedInput.kitchenEquipment.join(", ") : "not specified; stay within a basic home kitchen setup"}.`,
             `Recent meals:\n${formatRecentMeals(sanitizedInput.recentMeals)}`,
             sanitizedInput.feedback ? `User feedback on the last suggestion: ${sanitizedInput.feedback}` : null,
