@@ -122,9 +122,10 @@ Before a mobile-refresh phase merges:
 ### Imagery and illustration
 
 - Prefer visuals that reveal product state: camera preview, ingredients, tools, tickets, cooking cues, meal state.
+- Phase 3 Ticket Pass suggestions should reserve a clear image/illustration slot as part of the ticket object; do not collapse them into generic text cards. Phase 3 may use a designed placeholder while Phase 3.1 owns the actual recipe imagery direction.
 - Avoid stock-like, dark, blurred, or atmospheric images when the user needs to inspect.
 - Avoid decorative blobs/orbs and abstract backgrounds as substitutes for product-specific visuals.
-- Generated food imagery is deferred until a future accepted feature direction.
+- Actual recipe imagery is deferred to Phase 3.1. If AI-generated imagery is introduced there, it should be async/cached and must not block the initial recipe-suggestion reveal.
 
 ### Motion
 
@@ -152,7 +153,7 @@ These are the unresolved identity questions. Edit this section inline as Phase 3
 2. **Palette refinement.** Whether coral/teal/yellow stays, expands, or is replaced for the durable Laica identity.
 3. **Canonical motif set.** Which visual motifs become signature Laica objects: camera frame, Ticket Pass, prep tray, pantry chip, cooking cue, chef companion.
 4. **Playfulness by surface.** How playful Laica should feel by surface type (setup vs Planning vs Cooking vs Settings vs errors vs empty states).
-5. **Imagery approach.** Real food photography, generated food images, illustration, emoji-led, icon-led, or hybrid.
+5. **Imagery approach.** Current signal: Ticket Pass reserves an image slot with a Phase 3 placeholder; actual recipe illustration/generated imagery belongs to Phase 3.1 and should be async/cached if generated.
 6. **Mockup hardness.** Which mockup elements are hard requirements vs directional examples.
 7. **Future scan-session chip states.** How `new from latest scan` / `already saved/found again` / normal saved inventory differentiate visually without creating a noisy third design system. Product work in [EPIC-014](epics/014-scan-session-diff-and-duplicate-refinement.md).
 

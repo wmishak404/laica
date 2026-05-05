@@ -52,6 +52,7 @@ interface RecipeRecommendation {
   ingredients?: string[];
   equipment?: string[];
   overview?: string;
+  imageUrl?: string;
 }
 
 interface MealPlanningProps {
@@ -242,6 +243,11 @@ export default function MealPlanning({
   const transformRecipe = (recipe: any, index: number): RecipeRecommendation => {
     const additionalIngredientsNeeded = stringArray(recipe.additionalIngredientsNeeded);
     const pantryIngredientsUsed = stringArray(recipe.pantryIngredientsUsed);
+    const imageUrl = typeof recipe.imageUrl === 'string'
+      ? recipe.imageUrl
+      : typeof recipe.image_url === 'string'
+        ? recipe.image_url
+        : undefined;
     const pantryMatch = typeof recipe.pantryMatch === 'number'
       ? recipe.pantryMatch
       : calculatePantryMatch(userProfile.pantryIngredients.length, additionalIngredientsNeeded.length);
@@ -263,6 +269,7 @@ export default function MealPlanning({
         : userProfile.pantryIngredients.slice(0, 6),
       equipment: userProfile.kitchenEquipment,
       overview: typeof recipe.overview === 'string' ? recipe.overview : undefined,
+      imageUrl,
     };
   };
 
@@ -475,6 +482,23 @@ export default function MealPlanning({
     </section>
   );
 
+  const renderRecipeImageSlot = (recipe: RecipeRecommendation, variant: 'ticket' | 'prep' = 'ticket') => (
+    <span
+      className={`planning-recipe-image-slot ${variant === 'prep' ? 'planning-recipe-image-slot-prep' : ''}`}
+      data-has-image={Boolean(recipe.imageUrl)}
+      aria-hidden="true"
+    >
+      {recipe.imageUrl ? (
+        <img src={recipe.imageUrl} alt="" className="planning-recipe-image" />
+      ) : (
+        <>
+          <span className="planning-recipe-image-plate" />
+          <Utensils className="planning-recipe-image-icon" />
+        </>
+      )}
+    </span>
+  );
+
   const renderTicket = (recipe: RecipeRecommendation, isLarge = false) => {
     const selected = selectedMeal?.id === recipe.id;
 
@@ -487,33 +511,37 @@ export default function MealPlanning({
         onClick={() => setSelectedMeal(recipe)}
       >
         <span className="planning-ticket-rip" aria-hidden="true" />
-        <span className="planning-ticket-rank">
-          <ChefHat className="h-4 w-4" />
-          Pick
-        </span>
-        <span className="planning-ticket-title">{recipe.recipeName}</span>
         {isLarge && (
-          <span className="planning-ticket-illustration" aria-hidden="true">🍜</span>
+          <span className="planning-ticket-rank">
+            <ChefHat className="h-4 w-4" />
+            Chef pick
+          </span>
         )}
+        <span className="planning-ticket-title">{recipe.recipeName}</span>
+        {renderRecipeImageSlot(recipe)}
         <span className="planning-ticket-meta">
           <span><Clock className="h-4 w-4" /> {recipe.cookTime} min</span>
           <span>{recipe.difficulty}</span>
         </span>
-        <span className="planning-ticket-divider" />
-        <span className="planning-ticket-section">
-          <span className="planning-ticket-section-label">Uses</span>
-          <span className="planning-ticket-chip-row">
-            {(recipe.ingredients || []).slice(0, isLarge ? 5 : 3).map((ingredient) => (
-              <Badge key={ingredient} variant="outline" className="planning-use-chip">
-                {ingredient}
-              </Badge>
-            ))}
-          </span>
-        </span>
-        {recipe.missingIngredients.length > 0 && (
-          <span className="planning-ticket-optional">
-            <span>Optional:</span> {recipe.missingIngredients.slice(0, 3).join(', ')}
-          </span>
+        {isLarge && (
+          <>
+            <span className="planning-ticket-divider" />
+            <span className="planning-ticket-section">
+              <span className="planning-ticket-section-label">Uses</span>
+              <span className="planning-ticket-chip-row">
+                {(recipe.ingredients || []).slice(0, 5).map((ingredient) => (
+                  <Badge key={ingredient} variant="outline" className="planning-use-chip">
+                    {ingredient}
+                  </Badge>
+                ))}
+              </span>
+            </span>
+            {recipe.missingIngredients.length > 0 && (
+              <span className="planning-ticket-optional">
+                <span>Optional:</span> {recipe.missingIngredients.slice(0, 3).join(', ')}
+              </span>
+            )}
+          </>
         )}
       </button>
     );
@@ -537,9 +565,13 @@ export default function MealPlanning({
           <Utensils className="mx-auto mt-3 h-5 w-5 text-primary" aria-hidden="true" />
         </div>
 
-        <div className="mt-7 space-y-3">
+        <div className="planning-ticket-stack mt-7">
           {featuredRecipe && renderTicket(featuredRecipe, true)}
-          {sideRecipes.map((recipe) => renderTicket(recipe))}
+          {sideRecipes.length > 0 && (
+            <div className="planning-ticket-short-list">
+              {sideRecipes.map((recipe) => renderTicket(recipe))}
+            </div>
+          )}
         </div>
 
         <div className="mt-6 space-y-3">
@@ -560,7 +592,7 @@ export default function MealPlanning({
             {isLoading ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
-                Making...
+                Finding recipes...
               </>
             ) : (
               <>
@@ -597,7 +629,9 @@ export default function MealPlanning({
 
         {/* design:tone-override — Prep Tray is the Phase 3 tactile ticket-detail object, not a generic recipe card. */}
         <div className="planning-prep-tray">
-          <div className="planning-prep-hero" aria-hidden="true">🥣</div>
+          <div className="planning-prep-hero">
+            {renderRecipeImageSlot(selectedMeal, 'prep')}
+          </div>
           <div className="planning-prep-body">
             <h1 className="planning-display text-3xl font-extrabold leading-tight">{selectedMeal.recipeName}</h1>
             <p className="planning-ticket-meta mt-3">

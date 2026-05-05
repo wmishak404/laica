@@ -152,6 +152,7 @@ Use this as the reference for:
 
 - Ticket Pass as Laica's signature suggestion object
 - tactile recipe cards with a distinct shape and personality
+- a reserved image/illustration slot inside the ticket object, with Phase 3 allowed to use a designed placeholder
 - useful information without generic AI match scoring
 - optional enhancement framing that avoids mandatory grocery-list language
 
@@ -266,7 +267,7 @@ Carry this forward as design-language signal, not as a mandatory global rollout:
 - Prefer visuals that reveal the actual product state: camera preview, ingredients, tools, tickets, cooking cues, meal state.
 - Avoid stock-like, dark, blurred, or purely atmospheric images when the user needs to inspect something.
 - Avoid decorative blobs/orbs and abstract backgrounds as a substitute for product-specific visuals.
-- Generated food imagery is deferred until a later accepted feature direction.
+- Ticket Pass should reserve image space in the ticket. Phase 3 uses a designed placeholder in that slot; Phase 3.1 owns the actual recipe illustration/generated imagery direction. Generated imagery should be async/cached rather than blocking the suggestion reveal.
 
 ### Motion
 

@@ -47,6 +47,7 @@ Implementation should match the planning mockups closely enough that the first p
 
 - Show exactly three suggestions.
 - Use the Ticket Pass visual model.
+- Ticket Pass tickets reserve image slots for future generated/illustrated recipe imagery and show designed placeholders in Phase 3.
 - Do not show `X% match`.
 - Do not show mandatory "You'll need to grab" language.
 - Do not show substitution explanations such as "hot sauce covers the sriracha lane."
@@ -58,7 +59,7 @@ Implementation should match the planning mockups closely enough that the first p
 
 - The selected ticket opens into a prep-tray detail view.
 - Detail view shows what LAICA will use, optional ingredients if around, and the primary Cook action.
-- Generated recipe imagery is deferred as a separate future feature.
+- Actual recipe imagery is deferred to [Phase 3.1](phase-03-1-recipe-imagery.md); it should not block the recipe-suggestion reveal when introduced later.
 
 ## Acceptance Criteria
 
@@ -69,6 +70,7 @@ Implementation should match the planning mockups closely enough that the first p
 - Time slider has exactly the four approved positions and sits in an easy thumb zone.
 - Cuisine chips support multi-select; `No preference` is exclusive.
 - Recipe suggestions render as Ticket Pass tickets only.
+- Ticket Pass and Prep Tray reserve generated-image slots with polished placeholders, so Phase 3.1 can add imagery without reshaping the UI.
 - Exactly three suggestions are visible/available.
 - No percentage match or mandatory grocery-list copy appears.
 - Substitution logic influences recommendations under the covers without user-facing explanation text.
@@ -102,6 +104,7 @@ Implemented locally:
 - Last planning time is stored as a client-side planning preference for this phase, then passed into Slop Bowl generation. This avoids repurposing the legacy `weekly_time` column or adding a schema change before [EPIC-010](../../../epics/010-local-db-schema-strategy.md) resolves the DB workflow.
 - Cuisine selection uses full-row illustrated multi-select chips. `No preference` is exclusive.
 - Suggestions now render as exactly three Ticket Pass tickets, with no visible percentage match and no mandatory grocery-list copy. Internal `pantryMatch`, `missingIngredients`, and `additionalIngredientsNeeded` fields remain available for compatibility/history/cooking-session paths.
+- Ticket Pass now uses image-slot placeholders and a featured-ticket/compact-stack structure so suggestions do not read as generic vertical recipe cards and can accept generated imagery in Phase 3.1.
 - Selected tickets open a Prep Tray showing ingredients Laica will use, optional enhancements if around, and the primary Cook action.
 - Slop Bowl confirmation now uses the approved "one more check" framing, keeps 3+ distinct ingredient gating, keeps shared comma/period parser behavior, and uses the user's last planning time setting with fallback `30m`.
 - Slop Bowl direct hex-literal callsites touched by this phase were migrated to token/CSS-variable styling with tone-forward comments, adding implementation signal for [EPIC-016](../../../epics/016-slop-bowl-hex-literal-cleanup.md).
@@ -136,6 +139,13 @@ Implemented locally:
 - Wilson clarified that Phase 3 should not keep showing the Laica logo inside in-app task flows; most app processes do not need repeated branding once the user is already inside the product.
 - Planning entry and Ticket Pass now remove the logo entirely while keeping the canonical logo rule for genuinely branded surfaces.
 - [`design_guidelines.md`](../../../design_guidelines.md) now adds the complementary guardrail: ordinary setup, planning, selection, cooking, confirmation, and settings process screens should not repeat the product mark unless explicitly designed as a branded entry/sign-in/landing moment.
+
+2026-05-05 Ticket Pass image-slot/visual-drift follow-up:
+
+- Wilson's Replit screenshot review found that recipe suggestions still looked like generic full-width cards and had no stable place for the agreed future recipe imagery.
+- Root cause: the docs said "generated recipe imagery is deferred" but did not require Phase 3 to reserve stable image slots for the later imagery pass. Implementation interpreted the deferral too broadly and shipped generic stacked cards without a real place for generated images to land.
+- Ticket Pass and Prep Tray now reserve generated-image slots and render designed placeholders in Phase 3. The recipe object also accepts optional `imageUrl` so Phase 3.1 can hydrate generated/illustrated imagery without reshaping the UI.
+- The suggestion layout now uses a featured ticket with compact alternate tickets beneath it, closer to the `phase-03-ticket-pass.png` stack/selected-ticket visual model. Actual recipe imagery is tracked in [Phase 3.1](phase-03-1-recipe-imagery.md) and should be async/cached when introduced.
 
 Local validation:
 

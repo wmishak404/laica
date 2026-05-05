@@ -108,6 +108,29 @@ Follow-up patch:
 - `client/src/index.css` removes the now-unused `.planning-logo` class.
 - `design_guidelines.md` keeps the canonical-logo rule for actual branded surfaces and adds the complementary rule that ordinary setup/planning/selection/cooking/confirmation/settings process screens should not repeat the product mark unless explicitly designed as a branded entry/sign-in/landing moment.
 
+## 2026-05-05 Ticket Pass image-slot/visual-drift follow-up
+
+Wilson's Replit screenshot review caught two linked problems on the suggestion screen: there was no clear place for the agreed future recipe imagery, and the Ticket Pass still read like a generic vertical recipe-card list instead of the `phase-03-ticket-pass.png` mockup.
+
+Root cause in the docs/context system:
+
+- `phase-03-planning.md` said generated recipe imagery was deferred.
+- `design_guidelines.md` and `design-language.md` said Ticket Pass should be a distinctive signature object, but they did not explicitly require Phase 3 to reserve stable image slots for a later imagery pass.
+- Implementation treated the imagery deferral too broadly, so it avoided AI image generation but also failed to leave a durable place where generated images could hydrate.
+
+Follow-up patch:
+
+- `client/src/components/cooking/meal-planning.tsx` now supports optional `imageUrl` on recipe suggestions and renders designed placeholders when no image is present.
+- Ticket Pass featured ticket, compact alternate tickets, and Prep Tray all reserve generated-image slots now.
+- `client/src/index.css` reshapes Ticket Pass into a stronger featured-ticket plus compact alternate-ticket stack, with stable image placeholders that can hydrate without layout shift.
+- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` now owns actual recipe imagery/illustration direction.
+- `design_guidelines.md`, `product-decisions/features/mobile-refresh/design-language.md`, and `phase-03-planning.md` now distinguish Phase 3 image placeholders from Phase 3.1 generated/illustrated recipe imagery.
+
+Speed guidance:
+
+- Phase 3 should not generate food images on the critical path. Suggestions should reveal as soon as the recipe response returns.
+- Phase 3.1 generated recipe imagery, if accepted, should be async/cached and allowed to hydrate after the Ticket Pass is already usable.
+
 ## Verification
 
 Passed:
