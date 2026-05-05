@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 3 planning kickoff
-**Active PR:** PR #34
-**Active branch:** `codex/init-process-pd-taxonomy`
+**Active PR:** None
+**Active branch:** TBD
 
 ## Overview
 
@@ -30,7 +30,7 @@ Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shippe
 
 Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Pantry/Kitchen/Profile edits; History is separate cooking memory. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
 
-INIT-001 now resumes at Phase 3 Planning from fresh `origin/main` after merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`.
+PR #34 merged the process and product-decision taxonomy cleanup. INIT-001 now resumes at Phase 3 Planning from fresh `origin/main` after merge commit `6288aefce3d923092d496ace535f7a3e8841f506`.
 
 ## Source Docs
 
@@ -89,7 +89,7 @@ INIT-001 now resumes at Phase 3 Planning from fresh `origin/main` after merge co
 | #26 | Merged | `codex/mobile-refresh-phase-2-closeout` | Phase 2 closeout moved resume point to Phase 2.1 |
 | #27 | Merged | `codex/mobile-refresh-phase-2-1-setup-polish` | Runtime validation at `ac698a3`; final branch head `eaff0e8` docs-only; merged as `5419a90` |
 | #30 | Merged | `codex/mobile-refresh-phase-2-2-settings-history` | Replit validation passed at `dc59796`; merged as `bc25ef3` |
-| #34 | Draft | `codex/init-process-pd-taxonomy` | Docs-only process/PD taxonomy cleanup; Claude architectural review completed with follow-up fixes folded in |
+| #34 | Merged | `codex/init-process-pd-taxonomy` | Docs-only process/PD taxonomy cleanup; Claude architectural review completed with follow-up fixes folded in; merged as `6288aef` |
 
 ## Epics and Governance
 
@@ -137,7 +137,7 @@ Resume in Phase 3 Planning from fresh `origin/main`.
 
 Next implementation focus:
 
-1. Open the Phase 3 branch from fresh `origin/main` at or after merge commit `bc25ef35cb14f32cf6b05507ede77161bd743091`.
+1. Open the Phase 3 branch from fresh `origin/main` at or after merge commit `6288aefce3d923092d496ace535f7a3e8841f506`.
 2. Use Phase 2.1 setup and Phase 2.2 returning Settings as accepted visual anchors before touching Planning, Chef It Up, Slop Bowl, or Ticket Pass.
 3. Implement Phase 3 Planning against [phase-03-planning.md](../product-decisions/features/mobile-refresh/phase-03-planning.md), [phase-03-planning-flow.png](../docs/assets/mobile-refresh/phase-03-planning-flow.png), and [phase-03-ticket-pass.png](../docs/assets/mobile-refresh/phase-03-ticket-pass.png).
 4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
@@ -170,4 +170,4 @@ Resolved UI governance and design-language epics graduated to [PD-005](../produc
 
 ### 2026-05-05 - Process and product-decision taxonomy cleanup
 
-Codex compacted INIT-001, clarified product-decision taxonomy, labeled feature-phase records, and opened draft PR #34 for Claude review before merge. Claude's substantive taxonomy findings were folded into the PR branch.
+PR #34 merged the docs-only process and product-decision taxonomy cleanup as merge commit `6288aefce3d923092d496ace535f7a3e8841f506`. Claude's substantive taxonomy findings were folded into the PR before merge. Phase 3 should now start from fresh `origin/main` with the cleaned documentation structure.
