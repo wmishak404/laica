@@ -25,6 +25,16 @@ Top-level PDs are stable records with controlled amendments, not living diaries:
 - Mark the file `Superseded by PD-XXX` when a later decision replaces it.
 - Create a new PD when a materially new durable decision emerges.
 
+Do **not** promote these to top-level PDs:
+
+- Visual tokens, palette, typography, and surface posture rules: update [`../design_guidelines.md`](../design_guidelines.md).
+- Phase-specific acceptance criteria: keep them in the feature phase record.
+- Implementation logs, validation timelines, branch context, or who-does-what-next notes: write a handoff.
+- Deferred work with a linked active epic: keep it in the phase/feature record and the epic.
+- In-flight enforcement or rollout work: track it in an active epic until the stable rule itself changes.
+
+Governance PDs define stable rules; active epics carry ongoing enforcement, rollout, and evidence-gathering work. When a rule is settled, it lives in a PD. When the work to enforce or prove that rule is in flight, it lives in an active epic.
+
 Recommended metadata near the top of each top-level PD:
 
 ```markdown
@@ -70,6 +80,7 @@ Active feature work often has decisions that evolve across discovery, API design
 - Feature phase records carry phase-scoped decisions, specs, accepted outcomes, open questions, and explicit deferrals as one feature moves through delivery
 - Top-level PDs capture durable accepted outcomes that should stay easy to find later
 - INITs in [`../initiatives/`](../initiatives/README.md) are living hubs that summarize multi-phase initiative state and link back to relevant product decisions
+- [`../design_guidelines.md`](../design_guidelines.md) is the living visual standard for palette, typography, mockup conformance, and surface posture; [PD-005](005-ui-governance.md) governs how those standards are implemented without drift
 
 Current feature phase folders:
 
