@@ -145,23 +145,23 @@ Follow-up patch:
 
 Wilson's Replit screenshot review caught three planning-entry tone issues: the `MAKE GOOD SLOP` sticker was not centered, the card type lost the handwrite-y kitchen diary edge from the mockups, and the Slop Bowl art had become too clean to carry the humor.
 
-Follow-up patch:
+Follow-up patch, later superseded by the typography follow-up below:
 
-- `client/src/index.css` imports `Patrick Hand` and scopes it to Planning card titles and Slop Bowl sticker labels.
+- `client/src/index.css` imported `Patrick Hand` and initially scoped it to Planning card titles and Slop Bowl sticker labels.
 - `client/src/index.css` centers `.planning-slop-sticker` with `left: 50%` and `translateX(-50%)`.
 - `client/src/pages/app.tsx` and `client/src/index.css` rebuild the Slop Bowl art as a messier ingredient-storm doodle with splashes, a tilted spoon, and a `???` scribble.
-- `design_guidelines.md` records that `Patrick Hand` is appropriate for small tone-forward Planning labels, not body copy or safety-critical controls.
+- `design_guidelines.md` briefly recorded `Patrick Hand` for small tone-forward Planning labels; later review narrowed it to micro-accents only.
 - EPIC-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
 
 ## 2026-05-05 Planning entry label-legibility follow-up
 
-Wilson's screenshot review caught that the coral handwritten `Chef It Up` and `Slop Bowl` labels were harder to read than the darker supporting copy.
+Wilson's screenshot review caught that the handwritten `Chef It Up` and `Slop Bowl` labels were harder to read and then felt disconnected from the `What are we cooking today?` display heading.
 
 Follow-up patch:
 
-- `client/src/index.css` flips `.planning-choice-title` to charcoal via `--planning-ink`.
-- `client/src/index.css` keeps `.planning-choice-copy` in muted charcoal so coral does not fight the card content.
-- The Phase 3 and Phase 3.1 docs now record this as part of the Planning label drift correction.
+- `client/src/index.css` changes `.planning-choice-title` to `Fraunces`, matching the page display heading.
+- `client/src/index.css` keeps `.planning-choice-copy` in `Nunito` muted charcoal so support copy stays calm and readable.
+- `design_guidelines.md`, the Phase 3 record, and Phase 3.1 drift inventory now reserve `Patrick Hand` for micro-accents only, not primary card titles.
 
 ## 2026-05-05 Slop Bowl sticker-legibility follow-up
 

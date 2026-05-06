@@ -47,11 +47,15 @@ Global stack (current accepted state):
 - **Headings (`h1`–`h6`):** `'SF Pro Display', 'Source Sans Pro', sans-serif`.
 - **Recipe titles** (`.recipe-title`): `'Merriweather', serif`.
 
-Mobile-refresh setup pilot (Phase 2.1 + Phase 2.2 returning Settings, accepted):
+Mobile-refresh typography pilot (Phase 2.1 + Phase 2.2 returning Settings, Phase 3 Planning):
 
 - **Setup display:** `Fraunces` — scoped to `.setup-ui .setup-display` and equivalent setup surfaces.
 - **Setup body / controls:** `Nunito` — scoped to `.setup-ui .setup-copy`, `.setup-action-label`, etc.
-- **Planning handwritten labels:** `Patrick Hand` — scoped to small tone-forward labels such as Planning card titles and Slop Bowl stickers, not body copy or safety-critical controls.
+- **Mobile-refresh display and card titles:** `Fraunces` — use for page headlines and primary object/card titles so a screen reads as one app surface, not multiple unrelated type systems.
+- **Mobile-refresh body / controls:** `Nunito` — use for descriptions, controls, metadata, chips, and support copy.
+- **Handwritten micro-accents:** `Patrick Hand` — scoped to tiny tone-forward accents such as Slop Bowl banners or doodle scribbles, not page headings, card titles, body copy, CTAs, or safety-critical controls.
+
+Avoid switching the primary title font just to communicate mood. Humor should come from copy, illustration, badges, motion, and composition while primary titles remain in the surface's display system.
 
 Whether `Fraunces` / `Nunito` graduate to the global stack is an open visual decision (see below).
 

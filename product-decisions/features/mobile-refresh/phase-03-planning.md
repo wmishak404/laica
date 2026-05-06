@@ -156,15 +156,15 @@ Implemented locally:
 2026-05-05 Planning entry handwriting/Slop Bowl art follow-up:
 
 - Wilson's Replit screenshot review found the `MAKE GOOD SLOP` sticker was not centered, the Planning entry lost the handwritten/diary kitchen-note edge from the mockups, and the Slop Bowl art felt too vanilla to carry the joke.
-- Planning card titles and the Slop Bowl sticker now use a scoped handwritten `Patrick Hand` label treatment while keeping readable `Fraunces` display headings and `Nunito` body/control copy.
+- Planning now keeps `Patrick Hand` scoped to small tone accents such as the Slop Bowl banner and doodle scribbles while card titles stay in the display system.
 - The Slop Bowl card art now adds a messier ingredient storm, splashes, spoon tilt, and `???` scribble around the bowl. The sticker is mechanically centered with `left: 50%` / translate, not eyeballed from the right edge.
 - Styling remains tokenized through planning CSS variables and does not reintroduce Slop Bowl raw hex literals.
 
 2026-05-05 Planning entry label-legibility follow-up:
 
-- Wilson's screenshot review found the coral handwritten card labels were lower-contrast than the charcoal supporting copy.
-- Planning card titles now use charcoal, while the supporting copy returns to muted charcoal so coral does not fight the card content.
-- This keeps the kitchen-note tone but makes the primary card labels the easiest text to read.
+- Wilson's screenshot review found the handwritten `Chef It Up` / `Slop Bowl` card titles felt visually disconnected from the `What are we cooking today?` headline and made the screen read like multiple type systems.
+- Planning card titles now use `Fraunces` like the page display heading, while support copy stays in `Nunito` muted charcoal.
+- The handwritten humor remains in micro-accents only, so the page has one coherent type ladder.
 
 2026-05-05 Slop Bowl sticker-legibility follow-up:
 

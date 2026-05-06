@@ -48,7 +48,7 @@ Phase 3 reserves generated-image slots now:
 | Recipe imagery disappeared | No stable place existed for future generated images to land | "Generated recipe imagery deferred" was interpreted as "no image slot needed" | Fixed with placeholders | Phase 3.1 owns real imagery, async hydration, caching, and failure fallback |
 | Bottom nav showed Cook as selected status | Planning made the chef icon read like a current-state badge | Active tab logic conflicted with PD-009's neutral access-surface direction | Fixed | Bottom nav stays neutral; screen content communicates process status |
 | Slop Bowl sticker alignment/legibility drift | The sticker visibly drifted from the mockup alignment, then `LESS BRAIN POWER` / `NO RULES` / `MAKE GOOD SLOP` did not read or belong clearly as a label | Position was eyeballed from the right edge instead of centered by layout math; coral/charcoal pill treatments felt separate from the card | Fixed with a top-right butter/teal card-banner treatment | Anchor tone banners to the card, avoid coral label overload, and verify contrast/pop in Replit screenshots |
-| Planning labels lacked kitchen diary edge | Card type felt too generic and less cheffy/fun than the mockups, then coral labels read weaker than the charcoal support copy | Design guidance lacked scoped handwritten-label rules for Planning and no contrast check for accent label color | Fixed with scoped `Patrick Hand` titles in charcoal and muted charcoal support copy | Keep handwriting to small tone labels only; validate readability on mobile |
+| Planning typography hierarchy split | The page headline and `Chef It Up` / `Slop Bowl` card titles felt like unrelated app surfaces | Design guidance allowed handwritten labels to carry primary card titles instead of reserving handwriting for micro-accents | Fixed with `Fraunces` card titles, `Nunito` support copy, and `Patrick Hand` only for micro-banners/scribbles | Keep a two-family ladder for primary UI (`Fraunces` display, `Nunito` body/control); reserve handwriting for tiny tone accents |
 | Slop Bowl art became too vanilla | Clean bowl art lost the joke/slang identity | Token cleanup and simplification preserved structure but weakened humor context | Fixed, pending visual review | Slop Bowl should remain messy/scrappy/funny while still using tokens |
 
 ## Recommendations
@@ -56,6 +56,7 @@ Phase 3 reserves generated-image slots now:
 - Treat Phase 3.1 as the deliberate visual drift and imagery pass after the current Phase 3 implementation, not as a separate active epic.
 - Do one explicit Replit visual review of the drift surfaces before Phase 3.1 closeout: Planning entry, Time, Cuisine, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav.
 - If a new drift is found during Phase 3.1, add it to the table above before deciding whether to patch, accept, or defer.
+- Review nearby mobile-refresh surfaces for typography drift: page titles, card titles, support copy, chips, banners, and CTAs should use the same type ladder instead of swapping fonts by mood.
 - Keep a hard split between Phase 3 placeholders and Phase 3.1 real imagery: Phase 3 reserves stable slots; Phase 3.1 decides/generates/hydrates images.
 - Do not make image generation part of the recipe-suggestion critical path. Suggestions should remain usable before any image arrives.
 - If similar drift spans beyond Phase 3.1 or crosses multiple future phases, then create a temporary drift epic. For now, this feature-phase record is the source of truth.
@@ -82,5 +83,5 @@ Recipe suggestions must appear as soon as the recipe response is ready. Image ge
 ## Open Questions
 
 - Does the current Ticket Pass stack carry enough of the `phase-03-ticket-pass.png` object language, or does it need another density/shape pass before validation?
-- Is `Patrick Hand` the right long-term handwritten accent, or should Phase 3.1 test a different small-label font?
+- Is `Patrick Hand` the right long-term micro-accent font, or should Phase 3.1 test a different handwritten accent while keeping primary titles in `Fraunces`?
 - Which imagery direction best fits Laica's speed and tone: generated recipe image, custom illustration, recipe-type illustration library, or hybrid?

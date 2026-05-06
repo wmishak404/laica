@@ -1134,10 +1134,11 @@ html, body {
   .planning-choice-title {
     display: block;
     color: hsl(var(--planning-ink));
-    font-family: 'Patrick Hand', 'Nunito', system-ui, sans-serif;
-    font-size: 1.7rem;
-    font-weight: 400;
-    line-height: 0.95;
+    font-family: 'Fraunces', 'Merriweather', Georgia, serif;
+    font-size: 1.42rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.05;
   }
 
   .planning-choice-copy {
