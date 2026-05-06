@@ -160,6 +160,12 @@ Implemented locally:
 - The Slop Bowl card art now adds a messier ingredient storm, splashes, spoon tilt, and `???` scribble around the bowl. The sticker is mechanically centered with `left: 50%` / translate, not eyeballed from the right edge.
 - Styling remains tokenized through planning CSS variables and does not reintroduce Slop Bowl raw hex literals.
 
+2026-05-05 Planning entry label-legibility follow-up:
+
+- Wilson's screenshot review found the coral handwritten card labels were lower-contrast than the charcoal supporting copy.
+- Planning card title and copy colors are now flipped: `Chef It Up` and `Slop Bowl` use charcoal, while the supporting copy carries the coral accent.
+- This keeps the kitchen-note tone but makes the primary card labels the easiest text to read.
+
 2026-05-05 Phase 3.1 drift-scope follow-up:
 
 - Wilson asked that the Phase 3 design-drift review live inside Phase 3.1 rather than a standalone active epic.

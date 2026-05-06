@@ -153,6 +153,16 @@ Follow-up patch:
 - `design_guidelines.md` records that `Patrick Hand` is appropriate for small tone-forward Planning labels, not body copy or safety-critical controls.
 - EPIC-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
 
+## 2026-05-05 Planning entry label-legibility follow-up
+
+Wilson's screenshot review caught that the coral handwritten `Chef It Up` and `Slop Bowl` labels were harder to read than the darker supporting copy.
+
+Follow-up patch:
+
+- `client/src/index.css` flips `.planning-choice-title` to charcoal via `--planning-ink`.
+- `client/src/index.css` moves the coral accent to `.planning-choice-copy`.
+- The Phase 3 and Phase 3.1 docs now record this as part of the Planning label drift correction.
+
 ## 2026-05-05 Phase 3.1 drift-scope follow-up
 
 Wilson asked that the Phase 3 design-drift review be included in Phase 3.1 work instead of becoming a standalone active epic.

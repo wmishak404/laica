@@ -1124,7 +1124,7 @@ html, body {
 
   .planning-choice-title {
     display: block;
-    color: hsl(var(--planning-coral));
+    color: hsl(var(--planning-ink));
     font-family: 'Patrick Hand', 'Nunito', system-ui, sans-serif;
     font-size: 1.7rem;
     font-weight: 400;
@@ -1134,7 +1134,7 @@ html, body {
   .planning-choice-copy {
     display: block;
     margin-top: 0.45rem;
-    color: hsl(var(--planning-ink) / 0.76);
+    color: hsl(var(--planning-coral));
     font-size: 0.92rem;
     font-weight: 800;
     line-height: 1.22;
