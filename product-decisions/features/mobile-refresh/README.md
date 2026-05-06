@@ -14,7 +14,7 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 | 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Accepted / Merged PR #27 | [phase-02-1-setup-polish.md](phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
 | 2.2 | Returning setup, Settings, and History IA | Accepted / Merged PR #30 | [phase-02-2-returning-setup-settings.md](phase-02-2-returning-setup-settings.md) | [Phase 2.2 storyboard](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
 | 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted | [phase-03-planning.md](phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
-| 3.1 | Recipe imagery slots and async imagery | Planned | [phase-03-1-recipe-imagery.md](phase-03-1-recipe-imagery.md) | Builds on [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
+| 3.1 | Phase 3 design drift review and async recipe imagery | Planned | [phase-03-1-recipe-imagery.md](phase-03-1-recipe-imagery.md) | Builds on [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 4 | Cooking guidance | Accepted | [phase-04-cooking.md](phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
 | 5 | Post-cook cleanup and retention | Accepted | [phase-05-post-cook.md](phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
 
@@ -25,7 +25,7 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 3. Phase 2.1 has shipped the setup visual/trust polish after Phase 2 closed functionally.
 4. Phase 2.2 has shipped the returning setup edit, Menu, Settings, and standalone History IA bridge before Phase 3.
 5. Implement Phase 3 from fresh `main` after PR #30 so Slop Bowl and Planning links build on the refreshed Settings/History IA rather than legacy Settings UI.
-6. Implement Phase 3.1 recipe imagery after Phase 3 reserves stable image slots and before Phase 4 only if Wilson pulls imagery forward.
+6. Implement Phase 3.1 design drift review and recipe imagery after Phase 3 reserves stable image slots and before Phase 4 only if Wilson pulls the follow-up forward.
 7. Implement Phase 4 after authenticated AI routes and session ownership checks are live.
 8. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry; Phase 5 owns the richer History share/cook-again/retention behavior.
 

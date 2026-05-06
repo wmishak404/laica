@@ -160,6 +160,12 @@ Implemented locally:
 - The Slop Bowl card art now adds a messier ingredient storm, splashes, spoon tilt, and `???` scribble around the bowl. The sticker is mechanically centered with `left: 50%` / translate, not eyeballed from the right edge.
 - Styling remains tokenized through planning CSS variables and does not reintroduce Slop Bowl raw hex literals.
 
+2026-05-05 Phase 3.1 drift-scope follow-up:
+
+- Wilson asked that the Phase 3 design-drift review live inside Phase 3.1 rather than a standalone active epic.
+- [Phase 3.1](phase-03-1-recipe-imagery.md) now owns the drift inventory, root-cause notes, recommendations, and real imagery follow-up.
+- Phase 3 remains responsible for the already-implemented placeholders and process-screen restraint; Phase 3.1 decides whether any remaining visual drift is fixed, accepted, or deferred before closeout.
+
 Local validation:
 
 - `npm ci`

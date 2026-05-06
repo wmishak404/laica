@@ -11,7 +11,7 @@
 
 Mobile Refresh is the phased effort to make Laica feel like a native, camera-forward, cooking-first mobile product rather than a desktop website wrapped in a mobile viewport.
 
-The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Phase 3 review for recipe imagery:
+The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Phase 3 review for design-drift review and recipe imagery:
 
 - Phase 0: security/backend readiness
 - Phase 1: auth and first authenticated routing
@@ -19,7 +19,7 @@ The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Pha
 - Phase 2.1: setup trust, privacy, scan safeguards, and visual conformance
 - Phase 2.2: returning setup edits, Menu, Settings, and History IA
 - Phase 3: planning, Chef It Up, Slop Bowl, and Ticket Pass
-- Phase 3.1: recipe imagery slots and async generated/illustrated imagery
+- Phase 3.1: Phase 3 design-drift review, recipe imagery slots, and async generated/illustrated imagery
 - Phase 4: cooking guidance
 - Phase 5: post-cook cleanup and retention
 
@@ -33,7 +33,7 @@ Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the g
 
 PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation is now in progress on `codex/mobile-refresh-phase-3-planning` from `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`.
 
-Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisine flow, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Ticket Pass has an active visual-drift follow-up: suggestions now reserve generated-image slots with designed placeholders in the featured ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery is tracked for Phase 3.1 and should not block suggestion reveal. Local `npm run check`, `npm run build`, focused Vitest coverage, and dotenvx dev-server boot smoke have passed. Replit validation is not yet run.
+Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisine flow, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) now owns the Phase 3 design-drift review plus recipe imagery follow-up before visual readiness. Ticket Pass reserves generated-image slots with designed placeholders in the featured ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Local `npm run check`, `npm run build`, focused Vitest coverage, and dotenvx dev-server boot smoke have passed. Replit validation is not yet run.
 
 ## Source Docs
 
@@ -44,7 +44,7 @@ Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisin
 - [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
 - [Phase 2.2 returning setup/settings/history IA](../product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md)
 - [Phase 3 planning](../product-decisions/features/mobile-refresh/phase-03-planning.md)
-- [Phase 3.1 recipe imagery](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md)
+- [Phase 3.1 design drift review and recipe imagery](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md)
 - [Phase 4 cooking](../product-decisions/features/mobile-refresh/phase-04-cooking.md)
 - [Phase 5 post-cook](../product-decisions/features/mobile-refresh/phase-05-post-cook.md)
 - [AI privacy, prompt-injection, and abuse rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md)
@@ -77,7 +77,7 @@ Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisin
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | In Progress | `codex/mobile-refresh-phase-3-planning` | Planning entry, Chef It Up, Ticket Pass image placeholders, Prep Tray, Slop Bowl update implemented locally; Replit validation pending |
-| Phase 3.1 | Planned | TBD | Recipe imagery/illustration direction and async image hydration into Phase 3 slots |
+| Phase 3.1 | Planned | TBD | Phase 3 design-drift review, recipe imagery/illustration direction, and async image hydration into Phase 3 slots |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
 
@@ -123,6 +123,7 @@ Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisin
 - UI governance and visual standards graduated to [PD-005](../product-decisions/005-ui-governance.md) and [`design_guidelines.md`](../design_guidelines.md).
 - Product decision taxonomy cleanup added on 2026-05-05 so top-level PDs stay stable decision records and feature-phase records do not become indefinite diaries.
 - EPIC-018 was filed from Phase 3 Replit validation to preserve the follow-up bug around demo-era AI error toasts/redirects masking pantry recipe 400s.
+- Phase 3.1 expanded on 2026-05-05 to own the Phase 3 design-drift review, root-cause notes, recommendations, and recipe imagery follow-up instead of creating a standalone active epic.
 
 ## Validation State
 
@@ -146,7 +147,7 @@ Continue Phase 3 implementation on `codex/mobile-refresh-phase-3-planning`.
 
 Next implementation / validation focus:
 
-1. Review Phase 3 surfaces against [phase-03-planning-flow.png](../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [phase-03-ticket-pass.png](../docs/assets/mobile-refresh/phase-03-ticket-pass.png), especially Ticket Pass hierarchy, image placeholders, and Prep Tray density.
+1. Review Phase 3 surfaces against [phase-03-planning-flow.png](../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [phase-03-ticket-pass.png](../docs/assets/mobile-refresh/phase-03-ticket-pass.png), using [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) as the mid-phase drift checklist, especially Ticket Pass hierarchy, image placeholders, Planning entry tone, bottom nav neutrality, Slop Bowl humor, and Prep Tray density.
 2. Run Replit validation for authenticated Planning, Chef It Up generation, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, and Slop Bowl -> Edit pantry.
 3. Refresh the PR/handoff `Last Replit-validated at` SHA after Replit passes.
 4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.

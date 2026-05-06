@@ -153,6 +153,18 @@ Follow-up patch:
 - `design_guidelines.md` records that `Patrick Hand` is appropriate for small tone-forward Planning labels, not body copy or safety-critical controls.
 - EPIC-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
 
+## 2026-05-05 Phase 3.1 drift-scope follow-up
+
+Wilson asked that the Phase 3 design-drift review be included in Phase 3.1 work instead of becoming a standalone active epic.
+
+Follow-up docs patch:
+
+- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` now owns the drift inventory, root-cause notes, recommendations, and recipe imagery follow-up.
+- `epics/README.md` and `epics/registry.md` do not list a Phase 3 drift epic.
+- `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md` now describe Phase 3.1 as the next design-drift plus imagery pass.
+
+Phase 3.1 should review the documented drift rows and mark each one fixed, accepted, or deferred before closeout. Real imagery remains async/cached and must not block the first recipe-suggestion reveal.
+
 ## Verification
 
 Passed:
