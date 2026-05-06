@@ -185,6 +185,13 @@ Implemented locally:
 - Do not make more Phase 3 visual changes unless an issue blocks functional validation or basic usability.
 - [Phase 3.1](phase-03-1-recipe-imagery.md) now owns the design facelift: whitespace, card/object grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
 
+2026-05-06 Ticket Pass selection-orientation follow-up:
+
+- Wilson's Replit screenshot review found that selecting the second or third ticket was disorienting because the selected recipe jumped into the featured position and the original first recipe moved into the compact stack.
+- This is allowed after the visual freeze because it blocks basic recipe-picking usability, not because it is a Phase 3 visual facelift.
+- Ticket Pass keeps the original generated order now. The selected ticket expands in place, compact tickets stay above/below it, and the selected-state badge describes `Your pick` instead of moving `Chef pick` around the list.
+- Recipe names are display-split into a main line plus smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names stay as a single title, and the underlying recipe name is unchanged for cooking-session persistence.
+
 Local validation:
 
 - `npm ci`
@@ -194,6 +201,7 @@ Local validation:
 - `git diff --check`
 - Dotenvx dev-server boot smoke returned HTTP 200 on port 3000.
 - 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
+- 2026-05-06 Ticket Pass selection-orientation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 
 Known validation gap:
 

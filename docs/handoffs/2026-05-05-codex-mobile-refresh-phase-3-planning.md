@@ -199,6 +199,19 @@ Follow-up docs patch:
 
 Phase 3 closeout should focus on authenticated Planning entry, Chef It Up time/cuisine, recipe generation, refresh suggestions, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry. Phase 3.1 should plan and implement whitespace/card grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
 
+## 2026-05-06 Ticket Pass selection-orientation follow-up
+
+Wilson's Replit screenshot review found a basic usability blocker in Ticket Pass selection: selecting recipe 2 or 3 promoted it into the featured slot and moved recipe 1 into the compact stack, making the list feel reordered.
+
+Follow-up patch:
+
+- `client/src/components/cooking/meal-planning.tsx` now renders the three recipe suggestions in generated order and expands the selected ticket in place.
+- The selected expanded ticket says `Your pick` instead of moving `Chef pick` to whichever ticket the user last tapped.
+- Recipe names are display-split into a main title and smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names remain a single title, and the underlying `recipeName` remains unchanged.
+- `product-decisions/features/mobile-refresh/phase-03-planning.md` and `phase-03-1-recipe-imagery.md` record this as a Phase 3 basic-usability exception to the visual freeze.
+
+Replit validation should explicitly tap recipe 1, 2, and 3 and confirm the order stays stable while the selected ticket expands in its original position.
+
 ## Verification
 
 Passed:

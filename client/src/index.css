@@ -1306,20 +1306,12 @@ html, body {
 
   .planning-ticket-stack {
     position: relative;
+    display: grid;
+    gap: 0.65rem;
   }
 
   .planning-ticket-stack::before {
-    position: absolute;
-    right: 1.4rem;
-    bottom: 4.15rem;
-    left: 1.4rem;
-    height: 2.2rem;
-    border: 1px solid hsl(var(--planning-ticket-edge) / 0.48);
-    border-radius: 999px;
-    background: hsl(33 44% 73% / 0.26);
-    box-shadow: inset 0 0.45rem 0.7rem hsl(30 28% 42% / 0.08);
-    content: '';
-    pointer-events: none;
+    display: none;
   }
 
   .planning-ticket {
@@ -1397,7 +1389,8 @@ html, body {
   }
 
   .planning-ticket-title {
-    display: block;
+    display: grid;
+    gap: 0.18rem;
     margin-top: 0.55rem;
     max-width: 18rem;
     color: hsl(var(--planning-ink));
@@ -1408,7 +1401,25 @@ html, body {
   }
 
   .planning-ticket-large .planning-ticket-title {
-    font-size: 1.7rem;
+    font-size: 1.5rem;
+    line-height: 1.08;
+  }
+
+  .planning-ticket-title-main,
+  .planning-ticket-title-detail {
+    display: block;
+  }
+
+  .planning-ticket-title-detail {
+    color: hsl(var(--planning-ink) / 0.62);
+    font-size: 0.72em;
+    font-weight: 800;
+    line-height: 1.16;
+  }
+
+  .planning-ticket-large .planning-ticket-title-detail {
+    margin-top: 0.1rem;
+    font-size: 0.66em;
   }
 
   .planning-recipe-image-slot {
@@ -1484,6 +1495,11 @@ html, body {
     max-width: none;
     font-size: 0.94rem;
     line-height: 1.08;
+  }
+
+  .planning-ticket-row .planning-ticket-title-detail {
+    margin-top: 0.08rem;
+    font-size: 0.78em;
   }
 
   .planning-ticket-row .planning-recipe-image-slot {

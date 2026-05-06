@@ -33,7 +33,7 @@ Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the g
 
 PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation is now in progress on `codex/mobile-refresh-phase-3-planning` from `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`.
 
-Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisine flow, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so this branch can close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift plus recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the featured ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Local `npm run check`, `npm run build`, focused Vitest coverage, and dotenvx dev-server boot smoke have passed. Replit validation is not yet run.
+Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisine flow, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so this branch can close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift plus recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. A post-freeze basic-usability patch keeps Ticket Pass recipe order stable while expanding the selected recipe in place and display-splitting recipe names only when explicit supporting detail exists. Local `npm run check`, `npm run build`, focused Vitest coverage, and dotenvx dev-server boot smoke have passed. Replit validation is not yet run.
 
 ## Source Docs
 
@@ -125,6 +125,7 @@ Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisin
 - EPIC-018 was filed from Phase 3 Replit validation to preserve the follow-up bug around demo-era AI error toasts/redirects masking pantry recipe 400s.
 - Phase 3.1 expanded on 2026-05-05 to own the Phase 3 design-drift review, root-cause notes, recommendations, and recipe imagery follow-up instead of creating a standalone active epic.
 - Phase 3 visuals frozen on 2026-05-06 so Phase 3 can close on functional validation; Phase 3.1 now owns the whitespace/card grammar, typography, Slop Bowl humor, Ticket Pass, Prep Tray, bottom nav, docs, and imagery facelift.
+- Ticket Pass selection orientation was fixed after the visual freeze as a basic-usability exception: recipe order stays stable, the selected ticket expands in place, and recipe names show a main/supporting split only when explicit supporting detail exists, without changing the stored recipe name.
 
 ## Validation State
 
@@ -149,7 +150,7 @@ Continue Phase 3 implementation on `codex/mobile-refresh-phase-3-planning`.
 Next implementation / validation focus:
 
 1. Do not make more Phase 3 visual changes unless an issue blocks functional validation or basic usability.
-2. Run Replit validation for authenticated Planning entry, Chef It Up time/cuisine flow, recipe generation, refresh suggestions, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry.
+2. Run Replit validation for authenticated Planning entry, Chef It Up time/cuisine flow, recipe generation, refresh suggestions, Ticket Pass selection, Ticket Pass stable-order expansion across all three recipes, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry.
 3. Refresh the PR/handoff `Last Replit-validated at` SHA after Replit passes.
 4. Move design facelift work to [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md): whitespace/card grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
 5. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.

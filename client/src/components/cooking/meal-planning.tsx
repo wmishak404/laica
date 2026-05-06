@@ -106,6 +106,28 @@ const calculatePantryMatch = (pantryCount: number, additionalCount: number) => {
   return Math.max(0, Math.min(100, Math.round(((pantryCount - additionalCount) / pantryCount) * 100)));
 };
 
+const splitRecipeName = (recipeName: string): { main: string; detail?: string } => {
+  const normalized = recipeName.replace(/\s+/g, ' ').trim();
+  if (!normalized) return { main: 'Pantry Dinner' };
+
+  const parentheticalMatch = normalized.match(/^(.*?)\s*\(([^()]+)\)\s*$/);
+  if (parentheticalMatch) {
+    const main = parentheticalMatch[1].trim();
+    const detail = parentheticalMatch[2].trim();
+    if (main && detail) return { main, detail };
+  }
+
+  const colonMatch = normalized.match(/^(.{12,}?):\s*(.{8,})$/);
+  if (colonMatch) {
+    return {
+      main: colonMatch[1].trim(),
+      detail: colonMatch[2].trim(),
+    };
+  }
+
+  return { main: normalized };
+};
+
 export default function MealPlanning({
   userProfile,
   initialTimeAvailable,
@@ -207,6 +229,14 @@ export default function MealPlanning({
 
     localStorage.setItem(MEAL_PLANNING_STORAGE_KEY, JSON.stringify(session));
   }, [currentStep, mealPrefs, recommendations, selectedMeal, sessionRestored]);
+
+  useEffect(() => {
+    if (currentStep !== 'tickets' && currentStep !== 'prep-tray') return;
+    if (recommendations.length === 0) return;
+    if (selectedMeal && recommendations.some((recipe) => recipe.id === selectedMeal.id)) return;
+
+    setSelectedMeal(recommendations[0]);
+  }, [currentStep, recommendations, selectedMeal]);
 
   const selectedTimeIndex = Math.max(
     0,
@@ -499,6 +529,17 @@ export default function MealPlanning({
     </span>
   );
 
+  const renderRecipeTicketTitle = (recipeName: string) => {
+    const { main, detail } = splitRecipeName(recipeName);
+
+    return (
+      <span className="planning-ticket-title">
+        <span className="planning-ticket-title-main">{main}</span>
+        {detail && <span className="planning-ticket-title-detail">{detail}</span>}
+      </span>
+    );
+  };
+
   const renderTicket = (recipe: RecipeRecommendation, isLarge = false) => {
     const selected = selectedMeal?.id === recipe.id;
 
@@ -508,16 +549,17 @@ export default function MealPlanning({
         key={recipe.id}
         className={isLarge ? 'planning-ticket planning-ticket-large' : 'planning-ticket planning-ticket-row'}
         data-selected={selected}
+        aria-pressed={selected}
         onClick={() => setSelectedMeal(recipe)}
       >
         <span className="planning-ticket-rip" aria-hidden="true" />
         {isLarge && (
           <span className="planning-ticket-rank">
             <ChefHat className="h-4 w-4" />
-            Chef pick
+            Your pick
           </span>
         )}
-        <span className="planning-ticket-title">{recipe.recipeName}</span>
+        {renderRecipeTicketTitle(recipe.recipeName)}
         {renderRecipeImageSlot(recipe)}
         <span className="planning-ticket-meta">
           <span><Clock className="h-4 w-4" /> {recipe.cookTime} min</span>
@@ -549,8 +591,7 @@ export default function MealPlanning({
 
   const renderTicketsStep = () => {
     const visibleRecommendations = recommendations.slice(0, 3);
-    const featuredRecipe = selectedMeal ?? visibleRecommendations[0] ?? null;
-    const sideRecipes = visibleRecommendations.filter((recipe) => recipe.id !== featuredRecipe?.id);
+    const selectedMealId = selectedMeal?.id ?? visibleRecommendations[0]?.id;
 
     return (
       <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
@@ -566,12 +607,7 @@ export default function MealPlanning({
         </div>
 
         <div className="planning-ticket-stack mt-7">
-          {featuredRecipe && renderTicket(featuredRecipe, true)}
-          {sideRecipes.length > 0 && (
-            <div className="planning-ticket-short-list">
-              {sideRecipes.map((recipe) => renderTicket(recipe))}
-            </div>
-          )}
+          {visibleRecommendations.map((recipe) => renderTicket(recipe, recipe.id === selectedMealId))}
         </div>
 
         <div className="mt-6 space-y-3">
