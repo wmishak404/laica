@@ -160,17 +160,17 @@ Wilson's screenshot review caught that the coral handwritten `Chef It Up` and `S
 Follow-up patch:
 
 - `client/src/index.css` flips `.planning-choice-title` to charcoal via `--planning-ink`.
-- `client/src/index.css` moves the coral accent to `.planning-choice-copy`.
+- `client/src/index.css` keeps `.planning-choice-copy` in muted charcoal so coral does not fight the card content.
 - The Phase 3 and Phase 3.1 docs now record this as part of the Planning label drift correction.
 
 ## 2026-05-05 Slop Bowl sticker-legibility follow-up
 
-Wilson's screenshot review caught that the rotating Slop Bowl sticker copy (`LESS BRAIN POWER`, `NO RULES`, `MAKE GOOD SLOP`) was hard to read and did not pop enough as a label. The handwritten/humor direction was approved, but the coral pill treatment was not doing enough work.
+Wilson's screenshot review caught that the rotating Slop Bowl sticker copy (`LESS BRAIN POWER`, `NO RULES`, `MAKE GOOD SLOP`) was hard to read and did not pop enough as a label. The handwritten/humor direction was approved, but the coral pill and later high-contrast pill treatments felt too separate from the page.
 
 Follow-up patch:
 
-- `client/src/index.css` changes `.planning-slop-sticker` from coral/white to a charcoal stamped-note treatment with butter text and border.
-- The sticker now has a light rim and stronger shadow to separate from the Slop Bowl card background.
+- `client/src/index.css` changes `.planning-slop-sticker` into a top-right card banner with butter/teal note styling and charcoal text.
+- The banner uses a subtle border, inset edge, and lighter shadow so it belongs to the card instead of reading as a pasted sticker.
 - Phase 3 and Phase 3.1 docs now track this as sticker alignment/legibility drift.
 
 ## 2026-05-05 Phase 3.1 drift-scope follow-up

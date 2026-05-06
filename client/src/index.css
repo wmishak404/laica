@@ -1105,24 +1105,30 @@ html, body {
 
   .planning-slop-sticker {
     position: absolute;
-    left: 50%;
-    top: 0.6rem;
+    right: 1.2rem;
+    top: 0.78rem;
     z-index: 1;
-    border-radius: 999px;
-    border: 2px solid hsl(var(--planning-butter));
-    background: hsl(var(--planning-ink));
-    color: hsl(var(--planning-butter));
+    max-width: min(10.6rem, 48%);
+    overflow: hidden;
+    border: 1px solid hsl(var(--planning-teal) / 0.32);
+    border-radius: 0.82rem 1rem 0.82rem 0.32rem;
+    background:
+      linear-gradient(135deg, hsl(var(--planning-butter) / 0.58), hsl(var(--planning-teal) / 0.16)),
+      hsl(0 0% 100% / 0.78);
+    color: hsl(var(--planning-ink));
     font-family: 'Patrick Hand', 'Nunito', system-ui, sans-serif;
-    font-size: 0.84rem;
+    font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0;
-    line-height: 1;
-    padding: 0.42rem 0.82rem 0.44rem;
-    transform: translateX(-50%) rotate(3deg);
+    line-height: 0.95;
+    padding: 0.36rem 0.74rem 0.4rem;
+    text-overflow: ellipsis;
+    transform: rotate(2deg);
     white-space: nowrap;
+    text-shadow: 0 1px 0 hsl(0 0% 100% / 0.58);
     box-shadow:
-      0 0 0 3px hsl(0 0% 100% / 0.74),
-      0 0.55rem 1rem hsl(var(--planning-ink) / 0.18);
+      inset 0 -2px 0 hsl(var(--planning-teal) / 0.12),
+      0 0.45rem 0.9rem hsl(var(--planning-ink) / 0.08);
   }
 
   .planning-choice-title {
@@ -1137,7 +1143,7 @@ html, body {
   .planning-choice-copy {
     display: block;
     margin-top: 0.45rem;
-    color: hsl(var(--planning-coral));
+    color: hsl(var(--planning-ink) / 0.72);
     font-size: 0.92rem;
     font-weight: 800;
     line-height: 1.22;
