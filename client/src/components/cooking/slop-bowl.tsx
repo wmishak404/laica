@@ -13,6 +13,7 @@ import {
 } from '@/lib/openai';
 import { normalizeEntryKey, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { handleAPIError } from '@/lib/rateLimitHandler';
+import { getPlanningTimeLabel, type PlanningTimeValue } from '@shared/planning';
 
 interface UserProfile {
   cookingSkill: string;
@@ -40,6 +41,7 @@ interface RecipeRecommendation {
 
 interface SlopBowlProps {
   userProfile: UserProfile;
+  planningTimeAvailable: PlanningTimeValue;
   onMealSelected: (meal: RecipeRecommendation, scheduledTime: string) => void;
   onBackToPlanning: () => void;
   onEditPantry: () => void;
@@ -98,7 +100,13 @@ const createProfilePantryItems = (ingredients: string[]): PantryItem[] =>
     source: 'profile',
   }));
 
-export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning, onEditPantry }: SlopBowlProps) {
+export default function SlopBowl({
+  userProfile,
+  planningTimeAvailable,
+  onMealSelected,
+  onBackToPlanning,
+  onEditPantry,
+}: SlopBowlProps) {
   const [state, setState] = useState<SlopBowlState>('pantry-check');
   const [recipe, setRecipe] = useState<SlopBowlRecipe | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -160,6 +168,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     try {
       const result = await fetchSlopBowlRecipe({
         pantryOverride,
+        planningTimeAvailable,
         feedback: feedback || undefined,
         previousRecipe: prevRecipe || undefined,
       });
@@ -179,7 +188,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [planningTimeAvailable]);
 
   const handleAccept = () => {
     if (!recipe) return;
@@ -241,16 +250,22 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
     const hasManualAdditions = pantry.some((item) => item.source === 'manual');
 
     return (
-      <div className="space-y-6">
+      <div className="slop-check-screen space-y-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Quick pantry check</h2>
-          <p className="text-gray-600">
-            Remove anything you&apos;re out of, or add something for this bowl only. Use your profile for permanent pantry changes.
+          <h2 className="planning-display text-3xl font-extrabold leading-tight text-gray-950">
+            One more check that these are still around.
+          </h2>
+          <p className="planning-copy mt-3 text-sm font-bold">
+            I&apos;ll handle the decisions. You just confirm.
+          </p>
+          <p className="mt-2 text-xs font-bold text-gray-500">
+            Using your {getPlanningTimeLabel(planningTimeAvailable)} time setting.
           </p>
         </div>
 
-        <Card>
-          <CardContent className="p-4 space-y-4">
+        {/* design:tone-override — Slop Bowl pantry confirmation is intentionally scrappy and chip-led per Phase 3. */}
+        <Card className="slop-check-card">
+          <CardContent className="space-y-4 p-4">
             {pantry.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {pantry.map((item) => (
@@ -259,8 +274,8 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
                     variant={item.source === 'manual' ? 'outline' : 'secondary'}
                     className={
                       item.source === 'manual'
-                        ? 'gap-1 border-primary/20 bg-primary/10 px-3 py-1.5 text-sm text-primary'
-                        : 'gap-1 bg-gray-100 px-3 py-1.5 text-sm text-gray-700'
+                        ? 'slop-check-chip slop-check-chip-added'
+                        : 'slop-check-chip'
                     }
                   >
                     {item.source === 'manual' && (
@@ -301,15 +316,15 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
                 <Input
                   value={ingredientInput}
                   onChange={(event) => setIngredientInput(event.target.value)}
-                  placeholder="Add ingredients"
-                  className="flex-1"
+                  placeholder="Add rice, mayo, eggs..."
+                  className="min-h-12 flex-1 rounded-xl"
                 />
-                <Button type="submit" variant="outline" disabled={!canAddIngredient}>
+                <Button type="submit" variant="outline" disabled={!canAddIngredient} className="min-h-12 rounded-xl">
                   Add
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Use commas to add multiple. Changes here only apply to this bowl.
+                Add more or remove anything. I need at least 3 ingredients.
               </p>
               {!canAddIngredient && normalizedIngredientInput.length > 0 && (
                 <p className="text-xs text-amber-600">That ingredient is already in this bowl.</p>
@@ -338,23 +353,25 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
               </p>
             )}
 
-            <Button
-              variant="outline"
-              onClick={onEditPantry}
-              className="w-full"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Edit pantry in profile
-            </Button>
           </CardContent>
         </Card>
 
         <Button
           onClick={confirmPantry}
           disabled={!canGenerateBowl}
-          className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+          className="h-12 w-full rounded-xl text-lg font-extrabold"
         >
-          This looks right
+          <ChefHat className="h-5 w-5" />
+          Make my bowl
+        </Button>
+
+        <Button
+          variant="link"
+          onClick={onEditPantry}
+          className="w-full font-extrabold"
+        >
+          <Settings className="h-4 w-4 mr-2" />
+          Edit my pantry
         </Button>
 
         <Button
@@ -372,7 +389,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
   // ── Generating ────────────────────────────────────────────────────────────
   const renderGenerating = () => (
     <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
-      <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#FF6B6B]" />
+      <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-primary" />
       <p className="text-lg text-gray-700 font-medium animate-pulse">
         {LOADING_MESSAGES[loadingMessageIndex]}
       </p>
@@ -406,7 +423,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
                 <span>·</span>
                 <span>{recipe.difficulty}</span>
                 {recipe.isFusion && (
-                  <Badge className="bg-[#FFB347] text-white text-xs px-2 py-0.5">Fusion</Badge>
+                  <Badge className="bg-accent text-accent-foreground text-xs px-2 py-0.5">Fusion</Badge>
                 )}
               </div>
             </div>
@@ -428,7 +445,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
             {/* Missing ingredients */}
             {recipe.additionalIngredientsNeeded.length > 0 && (
               <div className="border-t border-gray-100 px-4 py-3 bg-amber-50">
-                <p className="text-sm font-medium text-amber-800 mb-1.5">You'll need to grab:</p>
+                <p className="text-sm font-medium text-amber-800 mb-1.5">Optional if around:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {recipe.additionalIngredientsNeeded.map((item) => (
                     <Badge key={item} variant="outline" className="text-xs border-amber-300 text-amber-700">
@@ -443,7 +460,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
 
         <Button
           onClick={handleAccept}
-          className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+          className="w-full py-3 text-lg"
         >
           <ChefHat className="h-5 w-5 mr-2" />
           Let's cook this!
@@ -454,13 +471,13 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
           <Button
             variant="outline"
             onClick={handleReject}
-            className="w-full border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white py-3 text-lg"
+            className="w-full py-3 text-lg"
           >
             Try something else
           </Button>
           <Button
             onClick={onBackToPlanning}
-            className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+            className="w-full py-3 text-lg"
           >
             Plan your own meal instead
           </Button>
@@ -492,7 +509,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
           <Button
             onClick={() => handleRegenerate(true)}
             disabled={isLoading}
-            className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+            className="w-full py-3 text-lg"
           >
             Recommend another bowl
           </Button>
@@ -500,7 +517,7 @@ export default function SlopBowl({ userProfile, onMealSelected, onBackToPlanning
           <Button
             onClick={() => handleRegenerate(false)}
             disabled={isLoading}
-            className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+            className="w-full py-3 text-lg"
           >
             Skip and just surprise me
           </Button>

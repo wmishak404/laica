@@ -96,3 +96,9 @@ The Phase 2 setup branch (`codex/mobile-refresh-phase-2-setup`) adds `client/src
 ## 2026-04-30 — Phase 2.1 accepts periods as typo recovery
 
 Wilson's Phase 2.1 setup validation found that `ground beef. mayo. rice` was treated as one pantry item. The shared parser now keeps comma behavior, handles missing spaces after commas, and also treats periods as comma-like separators for manual-entry typo recovery. Other punctuation/operators remain non-separators so the behavior does not broaden into arbitrary parsing. Phase 2.1 setup also shows a visible Pantry note telling users to separate items with commas.
+
+## 2026-05-05 — Phase 3 Slop Bowl preserves shared parser
+
+`codex/mobile-refresh-phase-3-planning` refreshes the Slop Bowl confirmation surface for INIT-001 Phase 3 while keeping `parseCommaSeparatedEntries` and duplicate prevention as the quick-add behavior. The visible helper now says users can add more or remove anything while preserving the 3+ ingredient guard.
+
+This is supporting evidence for the epic, not closeout. Browser/Replit validation of the refreshed Slop Bowl quick-add surface is still needed before resolving the remaining Slop Bowl validation criterion.

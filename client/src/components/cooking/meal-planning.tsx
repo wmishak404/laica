@@ -1,22 +1,29 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Clock, ChefHat, Users, Calendar, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { fetchPantryRecipes } from '@/lib/openai';
 import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
+import {
+  PLANNING_TIME_OPTIONS,
+  getPlanningTimePrompt,
+  normalizePlanningTimeValue,
+  type PlanningTimeValue,
+} from '@shared/planning';
+import { getStapleCandidatesForCuisines } from '@shared/planning-staples';
+import { mergeUniqueEntries } from '@/lib/entryParsing';
+import { ArrowLeft, ChefHat, CheckCircle2, Clock, RefreshCw, Sparkles, Utensils } from 'lucide-react';
 
-const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session';
+const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
+const NO_PREFERENCE = 'No preference';
+
+type PlanningStep = 'time' | 'cuisine' | 'staples' | 'tickets' | 'prep-tray';
 
 interface SavedMealPlanningSession {
-  currentStep: number;
+  currentStep: PlanningStep;
   mealPrefs: MealPreferences;
+  selectedStaples: string[];
   recommendations: RecipeRecommendation[];
   selectedMeal: RecipeRecommendation | null;
   savedAt: number;
@@ -31,11 +38,8 @@ interface UserProfile {
 }
 
 interface MealPreferences {
-  previousMeals: string[];
-  timeAvailable: string;
+  timeAvailable: PlanningTimeValue;
   cuisinePreference: string[];
-  avoidToday: string;
-  missingIngredients: string[];
 }
 
 interface RecipeRecommendation {
@@ -48,682 +52,802 @@ interface RecipeRecommendation {
   pantryMatch: number;
   missingIngredients: string[];
   isFusion?: boolean;
+  ingredients?: string[];
+  equipment?: string[];
+  overview?: string;
+  imageUrl?: string;
 }
 
 interface MealPlanningProps {
   userProfile: UserProfile;
+  initialTimeAvailable: PlanningTimeValue;
+  onPlanningTimeChange: (value: PlanningTimeValue) => void;
+  onPantryIngredientsAdded: (ingredients: string[]) => Promise<boolean>;
   onMealSelected: (meal: RecipeRecommendation, scheduledTime: string) => void;
   onBackToProfile: () => void;
 }
 
-export default function MealPlanning({ userProfile, onMealSelected, onBackToProfile }: MealPlanningProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+const cuisineOptions = [
+  { name: 'Italian', icon: '🍕' },
+  { name: 'Mexican', icon: '🌮' },
+  { name: 'Korean', icon: '🍲' },
+  { name: 'Japanese', icon: '🍣' },
+  { name: 'Mediterranean', icon: '🥙' },
+  { name: 'Thai', icon: '🍜' },
+  { name: 'Indian', icon: '🍛' },
+  { name: 'Chinese', icon: '🥟' },
+  { name: 'Vietnamese', icon: '🍲' },
+  { name: 'American', icon: '🍔' },
+  { name: 'French', icon: '🥖' },
+  { name: 'Greek', icon: '🫒' },
+  { name: 'Middle Eastern', icon: '🧆' },
+  { name: 'Spanish', icon: '🥘' },
+];
+
+const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
+
+const isPlanningStep = (value: unknown): value is PlanningStep =>
+  value === 'time' || value === 'cuisine' || value === 'staples' || value === 'tickets' || value === 'prep-tray';
+
+const stringArray = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : [];
+
+const normalizeCuisinePreference = (value: unknown): string[] => {
+  const entries = stringArray(value);
+  if (entries.includes(NO_PREFERENCE)) return [NO_PREFERENCE];
+
+  const selected = entries.filter((entry, index) =>
+    cuisineNames.has(entry) && entries.indexOf(entry) === index
+  );
+
+  return selected.length > 0 ? selected : [NO_PREFERENCE];
+};
+
+const calculatePantryMatch = (pantryCount: number, additionalCount: number) => {
+  if (pantryCount <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round(((pantryCount - additionalCount) / pantryCount) * 100)));
+};
+
+const splitRecipeName = (recipeName: string): { main: string; detail?: string } => {
+  const normalized = recipeName.replace(/\s+/g, ' ').trim();
+  if (!normalized) return { main: 'Pantry Dinner' };
+
+  const parentheticalMatch = normalized.match(/^(.*?)\s*\(([^()]+)\)\s*$/);
+  if (parentheticalMatch) {
+    const main = parentheticalMatch[1].trim();
+    const detail = parentheticalMatch[2].trim();
+    if (main && detail) return { main, detail };
+  }
+
+  const colonMatch = normalized.match(/^(.{12,}?):\s*(.{8,})$/);
+  if (colonMatch) {
+    return {
+      main: colonMatch[1].trim(),
+      detail: colonMatch[2].trim(),
+    };
+  }
+
+  return { main: normalized };
+};
+
+export default function MealPlanning({
+  userProfile,
+  initialTimeAvailable,
+  onPlanningTimeChange,
+  onPantryIngredientsAdded,
+  onMealSelected,
+  onBackToProfile,
+}: MealPlanningProps) {
+  const [currentStep, setCurrentStep] = useState<PlanningStep>('time');
   const [mealPrefs, setMealPrefs] = useState<MealPreferences>({
-    previousMeals: [],
-    timeAvailable: '',
-    cuisinePreference: [],
-    avoidToday: '',
-    missingIngredients: []
+    timeAvailable: normalizePlanningTimeValue(initialTimeAvailable),
+    cuisinePreference: [NO_PREFERENCE],
   });
+  const [selectedStaples, setSelectedStaples] = useState<string[]>([]);
   const [recommendations, setRecommendations] = useState<RecipeRecommendation[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [newMeal, setNewMeal] = useState('');
   const [sessionRestored, setSessionRestored] = useState(false);
   const { toast } = useToast();
 
-  // Validate and sanitize a saved session
   const validateSession = (data: any): SavedMealPlanningSession | null => {
     try {
-      // Check required fields exist and have correct types
       if (typeof data !== 'object' || data === null) return null;
-      if (typeof data.currentStep !== 'number') return null;
+      if (!isPlanningStep(data.currentStep)) return null;
       if (typeof data.savedAt !== 'number') return null;
-      
-      // Sanitize mealPrefs with defaults
-      const mealPrefs: MealPreferences = {
-        previousMeals: Array.isArray(data.mealPrefs?.previousMeals) ? data.mealPrefs.previousMeals : [],
-        timeAvailable: typeof data.mealPrefs?.timeAvailable === 'string' ? data.mealPrefs.timeAvailable : '',
-        cuisinePreference: Array.isArray(data.mealPrefs?.cuisinePreference) ? data.mealPrefs.cuisinePreference : [],
-        avoidToday: typeof data.mealPrefs?.avoidToday === 'string' ? data.mealPrefs.avoidToday : '',
-        missingIngredients: Array.isArray(data.mealPrefs?.missingIngredients) ? data.mealPrefs.missingIngredients : []
-      };
-      
-      // Sanitize recommendations array
-      const recommendations: RecipeRecommendation[] = Array.isArray(data.recommendations) 
-        ? data.recommendations.filter((r: any) => 
-            typeof r === 'object' && r !== null && typeof r.recipeName === 'string'
-          )
+
+      const recommendations = Array.isArray(data.recommendations)
+        ? data.recommendations.filter((recipe: any) =>
+            typeof recipe === 'object' &&
+            recipe !== null &&
+            typeof recipe.recipeName === 'string'
+          ).slice(0, 3)
         : [];
-      
-      // Sanitize selectedMeal
       const selectedMeal = (
-        data.selectedMeal && 
-        typeof data.selectedMeal === 'object' && 
+        data.selectedMeal &&
+        typeof data.selectedMeal === 'object' &&
         typeof data.selectedMeal.recipeName === 'string'
       ) ? data.selectedMeal : null;
-      
+
       return {
         currentStep: data.currentStep,
-        mealPrefs,
+        mealPrefs: {
+          timeAvailable: normalizePlanningTimeValue(data.mealPrefs?.timeAvailable),
+          cuisinePreference: normalizeCuisinePreference(data.mealPrefs?.cuisinePreference),
+        },
+        selectedStaples: stringArray(data.selectedStaples).slice(0, 4),
         recommendations,
         selectedMeal,
-        savedAt: data.savedAt
+        savedAt: data.savedAt,
       };
     } catch {
       return null;
     }
   };
 
-  // Auto-restore saved session on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem(MEAL_PLANNING_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        const session = validateSession(parsed);
-        
-        if (!session) {
-          // Invalid session data - clear it
-          localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
-          return;
-        }
-        
-        // Only restore if session is less than 24 hours old and has meaningful progress
-        const isRecent = Date.now() - session.savedAt < 24 * 60 * 60 * 1000;
-        const hasProgress = session.currentStep > 1 || session.recommendations.length > 0;
-        
-        if (isRecent && hasProgress) {
-          // Auto-restore the session immediately
-          setCurrentStep(session.currentStep);
-          setMealPrefs(session.mealPrefs);
-          setRecommendations(session.recommendations);
-          setSelectedMeal(session.selectedMeal);
-          setSessionRestored(true);
-        } else {
-          // Clear old session
-          localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
-        }
+      if (!saved) return;
+
+      const session = validateSession(JSON.parse(saved));
+      if (!session) {
+        localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+        return;
+      }
+
+      const isRecent = Date.now() - session.savedAt < 24 * 60 * 60 * 1000;
+      const hasProgress = session.currentStep !== 'time' || session.recommendations.length > 0;
+
+      if (isRecent && hasProgress) {
+        setCurrentStep(session.currentStep);
+        setMealPrefs(session.mealPrefs);
+        setSelectedStaples(session.selectedStaples);
+        setRecommendations(session.recommendations);
+        setSelectedMeal(session.selectedMeal);
+        setSessionRestored(true);
+        onPlanningTimeChange(session.mealPrefs.timeAvailable);
+      } else {
+        localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
       }
     } catch (error) {
-      console.error('Error loading saved session:', error);
+      console.error('Error loading saved planning session:', error);
       localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
     }
-  }, []);
+  }, [onPlanningTimeChange]);
 
-  // Save session state whenever it changes
   useEffect(() => {
-    // Skip saving during initial restore
     if (sessionRestored) {
       setSessionRestored(false);
       return;
     }
-    
-    // Only save if there's meaningful state to save
-    const hasProgress = currentStep > 1 || mealPrefs.timeAvailable || recommendations.length > 0;
-    
-    if (hasProgress) {
-      const session: SavedMealPlanningSession = {
-        currentStep,
-        mealPrefs,
-        recommendations,
-        selectedMeal,
-        savedAt: Date.now()
-      };
-      localStorage.setItem(MEAL_PLANNING_STORAGE_KEY, JSON.stringify(session));
-    }
-  }, [currentStep, mealPrefs, recommendations, selectedMeal, sessionRestored]);
 
-  // Clear saved session when cooking starts
-  const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
-    localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
-    onMealSelected(meal, scheduledTime);
-  };
+    const hasProgress = currentStep !== 'time' || recommendations.length > 0;
+    if (!hasProgress) return;
 
-  const timeOptions = [
-    { value: '30', label: '30 minutes' },
-    { value: '60', label: '1 hour' },
-    { value: '90', label: '1.5 hours' },
-    { value: '120', label: '2+ hours' }
-  ];
+    const session: SavedMealPlanningSession = {
+      currentStep,
+      mealPrefs,
+      selectedStaples,
+      recommendations: recommendations.slice(0, 3),
+      selectedMeal,
+      savedAt: Date.now(),
+    };
 
-  const cuisineOptions = [
-    'Italian', 'Asian', 'Mexican', 'Indian', 'Mediterranean', 
-    'American', 'French', 'Thai', 'Japanese', 'Middle Eastern',
-    'Korean', 'Vietnamese', 'Greek', 'Spanish', 'No preference'
-  ];
+    localStorage.setItem(MEAL_PLANNING_STORAGE_KEY, JSON.stringify(session));
+  }, [currentStep, mealPrefs, selectedStaples, recommendations, selectedMeal, sessionRestored]);
 
+  useEffect(() => {
+    if (currentStep !== 'tickets' && currentStep !== 'prep-tray') return;
+    if (recommendations.length === 0) return;
+    if (selectedMeal && recommendations.some((recipe) => recipe.id === selectedMeal.id)) return;
 
-  const addMeal = () => {
-    if (newMeal.trim()) {
-      setMealPrefs(prev => ({
-        ...prev,
-        previousMeals: [...prev.previousMeals, newMeal.trim()]
-      }));
-      setNewMeal('');
-    }
-  };
+    setSelectedMeal(recommendations[0]);
+  }, [currentStep, recommendations, selectedMeal]);
 
-  const removeMeal = (index: number) => {
-    setMealPrefs(prev => ({
-      ...prev,
-      previousMeals: prev.previousMeals.filter((_, i) => i !== index)
-    }));
+  const selectedTimeIndex = Math.max(
+    0,
+    PLANNING_TIME_OPTIONS.findIndex((option) => option.value === mealPrefs.timeAvailable),
+  );
+  const canProceedFromCuisine = mealPrefs.cuisinePreference.length > 0;
+  const stapleCandidates = useMemo(
+    () => mealPrefs.cuisinePreference.includes(NO_PREFERENCE)
+      ? []
+      : getStapleCandidatesForCuisines(mealPrefs.cuisinePreference, userProfile.pantryIngredients),
+    [mealPrefs.cuisinePreference, userProfile.pantryIngredients],
+  );
+
+  const setPlanningTime = (value: PlanningTimeValue) => {
+    setMealPrefs((prev) => ({ ...prev, timeAvailable: value }));
+    onPlanningTimeChange(value);
   };
 
   const toggleCuisine = (cuisine: string) => {
-    setMealPrefs(prev => ({
-      ...prev,
-      cuisinePreference: prev.cuisinePreference.includes(cuisine)
-        ? prev.cuisinePreference.filter(c => c !== cuisine)
-        : [...prev.cuisinePreference, cuisine]
-    }));
+    setSelectedStaples([]);
+    setMealPrefs((prev) => {
+      if (cuisine === NO_PREFERENCE) {
+        return {
+          ...prev,
+          cuisinePreference: [NO_PREFERENCE],
+        };
+      }
+
+      const withoutNoPreference = prev.cuisinePreference.filter((item) => item !== NO_PREFERENCE);
+      const cuisinePreference = withoutNoPreference.includes(cuisine)
+        ? withoutNoPreference.filter((item) => item !== cuisine)
+        : [...withoutNoPreference, cuisine];
+
+      return {
+        ...prev,
+        cuisinePreference: cuisinePreference.length > 0 ? cuisinePreference : [NO_PREFERENCE],
+      };
+    });
   };
 
-  const generateRecommendations = async () => {
-    // Check if user profile is complete before generating recommendations
+  const toggleStaple = (staple: string) => {
+    setSelectedStaples((prev) =>
+      prev.includes(staple)
+        ? prev.filter((item) => item !== staple)
+        : [...prev, staple]
+    );
+  };
+
+  const transformRecipe = (recipe: any, index: number): RecipeRecommendation => {
+    const additionalIngredientsNeeded = stringArray(recipe.additionalIngredientsNeeded);
+    const pantryIngredientsUsed = stringArray(recipe.pantryIngredientsUsed);
+    const imageUrl = typeof recipe.imageUrl === 'string'
+      ? recipe.imageUrl
+      : typeof recipe.image_url === 'string'
+        ? recipe.image_url
+        : undefined;
+    const pantryMatch = typeof recipe.pantryMatch === 'number'
+      ? recipe.pantryMatch
+      : calculatePantryMatch(userProfile.pantryIngredients.length, additionalIngredientsNeeded.length);
+
+    return {
+      id: `recipe-${Date.now()}-${index}`,
+      recipeName: typeof recipe.recipeName === 'string' ? recipe.recipeName : 'Pantry Dinner',
+      description: typeof recipe.description === 'string'
+        ? recipe.description
+        : 'A pantry-first idea shaped around what you have.',
+      cookTime: typeof recipe.cookTime === 'number' ? recipe.cookTime : 30,
+      difficulty: typeof recipe.difficulty === 'string' ? recipe.difficulty : 'Medium',
+      cuisine: typeof recipe.cuisine === 'string' ? recipe.cuisine : 'Pantry-first',
+      pantryMatch,
+      missingIngredients: additionalIngredientsNeeded,
+      isFusion: Boolean(recipe.isFusion),
+      ingredients: pantryIngredientsUsed.length > 0
+        ? pantryIngredientsUsed
+        : userProfile.pantryIngredients.slice(0, 6),
+      equipment: userProfile.kitchenEquipment,
+      overview: typeof recipe.overview === 'string' ? recipe.overview : undefined,
+      imageUrl,
+    };
+  };
+
+  const generateRecommendations = async ({
+    confirmedStaples = [],
+    askedStaples = [],
+  }: {
+    confirmedStaples?: string[];
+    askedStaples?: string[];
+  } = {}) => {
     if (!userProfile.pantryIngredients || userProfile.pantryIngredients.length === 0) {
       toast({
-        title: "Profile Incomplete",
-        description: "Please add pantry ingredients to your profile before getting meal recommendations.",
-        variant: "destructive"
+        title: 'Profile Incomplete',
+        description: 'Please add pantry ingredients to your profile before getting meal recommendations.',
+        variant: 'destructive',
       });
       return;
     }
 
     if (!userProfile.cookingSkill) {
       toast({
-        title: "Profile Incomplete", 
-        description: "Please complete your cooking profile before getting meal recommendations.",
-        variant: "destructive"
+        title: 'Profile Incomplete',
+        description: 'Please complete your cooking profile before getting meal recommendations.',
+        variant: 'destructive',
       });
       return;
     }
 
     setIsLoading(true);
-    
-    const result = await withDemoErrorHandling(async () => {
-      // Build preferences string from user inputs
-      const preferenceParts = [];
-      
-      if (mealPrefs.timeAvailable) {
-        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
+
+    let pantryIngredientsForRequest = userProfile.pantryIngredients;
+    const cleanConfirmedStaples = confirmedStaples.filter((staple) => staple.trim().length > 0);
+    if (cleanConfirmedStaples.length > 0) {
+      pantryIngredientsForRequest = mergeUniqueEntries(userProfile.pantryIngredients, cleanConfirmedStaples);
+
+      try {
+        const saved = await onPantryIngredientsAdded(cleanConfirmedStaples);
+        if (!saved) {
+          toast({
+            title: "We'll use those for now",
+            description: "Laica couldn't save those pantry staples yet. You can add them later in Settings.",
+          });
+        }
+      } catch {
+        toast({
+          title: "We'll use those for now",
+          description: "Laica couldn't save those pantry staples yet. You can add them later in Settings.",
+        });
       }
-      
-      if (mealPrefs.cuisinePreference.length > 0) {
+    }
+
+    const unconfirmedStaples = askedStaples.filter((staple) => !cleanConfirmedStaples.includes(staple));
+
+    const result = await withDemoErrorHandling(async () => {
+      const preferenceParts = [
+        `Time available: ${getPlanningTimePrompt(mealPrefs.timeAvailable)}`,
+        `Cooking skill: ${userProfile.cookingSkill}`,
+        'Use pantry ingredients first; optional extras must be nonessential and capped at 3',
+        'Each recipe must still work if optional extras are skipped',
+        "Return a quiet range: pantry-strict, pantry-flexible, cuisine-leaning; don't label tiers",
+      ];
+
+      if (!mealPrefs.cuisinePreference.includes(NO_PREFERENCE)) {
         preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
       }
-      
+
+      if (cleanConfirmedStaples.length > 0) {
+        preferenceParts.push(`Confirmed staples: ${cleanConfirmedStaples.join(', ')}`);
+      }
+
+      if (unconfirmedStaples.length > 0) {
+        preferenceParts.push(`Unconfirmed staples: ${unconfirmedStaples.join(', ')}; do not assume`);
+      }
+
       if (userProfile.dietaryRestrictions.length > 0) {
         preferenceParts.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
       }
-      
-      if (userProfile.cookingSkill) {
-        preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
+
+      if (recommendations.length > 0) {
+        preferenceParts.push(`Please suggest a fresh set, not: ${recommendations.map((recipe) => recipe.recipeName).join(', ')}`);
       }
-      
-      if (mealPrefs.avoidToday) {
-        preferenceParts.push(`Avoid today: ${mealPrefs.avoidToday}`);
-      }
-      
-      if (mealPrefs.previousMeals.length > 0) {
-        preferenceParts.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
-      }
-      
-      const preferences = preferenceParts.join('. ');
-      
-      // Call recipe API with user's actual pantry ingredients and preferences
+
       const recipeResponse = await fetchPantryRecipes(
-        userProfile.pantryIngredients,
-        preferences,
-        mealPrefs.timeAvailable
+        pantryIngredientsForRequest,
+        preferenceParts.join('. '),
+        getPlanningTimePrompt(mealPrefs.timeAvailable),
       );
-      
-      // Transform response to match our interface
-      const newRecommendations: RecipeRecommendation[] = [];
-      
-      if (recipeResponse.recipes) {
-        recipeResponse.recipes.forEach((recipe: any, index: number) => {
-          newRecommendations.push({
-            id: `recipe-${index}`,
-            recipeName: recipe.recipeName || 'Unnamed Recipe',
-            description: recipe.description || 'Delicious meal using your pantry ingredients',
-            cookTime: recipe.cookTime || 30,
-            difficulty: recipe.difficulty || 'Medium',
-            cuisine: recipe.cuisine || 'International',
-            pantryMatch: Math.round(((userProfile.pantryIngredients.length - (recipe.additionalIngredientsNeeded?.length || 0)) / userProfile.pantryIngredients.length) * 100),
-            missingIngredients: recipe.additionalIngredientsNeeded || [],
-            isFusion: recipe.isFusion || false
-          });
-        });
+
+      const recipes = Array.isArray(recipeResponse.recipes)
+        ? recipeResponse.recipes.slice(0, 3).map(transformRecipe)
+        : [];
+
+      if (recipes.length !== 3) {
+        throw new Error('Expected exactly three recipe suggestions');
       }
-      
-      if (newRecommendations.length === 0) {
-        throw new Error('No recipes generated');
-      }
-      
-      // Clear any previously selected meal when new recommendations are generated
-      setSelectedMeal(null);
-      
-      return newRecommendations;
+
+      return recipes;
     }, 'meal recommendations');
 
     if (result) {
       setRecommendations(result);
-      setCurrentStep(4);
+      setSelectedMeal(result[0]);
+      setCurrentStep('tickets');
     }
-    
+
     setIsLoading(false);
   };
 
-  const generateMoreRecommendations = async () => {
-    // Check if user profile is complete before generating more recommendations
-    if (!userProfile.pantryIngredients || userProfile.pantryIngredients.length === 0) {
-      toast({
-        title: "Profile Incomplete",
-        description: "Please add pantry ingredients to your profile before getting meal recommendations.",
-        variant: "destructive"
-      });
+  const continueFromCuisine = () => {
+    setSelectedStaples([]);
+    if (stapleCandidates.length > 0) {
+      setCurrentStep('staples');
       return;
     }
 
-    setIsLoadingMore(true);
-    
-    try {
-      // Build preferences string from user inputs
-      const preferenceParts = [];
-      
-      if (mealPrefs.timeAvailable) {
-        preferenceParts.push(`Time available: ${mealPrefs.timeAvailable}`);
-      }
-      
-      if (mealPrefs.cuisinePreference.length > 0) {
-        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
-      }
-      
-      if (userProfile.dietaryRestrictions.length > 0) {
-        preferenceParts.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
-      }
-      
-      if (userProfile.cookingSkill) {
-        preferenceParts.push(`Cooking skill: ${userProfile.cookingSkill}`);
-      }
-      
-      if (mealPrefs.avoidToday) {
-        preferenceParts.push(`Avoid today: ${mealPrefs.avoidToday}`);
-      }
-      
-      if (mealPrefs.previousMeals.length > 0) {
-        preferenceParts.push(`Recently had: ${mealPrefs.previousMeals.join(', ')}`);
-      }
-      
-      // Add existing recommendations to avoid duplicates
-      if (recommendations.length > 0) {
-        preferenceParts.push(`Please suggest different recipes, not: ${recommendations.map(r => r.recipeName).join(', ')}`);
-      }
-      
-      const preferences = preferenceParts.join('. ');
-      
-      // Call recipe API with user's actual pantry ingredients and preferences
-      const recipeResponse = await fetchPantryRecipes(
-        userProfile.pantryIngredients,
-        preferences,
-        mealPrefs.timeAvailable
-      );
-      
-      // Transform response to match our interface
-      const newRecommendations: RecipeRecommendation[] = [];
-      
-      if (recipeResponse.recipes) {
-        recipeResponse.recipes.forEach((recipe: any, index: number) => {
-          newRecommendations.push({
-            id: `recipe-more-${Date.now()}-${index}`,
-            recipeName: recipe.recipeName || 'Unnamed Recipe',
-            description: recipe.description || 'Delicious meal using your pantry ingredients',
-            cookTime: recipe.cookTime || 30,
-            difficulty: recipe.difficulty || 'Medium',
-            cuisine: recipe.cuisine || 'International',
-            pantryMatch: Math.round(((userProfile.pantryIngredients.length - (recipe.additionalIngredientsNeeded?.length || 0)) / userProfile.pantryIngredients.length) * 100),
-            missingIngredients: recipe.additionalIngredientsNeeded || []
-          });
-        });
-      }
-      
-      if (newRecommendations.length === 0) {
-        throw new Error('No new recipes generated');
-      }
-      
-      // Add new recommendations to existing ones
-      setRecommendations(prev => [...prev, ...newRecommendations]);
-    } catch (error) {
-      console.error('Error generating more recommendations:', error);
-      toast({
-        title: "Failed to Load More",
-        description: "Unable to generate additional recipes. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoadingMore(false);
-    }
+    generateRecommendations();
   };
 
-  const canProceedFromStep1 = mealPrefs.timeAvailable !== '';
-  const canProceedFromStep2 = mealPrefs.cuisinePreference.length > 0;
-  const canProceedFromStep3 = true; // Optional step
+  const continueFromStaples = () => {
+    generateRecommendations({
+      confirmedStaples: selectedStaples,
+      askedStaples: stapleCandidates,
+    });
+  };
 
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>How much time do you have today?</CardTitle>
-              <p className="text-sm text-gray-600">Including cleanup time</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <RadioGroup 
-                value={mealPrefs.timeAvailable} 
-                onValueChange={(value) => setMealPrefs(prev => ({ ...prev, timeAvailable: value }))}
-                className="space-y-3"
+  const handleMealSelected = (meal: RecipeRecommendation) => {
+    localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+    onMealSelected(meal, 'now');
+  };
+
+  const handleBack = () => {
+    if (currentStep === 'time') {
+      onBackToProfile();
+      return;
+    }
+    if (currentStep === 'cuisine') {
+      setCurrentStep('time');
+      return;
+    }
+    if (currentStep === 'staples') {
+      setCurrentStep('cuisine');
+      return;
+    }
+    if (currentStep === 'prep-tray') {
+      setCurrentStep('tickets');
+      return;
+    }
+    setCurrentStep(stapleCandidates.length > 0 ? 'staples' : 'cuisine');
+  };
+
+  const renderTimeStep = () => (
+    <section className="planning-screen mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+      <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to planning choices">
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+
+      <div className="flex flex-1 flex-col justify-center gap-10">
+        <div className="text-center">
+          <h1 className="planning-display text-3xl font-extrabold leading-tight">
+            How much time do you have today?
+          </h1>
+          <p className="planning-copy mt-3 text-sm font-bold">Including cleanup</p>
+        </div>
+
+        <div className="planning-clock mx-auto" aria-hidden="true">
+          <Clock className="h-20 w-20" />
+        </div>
+
+        <div className="planning-slider-card">
+          <div className="planning-slider-track">
+            <Slider
+              value={[selectedTimeIndex]}
+              min={0}
+              max={PLANNING_TIME_OPTIONS.length - 1}
+              step={1}
+              onValueChange={(value) => {
+                const option = PLANNING_TIME_OPTIONS[value[0]] ?? PLANNING_TIME_OPTIONS[0];
+                setPlanningTime(option.value);
+              }}
+              aria-label="Planning time"
+            />
+          </div>
+          <div className="planning-time-label-grid mt-5">
+            {PLANNING_TIME_OPTIONS.map((option) => (
+              <button
+                type="button"
+                key={option.value}
+                className="planning-time-label"
+                data-active={mealPrefs.timeAvailable === option.value}
+                onClick={() => setPlanningTime(option.value)}
               >
-                {timeOptions.map((option) => (
-                  <div key={option.value} className="flex items-center space-x-2">
-                    <RadioGroupItem value={option.value} id={option.value} />
-                    <Label htmlFor={option.value} className="flex-1 cursor-pointer">
-                      {option.label}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-
-              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
-                <Button variant="outline" onClick={onBackToProfile} className="w-full sm:w-auto">
-                  Back
-                </Button>
-                <Button 
-                  onClick={() => setCurrentStep(2)}
-                  disabled={!canProceedFromStep1}
-                  className="w-full sm:w-auto bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
-                >
-                  Next
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 2:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>What cuisines sound good to you?</CardTitle>
-              <p className="text-sm text-gray-600">You can select multiple cuisines</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {cuisineOptions.map((cuisine) => (
-                  <div 
-                    key={cuisine} 
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all active:scale-95 min-h-[48px] flex items-center justify-center ${
-                      mealPrefs.cuisinePreference.includes(cuisine)
-                        ? 'border-[#FF6B6B] bg-[#FF6B6B]/10 text-[#FF6B6B]'
-                        : 'border-gray-200 hover:border-gray-300 active:bg-gray-50'
-                    }`}
-                    onClick={() => toggleCuisine(cuisine)}
-                  >
-                    <span className="text-sm font-medium text-center">{cuisine}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
-                <Button variant="outline" onClick={() => setCurrentStep(1)} className="w-full sm:w-auto">
-                  Back
-                </Button>
-                <Button 
-                  onClick={() => setCurrentStep(3)}
-                  disabled={!canProceedFromStep2}
-                  className="w-full sm:w-auto bg-[#FF6B6B] hover:bg-[#FF5252] text-white"
-                >
-                  Next
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 3:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Anything to avoid or specify?</CardTitle>
-              <p className="text-sm text-gray-600">Optional preferences</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label htmlFor="avoid-today">Anything you want to avoid today?</Label>
-                <Textarea
-                  id="avoid-today"
-                  placeholder="e.g., too spicy, heavy meals, dairy..."
-                  value={mealPrefs.avoidToday}
-                  onChange={(e) => setMealPrefs(prev => ({ ...prev, avoidToday: e.target.value }))}
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label>What have you eaten recently?</Label>
-                <p className="text-xs text-gray-500 mb-3">You may enter one dish at a time and click "Add" to build your list</p>
-                <div className="flex gap-2 mb-3">
-                  <Input
-                    placeholder="e.g., pasta, salad, burgers..."
-                    value={newMeal}
-                    onChange={(e) => setNewMeal(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addMeal()}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={addMeal} 
-                    disabled={!newMeal.trim()}
-                    size="sm"
-                    className="bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add
-                  </Button>
-                </div>
-                
-                {mealPrefs.previousMeals.length > 0 && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Recent meals:</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {mealPrefs.previousMeals.map((meal, index) => (
-                        <Badge 
-                          key={index} 
-                          variant="secondary"
-                          className="bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
-                          onClick={() => removeMeal(index)}
-                        >
-                          {meal} ×
-                        </Badge>
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500">Click on a meal to remove it</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
-                <Button variant="outline" onClick={() => setCurrentStep(2)} className="w-full sm:w-auto">
-                  Back
-                </Button>
-                <Button 
-                  onClick={generateRecommendations}
-                  disabled={isLoading}
-                  className="w-full sm:w-auto bg-[#FF6B6B] hover:bg-[#FF5252] text-white disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Generating recommendations...
-                    </>
-                  ) : (
-                    'Get Meal Recommendations'
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 4:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ChefHat className="h-5 w-5" />
-                Perfect meals for you!
-              </CardTitle>
-              <div className="bg-[#FFE66D] text-gray-700 p-3 rounded-lg">
-                <p className="text-sm font-medium">
-                  Based on your {userProfile.pantryIngredients.length} pantry ingredients and preferences
-                </p>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF6B6B] mx-auto"></div>
-                  <p className="mt-2 text-gray-600">Finding perfect recipes for you...</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {recommendations.map((recipe) => (
-                    <Card 
-                      key={recipe.id} 
-                      className={`cursor-pointer transition-all ${selectedMeal?.id === recipe.id ? 'ring-2 ring-[#FF6B6B]' : 'hover:shadow-md'}`}
-                      onClick={() => setSelectedMeal(recipe)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="mb-2">
-                          <h3 className="font-semibold text-lg">{recipe.recipeName}</h3>
-                        </div>
-                        <p className="text-gray-600 text-sm mb-3">{recipe.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {recipe.cookTime} min
-                          </span>
-                          <span>{recipe.difficulty}</span>
-                          {recipe.cuisine && recipe.cuisine !== 'International' && (
-                            <span>{recipe.cuisine}</span>
-                          )}
-                          {recipe.isFusion && (
-                            <Badge className="bg-[#FFB347] text-white text-xs px-2 py-1">
-                              Fusion
-                            </Badge>
-                          )}
-                        </div>
-                        {recipe.missingIngredients.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs text-gray-500">Need to get:</p>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {recipe.missingIngredients.map((ingredient) => (
-                                <Badge key={ingredient} variant="outline" className="text-xs">
-                                  {ingredient}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-
-              {recommendations.length > 0 && !isLoading && (
-                <div className="flex flex-col items-center mt-4 space-y-2">
-                  <p className="text-[10px] text-gray-500 text-center">
-                    Laica may recommend recipes not according to cuisine preferences to make use of your pantry ingredients.
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={generateMoreRecommendations}
-                    disabled={isLoadingMore}
-                    className="border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white"
-                  >
-                    {isLoadingMore ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                        Generating...
-                      </>
-                    ) : (
-                      'More suggestions'
-                    )}
-                  </Button>
-                </div>
-              )}
-
-
-              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 pt-4">
-                <Button variant="outline" onClick={() => {
-                  setCurrentStep(3);
-                  // Clear selected meal when going back to allow fresh selection
-                  setSelectedMeal(null);
-                }} className="w-full sm:w-auto">
-                  Back
-                </Button>
-                <Button 
-                  onClick={() => {
-                    if (!selectedMeal) {
-                      toast({
-                        title: "Please select a recipe",
-                        description: "You must choose one of the recommended recipes to continue cooking.",
-                        variant: "destructive"
-                      });
-                      return;
-                    }
-                    handleMealSelected(selectedMeal, 'now');
-                  }}
-                  className={`w-full sm:w-auto whitespace-normal sm:whitespace-nowrap text-center min-h-[44px] py-3 leading-tight ${
-                    selectedMeal 
-                      ? 'bg-[#FFE66D] hover:bg-[#FFD93D] text-gray-700' 
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                  disabled={!selectedMeal}
-                >
-                  {selectedMeal ? `Start Cooking ${selectedMeal.recipeName}` : 'Select a recipe to continue'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50">
-      <div className="mb-4 md:mb-6 bg-white p-4 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Plan Your Meal</h1>
-          <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-            {currentStep} of 4
+                {option.label}
+              </button>
+            ))}
           </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-[#FF6B6B] h-2 rounded-full transition-all duration-300" 
-            style={{ width: `${(currentStep / 4) * 100}%` }}
-          ></div>
+
+        <div className="planning-note">
+          <Clock className="h-5 w-5" />
+          <span>We&apos;ll find recipes that fit within your time.</span>
         </div>
       </div>
-      
-      {renderCurrentStep()}
-    </div>
+
+      <Button className="mt-6 h-12 rounded-xl font-extrabold" onClick={() => setCurrentStep('cuisine')}>
+        Next
+      </Button>
+    </section>
   );
+
+  const renderCuisineStep = () => (
+    <section className="planning-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+      <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to time">
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+
+      <div className="text-center">
+        <h1 className="planning-display text-3xl font-extrabold leading-tight">What sounds good?</h1>
+        <p className="planning-copy mt-3 text-sm font-bold">Pick as many as you like</p>
+      </div>
+
+      <div className="planning-cuisine-scroll mt-8" aria-label="Cuisine options">
+        <div className="space-y-3 pb-3">
+          {cuisineOptions.map((cuisine) => {
+            const selected = mealPrefs.cuisinePreference.includes(cuisine.name);
+            return (
+              <button
+                type="button"
+                key={cuisine.name}
+                className="planning-cuisine-row"
+                data-selected={selected}
+                onClick={() => toggleCuisine(cuisine.name)}
+              >
+                <span className="planning-cuisine-icon" aria-hidden="true">{cuisine.icon}</span>
+                <span className="min-w-0 flex-1 text-left">{cuisine.name}</span>
+                <span className="planning-cuisine-check" aria-hidden="true">
+                  {selected && <CheckCircle2 className="h-5 w-5" />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="planning-cuisine-actions">
+        <button
+          type="button"
+          className="planning-no-preference"
+          data-selected={mealPrefs.cuisinePreference.includes(NO_PREFERENCE)}
+          onClick={() => toggleCuisine(NO_PREFERENCE)}
+        >
+          <Sparkles className="h-5 w-5" aria-hidden="true" />
+          <span>No preference</span>
+        </button>
+
+        <Button
+          className="mt-4 h-12 w-full rounded-xl font-extrabold"
+          onClick={continueFromCuisine}
+          disabled={!canProceedFromCuisine || isLoading}
+        >
+          {isLoading ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              Finding recipes...
+            </>
+          ) : (
+            'View recipe suggestions'
+          )}
+        </Button>
+      </div>
+    </section>
+  );
+
+  const renderStaplesStep = () => (
+    <section className="planning-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+      <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to cuisines">
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+
+      <div className="text-center">
+        <h1 className="planning-display text-3xl font-extrabold leading-tight">Anything else around?</h1>
+        <p className="planning-copy mt-3 text-sm font-bold">
+          Tap what you have. We&apos;ll remember it in your pantry.
+        </p>
+      </div>
+
+      <div className="mt-8 space-y-3" aria-label="Pantry staple options">
+        {stapleCandidates.map((staple) => {
+          const selected = selectedStaples.includes(staple);
+          return (
+            <button
+              type="button"
+              key={staple}
+              className="planning-cuisine-row"
+              data-selected={selected}
+              aria-pressed={selected}
+              onClick={() => toggleStaple(staple)}
+            >
+              <span className="planning-cuisine-icon" aria-hidden="true">+</span>
+              <span className="min-w-0 flex-1 text-left">{staple}</span>
+              <span className="planning-cuisine-check" aria-hidden="true">
+                {selected && <CheckCircle2 className="h-5 w-5" />}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="planning-cuisine-actions">
+        <Button
+          className="h-12 w-full rounded-xl font-extrabold"
+          onClick={continueFromStaples}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              Finding recipes...
+            </>
+          ) : (
+            'View recipe suggestions'
+          )}
+        </Button>
+      </div>
+    </section>
+  );
+
+  const renderRecipeImageSlot = (recipe: RecipeRecommendation, variant: 'ticket' | 'prep' = 'ticket') => (
+    <span
+      className={`planning-recipe-image-slot ${variant === 'prep' ? 'planning-recipe-image-slot-prep' : ''}`}
+      data-has-image={Boolean(recipe.imageUrl)}
+      aria-hidden="true"
+    >
+      {recipe.imageUrl ? (
+        <img src={recipe.imageUrl} alt="" className="planning-recipe-image" />
+      ) : (
+        <>
+          <span className="planning-recipe-image-plate" />
+          <Utensils className="planning-recipe-image-icon" />
+        </>
+      )}
+    </span>
+  );
+
+  const renderRecipeTicketTitle = (recipeName: string) => {
+    const { main, detail } = splitRecipeName(recipeName);
+
+    return (
+      <span className="planning-ticket-title">
+        <span className="planning-ticket-title-main">{main}</span>
+        {detail && <span className="planning-ticket-title-detail">{detail}</span>}
+      </span>
+    );
+  };
+
+  const renderTicket = (recipe: RecipeRecommendation, isLarge = false) => {
+    const selected = selectedMeal?.id === recipe.id;
+
+    return (
+      <button
+        type="button"
+        key={recipe.id}
+        className={isLarge ? 'planning-ticket planning-ticket-large' : 'planning-ticket planning-ticket-row'}
+        data-selected={selected}
+        aria-pressed={selected}
+        onClick={() => setSelectedMeal(recipe)}
+      >
+        <span className="planning-ticket-rip" aria-hidden="true" />
+        {renderRecipeTicketTitle(recipe.recipeName)}
+        {renderRecipeImageSlot(recipe)}
+        <span className="planning-ticket-meta">
+          <span><Clock className="h-4 w-4" /> {recipe.cookTime} min</span>
+          <span>{recipe.difficulty}</span>
+        </span>
+        {isLarge && (
+          <>
+            <span className="planning-ticket-divider" />
+            <span className="planning-ticket-section">
+              <span className="planning-ticket-section-label">Uses</span>
+              <span className="planning-ticket-chip-row">
+                {(recipe.ingredients || []).slice(0, 5).map((ingredient) => (
+                  <Badge key={ingredient} variant="outline" className="planning-use-chip">
+                    {ingredient}
+                  </Badge>
+                ))}
+              </span>
+            </span>
+            {recipe.missingIngredients.length > 0 && (
+              <span className="planning-ticket-optional">
+                <span>Optional:</span> {recipe.missingIngredients.slice(0, 3).join(', ')}
+              </span>
+            )}
+          </>
+        )}
+      </button>
+    );
+  };
+
+  const renderTicketsStep = () => {
+    const visibleRecommendations = recommendations.slice(0, 3);
+    const selectedMealId = selectedMeal?.id ?? visibleRecommendations[0]?.id;
+
+    return (
+      <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+        <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to cuisines">
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        <div className="text-center">
+          <h1 className="planning-display text-3xl font-extrabold leading-tight">
+            Recipe suggestions from your pantry
+          </h1>
+          <Utensils className="mx-auto mt-3 h-5 w-5 text-primary" aria-hidden="true" />
+        </div>
+
+        <div className="planning-ticket-stack mt-7">
+          {visibleRecommendations.map((recipe) => renderTicket(recipe, recipe.id === selectedMealId))}
+        </div>
+
+        <div className="mt-6 space-y-3">
+          <Button
+            className="h-12 w-full rounded-xl font-extrabold"
+            disabled={!selectedMeal}
+            onClick={() => setCurrentStep('prep-tray')}
+          >
+            <ChefHat className="h-5 w-5" />
+            View prep tray
+          </Button>
+          <Button
+            variant="outline"
+            className="h-12 w-full rounded-xl font-extrabold"
+            disabled={isLoading}
+            onClick={() => generateRecommendations()}
+          >
+            {isLoading ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+                Finding recipes...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-5 w-5" />
+                Refresh suggestions
+              </>
+            )}
+          </Button>
+        </div>
+      </section>
+    );
+  };
+
+  const renderPrepTray = () => {
+    if (!selectedMeal) {
+      return (
+        <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+          <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div className="planning-note">
+            <ChefHat className="h-5 w-5" />
+            <span>Choose one ticket before opening the prep tray.</span>
+          </div>
+        </section>
+      );
+    }
+
+    return (
+      <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+        <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        {/* design:tone-override — Prep Tray is the Phase 3 tactile ticket-detail object, not a generic recipe card. */}
+        <div className="planning-prep-tray">
+          <div className="planning-prep-hero">
+            {renderRecipeImageSlot(selectedMeal, 'prep')}
+          </div>
+          <div className="planning-prep-body">
+            <h1 className="planning-display text-3xl font-extrabold leading-tight">{selectedMeal.recipeName}</h1>
+            <p className="planning-ticket-meta mt-3">
+              <span><Clock className="h-4 w-4" /> {selectedMeal.cookTime} min</span>
+              <span>{selectedMeal.difficulty}</span>
+            </p>
+
+            {selectedMeal.description && (
+              <p className="planning-copy mt-4 text-sm font-bold">{selectedMeal.description}</p>
+            )}
+
+            <div className="planning-prep-section mt-5">
+              <p className="planning-prep-label">Use these</p>
+              <div className="planning-ticket-chip-row mt-2">
+                {(selectedMeal.ingredients || []).map((ingredient) => (
+                  <Badge key={ingredient} variant="outline" className="planning-use-chip">
+                    {ingredient}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {selectedMeal.missingIngredients.length > 0 && (
+              <div className="planning-prep-section planning-prep-optional mt-4">
+                <p className="planning-prep-label">Optional if around</p>
+                <div className="planning-ticket-chip-row mt-2">
+                  {selectedMeal.missingIngredients.map((ingredient) => (
+                    <Badge key={ingredient} variant="outline" className="planning-optional-chip">
+                      {ingredient}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Button className="mt-5 h-12 w-full rounded-xl font-extrabold" onClick={() => handleMealSelected(selectedMeal)}>
+          <ChefHat className="h-5 w-5" />
+          Cook this
+        </Button>
+      </section>
+    );
+  };
+
+  if (currentStep === 'time') return renderTimeStep();
+  if (currentStep === 'cuisine') return renderCuisineStep();
+  if (currentStep === 'staples') return renderStaplesStep();
+  if (currentStep === 'tickets') return renderTicketsStep();
+  return renderPrepTray();
 }

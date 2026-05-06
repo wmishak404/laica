@@ -34,6 +34,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { feedback } from "@shared/schema";
+import { PLANNING_TIME_VALUES } from "@shared/planning";
 import { z } from "zod";
 import heicConvert from "heic-convert";
 import multer from "multer";
@@ -61,6 +62,7 @@ const isAuthenticated: RequestHandler = async (req, res, next) => {
 
 const visionJsonParser = express.json({ limit: "6mb" });
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+const RECIPE_PREFERENCES_MAX_LENGTH = 1000;
 const pantryItemSchema = z.string().trim().min(1).max(64);
 const shortTextSchema = z.string().trim().min(1).max(280);
 
@@ -200,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        preferences: z.string().trim().min(1).max(500),
+        preferences: z.string().trim().min(1).max(RECIPE_PREFERENCES_MAX_LENGTH),
         ingredients: z.array(pantryItemSchema).optional()
       });
       
@@ -221,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const schema = z.object({
         ingredients: z.array(pantryItemSchema),
-        preferences: z.string().trim().max(500).optional(),
+        preferences: z.string().trim().max(RECIPE_PREFERENCES_MAX_LENGTH).optional(),
         timeAvailable: z.string().trim().max(64).optional()
       });
       
@@ -248,11 +250,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = firebaseUser.uid;
       const schema = z.object({
         pantryOverride: z.array(pantryItemSchema).optional(),
+        planningTimeAvailable: z.enum(PLANNING_TIME_VALUES).optional(),
         feedback: shortTextSchema.optional(),
         previousRecipe: z.string().trim().min(1).max(200).optional(),
       });
 
-      const { pantryOverride, feedback, previousRecipe } = schema.parse(req.body);
+      const { pantryOverride, planningTimeAvailable, feedback, previousRecipe } = schema.parse(req.body);
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -288,16 +291,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dietaryRestrictions: user.dietaryRestrictions ?? [],
         kitchenEquipment: user.kitchenEquipment ?? [],
         recentMeals,
+        planningTimeAvailable,
         feedback,
         previousRecipe,
       });
 
       res.json({ recipe });
     } catch (error) {
-      console.error("Error generating Slop Bowl recipe:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: "Invalid Slop Bowl request" });
       }
+      console.error("Error generating Slop Bowl recipe:", error);
       res.status(500).json({ error: "Failed to generate Slop Bowl recipe" });
     }
   });

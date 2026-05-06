@@ -8,6 +8,8 @@ Laica is a warm, capable mobile cooking companion. It should feel food-native an
 
 User-facing prose writes the brand as `Laica`, not all-caps `LAICA`, unless a logo asset or legal/artwork context requires otherwise.
 
+Do not repeat the product mark inside ordinary in-app process screens such as setup, planning, selection, cooking, confirmation, or settings flows unless the surface is explicitly acting as a branded entry/sign-in/landing moment. When a surface does display the product mark as a brand object, use the canonical cropped logo asset (`@assets/laica_logo_v1_cropped_1763444931884.png`) rather than recreating a one-off text wordmark in CSS. Text-only `Laica` is acceptable in body copy, headings, metadata, or deliberately documented mockup deviations, but not as a silent replacement for the logo on branded app surfaces.
+
 ### Six principles
 
 1. **Cooking companion, not control panel.** Setup, Planning, Cooking, and Post-cook should reduce the user's next decision to a clear action: scan, choose, start, cook, confirm, clean up. Reserve administrative density for Settings and management surfaces.
@@ -36,8 +38,7 @@ Hover/shade values in active use: `#FF5252` (primary hover), `#FFB347`, `#FFD93D
 Loaded in `client/src/index.css`:
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Merriweather:wght@400;700&family=Nunito:wght@400;500;600;700;800&family=Patrick+Hand&family=Source+Sans+Pro:wght@400;600&display=swap');
 ```
 
 Global stack (current accepted state):
@@ -46,10 +47,14 @@ Global stack (current accepted state):
 - **Headings (`h1`–`h6`):** `'SF Pro Display', 'Source Sans Pro', sans-serif`.
 - **Recipe titles** (`.recipe-title`): `'Merriweather', serif`.
 
-Mobile-refresh setup pilot (Phase 2.1 + Phase 2.2 returning Settings, accepted):
+Mobile-refresh typography pilot (Phase 2.1 + Phase 2.2 returning Settings, Phase 3 Planning):
 
 - **Setup display:** `Fraunces` — scoped to `.setup-ui .setup-display` and equivalent setup surfaces.
 - **Setup body / controls:** `Nunito` — scoped to `.setup-ui .setup-copy`, `.setup-action-label`, etc.
+- **Phase 3 Planning display / cards / body:** `Nunito` — use one rounded sans family for page headlines, choice-card titles, short taglines, controls, chips, and dense UI. The generated Phase 3 mockups are the source of truth for this flow.
+- **Handwritten micro-accents:** `Patrick Hand` — scoped to tiny doodle scribbles only, not page headings, card titles, body copy, CTAs, safety-critical controls, or extra banners.
+
+Avoid switching the primary title font just to communicate mood. Humor should come from copy, illustration, motion, and composition while primary titles remain in the surface's established type system. If a generated mockup is internally consistent, preserve its grammar before layering additional design principles.
 
 Whether `Fraunces` / `Nunito` graduate to the global stack is an open visual decision (see below).
 
@@ -120,9 +125,10 @@ Before a mobile-refresh phase merges:
 ### Imagery and illustration
 
 - Prefer visuals that reveal product state: camera preview, ingredients, tools, tickets, cooking cues, meal state.
+- Phase 3 Ticket Pass suggestions should reserve a clear image/illustration slot as part of the ticket object; do not collapse them into generic text cards. Phase 3 may use a designed placeholder while Phase 3.1 owns the actual recipe imagery direction.
 - Avoid stock-like, dark, blurred, or atmospheric images when the user needs to inspect.
 - Avoid decorative blobs/orbs and abstract backgrounds as substitutes for product-specific visuals.
-- Generated food imagery is deferred until a future accepted feature direction.
+- Actual recipe imagery is deferred to Phase 3.1. If AI-generated imagery is introduced there, it should be async/cached and must not block the initial recipe-suggestion reveal.
 
 ### Motion
 
@@ -150,7 +156,7 @@ These are the unresolved identity questions. Edit this section inline as Phase 3
 2. **Palette refinement.** Whether coral/teal/yellow stays, expands, or is replaced for the durable Laica identity.
 3. **Canonical motif set.** Which visual motifs become signature Laica objects: camera frame, Ticket Pass, prep tray, pantry chip, cooking cue, chef companion.
 4. **Playfulness by surface.** How playful Laica should feel by surface type (setup vs Planning vs Cooking vs Settings vs errors vs empty states).
-5. **Imagery approach.** Real food photography, generated food images, illustration, emoji-led, icon-led, or hybrid.
+5. **Imagery approach.** Current signal: Ticket Pass reserves an image slot with a Phase 3 placeholder; actual recipe illustration/generated imagery belongs to Phase 3.1 and should be async/cached if generated.
 6. **Mockup hardness.** Which mockup elements are hard requirements vs directional examples.
 7. **Future scan-session chip states.** How `new from latest scan` / `already saved/found again` / normal saved inventory differentiate visually without creating a noisy third design system. Product work in [EPIC-014](epics/014-scan-session-diff-and-duplicate-refinement.md).
 
@@ -173,6 +179,7 @@ Before a feature or phase is marked visually ready:
 
 - Reviewer opened the linked exemplar (if a phase mockup exists).
 - Primary screen visibly matches the exemplar's hierarchy and mood.
+- Any visible product mark is appropriate to the surface and uses the canonical logo asset, or the handoff documents why text-only brand treatment is intentional.
 - Screen feels like Laica, not generic AI/SaaS/shadcn.
 - Primary action is unmistakable; secondary actions don't compete with it.
 - Back/escape paths are visible from focused flows.

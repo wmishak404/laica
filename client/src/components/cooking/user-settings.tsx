@@ -278,7 +278,7 @@ function HistoryTab() {
                     </div>
                     {missingIngredients.length > 0 && (
                       <div className="mt-2">
-                        <p className="text-xs text-gray-500">Extra ingredients needed:</p>
+                        <p className="text-xs text-gray-500">Optional extras:</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {missingIngredients.map((ingredient: string) => (
                             <Badge key={ingredient} variant="outline" className="text-xs">

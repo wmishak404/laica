@@ -8,10 +8,17 @@ import LiveCooking from '@/components/cooking/live-cooking';
 import UserSettings, { type SettingsSection } from '@/components/cooking/user-settings';
 import CookingHistory from '@/components/cooking/cooking-history';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
-import { ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
+import { ArrowRight, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
+import {
+  DEFAULT_PLANNING_TIME_VALUE,
+  PLANNING_TIME_STORAGE_KEY,
+  normalizePlanningTimeValue,
+  type PlanningTimeValue,
+} from '@shared/planning';
+import { mergeUniqueEntries } from '@/lib/entryParsing';
 
 interface UserProfile {
   cookingSkill: string;
@@ -48,13 +55,6 @@ const hasPlanningProfile = (profile: UserProfile) =>
 const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined) =>
   (restrictions || []).map((restriction) => restriction === 'None' ? 'No restrictions' : restriction);
 
-const SLOP_BOWL_STICKER_TAGLINES = [
-  'MAKE GOOD SLOP',
-  'LESS BRAIN POWER',
-  'NO RULES',
-  'FLAVOR ROULETTE',
-];
-
 // Chef emoji roster — man and woman cook at the default yellow tone
 // (race-neutral). A fresh one is picked each time the planning-choice
 // screen is shown so the card alternates representation.
@@ -81,13 +81,10 @@ export default function MobileApp() {
   const [showPlanningChoice, setShowPlanningChoice] = useState(true);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // Picks a fresh random tagline for the Slop Bowl sticker each time the
-  // planning-choice screen is shown. Stable across re-renders while visible.
-  const slopBowlStickerTagline = useMemo(
-    () => SLOP_BOWL_STICKER_TAGLINES[Math.floor(Math.random() * SLOP_BOWL_STICKER_TAGLINES.length)],
-    [showPlanningChoice]
-  );
+  const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() => {
+    if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
+    return normalizePlanningTimeValue(window.localStorage.getItem(PLANNING_TIME_STORAGE_KEY));
+  });
 
   // Picks a fresh random chef emoji (man or woman, yellow tone) each time
   // the planning-choice screen is shown.
@@ -211,6 +208,39 @@ export default function MobileApp() {
     setScheduledTime(scheduledTime);
     setCurrentPhase('cooking');
   };
+
+  const handlePlanningTimeChange = useCallback((value: PlanningTimeValue) => {
+    setLastPlanningTime(value);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(PLANNING_TIME_STORAGE_KEY, value);
+    }
+  }, []);
+
+  const handlePlanningPantryIngredientsAdded = useCallback(async (ingredients: string[]) => {
+    if (ingredients.length === 0) return true;
+
+    const updatedProfile = {
+      ...userProfile,
+      pantryIngredients: mergeUniqueEntries(userProfile.pantryIngredients, ingredients),
+    };
+
+    setUserProfile(updatedProfile);
+
+    try {
+      await updateProfileMutation.mutateAsync({
+        cookingSkill: updatedProfile.cookingSkill || undefined,
+        dietaryRestrictions: updatedProfile.dietaryRestrictions,
+        pantryIngredients: updatedProfile.pantryIngredients,
+        kitchenEquipment: updatedProfile.kitchenEquipment,
+        favoriteChefs: updatedProfile.favoriteChefs,
+      });
+      return true;
+    } catch (error) {
+      console.error('Error saving planning pantry staples:', error);
+      setUserProfile(userProfile);
+      return false;
+    }
+  }, [updateProfileMutation, userProfile]);
 
   const handleBackToPlanning = () => {
     // Check if profile is complete before allowing access to planning
@@ -402,84 +432,65 @@ export default function MobileApp() {
   );
 
   const renderPlanningChoice = () => (
-    <div className="w-full max-w-md mx-auto p-4 space-y-6">
-      <div className="text-center pt-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">What are we cooking today?</h2>
+    <div className="planning-choice-shell mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="planning-display text-3xl font-extrabold leading-tight">
+            What are we cooking today?
+          </h2>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {/* Slop Bowl card */}
-        <Card
-          className="slop-bowl-card relative cursor-pointer transition-all duration-200 -rotate-1 hover:rotate-0 hover:shadow-lg border-2 border-[#FF6B6B]/25 hover:border-[#FF6B6B]/60 bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50"
+      <div className="space-y-4">
+        {/* design:tone-override — Phase 3 makes Chef It Up the tone-forward primary planning object from the mockup. */}
+        <button
+          type="button"
+          className="planning-choice-card planning-choice-primary"
+          onClick={() => setShowPlanningChoice(false)}
+        >
+          <span className="planning-chef-mark" aria-hidden="true">{chefEmoji}</span>
+          <span className="min-w-0 flex-1 text-left">
+            <span className="planning-choice-title">Chef It Up</span>
+            <span className="planning-choice-copy">
+              We&apos;ll shape dinner from what you have.
+            </span>
+          </span>
+          <span className="planning-choice-arrow" aria-hidden="true">
+            <ArrowRight className="h-6 w-6" />
+          </span>
+        </button>
+
+        {/* design:tone-override — Slop Bowl stays intentionally scrappy but secondary in the Phase 3 hierarchy. */}
+        <button
+          type="button"
+          className="planning-choice-card planning-choice-secondary slop-bowl-card"
           onClick={() => {
             setShowPlanningChoice(false);
             setCurrentPhase('slop-bowl');
           }}
         >
-          {/* Sticker badge - counter-rotated for handmade feel. Tagline rolls random per visit. */}
-          <div className="absolute -top-2 -right-2 z-10 rotate-6 pointer-events-none">
-            <span className="bg-[#FF6B6B] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md tracking-wider uppercase whitespace-nowrap">
-              {slopBowlStickerTagline}
+          <span className="planning-slop-mark" aria-hidden="true">
+            <span className="slop-splash slop-splash-a" />
+            <span className="slop-splash slop-splash-b" />
+            <span className="slop-scribble">???</span>
+            <span className="slop-ingredient left-[16%] text-sm">🥦</span>
+            <span className="slop-ingredient slop-ingredient-d1 left-[33%] text-sm">🧅</span>
+            <span className="slop-ingredient slop-ingredient-d2 left-[52%] text-sm">🍚</span>
+            <span className="slop-ingredient slop-ingredient-d3 left-[70%] text-sm">🧀</span>
+            <span className="slop-ingredient slop-ingredient-d4 left-[82%] text-sm">🧂</span>
+            <span className="slop-spoon">🥄</span>
+            <span className="slop-emoji text-5xl leading-none">🥣</span>
+          </span>
+          <span className="min-w-0 flex-1 text-left">
+            <span className="planning-choice-title">Slop Bowl</span>
+            <span className="planning-choice-copy">
+              Randomly make me something from the chaos.
             </span>
-          </div>
-
-          <CardContent className="p-4 pt-5 flex flex-col items-center text-center h-full relative">
-            {/* Scattered pantry emojis at low opacity */}
-            <span className="absolute top-2 left-2 text-xs opacity-20 select-none pointer-events-none">🧀</span>
-            <span className="absolute top-14 right-3 text-sm opacity-20 select-none pointer-events-none">🍝</span>
-            <span className="absolute bottom-20 left-3 text-xs opacity-20 select-none pointer-events-none">🌶️</span>
-            <span className="absolute bottom-24 right-2 text-xs opacity-15 select-none pointer-events-none">🥫</span>
-
-            {/* Icon with ingredients falling into the bowl */}
-            <div className="h-14 flex items-center justify-center">
-              <div className="relative">
-                <span className="slop-ingredient text-sm left-[22%]" aria-hidden="true">🍖</span>
-                <span className="slop-ingredient slop-ingredient-d1 text-sm left-[42%]" aria-hidden="true">🥦</span>
-                <span className="slop-ingredient slop-ingredient-d2 text-sm left-[58%]" aria-hidden="true">🍚</span>
-                <span className="slop-ingredient slop-ingredient-d3 text-sm left-[76%]" aria-hidden="true">🍅</span>
-                <span className="slop-emoji text-5xl leading-none inline-block select-none" role="img" aria-label="slop bowl">🥣</span>
-              </div>
-            </div>
-
-            <div className="flex-1 flex flex-col justify-center relative my-3">
-              <h3 className="font-bold text-lg text-gray-900">Slop Bowl</h3>
-              <p className="text-xs text-gray-700 mt-1 font-medium italic">
-                Zero decisions. Laica will plan for you.
-              </p>
-            </div>
-            <Button
-              size="sm"
-              className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white relative z-10"
-            >
-              Let's go
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Manual planning card */}
-        <Card
-          className="cursor-pointer hover:shadow-md transition-all border-2 border-transparent hover:border-gray-300"
-          onClick={() => setShowPlanningChoice(false)}
-        >
-          <CardContent className="p-4 pt-5 flex flex-col items-center text-center h-full">
-            <div className="h-14 flex items-center justify-center">
-              <span className="text-5xl leading-none select-none" role="img" aria-label="chef">{chefEmoji}</span>
-            </div>
-            <div className="flex-1 flex flex-col justify-center my-3">
-              <h3 className="font-bold text-lg text-gray-900">Chef it up!</h3>
-              <p className="text-xs text-gray-500 mt-1">
-                Choose your cuisine, time, and pick from suggestions.
-              </p>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full"
-            >
-              Start
-            </Button>
-          </CardContent>
-        </Card>
+          </span>
+          <span className="planning-choice-arrow planning-choice-arrow-secondary" aria-hidden="true">
+            <ArrowRight className="h-5 w-5" />
+          </span>
+        </button>
       </div>
     </div>
   );
@@ -498,7 +509,6 @@ export default function MobileApp() {
               setCurrentPhase('planning');
             }}
             className="app-bottom-button"
-            data-active={currentPhase === 'planning' || currentPhase === 'slop-bowl'}
             disabled={userProfile.cookingSkill === ''}
             aria-label="Cook"
             title="Cook"
@@ -511,7 +521,6 @@ export default function MobileApp() {
               variant="ghost"
               size="icon"
               className="app-bottom-button"
-              data-active={currentPhase === 'settings' || currentPhase === 'history'}
               disabled={userProfile.cookingSkill === ''}
               aria-label="Menu"
               title="Menu"
@@ -528,7 +537,7 @@ export default function MobileApp() {
     return (
       <div className="w-full max-w-2xl mx-auto p-4 md:p-6 min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B6B] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold mb-2">Loading Your Profile</h2>
           <p className="text-gray-600">Setting up your personalized cooking experience...</p>
         </Card>
@@ -551,13 +560,16 @@ export default function MobileApp() {
         
       case 'planning':
         return (
-          <div className="pb-20">
+          <div className="planning-ui min-h-screen pb-20">
             {showPlanningChoice ? (
               renderPlanningChoice()
             ) : (
               <MealPlanning
                 userProfile={userProfile}
                 onMealSelected={handleMealSelected}
+                initialTimeAvailable={lastPlanningTime}
+                onPlanningTimeChange={handlePlanningTimeChange}
+                onPantryIngredientsAdded={handlePlanningPantryIngredientsAdded}
                 onBackToProfile={() => {
                   // Back from step 1 of manual planning returns to the
                   // Slop Bowl vs Chef it up choice screen, not the profile.
@@ -570,9 +582,10 @@ export default function MobileApp() {
 
       case 'slop-bowl':
         return (
-          <div className="pb-20">
+          <div className="planning-ui min-h-screen pb-20">
             <SlopBowl
               userProfile={userProfile}
+              planningTimeAvailable={lastPlanningTime}
               onMealSelected={handleMealSelected}
               onBackToPlanning={() => {
                 setShowPlanningChoice(true);

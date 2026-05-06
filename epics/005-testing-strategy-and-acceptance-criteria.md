@@ -292,6 +292,10 @@ Phase 2.2's returning Settings alignment now explicitly includes a database cons
 
 PR #30 merged only after Wilson confirmed the Replit checklist at `dc59796ae1602af4643c5fc640be47ab19a59e04`: Menu -> Settings, Menu -> History, Slop Bowl -> Edit pantry, Pantry/Kitchen/Profile saves, History list/expand/delete/undo, Feedback context, and returning Settings visual parity. This adds a validation-workflow precedent for small post-review polish: even icon-only bottom-nav sizing and CSS specificity fixes should refresh the validated SHA before merge when they land after the previous Replit pass.
 
+### 2026-05-06 — Phase 3 staple-check work adds focused acceptance tests
+
+`codex/mobile-refresh-phase-3-planning` adds focused Vitest coverage for Chef It Up staple candidate filtering/deduping and recipe optional-ingredient cleanup. The branch still treats authenticated recipe generation, pantry persistence, and active Replit prompt state as Replit validation requirements, which conforms to this epic's local-vs-service-backed boundary.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

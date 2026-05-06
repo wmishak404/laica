@@ -283,7 +283,7 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
 
                   {missingIngredients.length > 0 && (
                     <div className="mt-3">
-                      <p className="returning-copy text-xs">Extra ingredients used:</p>
+                      <p className="returning-copy text-xs">Optional extras:</p>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {missingIngredients.map((ingredient: string) => (
                           <Badge key={ingredient} variant="outline" className="rounded-full text-xs">
