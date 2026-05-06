@@ -1106,20 +1106,23 @@ html, body {
   .planning-slop-sticker {
     position: absolute;
     left: 50%;
-    top: 0.7rem;
+    top: 0.6rem;
     z-index: 1;
     border-radius: 999px;
-    background: hsl(var(--planning-coral));
-    color: hsl(0 0% 100%);
+    border: 2px solid hsl(var(--planning-butter));
+    background: hsl(var(--planning-ink));
+    color: hsl(var(--planning-butter));
     font-family: 'Patrick Hand', 'Nunito', system-ui, sans-serif;
-    font-size: 0.76rem;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    line-height: 0.95;
-    padding: 0.38rem 0.78rem 0.42rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    padding: 0.42rem 0.82rem 0.44rem;
     transform: translateX(-50%) rotate(3deg);
     white-space: nowrap;
-    box-shadow: 0 0.45rem 0.9rem hsl(var(--planning-coral) / 0.18);
+    box-shadow:
+      0 0 0 3px hsl(0 0% 100% / 0.74),
+      0 0.55rem 1rem hsl(var(--planning-ink) / 0.18);
   }
 
   .planning-choice-title {

@@ -163,6 +163,16 @@ Follow-up patch:
 - `client/src/index.css` moves the coral accent to `.planning-choice-copy`.
 - The Phase 3 and Phase 3.1 docs now record this as part of the Planning label drift correction.
 
+## 2026-05-05 Slop Bowl sticker-legibility follow-up
+
+Wilson's screenshot review caught that the rotating Slop Bowl sticker copy (`LESS BRAIN POWER`, `NO RULES`, `MAKE GOOD SLOP`) was hard to read and did not pop enough as a label. The handwritten/humor direction was approved, but the coral pill treatment was not doing enough work.
+
+Follow-up patch:
+
+- `client/src/index.css` changes `.planning-slop-sticker` from coral/white to a charcoal stamped-note treatment with butter text and border.
+- The sticker now has a light rim and stronger shadow to separate from the Slop Bowl card background.
+- Phase 3 and Phase 3.1 docs now track this as sticker alignment/legibility drift.
+
 ## 2026-05-05 Phase 3.1 drift-scope follow-up
 
 Wilson asked that the Phase 3 design-drift review be included in Phase 3.1 work instead of becoming a standalone active epic.

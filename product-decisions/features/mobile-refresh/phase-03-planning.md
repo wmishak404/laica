@@ -166,6 +166,12 @@ Implemented locally:
 - Planning card title and copy colors are now flipped: `Chef It Up` and `Slop Bowl` use charcoal, while the supporting copy carries the coral accent.
 - This keeps the kitchen-note tone but makes the primary card labels the easiest text to read.
 
+2026-05-05 Slop Bowl sticker-legibility follow-up:
+
+- Wilson's screenshot review found the `LESS BRAIN POWER` / `NO RULES` / `MAKE GOOD SLOP` sticker copy was hard to read and did not pop as a label, even though the handwritten humor direction felt better.
+- The sticker now uses a charcoal stamped-note treatment with butter text, a butter border, a light rim, and stronger shadow instead of the coral pill.
+- The goal is a high-contrast label that separates from the coral title/action accents while keeping the scrappy kitchen-note tone.
+
 2026-05-05 Phase 3.1 drift-scope follow-up:
 
 - Wilson asked that the Phase 3 design-drift review live inside Phase 3.1 rather than a standalone active epic.
