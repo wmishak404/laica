@@ -104,6 +104,7 @@ PR #34 merged the process and product-decision taxonomy cleanup. INIT-001 now re
 | [EPIC-010](../epics/010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
 | [EPIC-013](../epics/013-pantry-manual-entry-spell-correction.md) | Future pantry manual-entry ingredient spelling correction |
 | [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md) | Future latest-scan chip indicators and duplicate-like scan cleanup |
+| [EPIC-018](../epics/018-authenticated-ai-error-handling.md) | Authenticated AI error handling and pantry recipe 400 follow-up |
 
 ## Changes Added After Initial Plan
 
@@ -116,6 +117,7 @@ PR #34 merged the process and product-decision taxonomy cleanup. INIT-001 now re
 - Phase 2.2 added before Phase 3 so returning users can revisit Pantry, Kitchen, Cooking Profile, Settings, and History through Menu.
 - UI governance and visual standards graduated to [PD-005](../product-decisions/005-ui-governance.md) and [`design_guidelines.md`](../design_guidelines.md).
 - Product decision taxonomy cleanup added on 2026-05-05 so top-level PDs stay stable decision records and feature-phase records do not become indefinite diaries.
+- EPIC-018 was filed from Phase 3 Replit validation to preserve the follow-up bug around demo-era AI error toasts/redirects masking pantry recipe 400s.
 
 ## Validation State
 
