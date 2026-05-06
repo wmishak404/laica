@@ -197,9 +197,11 @@ Implemented locally:
 - Wilson's Replit review found that cuisine-selected recipes were leaning too hard on optional ingredients, making suggestions feel like LAICA was trying to complete a cuisine rather than cook from the pantry.
 - Phase 3 now inserts a narrow Chef It Up staple-check step after Cuisine when selected cuisines have likely missing staples. Confirmed staples are saved to the user's pantry and included in the current recipe request.
 - The staple check is deterministic and cuisine-aware in Phase 3; it does not add a second AI follow-up call. Phase 3.1 may redesign this into a richer pantry-staples profile or smarter follow-up if the pattern proves useful.
+- Multi-cuisine staple selection must represent selected cuisines before filling extra slots: shared staples can cover overlapping cuisines, otherwise each selected cuisine with missing candidates gets a representative staple before the four-slot cap is filled by overall priority.
+- Staple candidates must be concrete pantry-saveable ingredients. Phase 3 uses `parsley` for Mediterranean/French herb checks and `cilantro` for Vietnamese instead of vague grouped labels like `fresh herbs`.
 - Recipe generation now asks for a quiet three-suggestion range: pantry-strict or near pantry-strict, pantry-flexible, and cuisine-leaning, without labeling those tiers in the UI.
 - The fallback recipe prompt now treats cuisine as a flavor direction rather than permission to invent missing ingredients. Server cleanup removes universal staples from optional lists and caps optional ingredients at three while preserving cuisine-specific staples like olive oil or soy sauce when returned.
-- Replit validation must check Mediterranean with olive oil missing/confirmed, Asian cuisines not assuming olive oil, exactly three suggestions, short optional lists, and pantry persistence after confirming staples. If Replit has an active DB prompt for `recipe_suggestions`, update or activate the matching prompt there because active DB prompts override the code fallback.
+- Replit validation must check Mediterranean with olive oil missing/confirmed, multi-cuisine staple representation such as Mediterranean + Thai + Indian, concrete herb staple labels where applicable, Asian cuisines not assuming olive oil, exactly three suggestions, short optional lists, and pantry persistence after confirming staples. If Replit has an active DB prompt for `recipe_suggestions`, update or activate the matching prompt there because active DB prompts override the code fallback.
 
 Local validation:
 
@@ -213,6 +215,8 @@ Local validation:
 - 2026-05-06 Ticket Pass selection-orientation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 - 2026-05-06 selected-ticket label removal re-ran `git diff --check`, `npm run check`, and `npm run build`.
 - 2026-05-06 staple-check/recipe-balance patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts tests/unit/planning-staples.test.ts tests/unit/recipe-suggestion-normalizer.test.ts`.
+- 2026-05-06 concrete-herb staple patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
+- 2026-05-06 multi-cuisine staple representation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
 
 Known validation gap:
 

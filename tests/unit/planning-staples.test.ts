@@ -22,7 +22,37 @@ describe('planning staple candidates', () => {
       'olive oil',
       'lemon',
       'feta',
-      'fresh herbs',
+      'parsley',
     ]);
+  });
+
+  it('represents each selected cuisine before filling remaining staple slots', () => {
+    expect(getStapleCandidatesForCuisines(['Mediterranean', 'Thai', 'Indian'], [])).toEqual([
+      'olive oil',
+      'fish sauce',
+      'garam masala',
+      'lemon',
+    ]);
+  });
+
+  it('lets shared staples represent overlapping cuisines before adding another cuisine', () => {
+    expect(getStapleCandidatesForCuisines(['Mediterranean', 'Greek', 'Thai'], [])).toEqual([
+      'olive oil',
+      'fish sauce',
+      'lemon',
+      'feta',
+    ]);
+  });
+
+  it('uses concrete herb staples instead of a vague fresh herbs label', () => {
+    expect(getStapleCandidatesForCuisines(['Mediterranean'], [])).toContain('parsley');
+    expect(getStapleCandidatesForCuisines(['French'], [])).toContain('parsley');
+    expect(getStapleCandidatesForCuisines(['Vietnamese'], [])).toContain('cilantro');
+    expect(getStapleCandidatesForCuisines(['Mediterranean', 'French', 'Vietnamese'], [])).not.toContain('fresh herbs');
+  });
+
+  it('filters concrete herb staples that are already saved', () => {
+    expect(getStapleCandidatesForCuisines(['Mediterranean'], ['parsley'])).not.toContain('parsley');
+    expect(getStapleCandidatesForCuisines(['Vietnamese'], ['cilantro'])).not.toContain('cilantro');
   });
 });

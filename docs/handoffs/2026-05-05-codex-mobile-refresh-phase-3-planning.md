@@ -220,11 +220,13 @@ Follow-up patch:
 
 - `client/src/components/cooking/meal-planning.tsx` adds a deterministic Chef It Up `staples` step after Cuisine when selected cuisines have likely missing staples.
 - `shared/planning-staples.ts` owns the Phase 3 cuisine-aware staple shortlist and candidate filtering/deduping rules.
+- Multi-cuisine staple ranking represents selected cuisines before filling extra slots. Shared staples can cover overlapping cuisines; otherwise each selected cuisine with missing candidates gets a representative staple within the four-slot cap.
+- Staple labels are concrete pantry-saveable ingredients. Mediterranean/French use `parsley` and Vietnamese uses `cilantro`; Phase 3 should not save vague grouped labels like `fresh herbs`.
 - Confirmed staples auto-save through the existing profile update path in `client/src/pages/app.tsx` and are also used immediately for the recipe request. If saving fails, LAICA still uses them for the current generation and shows a toast that they were not remembered.
 - `server/openai.ts` now asks for a hidden pantry-strict / pantry-flexible / cuisine-leaning recipe range and no longer tells the model to add missing ingredients to complete a cuisine.
 - `server/recipe-suggestion-normalizer.ts` removes universal staples from `additionalIngredientsNeeded`, dedupes, and caps optional ingredients at three while preserving cuisine-specific staples.
 
-Replit validation should check Mediterranean with olive oil missing and confirmed, Korean/Japanese/Chinese not assuming olive oil, exactly-three suggestions, short Prep Tray optional lists, and pantry persistence after confirming staples. Also inspect Replit's active `recipe_suggestions` prompt: if an active DB prompt exists, it must be updated or activated with the new pantry-range/staple policy because it overrides the fallback prompt in code.
+Replit validation should check Mediterranean with olive oil missing and confirmed, multi-cuisine representation such as Mediterranean + Thai + Indian, concrete herb labels instead of `fresh herbs` where applicable, Korean/Japanese/Chinese not assuming olive oil, exactly-three suggestions, short Prep Tray optional lists, and pantry persistence after confirming staples. Also inspect Replit's active `recipe_suggestions` prompt: if an active DB prompt exists, it must be updated or activated with the new pantry-range/staple policy because it overrides the fallback prompt in code.
 
 ## Verification
 
@@ -239,6 +241,8 @@ Passed:
 - 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 - 2026-05-06 selected-ticket label removal re-ran `git diff --check`, `npm run check`, and `npm run build`.
 - 2026-05-06 staple-check/recipe-balance patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts tests/unit/planning-staples.test.ts tests/unit/recipe-suggestion-normalizer.test.ts`.
+- 2026-05-06 concrete-herb staple patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
+- 2026-05-06 multi-cuisine staple representation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
 
 Not green / not authoritative:
 

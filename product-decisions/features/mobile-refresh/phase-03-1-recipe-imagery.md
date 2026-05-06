@@ -38,6 +38,7 @@ Phase 3 reserves generated-image slots now:
 - Cache generated images so refreshes and back/forward navigation do not repeatedly incur cost or latency.
 - Define fallback behavior for failed generation, slow generation, moderation failures, and missing image URLs.
 - Decide whether Phase 3's lightweight deterministic staple check should stay as-is, become part of a pantry-staples profile, or become a smarter AI-assisted follow-up.
+- If Phase 3.1 expands herb handling, keep saved pantry labels concrete. Avoid saving grouped labels like `fresh herbs`; use explicit choices or a richer profile model that can store specificity.
 
 ## Phase 3 Design Drift Inventory
 
