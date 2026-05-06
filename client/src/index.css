@@ -1514,13 +1514,22 @@ html, body {
   }
 
   .planning-ticket-row .planning-ticket-meta {
-    max-width: 5.9rem;
-    flex: 0 0 auto;
-    justify-content: flex-end;
+    width: 4.75rem;
+    max-width: none;
+    flex: 0 0 4.75rem;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    justify-content: center;
     gap: 0.35rem;
     font-size: 0.68rem;
     line-height: 1;
     text-align: right;
+  }
+
+  .planning-ticket-row .planning-ticket-meta > span {
+    justify-content: flex-end;
+    white-space: nowrap;
   }
 
   .planning-ticket-divider {
