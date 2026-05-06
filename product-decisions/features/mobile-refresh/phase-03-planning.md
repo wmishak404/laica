@@ -157,20 +157,20 @@ Implemented locally:
 
 - Wilson's Replit screenshot review found the `MAKE GOOD SLOP` sticker was not centered, the Planning entry lost the handwritten/diary kitchen-note edge from the mockups, and the Slop Bowl art felt too vanilla to carry the joke.
 - Planning now keeps `Patrick Hand` scoped to small tone accents such as the Slop Bowl banner and doodle scribbles while card titles stay in the display system.
-- The Slop Bowl card art now adds a messier ingredient storm, splashes, spoon tilt, and `???` scribble around the bowl. The sticker is mechanically centered with `left: 50%` / translate, not eyeballed from the right edge.
+- The Slop Bowl card art now adds a messier ingredient storm, splashes, spoon tilt, and `???` scribble around the bowl. The earlier sticker treatment was later removed in the reset below.
 - Styling remains tokenized through planning CSS variables and does not reintroduce Slop Bowl raw hex literals.
 
 2026-05-05 Planning entry label-legibility follow-up:
 
-- Wilson's screenshot review found the handwritten `Chef It Up` / `Slop Bowl` card titles felt visually disconnected from the `What are we cooking today?` headline and made the screen read like multiple type systems.
-- Planning card titles and their short taglines now both use `Fraunces`, differentiated by size, weight, and muted charcoal shade.
-- Longer body/control copy remains `Nunito`; handwritten humor remains in micro-accents only, so the page has one coherent type ladder.
+- Wilson's screenshot review found the handwritten `Chef It Up` / `Slop Bowl` card titles and later `Fraunces` experiments felt visually disconnected from the generated Phase 3 mockup and made the screen read like multiple type systems.
+- Planning now resets to the mockup's simpler grammar: `Nunito` for the page heading, choice-card titles, and short taglines, differentiated by size, weight, and color.
+- Handwritten humor is removed from the choice-card text system; the Slop Bowl joke should come from the name, copy, and art.
 
 2026-05-05 Slop Bowl sticker-legibility follow-up:
 
-- Wilson's screenshot review found the `LESS BRAIN POWER` / `NO RULES` / `MAKE GOOD SLOP` sticker copy was hard to read and did not pop as a label, even though the handwritten humor direction felt better.
-- The label is now a top-right card banner with a butter/teal note treatment, charcoal text, and a subtle integrated shadow instead of a center coral or charcoal pill.
-- The goal is a high-contrast label that belongs to the Slop Bowl card while keeping the scrappy kitchen-note tone.
+- Wilson's screenshot review found the `LESS BRAIN POWER` / `NO RULES` / `MAKE GOOD SLOP` label iterations kept feeling like extra design pasted on top of the card.
+- The rotating label/banner markup and CSS are removed from the Planning choice card for now.
+- The goal is to return to the generated mockup's calmer card grammar: title, supporting copy, illustration, and arrow.
 
 2026-05-05 Phase 3.1 drift-scope follow-up:
 

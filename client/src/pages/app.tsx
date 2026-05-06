@@ -54,13 +54,6 @@ const hasPlanningProfile = (profile: UserProfile) =>
 const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined) =>
   (restrictions || []).map((restriction) => restriction === 'None' ? 'No restrictions' : restriction);
 
-const SLOP_BOWL_STICKER_TAGLINES = [
-  'MAKE GOOD SLOP',
-  'LESS BRAIN POWER',
-  'NO RULES',
-  'FLAVOR ROULETTE',
-];
-
 // Chef emoji roster — man and woman cook at the default yellow tone
 // (race-neutral). A fresh one is picked each time the planning-choice
 // screen is shown so the card alternates representation.
@@ -91,13 +84,6 @@ export default function MobileApp() {
     if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
     return normalizePlanningTimeValue(window.localStorage.getItem(PLANNING_TIME_STORAGE_KEY));
   });
-
-  // Picks a fresh random tagline for the Slop Bowl sticker each time the
-  // planning-choice screen is shown. Stable across re-renders while visible.
-  const slopBowlStickerTagline = useMemo(
-    () => SLOP_BOWL_STICKER_TAGLINES[Math.floor(Math.random() * SLOP_BOWL_STICKER_TAGLINES.length)],
-    [showPlanningChoice]
-  );
 
   // Picks a fresh random chef emoji (man or woman, yellow tone) each time
   // the planning-choice screen is shown.
@@ -456,7 +442,6 @@ export default function MobileApp() {
             setCurrentPhase('slop-bowl');
           }}
         >
-          <span className="planning-slop-sticker">{slopBowlStickerTagline}</span>
           <span className="planning-slop-mark" aria-hidden="true">
             <span className="slop-splash slop-splash-a" />
             <span className="slop-splash slop-splash-b" />

@@ -151,6 +151,7 @@ Follow-up patch, later superseded by the typography follow-up below:
 - `client/src/index.css` centers `.planning-slop-sticker` with `left: 50%` and `translateX(-50%)`.
 - `client/src/pages/app.tsx` and `client/src/index.css` rebuild the Slop Bowl art as a messier ingredient-storm doodle with splashes, a tilted spoon, and a `???` scribble.
 - `design_guidelines.md` briefly recorded `Patrick Hand` for small tone-forward Planning labels; later review narrowed it to micro-accents only.
+- The Slop Bowl sticker itself is later removed in the sticker/banner reset below.
 - EPIC-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
 
 ## 2026-05-05 Planning entry label-legibility follow-up
@@ -159,19 +160,19 @@ Wilson's screenshot review caught that the handwritten `Chef It Up` and `Slop Bo
 
 Follow-up patch:
 
-- `client/src/index.css` changes `.planning-choice-title` to `Fraunces`, matching the page display heading.
-- `client/src/index.css` changes `.planning-choice-copy` to `Fraunces` too, using smaller size, lighter weight, and muted charcoal so the short card tagline belongs with the title without competing.
-- `design_guidelines.md`, the Phase 3 record, and Phase 3.1 drift inventory now reserve `Patrick Hand` for micro-accents only, not primary card titles.
+- `client/src/index.css` resets `.planning-display`, `.planning-choice-title`, and `.planning-choice-copy` to the generated mockup's `Nunito`-led grammar.
+- Choice-card titles and taglines now differ by size, weight, shade, and layout rather than by font family.
+- `design_guidelines.md`, the Phase 3 record, and Phase 3.1 drift inventory now say to preserve mockup typography before layering additional principles.
 
 ## 2026-05-05 Slop Bowl sticker-legibility follow-up
 
-Wilson's screenshot review caught that the rotating Slop Bowl sticker copy (`LESS BRAIN POWER`, `NO RULES`, `MAKE GOOD SLOP`) was hard to read and did not pop enough as a label. The handwritten/humor direction was approved, but the coral pill and later high-contrast pill treatments felt too separate from the page.
+Wilson's screenshot review caught that the rotating Slop Bowl sticker copy (`LESS BRAIN POWER`, `NO RULES`, `MAKE GOOD SLOP`) was hard to read and did not pop enough as a label. Later label/banner treatments still felt too separate from the page, revealing that the card had accumulated too many one-off design fixes.
 
 Follow-up patch:
 
-- `client/src/index.css` changes `.planning-slop-sticker` into a top-right card banner with butter/teal note styling and charcoal text.
-- The banner uses a subtle border, inset edge, and lighter shadow so it belongs to the card instead of reading as a pasted sticker.
-- Phase 3 and Phase 3.1 docs now track this as sticker alignment/legibility drift.
+- `client/src/pages/app.tsx` and `client/src/index.css` now remove the rotating sticker markup/styles from the Planning choice card.
+- The Slop Bowl card returns to title, support copy, illustration, and arrow.
+- Phase 3 and Phase 3.1 docs now track this as a sticker/banner drift reset rather than another label-treatment patch.
 
 ## 2026-05-05 Phase 3.1 drift-scope follow-up
 
