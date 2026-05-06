@@ -6,7 +6,10 @@ import { normalizeVisionAnalysisResult } from "./vision/analysis-result";
 import { filterDetectedEquipment } from "./vision/equipment-filter";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
-import { normalizeRecipeSuggestionsResponse } from "./recipe-suggestion-normalizer";
+import {
+  normalizeAdditionalIngredientsNeeded,
+  normalizeRecipeSuggestionsResponse,
+} from "./recipe-suggestion-normalizer";
 import {
   DEFAULT_PLANNING_TIME_VALUE,
   getPlanningTimeMinutes,
@@ -113,7 +116,7 @@ Each recipe should include:
   - difficulty: Easy, Medium, or Hard
   - cookTime: Estimated cooking time in minutes. Give an answer in intervals of 15 minutes and always round up.
   - pantryIngredientsUsed: Array of ingredients from their pantry that are used for this recipe.
-  - additionalIngredientsNeeded: Optional enhancements that would improve the dish if the user happens to have them or wants to add them (keep this minimal; do not make the recipe depend on shopping).
+  - additionalIngredientsNeeded: Optional enhancements that would improve the dish if the user happens to have them or wants to add them (keep this minimal; do not make the recipe depend on shopping). The recipe must still work if every item in this list is skipped. Return bare ingredient names only; do not include labels like "optional", "(optional)", or "if around" inside item strings.
   - overview: Brief overview of the cooking process in 1-3 sentences. Tone should be friendly and concise.
   - instructions: Step by step instructions on how to cook this recipe.
   - isFusion: Boolean indicating if this recipe combines culinary traditions from multiple cuisines (e.g., Korean-Mexican tacos, Italian-Asian ramen, Indian-French fusion). Only mark as true if the recipe intentionally blends techniques, flavors, or ingredients from distinctly different culinary traditions.
@@ -125,6 +128,7 @@ Each recipe should include:
 3. Treat cuisine preference as a flavor direction, not permission to invent a shopping list. If pantry ingredients cannot support a strict cuisine recipe, prefer a pantry-first or clearly fusion recipe over adding several missing cuisine staples.
 4. Return a quiet range across the three suggestions without labeling the tiers: one pantry-strict or near pantry-strict idea, one pantry-flexible idea, and one cuisine-leaning idea. The cuisine-leaning idea may include a short optional list, but the dish must still work without shopping.
 5. If the user confirms specific staples, you may treat those as pantry ingredients. If the user was asked about staples and did not confirm them, do not assume they are available.
+6. The core recipe must be cookable from pantryIngredientsUsed alone. If a missing ingredient is essential to the dish's identity, structure, or cooking method, choose a different recipe instead of putting that ingredient in additionalIngredientsNeeded.
 
 ## Guidelines for "instructions"
 
@@ -137,6 +141,7 @@ Each recipe should include:
 7. Steps must only be possible if kitchen equipment is available.
 8. Do not suggest harmful steps on cooking (e.g. putting your hands in the pan for too long, unsafe knife cutting steps, use a guard when using a mandoline to cut thin vegetables)
 9. When giving instructions on cooking meats, be precise on what users need to ensure for minimum safety requirements for doneness. (for example, chicken has to be cooked until there's no pink in the flesh, beef can be medium rare which is still pink in the center). Do not encourage overcooking of meats.
+10. Instructions must work without any additionalIngredientsNeeded items. If mentioning one of those items, phrase it only as an optional finishing touch or swap, never as a required step.
 
 ## Guidelines for "additionalIngredientsNeeded"
 
@@ -144,7 +149,9 @@ Each recipe should include:
 2. Do not recommend the recipe as a whole at all if these ingredients are absolutely essential to the dish and recommend another. (For example, do not recommend Chicken Parmiggiana if chicken or tomatoes are not part of the pantry). If the ingredient is a good addition but not necessary, keep recommending this recipe.
 3. Exclude pantry essentials like salt, black pepper, water, and generic neutral cooking oil if they are not captured from the user's input.
 4. Do not globally assume cuisine-specific staples such as olive oil, soy sauce, sesame oil, fish sauce, garam masala, parmesan, or canned tomatoes. These can appear only as optional enhancements unless the pantry or confirmed-staple context includes them.
-5. Keep additionalIngredientsNeeded to 0-3 items per recipe.`;
+5. Keep additionalIngredientsNeeded to 0-3 items per recipe.
+6. Return ingredient names only in additionalIngredientsNeeded. Do not include words like "optional", "if around", or "if available" because the field is already displayed as optional in the UI.
+7. Never use additionalIngredientsNeeded for required ingredients. If the recipe depends on an ingredient, that ingredient must already be available in the pantry or confirmed staples, otherwise choose another recipe.`;
 
 const DEFAULT_SLOP_BOWL_PROMPT = `You are LAICA's Slop Bowl recipe generator. Create exactly one bowl-style meal from the user's pantry and profile.
 
@@ -175,8 +182,11 @@ Rules:
 9. If feedback is provided, incorporate it directly.
 10. If previousRecipe is provided, do not generate that recipe again.
 11. instructions must be a flat array of practical, sequential cooking steps for a home cook.
-12. additionalIngredientsNeeded should exclude salt, pepper, water, and neutral cooking oil unless they are essential to the dish.
-13. pantryMatch should be a 0-100 score estimating how much of the dish comes from the pantry.`;
+12. additionalIngredientsNeeded is for optional enhancements only. The bowl and its instructions must work if every item in this list is skipped.
+13. additionalIngredientsNeeded should exclude salt, pepper, water, and neutral cooking oil.
+14. additionalIngredientsNeeded is displayed as optional in the UI, so return bare ingredient names only and do not include words like "optional", "if around", or "if available" inside item strings.
+15. Never use additionalIngredientsNeeded for required ingredients. If the bowl depends on an ingredient, that ingredient must already be available in the pantry, otherwise choose another bowl.
+16. pantryMatch should be a 0-100 score estimating how much of the dish comes from the pantry.`;
 
 const DEFAULT_COOKING_STEPS_PROMPT = `You are a home-cooking expert that provides realistic step-by-step instructions for everyday cooks.
           You focus on practical tips for home kitchens (not professional techniques).
@@ -263,6 +273,7 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
             `Recent meals:\n${formatRecentMeals(sanitizedInput.recentMeals)}`,
             sanitizedInput.feedback ? `User feedback on the last suggestion: ${sanitizedInput.feedback}` : null,
             sanitizedInput.previousRecipe ? `Do not repeat this previous recipe: ${sanitizedInput.previousRecipe}` : null,
+            "Any additionalIngredientsNeeded must be optional enhancements only; the bowl and instructions must still work if the user skips them.",
             "Generate exactly one Slop Bowl recipe now.",
           ]
             .filter(Boolean)
@@ -272,9 +283,13 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
       response_format: { type: "json_object" },
     });
 
-    const result = slopBowlRecipeSchema.parse(
+    const parsedResult = slopBowlRecipeSchema.parse(
       JSON.parse(response.choices[0].message.content || "{}"),
     );
+    const result = {
+      ...parsedResult,
+      additionalIngredientsNeeded: normalizeAdditionalIngredientsNeeded(parsedResult.additionalIngredientsNeeded),
+    };
     logInteraction("slop_bowl", inputData, JSON.stringify(result));
     return result;
   } catch (error) {
@@ -301,7 +316,8 @@ export async function getRecipeSuggestions(preferences: string, ingredients?: st
           role: "user",
           content: `I have these ingredients in my pantry: ${sanitizedIngredients.length > 0 ? sanitizedIngredients.join(", ") : "basic staples only"}.
           My preferences: ${sanitizedPreferences}.
-          Please suggest 3 meal ideas I can make primarily with what I already have.`
+          Please suggest 3 meal ideas I can make primarily with what I already have.
+          Any additionalIngredientsNeeded must be optional enhancements only; each recipe and its instructions must still work if the user skips them.`
         }
       ],
       response_format: { type: "json_object" }

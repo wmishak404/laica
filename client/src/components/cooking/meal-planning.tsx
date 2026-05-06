@@ -382,6 +382,7 @@ export default function MealPlanning({
         `Time available: ${getPlanningTimePrompt(mealPrefs.timeAvailable)}`,
         `Cooking skill: ${userProfile.cookingSkill}`,
         'Use pantry ingredients first; optional extras must be nonessential and capped at 3',
+        'Each recipe must still work if optional extras are skipped',
         "Return a quiet range: pantry-strict, pantry-flexible, cuisine-leaning; don't label tiers",
       ];
 

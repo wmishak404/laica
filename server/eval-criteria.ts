@@ -43,7 +43,7 @@ export const EVAL_CRITERIA: Record<FeatureType, EvalCriteria> = {
       {
         id: 'pantry_mismatch',
         name: 'Pantry Mismatch',
-        description: 'A recipe relies on key ingredients that are not in the user\'s pantry without listing them in additionalIngredientsNeeded. Minor pantry-adjacent items (salt, pepper, oil) can be assumed.',
+        description: 'A recipe relies on key ingredients that are not in the user\'s pantry or confirmed staples. additionalIngredientsNeeded is only for optional enhancements and must not be used to justify required missing ingredients. Minor pantry-adjacent items (salt, pepper, water, neutral oil) can be assumed.',
         severity: 'medium',
       },
       {

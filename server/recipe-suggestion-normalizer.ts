@@ -27,6 +27,15 @@ export function normalizeIngredientKey(value: string): string {
     .trim();
 }
 
+function stripOptionalMarker(value: string): string {
+  return value
+    .replace(/\s*\((?:optional|if available|if around)\)\s*/gi, ' ')
+    .replace(/\s*[-–—,]\s*(?:optional|if available|if around)\s*$/gi, '')
+    .replace(/^(?:optional|if available|if around)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function normalizeAdditionalIngredientsNeeded(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
 
@@ -36,7 +45,7 @@ export function normalizeAdditionalIngredientsNeeded(value: unknown): string[] {
   value.forEach((rawIngredient) => {
     if (typeof rawIngredient !== 'string') return;
 
-    const ingredient = rawIngredient.replace(/\s+/g, ' ').trim();
+    const ingredient = stripOptionalMarker(rawIngredient.replace(/\s+/g, ' ').trim());
     const key = normalizeIngredientKey(ingredient);
     if (!ingredient || !key || seen.has(key) || UNIVERSAL_STAPLE_KEYS.has(key)) return;
 

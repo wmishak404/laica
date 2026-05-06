@@ -342,6 +342,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         cuisine: selectedMeal.cuisine,
         pantryMatch: selectedMeal.pantryMatch,
         missingIngredients: selectedMeal.missingIngredients || [],
+        pantryIngredientsUsed: selectedMeal.ingredients || [],
+        additionalIngredientsNeeded: selectedMeal.missingIngredients || [],
         ingredients: ingredients || loadedRecipeIngredients || [],
         isFusion: 'isFusion' in selectedMeal ? Boolean(selectedMeal.isFusion) : false,
         steps: (steps || []).map(s => ({
@@ -358,7 +360,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         recipeName: selectedMeal.recipeName,
         recipeDescription: selectedMeal.description,
         recipeSnapshot,
-        ingredientsUsed: selectedMeal.missingIngredients || [],
+        ingredientsUsed: selectedMeal.ingredients || [],
         totalSteps,
       };
       

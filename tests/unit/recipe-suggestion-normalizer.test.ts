@@ -33,6 +33,15 @@ describe('recipe suggestion optional ingredient cleanup', () => {
     ])).toEqual(['lemon', 'fresh herbs', 'feta']);
   });
 
+  it('strips redundant optional wording from optional ingredient labels', () => {
+    expect(normalizeAdditionalIngredientsNeeded([
+      'scallion (optional)',
+      'if around cilantro',
+      'sesame seeds - optional',
+    ])).toEqual(['scallion', 'cilantro', 'sesame seeds']);
+    expect(normalizeAdditionalIngredientsNeeded(['optional lime'])).toEqual(['lime']);
+  });
+
   it('normalizes every recipe in a recipe suggestion response', () => {
     expect(normalizeRecipeSuggestionsResponse({
       recipes: [

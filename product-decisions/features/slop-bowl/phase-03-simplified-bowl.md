@@ -25,7 +25,7 @@ The Slop Bowl prompt should generate a tasty bowl recipe from whatever's in the 
 
 **Kept:**
 - `pantryIngredientsUsed` — what we're using
-- `additionalIngredientsNeeded` — what's missing (minimize this)
+- `additionalIngredientsNeeded` — legacy field for optional enhancements, not required missing ingredients
 - `instructions` — flattened cooking steps
 - `overview` — short description of what the bowl is
 
