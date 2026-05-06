@@ -178,6 +178,13 @@ Implemented locally:
 - [Phase 3.1](phase-03-1-recipe-imagery.md) now owns the drift inventory, root-cause notes, recommendations, and real imagery follow-up.
 - Phase 3 remains responsible for the already-implemented placeholders and process-screen restraint; Phase 3.1 decides whether any remaining visual drift is fixed, accepted, or deferred before closeout.
 
+2026-05-06 Phase 3 visual-freeze / closeout boundary:
+
+- Wilson decided to stop Phase 3 visual iteration. Current Planning/Ticket/Prep visuals are functional scaffolding, not final design polish.
+- Phase 3 should close on functionality: routing, authenticated AI flows, planning-time persistence, Slop Bowl guard behavior, Ticket Pass selection, Prep Tray -> Cooking, and validation.
+- Do not make more Phase 3 visual changes unless an issue blocks functional validation or basic usability.
+- [Phase 3.1](phase-03-1-recipe-imagery.md) now owns the design facelift: whitespace, card/object grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
+
 Local validation:
 
 - `npm ci`
@@ -186,8 +193,10 @@ Local validation:
 - `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`
 - `git diff --check`
 - Dotenvx dev-server boot smoke returned HTTP 200 on port 3000.
+- 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 
 Known validation gap:
 
-- Authenticated Replit validation is still required for recipe generation, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl generation, Slop Bowl quick-add/remove, Slop Bowl -> Edit pantry, and visual comparison against the Phase 3 mockups.
+- Authenticated Replit validation is still required for recipe generation, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl generation, Slop Bowl quick-add/remove, and Slop Bowl -> Edit pantry.
+- Phase 3 visual judgment is limited to functional blockers and basic usability. Richer visual comparison/facelift work is deferred to Phase 3.1.
 - Full `npx vitest run` is not a merge signal yet because existing repo-wide harness issues remain: the Playwright E2E file is collected by Vitest, and voice-recording tests expect `MediaStream` in the unit-test environment.

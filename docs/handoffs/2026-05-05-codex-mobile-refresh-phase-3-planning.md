@@ -34,9 +34,10 @@ Last Replit-validated at: not yet validated.
 
 ## Open items
 
-- Wilson/Replit visual review against `phase-03-planning-flow.png` and `phase-03-ticket-pass.png`.
+- No more Phase 3 visual iteration unless an issue blocks functional validation or basic usability.
 - Replit validation for authenticated Planning entry, Chef It Up time/cuisine flow, recipe generation, exactly-three Ticket Pass results, Prep Tray -> Cooking, Refresh suggestions, Slop Bowl quick-add/remove, Slop Bowl sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry.
 - Refresh `Last Replit-validated at` in the PR/handoff after Replit passes.
+- Phase 3.1 owns the design facelift: whitespace/card grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
 - Wilson decision still open if last planning time should become a real server-side profile field in a later pass. Current branch deliberately avoids that schema change.
 
 ## 2026-05-05 logo drift follow-up
@@ -186,6 +187,18 @@ Follow-up docs patch:
 
 Phase 3.1 should review the documented drift rows and mark each one fixed, accepted, or deferred before closeout. Real imagery remains async/cached and must not block the first recipe-suggestion reveal.
 
+## 2026-05-06 Phase 3 visual-freeze / closeout boundary
+
+Wilson decided to stop Phase 3 visual iteration and close this phase on functionality. The current Planning/Ticket/Prep visuals are functional scaffolding, not final design polish.
+
+Follow-up docs patch:
+
+- `product-decisions/features/mobile-refresh/phase-03-planning.md` now states that Phase 3 should not receive more visual changes unless an issue blocks functional validation or basic usability.
+- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` is reframed as design facelift plus recipe imagery.
+- `initiatives/INIT-001-mobile-refresh.md`, `initiatives/registry.md`, and the mobile-refresh phase index now point Phase 3.1 at the design facelift and imagery work.
+
+Phase 3 closeout should focus on authenticated Planning entry, Chef It Up time/cuisine, recipe generation, refresh suggestions, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry. Phase 3.1 should plan and implement whitespace/card grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
+
 ## Verification
 
 Passed:
@@ -196,11 +209,13 @@ Passed:
 - `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`
 - `git diff --check`
 - Dotenvx dev-server boot smoke: `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` returned HTTP 200 on port 3000.
+- 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 
 Not green / not authoritative:
 
 - `npx vitest run` still fails on existing repo-wide harness issues outside this branch: `tests/e2e/cooking-workflow.test.ts` is a Playwright file collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
-- Local authenticated visual smoke was not completed. The worktree can boot locally after linking `.env.keys`, but authenticated Planning requires real sign-in/profile state; Replit remains the validation gate for this deployment-bound phase.
+- Local authenticated smoke was not completed. The worktree can boot locally after linking `.env.keys`, but authenticated Planning requires real sign-in/profile state; Replit remains the validation gate for this deployment-bound phase.
+- Rich visual facelift review is no longer a Phase 3 merge bar; it is Phase 3.1 scope unless a visual issue blocks functional validation or basic usability.
 
 ## Stack / base status
 
