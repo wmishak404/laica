@@ -160,7 +160,7 @@ Wilson's screenshot review caught that the handwritten `Chef It Up` and `Slop Bo
 Follow-up patch:
 
 - `client/src/index.css` changes `.planning-choice-title` to `Fraunces`, matching the page display heading.
-- `client/src/index.css` keeps `.planning-choice-copy` in `Nunito` muted charcoal so support copy stays calm and readable.
+- `client/src/index.css` changes `.planning-choice-copy` to `Fraunces` too, using smaller size, lighter weight, and muted charcoal so the short card tagline belongs with the title without competing.
 - `design_guidelines.md`, the Phase 3 record, and Phase 3.1 drift inventory now reserve `Patrick Hand` for micro-accents only, not primary card titles.
 
 ## 2026-05-05 Slop Bowl sticker-legibility follow-up

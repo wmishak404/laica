@@ -51,8 +51,8 @@ Mobile-refresh typography pilot (Phase 2.1 + Phase 2.2 returning Settings, Phase
 
 - **Setup display:** `Fraunces` — scoped to `.setup-ui .setup-display` and equivalent setup surfaces.
 - **Setup body / controls:** `Nunito` — scoped to `.setup-ui .setup-copy`, `.setup-action-label`, etc.
-- **Mobile-refresh display and card titles:** `Fraunces` — use for page headlines and primary object/card titles so a screen reads as one app surface, not multiple unrelated type systems.
-- **Mobile-refresh body / controls:** `Nunito` — use for descriptions, controls, metadata, chips, and support copy.
+- **Mobile-refresh display and primary choice copy:** `Fraunces` — use for page headlines, primary object/card titles, and short hero-card taglines so a decision screen reads as one app surface, not multiple unrelated type systems. Use size, weight, and color shade to separate title from tagline.
+- **Mobile-refresh body / controls:** `Nunito` — use for longer descriptions, controls, metadata, chips, settings rows, and dense support copy.
 - **Handwritten micro-accents:** `Patrick Hand` — scoped to tiny tone-forward accents such as Slop Bowl banners or doodle scribbles, not page headings, card titles, body copy, CTAs, or safety-critical controls.
 
 Avoid switching the primary title font just to communicate mood. Humor should come from copy, illustration, badges, motion, and composition while primary titles remain in the surface's display system.

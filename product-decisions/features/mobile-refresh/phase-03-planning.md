@@ -163,8 +163,8 @@ Implemented locally:
 2026-05-05 Planning entry label-legibility follow-up:
 
 - Wilson's screenshot review found the handwritten `Chef It Up` / `Slop Bowl` card titles felt visually disconnected from the `What are we cooking today?` headline and made the screen read like multiple type systems.
-- Planning card titles now use `Fraunces` like the page display heading, while support copy stays in `Nunito` muted charcoal.
-- The handwritten humor remains in micro-accents only, so the page has one coherent type ladder.
+- Planning card titles and their short taglines now both use `Fraunces`, differentiated by size, weight, and muted charcoal shade.
+- Longer body/control copy remains `Nunito`; handwritten humor remains in micro-accents only, so the page has one coherent type ladder.
 
 2026-05-05 Slop Bowl sticker-legibility follow-up:
 
