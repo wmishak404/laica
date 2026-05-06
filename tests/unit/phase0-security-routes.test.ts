@@ -105,6 +105,30 @@ describe("Phase 0 protected routes", () => {
     }
   });
 
+  it("accepts longer recipe suggestion preferences after staple context is added", async () => {
+    mocks.getRecipeSuggestions.mockResolvedValueOnce({ recipes: [] });
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/suggestions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({
+          preferences: "x".repeat(750),
+          ingredients: ["rice", "eggs"],
+        }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"]);
+    } finally {
+      await closeServer(server);
+    }
+  });
+
   it("rejects cross-user cooking-session mutation", async () => {
     mocks.storage.getCookingSession.mockResolvedValueOnce({
       id: 42,

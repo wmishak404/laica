@@ -62,6 +62,7 @@ const isAuthenticated: RequestHandler = async (req, res, next) => {
 
 const visionJsonParser = express.json({ limit: "6mb" });
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+const RECIPE_PREFERENCES_MAX_LENGTH = 1000;
 const pantryItemSchema = z.string().trim().min(1).max(64);
 const shortTextSchema = z.string().trim().min(1).max(280);
 
@@ -201,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
-        preferences: z.string().trim().min(1).max(500),
+        preferences: z.string().trim().min(1).max(RECIPE_PREFERENCES_MAX_LENGTH),
         ingredients: z.array(pantryItemSchema).optional()
       });
       
@@ -222,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const schema = z.object({
         ingredients: z.array(pantryItemSchema),
-        preferences: z.string().trim().max(1000).optional(),
+        preferences: z.string().trim().max(RECIPE_PREFERENCES_MAX_LENGTH).optional(),
         timeAvailable: z.string().trim().max(64).optional()
       });
       

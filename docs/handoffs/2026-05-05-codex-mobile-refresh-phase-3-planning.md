@@ -228,6 +228,12 @@ Follow-up patch:
 
 Replit validation should check Mediterranean with olive oil missing and confirmed, multi-cuisine representation such as Mediterranean + Thai + Indian, concrete herb labels instead of `fresh herbs` where applicable, Korean/Japanese/Chinese not assuming olive oil, exactly-three suggestions, short Prep Tray optional lists, and pantry persistence after confirming staples. Also inspect Replit's active `recipe_suggestions` prompt: if an active DB prompt exists, it must be updated or activated with the new pantry-range/staple policy because it overrides the fallback prompt in code.
 
+2026-05-06 Replit validation blocker follow-up:
+
+- Replit surfaced a 400 from recipe generation after the staple-check patch: `preferences` exceeded the old 500-character cap on `/api/recipes/suggestions`.
+- The current Planning UI calls `/api/recipes/pantry`, but `/api/recipes/suggestions` is still present and had a lower cap than `/pantry`; both routes now share a 1000-character cap so stale callers and refresh paths do not fail on the longer staple context.
+- Replit also surfaced a one-time `Cannot read properties of null (reading 'useState')` crash after `git pull`. Local `npm ls react` shows only one React 18.3.1 copy, so this is documented as likely Vite optimized-deps cache staleness. If it appears after pulling, stop the server, run `rm -rf node_modules/.vite`, refresh deps with `npm install` or `npm ci`, and restart before continuing validation.
+
 ## Verification
 
 Passed:
@@ -243,6 +249,7 @@ Passed:
 - 2026-05-06 staple-check/recipe-balance patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts tests/unit/planning-staples.test.ts tests/unit/recipe-suggestion-normalizer.test.ts`.
 - 2026-05-06 concrete-herb staple patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
 - 2026-05-06 multi-cuisine staple representation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
+- 2026-05-06 Replit validation blocker patch re-ran `git diff --check`, `npm run check`, `npm run build`, `npm ls react`, and `npx vitest run tests/unit/phase0-security-routes.test.ts tests/unit/planning-staples.test.ts`.
 
 Not green / not authoritative:
 
