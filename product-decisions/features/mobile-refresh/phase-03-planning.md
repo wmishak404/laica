@@ -191,7 +191,7 @@ Implemented locally:
 - This is allowed after the visual freeze because it blocks basic recipe-picking usability, not because it is a Phase 3 visual facelift.
 - Ticket Pass keeps the original generated order now. The selected ticket expands in place, compact tickets stay above/below it, and no top selected-label is shown.
 - Recipe names are display-split into a main line plus smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names stay as a single title, and the underlying recipe name is unchanged for cooking-session persistence.
-- Compact alternate tickets use a fixed two-line time/difficulty metadata column so short values like `30 min` / `Easy` do not collapse into a one-line layout while longer values wrap.
+- Recipe suggestion metadata uses a consistent two-line time/difficulty stack across selected tickets, compact alternate tickets, and the Prep Tray so short values like `30 min` / `Easy` do not collapse into a one-line layout while longer values wrap.
 
 2026-05-06 Staple check / recipe-balance follow-up:
 

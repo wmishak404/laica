@@ -234,10 +234,10 @@ Replit validation should check Mediterranean with olive oil missing and confirme
 - The current Planning UI calls `/api/recipes/pantry`, but `/api/recipes/suggestions` is still present and had a lower cap than `/pantry`; both routes now share a 1000-character cap so stale callers and refresh paths do not fail on the longer staple context.
 - Replit also surfaced a one-time `Cannot read properties of null (reading 'useState')` crash after `git pull`. Local `npm ls react` shows only one React 18.3.1 copy, so this is documented as likely Vite optimized-deps cache staleness. If it appears after pulling, stop the server, run `rm -rf node_modules/.vite`, refresh deps with `npm install` or `npm ci`, and restart before continuing validation.
 
-2026-05-06 compact-ticket metadata follow-up:
+2026-05-06 recipe-suggestion metadata follow-up:
 
-- Compact alternate tickets now keep time and difficulty in a fixed right-aligned two-line column. This is a basic scanability exception under the Phase 3 visual freeze; selected large ticket and Prep Tray metadata remain unchanged.
-- Replit validation should confirm mixed `30 min` / `Easy` and `45 min` / `Medium` alternate tickets do not switch between one-line and two-line layouts or overlap recipe titles/images.
+- Recipe suggestion metadata now keeps time and difficulty in a consistent two-line stack across selected tickets, compact alternate tickets, and the Prep Tray. This is a basic scanability exception under the Phase 3 visual freeze.
+- Replit validation should confirm mixed `30 min` / `Easy` and `45 min` / `Medium` suggestions do not switch between one-line and two-line layouts or overlap recipe titles/images in any Ticket Pass or Prep Tray state.
 
 ## Verification
 
@@ -256,7 +256,7 @@ Passed:
 - 2026-05-06 multi-cuisine staple representation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
 - 2026-05-06 Replit validation blocker patch re-ran `git diff --check`, `npm run check`, `npm run build`, `npm ls react`, and `npx vitest run tests/unit/phase0-security-routes.test.ts tests/unit/planning-staples.test.ts`.
 - 2026-05-06 optional-enhancement contract patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/recipe-suggestion-normalizer.test.ts tests/unit/planning-staples.test.ts`.
-- 2026-05-06 compact-ticket metadata patch re-ran `git diff --check`, `npm run check`, and `npm run build`.
+- 2026-05-06 recipe-suggestion metadata patch re-ran `git diff --check`, `npm run check`, and `npm run build`.
 
 Not green / not authoritative:
 
