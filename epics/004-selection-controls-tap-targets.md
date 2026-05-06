@@ -180,6 +180,12 @@ Wilson's Phase 3 review clarified that `No preference` should be the default sta
 
 This reinforces the full-row selection pattern for long mobile multi-select menus: defaults should remain reachable and visually isolated even when the option list grows.
 
+### 2026-05-06 — Chef It Up staple check follows full-row selection pattern
+
+Phase 3 adds a deterministic cuisine-aware staple verification step after Cuisine when LAICA has likely missing staples to ask about. The step uses full-width selectable rows with `aria-pressed` and visible selected-state icons, matching the established mobile multi-select pattern rather than introducing tiny checkbox/radio hit targets.
+
+This adds another Phase 3 example of the full-row tap target rule applying to short, contextual multi-select follow-up questions. It does not resolve the epic because the original setup/settings closeout criteria still require final validation.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

@@ -212,6 +212,20 @@ Follow-up patch:
 
 Replit validation should explicitly tap recipe 1, 2, and 3 and confirm the order stays stable while the selected ticket expands in its original position.
 
+## 2026-05-06 Staple check / recipe-balance follow-up
+
+Wilson's Replit review found that cuisine-selected recipe suggestions were asking for too many optional ingredients, especially staples like olive oil, which made LAICA feel like it was completing a cuisine rather than cooking from the pantry.
+
+Follow-up patch:
+
+- `client/src/components/cooking/meal-planning.tsx` adds a deterministic Chef It Up `staples` step after Cuisine when selected cuisines have likely missing staples.
+- `shared/planning-staples.ts` owns the Phase 3 cuisine-aware staple shortlist and candidate filtering/deduping rules.
+- Confirmed staples auto-save through the existing profile update path in `client/src/pages/app.tsx` and are also used immediately for the recipe request. If saving fails, LAICA still uses them for the current generation and shows a toast that they were not remembered.
+- `server/openai.ts` now asks for a hidden pantry-strict / pantry-flexible / cuisine-leaning recipe range and no longer tells the model to add missing ingredients to complete a cuisine.
+- `server/recipe-suggestion-normalizer.ts` removes universal staples from `additionalIngredientsNeeded`, dedupes, and caps optional ingredients at three while preserving cuisine-specific staples.
+
+Replit validation should check Mediterranean with olive oil missing and confirmed, Korean/Japanese/Chinese not assuming olive oil, exactly-three suggestions, short Prep Tray optional lists, and pantry persistence after confirming staples. Also inspect Replit's active `recipe_suggestions` prompt: if an active DB prompt exists, it must be updated or activated with the new pantry-range/staple policy because it overrides the fallback prompt in code.
+
 ## Verification
 
 Passed:
@@ -224,6 +238,7 @@ Passed:
 - Dotenvx dev-server boot smoke: `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` returned HTTP 200 on port 3000.
 - 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 - 2026-05-06 selected-ticket label removal re-ran `git diff --check`, `npm run check`, and `npm run build`.
+- 2026-05-06 staple-check/recipe-balance patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts tests/unit/planning-staples.test.ts tests/unit/recipe-suggestion-normalizer.test.ts`.
 
 Not green / not authoritative:
 

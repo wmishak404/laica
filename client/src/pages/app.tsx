@@ -18,6 +18,7 @@ import {
   normalizePlanningTimeValue,
   type PlanningTimeValue,
 } from '@shared/planning';
+import { mergeUniqueEntries } from '@/lib/entryParsing';
 
 interface UserProfile {
   cookingSkill: string;
@@ -214,6 +215,32 @@ export default function MobileApp() {
       window.localStorage.setItem(PLANNING_TIME_STORAGE_KEY, value);
     }
   }, []);
+
+  const handlePlanningPantryIngredientsAdded = useCallback(async (ingredients: string[]) => {
+    if (ingredients.length === 0) return true;
+
+    const updatedProfile = {
+      ...userProfile,
+      pantryIngredients: mergeUniqueEntries(userProfile.pantryIngredients, ingredients),
+    };
+
+    setUserProfile(updatedProfile);
+
+    try {
+      await updateProfileMutation.mutateAsync({
+        cookingSkill: updatedProfile.cookingSkill || undefined,
+        dietaryRestrictions: updatedProfile.dietaryRestrictions,
+        pantryIngredients: updatedProfile.pantryIngredients,
+        kitchenEquipment: updatedProfile.kitchenEquipment,
+        favoriteChefs: updatedProfile.favoriteChefs,
+      });
+      return true;
+    } catch (error) {
+      console.error('Error saving planning pantry staples:', error);
+      setUserProfile(userProfile);
+      return false;
+    }
+  }, [updateProfileMutation, userProfile]);
 
   const handleBackToPlanning = () => {
     // Check if profile is complete before allowing access to planning
@@ -542,6 +569,7 @@ export default function MobileApp() {
                 onMealSelected={handleMealSelected}
                 initialTimeAvailable={lastPlanningTime}
                 onPlanningTimeChange={handlePlanningTimeChange}
+                onPantryIngredientsAdded={handlePlanningPantryIngredientsAdded}
                 onBackToProfile={() => {
                   // Back from step 1 of manual planning returns to the
                   // Slop Bowl vs Chef it up choice screen, not the profile.

@@ -18,6 +18,7 @@ import {
   normalizePlanningTimeValue,
   type PlanningTimeValue,
 } from '@shared/planning';
+import { mergeUniqueEntries } from '@/lib/entryParsing';
 
 interface UserProfile {
   cookingSkill: string;
@@ -135,6 +136,26 @@ export default function Cooking() {
     }
   }, []);
 
+  const handlePlanningPantryIngredientsAdded = useCallback(async (ingredients: string[]) => {
+    if (!userProfile || ingredients.length === 0) return true;
+
+    const updatedProfile = {
+      ...userProfile,
+      pantryIngredients: mergeUniqueEntries(userProfile.pantryIngredients, ingredients),
+    };
+
+    setUserProfile(updatedProfile);
+
+    try {
+      await updateProfileMutation.mutateAsync(updatedProfile);
+      return true;
+    } catch (error) {
+      console.error('Error saving planning pantry staples:', error);
+      setUserProfile(userProfile);
+      return false;
+    }
+  }, [updateProfileMutation, userProfile]);
+
   const resetToWelcome = () => {
     setCurrentPhase('welcome');
     setUserProfile(null);
@@ -251,6 +272,7 @@ export default function Cooking() {
               onMealSelected={handleMealSelected}
               initialTimeAvailable={lastPlanningTime}
               onPlanningTimeChange={handlePlanningTimeChange}
+              onPantryIngredientsAdded={handlePlanningPantryIngredientsAdded}
               onBackToProfile={() => setCurrentPhase('welcome')}
             />
           </div>

@@ -222,7 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const schema = z.object({
         ingredients: z.array(pantryItemSchema),
-        preferences: z.string().trim().max(500).optional(),
+        preferences: z.string().trim().max(1000).optional(),
         timeAvailable: z.string().trim().max(64).optional()
       });
       

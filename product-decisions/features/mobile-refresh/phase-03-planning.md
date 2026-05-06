@@ -192,6 +192,15 @@ Implemented locally:
 - Ticket Pass keeps the original generated order now. The selected ticket expands in place, compact tickets stay above/below it, and no top selected-label is shown.
 - Recipe names are display-split into a main line plus smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names stay as a single title, and the underlying recipe name is unchanged for cooking-session persistence.
 
+2026-05-06 Staple check / recipe-balance follow-up:
+
+- Wilson's Replit review found that cuisine-selected recipes were leaning too hard on optional ingredients, making suggestions feel like LAICA was trying to complete a cuisine rather than cook from the pantry.
+- Phase 3 now inserts a narrow Chef It Up staple-check step after Cuisine when selected cuisines have likely missing staples. Confirmed staples are saved to the user's pantry and included in the current recipe request.
+- The staple check is deterministic and cuisine-aware in Phase 3; it does not add a second AI follow-up call. Phase 3.1 may redesign this into a richer pantry-staples profile or smarter follow-up if the pattern proves useful.
+- Recipe generation now asks for a quiet three-suggestion range: pantry-strict or near pantry-strict, pantry-flexible, and cuisine-leaning, without labeling those tiers in the UI.
+- The fallback recipe prompt now treats cuisine as a flavor direction rather than permission to invent missing ingredients. Server cleanup removes universal staples from optional lists and caps optional ingredients at three while preserving cuisine-specific staples like olive oil or soy sauce when returned.
+- Replit validation must check Mediterranean with olive oil missing/confirmed, Asian cuisines not assuming olive oil, exactly three suggestions, short optional lists, and pantry persistence after confirming staples. If Replit has an active DB prompt for `recipe_suggestions`, update or activate the matching prompt there because active DB prompts override the code fallback.
+
 Local validation:
 
 - `npm ci`
@@ -203,6 +212,7 @@ Local validation:
 - 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 - 2026-05-06 Ticket Pass selection-orientation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 - 2026-05-06 selected-ticket label removal re-ran `git diff --check`, `npm run check`, and `npm run build`.
+- 2026-05-06 staple-check/recipe-balance patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts tests/unit/planning-staples.test.ts tests/unit/recipe-suggestion-normalizer.test.ts`.
 
 Known validation gap:
 

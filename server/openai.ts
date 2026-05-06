@@ -6,6 +6,7 @@ import { normalizeVisionAnalysisResult } from "./vision/analysis-result";
 import { filterDetectedEquipment } from "./vision/equipment-filter";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
+import { normalizeRecipeSuggestionsResponse } from "./recipe-suggestion-normalizer";
 import {
   DEFAULT_PLANNING_TIME_VALUE,
   getPlanningTimeMinutes,
@@ -121,51 +122,9 @@ Each recipe should include:
 
 1. Recipe must follow stated dietary restriction. For example, if the user states gluten free, review any ingredients that has any possibility of a trace of gluten. If there are ingredients that might have a slight chance it has gluten, do not recommend the recipe and suggest another one.
 2. In the case of dietary restriction, limit more on restrictions of that could cause health concerns (e.g. peanut allergies, celiac for gluten), religious or cultural reasons (e.g. no traces of pork for Halal). Do not mix this limitation with nutritional preferences (e.g. low carb).
-3. Despite the user having certain pantry ingredients in their kitchen, if it does not fit into the "Current cuisine preference" input at all, do not recommend recipes using that ingredient (e.g. kimchi is usually a staple Korean ingredient. This does not fit into Italian, French or Mexican cuisine, or how bagels and cream cheese does not fit well with Indian or Asian cuisine unless there is one ingredient or spice that fits). If you cannot come up with enough recipes that fit the "Current cuisine preference" input, recommend recipes that are fusion. If there are no fusion recipes at all, recommend more in additional IngredientsNeeded to complete the suggested recipe.
-
-### Examples from open coding that should be avoided as an output of recipe suggestions:
-
-#### Recipe Suggestiion Example 1
-- Current cuisine preference: Indian
-- pantryIngredients: "rotisserie chicken whole, thyme, button mushrooms, oyster mushrooms, morel mushrooms, beef buillon, vermouth, beef cubes, brioche, spring onions, arugula, garlic, onions, ketchup, worchestershire sauce, mayonaise, eggs, soy sauce, vinegar, frozen peas, arborio rice, shiitake mushrooms, olive oil, instant noodles, sesame oil, bok choy, bagels, toast, boursin garlic and chive cream cheese, smoked salmon, kale."
-- recipe name: "Chicken and Mushroom Risotto", "Smoked Salmon Kale Noodles"
-- additionalIngredientsNeeded: none 
-
-##### Why Example 1 is a failed output
-- These recipes in the recipe name output should not be recommended because it has nothing to do with Indian cuisine.
-- It might be challenging for some ingredients that they have in the pantry to fit into a cuisine, so its OK to add ingredients in the additionalIngredientsNeeded to complete the recipe. But if the recipe is not fitting into the cuisine preference at all, do not recommend it.
-- additionalIngredientsNeeded in this case can be "garam masala, turmeric, cumin, coriander, ginger, cinnamon, cardamom, cloves, bay leaves, curry powder, chili powderm or any other ingredients that can complete the Indian cuisine recipe.
-
-##### Workaround example for Example 1
-- pantryIngredientsUsed: "sesame oil, rotisserie chicken whole, beef buillon cubes, garlic, onions, kale, vinegar"
-- recipeName: "Rotisserie Chicken and Kale Curry"
-- additionalIngredientsNeeded: "garam masala, tomato paste, tomato, ginger"
-
-#### Recipe Suggestion Example 2
-- Current cuisine preference: Chinese
-- pantryIngredients: "bacon, basil, butter, chickpeas, cream, cumin, garlic, lettuce, mushrooms, olive oil, onion, onion powder, paprika, parmesan, polenta, salmon fillet, smoked paprika"
-- recipe name: "Mushroom Polenta with Garlic Butter"
-- additionalIngredientsNeeded: none 
-
-##### Why Example 2 is a failed output
-- "Mushroom Polenta with Garlic Butter" has no ties to Chinese cuisine, and no additional ingredients are recommended to make it chinese.
-- The recommended action if you run into this case is to either add additionalIngredientsNeeded to complete the recipe, or recommend a fusion recipe. Even when there is only 2 or 3 ingredients that have that can be used to meet the cuisine preference, recommend it.
-
-#### Recipe Suggestion Example 3
-- Current cuisine preference: Chinese
-- pantryIngredients: "bacon, basil, butter, chickpeas, cream, cumin, garlic, lettuce, mushrooms, olive oil, onion, onion powder, paprika, parmesan, polenta, salmon fillet, smoked paprika"
-- recipename: "Bacon and Basil Polenta with Creamy Parmesan"
-- additionalIngredientsNeeded: none 
-
-##### Why Example 3 is a failed output
-- Same input at example 2 but showing you different failure examples of the smae input. 
-- Again, despite really limited ingredients, "Bacon and Basil Polenta with Creamy Parmesan" is a completely different cuisine than Chinese. Especially parmesan which doesn't fit to target cuisine. This fits more to French, Italian or more European cuisines. This is still a failed output.
-- The recommended action if you run into this case is to either add additionalIngredientsNeeded to complete the recipe, or recommend more fusion recipes
-
-##### Workaround example for Example 3
-- pantryIngredientsUsed: "salmon fillet, garlic, mushrooms, onion powder, onions"
-- recipeName: "Salmon and Mushroom Stir Fry"
-- additionalIngredientsNeeded: "soy sauce, mirin, sake"
+3. Treat cuisine preference as a flavor direction, not permission to invent a shopping list. If pantry ingredients cannot support a strict cuisine recipe, prefer a pantry-first or clearly fusion recipe over adding several missing cuisine staples.
+4. Return a quiet range across the three suggestions without labeling the tiers: one pantry-strict or near pantry-strict idea, one pantry-flexible idea, and one cuisine-leaning idea. The cuisine-leaning idea may include a short optional list, but the dish must still work without shopping.
+5. If the user confirms specific staples, you may treat those as pantry ingredients. If the user was asked about staples and did not confirm them, do not assume they are available.
 
 ## Guidelines for "instructions"
 
@@ -183,7 +142,9 @@ Each recipe should include:
 
 1. Keep this minimal and only include ingredients that bring a useful enhancement to the dish but are not required.
 2. Do not recommend the recipe as a whole at all if these ingredients are absolutely essential to the dish and recommend another. (For example, do not recommend Chicken Parmiggiana if chicken or tomatoes are not part of the pantry). If the ingredient is a good addition but not necessary, keep recommending this recipe.
-3. Exclude pantry essentials like salt and black pepper if its not captured from the user's input.`;
+3. Exclude pantry essentials like salt, black pepper, water, and generic neutral cooking oil if they are not captured from the user's input.
+4. Do not globally assume cuisine-specific staples such as olive oil, soy sauce, sesame oil, fish sauce, garam masala, parmesan, or canned tomatoes. These can appear only as optional enhancements unless the pantry or confirmed-staple context includes them.
+5. Keep additionalIngredientsNeeded to 0-3 items per recipe.`;
 
 const DEFAULT_SLOP_BOWL_PROMPT = `You are LAICA's Slop Bowl recipe generator. Create exactly one bowl-style meal from the user's pantry and profile.
 
@@ -346,7 +307,7 @@ export async function getRecipeSuggestions(preferences: string, ingredients?: st
       response_format: { type: "json_object" }
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = normalizeRecipeSuggestionsResponse(JSON.parse(response.choices[0].message.content || "{}"));
     logInteraction('recipe_suggestions', inputData, JSON.stringify(result));
     return result;
   } catch (error) {
