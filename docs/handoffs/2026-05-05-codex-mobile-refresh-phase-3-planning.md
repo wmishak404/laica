@@ -206,7 +206,7 @@ Wilson's Replit screenshot review found a basic usability blocker in Ticket Pass
 Follow-up patch:
 
 - `client/src/components/cooking/meal-planning.tsx` now renders the three recipe suggestions in generated order and expands the selected ticket in place.
-- The selected expanded ticket says `Your pick` instead of moving `Chef pick` to whichever ticket the user last tapped.
+- The selected expanded ticket does not show a top selected-label; selection is communicated by stable in-place expansion.
 - Recipe names are display-split into a main title and smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names remain a single title, and the underlying `recipeName` remains unchanged.
 - `product-decisions/features/mobile-refresh/phase-03-planning.md` and `phase-03-1-recipe-imagery.md` record this as a Phase 3 basic-usability exception to the visual freeze.
 
@@ -223,6 +223,7 @@ Passed:
 - `git diff --check`
 - Dotenvx dev-server boot smoke: `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` returned HTTP 200 on port 3000.
 - 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
+- 2026-05-06 selected-ticket label removal re-ran `git diff --check`, `npm run check`, and `npm run build`.
 
 Not green / not authoritative:
 

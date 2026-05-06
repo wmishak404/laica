@@ -189,7 +189,7 @@ Implemented locally:
 
 - Wilson's Replit screenshot review found that selecting the second or third ticket was disorienting because the selected recipe jumped into the featured position and the original first recipe moved into the compact stack.
 - This is allowed after the visual freeze because it blocks basic recipe-picking usability, not because it is a Phase 3 visual facelift.
-- Ticket Pass keeps the original generated order now. The selected ticket expands in place, compact tickets stay above/below it, and the selected-state badge describes `Your pick` instead of moving `Chef pick` around the list.
+- Ticket Pass keeps the original generated order now. The selected ticket expands in place, compact tickets stay above/below it, and no top selected-label is shown.
 - Recipe names are display-split into a main line plus smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names stay as a single title, and the underlying recipe name is unchanged for cooking-session persistence.
 
 Local validation:
@@ -202,6 +202,7 @@ Local validation:
 - Dotenvx dev-server boot smoke returned HTTP 200 on port 3000.
 - 2026-05-06 visual-freeze closeout docs patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
 - 2026-05-06 Ticket Pass selection-orientation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-time.test.ts tests/unit/slop-bowl-route.test.ts`.
+- 2026-05-06 selected-ticket label removal re-ran `git diff --check`, `npm run check`, and `npm run build`.
 
 Known validation gap:
 

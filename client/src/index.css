@@ -1379,15 +1379,6 @@ html, body {
     pointer-events: none;
   }
 
-  .planning-ticket-rank {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: hsl(var(--planning-coral));
-    font-size: 0.82rem;
-    font-weight: 900;
-  }
-
   .planning-ticket-title {
     display: grid;
     gap: 0.18rem;

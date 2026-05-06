@@ -553,12 +553,6 @@ export default function MealPlanning({
         onClick={() => setSelectedMeal(recipe)}
       >
         <span className="planning-ticket-rip" aria-hidden="true" />
-        {isLarge && (
-          <span className="planning-ticket-rank">
-            <ChefHat className="h-4 w-4" />
-            Your pick
-          </span>
-        )}
         {renderRecipeTicketTitle(recipe.recipeName)}
         {renderRecipeImageSlot(recipe)}
         <span className="planning-ticket-meta">
