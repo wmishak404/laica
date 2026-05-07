@@ -1,6 +1,6 @@
 # EPIC-018 — Authenticated AI error handling and pantry recipe 400s
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-06
 **Updated:** 2026-05-07
@@ -59,9 +59,13 @@ Out of scope:
 
 ## Open questions
 
-1. Is the reported 500-character cap still present after Replit pulls the latest Phase 3 head and restarts, or was it a stale build/server instance?
-2. If the 500-character cap persists, which layer owns it: route schema, prompt-manager/admin prompt schema, sanitizer, proxy/body parser, or a separate old endpoint?
-3. Should future UI work expose `Retry-After` as coarse timing beyond "a few minutes," or keep it internal for retry logic only?
+None for EPIC-018. Follow-up operational telemetry work is tracked separately in [EPIC-019](019-ai-error-telemetry-and-eval-monitoring.md), and live-cooking inline recovery remains in Mobile Refresh Phase 4.
+
+Historical answers from resolution:
+
+1. Replit validation confirmed the 1000-character preference cap path at `860bd68`; Wilson reviewed the post-validation cleanup diff and carried the pass forward to `14ac1c4`.
+2. No separate validator needed an EPIC-018 code change after the fresh branch/rebase validation.
+3. `Retry-After` remains on `ApiRequestError` for classification/timing, but 429 user copy intentionally says "a few minutes" rather than exact seconds.
 
 ## Agent checklist
 
@@ -96,3 +100,16 @@ Filed after Wilson reported the misleading demo-limit toast and repeated pantry 
 ## 2026-05-07 — Live Cooking Error UX Deferred to Phase 4
 
 Wilson decided that live-cooking-specific error presentation should not be solved through EPIC-018 toasts. EPIC-018 remains responsible for typed authenticated AI error classification, non-demo copy, and no redirect behavior across AI calls, including live-cooking callsites. Mobile Refresh Phase 4 now owns inline cooking-step retry/recovery, Coach Feed failure placement, and inline Feedback access for persistent mid-cook issues.
+
+## 2026-05-07 — Resolved by PR #43
+
+PR #43 merged EPIC-018 into `main` as squash commit `1110b0088211be593d234ea26392b47384d43470`.
+
+Resolution evidence:
+
+- Shared `ApiRequestError` and authenticated AI error helpers replaced demo-era handling.
+- AI/rate-limit failures no longer show "Demo Limit Reached" copy or redirect authenticated users to `/`.
+- 400, 401/403, 404, 413, 422, 429, 5xx, network/offline, and unknown AI-adjacent errors now have classified plain-English behavior and focused tests where applicable.
+- Server route/rate-limit payloads return typed codes where needed for client classification, while Slop Bowl keeps the `SLOP_BOWL_TOO_FEW_INGREDIENTS` precondition contract.
+- Replit validation passed at `860bd68`; Wilson reviewed the only post-validation code diff and confirmed the pass carries to current head `14ac1c4`.
+- EPIC-019 preserves the separate redacted error/eval telemetry track, and Phase 4 preserves live-cooking-specific inline retry/recovery work.
