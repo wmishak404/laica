@@ -8,11 +8,11 @@ import { Clock, ArrowLeft, ChefHat, Settings, X } from 'lucide-react';
 import {
   fetchSlopBowlRecipe,
   SLOP_BOWL_TOO_FEW_INGREDIENTS,
-  SlopBowlApiError,
   type SlopBowlRecipe,
 } from '@/lib/openai';
+import { ApiRequestError } from '@/lib/queryClient';
 import { normalizeEntryKey, parseCommaSeparatedEntries } from '@/lib/entryParsing';
-import { handleAPIError } from '@/lib/rateLimitHandler';
+import { handleAiRequestError } from '@/lib/rateLimitHandler';
 import { getPlanningTimeLabel, type PlanningTimeValue } from '@shared/planning';
 
 interface UserProfile {
@@ -177,12 +177,12 @@ export default function SlopBowl({
       setPantryMessage(null);
       setState('approval');
     } catch (error) {
-      if (error instanceof SlopBowlApiError && error.code === SLOP_BOWL_TOO_FEW_INGREDIENTS) {
+      if (error instanceof ApiRequestError && error.body?.code === SLOP_BOWL_TOO_FEW_INGREDIENTS) {
         setPantryMessage(
-          error.message || 'Add at least 3 ingredients so Laica has enough to build a real bowl.'
+          error.body.message || 'Add at least 3 ingredients so Laica has enough to build a real bowl.'
         );
       } else {
-        handleAPIError(error as Error, 'slop-bowl');
+        handleAiRequestError(error, 'slop-bowl');
       }
       setState('pantry-check');
     } finally {

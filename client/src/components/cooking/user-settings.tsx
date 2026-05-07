@@ -83,7 +83,7 @@ function HistoryTab() {
             next.delete(sessionId);
             return next;
           });
-          toast({ title: "Failed to delete", variant: "destructive" });
+          toast({ title: "Recipe was not deleted", description: "I couldn't delete that recipe. Try again.", variant: "destructive" });
         },
       });
     }, 5000);
@@ -139,7 +139,7 @@ function HistoryTab() {
             allIds.forEach(id => next.delete(id));
             return next;
           });
-          toast({ title: "Failed to delete history", variant: "destructive" });
+          toast({ title: "History was not deleted", description: "I couldn't delete your history. Try again.", variant: "destructive" });
         },
       });
     }, 5000);
@@ -432,8 +432,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         });
       } catch (error) {
         toast({
-          title: "Error",
-          description: "Failed to reset pantry. Please try again.",
+          title: "Pantry did not reset",
+          description: "I couldn't reset your pantry. Try again.",
           variant: "destructive",
         });
       }
@@ -456,8 +456,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         });
       } catch (error) {
         toast({
-          title: "Error",
-          description: "Failed to reset equipment. Please try again.",
+          title: "Equipment did not reset",
+          description: "I couldn't reset your equipment. Try again.",
           variant: "destructive",
         });
       }
@@ -476,8 +476,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save pantry. Please try again.",
+        title: "Pantry did not save",
+        description: "I couldn't save your pantry. Try again.",
         variant: "destructive"
       });
     }
@@ -495,8 +495,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save equipment. Please try again.",
+        title: "Equipment did not save",
+        description: "I couldn't save your equipment. Try again.",
         variant: "destructive"
       });
     }
@@ -515,8 +515,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save profile. Please try again.",
+        title: "Profile did not save",
+        description: "I couldn't save your profile. Try again.",
         variant: "destructive"
       });
     }
@@ -647,7 +647,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       console.error('Error analyzing pantry image:', error);
       toast({
         title: "Analysis failed",
-        description: "Unable to analyze image. Please check your connection and try again.",
+        description: "I couldn't analyze that photo. Check your connection and try again.",
         variant: "destructive"
       });
     } finally {
@@ -699,7 +699,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       console.error('Error analyzing kitchen image:', error);
       toast({
         title: "Analysis failed",
-        description: "Unable to analyze image. Please check your connection and try again.",
+        description: "I couldn't analyze that photo. Check your connection and try again.",
         variant: "destructive"
       });
     } finally {
@@ -881,7 +881,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       console.error('Error processing multiple images:', error);
       toast({
         title: "Processing error",
-        description: "Some images could not be processed. Please try again or use individual uploads.",
+        description: "I couldn't process every photo. Try again or upload one at a time.",
         variant: "destructive"
       });
     } finally {

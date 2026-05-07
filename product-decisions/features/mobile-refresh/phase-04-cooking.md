@@ -26,6 +26,14 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 - Time appears only when it meaningfully helps.
 - Safety and common-mistake notes should be brief and contextual.
 
+### Live-cooking error posture
+
+- Active cooking errors render inline inside the cooking surface, not as transient toasts.
+- If cooking-step generation fails, show a calm inline recovery state with retry and a practical fallback path.
+- If cooking assistance fails mid-step, keep the current step visible and show the failure in the Coach Feed area.
+- Feedback appears as an inline action in the cooking display when the issue persists, not as a toaster CTA.
+- Error copy follows EPIC-018 principles: first person, plain English, no user blame, and `Laica` casing.
+
 ### Timer behavior
 
 - Timers never auto-start.
@@ -65,11 +73,17 @@ suggestedTimer?: {
 - Finish creates or updates cooking history but does not change pantry inventory.
 - Completion sends no hidden `5` rating when the user has not rated.
 - Cooking assistance route is authenticated, rate-limited, and prompt-injection guarded.
+- Cooking-step generation failure has an inline retry/recovery state.
+- Cooking-assistance failure appears in Coach Feed or the relevant inline guidance area, not only in a toast.
+- Persistent live-cooking failures offer inline Feedback access.
+- No live-cooking failure hides the pinned current step or leaves the cook without a next action.
+- Live-cooking errors follow EPIC-018 status classification and copy principles.
 
 ## Epic Interactions
 
 - PD-005 / `design_guidelines.md`: Establishes the Warm Focus cooking surface and avoids generic AI-chat styling.
 - EPIC-005: Requires Replit smoke for cooking-session persistence and speech routes.
+- EPIC-018: Provides shared authenticated AI error classification and non-demo copy; Phase 4 owns live-cooking presentation, retry, and Feedback placement.
 
 ## Backend Notes
 

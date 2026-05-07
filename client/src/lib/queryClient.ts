@@ -1,9 +1,74 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+export interface ApiErrorBody {
+  code?: string;
+  message?: string;
+  error?: string;
+  [key: string]: unknown;
+}
+
+export class ApiRequestError extends Error {
+  status: number;
+  code?: string;
+  body?: ApiErrorBody;
+  responseText: string;
+  retryAfter?: number;
+
+  constructor(options: {
+    status: number;
+    statusText: string;
+    body?: ApiErrorBody;
+    responseText: string;
+    retryAfter?: number;
+  }) {
+    const bodyMessage = options.body?.message || options.body?.error || options.responseText || options.statusText;
+    super(`${options.status}: ${bodyMessage}`);
+    this.name = "ApiRequestError";
+    this.status = options.status;
+    this.code = options.body?.code;
+    this.body = options.body;
+    this.responseText = options.responseText;
+    this.retryAfter = options.retryAfter;
+  }
+}
+
+function parseRetryAfter(value: string | null): number | undefined {
+  if (!value) return undefined;
+
+  const seconds = Number.parseInt(value, 10);
+  if (Number.isFinite(seconds) && seconds > 0) {
+    return seconds;
+  }
+
+  const retryAt = Date.parse(value);
+  if (!Number.isNaN(retryAt)) {
+    return Math.max(1, Math.ceil((retryAt - Date.now()) / 1000));
+  }
+
+  return undefined;
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let body: ApiErrorBody | undefined;
+
+    try {
+      const parsed = JSON.parse(text) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        body = parsed as ApiErrorBody;
+      }
+    } catch {
+      body = undefined;
+    }
+
+    throw new ApiRequestError({
+      status: res.status,
+      statusText: res.statusText,
+      body,
+      responseText: text,
+      retryAfter: parseRetryAfter(res.headers.get("Retry-After")),
+    });
   }
 }
 

@@ -1,4 +1,4 @@
-import express, { type Express, type RequestHandler } from "express";
+import express, { type Express, type RequestHandler, type Response } from "express";
 import { createServer, type Server } from "http";
 import { registerAdminRoutes } from "./admin-routes";
 import { storage } from "./storage";
@@ -65,6 +65,28 @@ const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const RECIPE_PREFERENCES_MAX_LENGTH = 1000;
 const pantryItemSchema = z.string().trim().min(1).max(64);
 const shortTextSchema = z.string().trim().min(1).max(280);
+
+function zodRequestCode(error: z.ZodError): string {
+  const hasPreferenceLengthIssue = error.issues.some((issue) =>
+    issue.path.includes("preferences") && issue.code === "too_big"
+  );
+
+  return hasPreferenceLengthIssue ? "PREFERENCES_TOO_LONG" : "INVALID_REQUEST";
+}
+
+function invalidRequestResponse(res: Response, error: z.ZodError, message: string) {
+  return res.status(400).json({
+    code: zodRequestCode(error),
+    message,
+  });
+}
+
+function aiServiceErrorResponse(res: Response, message: string) {
+  return res.status(500).json({
+    code: "AI_SERVICE_ERROR",
+    message,
+  });
+}
 
 function parseSessionId(value: string): number | null {
   const parsed = Number.parseInt(value, 10);
@@ -212,9 +234,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error in recipe suggestions:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid recipe suggestions request' });
+        return invalidRequestResponse(res, error, 'Invalid recipe suggestions request');
       }
-      res.status(500).json({ error: 'Failed to get recipe suggestions' });
+      aiServiceErrorResponse(res, 'Failed to get recipe suggestions');
     }
   });
   
@@ -238,9 +260,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error in pantry recipe suggestions:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid pantry recipe request' });
+        return invalidRequestResponse(res, error, 'Invalid pantry recipe request');
       }
-      res.status(500).json({ error: 'Failed to get pantry-based recipe suggestions' });
+      aiServiceErrorResponse(res, 'Failed to get pantry-based recipe suggestions');
     }
   });
 
@@ -274,7 +296,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (!user.cookingSkill) {
-        return res.status(400).json({ message: "Complete your cooking skill profile before generating a Slop Bowl" });
+        return res.status(400).json({
+          code: "PROFILE_INCOMPLETE",
+          message: "Complete your cooking skill profile before generating a Slop Bowl",
+        });
       }
 
       const sessions = await getRecentCookingSessionsOrEmpty(userId, 10, "slop-bowl");
@@ -299,10 +324,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ recipe });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid Slop Bowl request" });
+        return invalidRequestResponse(res, error, "Invalid Slop Bowl request");
       }
       console.error("Error generating Slop Bowl recipe:", error);
-      res.status(500).json({ error: "Failed to generate Slop Bowl recipe" });
+      aiServiceErrorResponse(res, "Failed to generate Slop Bowl recipe");
     }
   });
 
@@ -322,9 +347,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error in cooking steps:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid cooking steps request' });
+        return invalidRequestResponse(res, error, 'Invalid cooking steps request');
       }
-      res.status(500).json({ error: 'Failed to get cooking steps' });
+      aiServiceErrorResponse(res, 'Failed to get cooking steps');
     }
   });
 
@@ -360,9 +385,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error in ingredient alternatives:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid ingredient alternatives request' });
+        return invalidRequestResponse(res, error, 'Invalid ingredient alternatives request');
       }
-      res.status(500).json({ error: 'Failed to get ingredient alternatives' });
+      aiServiceErrorResponse(res, 'Failed to get ingredient alternatives');
     }
   });
 
@@ -380,9 +405,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error in cooking assistance:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: 'Invalid cooking assistance request' });
+        return invalidRequestResponse(res, error, 'Invalid cooking assistance request');
       }
-      res.status(500).json({ error: 'Failed to get cooking assistance' });
+      aiServiceErrorResponse(res, 'Failed to get cooking assistance');
     }
   });
 

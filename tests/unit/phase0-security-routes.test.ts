@@ -129,6 +129,107 @@ describe("Phase 0 protected routes", () => {
     }
   });
 
+  it("accepts longer pantry recipe preferences after staple context is added", async () => {
+    mocks.getRecipeSuggestions.mockResolvedValueOnce({ recipes: [] });
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/pantry`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({
+          preferences: "x".repeat(750),
+          ingredients: ["rice", "eggs"],
+        }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"]);
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("returns a typed 400 when recipe suggestion preferences exceed the route contract", async () => {
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/suggestions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({
+          preferences: "x".repeat(1001),
+          ingredients: ["rice", "eggs"],
+        }),
+      });
+
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toEqual({
+        code: "PREFERENCES_TOO_LONG",
+        message: "Invalid recipe suggestions request",
+      });
+      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("returns a typed 400 when pantry recipe preferences exceed the route contract", async () => {
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/pantry`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({
+          preferences: "x".repeat(1001),
+          ingredients: ["rice", "eggs"],
+        }),
+      });
+
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toEqual({
+        code: "PREFERENCES_TOO_LONG",
+        message: "Invalid pantry recipe request",
+      });
+      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("returns a typed 400 for invalid cooking step requests", async () => {
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/cooking/steps`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({ recipeName: "" }),
+      });
+
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toEqual({
+        code: "INVALID_REQUEST",
+        message: "Invalid cooking steps request",
+      });
+    } finally {
+      await closeServer(server);
+    }
+  });
+
   it("rejects cross-user cooking-session mutation", async () => {
     mocks.storage.getCookingSession.mockResolvedValueOnce({
       id: 42,

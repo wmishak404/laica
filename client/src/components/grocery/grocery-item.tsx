@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { fetchIngredientAlternatives } from '@/lib/openai';
-import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
+import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { MoreHorizontal, Check, X } from 'lucide-react';
 import {
   Popover,
@@ -27,7 +27,7 @@ export default function GroceryItem({ id, name, price, category, onCheck, checke
   const handleGetAlternatives = async (reason: string) => {
     setIsLoadingAlternatives(true);
     
-    const response = await withDemoErrorHandling(async () => {
+    const response = await withAiErrorHandling(async () => {
       return await fetchIngredientAlternatives(name, reason);
     }, 'ingredient alternatives');
     

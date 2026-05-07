@@ -67,10 +67,10 @@ export default function CookingAssistant({ currentStep, isStepChanging = false }
       } catch (error) {
         console.error('Error getting assistant response:', error);
         setMessages(prev => [
-          ...prev, 
-          { 
-            role: 'assistant', 
-            content: "I'm sorry, I'm having trouble answering that question right now. Please try again later." 
+          ...prev,
+          {
+            role: 'assistant',
+            content: "I couldn't answer that right now. Try again later.",
           }
         ]);
       } finally {

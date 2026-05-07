@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
 import { apiFetch } from '@/lib/queryClient';
-import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
+import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 import { AudioProcessor } from '@/lib/audioUtils';
 import { UsageTracker } from '@/lib/usageTracker';
@@ -235,7 +235,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     const loadRecipeSteps = async () => {
       setIsLoadingSteps(true);
       
-      const stepsResult = await withDemoErrorHandling(async () => {
+      const stepsResult = await withAiErrorHandling(async () => {
         const response = await fetchCookingSteps(selectedMeal.recipeName, {
           ingredients: selectedMeal.ingredients,
           equipment: selectedMeal.equipment,
@@ -270,7 +270,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           forSteps: ing.forSteps,
         })) || [];
         return { steps: parsedSteps, ingredients: parsedIngredients };
-      }, 'cooking steps');
+      }, { context: 'cooking steps', feedbackLink: false });
       
       const steps = stepsResult?.steps;
       if (stepsResult?.ingredients) {
@@ -1087,9 +1087,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       
       Please provide a helpful, contextual answer that relates specifically to this step and mentions how this connects to future steps when relevant. Keep the response conversational and encouraging.`;
       
-      const response = await withDemoErrorHandling(async () => {
+      const response = await withAiErrorHandling(async () => {
         return await fetchCookingAssistance(contextualPrompt, transcription);
-      }, 'cooking assistance');
+      }, { context: 'cooking assistance', feedbackLink: false });
       
       if (response) {
         setLastSpokenResponse(''); // Clear to allow new response

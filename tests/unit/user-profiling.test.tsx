@@ -167,7 +167,7 @@ describe('UserProfiling setup flow', () => {
   });
 
   it('shows scan-limit feedback without adding partial batch results', async () => {
-    vi.mocked(analyzeImage).mockRejectedValue(new Error('429: {"message":"Too many requests. Please try again later."}'));
+    vi.mocked(analyzeImage).mockRejectedValue(new Error('429: {"message":"Too many requests. Try again later."}'));
     const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));

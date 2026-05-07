@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Search, ChevronDown } from 'lucide-react';
 import { fetchRecipeSuggestions } from '@/lib/openai';
 import { useToast } from '@/hooks/use-toast';
+import { handleAiRequestError } from '@/lib/rateLimitHandler';
 
 // Sample recipes for initial render
 const sampleRecipes = [
@@ -117,11 +118,7 @@ export default function Recipes() {
       }
     } catch (error) {
       console.error('Error generating recipe suggestions:', error);
-      toast({
-        title: "Failed to generate suggestions",
-        description: "Please try again later",
-        variant: "destructive"
-      });
+      handleAiRequestError(error, 'recipe suggestions');
       // Set some fallback suggestions
       setRecipeSuggestions([
         {

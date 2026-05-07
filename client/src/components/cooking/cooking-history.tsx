@@ -82,7 +82,7 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
             next.delete(sessionId);
             return next;
           });
-          toast({ title: "Failed to delete", variant: "destructive" });
+          toast({ title: "Recipe was not deleted", description: "I couldn't delete that recipe. Try again.", variant: "destructive" });
         },
       });
     }, 5000);
@@ -138,7 +138,7 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
             allIds.forEach(id => next.delete(id));
             return next;
           });
-          toast({ title: "Failed to delete history", variant: "destructive" });
+          toast({ title: "History was not deleted", description: "I couldn't delete your history. Try again.", variant: "destructive" });
         },
       });
     }, 5000);

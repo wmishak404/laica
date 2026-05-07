@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { fetchPantryRecipes } from '@/lib/openai';
-import { withDemoErrorHandling } from '@/lib/rateLimitHandler';
+import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
 import {
   PLANNING_TIME_OPTIONS,
@@ -364,20 +364,20 @@ export default function MealPlanning({
         if (!saved) {
           toast({
             title: "We'll use those for now",
-            description: "Laica couldn't save those pantry staples yet. You can add them later in Settings.",
+            description: "I couldn't save those pantry staples yet. You can add them later in Settings.",
           });
         }
       } catch {
         toast({
           title: "We'll use those for now",
-          description: "Laica couldn't save those pantry staples yet. You can add them later in Settings.",
+          description: "I couldn't save those pantry staples yet. You can add them later in Settings.",
         });
       }
     }
 
     const unconfirmedStaples = askedStaples.filter((staple) => !cleanConfirmedStaples.includes(staple));
 
-    const result = await withDemoErrorHandling(async () => {
+    const result = await withAiErrorHandling(async () => {
       const preferenceParts = [
         `Time available: ${getPlanningTimePrompt(mealPrefs.timeAvailable)}`,
         `Cooking skill: ${userProfile.cookingSkill}`,

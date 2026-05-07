@@ -90,7 +90,7 @@ export function useFirebaseAuth() {
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       
-      let errorMessage = "Failed to sign in with Google. Please try again.";
+      let errorMessage = "I couldn't sign you in with Google. Try again.";
 
       // Internal Firebase messages that should never be shown to users
       const internalFirebaseMessages = [
@@ -105,17 +105,17 @@ export function useFirebaseAuth() {
 
       // Check for common Firebase auth errors
       if (error.code === 'auth/operation-not-allowed') {
-        errorMessage = "Google sign-in is not enabled in Firebase. Please enable Google authentication in Firebase Console.";
+        errorMessage = "Google sign-in is not available in this environment yet.";
       } else if (error.code === 'auth/unauthorized-domain') {
-        errorMessage = "Domain not authorized. Please add your current domain to Firebase's authorized domains list.";
+        errorMessage = "Google sign-in is not available from this address yet.";
       } else if (error.code === 'auth/popup-blocked') {
-        errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+        errorMessage = "The sign-in popup was blocked. Allow popups for this site, then try again.";
       } else if (error.message && !isInternalError) {
         errorMessage = error.message;
       }
       
       toast({
-        title: "Sign-in Failed",
+        title: "Sign-in did not work",
         description: errorMessage,
         variant: "destructive",
       });
@@ -135,8 +135,8 @@ export function useFirebaseAuth() {
     } catch (error: any) {
       console.error('Sign out error:', error);
       toast({
-        title: "Sign-out Error",
-        description: "There was a problem signing you out.",
+        title: "Sign-out did not work",
+        description: "I couldn't sign you out. Try again.",
         variant: "destructive",
       });
     }

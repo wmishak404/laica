@@ -1,4 +1,4 @@
-import { apiFetch, apiRequest } from './queryClient';
+import { apiRequest } from './queryClient';
 import type { VisionAnalysisResult } from './visionResult';
 import type { PlanningTimeValue } from '@shared/planning';
 
@@ -99,53 +99,13 @@ export interface SlopBowlRecipe {
 
 export const SLOP_BOWL_TOO_FEW_INGREDIENTS = 'SLOP_BOWL_TOO_FEW_INGREDIENTS';
 
-interface SlopBowlErrorBody {
-  code?: string;
-  message?: string;
-  error?: string;
-}
-
-export class SlopBowlApiError extends Error {
-  status: number;
-  code?: string;
-  body?: SlopBowlErrorBody;
-
-  constructor(status: number, body?: SlopBowlErrorBody, fallbackMessage = 'Failed to generate Slop Bowl recipe') {
-    super(body?.message || body?.error || fallbackMessage);
-    this.name = 'SlopBowlApiError';
-    this.status = status;
-    this.code = body?.code;
-    this.body = body;
-  }
-}
-
 export async function fetchSlopBowlRecipe(options?: {
   pantryOverride?: string[];
   planningTimeAvailable?: PlanningTimeValue;
   feedback?: string;
   previousRecipe?: string;
 }): Promise<{ recipe: SlopBowlRecipe }> {
-  const response = await apiFetch('/api/recipes/slop-bowl', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(options || {}),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorBody: SlopBowlErrorBody | undefined;
-
-    try {
-      errorBody = JSON.parse(errorText) as SlopBowlErrorBody;
-    } catch {
-      errorBody = { message: errorText };
-    }
-
-    throw new SlopBowlApiError(response.status, errorBody);
-  }
-
+  const response = await apiRequest('POST', '/api/recipes/slop-bowl', options || {});
   return await response.json();
 }
 

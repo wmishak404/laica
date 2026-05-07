@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { Request } from 'express';
 import {
+  createRateLimit,
   getVisionIpRateLimitKey,
   getVisionUserRateLimitKey,
 } from '../../server/rate-limit';
@@ -30,5 +31,32 @@ describe('vision rate-limit keys', () => {
   it('separates IP keys with the same scan context', () => {
     expect(getVisionIpRateLimitKey(makeRequest('pantry'))).toBe('127.0.0.1:pantry');
     expect(getVisionIpRateLimitKey(makeRequest('kitchen'))).toBe('127.0.0.1:kitchen');
+  });
+
+  it('returns a typed RATE_LIMITED payload with Retry-After when a bucket is exhausted', () => {
+    const limit = createRateLimit({
+      name: 'test:typed-payload',
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'user-1',
+    });
+    const next = vi.fn();
+    const json = vi.fn();
+    const status = vi.fn(() => ({ json }));
+    const res = {
+      setHeader: vi.fn(),
+      status,
+    };
+
+    limit(makeRequest(), res as any, next);
+    limit(makeRequest(), res as any, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.setHeader).toHaveBeenCalledWith('Retry-After', expect.any(String));
+    expect(status).toHaveBeenCalledWith(429);
+    expect(json).toHaveBeenCalledWith({
+      code: 'RATE_LIMITED',
+      message: 'Too many requests. Try again later.',
+    });
   });
 });

@@ -73,7 +73,10 @@ export function createRateLimit({ name, windowMs, max, keyGenerator }: RateLimit
     if (bucket.count > max) {
       const retryAfterSeconds = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
       res.setHeader("Retry-After", String(retryAfterSeconds));
-      return res.status(429).json({ message: "Too many requests. Please try again later." });
+      return res.status(429).json({
+        code: "RATE_LIMITED",
+        message: "Too many requests. Try again later.",
+      });
     }
 
     next();

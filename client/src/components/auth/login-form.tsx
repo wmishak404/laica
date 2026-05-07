@@ -48,7 +48,7 @@ export default function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormPr
         setError(data.message || "Login failed");
       }
     } catch (error) {
-      setError("Network error. Please try again.");
+      setError("I couldn't reach the service. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }

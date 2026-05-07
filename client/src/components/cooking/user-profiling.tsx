@@ -126,7 +126,7 @@ function compressImage(file: File): Promise<string> {
 }
 
 function isAbortError(error: unknown) {
-  if (error instanceof DOMException && error.name === 'AbortError') {
+  if (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') {
     return true;
   }
 
@@ -141,7 +141,7 @@ function getScanErrorFeedback(error: unknown, type: ScanType, mode: 'single' | '
   if (/429|too many requests|rate limit|quota/i.test(message)) {
     return {
       title: 'Scan limit reached',
-      description: 'You made several scans quickly. Wait a minute, then try again, or enter items manually.',
+      description: 'I need to pause scans for a moment. Wait a minute, then try again, or enter items manually.',
     };
   }
 
@@ -155,20 +155,20 @@ function getScanErrorFeedback(error: unknown, type: ScanType, mode: 'single' | '
   if (/401|403|unauthorized|forbidden/i.test(message)) {
     return {
       title: 'Sign-in needed',
-      description: 'Refresh your sign-in, then try the scan again.',
+      description: 'I need you to sign in again before I can scan.',
     };
   }
 
   if (/400|invalid image|failed to load image|failed to read image|compression is unavailable/i.test(message)) {
     return {
       title: 'Photo could not be read',
-      description: 'Try a JPEG, PNG, WebP, GIF, or HEIC photo, or enter items manually.',
+      description: "I couldn't read that photo. Try a JPEG, PNG, WebP, GIF, or HEIC photo, or enter items manually.",
     };
   }
 
   return {
     title: mode === 'batch' ? `${scanLabel} photos were not scanned` : `${scanLabel} photo was not scanned`,
-    description: 'Nothing new was added from that attempt. Try again in a moment, upload a clearer photo, or enter items manually.',
+    description: "I couldn't finish that scan. Try again in a moment, upload a clearer photo, or enter items manually.",
   };
 }
 
