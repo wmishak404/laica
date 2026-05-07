@@ -186,6 +186,12 @@ Phase 3 adds a deterministic cuisine-aware staple verification step after Cuisin
 
 This adds another Phase 3 example of the full-row tap target rule applying to short, contextual multi-select follow-up questions. It does not resolve the epic because the original setup/settings closeout criteria still require final validation.
 
+### 2026-05-07 — Phase 3 selection rows lock during generation
+
+Wilson's Phase 3 validation found that the Chef It Up staple rows could visually reshuffle and remain tappable after `View recipe suggestions` started loading. The generation lock/cancel follow-up keeps cuisine and staple rows as full-row multi-select controls, but disables them during the in-flight request and freezes the submitted staple candidate set so the row identities cannot change while the user is waiting.
+
+This conforms to the existing multi-select pattern: users keep an explicit continuation action before submitting, and once the async submit is in progress, the same selectable rows become read-only state rather than accepting more input. Back remains available as the cancellation path.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

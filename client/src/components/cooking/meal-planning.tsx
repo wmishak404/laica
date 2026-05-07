@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -56,6 +56,11 @@ interface RecipeRecommendation {
   equipment?: string[];
   overview?: string;
   imageUrl?: string;
+}
+
+interface RecipeTransformContext {
+  pantryIngredients: string[];
+  kitchenEquipment: string[];
 }
 
 interface MealPlanningProps {
@@ -150,6 +155,9 @@ export default function MealPlanning({
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [sessionRestored, setSessionRestored] = useState(false);
+  const [lockedStapleCandidates, setLockedStapleCandidates] = useState<string[] | null>(null);
+  const generationRunIdRef = useRef(0);
+  const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const { toast } = useToast();
 
   const validateSession = (data: any): SavedMealPlanningSession | null => {
@@ -258,6 +266,30 @@ export default function MealPlanning({
       : getStapleCandidatesForCuisines(mealPrefs.cuisinePreference, userProfile.pantryIngredients),
     [mealPrefs.cuisinePreference, userProfile.pantryIngredients],
   );
+  const displayedStapleCandidates = lockedStapleCandidates ?? stapleCandidates;
+
+  const isActiveGeneration = (runId: number, controller: AbortController) =>
+    activeGenerationRef.current?.runId === runId && !controller.signal.aborted;
+
+  const cancelActiveGeneration = ({ resetUi = true }: { resetUi?: boolean } = {}) => {
+    const activeGeneration = activeGenerationRef.current;
+    if (!activeGeneration) return;
+
+    activeGeneration.controller.abort();
+    activeGenerationRef.current = null;
+    generationRunIdRef.current += 1;
+
+    if (resetUi) {
+      setIsLoading(false);
+      setLockedStapleCandidates(null);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      cancelActiveGeneration({ resetUi: false });
+    };
+  }, []);
 
   const setPlanningTime = (value: PlanningTimeValue) => {
     setMealPrefs((prev) => ({ ...prev, timeAvailable: value }));
@@ -265,6 +297,8 @@ export default function MealPlanning({
   };
 
   const toggleCuisine = (cuisine: string) => {
+    if (isLoading) return;
+
     setSelectedStaples([]);
     setMealPrefs((prev) => {
       if (cuisine === NO_PREFERENCE) {
@@ -287,6 +321,8 @@ export default function MealPlanning({
   };
 
   const toggleStaple = (staple: string) => {
+    if (isLoading) return;
+
     setSelectedStaples((prev) =>
       prev.includes(staple)
         ? prev.filter((item) => item !== staple)
@@ -294,7 +330,11 @@ export default function MealPlanning({
     );
   };
 
-  const transformRecipe = (recipe: any, index: number): RecipeRecommendation => {
+  const transformRecipe = (
+    recipe: any,
+    index: number,
+    context: RecipeTransformContext = userProfile,
+  ): RecipeRecommendation => {
     const additionalIngredientsNeeded = stringArray(recipe.additionalIngredientsNeeded);
     const pantryIngredientsUsed = stringArray(recipe.pantryIngredientsUsed);
     const imageUrl = typeof recipe.imageUrl === 'string'
@@ -304,7 +344,7 @@ export default function MealPlanning({
         : undefined;
     const pantryMatch = typeof recipe.pantryMatch === 'number'
       ? recipe.pantryMatch
-      : calculatePantryMatch(userProfile.pantryIngredients.length, additionalIngredientsNeeded.length);
+      : calculatePantryMatch(context.pantryIngredients.length, additionalIngredientsNeeded.length);
 
     return {
       id: `recipe-${Date.now()}-${index}`,
@@ -320,8 +360,8 @@ export default function MealPlanning({
       isFusion: Boolean(recipe.isFusion),
       ingredients: pantryIngredientsUsed.length > 0
         ? pantryIngredientsUsed
-        : userProfile.pantryIngredients.slice(0, 6),
-      equipment: userProfile.kitchenEquipment,
+        : context.pantryIngredients.slice(0, 6),
+      equipment: context.kitchenEquipment,
       overview: typeof recipe.overview === 'string' ? recipe.overview : undefined,
       imageUrl,
     };
@@ -334,7 +374,26 @@ export default function MealPlanning({
     confirmedStaples?: string[];
     askedStaples?: string[];
   } = {}) => {
-    if (!userProfile.pantryIngredients || userProfile.pantryIngredients.length === 0) {
+    if (activeGenerationRef.current) return;
+
+    const requestMealPrefs = {
+      timeAvailable: mealPrefs.timeAvailable,
+      cuisinePreference: [...mealPrefs.cuisinePreference],
+    };
+    const requestProfile = {
+      ...userProfile,
+      dietaryRestrictions: [...userProfile.dietaryRestrictions],
+      pantryIngredients: [...userProfile.pantryIngredients],
+      kitchenEquipment: [...userProfile.kitchenEquipment],
+      favoriteChefs: [...userProfile.favoriteChefs],
+    };
+    const requestPreviousRecommendations = recommendations.slice(0, 3);
+    const requestConfirmedStaples = confirmedStaples.filter((staple) => staple.trim().length > 0);
+    const requestAskedStaples = [...askedStaples];
+    const controller = new AbortController();
+    const runId = generationRunIdRef.current + 1;
+
+    if (!requestProfile.pantryIngredients || requestProfile.pantryIngredients.length === 0) {
       toast({
         title: 'Profile Incomplete',
         description: 'Please add pantry ingredients to your profile before getting meal recommendations.',
@@ -343,7 +402,7 @@ export default function MealPlanning({
       return;
     }
 
-    if (!userProfile.cookingSkill) {
+    if (!requestProfile.cookingSkill) {
       toast({
         title: 'Profile Incomplete',
         description: 'Please complete your cooking profile before getting meal recommendations.',
@@ -352,15 +411,19 @@ export default function MealPlanning({
       return;
     }
 
+    generationRunIdRef.current = runId;
+    activeGenerationRef.current = { runId, controller };
+    setLockedStapleCandidates(requestAskedStaples.length > 0 ? requestAskedStaples : null);
     setIsLoading(true);
 
-    let pantryIngredientsForRequest = userProfile.pantryIngredients;
-    const cleanConfirmedStaples = confirmedStaples.filter((staple) => staple.trim().length > 0);
-    if (cleanConfirmedStaples.length > 0) {
-      pantryIngredientsForRequest = mergeUniqueEntries(userProfile.pantryIngredients, cleanConfirmedStaples);
+    let pantryIngredientsForRequest = requestProfile.pantryIngredients;
+    if (requestConfirmedStaples.length > 0) {
+      pantryIngredientsForRequest = mergeUniqueEntries(requestProfile.pantryIngredients, requestConfirmedStaples);
 
       try {
-        const saved = await onPantryIngredientsAdded(cleanConfirmedStaples);
+        const saved = await onPantryIngredientsAdded(requestConfirmedStaples);
+        if (!isActiveGeneration(runId, controller)) return;
+
         if (!saved) {
           toast({
             title: "We'll use those for now",
@@ -368,6 +431,8 @@ export default function MealPlanning({
           });
         }
       } catch {
+        if (!isActiveGeneration(runId, controller)) return;
+
         toast({
           title: "We'll use those for now",
           description: "I couldn't save those pantry staples yet. You can add them later in Settings.",
@@ -375,61 +440,77 @@ export default function MealPlanning({
       }
     }
 
-    const unconfirmedStaples = askedStaples.filter((staple) => !cleanConfirmedStaples.includes(staple));
+    const unconfirmedStaples = requestAskedStaples.filter((staple) => !requestConfirmedStaples.includes(staple));
 
-    const result = await withAiErrorHandling(async () => {
-      const preferenceParts = [
-        `Time available: ${getPlanningTimePrompt(mealPrefs.timeAvailable)}`,
-        `Cooking skill: ${userProfile.cookingSkill}`,
-        'Use pantry ingredients first; optional extras must be nonessential and capped at 3',
-        'Each recipe must still work if optional extras are skipped',
-        "Return a quiet range: pantry-strict, pantry-flexible, cuisine-leaning; don't label tiers",
-      ];
+    try {
+      const result = await withAiErrorHandling(async () => {
+        const preferenceParts = [
+          `Time available: ${getPlanningTimePrompt(requestMealPrefs.timeAvailable)}`,
+          `Cooking skill: ${requestProfile.cookingSkill}`,
+          'Use pantry ingredients first; optional extras must be nonessential and capped at 3',
+          'Each recipe must still work if optional extras are skipped',
+          "Return a quiet range: pantry-strict, pantry-flexible, cuisine-leaning; don't label tiers",
+        ];
 
-      if (!mealPrefs.cuisinePreference.includes(NO_PREFERENCE)) {
-        preferenceParts.push(`Preferred cuisines: ${mealPrefs.cuisinePreference.join(', ')}`);
+        if (!requestMealPrefs.cuisinePreference.includes(NO_PREFERENCE)) {
+          preferenceParts.push(`Preferred cuisines: ${requestMealPrefs.cuisinePreference.join(', ')}`);
+        }
+
+        if (requestConfirmedStaples.length > 0) {
+          preferenceParts.push(`Confirmed staples: ${requestConfirmedStaples.join(', ')}`);
+        }
+
+        if (unconfirmedStaples.length > 0) {
+          preferenceParts.push(`Unconfirmed staples: ${unconfirmedStaples.join(', ')}; do not assume`);
+        }
+
+        if (requestProfile.dietaryRestrictions.length > 0) {
+          preferenceParts.push(`Dietary restrictions: ${requestProfile.dietaryRestrictions.join(', ')}`);
+        }
+
+        if (requestPreviousRecommendations.length > 0) {
+          preferenceParts.push(`Please suggest a fresh set, not: ${requestPreviousRecommendations.map((recipe) => recipe.recipeName).join(', ')}`);
+        }
+
+        const recipeResponse = await fetchPantryRecipes(
+          pantryIngredientsForRequest,
+          preferenceParts.join('. '),
+          getPlanningTimePrompt(requestMealPrefs.timeAvailable),
+          { signal: controller.signal },
+        );
+
+        if (!isActiveGeneration(runId, controller)) return null;
+
+        const recipes = Array.isArray(recipeResponse.recipes)
+          ? recipeResponse.recipes.slice(0, 3).map((recipe: any, index: number) =>
+              transformRecipe(recipe, index, {
+                pantryIngredients: pantryIngredientsForRequest,
+                kitchenEquipment: requestProfile.kitchenEquipment,
+              })
+            )
+          : [];
+
+        if (recipes.length !== 3) {
+          throw new Error('Expected exactly three recipe suggestions');
+        }
+
+        if (!isActiveGeneration(runId, controller)) return null;
+
+        return recipes;
+      }, { context: 'meal recommendations' });
+
+      if (result && isActiveGeneration(runId, controller)) {
+        setRecommendations(result);
+        setSelectedMeal(result[0]);
+        setCurrentStep('tickets');
       }
-
-      if (cleanConfirmedStaples.length > 0) {
-        preferenceParts.push(`Confirmed staples: ${cleanConfirmedStaples.join(', ')}`);
+    } finally {
+      if (activeGenerationRef.current?.runId === runId) {
+        activeGenerationRef.current = null;
+        setIsLoading(false);
+        setLockedStapleCandidates(null);
       }
-
-      if (unconfirmedStaples.length > 0) {
-        preferenceParts.push(`Unconfirmed staples: ${unconfirmedStaples.join(', ')}; do not assume`);
-      }
-
-      if (userProfile.dietaryRestrictions.length > 0) {
-        preferenceParts.push(`Dietary restrictions: ${userProfile.dietaryRestrictions.join(', ')}`);
-      }
-
-      if (recommendations.length > 0) {
-        preferenceParts.push(`Please suggest a fresh set, not: ${recommendations.map((recipe) => recipe.recipeName).join(', ')}`);
-      }
-
-      const recipeResponse = await fetchPantryRecipes(
-        pantryIngredientsForRequest,
-        preferenceParts.join('. '),
-        getPlanningTimePrompt(mealPrefs.timeAvailable),
-      );
-
-      const recipes = Array.isArray(recipeResponse.recipes)
-        ? recipeResponse.recipes.slice(0, 3).map(transformRecipe)
-        : [];
-
-      if (recipes.length !== 3) {
-        throw new Error('Expected exactly three recipe suggestions');
-      }
-
-      return recipes;
-    }, 'meal recommendations');
-
-    if (result) {
-      setRecommendations(result);
-      setSelectedMeal(result[0]);
-      setCurrentStep('tickets');
     }
-
-    setIsLoading(false);
   };
 
   const continueFromCuisine = () => {
@@ -455,6 +536,8 @@ export default function MealPlanning({
   };
 
   const handleBack = () => {
+    cancelActiveGeneration();
+
     if (currentStep === 'time') {
       onBackToProfile();
       return;
@@ -471,7 +554,7 @@ export default function MealPlanning({
       setCurrentStep('tickets');
       return;
     }
-    setCurrentStep(stapleCandidates.length > 0 ? 'staples' : 'cuisine');
+    setCurrentStep(displayedStapleCandidates.length > 0 ? 'staples' : 'cuisine');
   };
 
   const renderTimeStep = () => (
@@ -554,6 +637,7 @@ export default function MealPlanning({
                 key={cuisine.name}
                 className="planning-cuisine-row"
                 data-selected={selected}
+                disabled={isLoading}
                 onClick={() => toggleCuisine(cuisine.name)}
               >
                 <span className="planning-cuisine-icon" aria-hidden="true">{cuisine.icon}</span>
@@ -572,6 +656,7 @@ export default function MealPlanning({
           type="button"
           className="planning-no-preference"
           data-selected={mealPrefs.cuisinePreference.includes(NO_PREFERENCE)}
+          disabled={isLoading}
           onClick={() => toggleCuisine(NO_PREFERENCE)}
         >
           <Sparkles className="h-5 w-5" aria-hidden="true" />
@@ -610,7 +695,7 @@ export default function MealPlanning({
       </div>
 
       <div className="mt-8 space-y-3" aria-label="Pantry staple options">
-        {stapleCandidates.map((staple) => {
+        {displayedStapleCandidates.map((staple) => {
           const selected = selectedStaples.includes(staple);
           return (
             <button
@@ -619,6 +704,7 @@ export default function MealPlanning({
               className="planning-cuisine-row"
               data-selected={selected}
               aria-pressed={selected}
+              disabled={isLoading}
               onClick={() => toggleStaple(staple)}
             >
               <span className="planning-cuisine-icon" aria-hidden="true">+</span>
