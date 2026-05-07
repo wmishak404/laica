@@ -37,7 +37,7 @@ Phase 4 owns live-cooking-specific presentation: inline step retry/recovery, Coa
 
 ## Open items
 
-- Replit validation is still needed before merge because local tests cannot prove Firebase/Replit runtime wiring, real OpenAI failures, or signed-in session behavior.
+- Replit validation passed at `860bd68` before the final cleanup commit. The final cleanup commit `27c9354` aligned Slop Bowl inline copy to the spec and removed dead `showDemoVideo` / `demoVideoUrl` state. Per the stacked PR validation rule, the current head still needs a quick Replit SHA refresh before merge.
 - If Replit still reports a 500-character preference cap, treat it first as stale branch/server state. If the validated SHA is correct, inspect which layer rejects the generated preference string.
 - Full repo-wide `npx vitest run` was not run because known harness issues outside this branch still exist in this repo; focused coverage passed.
 
@@ -58,12 +58,28 @@ Browser validation was also run locally against `http://127.0.0.1:3000` with a t
 - Underlined `Feedback` opened the existing Feedback modal.
 - Live-cooking-style `feedbackLink: false` suppressed the Feedback CTA.
 
+Replit validation at `860bd68` passed:
+
+- Signed-in pantry recipe generation: 1000-character cap unified, no demo copy, no redirect.
+- Refresh suggestions: errors return `null` and stay in-flow without navigation.
+- Forced `5xx` Feedback toast: exact copy matched; underlined Feedback button opened the modal.
+- Forced `429`: exact copy matched, no exact seconds, no redirect.
+- Slop Bowl sparse pantry guard: functional, with cleanup requested for exact inline copy.
+- Live cooking boundary: `feedbackLink: false`, no demo copy, no redirect.
+- TypeScript, build, and 41 focused unit tests: pass.
+
+Cleanup after that Replit run:
+
+- `27c9354`: Slop Bowl inline guard copy now exactly matches `Add at least 3 ingredients before generating a Slop Bowl.`
+- `27c9354`: removed unused live-cooking `showDemoVideo` / `demoVideoUrl` state.
+- Post-cleanup local checks passed: `git diff --check`, `npm run check`, and `npx vitest run tests/unit/ai-error-handling.test.tsx tests/unit/slop-bowl-route.test.ts`.
+
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `bc242a0`
-- Last Replit-validated at: not yet validated
-- Notes: rebased after PR #40 merged into `origin/main`.
+- Last Replit-validated at: `860bd68` (stale after cleanup commit `27c9354`; quick SHA refresh needed)
+- Notes: rebased after PR #40 merged into `origin/main`; cleanup commit addressed Replit's non-blocking notes.
 
 ## Suggested Replit validation
 
