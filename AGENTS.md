@@ -123,6 +123,7 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 Current active INITs:
 
 - `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
+- `initiatives/INIT-002-ai-error-telemetry.md` — read before adding AI error logging/telemetry, creating or migrating an `ai_error_events` schema, adding admin APIs for AI error summaries/lists/details, correlating Feedback with AI failures, or extending the eval pipeline to consume operational error clusters.
 
 **UI governance rule.** UI governance and visual standards are **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/005-ui-governance.md`](product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`epics/registry.md`](epics/registry.md).
 
@@ -137,6 +138,7 @@ Current active INITs:
 - `epics/014-scan-session-diff-and-duplicate-refinement.md` — read before changing Pantry/Kitchen scan chip states, latest-scan indicators, duplicate cleanup, or found-again/overlap messaging
 - `epics/015-ui-governance-enforcement.md` — read before adding/modifying ESLint config or `.github/PULL_REQUEST_TEMPLATE.md`, or expanding UI governance enforcement
 - `epics/016-slop-bowl-hex-literal-cleanup.md` — read before changing Slop Bowl styling or migrating hex literals to tokens
+- `epics/019-ai-error-telemetry-and-eval-monitoring.md` — read before adding persistent AI request error logging, creating an `ai_error_events` schema, adding admin APIs for AI error summary/list/detail/clusters, correlating Feedback with AI failures, or feeding operational error clusters into the eval pipeline
 
 If your work intersects with an active epic, cite it in your handoff and note how the change interacts (conforms / defers / adds new evidence). When the epic gains new signal from your work (new drift found, new surface added to a taxonomy), append a `## YYYY-MM-DD — <summary>` section to the epic file itself.
 
