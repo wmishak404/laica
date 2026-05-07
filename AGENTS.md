@@ -26,6 +26,7 @@ Run these locally when the task does not depend on Replit-only services:
 
 Before merging deployment-bound changes, sync the branch into Replit and verify:
 
+- Use `docs/workflows/replit-validation-focus.md` to choose *targeted* Replit validation steps based on what changed locally.
 - Firebase sign-in
 - recipe suggestion flows
 - cooking-session persistence
