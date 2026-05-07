@@ -148,11 +148,7 @@ export default function SlopBowl({
 
   const confirmPantry = () => {
     if (!canGenerateBowl) {
-      setPantryMessage(
-        hasSparsePantry
-          ? `Add ${missingIngredientCount} more ingredient${missingIngredientCount === 1 ? '' : 's'} so Laica has enough to build a real bowl. Think base, vegetable, sauce, seasoning, egg, cheese, beans, or leftovers.`
-          : 'Add a few ingredients so Laica has enough to build a real bowl.'
-      );
+      setPantryMessage('Add at least 3 ingredients before generating a Slop Bowl.');
       return;
     }
 
@@ -179,7 +175,7 @@ export default function SlopBowl({
     } catch (error) {
       if (error instanceof ApiRequestError && error.body?.code === SLOP_BOWL_TOO_FEW_INGREDIENTS) {
         setPantryMessage(
-          error.body.message || 'Add at least 3 ingredients so Laica has enough to build a real bowl.'
+          error.body.message || 'Add at least 3 ingredients before generating a Slop Bowl.'
         );
       } else {
         handleAiRequestError(error, 'slop-bowl');

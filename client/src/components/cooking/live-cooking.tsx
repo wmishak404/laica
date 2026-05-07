@@ -74,8 +74,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const [timer, setTimer] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [captionSize, setCaptionSize] = useState(16);
-  const [showDemoVideo, setShowDemoVideo] = useState(false);
-  const [demoVideoUrl, setDemoVideoUrl] = useState('');
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
   const [loadedRecipeIngredients, setLoadedRecipeIngredients] = useState<Array<{ name: string; quantity?: string; forSteps?: number[] }>>([]);
