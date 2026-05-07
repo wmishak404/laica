@@ -61,3 +61,12 @@ Phase 0 is docs-only — no runtime verification. Reviewers should confirm:
 - No file under `client/`, `server/`, `shared/`, or `tests/` was modified.
 
 After merge, the next implementation step depends on EPIC-018's status. If EPIC-018 is merged when the next agent picks this up, start INIT-002 Phase 1 from a fresh branch off `main`. If not, wait.
+
+## 2026-05-07 — Follow-up: aligned to PR #40
+
+Wilson asked to rebase from [PR #40](https://github.com/wmishak404/laica/pull/40) (Replit Validation Focus Guide). The branch was already on top of `bc242a0` from the original push, so no `git rebase` was needed. Folded the new guide into INIT-002:
+
+- Added [`docs/workflows/replit-validation-focus.md`](../workflows/replit-validation-focus.md) to Source Docs.
+- Rewrote the Validation State table so each phase's Replit step picks specific focus rows from the guide's matrix (DB schema row for Phase 3, AI provider + ElevenLabs + Secrets rows for Phase 1, etc.) and uses the guide's "Replit validation request" template in PR descriptions/handoffs.
+
+Net effect: future Phase 1/3/4 PRs can cite specific matrix rows for Replit validation instead of re-running the full gate, which matches the targeted-validation intent of PR #40.

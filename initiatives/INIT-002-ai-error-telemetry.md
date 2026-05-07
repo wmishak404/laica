@@ -34,6 +34,7 @@ Phase 1 is gated on [EPIC-018](../epics/018-authenticated-ai-error-handling.md) 
 - [EPIC-010 — Local DB schema strategy](../epics/010-local-db-schema-strategy.md) — Replit-authoritative `db:push`; local agents do not push
 - [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md) — 90-day retention, redaction guidance, denylist
 - [PD-007 — Epic status and registry workflow](../product-decisions/007-epic-status-and-registry-workflow.md) — status vocabulary used in EPIC-019
+- [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) — targeted Replit validation by drift vector; INIT-002 phases pick rows from its matrix instead of re-testing everything
 - [server/ai-privacy.ts](../server/ai-privacy.ts) — existing redaction utilities (`redactForAiLog`, `stripPromptMarkers`) reused as defense-in-depth
 
 ## Assets
@@ -75,14 +76,16 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 
 ## Validation State
 
-| Phase | Local checks | Replit validation | Last Replit-validated SHA |
+Phase-specific Replit validation focus areas selected from the [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) matrix. Phases below should also use the guide's "Replit validation request" template in their PR descriptions and handoffs.
+
+| Phase | Local checks | Replit validation focus (from the guide) | Last Replit-validated SHA |
 |---|---|---|---|
-| Phase 0 | n/a (docs only) | n/a | n/a |
-| Phase 1 | `npm run check`, `npm run build`, Vitest classifier+writer mocks, manual dotenvx dev-server smoke | Required: stdout JSON line per error class on each AI route, `X-Request-Id` round-trip | not yet validated |
-| Phase 2 | n/a (observation) | One week of production traffic; Replit log inspection daily | not yet validated |
-| Phase 3 | `npm run check`, `npm run build`, writer tests with mocked DB | Required: Replit `db:push`; trigger one error per class on each AI route; **manual row inspection to confirm no raw payloads** (epic resolution criterion) | not yet validated |
-| Phase 4 | `npm run check`, `npm run build` | Required: hit `/api/admin/ai-errors/summary` with `X-Admin-Secret`; verify exemplars contain only allowlist fields | not yet validated |
-| Phase 5 | n/a (closeout) | n/a | n/a |
+| Phase 0 | n/a (docs only) | n/a (no runtime change) | n/a |
+| Phase 1 | `npm run check`, `npm run build`, Vitest classifier+writer mocks, manual dotenvx dev-server smoke | **AI provider routes** + **ElevenLabs speech routes** + **Secrets** rows. Confirm: stdout JSON line per error class on each AI route, `X-Request-Id` round-trips, classifier still fires under real provider errors and rate-limit responses, no missing-secret crash on Replit deployment. Workspace + Deployment both. | not yet validated |
+| Phase 2 | n/a (observation) | One week of production traffic; Replit log inspection daily. Capture classifier gaps and field nullability for PD-010 appendix. | not yet validated |
+| Phase 3 | `npm run check`, `npm run build`, writer tests with mocked DB | **DB schema / migrations / Drizzle / persistence** row (the big one). After Replit `db:push`, trigger one error per class on each AI route. **Manual row inspection to confirm no raw payloads** (epic resolution criterion). Verify deployed app uses the intended DB and the new table is present in both workspace and deployment runtimes. | not yet validated |
+| Phase 4 | `npm run check`, `npm run build` | **Auth UI / Firebase** row is unaffected; pick the **AI provider routes** row only to confirm admin endpoints respect `X-Admin-Secret` rejection on Replit. Hit `/api/admin/ai-errors/summary` with the secret; verify exemplars contain only allowlist fields. | not yet validated |
+| Phase 5 | n/a (closeout) | n/a (docs-only) | n/a |
 
 ## Current Resume Point
 
@@ -105,3 +108,4 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 - **2026-05-07** — Wilson asked for parallel persistent-error-logging design while EPIC-018 ships authenticated AI error UX. Claude reviewed EPIC-019, ran exploration agents over the AI route surface, admin pattern, and sibling docs (EPIC-018, EPIC-010, mobile-refresh AI privacy), and produced a phased implementation plan.
 - **2026-05-07** — Wilson approved the plan with four decisions: (1) stdout-only first then DB later, (2) wire all 9 AI routes in v1, (3) wait for EPIC-018 to merge before Phase 1, (4) PD-010 at top-level. Asked to file the work as INIT-002 because it is now phased.
 - **2026-05-07** — Phase 0 docs filed: EPIC-019, INIT-002, PD-010, registry/README updates.
+- **2026-05-07** — Rebased Phase 0 docs branch onto `bc242a0` ([#40](https://github.com/wmishak404/laica/pull/40), Replit Validation Focus Guide). Updated INIT-002 Source Docs and Validation State to cite the new guide and pin per-phase focus rows from its matrix instead of re-testing everything.
