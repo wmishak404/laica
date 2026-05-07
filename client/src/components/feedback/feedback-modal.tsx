@@ -52,8 +52,8 @@ export function FeedbackModal({ isOpen, onClose, currentPage }: FeedbackModalPro
       onClose();
     } catch (error) {
       toast({
-        title: "Failed to submit feedback",
-        description: "Please try again later.",
+        title: "Feedback did not send",
+        description: "I couldn't send Feedback right now. Try again later.",
         variant: "destructive"
       });
     } finally {

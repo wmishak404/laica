@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,12 +13,19 @@ import {
 import { UtensilsCrossed, Search, Menu, X, Settings, LogOut, User, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
+import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    const openFeedback = () => setIsFeedbackOpen(true);
+    window.addEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
+    return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

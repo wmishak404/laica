@@ -19,6 +19,7 @@ import {
   type PlanningTimeValue,
 } from '@shared/planning';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
+import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
   cookingSkill: string;
@@ -100,6 +101,12 @@ export default function MobileApp() {
     return `/app-${currentPhase}`;
   }, [currentPhase, hasExistingProfile, settingsSection, showPlanningChoice]);
 
+  useEffect(() => {
+    const openFeedback = () => setIsFeedbackOpen(true);
+    window.addEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
+    return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
+  }, []);
+
   // Load profile from database - database is the single source of truth
   useEffect(() => {
     if (!user?.id) return;
@@ -162,8 +169,8 @@ export default function MobileApp() {
     } catch (error) {
       console.error('Error saving profile to database:', error);
       toast({
-        title: "Failed to save changes",
-        description: "Your changes couldn't be saved. Please try again.",
+        title: "Changes did not save",
+        description: "I couldn't save your changes. Try again.",
         variant: "destructive",
       });
     }

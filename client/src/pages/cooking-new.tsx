@@ -7,6 +7,7 @@ import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
 import LiveCooking from '@/components/cooking/live-cooking';
 import UserSettings from '@/components/cooking/user-settings';
+import { FeedbackModal } from '@/components/feedback/feedback-modal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +20,7 @@ import {
   type PlanningTimeValue,
 } from '@shared/planning';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
+import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
   cookingSkill: string;
@@ -42,12 +44,13 @@ interface RecipeRecommendation {
 type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings';
 
 export default function Cooking() {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
   const [isReturningUser, setIsReturningUser] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() => {
     if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
     return normalizePlanningTimeValue(window.localStorage.getItem(PLANNING_TIME_STORAGE_KEY));
@@ -61,6 +64,12 @@ export default function Cooking() {
   });
 
   const updateProfileMutation = useUpdateUserProfile();
+
+  useEffect(() => {
+    const openFeedback = () => setIsFeedbackOpen(true);
+    window.addEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
+    return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
+  }, []);
 
   // Check if user has completed profile setup
   const isProfileComplete = (profile: any): boolean => {
@@ -111,8 +120,8 @@ export default function Cooking() {
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save profile. Please try again.",
+        title: "Profile did not save",
+        description: "I couldn't save your profile. Try again.",
         variant: "destructive",
       });
     }
@@ -353,6 +362,11 @@ export default function Cooking() {
         </section>
       </main>
       <Footer />
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        currentPage={location || '/cooking'}
+      />
     </>
   );
 }

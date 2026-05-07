@@ -191,17 +191,17 @@ export function NativeCamera({
             await onImageCapture(result.includes(',') ? result.split(',')[1] : result);
           }
         } catch (error) {
-          onError(error instanceof Error ? error.message : 'Failed to process image');
+          onError(error instanceof Error ? error.message : "I couldn't process that photo.");
         }
       };
       
       reader.onerror = () => {
-        onError('Failed to read image file');
+        onError("I couldn't read that photo.");
       };
       
       reader.readAsDataURL(file);
     } catch (error) {
-      onError(error instanceof Error ? error.message : 'Failed to process image');
+      onError(error instanceof Error ? error.message : "I couldn't process that photo.");
     }
 
     // Reset input to allow selecting the same file again
@@ -240,7 +240,7 @@ export function NativeCamera({
       triggerCaptureFlash();
       await onImageCapture(dataUrl.split(',')[1]);
     } catch (error) {
-      onError(error instanceof Error ? error.message : 'Failed to capture image');
+      onError(error instanceof Error ? error.message : "I couldn't capture that photo.");
     } finally {
       setIsCapturing(false);
     }

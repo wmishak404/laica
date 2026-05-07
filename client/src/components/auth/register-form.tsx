@@ -84,7 +84,7 @@ export default function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFor
         setError(data.message || "Registration failed");
       }
     } catch (error) {
-      setError("Network error. Please try again.");
+      setError("I couldn't reach the service. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }

@@ -153,7 +153,7 @@ Each recipe should include:
 6. Return ingredient names only in additionalIngredientsNeeded. Do not include words like "optional", "if around", or "if available" because the field is already displayed as optional in the UI.
 7. Never use additionalIngredientsNeeded for required ingredients. If the recipe depends on an ingredient, that ingredient must already be available in the pantry or confirmed staples, otherwise choose another recipe.`;
 
-const DEFAULT_SLOP_BOWL_PROMPT = `You are LAICA's Slop Bowl recipe generator. Create exactly one bowl-style meal from the user's pantry and profile.
+const DEFAULT_SLOP_BOWL_PROMPT = `You are Laica's Slop Bowl recipe generator. Create exactly one bowl-style meal from the user's pantry and profile.
 
 Return JSON with exactly these fields:
 {

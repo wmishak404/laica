@@ -33,7 +33,7 @@ export function Webcam({ onCapture, onError, onClose, title = "Camera" }: Webcam
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      onError('Unable to access camera. Please check permissions.');
+      onError("I couldn't access the camera. Check permissions and try again.");
     }
   }, [facingMode, onError]);
 
@@ -73,13 +73,13 @@ export function Webcam({ onCapture, onError, onClose, title = "Camera" }: Webcam
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
       
       if (imageData === 'data:,') {
-        throw new Error('Failed to capture image');
+        throw new Error("I couldn't capture that photo.");
       }
 
       await onCapture(imageData);
     } catch (error) {
       console.error('Error capturing image:', error);
-      onError(error instanceof Error ? error.message : 'Failed to capture image');
+      onError(error instanceof Error ? error.message : "I couldn't capture that photo.");
     } finally {
       setIsCapturing(false);
     }

@@ -1,63 +1,245 @@
-// Rate limit and error handling for demo mode
+import { Fragment, createElement, type ReactNode } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { ApiRequestError } from './queryClient';
 
-export function isRateLimitError(error: Error): boolean {
-  const message = error.message.toLowerCase();
-  return message.includes('rate limit') || 
-         message.includes('quota') || 
-         message.includes('429') ||
-         message.includes('too many requests');
+export const OPEN_FEEDBACK_EVENT = 'laica:open-feedback';
+
+type AiErrorKind =
+  | 'bad-request'
+  | 'auth'
+  | 'not-found'
+  | 'payload-too-large'
+  | 'product-precondition'
+  | 'rate-limit'
+  | 'service'
+  | 'network'
+  | 'canceled'
+  | 'unknown';
+
+interface AiErrorFeedback {
+  kind: AiErrorKind;
+  title: string;
+  description: string;
+  status?: number;
+  code?: string;
+  includeFeedbackLink: boolean;
+  silent?: boolean;
 }
 
-export function isAPIError(error: Error): boolean {
-  const message = error.message.toLowerCase();
-  return message.includes('api') || 
-         message.includes('openai') || 
-         message.includes('elevenlabs') ||
-         message.includes('500') ||
-         message.includes('502') ||
-         message.includes('503');
+interface AiErrorHandlingOptions {
+  context?: string;
+  feedbackLink?: boolean;
 }
 
-export function handleDemoLimitReached(): void {
-  // Show toast notification
-  toast({
-    title: "Demo Limit Reached",
-    description: "You've reached the demo usage limit. Redirecting to home page...",
-    variant: "default",
-  });
-
-  // Redirect to home page after a brief delay
-  setTimeout(() => {
-    window.location.href = "/";
-  }, 2000);
+function messageFor(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
 }
 
-export function handleAPIError(error: Error, context: string = ''): void {
-  console.error(`API Error in ${context}:`, error);
-  
-  if (isRateLimitError(error)) {
-    handleDemoLimitReached();
-    return;
+function statusFor(error: unknown): number | undefined {
+  if (error instanceof ApiRequestError) return error.status;
+
+  const match = messageFor(error).match(/^(\d{3}):/);
+  return match ? Number.parseInt(match[1], 10) : undefined;
+}
+
+function isAbortError(error: unknown): boolean {
+  if (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') {
+    return true;
   }
 
-  // For other API errors, show a generic message but don't redirect
+  return /abort|cancelled|canceled/i.test(messageFor(error));
+}
+
+function hasNetworkShape(error: unknown): boolean {
+  if (error instanceof TypeError) return true;
+  return /failed to fetch|networkerror|network request failed|load failed/i.test(messageFor(error));
+}
+
+function feedbackDescription(text: string, includeFeedbackLink: boolean): ReactNode {
+  if (!includeFeedbackLink || !text.includes('Feedback')) {
+    return text;
+  }
+
+  const [before, after] = text.split('Feedback');
+  const feedbackButton = createElement(
+    'button',
+    {
+      type: 'button',
+      className: 'underline underline-offset-2 font-medium',
+      onClick: () => {
+        window.dispatchEvent(new CustomEvent(OPEN_FEEDBACK_EVENT));
+      },
+    },
+    'Feedback',
+  );
+
+  return createElement(Fragment, null, before, feedbackButton, after);
+}
+
+export function classifyAiRequestError(error: unknown, options: AiErrorHandlingOptions = {}): AiErrorFeedback {
+  const status = statusFor(error);
+  const code = error instanceof ApiRequestError ? error.code : undefined;
+  const includeFeedbackLink = options.feedbackLink !== false;
+
+  if (isAbortError(error)) {
+    return {
+      kind: 'canceled',
+      title: '',
+      description: '',
+      status,
+      code,
+      includeFeedbackLink: false,
+      silent: true,
+    };
+  }
+
+  if (status === 400) {
+    return {
+      kind: 'bad-request',
+      title: 'Request did not go through',
+      description: includeFeedbackLink
+        ? "I couldn't send that request correctly. Try again. If it keeps happening, send us Feedback so we can take a look."
+        : "I couldn't send that request correctly. Try again.",
+      status,
+      code,
+      includeFeedbackLink,
+    };
+  }
+
+  if (status === 401 || status === 403) {
+    return {
+      kind: 'auth',
+      title: 'Sign in again',
+      description: 'I need you to sign in again before I can proceed.',
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
+  if (status === 404) {
+    return {
+      kind: 'not-found',
+      title: "I couldn't find that",
+      description: "I couldn't find that. It may have been removed. Refresh and try again.",
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
+  if (status === 413) {
+    return {
+      kind: 'payload-too-large',
+      title: 'Photo is too large',
+      description: 'That photo is too large. Choose a smaller photo or retake it, then try again.',
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
+  if (status === 422) {
+    const fallback = 'I need a bit more information before I can do that.';
+    const description = error instanceof ApiRequestError
+      ? error.body?.message || error.body?.error || fallback
+      : fallback;
+
+    return {
+      kind: 'product-precondition',
+      title: 'One more thing first',
+      description,
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
+  if (status === 429 || code === 'RATE_LIMITED' || /rate limit|quota|too many requests/i.test(messageFor(error))) {
+    return {
+      kind: 'rate-limit',
+      title: 'Cooking requests paused',
+      description: 'I need to pause cooking requests for a bit. Try again in a few minutes.',
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
+  if (status && status >= 500) {
+    return {
+      kind: 'service',
+      title: 'Request did not finish',
+      description: includeFeedbackLink
+        ? "I couldn't finish that request right now. Try again shortly. Send us Feedback if this issue keeps persisting."
+        : "I couldn't finish that request right now. Try again shortly.",
+      status,
+      code,
+      includeFeedbackLink,
+    };
+  }
+
+  if (hasNetworkShape(error)) {
+    return {
+      kind: 'network',
+      title: 'Connection issue',
+      description: "I couldn't reach the service. Check your connection and try again.",
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
+  return {
+    kind: 'unknown',
+    title: 'Request did not finish',
+    description: includeFeedbackLink
+      ? "I couldn't finish that request right now. Try again shortly. Send us Feedback if this issue keeps persisting."
+      : "I couldn't finish that request right now. Try again shortly.",
+    status,
+    code,
+    includeFeedbackLink,
+  };
+}
+
+export function isRateLimitError(error: Error): boolean {
+  return classifyAiRequestError(error).kind === 'rate-limit';
+}
+
+export function isAIServiceError(error: Error): boolean {
+  const kind = classifyAiRequestError(error).kind;
+  if (kind === 'service' || kind === 'network') {
+    return true;
+  }
+
+  return kind === 'unknown' && /api|openai|elevenlabs|request failed/i.test(messageFor(error));
+}
+
+export const isAPIError = isAIServiceError;
+
+export function handleAiRequestError(error: unknown, options: AiErrorHandlingOptions | string = {}): void {
+  const normalizedOptions = typeof options === 'string' ? { context: options } : options;
+  console.error(`AI request error${normalizedOptions.context ? ` in ${normalizedOptions.context}` : ''}:`, error);
+
+  const feedback = classifyAiRequestError(error, normalizedOptions);
+  if (feedback.silent) return;
+
   toast({
-    title: "Service Temporarily Unavailable",
-    description: "Please try again in a moment. If the issue persists, you may have reached the demo limit.",
-    variant: "destructive",
+    title: feedback.title,
+    description: feedbackDescription(feedback.description, feedback.includeFeedbackLink),
+    variant: 'destructive',
   });
 }
 
-// Wrapper for API calls with automatic error handling
-export async function withDemoErrorHandling<T>(
+export async function withAiErrorHandling<T>(
   apiCall: () => Promise<T>,
-  context: string = ''
+  options: AiErrorHandlingOptions | string = {},
 ): Promise<T | null> {
   try {
     return await apiCall();
   } catch (error) {
-    handleAPIError(error as Error, context);
+    handleAiRequestError(error, options);
     return null;
   }
 }

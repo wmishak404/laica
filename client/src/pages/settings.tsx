@@ -72,8 +72,8 @@ export default function Settings() {
       });
     } catch (error) {
       toast({
-        title: "Update Failed",
-        description: "Failed to update your profile. Please try again.",
+        title: "Profile update did not save",
+        description: "I couldn't update your profile. Try again.",
         variant: "destructive",
       });
     } finally {
