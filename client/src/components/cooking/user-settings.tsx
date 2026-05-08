@@ -19,6 +19,7 @@ import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Trash2, Settings, Package, User, Clock, MoreVertical, History, Check, ImagePlus, Loader2, X } from 'lucide-react';
+import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
 import { mergeUniqueEntries, mergeUniqueEntriesWithMetadata, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
@@ -30,7 +31,12 @@ import {
 } from '@/lib/visionResult';
 import type { CookingSession } from '@shared/schema';
 import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
-import { SCAN_UPLOAD_LIMITS, scanAreaLabel, type InventoryScanType } from '@shared/scan-policy';
+import {
+  SCAN_ANALYSIS_CONCURRENCY,
+  SCAN_UPLOAD_LIMITS,
+  scanAreaLabel,
+  type InventoryScanType,
+} from '@shared/scan-policy';
 
 interface UserProfile {
   cookingSkill: string;
@@ -769,12 +775,10 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     let failedCount = 0;
     let lastRejectedResult: VisionAnalysisResult | null = null;
     let lastError: unknown = null;
+    let completedCount = 0;
 
     try {
-      // Process files sequentially to avoid overwhelming the API
-      for (let i = 0; i < processedFiles.length; i++) {
-        const file = processedFiles[i];
-        const fileType = file.type.toLowerCase();
+      await processWithBoundedConcurrency(processedFiles, SCAN_ANALYSIS_CONCURRENCY, async (file, i) => {
         const fileName = file.name.toLowerCase();
         const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
 
@@ -806,7 +810,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
           if (isRejectedVisionResult(result)) {
             rejectedCount += 1;
             lastRejectedResult = result;
-            continue;
+            return;
           }
 
           // Extract ingredients or equipment from this image
@@ -831,22 +835,18 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
               console.log('Added equipment:', cleanEquipment);
             }
           }
-          
-          // Small delay between processing images to avoid overwhelming the API
-          if (i < processedFiles.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
         } catch (error) {
           console.error(`Error processing image ${i + 1}:`, error);
           failedCount += 1;
           lastError = error;
         } finally {
+          completedCount += 1;
           setScanProgress(prev => ({
             ...prev,
-            [type]: { completed: i + 1, total: processedFiles.length },
+            [type]: { completed: completedCount, total: processedFiles.length },
           }));
         }
-      }
+      });
 
       // Update state once with all accumulated results
       if (type === 'pantry' && allNewIngredients.length > 0) {

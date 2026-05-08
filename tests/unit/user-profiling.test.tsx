@@ -6,6 +6,7 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { analyzeImage } from '@/lib/openai';
+import { SCAN_ANALYSIS_CONCURRENCY } from '@shared/scan-policy';
 import UserProfiling from '../../client/src/components/cooking/user-profiling';
 
 const toastMock = vi.hoisted(() => vi.fn());
@@ -159,6 +160,47 @@ describe('UserProfiling setup flow', () => {
     expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
       title: 'Too many photos',
     }));
+  });
+
+  it('processes setup upload batches with bounded concurrency', async () => {
+    const resolvers: Array<(value: { ingredients: string[] }) => void> = [];
+    const resolved = new Set<number>();
+    vi.mocked(analyzeImage).mockImplementation(() => new Promise((resolve) => {
+      resolvers.push(resolve);
+    }));
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+
+    const pantryUpload = container.querySelector('#pantry-setup-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, {
+      target: { files: makeHeicFiles(SCAN_ANALYSIS_CONCURRENCY + 1) },
+    });
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(SCAN_ANALYSIS_CONCURRENCY);
+    });
+
+    const resolveAt = (index: number) => {
+      if (!resolved.has(index)) {
+        resolved.add(index);
+        resolvers[index]({ ingredients: [`setup item ${index + 1}`] });
+      }
+    };
+
+    resolveAt(0);
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(SCAN_ANALYSIS_CONCURRENCY + 1);
+    });
+
+    for (let index = 1; index < resolvers.length; index += 1) {
+      resolveAt(index);
+    }
+
+    await waitFor(() => {
+      expect(screen.getByText('setup item 1')).toBeTruthy();
+    });
   });
 
   it('cancels an active kitchen upload when backing out of the step', async () => {

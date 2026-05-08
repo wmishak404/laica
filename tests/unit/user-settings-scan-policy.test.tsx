@@ -4,8 +4,9 @@
 
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { analyzeImage } from '@/lib/openai';
+import { SCAN_ANALYSIS_CONCURRENCY } from '@shared/scan-policy';
 import UserSettings from '../../client/src/components/cooking/user-settings';
 
 const toastMock = vi.hoisted(() => vi.fn());
@@ -44,6 +45,13 @@ function makeImageFiles(count: number) {
   return Array.from(
     { length: count },
     (_, index) => new File(['image'], `settings-photo-${index + 1}.jpg`, { type: 'image/jpeg' }),
+  );
+}
+
+function makeHeicFiles(count: number) {
+  return Array.from(
+    { length: count },
+    (_, index) => new File(['image'], `settings-photo-${index + 1}.heic`, { type: 'image/heic' }),
   );
 }
 
@@ -91,5 +99,51 @@ describe('UserSettings scan upload policy', () => {
       description: expect.stringContaining('up to 20 photos per refresh'),
       variant: 'destructive',
     }));
+  });
+
+  it('processes Settings upload batches with bounded concurrency', async () => {
+    const resolvers: Array<(value: { ingredients: string[] }) => void> = [];
+    const resolved = new Set<number>();
+    vi.mocked(analyzeImage).mockImplementation(() => new Promise((resolve) => {
+      resolvers.push(resolve);
+    }));
+    const { container } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="pantry"
+      />,
+    );
+
+    const pantryUpload = container.querySelector('#pantry-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, {
+      target: { files: makeHeicFiles(SCAN_ANALYSIS_CONCURRENCY + 1) },
+    });
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(SCAN_ANALYSIS_CONCURRENCY);
+    });
+
+    const resolveAt = (index: number) => {
+      if (!resolved.has(index)) {
+        resolved.add(index);
+        resolvers[index]({ ingredients: [`settings item ${index + 1}`] });
+      }
+    };
+
+    resolveAt(0);
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(SCAN_ANALYSIS_CONCURRENCY + 1);
+    });
+
+    for (let index = 1; index < resolvers.length; index += 1) {
+      resolveAt(index);
+    }
+
+    await waitFor(() => {
+      expect(screen.getByText('settings item 1')).toBeTruthy();
+    });
   });
 });

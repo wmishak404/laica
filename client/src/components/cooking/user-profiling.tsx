@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
+import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
 import { mergeUniqueEntriesWithMetadata, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
@@ -24,7 +25,13 @@ import {
   isRejectedVisionResult,
   type VisionAnalysisResult,
 } from '@/lib/visionResult';
-import { SCAN_UPLOAD_LIMITS, scanAreaLabel, scanItemLabel, type InventoryScanType } from '@shared/scan-policy';
+import {
+  SCAN_ANALYSIS_CONCURRENCY,
+  SCAN_UPLOAD_LIMITS,
+  scanAreaLabel,
+  scanItemLabel,
+  type InventoryScanType,
+} from '@shared/scan-policy';
 
 interface UserProfile {
   cookingSkill: string;
@@ -384,10 +391,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     let failedCount = 0;
     let lastRejectedResult: VisionAnalysisResult | null = null;
     let lastError: unknown = null;
+    let completedCount = 0;
 
     try {
-      for (let index = 0; index < supportedFiles.length; index += 1) {
-        const file = supportedFiles[index];
+      await processWithBoundedConcurrency(supportedFiles, SCAN_ANALYSIS_CONCURRENCY, async (file, index) => {
         if (!isActiveScan(type, scan.id, scan.controller)) return;
 
         try {
@@ -413,13 +420,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
           console.error(`Error processing ${type} photo ${index + 1}:`, error);
         } finally {
           if (isActiveScan(type, scan.id, scan.controller)) {
+            completedCount += 1;
             setScanProgress((prev) => ({
               ...prev,
-              [type]: { completed: index + 1, total: supportedFiles.length },
+              [type]: { completed: completedCount, total: supportedFiles.length },
             }));
           }
         }
-      }
+      }, {
+        shouldContinue: () => isActiveScan(type, scan.id, scan.controller),
+      });
 
       if (detectedLabels.length > 0) {
         applyDetectedItems(type, detectedLabels, { rejectedCount, failedCount });

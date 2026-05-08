@@ -84,6 +84,8 @@ The planning discussion estimated that maxing both Pantry and Kitchen under the 
 
 Latency is part of product quality for this policy. If the happy path takes long enough that users may disengage, the UI needs visible progress, cancellability, stale-result protection, and partial-success handling rather than a silent spinner.
 
+The first runtime performance patch uses bounded concurrency of 4 images at a time while keeping the current one-image `/api/vision/analyze` request shape. This changes wall-clock latency, not direct provider cost: the app still sends one vision request per accepted image, so the serial and concurrent implementations have the same estimated per-image spend. Using the planning estimate above, one 20-photo refresh remains roughly `$0.17-$0.22`, a maxed Pantry plus Kitchen refresh remains roughly `$0.34-$0.45`, and a maxed 40/day per-area user remains roughly `$0.67-$0.89` per day. Compared with the old 8 Pantry / 6 Kitchen maximum, the higher max-refresh cost comes from allowing 40 images instead of 14, not from concurrency. Provider-level batching remains the later cost-reduction path.
+
 ## Open implementation questions
 
 1. What exact image compression, dimension, and byte-size thresholds should trigger adaptive chunking?
@@ -155,3 +157,7 @@ After `origin/main` claimed EPIC-020 for the workflow-documentation audit, this 
 ### 2026-05-08 - First runtime implementation slice opened
 
 Branch `codex/epic-021-scan-upload-implementation` started the runtime follow-through after PR #52 merged the policy docs. The first slice centralizes the 20-photo / 40-per-day policy in shared code, updates setup and Settings to the same 20-photo per-refresh cap, moves unsupported-file filtering before over-cap checks so unsupported files do not count, changes user-facing cap copy from "per batch" to "per refresh", adds simple scan progress and partial-success copy for multi-photo refreshes, and makes the server vision limiter capable of consuming image counts. This does not yet implement a provider-level multi-image vision request or final adaptive chunk-size thresholds.
+
+### 2026-05-08 - Bounded concurrency performance patch
+
+Wilson's Replit validation found that the serial path took about 1-2 seconds per photo, making a full 20-photo refresh a likely engagement risk. The branch added bounded client-side processing of 4 images at a time for setup and Settings uploads, removed the Settings-only 500ms inter-photo delay, and documented that this improves latency without changing direct per-image API cost. The previous Replit pass at `aa2f434` is stale after this patch; authenticated Replit scan validation needs to be rerun at the new branch head.
