@@ -5,7 +5,7 @@
 **Created:** 2026-04-29
 **Current phase:** Phase 3.1 / Phase 4 planning
 **Active PR:** None
-**Active branch:** None
+**Active branch:** `codex/epic-021-scan-upload-implementation`
 
 ## Overview
 
@@ -154,6 +154,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 - Slop Bowl pantry-check visual alignment was added to Phase 3.1 scope after Wilson preferred the newer Chef It Up Phase 3.2 chip/row direction. Phase 3.1 should compare the two surfaces and align visual grammar where appropriate without changing Slop Bowl behavior unless explicitly revisited.
 - Phase 3.2 shipped through PR #46 after Wilson's authenticated Replit/browser validation at `9646c80`. Replit code-path review also passed, but the team explicitly recorded the distinction between code-verified checks and authenticated browser validation, feeding the later EPIC-017 / dev-test-harness automation work.
 - Scan upload capacity policy was accepted on 2026-05-08 in [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) and tracked for implementation by [EPIC-021](../epics/021-scan-upload-photo-limit-policy.md): Pantry and Kitchen should each support 20 images per inventory refresh, 40 images per day per area, one batched happy path with adaptive chunking, and scan-specific progress/partial-success/error copy.
+- EPIC-021 runtime implementation started on 2026-05-08 in `codex/epic-021-scan-upload-implementation`: shared scan policy constants, setup/Settings 20-photo per-refresh caps, unsupported-file counting semantics, per-refresh copy, progress/partial-success copy, image-count-aware server limiter plumbing, and focused unit coverage. Provider-level multi-image batching and final adaptive chunk thresholds remain open EPIC-021 work.
 
 ## Validation State
 
@@ -177,6 +178,7 @@ Known validation facts:
 - Phase 3.2 local validation passed `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check`.
 - Phase 3.2 Replit code-path review passed at `9646c80`: 19/19 targeted unit tests, TypeScript clean, build clean, and behavioral code checks confirmed. Pantry-save failure remained code-verified rather than manually forced in the live UI.
 - Phase 3.2 authenticated Replit/browser validation passed at `9646c80` by Wilson manual live preview: all 11 live UI steps passed, including rolling queue, pending chip undo, Back-before-submit no-save, submit-time pantry persistence, saved green-check-only chips, Pantry Settings inline note, no duplicate/resave behavior, loading freeze, Back cancel, Ticket Pass completion, and exactly three suggestions.
+- EPIC-021 local validation on `codex/epic-021-scan-upload-implementation` passed `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/rate-limit.test.ts`, `npm run check`, and `npm run build`; Replit mobile scan validation pending until the branch is ready for PR.
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
@@ -188,7 +190,8 @@ Next implementation / validation focus:
 1. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Slop Bowl pantry-check visual alignment with the shipped Chef It Up Phase 3.2 chip/row direction, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots. Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue behavior, including the pending `+` + `X` versus saved green-check-only chip distinction and saved-chip tap-to-explain removal note.
 2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EPIC-018 intentionally deferred.
 3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
-4. Continue the authenticated smoke automation / workflow-doc work in separate branches under EPIC-017 and EPIC-020; do not fold those system upgrades back into completed Phase 3.2.
+4. Continue EPIC-021 on `codex/epic-021-scan-upload-implementation` for scan upload runtime follow-through. The current slice has local unit/type/build validation; remaining before PR/merge is Replit mobile scan validation and a decision on whether provider-level multi-image batching/adaptive chunk thresholds land in this branch or a follow-up.
+5. Continue the authenticated smoke automation / workflow-doc work in separate branches under EPIC-017 and EPIC-020; do not fold those system upgrades back into completed Phase 3.2.
 
 ## Chronology
 

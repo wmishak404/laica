@@ -30,6 +30,7 @@ import {
 } from '@/lib/visionResult';
 import type { CookingSession } from '@shared/schema';
 import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
+import { SCAN_UPLOAD_LIMITS, scanAreaLabel, type InventoryScanType } from '@shared/scan-policy';
 
 interface UserProfile {
   cookingSkill: string;
@@ -47,6 +48,7 @@ interface UserSettingsProps {
 }
 
 export type SettingsSection = 'hub' | 'pantry' | 'kitchen' | 'profile';
+type ScanProgress = { completed: number; total: number } | null;
 
 function HistoryTab() {
   const { toast } = useToast();
@@ -397,6 +399,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const [manualOpen, setManualOpen] = useState<Record<'pantry' | 'kitchen', boolean>>({ pantry: false, kitchen: false });
   const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
+  const [scanProgress, setScanProgress] = useState<Record<InventoryScanType, ScanProgress>>({ pantry: null, kitchen: null });
   const { toast } = useToast();
 
   // Handler functions matching the initial profiling
@@ -710,18 +713,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const handleMultipleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    const maxFiles = type === 'pantry' ? 8 : 6;
+    const maxFiles = SCAN_UPLOAD_LIMITS[type];
     const selectedFiles = Array.from(files);
-
-    if (selectedFiles.length > maxFiles) {
-      toast({
-        title: "Too many photos",
-        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch. Select ${maxFiles} or fewer and try again.`,
-        variant: "destructive"
-      });
-      event.target.value = '';
-      return;
-    }
 
     const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const processedFiles = selectedFiles.filter(file => {
@@ -730,6 +723,16 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
       return supportedTypes.includes(fileType) || isHEIC;
     });
+
+    if (processedFiles.length > maxFiles) {
+      toast({
+        title: "Too many photos",
+        description: `${scanAreaLabel(type)} scan accepts up to ${maxFiles} photos per refresh. Select ${maxFiles} or fewer supported photos and try again.`,
+        variant: "destructive"
+      });
+      event.target.value = '';
+      return;
+    }
 
     if (processedFiles.length === 0) {
       toast({
@@ -744,7 +747,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     if (processedFiles.length !== selectedFiles.length) {
       toast({
         title: "Some files skipped",
-        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} accepts up to ${maxFiles} photos per batch. Processing ${processedFiles.length} image(s).`
+        description: `Unsupported files do not count toward the ${maxFiles}-photo ${type} refresh limit. Processing ${processedFiles.length} supported photo${processedFiles.length === 1 ? '' : 's'}.`
       });
     }
 
@@ -754,12 +757,18 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     } else {
       setIsAnalyzingEquipment(true);
     }
+    setScanProgress(prev => ({
+      ...prev,
+      [type]: processedFiles.length > 1 ? { completed: 0, total: processedFiles.length } : null,
+    }));
 
     // Collect all results first, then update state once
     let allNewIngredients: string[] = [];
     let allNewEquipment: string[] = [];
     let rejectedCount = 0;
+    let failedCount = 0;
     let lastRejectedResult: VisionAnalysisResult | null = null;
+    let lastError: unknown = null;
 
     try {
       // Process files sequentially to avoid overwhelming the API
@@ -829,7 +838,13 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
           }
         } catch (error) {
           console.error(`Error processing image ${i + 1}:`, error);
-          // Continue processing other images even if one fails
+          failedCount += 1;
+          lastError = error;
+        } finally {
+          setScanProgress(prev => ({
+            ...prev,
+            [type]: { completed: i + 1, total: processedFiles.length },
+          }));
         }
       }
 
@@ -848,6 +863,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
             title: `Scan complete!`,
             description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
               rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }${
+              failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
             }`
           });
         }
@@ -865,11 +882,20 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
             title: `Scan complete!`,
             description: `Found ${mergeResult.added.length} new equipment item${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
               rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }${
+              failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
             }`
           });
         }
       } else if (rejectedCount > 0 && lastRejectedResult) {
         showRejectedScanFeedback(type, lastRejectedResult);
+      } else if (failedCount > 0) {
+        console.error('Every selected scan photo failed:', lastError);
+        toast({
+          title: "Photos were not scanned",
+          description: "I couldn't finish that refresh. Try again in a moment, upload clearer photos, or enter items manually.",
+          variant: "destructive"
+        });
       } else {
         toast({
           title: "No items detected",
@@ -891,6 +917,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       } else {
         setIsAnalyzingEquipment(false);
       }
+      setScanProgress(prev => ({ ...prev, [type]: null }));
     }
     
     event.target.value = '';
@@ -1008,6 +1035,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     const placeholder = isPantry ? 'rice, eggs, spinach' : 'oven, blender, sheet pan';
     const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
     const handleReset = isPantry ? handleResetPantry : handleResetEquipment;
+    const progress = scanProgress[type];
 
     return (
       <div className={`returning-setup-anchor space-y-4 ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}>
@@ -1137,7 +1165,9 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                   <Loader2 className="h-5 w-5 animate-spin" />
                 </div>
                 <p className="mt-2 text-sm font-extrabold">
-                  {isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
+                  {progress
+                    ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'kitchen'} photos...`
+                    : isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
                 </p>
                 <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
               </div>

@@ -24,6 +24,7 @@ import {
   isRejectedVisionResult,
   type VisionAnalysisResult,
 } from '@/lib/visionResult';
+import { SCAN_UPLOAD_LIMITS, scanAreaLabel, scanItemLabel, type InventoryScanType } from '@shared/scan-policy';
 
 interface UserProfile {
   cookingSkill: string;
@@ -39,13 +40,10 @@ interface UserProfilingProps {
   menuSlot?: ReactNode;
 }
 
-type ScanType = 'pantry' | 'kitchen';
+type ScanType = InventoryScanType;
+type ScanProgress = { completed: number; total: number } | null;
 
 const TOTAL_STEPS = 5;
-const MAX_UPLOADS: Record<ScanType, number> = {
-  pantry: 8,
-  kitchen: 6,
-};
 const MIN_PANTRY_INGREDIENTS = 3;
 const PANTRY_PLACEHOLDERS = [
   'raw chicken, broccoli, spaghetti',
@@ -136,7 +134,7 @@ function isAbortError(error: unknown) {
 
 function getScanErrorFeedback(error: unknown, type: ScanType, mode: 'single' | 'batch') {
   const message = error instanceof Error ? error.message : String(error);
-  const scanLabel = type === 'pantry' ? 'Pantry' : 'Kitchen';
+  const scanLabel = scanAreaLabel(type);
 
   if (/429|too many requests|rate limit|quota/i.test(message)) {
     return {
@@ -206,19 +204,24 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const [manualEntry, setManualEntry] = useState<Record<ScanType, string>>({ pantry: '', kitchen: '' });
   const [manualOpen, setManualOpen] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
   const [isAnalyzing, setIsAnalyzing] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
+  const [scanProgress, setScanProgress] = useState<Record<ScanType, ScanProgress>>({ pantry: null, kitchen: null });
 
   useEffect(() => () => {
     scanControllers.current.pantry?.abort();
     scanControllers.current.kitchen?.abort();
   }, []);
 
-  const startScan = (type: ScanType) => {
+  const startScan = (type: ScanType, total = 1) => {
     scanControllers.current[type]?.abort();
     const controller = new AbortController();
     const id = scanRunIds.current[type] + 1;
     scanRunIds.current[type] = id;
     scanControllers.current[type] = controller;
     setIsAnalyzing((prev) => ({ ...prev, [type]: true }));
+    setScanProgress((prev) => ({
+      ...prev,
+      [type]: total > 1 ? { completed: 0, total } : null,
+    }));
 
     return { id, controller };
   };
@@ -233,6 +236,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
     scanControllers.current[type] = null;
     setIsAnalyzing((prev) => ({ ...prev, [type]: false }));
+    setScanProgress((prev) => ({ ...prev, [type]: null }));
   };
 
   const cancelScan = (type: ScanType, showToast = false) => {
@@ -244,6 +248,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     scanControllers.current[type] = null;
     scanRunIds.current[type] += 1;
     setIsAnalyzing((prev) => ({ ...prev, [type]: false }));
+    setScanProgress((prev) => ({ ...prev, [type]: null }));
 
     if (showToast) {
       toast({
@@ -263,7 +268,14 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }));
   };
 
-  const applyDetectedItems = (type: ScanType, labels: string[], skippedCount = 0) => {
+  const applyDetectedItems = (
+    type: ScanType,
+    labels: string[],
+    counts: { rejectedCount?: number; failedCount?: number } = {},
+  ) => {
+    const rejectedCount = counts.rejectedCount ?? 0;
+    const failedCount = counts.failedCount ?? 0;
+
     if (labels.length === 0) {
       toast({
         title: type === 'pantry' ? 'No ingredients detected' : 'No equipment detected',
@@ -278,7 +290,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     if (mergeResult.added.length === 0) {
       toast({
         title: 'Already saved',
-        description: `No new ${type === 'pantry' ? 'pantry items' : 'kitchen tools'} were added from that scan.`,
+        description: `No new ${scanItemLabel(type)} were added from that scan.`,
       });
       return;
     }
@@ -288,7 +300,9 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}. Review the list before moving on.${
         mergeResult.duplicateCount > 0 ? ` ${mergeResult.duplicateCount} already-saved item${mergeResult.duplicateCount === 1 ? ' was' : 's were'} skipped.` : ''
       }${
-        skippedCount > 0 ? ` ${skippedCount} text-only photo${skippedCount === 1 ? ' was' : 's were'} skipped.` : ''
+        rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+      }${
+        failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
       }`,
     });
   };
@@ -333,20 +347,20 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     event.target.value = '';
     if (files.length === 0) return;
 
-    const maxFiles = MAX_UPLOADS[type];
-    if (files.length > maxFiles) {
-      toast({
-        title: 'Too many photos',
-        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch. Select ${maxFiles} or fewer and try again.`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    const maxFiles = SCAN_UPLOAD_LIMITS[type];
     const supportedFiles = files.filter((file) => {
       const name = file.name.toLowerCase();
       return file.type.startsWith('image/') || name.endsWith('.heic') || name.endsWith('.heif');
     });
+
+    if (supportedFiles.length > maxFiles) {
+      toast({
+        title: 'Too many photos',
+        description: `${scanAreaLabel(type)} scan accepts up to ${maxFiles} photos per refresh. Select ${maxFiles} or fewer supported photos and try again.`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     if (supportedFiles.length === 0) {
       toast({
@@ -360,40 +374,63 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     if (supportedFiles.length !== files.length) {
       toast({
         title: 'Some photos were skipped',
-        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch.`,
+        description: `Unsupported files do not count toward the ${maxFiles}-photo ${type} refresh limit. Processing ${supportedFiles.length} supported photo${supportedFiles.length === 1 ? '' : 's'}.`,
       });
     }
 
-    const scan = startScan(type);
+    const scan = startScan(type, supportedFiles.length);
     const detectedLabels: string[] = [];
     let rejectedCount = 0;
+    let failedCount = 0;
     let lastRejectedResult: VisionAnalysisResult | null = null;
+    let lastError: unknown = null;
 
     try {
-      for (const file of supportedFiles) {
+      for (let index = 0; index < supportedFiles.length; index += 1) {
+        const file = supportedFiles[index];
         if (!isActiveScan(type, scan.id, scan.controller)) return;
 
-        const name = file.name.toLowerCase();
-        const isHEIC = name.endsWith('.heic') || name.endsWith('.heif');
-        const imageData = isHEIC ? await readImageAsBase64(file) : await compressImage(file);
-        if (!isActiveScan(type, scan.id, scan.controller)) return;
+        try {
+          const name = file.name.toLowerCase();
+          const isHEIC = name.endsWith('.heic') || name.endsWith('.heif');
+          const imageData = isHEIC ? await readImageAsBase64(file) : await compressImage(file);
+          if (!isActiveScan(type, scan.id, scan.controller)) return;
 
-        const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal, scanType: type }) as VisionAnalysisResult;
-        if (!isActiveScan(type, scan.id, scan.controller)) return;
+          const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal, scanType: type }) as VisionAnalysisResult;
+          if (!isActiveScan(type, scan.id, scan.controller)) return;
 
-        if (isRejectedVisionResult(result)) {
-          rejectedCount += 1;
-          lastRejectedResult = result;
-          continue;
+          if (isRejectedVisionResult(result)) {
+            rejectedCount += 1;
+            lastRejectedResult = result;
+          } else {
+            detectedLabels.push(...extractVisionLabels(result, type));
+          }
+        } catch (error) {
+          if (isAbortError(error) || !isActiveScan(type, scan.id, scan.controller)) return;
+
+          failedCount += 1;
+          lastError = error;
+          console.error(`Error processing ${type} photo ${index + 1}:`, error);
+        } finally {
+          if (isActiveScan(type, scan.id, scan.controller)) {
+            setScanProgress((prev) => ({
+              ...prev,
+              [type]: { completed: index + 1, total: supportedFiles.length },
+            }));
+          }
         }
-
-        detectedLabels.push(...extractVisionLabels(result, type));
       }
 
       if (detectedLabels.length > 0) {
-        applyDetectedItems(type, detectedLabels, rejectedCount);
+        applyDetectedItems(type, detectedLabels, { rejectedCount, failedCount });
       } else if (rejectedCount > 0 && lastRejectedResult) {
         showRejectedScanFeedback(type, lastRejectedResult);
+      } else if (failedCount > 0 && lastError) {
+        const feedback = getScanErrorFeedback(lastError, type, 'batch');
+        toast({
+          ...feedback,
+          variant: 'destructive',
+        });
       } else {
         applyDetectedItems(type, []);
       }
@@ -562,6 +599,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       ? 'Point at shelves, fridge, or freezer. Labels are welcome when the food is physically visible.'
       : "Add the tools and appliances you actually cook with. Skip anything you don't want tracked.";
     const manualPlaceholder = isPantry ? pantryPlaceholder : 'oven, blender, sheet pan';
+    const progress = scanProgress[type];
 
     return (
       <div className="space-y-5">
@@ -692,7 +730,9 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
             <p className="mt-2 text-sm font-extrabold">
-              {isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
+              {progress
+                ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'kitchen'} photos...`
+                : isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
             </p>
             <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
           </div>

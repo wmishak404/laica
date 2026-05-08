@@ -151,3 +151,7 @@ Wilson reported that a user tried to be thorough with about 30 pantry photos but
 ### 2026-05-08 - Renumbered to EPIC-021 and accepted policy recorded
 
 After `origin/main` claimed EPIC-020 for the workflow-documentation audit, this scan-limit epic was renumbered to EPIC-021. Wilson accepted the 20-image per-refresh policy, 40-image daily budget per area, same-limit Pantry/Kitchen rule, batched happy path, adaptive chunking direction, image-count rate limits, partial-success preservation, progress/stale-result UI direction, and scan-specific messaging posture. [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) is the durable decision record.
+
+### 2026-05-08 - First runtime implementation slice opened
+
+Branch `codex/epic-021-scan-upload-implementation` started the runtime follow-through after PR #52 merged the policy docs. The first slice centralizes the 20-photo / 40-per-day policy in shared code, updates setup and Settings to the same 20-photo per-refresh cap, moves unsupported-file filtering before over-cap checks so unsupported files do not count, changes user-facing cap copy from "per batch" to "per refresh", adds simple scan progress and partial-success copy for multi-photo refreshes, and makes the server vision limiter capable of consuming image counts. This does not yet implement a provider-level multi-image vision request or final adaptive chunk-size thresholds.

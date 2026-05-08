@@ -1,4 +1,5 @@
-import type { Request, RequestHandler } from "express";
+import type { Request, RequestHandler, Response } from "express";
+import { SCAN_IMAGES_PER_DAY } from "@shared/scan-policy";
 
 type RateLimitKey = "vision" | "recipe" | "slopBowl" | "ai" | "voice" | "speech" | "feedback";
 type RateLimitWindow = "short" | "hour" | "day";
@@ -55,30 +56,44 @@ export function getVisionIpRateLimitKey(req: Request): string {
   return `${getClientIp(req)}:${getVisionScanContext(req)}`;
 }
 
-export function createRateLimit({ name, windowMs, max, keyGenerator }: RateLimitOptions): RequestHandler {
+export function consumeRateLimit(
+  { name, windowMs, max, keyGenerator }: RateLimitOptions,
+  req: Request,
+  res: Response,
+  count = 1,
+): boolean {
+  const safeCount = Number.isInteger(count) && count > 0 ? count : 1;
+  const now = Date.now();
+  const key = `${name}:${keyGenerator(req)}`;
+  const existing = buckets.get(key);
+  const bucket = existing && existing.resetAt > now ? existing : { count: 0, resetAt: now + windowMs };
+
+  bucket.count += safeCount;
+  buckets.set(key, bucket);
+
+  const remaining = Math.max(0, max - bucket.count);
+  res.setHeader("X-RateLimit-Limit", String(max));
+  res.setHeader("X-RateLimit-Remaining", String(remaining));
+  res.setHeader("X-RateLimit-Reset", String(Math.ceil(bucket.resetAt / 1000)));
+
+  if (bucket.count > max) {
+    const retryAfterSeconds = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+    res.setHeader("Retry-After", String(retryAfterSeconds));
+    res.status(429).json({
+      code: "RATE_LIMITED",
+      message: "Too many requests. Try again later.",
+    });
+    return false;
+  }
+
+  return true;
+}
+
+export function createRateLimit(options: RateLimitOptions): RequestHandler {
   return (req, res, next) => {
-    const now = Date.now();
-    const key = `${name}:${keyGenerator(req)}`;
-    const existing = buckets.get(key);
-    const bucket = existing && existing.resetAt > now ? existing : { count: 0, resetAt: now + windowMs };
-
-    bucket.count += 1;
-    buckets.set(key, bucket);
-
-    const remaining = Math.max(0, max - bucket.count);
-    res.setHeader("X-RateLimit-Limit", String(max));
-    res.setHeader("X-RateLimit-Remaining", String(remaining));
-    res.setHeader("X-RateLimit-Reset", String(Math.ceil(bucket.resetAt / 1000)));
-
-    if (bucket.count > max) {
-      const retryAfterSeconds = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
-      res.setHeader("Retry-After", String(retryAfterSeconds));
-      return res.status(429).json({
-        code: "RATE_LIMITED",
-        message: "Too many requests. Try again later.",
-      });
+    if (!consumeRateLimit(options, req, res)) {
+      return;
     }
-
     next();
   };
 }
@@ -94,26 +109,40 @@ export const feedbackIpLimit = createRateLimit({
   keyGenerator: getClientIp,
 });
 
-export const visionUserShortLimit = createRateLimit({
+const visionUserShortOptions = {
   name: "vision:user:15m",
   windowMs: FIFTEEN_MINUTES,
-  max: envLimit("vision", "short", 12),
+  max: envLimit("vision", "short", SCAN_IMAGES_PER_DAY),
   keyGenerator: getVisionUserRateLimitKey,
-});
+};
 
-export const visionIpShortLimit = createRateLimit({
+export const visionUserShortLimit = createRateLimit(visionUserShortOptions);
+
+const visionIpShortOptions = {
   name: "vision:ip:15m",
   windowMs: FIFTEEN_MINUTES,
   max: 60,
   keyGenerator: getVisionIpRateLimitKey,
-});
+};
 
-export const visionUserDayLimit = createRateLimit({
+export const visionIpShortLimit = createRateLimit(visionIpShortOptions);
+
+const visionUserDayOptions = {
   name: "vision:user:day",
   windowMs: ONE_DAY,
-  max: envLimit("vision", "day", 40),
+  max: envLimit("vision", "day", SCAN_IMAGES_PER_DAY),
   keyGenerator: getVisionUserRateLimitKey,
-});
+};
+
+export const visionUserDayLimit = createRateLimit(visionUserDayOptions);
+
+export function consumeVisionImageRateLimits(req: Request, res: Response, imageCount = 1): boolean {
+  return (
+    consumeRateLimit(visionIpShortOptions, req, res, imageCount) &&
+    consumeRateLimit(visionUserShortOptions, req, res, imageCount) &&
+    consumeRateLimit(visionUserDayOptions, req, res, imageCount)
+  );
+}
 
 export const recipeUserHourLimit = createRateLimit({
   name: "recipe:user:hour",
