@@ -40,6 +40,13 @@ Use "per refresh" in product copy. Avoid "per batch" because adaptive chunking m
 - Partial chunk successes are preserved. The UI should summarize what was saved or suggested and what could not be analyzed.
 - The UI should show progress for long scans and protect against stale late results when the user cancels, backs out, starts a newer scan, or leaves the surface.
 
+### Abuse guardrail posture
+
+- The current implementation should keep auth-required scan access, per-user/per-area daily image limits, and short-window IP limits.
+- Do not add a daily IP cap, cross-area global IP cap, profile-save-before-scan gate, or fresh-account abuse workflow for this slice.
+- The repeat-fresh-account scenario is a known non-blocking risk: a user could create or use multiple Firebase accounts, scan without saving, sign out, and repeat. The short-window IP limiter makes this annoying and bounded for casual abuse, while heavier controls can wait for real cost, usage, or abuse signals.
+- Revisit stronger abuse controls if billing spikes, scan usage shows suspicious account churn, or Replit/runtime telemetry shows repeated high-volume scans from the same network.
+
 ### Messaging direction
 
 - Preserve the scan-specific error taxonomy from Phase 2.1: text-only rejection, no-detection, rate limit, auth, service, malformed-image, over-cap, and generic scan failure should remain distinguishable.
@@ -69,6 +76,7 @@ This policy inherits [PD-010](010-ai-error-telemetry-allowlist.md). Scan telemet
 - Counting images instead of requests keeps adaptive chunking honest.
 - Preserving partial successes respects the user's time and avoids discarding good work because one chunk failed.
 - Scan-specific messaging matters because inventory scans fail for reasons that cooking/recipe AI failures do not: unsupported files, text-only evidence, no physical items detected, malformed images, over-cap selection, and duplicate-only results.
+- The fresh-account abuse case is possible but sufficiently intentional and high-friction that extra daily/global IP caps are deferred until observed usage justifies the added product and operational complexity.
 
 ## Cost and latency planning notes
 
@@ -87,6 +95,7 @@ These are planning estimates, not billing guarantees. Implementation should reca
 | Count API requests instead of images | Adaptive chunking could accidentally increase effective quota or punish users for server-side implementation details |
 | Fail the whole refresh on any chunk failure | This discards successful analysis and makes long scans feel brittle |
 | Use generic AI error messaging | Scan failures need inventory-specific recovery and should not borrow cooking/recipe failure copy |
+| Add daily/global IP caps immediately | More machinery than the current risk deserves; existing auth, per-user limits, and short-window IP limits are enough for this rollout unless real usage says otherwise |
 
 ## Consequences
 
@@ -95,6 +104,7 @@ These are planning estimates, not billing guarantees. Implementation should reca
 - The scan route may need a new batch contract or a backward-compatible batch mode, plus explicit parser/body/provider payload guardrails.
 - Tests must cover setup and Settings limits, same-limit Pantry/Kitchen behavior, fail-closed over-cap copy, unsupported-file counting, accepted-image counting, image-count rate limits, partial-success behavior, and stale-result protection.
 - Replit validation should include a high-photo-count mobile scan scenario before this epic resolves.
+- Abuse hardening beyond the existing short-window IP limit is a monitoring follow-up, not a blocker for the current EPIC-021 runtime slice.
 
 ## Open follow-ups
 

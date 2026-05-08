@@ -52,6 +52,12 @@ Using the planning estimates in EPIC-021, the current per-image implementation r
 
 Compared with the old 8 Pantry / 6 Kitchen maximum, the max-refresh spend rises because the cap now allows 40 images instead of 14. Bounded concurrency does not create that increase. Future provider-level batching is still the cost-reduction path, with the planning estimate closer to `$0.18-$0.28` per maxed user day.
 
+## Abuse Guardrail Note
+
+Wilson raised a fresh-account churn case: a user could sign in, scan 20 photos, avoid saving, sign out, then repeat with another fresh account. The current decision is not to add daily IP caps, global cross-area IP caps, or a save-before-scan gate in this slice.
+
+Current protection is considered enough for rollout: scans require auth, accepted images count against per-user/per-area daily limits, and short-window IP limits make rapid repeat abuse annoying and bounded. This remains a known non-blocking risk to revisit if billing, usage, or account-churn signals show the heavier guardrails are needed.
+
 ## Remaining EPIC-021 Work
 
 - Decide whether provider-level multi-image batching and adaptive chunk thresholds should land in this branch or a follow-up. This slice only prepares the policy/cap/rate-limit semantics and keeps the current per-image API path.
