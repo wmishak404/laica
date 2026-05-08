@@ -222,6 +222,12 @@ Implemented locally:
 - Phase 3 is functionally closed. Current Planning/Ticket/Prep visuals remain accepted as functional scaffolding under the visual-freeze decision, while [Phase 3.1](phase-03-1-recipe-imagery.md) owns the deliberate design facelift and async/cached recipe imagery pass.
 - Do not resume the merged Phase 3 branches. Start Phase 3.1 and Phase 4 work from fresh `origin/main`.
 
+2026-05-08 Phase 3.2 split:
+
+- The richer progressive staple-check interaction is split to [Phase 3.2](phase-03-2-progressive-staples.md) instead of Phase 3.1. Phase 3.1 stays focused on the design facelift and recipe imagery.
+- Phase 3.2 can implement before Phase 3.1 because it is behavior/interaction polish on top of the merged PR #45 cancellation lock, not the broader visual facelift.
+- Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue when it updates the Chef It Up visual language.
+
 Local validation:
 
 - `npm ci`

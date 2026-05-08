@@ -89,3 +89,4 @@ Read these before starting work in their governed domains:
 | [015](015-ui-governance-enforcement.md) | UI governance enforcement (lint + PR template) | `Open` | Wilson / Codex / Claude | 2026-05-02 |
 | [016](016-slop-bowl-hex-literal-cleanup.md) | Slop Bowl hex literal cleanup | `Open` | Wilson / Codex / Claude | 2026-05-02 |
 | [019](019-ai-error-telemetry-and-eval-monitoring.md) | AI error telemetry and eval monitoring | `Open` | Wilson / Codex / Claude | 2026-05-07 |
+| [020](020-workflow-documentation-audit.md) | Workflow documentation audit and graduation | `Open` | Wilson / Codex / Claude | 2026-05-08 |

@@ -89,6 +89,7 @@ The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cuttin
 - `epics/015-ui-governance-enforcement.md` — read before adding/modifying ESLint config or `.github/PULL_REQUEST_TEMPLATE.md`, or expanding UI governance enforcement
 - `epics/016-slop-bowl-hex-literal-cleanup.md` — read before changing Slop Bowl styling or migrating hex literals to tokens
 - `epics/019-ai-error-telemetry-and-eval-monitoring.md` — read before adding persistent AI request error logging, creating an `ai_error_events` schema, adding admin APIs for AI error summary/list/detail/clusters, correlating Feedback with AI failures, or feeding operational error clusters into the eval pipeline
+- `epics/020-workflow-documentation-audit.md` — read before creating or reorganizing workflow docs, resolving EPIC-005, or changing where acceptance criteria, validation state, and verification evidence live
 
 If your work intersects with an active epic, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
 

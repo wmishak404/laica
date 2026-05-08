@@ -65,6 +65,13 @@ export function getStapleCandidatesForCuisines(
   cuisines: string[],
   pantryIngredients: string[],
 ): string[] {
+  return getAllStapleCandidatesForCuisines(cuisines, pantryIngredients).slice(0, MAX_STAPLE_CANDIDATES);
+}
+
+export function getAllStapleCandidatesForCuisines(
+  cuisines: string[],
+  pantryIngredients: string[],
+): string[] {
   const ranked = new Map<string, StapleCandidate>();
 
   cuisines.forEach((cuisine, cuisineIndex) => {
@@ -95,7 +102,7 @@ export function getStapleCandidatesForCuisines(
   const selectedKeys = new Set<string>();
   const coveredCuisineIndices = new Set<number>();
 
-  while (selectedCandidates.length < MAX_STAPLE_CANDIDATES) {
+  while (selectedCandidates.length < rankedCandidates.length) {
     const nextRepresentative = rankedCandidates
       .filter((candidate) => !selectedKeys.has(candidate.key) && countUncoveredCuisines(candidate, coveredCuisineIndices) > 0)
       .sort((left, right) =>
@@ -111,7 +118,7 @@ export function getStapleCandidatesForCuisines(
   }
 
   rankedCandidates.forEach((candidate) => {
-    if (selectedCandidates.length >= MAX_STAPLE_CANDIDATES || selectedKeys.has(candidate.key)) return;
+    if (selectedKeys.has(candidate.key)) return;
 
     selectedCandidates.push(candidate);
     selectedKeys.add(candidate.key);

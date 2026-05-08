@@ -11,9 +11,12 @@ import {
   normalizePlanningTimeValue,
   type PlanningTimeValue,
 } from '@shared/planning';
-import { getStapleCandidatesForCuisines } from '@shared/planning-staples';
-import { mergeUniqueEntries } from '@/lib/entryParsing';
-import { ArrowLeft, ChefHat, CheckCircle2, Clock, RefreshCw, Sparkles, Utensils } from 'lucide-react';
+import {
+  MAX_STAPLE_CANDIDATES,
+  getAllStapleCandidatesForCuisines,
+} from '@shared/planning-staples';
+import { mergeUniqueEntries, normalizeEntryKey } from '@/lib/entryParsing';
+import { ArrowLeft, ChefHat, CheckCircle2, Clock, Plus, RefreshCw, Sparkles, Utensils, X } from 'lucide-react';
 
 const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
 const NO_PREFERENCE = 'No preference';
@@ -24,9 +27,15 @@ interface SavedMealPlanningSession {
   currentStep: PlanningStep;
   mealPrefs: MealPreferences;
   selectedStaples: string[];
+  seenStapleCandidates: string[];
   recommendations: RecipeRecommendation[];
   selectedMeal: RecipeRecommendation | null;
   savedAt: number;
+}
+
+interface LockedStapleView {
+  selected: string[];
+  visible: string[];
 }
 
 interface UserProfile {
@@ -115,6 +124,9 @@ const calculatePantryMatch = (pantryCount: number, additionalCount: number) => {
   return Math.max(0, Math.min(100, Math.round(((pantryCount - additionalCount) / pantryCount) * 100)));
 };
 
+const arraysMatch = (left: string[], right: string[]) =>
+  left.length === right.length && left.every((item, index) => item === right[index]);
+
 const splitRecipeName = (recipeName: string): { main: string; detail?: string } => {
   const normalized = recipeName.replace(/\s+/g, ' ').trim();
   if (!normalized) return { main: 'Pantry Dinner' };
@@ -151,11 +163,13 @@ export default function MealPlanning({
     cuisinePreference: [NO_PREFERENCE],
   });
   const [selectedStaples, setSelectedStaples] = useState<string[]>([]);
+  const [seenStapleCandidates, setSeenStapleCandidates] = useState<string[]>([]);
   const [recommendations, setRecommendations] = useState<RecipeRecommendation[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [sessionRestored, setSessionRestored] = useState(false);
-  const [lockedStapleCandidates, setLockedStapleCandidates] = useState<string[] | null>(null);
+  const [lockedStapleView, setLockedStapleView] = useState<LockedStapleView | null>(null);
+  const [savedStapleHint, setSavedStapleHint] = useState<string | null>(null);
   const generationRunIdRef = useRef(0);
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const { toast } = useToast();
@@ -185,7 +199,8 @@ export default function MealPlanning({
           timeAvailable: normalizePlanningTimeValue(data.mealPrefs?.timeAvailable),
           cuisinePreference: normalizeCuisinePreference(data.mealPrefs?.cuisinePreference),
         },
-        selectedStaples: stringArray(data.selectedStaples).slice(0, 4),
+        selectedStaples: stringArray(data.selectedStaples),
+        seenStapleCandidates: stringArray(data.seenStapleCandidates),
         recommendations,
         selectedMeal,
         savedAt: data.savedAt,
@@ -213,6 +228,7 @@ export default function MealPlanning({
         setCurrentStep(session.currentStep);
         setMealPrefs(session.mealPrefs);
         setSelectedStaples(session.selectedStaples);
+        setSeenStapleCandidates(mergeUniqueEntries(session.seenStapleCandidates, session.selectedStaples));
         setRecommendations(session.recommendations);
         setSelectedMeal(session.selectedMeal);
         setSessionRestored(true);
@@ -239,13 +255,14 @@ export default function MealPlanning({
       currentStep,
       mealPrefs,
       selectedStaples,
+      seenStapleCandidates,
       recommendations: recommendations.slice(0, 3),
       selectedMeal,
       savedAt: Date.now(),
     };
 
     localStorage.setItem(MEAL_PLANNING_STORAGE_KEY, JSON.stringify(session));
-  }, [currentStep, mealPrefs, selectedStaples, recommendations, selectedMeal, sessionRestored]);
+  }, [currentStep, mealPrefs, selectedStaples, seenStapleCandidates, recommendations, selectedMeal, sessionRestored]);
 
   useEffect(() => {
     if (currentStep !== 'tickets' && currentStep !== 'prep-tray') return;
@@ -255,18 +272,41 @@ export default function MealPlanning({
     setSelectedMeal(recommendations[0]);
   }, [currentStep, recommendations, selectedMeal]);
 
+  useEffect(() => {
+    if (currentStep !== 'staples') {
+      setSavedStapleHint(null);
+    }
+  }, [currentStep]);
+
   const selectedTimeIndex = Math.max(
     0,
     PLANNING_TIME_OPTIONS.findIndex((option) => option.value === mealPrefs.timeAvailable),
   );
   const canProceedFromCuisine = mealPrefs.cuisinePreference.length > 0;
-  const stapleCandidates = useMemo(
+  const fullStapleCandidates = useMemo(
     () => mealPrefs.cuisinePreference.includes(NO_PREFERENCE)
       ? []
-      : getStapleCandidatesForCuisines(mealPrefs.cuisinePreference, userProfile.pantryIngredients),
+      : getAllStapleCandidatesForCuisines(mealPrefs.cuisinePreference, userProfile.pantryIngredients),
     [mealPrefs.cuisinePreference, userProfile.pantryIngredients],
   );
-  const displayedStapleCandidates = lockedStapleCandidates ?? stapleCandidates;
+  const visibleStapleCandidates = useMemo(
+    () => fullStapleCandidates
+      .filter((staple) => !selectedStaples.includes(staple))
+      .slice(0, MAX_STAPLE_CANDIDATES),
+    [fullStapleCandidates, selectedStaples],
+  );
+  const pantryIngredientKeys = useMemo(
+    () => new Set(userProfile.pantryIngredients.map((ingredient) => normalizeEntryKey(ingredient)).filter(Boolean)),
+    [userProfile.pantryIngredients],
+  );
+  const isSavedPantryStaple = (staple: string) => pantryIngredientKeys.has(normalizeEntryKey(staple));
+  const displayedSelectedStaples = lockedStapleView?.selected ?? selectedStaples;
+  const displayedStapleCandidates = lockedStapleView?.visible ?? visibleStapleCandidates;
+  const showSavedStapleHint = Boolean(
+    savedStapleHint &&
+      displayedSelectedStaples.includes(savedStapleHint) &&
+      isSavedPantryStaple(savedStapleHint),
+  );
 
   const isActiveGeneration = (runId: number, controller: AbortController) =>
     activeGenerationRef.current?.runId === runId && !controller.signal.aborted;
@@ -281,7 +321,7 @@ export default function MealPlanning({
 
     if (resetUi) {
       setIsLoading(false);
-      setLockedStapleCandidates(null);
+      setLockedStapleView(null);
     }
   };
 
@@ -291,6 +331,19 @@ export default function MealPlanning({
     };
   }, []);
 
+  useEffect(() => {
+    if (currentStep !== 'staples' || isLoading) return;
+
+    const nextSeenStaples = mergeUniqueEntries(
+      seenStapleCandidates,
+      [...selectedStaples, ...visibleStapleCandidates],
+    );
+
+    if (!arraysMatch(nextSeenStaples, seenStapleCandidates)) {
+      setSeenStapleCandidates(nextSeenStaples);
+    }
+  }, [currentStep, isLoading, selectedStaples, seenStapleCandidates, visibleStapleCandidates]);
+
   const setPlanningTime = (value: PlanningTimeValue) => {
     setMealPrefs((prev) => ({ ...prev, timeAvailable: value }));
     onPlanningTimeChange(value);
@@ -299,7 +352,9 @@ export default function MealPlanning({
   const toggleCuisine = (cuisine: string) => {
     if (isLoading) return;
 
+    setSavedStapleHint(null);
     setSelectedStaples([]);
+    setSeenStapleCandidates([]);
     setMealPrefs((prev) => {
       if (cuisine === NO_PREFERENCE) {
         return {
@@ -323,6 +378,8 @@ export default function MealPlanning({
   const toggleStaple = (staple: string) => {
     if (isLoading) return;
 
+    setSavedStapleHint(null);
+    setSeenStapleCandidates((prev) => mergeUniqueEntries(prev, [staple]));
     setSelectedStaples((prev) =>
       prev.includes(staple)
         ? prev.filter((item) => item !== staple)
@@ -370,9 +427,11 @@ export default function MealPlanning({
   const generateRecommendations = async ({
     confirmedStaples = [],
     askedStaples = [],
+    visibleStaples = [],
   }: {
     confirmedStaples?: string[];
     askedStaples?: string[];
+    visibleStaples?: string[];
   } = {}) => {
     if (activeGenerationRef.current) return;
 
@@ -388,8 +447,13 @@ export default function MealPlanning({
       favoriteChefs: [...userProfile.favoriteChefs],
     };
     const requestPreviousRecommendations = recommendations.slice(0, 3);
-    const requestConfirmedStaples = confirmedStaples.filter((staple) => staple.trim().length > 0);
-    const requestAskedStaples = [...askedStaples];
+    const requestConfirmedStaples = mergeUniqueEntries([], confirmedStaples);
+    const requestAskedStaples = mergeUniqueEntries([], askedStaples);
+    const requestVisibleStaples = mergeUniqueEntries([], visibleStaples)
+      .filter((staple) => !requestConfirmedStaples.includes(staple));
+    const requestPantryKeys = new Set(requestProfile.pantryIngredients.map((ingredient) => normalizeEntryKey(ingredient)).filter(Boolean));
+    const requestUnsavedConfirmedStaples = requestConfirmedStaples
+      .filter((staple) => !requestPantryKeys.has(normalizeEntryKey(staple)));
     const controller = new AbortController();
     const runId = generationRunIdRef.current + 1;
 
@@ -413,29 +477,37 @@ export default function MealPlanning({
 
     generationRunIdRef.current = runId;
     activeGenerationRef.current = { runId, controller };
-    setLockedStapleCandidates(requestAskedStaples.length > 0 ? requestAskedStaples : null);
+    setLockedStapleView(
+      requestAskedStaples.length > 0 || requestConfirmedStaples.length > 0
+        ? { selected: requestConfirmedStaples, visible: requestVisibleStaples }
+        : null
+    );
     setIsLoading(true);
 
     let pantryIngredientsForRequest = requestProfile.pantryIngredients;
     if (requestConfirmedStaples.length > 0) {
       pantryIngredientsForRequest = mergeUniqueEntries(requestProfile.pantryIngredients, requestConfirmedStaples);
+    }
 
+    if (requestUnsavedConfirmedStaples.length > 0) {
       try {
-        const saved = await onPantryIngredientsAdded(requestConfirmedStaples);
+        const saved = await onPantryIngredientsAdded(requestUnsavedConfirmedStaples);
         if (!isActiveGeneration(runId, controller)) return;
 
         if (!saved) {
           toast({
-            title: "We'll use those for now",
-            description: "I couldn't save those pantry staples yet. You can add them later in Settings.",
+            title: "Couldn't save pantry staples",
+            description: "We'll still use them for these recipes. You can add them later in Settings.",
+            variant: 'destructive',
           });
         }
       } catch {
         if (!isActiveGeneration(runId, controller)) return;
 
         toast({
-          title: "We'll use those for now",
-          description: "I couldn't save those pantry staples yet. You can add them later in Settings.",
+          title: "Couldn't save pantry staples",
+          description: "We'll still use them for these recipes. You can add them later in Settings.",
+          variant: 'destructive',
         });
       }
     }
@@ -508,14 +580,15 @@ export default function MealPlanning({
       if (activeGenerationRef.current?.runId === runId) {
         activeGenerationRef.current = null;
         setIsLoading(false);
-        setLockedStapleCandidates(null);
+        setLockedStapleView(null);
       }
     }
   };
 
   const continueFromCuisine = () => {
     setSelectedStaples([]);
-    if (stapleCandidates.length > 0) {
+    setSeenStapleCandidates([]);
+    if (fullStapleCandidates.length > 0) {
       setCurrentStep('staples');
       return;
     }
@@ -524,9 +597,15 @@ export default function MealPlanning({
   };
 
   const continueFromStaples = () => {
+    const submittedSeenStaples = mergeUniqueEntries(
+      seenStapleCandidates,
+      [...selectedStaples, ...visibleStapleCandidates],
+    );
+
     generateRecommendations({
       confirmedStaples: selectedStaples,
-      askedStaples: stapleCandidates,
+      askedStaples: submittedSeenStaples,
+      visibleStaples: visibleStapleCandidates,
     });
   };
 
@@ -554,7 +633,11 @@ export default function MealPlanning({
       setCurrentStep('tickets');
       return;
     }
-    setCurrentStep(displayedStapleCandidates.length > 0 ? 'staples' : 'cuisine');
+    setCurrentStep(
+      displayedStapleCandidates.length > 0 || displayedSelectedStaples.length > 0
+        ? 'staples'
+        : 'cuisine'
+    );
   };
 
   const renderTimeStep = () => (
@@ -690,18 +773,68 @@ export default function MealPlanning({
       <div className="text-center">
         <h1 className="planning-display text-3xl font-extrabold leading-tight">Anything else around?</h1>
         <p className="planning-copy mt-3 text-sm font-bold">
-          Tap what you have. We&apos;ll remember it in your pantry.
+          Tap what you have. We&apos;ll save additions when you view suggestions.
         </p>
       </div>
 
-      <div className="mt-8 space-y-3" aria-label="Pantry staple options">
+      {displayedSelectedStaples.length > 0 && (
+        <div className="planning-added-shelf mt-8" role="group" aria-label="Added pantry staples">
+          <p className="planning-added-label">Added</p>
+          <div className="planning-added-chip-row">
+            {displayedSelectedStaples.map((staple) => {
+              const savedToPantry = isSavedPantryStaple(staple);
+
+              if (savedToPantry) {
+                return (
+                  <button
+                    type="button"
+                    key={staple}
+                    className="planning-added-chip planning-added-chip-saved"
+                    aria-label={`Already saved in your pantry: ${staple}. Head to Pantry Settings to make changes.`}
+                    onClick={() => setSavedStapleHint(staple)}
+                  >
+                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                    <span className="planning-added-chip-text">{staple}</span>
+                  </button>
+                );
+              }
+
+              return (
+                <button
+                  type="button"
+                  key={staple}
+                  className="planning-added-chip"
+                  aria-label={`Remove ${staple} from Added`}
+                  disabled={isLoading}
+                  onClick={() => toggleStaple(staple)}
+                >
+                  <Plus className="planning-added-chip-add h-4 w-4" aria-hidden="true" />
+                  <span className="planning-added-chip-text">{staple}</span>
+                  <X className="planning-added-chip-remove h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              );
+            })}
+          </div>
+          {showSavedStapleHint && (
+            <p className="planning-added-help" role="status">
+              These are already saved in your pantry. Head to Pantry Settings to make changes.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div
+        className={displayedSelectedStaples.length > 0 ? 'mt-5 space-y-3' : 'mt-8 space-y-3'}
+        role="group"
+        aria-label="Pantry staple options"
+      >
         {displayedStapleCandidates.map((staple) => {
           const selected = selectedStaples.includes(staple);
           return (
             <button
               type="button"
               key={staple}
-              className="planning-cuisine-row"
+              className="planning-cuisine-row planning-staple-row"
               data-selected={selected}
               aria-pressed={selected}
               disabled={isLoading}

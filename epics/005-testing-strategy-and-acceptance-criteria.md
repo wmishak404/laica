@@ -296,6 +296,24 @@ PR #30 merged only after Wilson confirmed the Replit checklist at `dc59796ae1602
 
 `codex/mobile-refresh-phase-3-planning` adds focused Vitest coverage for Chef It Up staple candidate filtering/deduping and recipe optional-ingredient cleanup. The branch still treats authenticated recipe generation, pantry persistence, and active Replit prompt state as Replit validation requirements, which conforms to this epic's local-vs-service-backed boundary.
 
+### 2026-05-08 — Phase 3.2 scopes progressive-staple validation
+
+Phase 3.2 adds focused unit coverage for the progressive staple queue: selecting rows moves them to Added, new ranked rows reveal, Added chips undo, submitted recipes include all selected staples, only seen unselected staples become unconfirmed context, loading freezes rows/chips, Back still cancels, and successful generation still reveals exactly three suggestions.
+
+The Replit validation scope stays service-backed and authenticated: confirm the rolling queue, undo, submit freeze, Back cancellation, Ticket Pass completion, and pantry persistence in the real Chef It Up flow. This reinforces the existing pattern that deterministic UI state gets local Vitest coverage while auth/database/AI persistence still needs Replit.
+
+### 2026-05-08 — Phase 3.2 validation feedback adds discoverability checks
+
+Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry save, and saved staples after returning from suggestions, but found the chip undo affordance was not obvious. The follow-up extends local component coverage to assert the visible chip remove icon, Back-before-submit no-save behavior, submit persistence, and loading-disabled rows/chips.
+
+This is useful validation evidence: unit tests can prove state transitions and persistence calls, but service-backed review should still include visual-discoverability checks for controls whose accessible labels are correct yet whose visible affordance may be unclear.
+
+### 2026-05-08 — Phase 3.2 adds persistence-timing assertions
+
+Phase 3.2 follow-up coverage now asserts that saved selected staples become non-removable green check-only chips after pantry persistence succeeds, tapping a saved chip reveals an inline Pantry Settings removal note without changing pantry state, returning to the staple step does not re-save already-saved staples, pending additions remain visually distinct with `+` + `X`, and pantry-save failure shows an explicit destructive toast while still using those staples for the current recipe request.
+
+This adds a useful acceptance pattern for DB-backed optimistic UI: tests should prove both duplicate-prevention behavior and the user-facing status/error signal, while Replit still confirms the real authenticated database row state.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design
