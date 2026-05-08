@@ -3,9 +3,9 @@
 **Status:** Planning
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-07
-**Current phase:** Phase 0 — INIT hub + PD-010 + active-list updates
-**Active PR:** [#41](https://github.com/wmishak404/laica/pull/41) (Phase 0 docs)
-**Active branch:** `claude/elated-poincare-269ddc`
+**Current phase:** Phase 1 — Request-ID middleware + structured stdout logger + 9 AI route catch blocks (next)
+**Active PR:** None (Phase 0 [#41](https://github.com/wmishak404/laica/pull/41) merged at `cb94f28` on 2026-05-08)
+**Active branch:** None (Phase 1 starts on a fresh branch off `main`)
 
 ## Overview
 
@@ -22,15 +22,8 @@ The work is phased so the redaction allowlist is locked before any rows write, a
 
 ## Current Status
 
-Phase 0 in progress on `claude/elated-poincare-269ddc` ([PR #41](https://github.com/wmishak404/laica/pull/41)). The INIT hub, [EPIC-019](../epics/019-ai-error-telemetry-and-eval-monitoring.md), and [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) are being filed together so the durable allowlist policy is published before any code writes a row. No source code lands in Phase 0.
-
-**Phase 1 is unblocked.** [EPIC-018](../epics/018-authenticated-ai-error-handling.md) merged via [PR #43](https://github.com/wmishak404/laica/pull/43) (`1110b00`) and was closed out via [PR #44](https://github.com/wmishak404/laica/pull/44) (`24decb2`) on 2026-05-07. EPIC-018 shipped:
-
-- A **client-side** classifier in [`client/src/lib/rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts) and [`client/src/lib/queryClient.ts`](../client/src/lib/queryClient.ts) using the new `ApiRequestError` type.
-- **Typed server-side error payloads** in [`server/routes.ts`](../server/routes.ts) for AI/rate-limit responses, plus rate-limit classification in [`server/rate-limit.ts`](../server/rate-limit.ts).
-- A wider taxonomy than the original 400/429/5xx plan: 400/401/403/404/413/429/5xx/network with first-person copy and Feedback CTA wiring.
-
-What this means for INIT-002 Phase 1: the **server-side classifier function the writer needs does not exist yet** — EPIC-018's classification happens client-side and via inline route payloads. Phase 1 must build a server-side `classifyAiError` that mirrors EPIC-018's taxonomy so the user-facing copy and the telemetry never disagree about what `error_class` a failure is. The taxonomy is the source of truth from EPIC-018; the *function* is INIT-002's to ship.
+**Phase 0 merged** via [PR #41](https://github.com/wmishak404/laica/pull/41) at `cb94f28` on 2026-05-08. The INIT hub, [EPIC-019](../epics/019-ai-error-telemetry-and-eval-monitoring.md), [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md), and active-list updates in CLAUDE.md / AGENTS.md / `epics/` / `initiatives/` are now on `main`. No source code landed in Phase 0.
+**Phase 1 is the next work.** Start from a fresh branch off `main`. Build a server-side `classifyAiError` mirroring EPIC-018's taxonomy (400/401/403/404/413/429/5xx/network), a request-id middleware scoped to `/api/*`, and a structured stdout JSON logger; wire all three into the 9 AI route catch blocks. No DB persistence in Phase 1 — that's Phase 3 after a Replit observation week (Phase 2).
 
 ## Source Docs
 
@@ -51,8 +44,8 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
-| Phase 0 — INIT hub + PD-010 | In Progress | [#41](https://github.com/wmishak404/laica/pull/41) | EPIC-019, INIT-002, PD-010 filed together; rebased onto `24decb2` after EPIC-018 closeout |
-| Phase 1 — stdout logger + 9 routes | Unblocked, planned | TBD | EPIC-018 merged via [#43](https://github.com/wmishak404/laica/pull/43). Phase 1 builds a server-side `classifyAiError` mirroring EPIC-018's taxonomy, request-id middleware, and JSON stdout logger wired into 9 AI route catch blocks |
+| Phase 0 — INIT hub + PD-010 | Merged | [#41](https://github.com/wmishak404/laica/pull/41) (`cb94f28`) | EPIC-019, INIT-002, PD-010, active-list updates landed on `main` 2026-05-08 |
+| Phase 1 — stdout logger + 9 routes | Planned (next) | TBD | EPIC-018 merged via [#43](https://github.com/wmishak404/laica/pull/43). Phase 1 builds a server-side `classifyAiError` mirroring EPIC-018's taxonomy, request-id middleware, and JSON stdout logger wired into 9 AI route catch blocks |
 | Phase 2 — Replit observation week | Planned | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix |
 | Phase 3 — DB schema + writer | Planned | TBD | `ai_error_events` schema + bounded writer + Replit `db:push` per EPIC-010 |
 | Phase 4 — admin APIs | Planned | TBD | `/api/admin/ai-errors/{summary,list,detail,clusters}` mirroring existing admin pattern |
@@ -62,7 +55,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
-| [#41](https://github.com/wmishak404/laica/pull/41) | Open | `claude/elated-poincare-269ddc` | Docs-only; rebased onto `24decb2` after EPIC-018 closeout (PR #43 + #44) |
+| [#41](https://github.com/wmishak404/laica/pull/41) | Merged | `claude/elated-poincare-269ddc` | Docs-only; squash-merged at `cb94f28` on 2026-05-08. Rebased twice during review: once onto `bc242a0` (PR #40 Replit Validation Focus Guide) and once onto `24decb2` (PR #44 EPIC-018 closeout) |
 
 ## Epics and Governance
 
@@ -87,7 +80,7 @@ Phase-specific Replit validation focus areas selected from the [Replit Validatio
 
 | Phase | Local checks | Replit validation focus (from the guide) | Last Replit-validated SHA |
 |---|---|---|---|
-| Phase 0 | n/a (docs only) | n/a (no runtime change) | n/a |
+| Phase 0 | n/a (docs only) | n/a (no runtime change) | n/a — merged at `cb94f28` |
 | Phase 1 | `npm run check`, `npm run build`, Vitest classifier+writer mocks, manual dotenvx dev-server smoke | **AI provider routes** + **ElevenLabs speech routes** + **Secrets** rows. Confirm: stdout JSON line per error class on each AI route, `X-Request-Id` round-trips, classifier still fires under real provider errors and rate-limit responses, no missing-secret crash on Replit deployment. Workspace + Deployment both. | not yet validated |
 | Phase 2 | n/a (observation) | One week of production traffic; Replit log inspection daily. Capture classifier gaps and field nullability for PD-010 appendix. | not yet validated |
 | Phase 3 | `npm run check`, `npm run build`, writer tests with mocked DB | **DB schema / migrations / Drizzle / persistence** row (the big one). After Replit `db:push`, trigger one error per class on each AI route. **Manual row inspection to confirm no raw payloads** (epic resolution criterion). Verify deployed app uses the intended DB and the new table is present in both workspace and deployment runtimes. | not yet validated |
@@ -96,18 +89,18 @@ Phase-specific Replit validation focus areas selected from the [Replit Validatio
 
 ## Current Resume Point
 
-**Phase 0 (in progress).** Next agent should:
-
-1. Confirm `claude/elated-poincare-269ddc` is current with `origin/main`.
-2. Verify Phase 0 deliverables exist on the branch:
-   - `epics/019-ai-error-telemetry-and-eval-monitoring.md`
-   - `initiatives/INIT-002-ai-error-telemetry.md`
-   - `product-decisions/010-ai-error-telemetry-allowlist.md`
-   - `initiatives/registry.md` and `initiatives/README.md` updated
-   - `epics/README.md` and `epics/registry.md` updated
-   - `CLAUDE.md` and `AGENTS.md` Current Active INITs sections updated
-3. Confirm [PR #41](https://github.com/wmishak404/laica/pull/41) is open and review-ready.
-4. Once #41 merges, the next agent starts INIT-002 Phase 1 from a fresh branch off `main`. Phase 1 reads EPIC-018's client-side classifier in [`client/src/lib/rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts) and EPIC-018's typed-error payload shapes in [`server/routes.ts`](../server/routes.ts), then builds a server-side `classifyAiError` mirroring the same taxonomy (400/401/403/404/413/429/5xx/network).
+**Phase 1 (planned, ready to start).** Next agent should:
+1. `git fetch origin && git checkout -b claude/init-002-phase-1-stdout-logger origin/main`. Verify [`server/ai-privacy.ts`](../server/ai-privacy.ts) and EPIC-018's typed-error payloads in [`server/routes.ts`](../server/routes.ts) are present (they should be, since both are on `main`).
+2. Symlink `.env.keys` per [`CLAUDE.md`](../CLAUDE.md) worktree note if running locally.
+3. Read [EPIC-018's client-side classifier](../client/src/lib/rateLimitHandler.ts) and [`queryClient.ts`](../client/src/lib/queryClient.ts) to extract the canonical taxonomy (400/401/403/404/413/429/5xx/network).
+4. Build:
+   - `server/aiErrorClassifier.ts` — pure `classifyAiError(err, ctx)` returning `{ errorClass, errorCode, httpStatus, retryAfterSeconds, vendor }`. Mirror EPIC-018's taxonomy. Wrap callers in try/catch with `unknown/500` fallback so a classifier bug never takes down a route.
+   - `server/requestId.ts` — Express middleware scoped to `/api/*`. UUID v4 to `req.requestId`, set `X-Request-Id` response header. Always overwrite client-supplied value.
+   - `server/aiErrors.ts` — `logAiError(input)` that writes one JSON line to `console.error` with the [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) allowlist shape. No DB. Reuse [`server/ai-privacy.ts`](../server/ai-privacy.ts) `redactForAiLog` as defense-in-depth.
+5. Wire all three into the 9 AI route catch blocks in [`server/routes.ts`](../server/routes.ts): `/api/recipes/suggestions`, `/api/recipes/pantry`, `/api/recipes/slop-bowl`, `/api/cooking/steps`, `/api/cooking/assistance`, `/api/vision/analyze`, `/api/speech/synthesize`, `/api/speech/voices`, `/api/speech/transcribe`. Each catch adds ~3 lines.
+6. Tests: table-driven `tests/server/aiErrorClassifier.test.ts`; mocked-writer assertions in `tests/server/aiErrors.test.ts`.
+7. Validate locally (`npm run check`, `npm run build`, vitest, manual dotenvx dev-server smoke). Open PR with the [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) "Replit validation request" template citing the **AI provider routes**, **ElevenLabs speech routes**, and **Secrets** matrix rows.
+If the v0 `error_class` enum in PD-010 cannot cleanly express EPIC-018's wider HTTP taxonomy, propose an enum expansion as a PD-010 amendment in the same PR.
 
 ## Chronology
 
@@ -116,3 +109,4 @@ Phase-specific Replit validation focus areas selected from the [Replit Validatio
 - **2026-05-07** — Phase 0 docs filed: EPIC-019, INIT-002, PD-010, registry/README updates.
 - **2026-05-07** — Rebased Phase 0 docs branch onto `bc242a0` ([#40](https://github.com/wmishak404/laica/pull/40), Replit Validation Focus Guide). Updated INIT-002 Source Docs and Validation State to cite the new guide and pin per-phase focus rows from its matrix instead of re-testing everything.
 - **2026-05-07** — EPIC-018 merged ([#43](https://github.com/wmishak404/laica/pull/43)) and was closed out ([#44](https://github.com/wmishak404/laica/pull/44)). Rebased Phase 0 docs branch onto `24decb2`. Renamed our EPIC-019 file to match the canonical filename PR #44 created (`epics/019-ai-error-telemetry-and-eval-monitoring.md`). Flipped Phase 1 from `Blocked on EPIC-018` to `Unblocked, planned`. Documented that EPIC-018 ships a client-side classifier and typed server-side error payloads, but no server-side classifier function — INIT-002 Phase 1 owns that mirror.
+- **2026-05-08** — Phase 0 docs PR ([#41](https://github.com/wmishak404/laica/pull/41)) squash-merged at `cb94f28`. Closeout pass updated INIT-002 status, phase table, PRs and Branches, validation state, current resume point, and chronology, plus the `initiatives/registry.md` last-signal column.

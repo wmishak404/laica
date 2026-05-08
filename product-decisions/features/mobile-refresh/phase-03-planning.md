@@ -95,7 +95,7 @@ Implementation should match the planning mockups closely enough that the first p
 
 **Branch:** `codex/mobile-refresh-phase-3-planning`
 **Base:** `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`
-**Last Replit-validated at:** not yet validated
+**Last Replit-validated at:** `8a5c3d5` for PR #38 baseline; `0c98a47` for PR #45 generation lock/cancel follow-up
 
 Implemented locally:
 
@@ -215,6 +215,13 @@ Implemented locally:
 - The implementation is rebased onto `origin/main` at PR #44 (`24decb2`), so it uses the resolved EPIC-018 authenticated AI error handler instead of the old demo-era handler. Abort/cancel responses stay silent while real 400/429/5xx errors use the new authenticated-app copy.
 - Replit validation must add this scenario: Mediterranean + Mexican, select two staples, tap `View recipe suggestions`, verify no row replacement or extra input is possible while loading, press Back and verify no late auto-advance, then repeat and let generation complete normally.
 
+2026-05-08 merge closeout:
+
+- Phase 3 baseline Planning shipped through [PR #38](https://github.com/wmishak404/laica/pull/38), validated in Replit at `8a5c3d5`, and merged as `f1d17d8`.
+- The generation lock/cancel follow-up shipped through [PR #45](https://github.com/wmishak404/laica/pull/45), validated in Replit at `0c98a47`, and merged as `8892327`.
+- Phase 3 is functionally closed. Current Planning/Ticket/Prep visuals remain accepted as functional scaffolding under the visual-freeze decision, while [Phase 3.1](phase-03-1-recipe-imagery.md) owns the deliberate design facelift and async/cached recipe imagery pass.
+- Do not resume the merged Phase 3 branches. Start Phase 3.1 and Phase 4 work from fresh `origin/main`.
+
 Local validation:
 
 - `npm ci`
@@ -231,11 +238,11 @@ Local validation:
 - 2026-05-06 multi-cuisine staple representation patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/planning-staples.test.ts`.
 - 2026-05-06 Replit validation blocker patch re-ran `git diff --check`, `npm run check`, `npm run build`, `npm ls react`, and `npx vitest run tests/unit/phase0-security-routes.test.ts tests/unit/planning-staples.test.ts`.
 - 2026-05-06 optional-enhancement contract patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/recipe-suggestion-normalizer.test.ts tests/unit/planning-staples.test.ts`.
-- 2026-05-06 compact-ticket metadata patch re-ran `git diff --check`, `npm run check`, and `npm run build`.
+- 2026-05-06 recipe-suggestion metadata patch re-ran `git diff --check`, `npm run check`, and `npm run build`.
 - 2026-05-07 recipe-generation lock/cancel patch re-ran `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check`.
 
-Known validation gap:
+Known validation notes:
 
-- Authenticated Replit validation is still required for recipe generation, generation lock/Back cancel behavior, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl generation, Slop Bowl quick-add/remove, and Slop Bowl -> Edit pantry.
+- Authenticated Replit validation passed for the baseline Phase 3 Planning flow at `8a5c3d5` and for the generation lock/Back cancel follow-up at `0c98a47`.
 - Phase 3 visual judgment is limited to functional blockers and basic usability. Richer visual comparison/facelift work is deferred to Phase 3.1.
 - Full `npx vitest run` is not a merge signal yet because existing repo-wide harness issues remain: the Playwright E2E file is collected by Vitest, and voice-recording tests expect `MediaStream` in the unit-test environment.
