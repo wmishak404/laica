@@ -790,7 +790,7 @@ export default function MealPlanning({
                     type="button"
                     key={staple}
                     className="planning-added-chip planning-added-chip-saved"
-                    aria-label={`${staple} saved to pantry. Remove it in Pantry Settings.`}
+                    aria-label={`Already saved in your pantry: ${staple}. Head to Pantry Settings to make changes.`}
                     onClick={() => setSavedStapleHint(staple)}
                   >
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
@@ -817,7 +817,7 @@ export default function MealPlanning({
           </div>
           {showSavedStapleHint && (
             <p className="planning-added-help" role="status">
-              Saved to pantry. Remove it in Pantry Settings.
+              These are already saved in your pantry. Head to Pantry Settings to make changes.
             </p>
           )}
         </div>

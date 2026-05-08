@@ -72,7 +72,7 @@ Implementation guardrails:
 - Added chips remain tappable undo controls until submit starts.
 - Pending Added chips use a `+` icon plus a right-side `X`; the whole chip remains the hit target with `aria-label="Remove <item> from Added"`.
 - Saved pantry-fact chips use the green checkmark as the only visible saved-state signal and do not include a visible `Saved` text label.
-- Tapping a saved pantry-fact chip does not delete anything; it conditionally reveals `Saved to pantry. Remove it in Pantry Settings.`
+- Tapping a saved pantry-fact chip does not delete anything; it conditionally reveals `These are already saved in your pantry. Head to Pantry Settings to make changes.`
 - When no more suggestions remain, the row list simply shrinks.
 - No done note appears and there is no auto-submit.
 - The selected Added shelf and visible rows freeze during `Finding recipes...`.

@@ -279,15 +279,15 @@ describe('MealPlanning recipe generation locking', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
-      expect(screen.getByLabelText(/olive oil saved to pantry/i)).toBeTruthy();
+      expect(screen.getByLabelText(/already saved in your pantry: tortillas/i)).toBeTruthy();
+      expect(screen.getByLabelText(/already saved in your pantry: olive oil/i)).toBeTruthy();
     });
 
     expect(screen.queryByText(/^saved$/i)).toBeNull();
     expect(screen.queryByText(/saved to pantry/i)).toBeNull();
 
-    fireEvent.click(screen.getByLabelText(/tortillas saved to pantry/i));
-    expect(screen.getByRole('status').textContent).toMatch(/saved to pantry\. remove it in pantry settings\./i);
+    fireEvent.click(screen.getByLabelText(/already saved in your pantry: tortillas/i));
+    expect(screen.getByRole('status').textContent).toMatch(/already saved in your pantry\. head to pantry settings to make changes\./i);
 
     await act(async () => {
       recipesDeferred.resolve(recipeResponse);
@@ -300,12 +300,12 @@ describe('MealPlanning recipe generation locking', () => {
 
     expect(screen.getByRole('heading', { name: /anything else around/i })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /remove tortillas from added/i })).toBeNull();
-    expect(screen.getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
+    expect(screen.getByLabelText(/already saved in your pantry: tortillas/i)).toBeTruthy();
     expect(screen.queryByText(/^saved$/i)).toBeNull();
     expect(screen.queryByText(/saved to pantry/i)).toBeNull();
 
-    fireEvent.click(screen.getByLabelText(/tortillas saved to pantry/i));
-    expect(screen.getByRole('status').textContent).toMatch(/saved to pantry\. remove it in pantry settings\./i);
+    fireEvent.click(screen.getByLabelText(/already saved in your pantry: tortillas/i));
+    expect(screen.getByRole('status').textContent).toMatch(/already saved in your pantry\. head to pantry settings to make changes\./i);
 
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
@@ -362,8 +362,8 @@ describe('MealPlanning recipe generation locking', () => {
     });
 
     const added = screen.getByRole('group', { name: /added pantry staples/i });
-    expect(within(added).getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
-    expect(within(added).getByLabelText(/olive oil saved to pantry/i)).toBeTruthy();
+    expect(within(added).getByLabelText(/already saved in your pantry: tortillas/i)).toBeTruthy();
+    expect(within(added).getByLabelText(/already saved in your pantry: olive oil/i)).toBeTruthy();
     expect(within(added).queryByRole('button', { name: /remove tortillas from added/i })).toBeNull();
     expect(within(added).queryByText(/^saved$/i)).toBeNull();
     expect(within(added).queryByText(/saved to pantry/i)).toBeNull();
