@@ -1316,6 +1316,91 @@ html, body {
       hsl(0 0% 100% / 0.74);
   }
 
+  .planning-added-shelf {
+    border: 1px solid hsl(var(--planning-coral) / 0.2);
+    border-radius: 1rem;
+    background: hsl(0 0% 100% / 0.52);
+    padding: 0.75rem;
+    box-shadow: 0 0.7rem 1.45rem hsl(var(--planning-coral) / 0.05);
+  }
+
+  .planning-added-label {
+    margin: 0 0 0.55rem;
+    color: hsl(var(--planning-ink) / 0.64);
+    font-size: 0.78rem;
+    font-weight: 950;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .planning-added-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .planning-added-chip {
+    display: inline-flex;
+    min-height: 2.35rem;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.42rem;
+    border: 1px solid hsl(var(--planning-coral) / 0.34);
+    border-radius: 999px;
+    background: hsl(var(--planning-coral-soft) / 0.82);
+    color: hsl(var(--planning-coral-strong));
+    font-size: 0.86rem;
+    font-weight: 950;
+    line-height: 1.05;
+    padding: 0.45rem 0.72rem;
+    animation: planning-chip-pop 0.18s ease-out both;
+  }
+
+  .planning-added-chip span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .planning-added-chip:disabled {
+    cursor: not-allowed;
+    opacity: 0.72;
+  }
+
+  .planning-staple-row {
+    animation: planning-row-slide 0.18s ease-out both;
+  }
+
+  @keyframes planning-chip-pop {
+    from {
+      opacity: 0;
+      transform: translateY(0.2rem) scale(0.96);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes planning-row-slide {
+    from {
+      opacity: 0;
+      transform: translateY(0.28rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .planning-added-chip,
+    .planning-staple-row {
+      animation: none;
+    }
+  }
+
   .planning-ticket-stack {
     position: relative;
     display: grid;

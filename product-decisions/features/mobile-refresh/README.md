@@ -15,6 +15,7 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 | 2.2 | Returning setup, Settings, and History IA | Accepted / Merged PR #30 | [phase-02-2-returning-setup-settings.md](phase-02-2-returning-setup-settings.md) | [Phase 2.2 storyboard](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
 | 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted / Merged PR #38 + #45 | [phase-03-planning.md](phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 3.1 | Phase 3 design facelift and async recipe imagery | Planned | [phase-03-1-recipe-imagery.md](phase-03-1-recipe-imagery.md) | Builds on [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
+| 3.2 | Progressive Chef It Up pantry staple check | In Progress | [phase-03-2-progressive-staples.md](phase-03-2-progressive-staples.md) | Builds on Phase 3 staple check and PR #45 cancellation lock |
 | 4 | Cooking guidance | Accepted | [phase-04-cooking.md](phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
 | 5 | Post-cook cleanup and retention | Accepted | [phase-05-post-cook.md](phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
 
@@ -26,8 +27,9 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 4. Phase 2.2 has shipped the returning setup edit, Menu, Settings, and standalone History IA bridge before Phase 3.
 5. Phase 3 shipped through PR #38 (`f1d17d8`, validated at `8a5c3d5`) and PR #45 (`8892327`, validated at `0c98a47`). Treat the current Planning/Ticket/Prep visuals as functional scaffolding, not final design polish.
 6. Implement Phase 3.1 from fresh `main` for the design facelift plus async recipe imagery.
-7. Implement Phase 4 after authenticated AI routes and session ownership checks are live; Phase 4 also owns the live-cooking inline AI error recovery deferred from EPIC-018.
-8. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry; Phase 5 owns the richer History share/cook-again/retention behavior.
+7. Implement Phase 3.2 progressive pantry staples after the Phase 3 generation lock/cancel fix is merged. Phase 3.2 is not blocked by Phase 3.1 because it is behavior/interaction polish, but Phase 3.1 should preserve or deliberately restyle the Phase 3.2 Added shelf / rolling queue during the facelift.
+8. Implement Phase 4 after authenticated AI routes and session ownership checks are live; Phase 4 also owns the live-cooking inline AI error recovery deferred from EPIC-018.
+9. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry; Phase 5 owns the richer History share/cook-again/retention behavior.
 
 ## Mockup Conformance Gate
 

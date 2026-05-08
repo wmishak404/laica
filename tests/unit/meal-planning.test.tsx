@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import MealPlanning from '../../client/src/components/cooking/meal-planning';
 import { mergeUniqueEntries } from '../../client/src/lib/entryParsing';
 
@@ -126,6 +126,19 @@ function advanceToCuisine() {
   expect(screen.getByRole('heading', { name: /what sounds good/i })).toBeTruthy();
 }
 
+function advanceToStaples() {
+  advanceToCuisine();
+  fireEvent.click(screen.getByRole('button', { name: /mexican/i }));
+  fireEvent.click(screen.getByRole('button', { name: /mediterranean/i }));
+  fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+  expect(screen.getByRole('heading', { name: /anything else around/i })).toBeTruthy();
+}
+
+function getStapleRows() {
+  return screen.getByRole('group', { name: /pantry staple options/i });
+}
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
@@ -133,24 +146,69 @@ afterEach(() => {
 });
 
 describe('MealPlanning recipe generation locking', () => {
-  it('freezes staple options while selected staples are saved before generation', async () => {
+  it('moves selected staples to Added and reveals the next ranked missing staples', () => {
+    renderMealPlanning();
+
+    advanceToStaples();
+
+    let rows = getStapleRows();
+    expect(within(rows).getByRole('button', { name: /^tortillas$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^olive oil$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^lime$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^cilantro$/i })).toBeTruthy();
+
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^olive oil$/i }));
+
+    const added = screen.getByRole('group', { name: /added pantry staples/i });
+    expect(within(added).getByRole('button', { name: /remove tortillas from added/i })).toBeTruthy();
+    expect(within(added).getByRole('button', { name: /remove olive oil from added/i })).toBeTruthy();
+
+    rows = getStapleRows();
+    expect(within(rows).queryByRole('button', { name: /^tortillas$/i })).toBeNull();
+    expect(within(rows).queryByRole('button', { name: /^olive oil$/i })).toBeNull();
+    expect(within(rows).getByRole('button', { name: /^lime$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^cilantro$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^cumin$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^lemon$/i })).toBeTruthy();
+  });
+
+  it('lets Added chips undo the selection and restores queue order', () => {
+    renderMealPlanning();
+
+    advanceToStaples();
+
+    let rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^olive oil$/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: /remove tortillas from added/i }));
+
+    const added = screen.getByRole('group', { name: /added pantry staples/i });
+    expect(within(added).queryByRole('button', { name: /remove tortillas from added/i })).toBeNull();
+    expect(within(added).getByRole('button', { name: /remove olive oil from added/i })).toBeTruthy();
+
+    rows = getStapleRows();
+    expect(within(rows).getByRole('button', { name: /^tortillas$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^lime$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^cilantro$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^cumin$/i })).toBeTruthy();
+    expect(within(rows).queryByRole('button', { name: /^lemon$/i })).toBeNull();
+  });
+
+  it('submits all Added staples and only marks seen unselected staples as unconfirmed', async () => {
     const recipesDeferred = createDeferred<typeof recipeResponse>();
     fetchPantryRecipesMock.mockReturnValue(recipesDeferred.promise);
     const { onPantryIngredientsAdded } = renderMealPlanning();
 
-    advanceToCuisine();
-    fireEvent.click(screen.getByRole('button', { name: /mexican/i }));
-    fireEvent.click(screen.getByRole('button', { name: /mediterranean/i }));
-    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+    advanceToStaples();
 
-    expect(screen.getByRole('heading', { name: /anything else around/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /tortillas/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /olive oil/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /lime/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /cilantro/i })).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: /tortillas/i }));
-    fireEvent.click(screen.getByRole('button', { name: /olive oil/i }));
+    let rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^olive oil$/i }));
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
     await waitFor(() => {
@@ -158,12 +216,56 @@ describe('MealPlanning recipe generation locking', () => {
       expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(screen.getByRole('button', { name: /tortillas/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /olive oil/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /lime/i })).toBeDisabled();
-    expect(screen.getByRole('button', { name: /cilantro/i })).toBeDisabled();
-    expect(screen.queryByRole('button', { name: /lemon/i })).toBeNull();
     expect(fetchPantryRecipesMock.mock.calls[0][0]).toEqual(expect.arrayContaining(['tortillas', 'olive oil']));
+    expect(fetchPantryRecipesMock.mock.calls[0][1]).toContain('Confirmed staples: tortillas, olive oil');
+    expect(fetchPantryRecipesMock.mock.calls[0][1]).toContain('Unconfirmed staples: lime, cilantro, cumin, lemon; do not assume');
+    expect(fetchPantryRecipesMock.mock.calls[0][1]).not.toContain('feta');
+    expect(fetchPantryRecipesMock.mock.calls[0][1]).not.toContain('parsley');
+  });
+
+  it('freezes the Added shelf and visible queue while Back still cancels loading', async () => {
+    const recipesDeferred = createDeferred<typeof recipeResponse>();
+    let capturedSignal: AbortSignal | undefined;
+    fetchPantryRecipesMock.mockImplementation((_ingredients, _preferences, _time, options) => {
+      capturedSignal = options?.signal;
+      return recipesDeferred.promise;
+    });
+    renderMealPlanning();
+
+    advanceToStaples();
+
+    let rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^olive oil$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    await waitFor(() => {
+      expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(1);
+    });
+
+    const added = screen.getByRole('group', { name: /added pantry staples/i });
+    expect(within(added).getByRole('button', { name: /remove tortillas from added/i })).toBeDisabled();
+    expect(within(added).getByRole('button', { name: /remove olive oil from added/i })).toBeDisabled();
+
+    rows = getStapleRows();
+    expect(within(rows).getByRole('button', { name: /^lime$/i })).toBeDisabled();
+    expect(within(rows).getByRole('button', { name: /^cilantro$/i })).toBeDisabled();
+    expect(within(rows).getByRole('button', { name: /^cumin$/i })).toBeDisabled();
+    expect(within(rows).getByRole('button', { name: /^lemon$/i })).toBeDisabled();
+    expect(within(rows).queryByRole('button', { name: /^feta$/i })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /back to cuisines/i }));
+
+    expect(capturedSignal?.aborted).toBe(true);
+    expect(screen.getByRole('heading', { name: /what sounds good/i })).toBeTruthy();
+
+    await act(async () => {
+      recipesDeferred.resolve(recipeResponse);
+      await recipesDeferred.promise;
+    });
+
+    expect(screen.queryByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeNull();
   });
 
   it('disables cuisine inputs while recipe generation is pending', async () => {

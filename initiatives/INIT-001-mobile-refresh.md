@@ -3,15 +3,15 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 3.1 / Phase 4 planning
-**Active PR:** [#39](https://github.com/wmishak404/laica/pull/39) (docs-only combined closeout)
-**Active branch:** `codex/mobile-refresh-phase-3-closeout`
+**Current phase:** Phase 3.2 implementation
+**Active PR:** [#46](https://github.com/wmishak404/laica/pull/46)
+**Active branch:** `codex/mobile-refresh-phase-3-2-progressive-staples`
 
 ## Overview
 
 Mobile Refresh is the phased effort to make Laica feel like a native, camera-forward, cooking-first mobile product rather than a desktop website wrapped in a mobile viewport.
 
-The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Phase 3 review for design facelift and recipe imagery:
+The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Phase 3 review for design facelift and recipe imagery, and Phase 3.2 added for the progressive Chef It Up pantry-staple interaction:
 
 - Phase 0: security/backend readiness
 - Phase 1: auth and first authenticated routing
@@ -20,6 +20,7 @@ The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Pha
 - Phase 2.2: returning setup edits, Menu, Settings, and History IA
 - Phase 3: planning, Chef It Up, Slop Bowl, and Ticket Pass
 - Phase 3.1: Phase 3 design facelift, Slop It Up planning-card copy treatment, recipe imagery slots, and async generated/illustrated imagery
+- Phase 3.2: progressive Added shelf for Chef It Up pantry staple suggestions
 - Phase 4: cooking guidance
 - Phase 5: post-cook cleanup and retention
 
@@ -35,6 +36,8 @@ PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 impleme
 
 Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, deterministic cuisine-aware staple check, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so the phase could close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift, Slop It Up planning-card copy treatment, and recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Post-freeze basic-usability patches keep Ticket Pass recipe order stable, display-split recipe names only when explicit supporting detail exists, ask about/save likely missing cuisine staples as concrete pantry ingredients before generation with multi-cuisine representation before extra slots, align recipe preference caps across recipe suggestion routes, enforce `additionalIngredientsNeeded` as optional enhancements rather than required missing ingredients, and lock/cancel Chef It Up recipe generation so staple rows cannot reshuffle or accept input while suggestions are loading.
 
+[Phase 3.2](../product-decisions/features/mobile-refresh/phase-03-2-progressive-staples.md) is a separate behavior/interaction polish slice on top of the merged Phase 3 + PR #45 cancellation behavior. It is not blocked by Phase 3.1 because it does not decide the broader visual facelift or recipe imagery direction. Phase 3.1 should treat the Phase 3.2 Added shelf / rolling staple queue as the current behavior to preserve or intentionally restyle during the facelift.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -45,6 +48,7 @@ Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, de
 - [Phase 2.2 returning setup/settings/history IA](../product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md)
 - [Phase 3 planning](../product-decisions/features/mobile-refresh/phase-03-planning.md)
 - [Phase 3.1 design facelift and recipe imagery](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md)
+- [Phase 3.2 progressive pantry staple check](../product-decisions/features/mobile-refresh/phase-03-2-progressive-staples.md)
 - [Phase 4 cooking](../product-decisions/features/mobile-refresh/phase-04-cooking.md)
 - [Phase 5 post-cook](../product-decisions/features/mobile-refresh/phase-05-post-cook.md)
 - [AI privacy, prompt-injection, and abuse rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md)
@@ -78,6 +82,7 @@ Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, de
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
 | Phase 3.1 | Planned | TBD | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots |
+| Phase 3.2 | In Progress | `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue on top of the merged generation lock/cancel behavior; not blocked by Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
 
@@ -99,6 +104,7 @@ Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, de
 | #43 | Merged | `codex/epic-018-auth-ai-errors` | EPIC-018 authenticated AI error handling merged as `1110b00`; Replit PASS at `860bd68` carried to `14ac1c4` by Wilson diff review |
 | #44 | Merged | `codex/epic-018-closeout` | EPIC-018 docs closeout merged as `24decb2`; PR #45 later rebased onto this main head before merging |
 | #45 | Merged | `codex/phase-3-generation-cancel` | Phase 3 generation lock/cancel follow-up validated at `0c98a47`; merged as `8892327` |
+| #46 | Draft | `codex/mobile-refresh-phase-3-2-progressive-staples` | Phase 3.2 progressive staple queue local validation passed; Replit validation pending |
 
 ## Epics and Governance
 
@@ -136,6 +142,7 @@ Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, de
 - Chef It Up staple verification was added after the visual freeze as a recipe-quality/basic-usability exception: selected cuisines can trigger a deterministic missing-staple check, confirmed staples save to pantry, and recipe suggestions now target a hidden pantry-strict / pantry-flexible / cuisine-leaning range.
 - Chef It Up generation lock/cancel was added after the visual freeze as a functional correctness exception: in-flight recipe generation freezes the submitted staple rows and disables cuisine/staple inputs, while Back aborts the request and prevents late auto-advance.
 - Phase 3 closed functionally on 2026-05-08 after PR #38 and PR #45 shipped the Planning slice and the generation lock/cancel follow-up. Phase 3.1 is the next design-focused pass; Phase 4 is the next cooking-flow implementation phase.
+- Phase 3.2 was added after PR #45 merged so the Chef It Up staple check can use a progressive Added shelf and rolling queue. This is behavior/interaction polish, not the Phase 3.1 visual facelift; Phase 3.1 should preserve or deliberately restyle the Phase 3.2 behavior when it implements the facelift.
 
 ## Validation State
 
@@ -156,18 +163,24 @@ Known validation facts:
 - The recipe-suggestion metadata patch passed `git diff --check`, `npm run check`, and `npm run build`.
 - EPIC-018 Replit validation passed at `860bd68`; Wilson reviewed the post-validation cleanup diff and confirmed the pass carries to `14ac1c4`. PR #43 merged the branch into `main` as `1110b0088211be593d234ea26392b47384d43470`.
 - The Phase 3 generation lock/cancel follow-up on `codex/phase-3-generation-cancel` passed `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check` on top of PR #44 (`24decb2`). Replit validation passed at `0c98a47`; PR #45 merged the follow-up into `main` as `8892327`.
+- Phase 3.2 is not yet Replit-validated.
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
 
 Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8892327`). Do not resume `codex/mobile-refresh-phase-3-planning` or `codex/phase-3-generation-cancel`.
 
+Continue Phase 3.2 behavior polish on `codex/mobile-refresh-phase-3-2-progressive-staples`.
+
 Next implementation / validation focus:
 
-1. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots.
-2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EPIC-018 intentionally deferred.
-3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
-4. This PR #39 is docs-only closeout. No Replit validation is required for the closeout itself because PR #38 and PR #45 already carry the Phase 3 runtime validation SHAs.
+1. Keep Phase 3.2 scoped to the Chef It Up staple-check interaction: full ranked staple queue, Added shelf, chip undo, seen-vs-selected unconfirmed context, submit-time freeze, Back abort, and no immediate pantry write before `View recipe suggestions`.
+2. Run local validation for Phase 3.2: `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check`.
+3. Run Replit validation for authenticated Chef It Up with cuisines that produce more than four missing staples: select two staples, verify two new rows appear, undo one Added chip, submit, verify no reshuffle/taps during `Finding recipes...`, press Back during loading and verify no late auto-advance, then repeat and let Ticket Pass appear with confirmed staples saved to pantry.
+4. Refresh the PR/handoff `Last Replit-validated at` SHA after Replit passes.
+5. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots. Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue behavior.
+6. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EPIC-018 intentionally deferred.
+7. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 
 ## Chronology
 
@@ -210,3 +223,7 @@ PR #38 merged the main Phase 3 Planning implementation as `f1d17d8` after Replit
 ### 2026-05-08 - Slop It Up copy direction added to Phase 3.1
 
 Wilson accepted **Slop It Up** as the Planning choice card title for the Slop Bowl path. The underlying feature remains **Slop Bowl**. Phase 3.1 now owns implementation of the load-time rotating, italicized supporting copy alongside the broader Planning facelift.
+
+### 2026-05-08 - Phase 3.2 progressive staples opened
+
+Phase 3.2 was filed for the progressive Chef It Up Added shelf / rolling staple queue. It is intentionally separate from Phase 3.1: Phase 3.1 owns facelift and imagery, while Phase 3.2 can implement behavior now on top of the merged cancellation fix and should become the behavior baseline for the later facelift.

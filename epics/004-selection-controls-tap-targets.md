@@ -192,6 +192,12 @@ Wilson's Phase 3 validation found that the Chef It Up staple rows could visually
 
 This conforms to the existing multi-select pattern: users keep an explicit continuation action before submitting, and once the async submit is in progress, the same selectable rows become read-only state rather than accepting more input. Back remains available as the cancellation path.
 
+### 2026-05-08 — Phase 3.2 adds Added shelf undo chips
+
+Phase 3.2 keeps the Chef It Up staple check in the full-row selection family while adding an Added shelf above the visible queue. Staple rows remain full-width tap targets, selected staples move into tappable undo chips, and both rows and chips become disabled during the in-flight submit.
+
+This is still Chef It Up-specific and does not resolve the original setup/settings epic criteria. It does add a useful pattern note: contextual multi-select follow-ups can use full-row discovery plus chip-level undo as long as explicit submit, keyboard/focus behavior, and loading locks remain clear.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

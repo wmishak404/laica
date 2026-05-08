@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { getStapleCandidatesForCuisines } from '../../shared/planning-staples';
+import {
+  getAllStapleCandidatesForCuisines,
+  getStapleCandidatesForCuisines,
+} from '../../shared/planning-staples';
 
 describe('planning staple candidates', () => {
   it('suggests Mediterranean olive oil when it is missing from pantry', () => {
@@ -54,5 +57,21 @@ describe('planning staple candidates', () => {
   it('filters concrete herb staples that are already saved', () => {
     expect(getStapleCandidatesForCuisines(['Mediterranean'], ['parsley'])).not.toContain('parsley');
     expect(getStapleCandidatesForCuisines(['Vietnamese'], ['cilantro'])).not.toContain('cilantro');
+  });
+
+  it('exposes the full ranked missing-staple queue while keeping the capped helper compatible', () => {
+    const fullQueue = getAllStapleCandidatesForCuisines(['Mexican', 'Mediterranean'], ['rice']);
+
+    expect(fullQueue).toEqual([
+      'tortillas',
+      'olive oil',
+      'lime',
+      'cilantro',
+      'cumin',
+      'lemon',
+      'feta',
+      'parsley',
+    ]);
+    expect(getStapleCandidatesForCuisines(['Mexican', 'Mediterranean'], ['rice'])).toEqual(fullQueue.slice(0, 4));
   });
 });

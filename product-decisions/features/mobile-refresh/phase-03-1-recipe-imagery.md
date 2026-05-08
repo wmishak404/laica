@@ -13,6 +13,8 @@ Take a deliberate design step back after Phase 3 functional closeout, then impro
 
 Wilson redirected the proposed "Phase 3 design drifts" epic into this Phase 3.1 work package, then froze Phase 3 visuals so Phase 3 can close on functionality. Phase 3.1 is therefore the design facelift plus imagery pass, not a continuation of piecemeal Phase 3 visual tuning.
 
+Phase 3.2 is split out separately for the progressive Chef It Up Added shelf / rolling staple queue. That behavior polish is not blocked by Phase 3.1, and Phase 3.1 should preserve or intentionally restyle the Phase 3.2 interaction if it has merged by the time the facelift starts.
+
 ## Phase 3 Contract
 
 Phase 3 reserves generated-image slots now:
@@ -39,6 +41,7 @@ Phase 3 reserves generated-image slots now:
 - Cache generated images so refreshes and back/forward navigation do not repeatedly incur cost or latency.
 - Define fallback behavior for failed generation, slow generation, moderation failures, and missing image URLs.
 - Decide whether Phase 3's lightweight deterministic staple check should stay as-is, become part of a pantry-staples profile, or become a smarter AI-assisted follow-up.
+- Treat [Phase 3.2](phase-03-2-progressive-staples.md) as the source of truth for the richer staple-check interaction if it has shipped before Phase 3.1 implementation.
 - If Phase 3.1 expands herb handling, keep saved pantry labels concrete. Avoid saving grouped labels like `fresh herbs`; use explicit choices or a richer profile model that can store specificity.
 
 ## 2026-05-08 - Slop It Up Planning-Card Copy Direction
@@ -86,6 +89,7 @@ slopItUpPlanningCard:
 | Ticket Pass selection reordered recipes | Selecting recipe 2 or 3 made the chosen recipe jump to the featured position and moved recipe 1 into the compact list, so users lost their place | The component modeled selection as promotion to a separate featured slot instead of expanding the chosen ticket in the generated order | Fixed as a Phase 3 basic-usability exception | Phase 3.1 can revisit the ticket hierarchy, but must preserve selection orientation unless a replacement pattern is explicitly validated |
 | Recipe names read like one long paragraph | AI-generated names sometimes contain a main dish plus explicit parenthetical or colon-separated detail | The schema stores one recipe-name string and the UI rendered every name as a single large heading | Fixed with conservative display-only main/supporting split when explicit detail exists | Phase 3.1 should refine title hierarchy with the broader Ticket Pass facelift while preserving the underlying recipe-name contract and avoiding invented subtitles |
 | Cuisine-selected recipes overuse optional ingredients | Suggestions felt like they were completing a cuisine with missing staples instead of cooking from the pantry | Older recipe prompt language prioritized cuisine correction and allowed missing ingredients to complete a cuisine | Fixed with Phase 3 staple check, prompt balance, and optional cleanup; needs Replit validation | Decide whether the staple check needs richer UI, pantry confidence, or a pantry-staples profile in Phase 3.1 |
+| Staple check can feel capped at four | The first Phase 3 staple check shows only four missing-staple rows, so users cannot keep confirming useful staples after selecting one | Phase 3 optimized for narrow functional correctness and did not yet include a progressive selected shelf | Split to Phase 3.2 | Phase 3.1 should preserve or restyle the Phase 3.2 Added shelf / rolling queue rather than returning to the capped four-row behavior |
 | Recipe imagery disappeared | No stable place existed for future generated images to land | "Generated recipe imagery deferred" was interpreted as "no image slot needed" | Fixed with placeholders | Phase 3.1 owns real imagery, async hydration, caching, and failure fallback |
 | Planning entry card/whitespace grammar still feels off | The choice cards use too much framed-card language and not enough modern app whitespace | Phase 3 iterated individual concerns instead of stepping back into one coherent facelift | Deferred to Phase 3.1 | Rework Planning entry as a whole surface, with whitespace/card grammar reviewed before implementation |
 | Bottom nav showed Cook as selected status | Planning made the chef icon read like a current-state badge | Active tab logic conflicted with PD-009's neutral access-surface direction | Fixed | Bottom nav stays neutral; screen content communicates process status |
@@ -101,6 +105,7 @@ slopItUpPlanningCard:
 - Review nearby mobile-refresh surfaces for typography drift: page titles, card titles, short hero-card taglines, body copy, chips, banners, and CTAs should preserve the generated mockup's type grammar instead of swapping fonts by mood.
 - Plan the facelift before implementing: choose the visual grammar first, then patch the UI. Do not solve the facelift through isolated local tweaks.
 - Keep a hard split between Phase 3 placeholders and Phase 3.1 real imagery: Phase 3 reserves stable slots; Phase 3.1 decides/generates/hydrates images.
+- Keep a hard split between Phase 3.2 behavior polish and Phase 3.1 facelift work: Phase 3.2 may ship first, while Phase 3.1 decides how the Added shelf / rolling queue should look in the facelift.
 - Do not make image generation part of the recipe-suggestion critical path. Suggestions should remain usable before any image arrives.
 - If similar drift spans beyond Phase 3.1 or crosses multiple future phases, then create a temporary drift epic. For now, this feature-phase record is the source of truth.
 

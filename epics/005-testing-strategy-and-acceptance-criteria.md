@@ -296,6 +296,12 @@ PR #30 merged only after Wilson confirmed the Replit checklist at `dc59796ae1602
 
 `codex/mobile-refresh-phase-3-planning` adds focused Vitest coverage for Chef It Up staple candidate filtering/deduping and recipe optional-ingredient cleanup. The branch still treats authenticated recipe generation, pantry persistence, and active Replit prompt state as Replit validation requirements, which conforms to this epic's local-vs-service-backed boundary.
 
+### 2026-05-08 — Phase 3.2 scopes progressive-staple validation
+
+Phase 3.2 adds focused unit coverage for the progressive staple queue: selecting rows moves them to Added, new ranked rows reveal, Added chips undo, submitted recipes include all selected staples, only seen unselected staples become unconfirmed context, loading freezes rows/chips, Back still cancels, and successful generation still reveals exactly three suggestions.
+
+The Replit validation scope stays service-backed and authenticated: confirm the rolling queue, undo, submit freeze, Back cancellation, Ticket Pass completion, and pantry persistence in the real Chef It Up flow. This reinforces the existing pattern that deterministic UI state gets local Vitest coverage while auth/database/AI persistence still needs Replit.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design
