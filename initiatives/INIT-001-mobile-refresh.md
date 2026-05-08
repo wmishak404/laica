@@ -19,7 +19,7 @@ The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Pha
 - Phase 2.1: setup trust, privacy, scan safeguards, and visual conformance
 - Phase 2.2: returning setup edits, Menu, Settings, and History IA
 - Phase 3: planning, Chef It Up, Slop Bowl, and Ticket Pass
-- Phase 3.1: Phase 3 design facelift, recipe imagery slots, and async generated/illustrated imagery
+- Phase 3.1: Phase 3 design facelift, Slop It Up planning-card copy treatment, recipe imagery slots, and async generated/illustrated imagery
 - Phase 4: cooking guidance
 - Phase 5: post-cook cleanup and retention
 
@@ -33,7 +33,7 @@ Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the g
 
 PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation shipped through [PR #38](https://github.com/wmishak404/laica/pull/38), validated at `8a5c3d5` and merged as `f1d17d8`. The Phase 3 generation lock/cancel follow-up shipped through [PR #45](https://github.com/wmishak404/laica/pull/45), validated at `0c98a47` and merged as `8892327`.
 
-Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, deterministic cuisine-aware staple check, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so the phase could close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift plus recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Post-freeze basic-usability patches keep Ticket Pass recipe order stable, display-split recipe names only when explicit supporting detail exists, ask about/save likely missing cuisine staples as concrete pantry ingredients before generation with multi-cuisine representation before extra slots, align recipe preference caps across recipe suggestion routes, enforce `additionalIngredientsNeeded` as optional enhancements rather than required missing ingredients, and lock/cancel Chef It Up recipe generation so staple rows cannot reshuffle or accept input while suggestions are loading.
+Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, deterministic cuisine-aware staple check, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so the phase could close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift, Slop It Up planning-card copy treatment, and recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Post-freeze basic-usability patches keep Ticket Pass recipe order stable, display-split recipe names only when explicit supporting detail exists, ask about/save likely missing cuisine staples as concrete pantry ingredients before generation with multi-cuisine representation before extra slots, align recipe preference caps across recipe suggestion routes, enforce `additionalIngredientsNeeded` as optional enhancements rather than required missing ingredients, and lock/cancel Chef It Up recipe generation so staple rows cannot reshuffle or accept input while suggestions are loading.
 
 ## Source Docs
 
@@ -77,7 +77,7 @@ Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, de
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | Planned | TBD | Design facelift, recipe imagery/illustration direction, and async image hydration into Phase 3 slots |
+| Phase 3.1 | Planned | TBD | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
 
@@ -131,6 +131,7 @@ Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, de
 - EPIC-019 was filed from the EPIC-018 messaging review so persistent AI error/eval logging can proceed separately with an allowlist-first redaction policy.
 - Phase 3.1 expanded on 2026-05-05 to own the Phase 3 design-drift review, root-cause notes, recommendations, and recipe imagery follow-up instead of creating a standalone active epic.
 - Phase 3 visuals frozen on 2026-05-06 so Phase 3 can close on functional validation; Phase 3.1 now owns the whitespace/card grammar, typography, Slop Bowl humor, Ticket Pass, Prep Tray, bottom nav, docs, and imagery facelift.
+- Slop It Up copy direction added on 2026-05-08: Phase 3.1 should rename the Planning choice card title from `Slop Bowl` to `Slop It Up`, keep the durable feature name `Slop Bowl`, and rotate one approved italic supporting-copy line on page load.
 - Ticket Pass selection orientation was fixed after the visual freeze as a basic-usability exception: recipe order stays stable, the selected ticket expands in place, and recipe names show a main/supporting split only when explicit supporting detail exists, without changing the stored recipe name.
 - Chef It Up staple verification was added after the visual freeze as a recipe-quality/basic-usability exception: selected cuisines can trigger a deterministic missing-staple check, confirmed staples save to pantry, and recipe suggestions now target a hidden pantry-strict / pantry-flexible / cuisine-leaning range.
 - Chef It Up generation lock/cancel was added after the visual freeze as a functional correctness exception: in-flight recipe generation freezes the submitted staple rows and disables cuisine/staple inputs, while Back aborts the request and prevents late auto-advance.
@@ -163,7 +164,7 @@ Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8
 
 Next implementation / validation focus:
 
-1. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots.
+1. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots.
 2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EPIC-018 intentionally deferred.
 3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 4. This PR #39 is docs-only closeout. No Replit validation is required for the closeout itself because PR #38 and PR #45 already carry the Phase 3 runtime validation SHAs.
@@ -205,3 +206,7 @@ PR #43 merged the cross-app authenticated AI error handling fix into `main` as `
 ### 2026-05-08 - Phase 3 functionally closed
 
 PR #38 merged the main Phase 3 Planning implementation as `f1d17d8` after Replit validation at `8a5c3d5`. PR #45 merged the generation lock/cancel follow-up as `8892327` after Replit validation at `0c98a47`. Phase 3.1 now owns the deliberate design facelift and recipe imagery work; Phase 4 owns cooking guidance.
+
+### 2026-05-08 - Slop It Up copy direction added to Phase 3.1
+
+Wilson accepted **Slop It Up** as the Planning choice card title for the Slop Bowl path. The underlying feature remains **Slop Bowl**. Phase 3.1 now owns implementation of the load-time rotating, italicized supporting copy alongside the broader Planning facelift.
