@@ -28,6 +28,7 @@ This epic captures that broader workflow-documentation cleanup so Phase 3.2 can 
 
 - Audit existing workflow/process docs and decide which are canonical, overlapping, stale, or missing.
 - Create or update a central testing and acceptance workflow, likely `docs/workflows/testing-and-acceptance.md` or a top-level process PD.
+- Add a Feature Impact Review / system-touchpoint checklist to that central workflow so feature enhancements review affected surfaces before accepting implementation direction.
 - Graduate [EPIC-005](005-testing-strategy-and-acceptance-criteria.md) once the testing workflow has a durable home.
 - Decide whether additional workflow docs are needed for:
   - branch ownership, stacking, rebasing, and PR validation SHA hygiene
@@ -76,6 +77,7 @@ Use this map as the starting point for the future audit. It records what we alre
 - Prefer central workflow docs for repeatable operating procedures, and use top-level PDs for stable decisions behind those procedures.
 - Preserve feature-specific criteria in feature phase records; preserve current validation status in INITs; preserve run evidence in handoffs and PR descriptions.
 - Keep this broader workflow audit separate from Phase 3.2 implementation so the feature can finish validation and merge.
+- Let this epic own the future Feature Impact Review/system-touchpoint checklist rather than creating another process epic. [EPIC-021](021-scan-upload-photo-limit-policy.md)'s scan-capacity review is the first concrete example: error messaging, parser/body limits, rate limits, telemetry constraints, post-cook capacity, Settings tests, and related epics all needed review before policy was locked.
 
 ## Open questions
 
@@ -117,6 +119,7 @@ This epic is `Resolved` when all of the following are true:
 - [EPIC-005 - App-wide testing strategy and acceptance criteria workflow](005-testing-strategy-and-acceptance-criteria.md)
 - [EPIC-010 - Local database schema strategy](010-local-db-schema-strategy.md)
 - [EPIC-017 - Environment parity + CI confidence](017-environment-parity-and-ci-confidence.md)
+- [EPIC-021 - Scan upload photo limit policy](021-scan-upload-photo-limit-policy.md)
 - [PD-004 - Feature Phase Decision Records](../product-decisions/004-feature-phase-records.md)
 - [PD-005 - UI Governance Operating Model](../product-decisions/005-ui-governance.md)
 - [PD-007 - Epic status and registry workflow](../product-decisions/007-epic-status-and-registry-workflow.md)
@@ -130,3 +133,9 @@ This epic is `Resolved` when all of the following are true:
 ## 2026-05-08 - Epic filed from Phase 3.2 closeout
 
 Wilson and Codex audited whether EPIC-005 was redundant while preparing to close Phase 3.2. The answer was: redundant as a feature-validation ledger, not yet redundant as an unresolved testing-governance epic. This epic was filed to carry the broader workflow-documentation audit into a separate session and keep Phase 3.2 focused on product validation.
+
+## 2026-05-08 - Feature Impact Review candidate added from scan-limit planning
+
+Wilson accepted that the scan upload photo-limit discussion exposed a repeatable workflow need: before a feature enhancement locks direction, agents should review the upper-level system touchpoints it may affect. For the scan-limit policy, that meant scan-specific error messaging, route parser/body limits, image-count rate limits, PD-010 telemetry constraints, Phase 5 rescan capacity, Settings test gaps, and EPIC-007/EPIC-014 interactions.
+
+Do not create a separate process epic for that checklist. This workflow belongs under EPIC-020's future central testing/acceptance artifact, likely `docs/workflows/testing-and-acceptance.md`, and EPIC-005 should stay open until that artifact exists, active references are repointed, `epics/README.md` and `epics/registry.md` are updated, and a closeout handoff records the final workflow map.
