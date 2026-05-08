@@ -29,6 +29,7 @@ Phase 3 reserves generated-image slots now:
 
 - Rework Phase 3 visual look and feel as one coherent pass, not as isolated sticker/font/color/card patches.
 - Improve whitespace, card/object grammar, typography consistency, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, and bottom nav fit.
+- Include the accepted Slop It Up planning-card title and load-time rotating supporting-copy treatment as part of the Slop Bowl humor pass.
 - Review the documented Phase 3 drift inventory before deciding Phase 3.1 is visually ready.
 - Mark each drift as fixed, accepted, or deferred with owner/scope before Phase 3.1 closes.
 - Compare Planning entry, Chef It Up time, Cuisine, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav against current docs, mockups, and Wilson's Replit feedback.
@@ -39,6 +40,37 @@ Phase 3 reserves generated-image slots now:
 - Define fallback behavior for failed generation, slow generation, moderation failures, and missing image URLs.
 - Decide whether Phase 3's lightweight deterministic staple check should stay as-is, become part of a pantry-staples profile, or become a smarter AI-assisted follow-up.
 - If Phase 3.1 expands herb handling, keep saved pantry labels concrete. Avoid saving grouped labels like `fresh herbs`; use explicit choices or a richer profile model that can store specificity.
+
+## 2026-05-08 - Slop It Up Planning-Card Copy Direction
+
+Wilson clarified that the Planning choice screen should sharpen the contrast between the two cooking paths. **Chef It Up** should stay elegant, refined, classy, and collaborative. The Slop Bowl path should feel more culturally playful, sloppy, and chaotic, but it must not imply that the generated food will be bad or low quality.
+
+The accepted Planning card title for the Slop Bowl path is **Slop It Up**. This is a front-door label for the Planning choice card, not a global feature rename. The underlying feature remains **Slop Bowl** in flow names, recipe language, backend/API contracts, sparse-pantry guard copy, durable product docs, and other places where the app is referring to the generated bowl concept itself.
+
+The Slop It Up card should use one approved supporting-copy line chosen at page load or refresh. It should remain stable while the page is open so the card does not animate or distract while the user is reading. The supporting copy should be italicized on the Slop It Up card only, giving the card a slightly different voice from Chef It Up while preserving the same planning-card title system.
+
+```yaml
+slopItUpPlanningCard:
+  scope: phase-3-1
+  implementationStatus: planned
+  cardTitle: "Slop It Up"
+  featureNameRemains: "Slop Bowl"
+  copySelection: "random-on-page-load"
+  copyStability: "stable-during-mounted-session"
+  typography:
+    title: "same planning-card title system as Chef It Up"
+    supportingCopy: "italic only on Slop It Up card"
+  supportingCopyOptions:
+    - "We'll turn your ingredients into a Slop Bowl."
+    - "Fridge chaos, Slop Bowl incoming."
+    - "We'll make a Slop Bowl from whatever's around."
+    - "Let us cook up a Slop Bowl from the chaos."
+  outOfScope:
+    - "timed carousel"
+    - "new sticker/banner system"
+    - "backend/API rename"
+    - "global Slop Bowl feature rename"
+```
 
 ## Phase 3 Design Drift Inventory
 
@@ -86,6 +118,7 @@ Recipe suggestions must appear as soon as the recipe response is ready. Image ge
 - Every known Phase 3 drift row is marked fixed, accepted, or deferred with owner/scope.
 - Phase 3.1 visual review covers Planning entry, Chef It Up time, Cuisine, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav against current docs/mockups and current Phase 3 screenshots.
 - Phase 3.1 docs record the accepted facelift direction before implementation starts.
+- Planning entry shows **Slop It Up** for the Slop Bowl choice with one approved italic supporting line, while Chef It Up remains unchanged in its refined, collaborative register.
 - Ticket Pass and Prep Tray image placeholders are replaced by real imagery when `imageUrl` is available.
 - Placeholders remain polished and stable when imagery is unavailable or still loading.
 - The layout does not shift when images hydrate.
