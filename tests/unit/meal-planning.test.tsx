@@ -173,6 +173,7 @@ describe('MealPlanning recipe generation locking', () => {
     const tortillasChip = within(added).getByRole('button', { name: /remove tortillas from added/i });
     expect(tortillasChip).toBeTruthy();
     expect(tortillasChip.querySelectorAll('svg').length).toBe(2);
+    expect(tortillasChip.querySelector('.planning-added-chip-add')).toBeTruthy();
     expect(within(added).getByRole('button', { name: /remove olive oil from added/i })).toBeTruthy();
 
     rows = getStapleRows();
@@ -278,10 +279,12 @@ describe('MealPlanning recipe generation locking', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/saved to pantry/i)).toBeTruthy();
       expect(screen.getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
       expect(screen.getByLabelText(/olive oil saved to pantry/i)).toBeTruthy();
     });
+
+    expect(screen.queryByText(/^saved$/i)).toBeNull();
+    expect(screen.queryByText(/saved to pantry/i)).toBeNull();
 
     await act(async () => {
       recipesDeferred.resolve(recipeResponse);
@@ -293,9 +296,10 @@ describe('MealPlanning recipe generation locking', () => {
     fireEvent.click(screen.getByRole('button', { name: /back to cuisines/i }));
 
     expect(screen.getByRole('heading', { name: /anything else around/i })).toBeTruthy();
-    expect(screen.getByText(/saved to pantry/i)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /remove tortillas from added/i })).toBeNull();
     expect(screen.getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
+    expect(screen.queryByText(/^saved$/i)).toBeNull();
+    expect(screen.queryByText(/saved to pantry/i)).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
@@ -352,10 +356,11 @@ describe('MealPlanning recipe generation locking', () => {
     });
 
     const added = screen.getByRole('group', { name: /added pantry staples/i });
-    expect(within(added).getByText(/saved to pantry/i)).toBeTruthy();
     expect(within(added).getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
     expect(within(added).getByLabelText(/olive oil saved to pantry/i)).toBeTruthy();
     expect(within(added).queryByRole('button', { name: /remove tortillas from added/i })).toBeNull();
+    expect(within(added).queryByText(/^saved$/i)).toBeNull();
+    expect(within(added).queryByText(/saved to pantry/i)).toBeNull();
 
     rows = getStapleRows();
     expect(within(rows).getByRole('button', { name: /^lime$/i })).toBeDisabled();

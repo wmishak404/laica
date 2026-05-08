@@ -16,7 +16,7 @@ import {
   getAllStapleCandidatesForCuisines,
 } from '@shared/planning-staples';
 import { mergeUniqueEntries, normalizeEntryKey } from '@/lib/entryParsing';
-import { ArrowLeft, ChefHat, CheckCircle2, Clock, RefreshCw, Sparkles, Utensils, X } from 'lucide-react';
+import { ArrowLeft, ChefHat, CheckCircle2, Clock, Plus, RefreshCw, Sparkles, Utensils, X } from 'lucide-react';
 
 const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
 const NO_PREFERENCE = 'No preference';
@@ -295,8 +295,6 @@ export default function MealPlanning({
   const isSavedPantryStaple = (staple: string) => pantryIngredientKeys.has(normalizeEntryKey(staple));
   const displayedSelectedStaples = lockedStapleView?.selected ?? selectedStaples;
   const displayedStapleCandidates = lockedStapleView?.visible ?? visibleStapleCandidates;
-  const savedDisplayedStapleCount = displayedSelectedStaples.filter(isSavedPantryStaple).length;
-  const allDisplayedStaplesSaved = displayedSelectedStaples.length > 0 && savedDisplayedStapleCount === displayedSelectedStaples.length;
 
   const isActiveGeneration = (runId: number, controller: AbortController) =>
     activeGenerationRef.current?.runId === runId && !controller.signal.aborted;
@@ -767,7 +765,7 @@ export default function MealPlanning({
 
       {displayedSelectedStaples.length > 0 && (
         <div className="planning-added-shelf mt-8" role="group" aria-label="Added pantry staples">
-          <p className="planning-added-label">{allDisplayedStaplesSaved ? 'Saved to pantry' : 'Added'}</p>
+          <p className="planning-added-label">Added</p>
           <div className="planning-added-chip-row">
             {displayedSelectedStaples.map((staple) => {
               const savedToPantry = isSavedPantryStaple(staple);
@@ -781,7 +779,6 @@ export default function MealPlanning({
                   >
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     <span className="planning-added-chip-text">{staple}</span>
-                    <span className="planning-added-chip-status">Saved</span>
                   </span>
                 );
               }
@@ -795,7 +792,7 @@ export default function MealPlanning({
                   disabled={isLoading}
                   onClick={() => toggleStaple(staple)}
                 >
-                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  <Plus className="planning-added-chip-add h-4 w-4" aria-hidden="true" />
                   <span className="planning-added-chip-text">{staple}</span>
                   <X className="planning-added-chip-remove h-3.5 w-3.5" aria-hidden="true" />
                 </button>

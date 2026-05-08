@@ -110,6 +110,7 @@ Before a mobile-refresh phase merges:
 - Repeatable surface types: camera frame, chip, full-row selection, ticket, prep tray, cue card, bottom action bar.
 - Compact cards stay disciplined; larger radii belong on intentional feature objects.
 - Buttons have clear command roles; the primary CTA is visually obvious without explanatory copy.
+- Pantry/status chips should use icon and color, not extra status words, when the state is otherwise obvious. Current Phase 3.2 pantry-confirmation grammar: pending/removable additions are coral chips with a `+` and right-side `X`; saved pantry facts are green chips with a checkmark only and no visible `Saved` label.
 - Authenticated app pages do not carry a persistent top header (per PD-009). Account, profile, and sign-out access live in the bottom menu/account surface.
 - Setup progress uses one clear top progress treatment (`1/N` bar style), not stacked brand chips + step pills + section labels.
 - Camera utility controls inside the camera object: large circular capture, smaller translucent circular toggles for camera on/off and tips. No flashlight-like icons for non-flashlight tips. Capture is a clean shutter without a camera glyph.

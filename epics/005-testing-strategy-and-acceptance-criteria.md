@@ -310,7 +310,7 @@ This is useful validation evidence: unit tests can prove state transitions and p
 
 ### 2026-05-08 — Phase 3.2 adds persistence-timing assertions
 
-Phase 3.2 follow-up coverage now asserts that saved selected staples become non-removable saved chips after pantry persistence succeeds, returning to the staple step does not re-save already-saved staples, and pantry-save failure shows an explicit destructive toast while still using those staples for the current recipe request.
+Phase 3.2 follow-up coverage now asserts that saved selected staples become non-removable green check-only chips after pantry persistence succeeds, returning to the staple step does not re-save already-saved staples, pending additions remain visually distinct with `+` + `X`, and pantry-save failure shows an explicit destructive toast while still using those staples for the current recipe request.
 
 This adds a useful acceptance pattern for DB-backed optimistic UI: tests should prove both duplicate-prevention behavior and the user-facing status/error signal, while Replit still confirms the real authenticated database row state.
 

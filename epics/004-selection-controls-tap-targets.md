@@ -200,11 +200,11 @@ This is still Chef It Up-specific and does not resolve the original setup/settin
 
 ### 2026-05-08 — Added chip undo affordance clarified
 
-Wilson's Replit check of Phase 3.2 confirmed that tapping an Added chip already undid the selection, but the action was not visually obvious. The follow-up keeps the full chip as the tap target, adds a right-side `X` inside each Added chip, preserves `aria-label="Remove <item> from Added"`, and keeps chips disabled during `Finding recipes...`.
+Wilson's Replit check of Phase 3.2 confirmed that tapping an Added chip already undid the selection, but the action was not visually obvious. The follow-up keeps the full chip as the tap target, uses a pending-add `+` plus right-side `X` inside each pending Added chip, preserves `aria-label="Remove <item> from Added"`, and keeps chips disabled during `Finding recipes...`.
 
 This adds a refinement to the pattern: when a selected chip is also an undo control, the full target should stay large, but the visible remove affordance should match user expectations from other pantry-chip surfaces.
 
-The same follow-up differentiates pending undo chips from saved pantry facts: after persistence succeeds, the chip switches to a non-removable `Saved` treatment instead of keeping an `X`. That keeps the interaction language honest: removable chips are pending selections, while saved chips are inventory state.
+The same follow-up differentiates pending undo chips from saved pantry facts: after persistence succeeds, the chip switches to a non-removable green check-only treatment instead of keeping an `X` or spelling out `Saved`. That keeps the interaction language honest: removable chips are pending selections, while saved chips are inventory state.
 
 ## Next steps when work resumes
 

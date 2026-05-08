@@ -1367,14 +1367,7 @@ html, body {
     overflow-wrap: anywhere;
   }
 
-  .planning-added-chip-status {
-    flex-shrink: 0;
-    color: hsl(var(--planning-herb) / 0.86);
-    font-size: 0.68rem;
-    font-weight: 950;
-    text-transform: uppercase;
-  }
-
+  .planning-added-chip-add,
   .planning-added-chip-remove {
     flex-shrink: 0;
     stroke-width: 3;
