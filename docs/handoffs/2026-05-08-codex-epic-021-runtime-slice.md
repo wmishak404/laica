@@ -9,7 +9,7 @@
 
 ## Summary
 
-Started the runtime implementation for [EPIC-021](../../epics/021-scan-upload-photo-limit-policy.md) after PR #52 merged the policy docs. This slice makes setup and Settings enforce the same 20-photo per-refresh cap, updates copy from "per batch" to "per refresh", keeps unsupported files out of the cap count, adds simple multi-photo progress and partial-success copy, makes the server vision limiter capable of consuming image counts, and adds bounded scan concurrency to reduce the full-refresh wait.
+Started the runtime implementation for [EPIC-021](../../epics/021-scan-upload-photo-limit-policy.md) after PR #52 merged the policy docs. This slice makes setup and Settings enforce the same 20-photo per-refresh cap, updates copy from "per batch" to "per refresh", keeps unsupported files out of the cap count, adds simple multi-photo progress and partial-success copy, makes the server vision limiter capable of consuming image counts, and adds bounded scan concurrency to reduce the full-refresh wait. The latest follow-up also handles the returning-user empty-Pantry corner case and active Settings scan cancellation.
 
 This branch does not yet implement provider-level multi-image vision batching or final adaptive chunk-size thresholds. The current client still sends one `/api/vision/analyze` request per accepted image, now up to 4 at a time, so the server-side limit changes keep the current route aligned with the 40-image per-day-per-area policy without pretending chunking is complete.
 
@@ -17,24 +17,32 @@ This branch does not yet implement provider-level multi-image vision batching or
 
 - `shared/scan-policy.ts`: centralizes scan image limits, Pantry/Kitchen scan labels, and the bounded scan-analysis concurrency cap of 4.
 - `client/src/lib/boundedConcurrency.ts`: adds a small helper for running scan work with a fixed concurrency ceiling.
+- `client/src/lib/profileReadiness.ts`: separates cooking-profile readiness from Pantry contents so returning users can intentionally have zero pantry items without being sent through first-time setup.
 - `client/src/components/cooking/user-profiling.tsx`: setup scan uploads now use 20 supported images per refresh for both Pantry and Kitchen, filter unsupported files before over-cap checks, show per-refresh copy, preserve partial successes, show basic analyzing progress for multi-photo refreshes, and process up to 4 accepted photos at a time.
-- `client/src/components/cooking/user-settings.tsx`: returning Settings now uses the same 20-photo cap, unsupported-file counting semantics, per-refresh copy, progress copy, partial-success summaries, and bounded 4-photo-at-a-time processing. The old 500ms delay between Settings photos was removed.
+- `client/src/components/cooking/user-settings.tsx`: returning Settings now uses the same 20-photo cap, unsupported-file counting semantics, per-refresh copy, progress copy, partial-success summaries, and bounded 4-photo-at-a-time processing. The old 500ms delay between Settings photos was removed. Leaving Settings during an active scan now confirms and aborts; scan completion is ignored after cancel/unmount; inventory save/reset/manual/remove edits lock while any inventory scan is active; cross-section progress remains visible when switching Settings sections.
+- `client/src/components/cooking/meal-planning.tsx` and `client/src/components/cooking/slop-bowl.tsx`: pantry-based generation blocks when Pantry is empty with explicit recovery copy and, where supported, a path to Settings > Pantry.
+- `client/src/pages/app.tsx` and `client/src/pages/cooking-new.tsx`: profile completion no longer depends on Pantry item count, preserving Profile/Kitchen/History when Pantry is intentionally empty.
 - `server/rate-limit.ts`: adds image-count consumption support and raises the default signed-in vision short-window fallback to 40 so one accepted 20-photo refresh is not blocked by the older 12-request meter.
-- `server/routes.ts`: moves the vision image limiter to after image body/base64 validation and consumes one image slot for the current single-image route.
+- `server/routes.ts`: moves the vision image limiter to after image body/base64 validation and consumes one image slot for the current single-image route; pantry recipe generation now returns typed `EMPTY_PANTRY` instead of generating with zero ingredients.
 - `tests/unit/user-profiling.test.tsx`: updates setup cap expectations to 20 and adds unsupported-file-does-not-count plus bounded-concurrency coverage.
 - `tests/unit/user-settings-scan-policy.test.tsx`: adds Settings Pantry/Kitchen same-limit over-cap coverage and bounded-concurrency coverage.
+- `tests/unit/profile-readiness.test.ts`: covers empty-Pantry returning-user readiness.
+- `tests/unit/meal-planning.test.tsx`: covers the empty-Pantry recipe-generation blocker.
+- `tests/unit/user-settings-scan-policy.test.tsx`: covers active Settings scan cancellation on Back.
+- `tests/unit/phase0-security-routes.test.ts`: covers the server-side empty-Pantry recipe blocker.
 - `tests/unit/rate-limit.test.ts`: adds image-count limiter coverage.
-- `epics/021-scan-upload-photo-limit-policy.md` and `initiatives/INIT-001-mobile-refresh.md`: record the implementation slice and remaining open work.
+- `product-decisions/011-scan-upload-photo-limit-policy.md`, `epics/021-scan-upload-photo-limit-policy.md`, `epics/020-workflow-documentation-audit.md`, and `initiatives/INIT-001-mobile-refresh.md`: record empty-Pantry guardrails, active-scan lifecycle decisions, and the corner-case testing methodology signal.
 
 ## Validation
 
 - `npm ci`
 - `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/rate-limit.test.ts`
+- `npx vitest run tests/unit/profile-readiness.test.ts tests/unit/meal-planning.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/user-profiling.test.tsx tests/unit/rate-limit.test.ts tests/unit/phase0-security-routes.test.ts`
 - `npm run check`
 - `npm run build`
 - `git diff --check`
-- Local dotenvx dev-server boot on port 3000, with elevated local `curl -I http://127.0.0.1:3000` returning HTTP 200
-- In-app browser smoke to `http://127.0.0.1:3000/`, confirming the client serves the unauthenticated Laica welcome screen
+- Local dotenvx dev-server boot on port 3000, with `curl -I http://127.0.0.1:3000` returning HTTP 200
+- Earlier in this branch: in-app browser smoke to `http://127.0.0.1:3000/`, confirming the client serves the unauthenticated Laica welcome screen
 
 `npm run build` passed with the existing Vite chunk-size warning and existing dynamic/static Firebase import warning. The local browser smoke did not exercise authenticated Pantry/Settings scan flows because it landed on the unauthenticated welcome screen. Wilson later ran authenticated Replit validation at `aa2f434` before the bounded-concurrency patch; that pass is now stale, so Replit/mobile validation still needs to cover the signed-in high-photo-count scan behavior at the latest branch head.
 
@@ -61,6 +69,6 @@ Current protection is considered enough for rollout: scans require auth, accepte
 ## Remaining EPIC-021 Work
 
 - Decide whether provider-level multi-image batching and adaptive chunk thresholds should land in this branch or a follow-up. This slice only prepares the policy/cap/rate-limit semantics and keeps the current per-image API path.
-- Replit/mobile re-validate setup Pantry, setup Kitchen, Settings Pantry, and Settings Kitchen high-photo-count refresh behavior at the latest branch head. The earlier manual pass at `aa2f434` covered scenarios 1-6 and 8-10, with scenario 7 provisionally passing because native pickers blocked non-image files, but it is stale after the bounded-concurrency patch.
+- Replit/mobile re-validate setup Pantry, setup Kitchen, Settings Pantry, Settings Kitchen high-photo-count refresh behavior, empty-Pantry returning-user behavior, and Back/cancel during active Settings scans at the latest branch head. The earlier manual pass at `aa2f434` covered scenarios 1-6 and 8-10, with scenario 7 provisionally passing because native pickers blocked non-image files, but it is stale after the bounded-concurrency and empty-Pantry guardrail patches.
 - If provider-level batching lands later, make sure server-side rate limits count accepted images rather than requests, and keep PD-010 telemetry to `image_count` only.
 - Update PR description validation notes after the next Replit pass.

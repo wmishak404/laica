@@ -19,6 +19,7 @@ import {
   type PlanningTimeValue,
 } from '@shared/planning';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
+import { hasAnySavedProfileSignal, hasCompletedCookingProfile } from '@/lib/profileReadiness';
 import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
@@ -46,12 +47,6 @@ interface RecipeRecommendation {
 }
 
 type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'history' | 'slop-bowl';
-
-const hasPlanningProfile = (profile: UserProfile) =>
-  Boolean(
-    profile.cookingSkill &&
-    profile.pantryIngredients.length > 0
-  );
 
 const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined) =>
   (restrictions || []).map((restriction) => restriction === 'None' ? 'No restrictions' : restriction);
@@ -93,7 +88,7 @@ export default function MobileApp() {
     () => CHEF_EMOJIS[Math.floor(Math.random() * CHEF_EMOJIS.length)],
     [showPlanningChoice]
   );
-  const hasExistingProfile = hasPlanningProfile(userProfile);
+  const hasExistingProfile = hasAnySavedProfileSignal(userProfile);
   const feedbackCurrentPage = useMemo(() => {
     if (currentPhase === 'settings') return `/app-settings-${settingsSection}`;
     if (currentPhase === 'planning') return showPlanningChoice ? '/app-planning-choice' : '/app-planning-manual';
@@ -132,7 +127,7 @@ export default function MobileApp() {
         setHasLoadedFromDb(true);
 
         // Check if profile is complete
-        const isProfileComplete = hasPlanningProfile(profileFromDb);
+        const isProfileComplete = hasCompletedCookingProfile(profileFromDb);
 
         if (isProfileComplete) {
           setShowPlanningChoice(true);
@@ -251,8 +246,7 @@ export default function MobileApp() {
 
   const handleBackToPlanning = () => {
     // Check if profile is complete before allowing access to planning
-    const isProfileComplete = userProfile.cookingSkill &&
-      userProfile.pantryIngredients.length > 0;
+    const isProfileComplete = hasCompletedCookingProfile(userProfile);
 
     if (isProfileComplete) {
       setShowPlanningChoice(true);
@@ -268,8 +262,7 @@ export default function MobileApp() {
     saveProfile(updatedProfile);
     
     // Check if profile is complete before going to planning
-    const isProfileComplete = updatedProfile.cookingSkill && 
-      updatedProfile.pantryIngredients.length > 0;
+    const isProfileComplete = hasCompletedCookingProfile(updatedProfile);
     
     if (isProfileComplete) {
       // Show confirmation toast with link to settings
@@ -577,6 +570,7 @@ export default function MobileApp() {
                 initialTimeAvailable={lastPlanningTime}
                 onPlanningTimeChange={handlePlanningTimeChange}
                 onPantryIngredientsAdded={handlePlanningPantryIngredientsAdded}
+                onEditPantry={() => openSettings('pantry')}
                 onBackToProfile={() => {
                   // Back from step 1 of manual planning returns to the
                   // Slop Bowl vs Chef it up choice screen, not the profile.

@@ -146,4 +146,38 @@ describe('UserSettings scan upload policy', () => {
       expect(screen.getByText('settings item 1')).toBeTruthy();
     });
   });
+
+  it('cancels an active Settings scan before leaving', async () => {
+    let capturedSignal: AbortSignal | undefined;
+    vi.mocked(analyzeImage).mockImplementation((_image, _isHEIC, options) => {
+      capturedSignal = options?.signal;
+      return new Promise(() => {});
+    });
+    const onBackToPlanning = vi.fn();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    const { container } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={onBackToPlanning}
+        initialSection="pantry"
+      />,
+    );
+
+    const pantryUpload = container.querySelector('#pantry-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, { target: { files: makeHeicFiles(1) } });
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('button', { name: /save pantry/i })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /^back$/i }));
+
+    expect(confirmSpy).toHaveBeenCalledWith('Leave Settings and cancel the active scan? Items found so far may not be saved.');
+    expect(capturedSignal?.aborted).toBe(true);
+    expect(onBackToPlanning).toHaveBeenCalledTimes(1);
+    confirmSpy.mockRestore();
+  });
 });

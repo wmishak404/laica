@@ -248,6 +248,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const { ingredients, preferences, timeAvailable } = schema.parse(req.body);
+      const distinctIngredients = Array.from(
+        new Set(ingredients.map((ingredient) => ingredient.trim().toLowerCase()).filter(Boolean))
+      );
+      if (distinctIngredients.length === 0) {
+        return res.status(422).json({
+          code: "EMPTY_PANTRY",
+          message: "Your pantry is empty. Add or scan pantry items before I can suggest recipes.",
+        });
+      }
+
       // Convert timeAvailable to a preference string if provided
       const enhancedPreferences = preferences 
         ? (timeAvailable ? `${preferences}, ready in ${timeAvailable}` : preferences)

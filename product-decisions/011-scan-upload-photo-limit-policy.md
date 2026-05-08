@@ -64,6 +64,16 @@ Example copy posture:
 
 These are directional examples, not final string locks.
 
+### Empty inventory and in-flight scan guardrails
+
+- An empty Pantry is a valid returning-user inventory state. Profile/onboarding readiness depends on cooking profile completion, not on Pantry having at least one saved item.
+- Clearing Pantry in Settings should clear only Pantry. It must not reset Kitchen equipment, cooking profile fields, or cooking History.
+- Pantry-based recipe generation is blocked when Pantry is empty. Use the direct empty-pantry message: "Your pantry is empty. Add or scan pantry items before I can suggest recipes." Include a path back to Settings > Pantry where the surface supports it.
+- Do not silently generate pantry-based recipes with zero pantry items, and do not send returning users back through first-time setup just because they cleared Pantry.
+- Settings scans may continue while the user switches between Settings sections, but leaving Settings should cancel or abort the active scan and ignore stale late results.
+- Inventory save, reset, manual-entry, and remove-item actions should be blocked while an inventory scan is active so late scan results cannot race against destructive edits.
+- Acceptance criteria for scan-capacity work should include corner cases where users reset a valid domain to empty, navigate during in-flight async work, and verify unrelated persisted data stays intact.
+
 ## Privacy and telemetry constraints
 
 This policy inherits [PD-010](010-ai-error-telemetry-allowlist.md). Scan telemetry may use `image_count` as an aggregate count only. Do not log or persist raw images, image bytes, filenames, EXIF data, base64 payloads, detected labels, or per-image content in AI error telemetry, stdout JSON logs, admin APIs, or handoffs.
@@ -78,6 +88,7 @@ This policy inherits [PD-010](010-ai-error-telemetry-allowlist.md). Scan telemet
 - Preserving partial successes respects the user's time and avoids discarding good work because one chunk failed.
 - Scan-specific messaging matters because inventory scans fail for reasons that cooking/recipe AI failures do not: unsupported files, text-only evidence, no physical items detected, malformed images, over-cap selection, and duplicate-only results.
 - The fresh-account abuse case is possible but sufficiently intentional and high-friction that extra daily/global IP caps are deferred until observed usage justifies the added product and operational complexity. Provider-side OpenAI limits remain a hard spend-safety backstop, but the app should not rely on them for ordinary user experience.
+- Treating empty Pantry as valid preserves returning-user trust: reset/cleanup should not erase profile identity, Kitchen equipment, or History. The recipe-generation blocker is the right point to enforce the dependency because it is where Pantry contents are actually required.
 
 ## Cost and latency planning notes
 
@@ -104,6 +115,7 @@ These are planning estimates, not billing guarantees. Implementation should reca
 - Setup, Settings, and post-cook rescan docs should treat old 8/6/4 photo caps as historical unless a later decision supersedes this policy.
 - The scan route may need a new batch contract or a backward-compatible batch mode, plus explicit parser/body/provider payload guardrails.
 - Tests must cover setup and Settings limits, same-limit Pantry/Kitchen behavior, fail-closed over-cap copy, unsupported-file counting, accepted-image counting, image-count rate limits, partial-success behavior, and stale-result protection.
+- Tests should also cover returning-user empty-Pantry states, Pantry-dependent recipe blockers, Settings Back/cancel behavior during active scans, and persistence boundaries after clearing Pantry.
 - Replit validation should include a high-photo-count mobile scan scenario before this epic resolves.
 - Abuse hardening beyond the existing short-window IP limit is a monitoring follow-up, not a blocker for the current EPIC-021 runtime slice.
 

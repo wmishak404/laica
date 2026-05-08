@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { ToastAction } from '@/components/ui/toast';
 import { fetchPantryRecipes } from '@/lib/openai';
 import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
@@ -78,6 +79,7 @@ interface MealPlanningProps {
   onPlanningTimeChange: (value: PlanningTimeValue) => void;
   onPantryIngredientsAdded: (ingredients: string[]) => Promise<boolean>;
   onMealSelected: (meal: RecipeRecommendation, scheduledTime: string) => void;
+  onEditPantry?: () => void;
   onBackToProfile: () => void;
 }
 
@@ -155,6 +157,7 @@ export default function MealPlanning({
   onPlanningTimeChange,
   onPantryIngredientsAdded,
   onMealSelected,
+  onEditPantry,
   onBackToProfile,
 }: MealPlanningProps) {
   const [currentStep, setCurrentStep] = useState<PlanningStep>('time');
@@ -459,8 +462,13 @@ export default function MealPlanning({
 
     if (!requestProfile.pantryIngredients || requestProfile.pantryIngredients.length === 0) {
       toast({
-        title: 'Profile Incomplete',
-        description: 'Please add pantry ingredients to your profile before getting meal recommendations.',
+        title: 'Your pantry is empty',
+        description: 'Add or scan pantry items before I can suggest recipes.',
+        action: onEditPantry ? (
+          <ToastAction altText="Open Pantry Settings" onClick={onEditPantry}>
+            Add pantry
+          </ToastAction>
+        ) : undefined,
         variant: 'destructive',
       });
       return;

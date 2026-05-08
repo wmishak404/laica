@@ -64,6 +64,9 @@ This epic owns the implementation follow-through. [EPIC-020](020-workflow-docume
 - The UI should show progress for long scans and protect against stale late results when the user cancels, backs out, starts a newer scan, or leaves the surface.
 - Preserve scan-specific error taxonomy. Do not route scan failures through generic cooking or generic AI error copy.
 - User-facing copy should say "per refresh" rather than "per batch."
+- Empty Pantry is a valid returning-user state. Clearing Pantry in Settings should not reset Kitchen, cooking profile, or History, and should not send the user back through first-time setup.
+- Pantry-based recipe generation should block when Pantry is empty with: "Your pantry is empty. Add or scan pantry items before I can suggest recipes."
+- Settings inventory scans may continue across Settings sections, but leaving Settings should cancel/abort the active scan and ignore stale late results. Inventory save, reset, manual-entry, and item-removal edits should be locked while a scan is active.
 
 ## System touchpoints
 
@@ -76,6 +79,8 @@ Future implementation should review these before changing runtime behavior:
 - [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) telemetry constraints: scan failure telemetry may include `image_count` only, never raw images, bytes, filenames, EXIF, base64 payloads, or detected labels.
 - Phase 5 post-cook rescan capacity: inherited default is 20 images per refresh and 40 per day per area unless Phase 5 records an exception.
 - Settings scan test gap: returning Settings needs the same limit, fail-closed behavior, progress, partial-success summary, and rate-limit coverage as setup.
+- Returning-user empty-inventory workflow: profile readiness, Pantry reset, Kitchen/Profile/History persistence, and pantry-dependent recipe generation should be reviewed together so an intentionally empty Pantry does not look like first-time setup.
+- In-flight scan navigation: Back/unmount/cancel paths need stale-result protection so a scan cannot finish into a surface the user has already left.
 - [EPIC-007](007-vision-scan-no-detection-feedback.md): valid zero-result scans still need explicit no-detection feedback.
 - [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md): larger refreshes increase duplicate/latest-scan/found-again surface area, but this epic does not own chip-state semantics.
 - [EPIC-020](020-workflow-documentation-audit.md): the system-touchpoint review pattern should feed the future testing/acceptance workflow rather than becoming a separate process epic.
@@ -107,6 +112,7 @@ Read EPIC-021 before starting any of the following:
 - [ ] Adding or modifying batched scan routes, payload parsing, image compression, or adaptive chunking
 - [ ] Adding post-cook cleanup, rescan, or inventory-refresh capacity
 - [ ] Changing scan progress, partial-success, stale-result, or retry copy
+- [ ] Changing returning-user profile readiness, empty Pantry behavior, Pantry reset behavior, or pantry-dependent recipe generation blockers
 - [ ] Defining acceptance criteria for high-photo-count Pantry or Kitchen validation
 
 When this epic applies, also cite:
@@ -130,8 +136,9 @@ This epic is `Resolved` when all of the following are true:
 7. Partial chunk successes are preserved with clear summary copy.
 8. Progress and stale-result protection exist on mobile scan surfaces.
 9. Scan-specific error taxonomy and "per refresh" copy are implemented without falling back to generic cooking/AI messaging.
-10. Unit coverage verifies setup and Settings limits, same-limit Pantry/Kitchen behavior, over-cap fail-closed copy, image-count rate limits, and partial-success behavior.
-11. Replit validation or a handoff records the accepted behavior on mobile with a high-photo-count scenario.
+10. Returning users can intentionally clear Pantry without losing Kitchen equipment, cooking profile, or History, and pantry-based recipe generation blocks with explicit empty-Pantry recovery copy.
+11. Unit coverage verifies setup and Settings limits, same-limit Pantry/Kitchen behavior, over-cap fail-closed copy, image-count rate limits, partial-success behavior, empty-Pantry readiness, empty-Pantry recipe blocking, and active-scan cancellation.
+12. Replit validation or a handoff records the accepted behavior on mobile with a high-photo-count scenario.
 
 ## Linked artifacts
 
@@ -167,3 +174,9 @@ Wilson's Replit validation found that the serial path took about 1-2 seconds per
 ### 2026-05-08 - Fresh-account abuse guardrail decision
 
 Wilson raised the corner case where someone repeatedly signs in with fresh accounts, scans 20 photos, never saves, signs out, and repeats. The decision is to treat this as a known but non-blocking risk for the current slice. Auth, per-user/per-area daily limits, and short-window IP limits stay in place; daily IP caps, cross-area global IP caps, and save-before-scan gates are deferred unless observed cost or abuse signals justify them. OpenAI/project-level API limits are noted as a final spend-safety backstop, but not a substitute for Laica-owned limits and messaging.
+
+### 2026-05-08 - Empty Pantry and active Settings scan guardrails
+
+Wilson reproduced a returning-user corner case by clearing Pantry in Settings, starting a Pantry scan, navigating to Kitchen, and then pressing Back while the scan was still running. The product decision is that empty Pantry is a valid returning-user inventory state, not a first-time setup trigger. Clearing Pantry must not wipe Kitchen equipment, cooking profile, or History. If the user tries to generate pantry-based recipes with zero pantry items, Laica should block with the explicit empty-Pantry message and a path to Settings > Pantry.
+
+The same review accepted Settings scan lifecycle guardrails: scans can continue when switching Settings sections, but leaving Settings should cancel/abort active scan work and stale late results should be ignored. Inventory save, reset, manual-entry, and item-removal actions should be locked while a scan is active. This corner case also feeds [EPIC-020](020-workflow-documentation-audit.md)'s future testing methodology: feature acceptance should include destructive reset-to-empty states, navigation during in-flight async work, and persistence-boundary checks across related domains.

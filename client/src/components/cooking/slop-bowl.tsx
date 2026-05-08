@@ -297,7 +297,7 @@ export default function SlopBowl({
               </div>
             ) : (
               <p className="text-sm text-gray-500 text-center py-2">
-                No pantry items on file yet. Add an ingredient below or open your profile to update the full pantry.
+                Your pantry is empty. Add ingredients below or scan pantry items in Settings before I can suggest a bowl.
               </p>
             )}
 

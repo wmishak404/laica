@@ -20,6 +20,7 @@ import {
   type PlanningTimeValue,
 } from '@shared/planning';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
+import { hasCompletedCookingProfile } from '@/lib/profileReadiness';
 import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
@@ -71,20 +72,10 @@ export default function Cooking() {
     return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
   }, []);
 
-  // Check if user has completed profile setup
-  const isProfileComplete = (profile: any): boolean => {
-    if (!profile) return false;
-    return Boolean(
-      profile.cookingSkill && 
-      profile.pantryIngredients && 
-      profile.pantryIngredients.length > 0
-    );
-  };
-
   // Initialize user state based on database profile
   useEffect(() => {
     if (dbProfile) {
-      const hasCompleteProfile = isProfileComplete(dbProfile);
+      const hasCompleteProfile = hasCompletedCookingProfile(dbProfile);
       
       if (hasCompleteProfile) {
         // Returning user with complete profile
@@ -282,6 +273,7 @@ export default function Cooking() {
               initialTimeAvailable={lastPlanningTime}
               onPlanningTimeChange={handlePlanningTimeChange}
               onPantryIngredientsAdded={handlePlanningPantryIngredientsAdded}
+              onEditPantry={() => setCurrentPhase('settings')}
               onBackToProfile={() => setCurrentPhase('welcome')}
             />
           </div>

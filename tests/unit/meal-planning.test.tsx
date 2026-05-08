@@ -85,14 +85,22 @@ const recipeResponse = {
 
 interface RenderMealPlanningOptions {
   savePantryIngredients?: boolean;
+  initialProfile?: {
+    cookingSkill: string;
+    dietaryRestrictions: string[];
+    pantryIngredients: string[];
+    kitchenEquipment: string[];
+    favoriteChefs: string[];
+  };
+  onEditPantry?: () => void;
 }
 
-function renderMealPlanning({ savePantryIngredients = true }: RenderMealPlanningOptions = {}) {
+function renderMealPlanning({ savePantryIngredients = true, initialProfile, onEditPantry }: RenderMealPlanningOptions = {}) {
   const onMealSelected = vi.fn();
   const onPantryIngredientsAdded = vi.fn(async (ingredients: string[]) => true);
 
   function Harness() {
-    const [profile, setProfile] = useState({
+    const [profile, setProfile] = useState(initialProfile ?? {
       cookingSkill: 'Intermediate',
       dietaryRestrictions: [] as string[],
       pantryIngredients: ['rice', 'eggs', 'spinach'],
@@ -118,6 +126,7 @@ function renderMealPlanning({ savePantryIngredients = true }: RenderMealPlanning
         onPlanningTimeChange={vi.fn()}
         onPantryIngredientsAdded={onPantryIngredientsAdded}
         onMealSelected={onMealSelected}
+        onEditPantry={onEditPantry}
         onBackToProfile={vi.fn()}
       />
     );
@@ -154,6 +163,32 @@ afterEach(() => {
 });
 
 describe('MealPlanning recipe generation locking', () => {
+  it('blocks pantry-based recipes when a returning profile has an empty pantry', () => {
+    const onEditPantry = vi.fn();
+    renderMealPlanning({
+      initialProfile: {
+        cookingSkill: 'Intermediate',
+        dietaryRestrictions: ['No restrictions'],
+        pantryIngredients: [],
+        kitchenEquipment: ['skillet'],
+        favoriteChefs: [],
+      },
+      onEditPantry,
+    });
+
+    advanceToStaples();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(fetchPantryRecipesMock).not.toHaveBeenCalled();
+    const toastCall = toastMock.mock.calls[toastMock.mock.calls.length - 1]?.[0];
+    expect(toastCall).toEqual(expect.objectContaining({
+      title: 'Your pantry is empty',
+      description: 'Add or scan pantry items before I can suggest recipes.',
+      variant: 'destructive',
+    }));
+    expect(toastCall.action).toBeTruthy();
+  });
+
   it('moves selected staples to Added and reveals the next ranked missing staples', () => {
     renderMealPlanning();
 
