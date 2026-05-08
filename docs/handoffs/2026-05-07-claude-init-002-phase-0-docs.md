@@ -70,3 +70,21 @@ Wilson asked to rebase from [PR #40](https://github.com/wmishak404/laica/pull/40
 - Rewrote the Validation State table so each phase's Replit step picks specific focus rows from the guide's matrix (DB schema row for Phase 3, AI provider + ElevenLabs + Secrets rows for Phase 1, etc.) and uses the guide's "Replit validation request" template in PR descriptions/handoffs.
 
 Net effect: future Phase 1/3/4 PRs can cite specific matrix rows for Replit validation instead of re-running the full gate, which matches the targeted-validation intent of PR #40.
+
+## 2026-05-07 — Follow-up: rebased onto PR #44, EPIC-018 unblocks Phase 1
+
+Wilson asked to rebase from [PR #44](https://github.com/wmishak404/laica/pull/44) (EPIC-018 closeout). PR #43 ("Fix authenticated AI error handling") had merged in between, shipping the actual EPIC-018 implementation, and PR #44 then closed out the epic and registered an EPIC-019 stub at the canonical filename `epics/019-ai-error-telemetry-and-eval-monitoring.md`.
+
+**Rebase work:**
+- Rebased branch onto `24decb2` (PR #44 merge commit).
+- Resolved conflicts in `epics/README.md` and `epics/registry.md` by keeping main's EPIC-018 → `Resolved` transition and replacing main's EPIC-019 stub-registry entry with the INIT-002 / PD-010 cross-referenced version.
+- Renamed the EPIC-019 epic file from `epics/019-ai-error-telemetry.md` (my original) to `epics/019-ai-error-telemetry-and-eval-monitoring.md` (canonical, to match the stub PR #44 created). Replaced the stub content with the INIT-002 / PD-010 cross-referenced version.
+- Updated all cross-references in CLAUDE.md, AGENTS.md, INIT-002, PD-010, and this handoff to use the canonical filename.
+
+**Phase 1 unblock and ownership clarification:**
+- Flipped INIT-002 Phase 1 from `Blocked on EPIC-018` to `Unblocked, planned`.
+- Reviewed PR #43's actual diff: EPIC-018 ships a **client-side** classifier in [`client/src/lib/rateLimitHandler.ts`](../../client/src/lib/rateLimitHandler.ts) and [`client/src/lib/queryClient.ts`](../../client/src/lib/queryClient.ts) (using `ApiRequestError`), plus **typed server-side error payloads** in [`server/routes.ts`](../../server/routes.ts) and rate-limit classification in [`server/rate-limit.ts`](../../server/rate-limit.ts). It does **not** ship a server-side classifier function.
+- INIT-002 Phase 1 now owns building a server-side `classifyAiError` mirroring EPIC-018's wider taxonomy (400/401/403/404/413/429/5xx/network) so the user-facing copy and telemetry stay aligned. Documented in INIT-002 Current Status, Source Docs, Phase Progress, Epics and Governance, and Changes Added After Initial Plan.
+- Updated PD-010's `error_class` row to flag that the v0 enum may need to expand in Phase 1 to cover EPIC-018's wider HTTP taxonomy, with the rule that any expansion lands in EPIC-018's surface first and PD-010 amendment follows.
+
+Net effect: the next agent picking up Phase 1 reads EPIC-018's client-side classifier and server typed payloads as the taxonomy source, then builds a new `server/aiErrorClassifier.ts` that mirrors it. No more "blocked on EPIC-018" gate.

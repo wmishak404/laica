@@ -32,7 +32,7 @@ Adopt an **allowlist-first** policy enforced at the writer boundary by TypeScrip
 | `feature` | varchar(48) | no | Stable enum: `recipe_suggestions`, `pantry_recipes`, `slop_bowl`, `cooking_steps`, `cooking_assistance`, `ingredient_detection`, `tts`, `tts_voices`, `transcription` |
 | `vendor` | varchar(16) | no | `openai` \| `elevenlabs` \| `whisper` \| `internal` |
 | `http_status` | integer | no | Response status (400, 429, 500, 502, 503, 504, …) |
-| `error_class` | varchar(32) | no | `validation` \| `rate_limit` \| `upstream_timeout` \| `upstream_5xx` \| `upstream_auth` \| `unknown` |
+| `error_class` | varchar(32) | no | Stable enum mirroring [EPIC-018](../epics/018-authenticated-ai-error-handling.md)'s taxonomy. v0 set: `validation` \| `rate_limit` \| `upstream_timeout` \| `upstream_5xx` \| `upstream_auth` \| `unknown`. May expand in INIT-002 Phase 1 to distinguish 401/403/404/413/network if real Replit traffic shows the v0 set collapses too much. Any expansion lands in EPIC-018's surface first; PD-010 amendment follows. |
 | `error_code` | varchar(128) | yes | Short vendor code if available (e.g. OpenAI `rate_limit_exceeded`); not the message body |
 | `is_authenticated` | boolean | no (default `false`) | Denormalized for cleaner anon-vs-authed queries |
 | `auth_user_id` | varchar(128) | yes | Firebase UID **only when route is authenticated**; FK to `auth_users(id)` `ON DELETE SET NULL` |
@@ -66,7 +66,7 @@ These never enter `ai_error_events`, stdout JSON logs, or admin API responses, r
 
 Even though the allowlist column types prevent free text from entering the table, all string fields that pass through the writer are run through [`server/ai-privacy.ts`](../server/ai-privacy.ts) `redactForAiLog` before persistence. This catches accidental future regressions where a string column is added without thinking through what callers might pass.
 
-The classifier ([owned by EPIC-018](../epics/018-authenticated-ai-error-handling.md), imported by INIT-002 Phase 1) returns a stable enum and short error code only — never the original error message, stack, or response body. Telemetry callers consume the classifier's output, not the raw error.
+The classifier returns a stable enum and short error code only — never the original error message, stack, or response body. Telemetry callers consume the classifier's output, not the raw error. **Taxonomy ownership:** [EPIC-018](../epics/018-authenticated-ai-error-handling.md) owns the canonical taxonomy (400/401/403/404/413/429/5xx/network), shipped in client-side [`rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts) and the typed payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 builds the *server-side* classifier function (`classifyAiError`) that mirrors that taxonomy for the writer to consume. Any taxonomy change lands in EPIC-018's surface first; INIT-002 follows.
 
 ### Retention
 
