@@ -49,6 +49,7 @@ Recommended metadata near the top of each top-level PD:
 |----|-------|------|--------|
 | [PD-002](002-slop-bowl.md) | Slop Bowl - Zero-Decision Cooking Path | 2026-04-09 | Accepted |
 | [PD-009](009-mobile-refresh-navigation.md) | Mobile refresh consolidates authenticated entry into Planning | 2026-04-28 | Accepted |
+| [PD-011](011-scan-upload-photo-limit-policy.md) | Scan upload photo limit policy | 2026-05-08 | Accepted |
 
 ## Technical / Architecture
 

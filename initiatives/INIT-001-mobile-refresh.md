@@ -59,6 +59,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 - [Dev-test harness plan](../product-decisions/features/mobile-refresh/dev-test-harness.md)
 - [PD-005 UI governance](../product-decisions/005-ui-governance.md)
 - [PD-009 mobile refresh navigation](../product-decisions/009-mobile-refresh-navigation.md)
+- [PD-011 scan upload photo limit policy](../product-decisions/011-scan-upload-photo-limit-policy.md)
 - [`design_guidelines.md`](../design_guidelines.md)
 
 ## Assets
@@ -126,6 +127,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 | [EPIC-018](../epics/018-authenticated-ai-error-handling.md) | Resolved authenticated AI error handling and pantry recipe 400 follow-up; Phase 4 still owns live-cooking inline recovery |
 | [EPIC-019](../epics/019-ai-error-telemetry-and-eval-monitoring.md) | Parallel follow-up for redacted operational AI error telemetry and eval monitoring |
 | [EPIC-020](../epics/020-workflow-documentation-audit.md) | Workflow-doc audit filed from Phase 3.2 validation/closeout so EPIC-005 can later graduate without blocking feature work |
+| [EPIC-021](../epics/021-scan-upload-photo-limit-policy.md) | Mobile-refresh scan-capacity follow-up for Pantry/Kitchen upload limits, including the 20-photo per-refresh policy, 40/day per-area guardrail, batched scan direction, and scan-specific messaging |
 
 ## Changes Added After Initial Plan
 
@@ -151,6 +153,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 - Phase 3.2 Replit review at `968d39a` kept pantry persistence timing as designed: pending Added chips are not saved on Back before submit, and confirmed staples become pantry facts only when `View recipe suggestions` starts generation. The follow-up adds pending-chip `+` + visible `X` removal, green check-only saved chips after the DB write succeeds, duplicate-save avoidance for already-saved selected staples, and submit-timing copy; full pantry-list context stays out of Phase 3.2.
 - Slop Bowl pantry-check visual alignment was added to Phase 3.1 scope after Wilson preferred the newer Chef It Up Phase 3.2 chip/row direction. Phase 3.1 should compare the two surfaces and align visual grammar where appropriate without changing Slop Bowl behavior unless explicitly revisited.
 - Phase 3.2 shipped through PR #46 after Wilson's authenticated Replit/browser validation at `9646c80`. Replit code-path review also passed, but the team explicitly recorded the distinction between code-verified checks and authenticated browser validation, feeding the later EPIC-017 / dev-test-harness automation work.
+- Scan upload capacity policy was accepted on 2026-05-08 in [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) and tracked for implementation by [EPIC-021](../epics/021-scan-upload-photo-limit-policy.md): Pantry and Kitchen should each support 20 images per inventory refresh, 40 images per day per area, one batched happy path with adaptive chunking, and scan-specific progress/partial-success/error copy.
 
 ## Validation State
 

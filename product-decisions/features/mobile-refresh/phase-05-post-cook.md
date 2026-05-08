@@ -68,6 +68,7 @@ updatedPantry =
 - Phase 5 owns the richer History purpose: users return after cooking to remember a meal, share it with friends/family, or cook it again because they liked it.
 - History detail should become the natural home for `Share`, `Cook again`, taste context, cleanup continuity, and any next-meal seed that follows the completed meal.
 - Do not treat History as account configuration or hide it inside Settings.
+- Optional post-cook rescans inherit [PD-011](../../011-scan-upload-photo-limit-policy.md): 20 scanned images per inventory refresh and 40 scanned images per day per area unless Phase 5 explicitly documents a later exception.
 
 ## Flow Diagrams
 
@@ -120,6 +121,7 @@ flowchart TD
 - EPIC-007: Empty rescan must show explicit no-detection feedback.
 - EPIC-009: Any quick-add in cleanup uses the shared comma parser.
 - EPIC-010: New cooking-session fields require Replit-first schema handling.
+- EPIC-021 / PD-011: Optional post-cook rescan capacity, batching/chunking, progress, partial-success copy, stale-result protection, and image-count rate limits inherit the accepted scan upload photo-limit policy unless this phase records an exception.
 
 ## Schema Notes
 
