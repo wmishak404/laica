@@ -133,6 +133,7 @@ function advanceToStaples() {
   fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
   expect(screen.getByRole('heading', { name: /anything else around/i })).toBeTruthy();
+  expect(screen.getByText(/we'll save additions when you view suggestions/i)).toBeTruthy();
 }
 
 function getStapleRows() {
@@ -162,7 +163,9 @@ describe('MealPlanning recipe generation locking', () => {
     fireEvent.click(within(rows).getByRole('button', { name: /^olive oil$/i }));
 
     const added = screen.getByRole('group', { name: /added pantry staples/i });
-    expect(within(added).getByRole('button', { name: /remove tortillas from added/i })).toBeTruthy();
+    const tortillasChip = within(added).getByRole('button', { name: /remove tortillas from added/i });
+    expect(tortillasChip).toBeTruthy();
+    expect(tortillasChip.querySelectorAll('svg').length).toBe(2);
     expect(within(added).getByRole('button', { name: /remove olive oil from added/i })).toBeTruthy();
 
     rows = getStapleRows();
@@ -196,6 +199,29 @@ describe('MealPlanning recipe generation locking', () => {
     expect(within(rows).getByRole('button', { name: /^cilantro$/i })).toBeTruthy();
     expect(within(rows).getByRole('button', { name: /^cumin$/i })).toBeTruthy();
     expect(within(rows).queryByRole('button', { name: /^lemon$/i })).toBeNull();
+  });
+
+  it('discards pending Added staples on Back before recipe suggestions are requested', () => {
+    const { onPantryIngredientsAdded } = renderMealPlanning();
+
+    advanceToStaples();
+
+    let rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^olive oil$/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: /back to cuisines/i }));
+
+    expect(onPantryIngredientsAdded).not.toHaveBeenCalled();
+    expect(screen.getByRole('heading', { name: /what sounds good/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(screen.queryByRole('group', { name: /added pantry staples/i })).toBeNull();
+    rows = getStapleRows();
+    expect(within(rows).getByRole('button', { name: /^tortillas$/i })).toBeTruthy();
+    expect(within(rows).getByRole('button', { name: /^olive oil$/i })).toBeTruthy();
   });
 
   it('submits all Added staples and only marks seen unselected staples as unconfirmed', async () => {

@@ -198,6 +198,12 @@ Phase 3.2 keeps the Chef It Up staple check in the full-row selection family whi
 
 This is still Chef It Up-specific and does not resolve the original setup/settings epic criteria. It does add a useful pattern note: contextual multi-select follow-ups can use full-row discovery plus chip-level undo as long as explicit submit, keyboard/focus behavior, and loading locks remain clear.
 
+### 2026-05-08 — Added chip undo affordance clarified
+
+Wilson's Replit check of Phase 3.2 confirmed that tapping an Added chip already undid the selection, but the action was not visually obvious. The follow-up keeps the full chip as the tap target, adds a right-side `X` inside each Added chip, preserves `aria-label="Remove <item> from Added"`, and keeps chips disabled during `Finding recipes...`.
+
+This adds a refinement to the pattern: when a selected chip is also an undo control, the full target should stay large, but the visible remove affordance should match user expectations from other pantry-chip surfaces.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

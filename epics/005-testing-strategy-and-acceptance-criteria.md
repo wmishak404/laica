@@ -302,6 +302,12 @@ Phase 3.2 adds focused unit coverage for the progressive staple queue: selecting
 
 The Replit validation scope stays service-backed and authenticated: confirm the rolling queue, undo, submit freeze, Back cancellation, Ticket Pass completion, and pantry persistence in the real Chef It Up flow. This reinforces the existing pattern that deterministic UI state gets local Vitest coverage while auth/database/AI persistence still needs Replit.
 
+### 2026-05-08 — Phase 3.2 validation feedback adds discoverability checks
+
+Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry save, and saved staples after returning from suggestions, but found the chip undo affordance was not obvious. The follow-up extends local component coverage to assert the visible chip remove icon, Back-before-submit no-save behavior, submit persistence, and loading-disabled rows/chips.
+
+This is useful validation evidence: unit tests can prove state transitions and persistence calls, but service-backed review should still include visual-discoverability checks for controls whose accessible labels are correct yet whose visible affordance may be unclear.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

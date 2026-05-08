@@ -26,8 +26,8 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 3. Phase 2.1 has shipped the setup visual/trust polish after Phase 2 closed functionally.
 4. Phase 2.2 has shipped the returning setup edit, Menu, Settings, and standalone History IA bridge before Phase 3.
 5. Phase 3 shipped through PR #38 (`f1d17d8`, validated at `8a5c3d5`) and PR #45 (`8892327`, validated at `0c98a47`). Treat the current Planning/Ticket/Prep visuals as functional scaffolding, not final design polish.
-6. Implement Phase 3.1 from fresh `main` for the design facelift plus async recipe imagery.
-7. Implement Phase 3.2 progressive pantry staples after the Phase 3 generation lock/cancel fix is merged. Phase 3.2 is not blocked by Phase 3.1 because it is behavior/interaction polish, but Phase 3.1 should preserve or deliberately restyle the Phase 3.2 Added shelf / rolling queue during the facelift.
+6. Continue Phase 3.2 progressive pantry staples after the Phase 3 generation lock/cancel fix. Phase 3.2 is not blocked by Phase 3.1 because it is behavior/interaction polish; it keeps the Added-only shelf, visible chip undo, and submit-time pantry persistence.
+7. Implement Phase 3.1 from fresh `main` for the design facelift plus async recipe imagery. Phase 3.1 should preserve or deliberately restyle the Phase 3.2 Added shelf / rolling queue and should align Slop Bowl pantry-check visuals with the preferred Chef It Up Phase 3.2 chip/row direction where behavior overlaps.
 8. Implement Phase 4 after authenticated AI routes and session ownership checks are live; Phase 4 also owns the live-cooking inline AI error recovery deferred from EPIC-018.
 9. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry; Phase 5 owns the richer History share/cook-again/retention behavior.
 

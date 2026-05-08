@@ -29,7 +29,7 @@ Phase 3.2 is okay to implement before Phase 3.1. The dependency is PR #45's gene
 - Preserve the existing capped `getStapleCandidatesForCuisines(...)` helper for compatibility.
 - In Chef It Up, render up to four unselected staple rows from the full queue.
 - Move selected staples into an Added shelf above the queue.
-- Let Added chips act as undo controls before submit.
+- Let Added chips act as undo controls before submit, with a visible right-side `X` affordance so the removal action is obvious.
 - Track seen staple candidates separately from selected staples so only displayed-but-unselected staples are sent as explicit "do not assume" context.
 - Save confirmed pantry staples only when `View recipe suggestions` is tapped.
 - Preserve submit-time freeze, disabled cuisine/staple inputs, Back abort, and stale-response guard from PR #45.
@@ -40,6 +40,7 @@ Out of scope:
 - Server route changes.
 - Payload or environment-variable changes.
 - Immediate pantry writes on chip tap.
+- Showing the user's full pantry list inside this Chef It Up staple-check step.
 - A reusable app-wide progressive-selection primitive.
 - Phase 3.1 visual facelift or recipe imagery.
 
@@ -49,7 +50,7 @@ The interaction model is:
 
 ```text
 Added
-[checked butter] [checked Dijon mustard]
+[checked butter x] [checked Dijon mustard x]
 
 + ketchup
 + hot sauce
@@ -63,10 +64,12 @@ Implementation guardrails:
 
 - Added shelf appears above the four suggestion rows.
 - Added chips remain tappable undo controls until submit starts.
+- Added chips show both selected state and a right-side `X`; the whole chip remains the hit target with `aria-label="Remove <item> from Added"`.
 - When no more suggestions remain, the row list simply shrinks.
 - No done note appears and there is no auto-submit.
 - The selected Added shelf and visible rows freeze during `Finding recipes...`.
 - Back remains available during loading and cancels the in-flight generation request.
+- Helper copy should communicate submit timing: `Tap what you have. We'll save additions when you view suggestions.`
 
 ## Behavior Contract
 
@@ -80,6 +83,7 @@ Implementation guardrails:
 8. Recipe generation receives only seen-but-unselected staples as explicitly unconfirmed.
 9. Pantry persistence happens only on `View recipe suggestions`.
 10. Selected staples remain pantry facts once submitted, even if Back cancels the recipe-generation request afterward.
+11. Back before `View recipe suggestions` discards pending Added staples without saving them.
 
 ## Epic Interactions
 
@@ -99,6 +103,8 @@ Required focused coverage:
 
 - Selecting two visible staples moves them to Added and reveals the next two ranked staples.
 - Tapping an Added chip undoes the selection and restores queue order.
+- Added chips visibly expose the `X` remove affordance while keeping the full-chip tap target.
+- Back before `View recipe suggestions` does not call pantry persistence and returns to the staple queue without pending Added chips.
 - Submitted recipes include all selected staples and mark only seen unselected staples as unconfirmed.
 - Loading freezes the Added shelf and visible queue, disables rows/chips, and Back still cancels.
 - Successful generation still shows exactly three recipe suggestions.
@@ -108,6 +114,8 @@ Replit/browser validation:
 - Authenticated Chef It Up flow with cuisines that produce more than four missing staples.
 - Select two visible staples and verify two new options appear.
 - Undo one Added chip and verify it returns to the queue.
+- Verify the Added chip `X` makes the undo action visually discoverable.
+- Press Back before submit and verify the pending additions are not saved.
 - Submit and verify there is no reshuffle or extra tapping during `Finding recipes...`.
 - Press Back during loading and verify there is no late auto-advance.
 - Repeat and let suggestions complete; verify Ticket Pass appears normally and confirmed staples remain in pantry.
@@ -116,6 +124,8 @@ Replit/browser validation:
 
 Implemented on `codex/mobile-refresh-phase-3-2-progressive-staples` from `origin/main` at `7b0e22b1898d7dd91b99d33f90d512b9404afda2` after PR #48 merged the Phase 3.1 Slop It Up scope docs.
 
+Wilson's Replit check of head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up on top of that head keeps the same persistence timing, keeps the Added-only shelf, adds the visible `X` chip affordance, and records Slop Bowl pantry-check visual alignment as Phase 3.1 scope rather than implementing it here.
+
 Local validation passed:
 
 - `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`
@@ -123,4 +133,4 @@ Local validation passed:
 - `npm run build`
 - `git diff --check`
 
-Last Replit-validated at: not yet validated for Phase 3.2.
+Last Replit-validated at: not yet validated for the updated Phase 3.2 follow-up head.

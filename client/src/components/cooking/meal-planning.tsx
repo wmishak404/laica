@@ -16,7 +16,7 @@ import {
   getAllStapleCandidatesForCuisines,
 } from '@shared/planning-staples';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
-import { ArrowLeft, ChefHat, CheckCircle2, Clock, RefreshCw, Sparkles, Utensils } from 'lucide-react';
+import { ArrowLeft, ChefHat, CheckCircle2, Clock, RefreshCw, Sparkles, Utensils, X } from 'lucide-react';
 
 const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
 const NO_PREFERENCE = 'No preference';
@@ -747,7 +747,7 @@ export default function MealPlanning({
       <div className="text-center">
         <h1 className="planning-display text-3xl font-extrabold leading-tight">Anything else around?</h1>
         <p className="planning-copy mt-3 text-sm font-bold">
-          Tap what you have. We&apos;ll remember it in your pantry.
+          Tap what you have. We&apos;ll save additions when you view suggestions.
         </p>
       </div>
 
@@ -765,7 +765,8 @@ export default function MealPlanning({
                 onClick={() => toggleStaple(staple)}
               >
                 <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                <span>{staple}</span>
+                <span className="planning-added-chip-text">{staple}</span>
+                <X className="planning-added-chip-remove h-3.5 w-3.5" aria-hidden="true" />
               </button>
             ))}
           </div>

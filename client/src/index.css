@@ -1356,9 +1356,14 @@ html, body {
     animation: planning-chip-pop 0.18s ease-out both;
   }
 
-  .planning-added-chip span {
+  .planning-added-chip-text {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+
+  .planning-added-chip-remove {
+    flex-shrink: 0;
+    stroke-width: 3;
   }
 
   .planning-added-chip:disabled {
