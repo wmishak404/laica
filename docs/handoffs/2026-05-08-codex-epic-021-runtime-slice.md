@@ -31,8 +31,11 @@ This branch does not yet implement provider-level multi-image vision batching or
 - `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/rate-limit.test.ts`
 - `npm run check`
 - `npm run build`
+- `git diff --check`
+- Local dotenvx dev-server boot on port 3000, with elevated local `curl -I http://127.0.0.1:3000` returning HTTP 200
+- In-app browser smoke to `http://127.0.0.1:3000/`, confirming the client serves the unauthenticated Laica welcome screen
 
-`npm run build` passed with the existing Vite chunk-size warning and existing dynamic/static Firebase import warning. No Replit validation has been run yet.
+`npm run build` passed with the existing Vite chunk-size warning and existing dynamic/static Firebase import warning. The local browser smoke did not exercise authenticated Pantry/Settings scan flows because it landed on the unauthenticated welcome screen; Replit/mobile validation still needs to cover the signed-in high-photo-count scan behavior. No Replit validation has been run yet.
 
 ## Remaining EPIC-021 Work
 
