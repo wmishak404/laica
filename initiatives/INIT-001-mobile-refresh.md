@@ -5,7 +5,7 @@
 **Created:** 2026-04-29
 **Current phase:** Phase 3 implementation
 **Active PR:** None
-**Active branch:** `codex/mobile-refresh-phase-3-planning`
+**Active branch:** `codex/phase-3-generation-cancel`
 
 ## Overview
 
@@ -31,9 +31,9 @@ Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shippe
 
 Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Pantry/Kitchen/Profile edits; History is separate cooking memory. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
 
-PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation is now in progress on `codex/mobile-refresh-phase-3-planning` from `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`.
+PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation originally shipped through `codex/mobile-refresh-phase-3-planning`; the current Phase 3 functional follow-up is `codex/phase-3-generation-cancel` from `origin/main` at PR #44 (`24decb2ee5ee4d0aa8221324bde52eb1823061cc`).
 
-Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisine flow, deterministic cuisine-aware staple check, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so this branch can close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift plus recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Post-freeze basic-usability patches keep Ticket Pass recipe order stable, display-split recipe names only when explicit supporting detail exists, ask about/save likely missing cuisine staples as concrete pantry ingredients before generation with multi-cuisine representation before extra slots, align recipe preference caps across recipe suggestion routes, and enforce `additionalIngredientsNeeded` as optional enhancements rather than required missing ingredients. Local `npm run check`, `npm run build`, focused Vitest coverage, and dotenvx dev-server boot smoke have passed. Replit validation is not yet run.
+Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisine flow, deterministic cuisine-aware staple check, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so this branch can close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift plus recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Post-freeze basic-usability patches keep Ticket Pass recipe order stable, display-split recipe names only when explicit supporting detail exists, ask about/save likely missing cuisine staples as concrete pantry ingredients before generation with multi-cuisine representation before extra slots, align recipe preference caps across recipe suggestion routes, enforce `additionalIngredientsNeeded` as optional enhancements rather than required missing ingredients, and lock/cancel Chef It Up recipe generation so staple rows cannot reshuffle or accept input while suggestions are loading. Local `npm run check`, `npm run build`, focused Vitest coverage, and dotenvx dev-server boot smoke have passed for the main Phase 3 branch; the generation lock/cancel follow-up has passed focused local validation and still needs Replit validation.
 
 ## Source Docs
 
@@ -76,7 +76,7 @@ Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisin
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
-| Phase 3 | In Progress | `codex/mobile-refresh-phase-3-planning` | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl implemented; visuals frozen; Replit validation pending |
+| Phase 3 | In Progress | `codex/phase-3-generation-cancel` | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl implemented; visuals frozen; generation lock/cancel follow-up local checks passed; Replit validation pending |
 | Phase 3.1 | Planned | TBD | Design facelift, recipe imagery/illustration direction, and async image hydration into Phase 3 slots |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -96,6 +96,7 @@ Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisin
 | #30 | Merged | `codex/mobile-refresh-phase-2-2-settings-history` | Replit validation passed at `dc59796`; merged as `bc25ef3` |
 | #34 | Merged | `codex/init-process-pd-taxonomy` | Docs-only process/PD taxonomy cleanup; Claude architectural review completed with follow-up fixes folded in; merged as `6288aef` |
 | #43 | Merged | `codex/epic-018-auth-ai-errors` | EPIC-018 authenticated AI error handling merged as `1110b00`; Replit PASS at `860bd68` carried to `14ac1c4` by Wilson diff review |
+| #44 | Merged | `codex/epic-018-closeout` | EPIC-018 docs closeout merged as `24decb2`; current Phase 3 follow-up branch is rebased onto this main head |
 
 ## Epics and Governance
 
@@ -130,6 +131,7 @@ Phase 3 currently implements the Planning entry redesign, Chef It Up time/cuisin
 - Phase 3 visuals frozen on 2026-05-06 so Phase 3 can close on functional validation; Phase 3.1 now owns the whitespace/card grammar, typography, Slop Bowl humor, Ticket Pass, Prep Tray, bottom nav, docs, and imagery facelift.
 - Ticket Pass selection orientation was fixed after the visual freeze as a basic-usability exception: recipe order stays stable, the selected ticket expands in place, and recipe names show a main/supporting split only when explicit supporting detail exists, without changing the stored recipe name.
 - Chef It Up staple verification was added after the visual freeze as a recipe-quality/basic-usability exception: selected cuisines can trigger a deterministic missing-staple check, confirmed staples save to pantry, and recipe suggestions now target a hidden pantry-strict / pantry-flexible / cuisine-leaning range.
+- Chef It Up generation lock/cancel was added after the visual freeze as a functional correctness exception: in-flight recipe generation freezes the submitted staple rows and disables cuisine/staple inputs, while Back aborts the request and prevents late auto-advance.
 
 ## Validation State
 
@@ -148,16 +150,17 @@ Known validation facts:
 - The latest optional-enhancement contract patch passed `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/recipe-suggestion-normalizer.test.ts tests/unit/planning-staples.test.ts`.
 - The recipe-suggestion metadata patch passed `git diff --check`, `npm run check`, and `npm run build`.
 - EPIC-018 Replit validation passed at `860bd68`; Wilson reviewed the post-validation cleanup diff and confirmed the pass carries to `14ac1c4`. PR #43 merged the branch into `main` as `1110b0088211be593d234ea26392b47384d43470`.
+- The Phase 3 generation lock/cancel follow-up on `codex/phase-3-generation-cancel` passed `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check` on top of PR #44 (`24decb2`).
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
 
-Continue Phase 3 implementation on `codex/mobile-refresh-phase-3-planning`.
+Continue Phase 3 functional follow-up work on `codex/phase-3-generation-cancel`.
 
 Next implementation / validation focus:
 
 1. Do not make more Phase 3 visual changes unless an issue blocks functional validation or basic usability.
-2. Run Replit validation for authenticated Planning entry, Chef It Up time/cuisine/staple-check flow, multi-cuisine staple representation, concrete herb staple labels, confirmed-staple pantry save, recipe generation without 400 preference-length failures, optional extras staying nonessential and short, refresh suggestions, Ticket Pass selection, Ticket Pass stable-order expansion across all three recipes, recipe metadata staying two-line without overlap in selected/compact/Prep Tray states, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry. If Replit shows a first-load `useState` null crash after pulling, clear `node_modules/.vite`, refresh dependencies, and restart before continuing validation.
+2. Run Replit validation for authenticated Planning entry, Chef It Up time/cuisine/staple-check flow, multi-cuisine staple representation, concrete herb staple labels, confirmed-staple pantry save, recipe generation without 400 preference-length failures, generation lock/Back cancel behavior, optional extras staying nonessential and short, refresh suggestions, Ticket Pass selection, Ticket Pass stable-order expansion across all three recipes, recipe metadata staying two-line without overlap in selected/compact/Prep Tray states, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry. If Replit shows a first-load `useState` null crash after pulling, clear `node_modules/.vite`, refresh dependencies, and restart before continuing validation.
 3. Refresh the PR/handoff `Last Replit-validated at` SHA after Replit passes.
 4. Move design facelift work to [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md): whitespace/card grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
 5. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.

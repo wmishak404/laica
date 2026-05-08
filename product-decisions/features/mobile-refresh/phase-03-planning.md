@@ -207,6 +207,14 @@ Implemented locally:
 - Replit validation must check Mediterranean with olive oil missing/confirmed, multi-cuisine staple representation such as Mediterranean + Thai + Indian, concrete herb staple labels where applicable, Asian cuisines not assuming olive oil, exactly three suggestions, short optional lists, and pantry persistence after confirming staples. If Replit has an active DB prompt for `recipe_suggestions`, update or activate the matching prompt there because active DB prompts override the code fallback; the active prompt must preserve the optional-enhancement contract for `additionalIngredientsNeeded`.
 - If Replit shows `Cannot read properties of null (reading 'useState')` immediately after pulling the branch, stop the dev server, run `rm -rf node_modules/.vite`, then refresh dependencies with `npm install` or `npm ci` and restart. Local `npm ls react` shows a single React 18.3.1 copy, so this is treated as Vite optimized-deps cache staleness unless it persists after the reset.
 
+2026-05-07 Recipe generation lock / Back cancel follow-up:
+
+- Wilson's Phase 3 Replit validation found that after selecting likely missing staples and tapping `View recipe suggestions`, the staple list could reshuffle while `Finding recipes...` stayed on screen. The request still used the original selected staples, but the visible rows changed because confirmed staples saved into the parent pantry profile and recomputed the deterministic missing-staple candidates during the in-flight request.
+- The Chef It Up generation path now snapshots the request context and rendered staple candidates when generation starts. Cuisine, `No preference`, and staple rows are disabled while loading; the Back button stays available.
+- Pantry recipe generation is now abortable from the client. Pressing Back cancels the active request, clears the loading lock, and prevents late responses from auto-advancing to Ticket Pass. Confirmed staples remain saved to pantry because the user's taps are still pantry facts; Back cancels recipe generation only.
+- The implementation is rebased onto `origin/main` at PR #44 (`24decb2`), so it uses the resolved EPIC-018 authenticated AI error handler instead of the old demo-era handler. Abort/cancel responses stay silent while real 400/429/5xx errors use the new authenticated-app copy.
+- Replit validation must add this scenario: Mediterranean + Mexican, select two staples, tap `View recipe suggestions`, verify no row replacement or extra input is possible while loading, press Back and verify no late auto-advance, then repeat and let generation complete normally.
+
 Local validation:
 
 - `npm ci`
@@ -224,9 +232,10 @@ Local validation:
 - 2026-05-06 Replit validation blocker patch re-ran `git diff --check`, `npm run check`, `npm run build`, `npm ls react`, and `npx vitest run tests/unit/phase0-security-routes.test.ts tests/unit/planning-staples.test.ts`.
 - 2026-05-06 optional-enhancement contract patch re-ran `git diff --check`, `npm run check`, `npm run build`, and `npx vitest run tests/unit/recipe-suggestion-normalizer.test.ts tests/unit/planning-staples.test.ts`.
 - 2026-05-06 compact-ticket metadata patch re-ran `git diff --check`, `npm run check`, and `npm run build`.
+- 2026-05-07 recipe-generation lock/cancel patch re-ran `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check`.
 
 Known validation gap:
 
-- Authenticated Replit validation is still required for recipe generation, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl generation, Slop Bowl quick-add/remove, and Slop Bowl -> Edit pantry.
+- Authenticated Replit validation is still required for recipe generation, generation lock/Back cancel behavior, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl generation, Slop Bowl quick-add/remove, and Slop Bowl -> Edit pantry.
 - Phase 3 visual judgment is limited to functional blockers and basic usability. Richer visual comparison/facelift work is deferred to Phase 3.1.
 - Full `npx vitest run` is not a merge signal yet because existing repo-wide harness issues remain: the Playwright E2E file is collected by Vitest, and voice-recording tests expect `MediaStream` in the unit-test environment.

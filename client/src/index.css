@@ -1265,6 +1265,18 @@ html, body {
     transform: translateY(-1px);
   }
 
+  .planning-cuisine-row:disabled,
+  .planning-no-preference:disabled {
+    cursor: not-allowed;
+    opacity: 0.72;
+  }
+
+  .planning-cuisine-row:disabled:hover,
+  .planning-no-preference:disabled:hover {
+    background: hsl(0 0% 100% / 0.68);
+    transform: none;
+  }
+
   .planning-cuisine-row[data-selected='true'],
   .planning-no-preference[data-selected='true'] {
     border-color: hsl(var(--planning-coral) / 0.62);

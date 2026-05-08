@@ -36,12 +36,17 @@ export async function fetchRecipeSuggestions(preferences: string, ingredients?: 
   return await response.json();
 }
 
-export async function fetchPantryRecipes(pantryIngredients: string[], preferences?: string, timeAvailable?: string) {
+export async function fetchPantryRecipes(
+  pantryIngredients: string[],
+  preferences?: string,
+  timeAvailable?: string,
+  options?: { signal?: AbortSignal },
+) {
   const response = await apiRequest('POST', '/api/recipes/pantry', {
     ingredients: pantryIngredients,
     preferences,
     timeAvailable
-  });
+  }, { signal: options?.signal });
   return await response.json();
 }
 
