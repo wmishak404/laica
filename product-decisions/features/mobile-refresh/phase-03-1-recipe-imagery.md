@@ -13,7 +13,7 @@ Take a deliberate design step back after Phase 3 functional closeout, then impro
 
 Wilson redirected the proposed "Phase 3 design drifts" epic into this Phase 3.1 work package, then froze Phase 3 visuals so Phase 3 can close on functionality. Phase 3.1 is therefore the design facelift plus imagery pass, not a continuation of piecemeal Phase 3 visual tuning.
 
-Phase 3.2 is split out separately for the progressive Chef It Up Added shelf / rolling staple queue. That behavior polish is not blocked by Phase 3.1, and Phase 3.1 should preserve or intentionally restyle the Phase 3.2 interaction if it has merged by the time the facelift starts.
+Phase 3.2 is split out separately for the progressive Chef It Up Added shelf / rolling staple queue. That behavior polish was not blocked by Phase 3.1, shipped first through PR #46, and is now the Chef It Up staple-check behavior that Phase 3.1 should preserve or intentionally restyle during the facelift.
 
 Wilson's Phase 3.2 Replit review also identified a related design-consistency follow-up for the Slop Bowl pantry-check menu: Phase 3.1 should compare Slop Bowl's existing removable pantry chips/list treatment against the newer Chef It Up Phase 3.2 shelf/row style and use the Chef It Up direction as the preferred visual baseline where the surfaces overlap. This is a visual-alignment scope note only; Slop Bowl behavior remains unchanged unless Phase 3.1 explicitly revisits it.
 
@@ -43,7 +43,7 @@ Phase 3 reserves generated-image slots now:
 - Cache generated images so refreshes and back/forward navigation do not repeatedly incur cost or latency.
 - Define fallback behavior for failed generation, slow generation, moderation failures, and missing image URLs.
 - Decide whether Phase 3's lightweight deterministic staple check should stay as-is, become part of a pantry-staples profile, or become a smarter AI-assisted follow-up.
-- Treat [Phase 3.2](phase-03-2-progressive-staples.md) as the source of truth for the richer staple-check interaction if it has shipped before Phase 3.1 implementation.
+- Treat [Phase 3.2](phase-03-2-progressive-staples.md) as the source of truth for the richer staple-check interaction now that it has shipped.
 - Align the Slop Bowl pantry-check menu visually with the newer Chef It Up Phase 3.2 chip/row direction where appropriate. Use computed-style comparison, not class-name matching alone, so chip radius, typography, icon sizing, disabled state, and remove affordances do not drift between the two flows. Preserve the latest Phase 3.2 chip-state grammar: pending additions use a coral `+` plus right-side `X`; saved pantry facts use a green checkmark only, with no visible `Saved` text inside the chip, and tapping a saved chip shows a brief Pantry Settings removal direction instead of deleting it.
 - If Phase 3.1 expands herb handling, keep saved pantry labels concrete. Avoid saving grouped labels like `fresh herbs`; use explicit choices or a richer profile model that can store specificity.
 
@@ -109,7 +109,7 @@ slopItUpPlanningCard:
 - Review nearby mobile-refresh surfaces for typography drift: page titles, card titles, short hero-card taglines, body copy, chips, banners, and CTAs should preserve the generated mockup's type grammar instead of swapping fonts by mood.
 - Plan the facelift before implementing: choose the visual grammar first, then patch the UI. Do not solve the facelift through isolated local tweaks.
 - Keep a hard split between Phase 3 placeholders and Phase 3.1 real imagery: Phase 3 reserves stable slots; Phase 3.1 decides/generates/hydrates images.
-- Keep a hard split between Phase 3.2 behavior polish and Phase 3.1 facelift work: Phase 3.2 may ship first, while Phase 3.1 decides how the Added shelf / rolling queue should look in the facelift.
+- Keep a hard split between shipped Phase 3.2 behavior polish and Phase 3.1 facelift work: Phase 3.1 decides how the Added shelf / rolling queue should look in the facelift without reverting its behavior contract.
 - Use the Chef It Up Phase 3.2 Added shelf/chip/row treatment as the preferred pantry-confirmation visual direction when reviewing Slop Bowl pantry-check consistency, while keeping Slop Bowl's existing behavior unless Phase 3.1 explicitly changes it. The latest accepted chip distinction is: pending/removable equals coral plus + X; persisted pantry fact equals green check only, with tap-to-explain inline direction for removal in Pantry Settings.
 - Do not make image generation part of the recipe-suggestion critical path. Suggestions should remain usable before any image arrives.
 - If similar drift spans beyond Phase 3.1 or crosses multiple future phases, then create a temporary drift epic. For now, this feature-phase record is the source of truth.

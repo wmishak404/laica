@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 3.2 - Progressive Pantry Staple Check
 
-**Status:** Implemented locally / Replit validation pending
+**Status:** Accepted / Merged PR #46
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-08
@@ -21,7 +21,7 @@ Phase 3.2 is a focused behavior/interaction polish slice under INIT-001 Mobile R
 
 ## Sequencing Decision
 
-Phase 3.2 is okay to implement before Phase 3.1. The dependency is PR #45's generation lock/cancel behavior, not the Phase 3.1 facelift. If Phase 3.2 lands first, Phase 3.1 must preserve or intentionally restyle the Added shelf / rolling queue as the current Chef It Up behavior.
+Phase 3.2 was okay to implement before Phase 3.1. The dependency was PR #45's generation lock/cancel behavior, not the Phase 3.1 facelift. Because Phase 3.2 landed first, Phase 3.1 must preserve or intentionally restyle the Added shelf / rolling queue as the current Chef It Up behavior.
 
 ## Scope
 
@@ -148,6 +148,8 @@ Replit/browser validation:
 
 Implemented on `codex/mobile-refresh-phase-3-2-progressive-staples` from `origin/main` at `7b0e22b1898d7dd91b99d33f90d512b9404afda2` after PR #48 merged the Phase 3.1 Slop It Up scope docs.
 
+Merged through [PR #46](https://github.com/wmishak404/laica/pull/46) as `b22f6b6` after Wilson's authenticated Replit/browser validation at `9646c80`.
+
 Wilson's Replit check of head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up on top of that head keeps the same persistence timing, keeps the Added-only shelf, adds the visible `X` chip affordance, differentiates pending chips (`+` + `X`) from saved pantry facts (green check only), lets taps on saved chips reveal an inline Pantry Settings removal note, marks already-saved selected staples as inert pantry facts, skips repeat save calls for already-saved staples, and records Slop Bowl pantry-check visual alignment as Phase 3.1 scope rather than implementing it here.
 
 Local validation passed:
@@ -157,4 +159,15 @@ Local validation passed:
 - `npm run build`
 - `git diff --check`
 
-Last Replit-validated at: not yet validated for the updated Phase 3.2 follow-up head.
+2026-05-08 merge closeout:
+
+- Local validation passed at PR head `9646c80`:
+  - `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`
+  - `npm run check`
+  - `npm run build`
+  - `git diff --check`
+- Replit code-path review passed at `9646c80`: 19/19 targeted unit tests, TypeScript clean, build clean, and behavioral code checks confirmed.
+- Wilson's authenticated Replit/browser validation passed at `9646c80`: all 11 live UI steps passed, including rolling reveal, pending chip undo, Back-before-submit no-save, submit-time pantry persistence, saved green-check-only chips, saved-chip Pantry Settings note, no duplicate/resave behavior, loading freeze, Back cancel, Ticket Pass completion, and exactly three suggestions.
+- Pantry-save failure remains code-verified rather than manually forced in the live UI.
+
+Last Replit/browser-validated at: `9646c80`.

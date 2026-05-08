@@ -25,7 +25,7 @@ Follow-up after Wilson's Replit check at `968d39a`: the core rolling queue and s
 
 ## Impact on other agents
 
-- Phase 3.1 should treat Phase 3.2 as the current Chef It Up staple-check behavior if this branch merges before the facelift branch starts.
+- Phase 3.1 should treat Phase 3.2 as the current Chef It Up staple-check behavior now that PR #46 has merged.
 - Phase 3.1 should also compare Slop Bowl's pantry-check menu against the newer Chef It Up Phase 3.2 chip/row direction and align visual grammar where behavior overlaps. Latest accepted chip grammar: pending/removable additions use coral `+` + `X`; saved pantry facts use green check-only chips with no visible `Saved` text and tap-to-explain Pantry Settings removal direction. Do not change Slop Bowl behavior unless Phase 3.1 deliberately takes that on.
 - There are no server route, payload contract, database, or environment-variable changes.
 - EPIC-004 interaction: conforms. The queue keeps full-row rows and uses full chip targets for undo; the visible `X` improves discoverability without shrinking the tap target, and rows/chips disable during submit.
@@ -56,6 +56,6 @@ Follow-up after Wilson's Replit check at `968d39a`: the core rolling queue and s
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `7b0e22b1898d7dd91b99d33f90d512b9404afda2`
-- Last Replit-validated at: not yet validated for Phase 3.2
-- Notes: PR #45 merged the generation lock/cancel fix as `8892327`; PR #41 merged independent INIT-002/AI telemetry docs as `cb94f28`; PR #39 closed out Phase 3 as `1454ba5`; PR #48 added Phase 3.1 Slop It Up scope as `7b0e22b`; this branch is rebased on top.
+- Current base at implementation handoff: `origin/main` at `7b0e22b1898d7dd91b99d33f90d512b9404afda2`
+- Last Replit/browser-validated at: `9646c80` after Wilson's authenticated live-preview pass.
+- Notes: PR #45 merged the generation lock/cancel fix as `8892327`; PR #41 merged independent INIT-002/AI telemetry docs as `cb94f28`; PR #39 closed out Phase 3 as `1454ba5`; PR #48 added Phase 3.1 Slop It Up scope as `7b0e22b`; this branch was rebased on top and later merged through PR #46 as `b22f6b6`.
