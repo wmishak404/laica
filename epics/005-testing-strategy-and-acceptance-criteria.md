@@ -308,6 +308,12 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling queue, e
 
 This is useful validation evidence: unit tests can prove state transitions and persistence calls, but service-backed review should still include visual-discoverability checks for controls whose accessible labels are correct yet whose visible affordance may be unclear.
 
+### 2026-05-08 — Phase 3.2 adds persistence-timing assertions
+
+Phase 3.2 follow-up coverage now asserts that saved selected staples become non-removable saved chips after pantry persistence succeeds, returning to the staple step does not re-save already-saved staples, and pantry-save failure shows an explicit destructive toast while still using those staples for the current recipe request.
+
+This adds a useful acceptance pattern for DB-backed optimistic UI: tests should prove both duplicate-prevention behavior and the user-facing status/error signal, while Replit still confirms the real authenticated database row state.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

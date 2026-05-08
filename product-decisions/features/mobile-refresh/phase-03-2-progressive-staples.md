@@ -32,6 +32,8 @@ Phase 3.2 is okay to implement before Phase 3.1. The dependency is PR #45's gene
 - Let Added chips act as undo controls before submit, with a visible right-side `X` affordance so the removal action is obvious.
 - Track seen staple candidates separately from selected staples so only displayed-but-unselected staples are sent as explicit "do not assume" context.
 - Save confirmed pantry staples only when `View recipe suggestions` is tapped.
+- After the pantry write succeeds, show saved Added chips as inert `Saved` pantry facts rather than removable pending additions.
+- Skip repeat pantry-save calls for selected staples that are already present in the current pantry.
 - Preserve submit-time freeze, disabled cuisine/staple inputs, Back abort, and stale-response guard from PR #45.
 - Add lightweight CSS row/chip entry animations with a `prefers-reduced-motion` fallback.
 
@@ -70,6 +72,8 @@ Implementation guardrails:
 - The selected Added shelf and visible rows freeze during `Finding recipes...`.
 - Back remains available during loading and cancels the in-flight generation request.
 - Helper copy should communicate submit timing: `Tap what you have. We'll save additions when you view suggestions.`
+- Successful pantry saves are confirmed inline as soon as the DB save succeeds, which is during the `Finding recipes...` state before recipe suggestions are shown.
+- Save failures show a destructive toast: the app still uses those staples for the current recipe request, but tells the user they were not saved and can be added later in Settings.
 
 ## Behavior Contract
 
@@ -84,6 +88,9 @@ Implementation guardrails:
 9. Pantry persistence happens only on `View recipe suggestions`.
 10. Selected staples remain pantry facts once submitted, even if Back cancels the recipe-generation request afterward.
 11. Back before `View recipe suggestions` discards pending Added staples without saving them.
+12. Once a selected staple is present in the pantry, it renders as a saved chip without an `X`; it is no longer presented as something being added again.
+13. Re-submitting from the staple step should not call pantry persistence for already-saved selected staples, even though those staples may remain in the confirmed recipe context.
+14. If pantry persistence fails, recipe generation can continue with the selected staples for the current request and the user receives an explicit save-failure toast.
 
 ## Epic Interactions
 
@@ -105,6 +112,9 @@ Required focused coverage:
 - Tapping an Added chip undoes the selection and restores queue order.
 - Added chips visibly expose the `X` remove affordance while keeping the full-chip tap target.
 - Back before `View recipe suggestions` does not call pantry persistence and returns to the staple queue without pending Added chips.
+- Saved Added chips show `Saved to pantry` / `Saved` treatment after the pantry write succeeds and no longer expose the remove action.
+- Returning to the staple step and submitting again does not call pantry persistence for staples already in pantry.
+- Pantry save failure shows an explicit destructive toast while recipes still use those staples for the current request.
 - Submitted recipes include all selected staples and mark only seen unselected staples as unconfirmed.
 - Loading freezes the Added shelf and visible queue, disables rows/chips, and Back still cancels.
 - Successful generation still shows exactly three recipe suggestions.
@@ -116,6 +126,10 @@ Replit/browser validation:
 - Undo one Added chip and verify it returns to the queue.
 - Verify the Added chip `X` makes the undo action visually discoverable.
 - Press Back before submit and verify the pending additions are not saved.
+- Let the pantry save complete and verify the shelf changes to a saved/non-removable treatment before or while recipe suggestions load.
+- Return from Ticket Pass to the staple step and verify saved staples are not presented as newly addable or removable additions.
+- Submit again and verify already-saved staples do not create duplicate pantry rows.
+- Simulate/observe pantry-save failure if possible and verify the user sees the failure message while recipe generation can continue.
 - Submit and verify there is no reshuffle or extra tapping during `Finding recipes...`.
 - Press Back during loading and verify there is no late auto-advance.
 - Repeat and let suggestions complete; verify Ticket Pass appears normally and confirmed staples remain in pantry.
@@ -124,7 +138,7 @@ Replit/browser validation:
 
 Implemented on `codex/mobile-refresh-phase-3-2-progressive-staples` from `origin/main` at `7b0e22b1898d7dd91b99d33f90d512b9404afda2` after PR #48 merged the Phase 3.1 Slop It Up scope docs.
 
-Wilson's Replit check of head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up on top of that head keeps the same persistence timing, keeps the Added-only shelf, adds the visible `X` chip affordance, and records Slop Bowl pantry-check visual alignment as Phase 3.1 scope rather than implementing it here.
+Wilson's Replit check of head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up on top of that head keeps the same persistence timing, keeps the Added-only shelf, adds the visible `X` chip affordance, marks already-saved selected staples as inert pantry facts, skips repeat save calls for already-saved staples, and records Slop Bowl pantry-check visual alignment as Phase 3.1 scope rather than implementing it here.
 
 Local validation passed:
 

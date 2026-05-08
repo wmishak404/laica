@@ -83,7 +83,11 @@ const recipeResponse = {
   ],
 };
 
-function renderMealPlanning() {
+interface RenderMealPlanningOptions {
+  savePantryIngredients?: boolean;
+}
+
+function renderMealPlanning({ savePantryIngredients = true }: RenderMealPlanningOptions = {}) {
   const onMealSelected = vi.fn();
   const onPantryIngredientsAdded = vi.fn(async (ingredients: string[]) => true);
 
@@ -97,11 +101,14 @@ function renderMealPlanning() {
     });
 
     onPantryIngredientsAdded.mockImplementation(async (ingredients: string[]) => {
-      setProfile((previousProfile) => ({
-        ...previousProfile,
-        pantryIngredients: mergeUniqueEntries(previousProfile.pantryIngredients, ingredients),
-      }));
-      return true;
+      if (savePantryIngredients) {
+        setProfile((previousProfile) => ({
+          ...previousProfile,
+          pantryIngredients: mergeUniqueEntries(previousProfile.pantryIngredients, ingredients),
+        }));
+      }
+
+      return savePantryIngredients;
     });
 
     return (
@@ -249,6 +256,80 @@ describe('MealPlanning recipe generation locking', () => {
     expect(fetchPantryRecipesMock.mock.calls[0][1]).not.toContain('parsley');
   });
 
+  it('marks saved Added staples and does not save them again when returning to staples', async () => {
+    const recipesDeferred = createDeferred<typeof recipeResponse>();
+    fetchPantryRecipesMock
+      .mockReturnValueOnce(recipesDeferred.promise)
+      .mockResolvedValue(recipeResponse);
+    const { onPantryIngredientsAdded } = renderMealPlanning();
+
+    advanceToStaples();
+
+    let rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^olive oil$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    await waitFor(() => {
+      expect(onPantryIngredientsAdded).toHaveBeenCalledTimes(1);
+      expect(onPantryIngredientsAdded).toHaveBeenCalledWith(['tortillas', 'olive oil']);
+      expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/saved to pantry/i)).toBeTruthy();
+      expect(screen.getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
+      expect(screen.getByLabelText(/olive oil saved to pantry/i)).toBeTruthy();
+    });
+
+    await act(async () => {
+      recipesDeferred.resolve(recipeResponse);
+      await recipesDeferred.promise;
+    });
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /back to cuisines/i }));
+
+    expect(screen.getByRole('heading', { name: /anything else around/i })).toBeTruthy();
+    expect(screen.getByText(/saved to pantry/i)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /remove tortillas from added/i })).toBeNull();
+    expect(screen.getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    await waitFor(() => {
+      expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(2);
+    });
+
+    expect(onPantryIngredientsAdded).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows an error toast when pantry staple save fails and still uses staples for recipes', async () => {
+    const recipesDeferred = createDeferred<typeof recipeResponse>();
+    fetchPantryRecipesMock.mockReturnValue(recipesDeferred.promise);
+    const { onPantryIngredientsAdded } = renderMealPlanning({ savePantryIngredients: false });
+
+    advanceToStaples();
+
+    const rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    await waitFor(() => {
+      expect(onPantryIngredientsAdded).toHaveBeenCalledWith(['tortillas']);
+      expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(fetchPantryRecipesMock.mock.calls[0][0]).toEqual(expect.arrayContaining(['tortillas']));
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: "Couldn't save pantry staples",
+      description: "We'll still use them for these recipes. You can add them later in Settings.",
+      variant: 'destructive',
+    }));
+  });
+
   it('freezes the Added shelf and visible queue while Back still cancels loading', async () => {
     const recipesDeferred = createDeferred<typeof recipeResponse>();
     let capturedSignal: AbortSignal | undefined;
@@ -271,8 +352,10 @@ describe('MealPlanning recipe generation locking', () => {
     });
 
     const added = screen.getByRole('group', { name: /added pantry staples/i });
-    expect(within(added).getByRole('button', { name: /remove tortillas from added/i })).toBeDisabled();
-    expect(within(added).getByRole('button', { name: /remove olive oil from added/i })).toBeDisabled();
+    expect(within(added).getByText(/saved to pantry/i)).toBeTruthy();
+    expect(within(added).getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
+    expect(within(added).getByLabelText(/olive oil saved to pantry/i)).toBeTruthy();
+    expect(within(added).queryByRole('button', { name: /remove tortillas from added/i })).toBeNull();
 
     rows = getStapleRows();
     expect(within(rows).getByRole('button', { name: /^lime$/i })).toBeDisabled();

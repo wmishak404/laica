@@ -1356,9 +1356,23 @@ html, body {
     animation: planning-chip-pop 0.18s ease-out both;
   }
 
+  .planning-added-chip-saved {
+    border-color: hsl(var(--planning-herb) / 0.28);
+    background: hsl(var(--planning-herb-soft) / 0.82);
+    color: hsl(var(--planning-herb));
+  }
+
   .planning-added-chip-text {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+
+  .planning-added-chip-status {
+    flex-shrink: 0;
+    color: hsl(var(--planning-herb) / 0.86);
+    font-size: 0.68rem;
+    font-weight: 950;
+    text-transform: uppercase;
   }
 
   .planning-added-chip-remove {

@@ -204,6 +204,8 @@ Wilson's Replit check of Phase 3.2 confirmed that tapping an Added chip already 
 
 This adds a refinement to the pattern: when a selected chip is also an undo control, the full target should stay large, but the visible remove affordance should match user expectations from other pantry-chip surfaces.
 
+The same follow-up differentiates pending undo chips from saved pantry facts: after persistence succeeds, the chip switches to a non-removable `Saved` treatment instead of keeping an `X`. That keeps the interaction language honest: removable chips are pending selections, while saved chips are inventory state.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings
