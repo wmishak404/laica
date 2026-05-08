@@ -39,6 +39,20 @@ The harness must never grant access to production users, real personal data, or 
 - Live-service smoke for Firebase, Neon, OpenAI vision, ElevenLabs, speech, and persistence should be explicit rather than the default for every automated run.
 - Paid-service calls must not happen unless the smoke command or validation checklist intentionally opts into them.
 
+### Phase 3.2 Chef It Up smoke target
+
+The Phase 3.2 progressive staples review showed the next concrete harness target. Code review and unit tests proved the state machine, but the merge gate still needed a human to run the authenticated Replit browser flow because agents could not complete Firebase Google sign-in.
+
+Future automation should make this flow repeatable with a deterministic test user:
+
+- sign in through a dev-only Firebase custom-token or emulator-backed lane, not a backend auth bypass
+- seed a pantry/profile state that makes selected cuisines produce more than four missing staples
+- verify the rolling staple queue, Added shelf, pending `+` + `X` chip undo, and saved green-check-only chip state in the browser
+- submit and assert pantry persistence for the test user
+- return and assert already-saved staples do not duplicate or re-save
+- exercise Back during loading and confirm no late auto-advance
+- complete to Ticket Pass with either controlled recipe fixtures for ordinary UI smoke or an explicit live-provider mode for OpenAI/Replit validation
+
 ### Data and schema boundaries
 
 - No schema pushes should be part of the dev-test harness itself.
@@ -59,10 +73,11 @@ When implemented in a separate branch, the harness should include:
 - a dev-only endpoint or command that mints Firebase custom tokens for deterministic test scenarios
 - client/test tooling that signs in with `signInWithCustomToken`
 - seed/reset support for fresh, incomplete, and complete profile states
-- smoke coverage for authenticated routing, setup, settings, Slop Bowl quick-add, and protected API access
+- smoke coverage for authenticated routing, setup, settings, Chef It Up progressive staples, Slop Bowl quick-add, and protected API access
 - a separate explicit live-service smoke path for camera/vision, recipe generation, speech, and persistence
 
 ## Epic Interactions
 
 - EPIC-005: Adds concrete evidence for the app-wide testing strategy and local-vs-Replit validation matrix.
 - EPIC-010: Reinforces that schema pushes and database drift handling remain separate from feature smoke tooling.
+- EPIC-017: Owns the broader environment parity and CI confidence work that would let this harness reduce manual Replit browser validation later.

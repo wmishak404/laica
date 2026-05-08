@@ -3,7 +3,7 @@
 **Status:** Deferred  
 **Owner:** Wilson / Codex / Claude  
 **Created:** 2026-05-05  
-**Updated:** 2026-05-05  
+**Updated:** 2026-05-08
 
 ## One-line summary
 
@@ -40,11 +40,13 @@ Key external constraints (provenance):
 - Define what CI must prove so “passes in CI” implies “safe to deploy to Replit” (with explicit exceptions).
 - Define how local/CI can use Firebase Auth Emulator while still ensuring prod Google OAuth doesn’t silently break.
 - Define DB parity where schema and semantics are identical but instances/users/data differ per environment.
+- Define a repeatable authenticated browser-smoke path for high-value flows where code review and unit tests are not enough, such as Chef It Up pantry persistence and live recipe generation.
 
 ### Out of scope (for now)
 
 - Implementing automated tests / CI gates (deferred until after INIT-001).
 - Changing `AGENTS.md` / ADR-0001 to remove the Replit validation gate (requires an explicit follow-up decision).
+- Automating full Google OAuth popup completion with a real user account. The preferred direction remains a deterministic dev-only auth lane plus a separate production-domain OAuth preflight.
 
 ## Decisions made so far
 
@@ -55,6 +57,7 @@ These are recorded from discussion; they are not yet implemented repo-wide.
 3. **DB parity stance:** Different DB instances/users/data per env is OK; schema + migration posture must match.
 4. **Local/CI auth lane:** Prefer Firebase Auth Emulator for deterministic local/CI auth.
 5. **“Real login works” definition:** Prefer an automated “OAuth can start on prod domain” preflight check, not an automated full Google sign-in completion (avoid test-account credential/2FA brittleness).
+6. **Authenticated browser-smoke target:** Future automation should cover actual UI state transitions, DB persistence/no-duplicate assertions, and provider-route completion for selected high-value flows. Code review alone is not a substitute for these browser/environment checks.
 
 ## Open questions
 
@@ -63,6 +66,10 @@ These are recorded from discussion; they are not yet implemented repo-wide.
 2. Should the preflight gate run on every PR merge, only on release, or as a nightly canary?
 3. CI DB approach: Neon Local vs ephemeral Postgres vs other — and how schema health is enforced.
 4. How should this epic’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EPIC-005 / EPIC-010)?
+5. Which smoke journeys are the first automation targets?
+   - Candidate from Phase 3.2: authenticated Chef It Up progressive staples, including staple queue UI, submit-time pantry write, duplicate prevention, loading Back/cancel, and Ticket Pass completion.
+6. Should live AI recipe generation be part of every browser smoke, gated behind an explicit live-service flag, or replaced by a controlled fixture for most PR runs with a smaller live-provider canary?
+7. What reset/seed API or script can safely prepare deterministic `dev-test-*` users without touching real user data?
 
 ## Agent checklist — when to read this epic
 
@@ -86,9 +93,36 @@ This epic can be `Resolved` when all of the following are true:
 1. CI is the primary merge gate for correctness (with explicit exceptions documented).
 2. Local + CI run a repeatable authenticated smoke path (emulator-based) and DB schema health checks.
 3. A prod OAuth-domain preflight gate exists (automated) and prevents `auth/unauthorized-domain` regressions.
-4. `AGENTS.md` + ADR-0001 + EPIC-005/010 are updated so policy is consistent everywhere.
+4. At least one high-value authenticated browser flow is automated end to end with deterministic test data, UI assertions, persistence/no-duplicate checks, and clear handling for live-provider calls.
+5. `AGENTS.md` + ADR-0001 + EPIC-005/010 are updated so policy is consistent everywhere.
 
 ## 2026-05-05 — Parked
 
 Deferred until after `initiatives/INIT-001-mobile-refresh.md` is finished.
 
+## 2026-05-08 - Phase 3.2 exposes authenticated browser-smoke gap
+
+Mobile Refresh Phase 3.2 re-surfaced the same system gap in a more specific way. Codex and Replit could prove the progressive staples implementation with unit tests, TypeScript/build checks, and code-path review, but Replit could not complete the authenticated browser gate because it could not drive Firebase Google sign-in in the live preview.
+
+The missing manual validation was not generic "does the code look right"; it required exercising the running app as an authenticated user and observing:
+
+- Chef It Up cuisines produce a staple queue with more than four missing staples.
+- Selecting rows updates the visible queue and Added shelf in the browser.
+- Pending Added chips expose the visible `+` and `X` affordance and undo correctly.
+- Back before submit discards pending additions.
+- Submit writes confirmed staples to the Replit pantry database.
+- Returning to the staple step shows saved staples as non-removable pantry facts.
+- Submitting again does not create duplicate pantry rows.
+- Loading disables rows/chips while Back still cancels without late auto-advance.
+- Ticket Pass completes with exactly three live recipe suggestions.
+
+Desired future automation:
+
+- A dev-only Firebase custom-token or emulator-backed auth lane that still sends Firebase bearer tokens to protected APIs.
+- Deterministic `dev-test-*` users with resettable pantry/profile fixtures.
+- Browser-level Playwright smoke for the Chef It Up progressive-staples flow.
+- DB assertion/reset support scoped to test users so no-duplicate behavior can be proven safely.
+- A controlled choice for recipe generation: fixture/stub for routine UI smoke, plus explicit live-provider smoke or canary when validating OpenAI/Replit provider integration.
+- Clear separation between code-verified checks and runtime/browser-verified checks in PR/handoff validation notes.
+
+This does not reactivate EPIC-017 during INIT-001. It preserves the new concrete acceptance target for the later environment-parity/dev-test-harness window.
