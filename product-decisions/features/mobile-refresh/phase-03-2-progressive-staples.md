@@ -33,6 +33,7 @@ Phase 3.2 is okay to implement before Phase 3.1. The dependency is PR #45's gene
 - Track seen staple candidates separately from selected staples so only displayed-but-unselected staples are sent as explicit "do not assume" context.
 - Save confirmed pantry staples only when `View recipe suggestions` is tapped.
 - After the pantry write succeeds, show saved Added chips as inert green-check pantry facts rather than removable pending additions; do not spell out `Saved` inside each chip.
+- If the user taps a saved pantry-fact chip, keep it non-destructive and reveal a brief inline note directing removal to Pantry Settings.
 - Skip repeat pantry-save calls for selected staples that are already present in the current pantry.
 - Preserve submit-time freeze, disabled cuisine/staple inputs, Back abort, and stale-response guard from PR #45.
 - Add lightweight CSS row/chip entry animations with a `prefers-reduced-motion` fallback.
@@ -71,6 +72,7 @@ Implementation guardrails:
 - Added chips remain tappable undo controls until submit starts.
 - Pending Added chips use a `+` icon plus a right-side `X`; the whole chip remains the hit target with `aria-label="Remove <item> from Added"`.
 - Saved pantry-fact chips use the green checkmark as the only visible saved-state signal and do not include a visible `Saved` text label.
+- Tapping a saved pantry-fact chip does not delete anything; it conditionally reveals `Saved to pantry. Remove it in Pantry Settings.`
 - When no more suggestions remain, the row list simply shrinks.
 - No done note appears and there is no auto-submit.
 - The selected Added shelf and visible rows freeze during `Finding recipes...`.
@@ -95,6 +97,7 @@ Implementation guardrails:
 12. Once a selected staple is present in the pantry, it renders as a green-check chip without an `X` or visible `Saved` label; it is no longer presented as something being added again.
 13. Re-submitting from the staple step should not call pantry persistence for already-saved selected staples, even though those staples may remain in the confirmed recipe context.
 14. If pantry persistence fails, recipe generation can continue with the selected staples for the current request and the user receives an explicit save-failure toast.
+15. Tapping an already-saved chip does not remove it; it shows a brief inline direction to remove saved pantry facts in Pantry Settings.
 
 ## Epic Interactions
 
@@ -117,6 +120,7 @@ Required focused coverage:
 - Pending Added chips visibly expose a `+` pending icon and the `X` remove affordance while keeping the full-chip tap target.
 - Back before `View recipe suggestions` does not call pantry persistence and returns to the staple queue without pending Added chips.
 - Saved Added chips show a green-check-only treatment after the pantry write succeeds and no longer expose the remove action.
+- Tapping a saved chip shows the inline Pantry Settings direction without changing pantry state.
 - Returning to the staple step and submitting again does not call pantry persistence for staples already in pantry.
 - Pantry save failure shows an explicit destructive toast while recipes still use those staples for the current request.
 - Submitted recipes include all selected staples and mark only seen unselected staples as unconfirmed.
@@ -132,6 +136,7 @@ Replit/browser validation:
 - Verify pending Added chips do not use the same checkmark as saved pantry facts.
 - Press Back before submit and verify the pending additions are not saved.
 - Let the pantry save complete and verify the shelf changes to green check-only, non-removable chips before or while recipe suggestions load.
+- Tap a saved chip and verify the inline Pantry Settings removal direction appears without deleting it.
 - Return from Ticket Pass to the staple step and verify saved staples are not presented as newly addable or removable additions.
 - Submit again and verify already-saved staples do not create duplicate pantry rows.
 - Simulate/observe pantry-save failure if possible and verify the user sees the failure message while recipe generation can continue.
@@ -143,7 +148,7 @@ Replit/browser validation:
 
 Implemented on `codex/mobile-refresh-phase-3-2-progressive-staples` from `origin/main` at `7b0e22b1898d7dd91b99d33f90d512b9404afda2` after PR #48 merged the Phase 3.1 Slop It Up scope docs.
 
-Wilson's Replit check of head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up on top of that head keeps the same persistence timing, keeps the Added-only shelf, adds the visible `X` chip affordance, differentiates pending chips (`+` + `X`) from saved pantry facts (green check only), marks already-saved selected staples as inert pantry facts, skips repeat save calls for already-saved staples, and records Slop Bowl pantry-check visual alignment as Phase 3.1 scope rather than implementing it here.
+Wilson's Replit check of head `968d39a` confirmed the rolling queue, exhaustion behavior, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up on top of that head keeps the same persistence timing, keeps the Added-only shelf, adds the visible `X` chip affordance, differentiates pending chips (`+` + `X`) from saved pantry facts (green check only), lets taps on saved chips reveal an inline Pantry Settings removal note, marks already-saved selected staples as inert pantry facts, skips repeat save calls for already-saved staples, and records Slop Bowl pantry-check visual alignment as Phase 3.1 scope rather than implementing it here.
 
 Local validation passed:
 

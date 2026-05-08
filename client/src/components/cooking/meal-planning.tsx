@@ -169,6 +169,7 @@ export default function MealPlanning({
   const [isLoading, setIsLoading] = useState(false);
   const [sessionRestored, setSessionRestored] = useState(false);
   const [lockedStapleView, setLockedStapleView] = useState<LockedStapleView | null>(null);
+  const [savedStapleHint, setSavedStapleHint] = useState<string | null>(null);
   const generationRunIdRef = useRef(0);
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const { toast } = useToast();
@@ -271,6 +272,12 @@ export default function MealPlanning({
     setSelectedMeal(recommendations[0]);
   }, [currentStep, recommendations, selectedMeal]);
 
+  useEffect(() => {
+    if (currentStep !== 'staples') {
+      setSavedStapleHint(null);
+    }
+  }, [currentStep]);
+
   const selectedTimeIndex = Math.max(
     0,
     PLANNING_TIME_OPTIONS.findIndex((option) => option.value === mealPrefs.timeAvailable),
@@ -295,6 +302,11 @@ export default function MealPlanning({
   const isSavedPantryStaple = (staple: string) => pantryIngredientKeys.has(normalizeEntryKey(staple));
   const displayedSelectedStaples = lockedStapleView?.selected ?? selectedStaples;
   const displayedStapleCandidates = lockedStapleView?.visible ?? visibleStapleCandidates;
+  const showSavedStapleHint = Boolean(
+    savedStapleHint &&
+      displayedSelectedStaples.includes(savedStapleHint) &&
+      isSavedPantryStaple(savedStapleHint),
+  );
 
   const isActiveGeneration = (runId: number, controller: AbortController) =>
     activeGenerationRef.current?.runId === runId && !controller.signal.aborted;
@@ -340,6 +352,7 @@ export default function MealPlanning({
   const toggleCuisine = (cuisine: string) => {
     if (isLoading) return;
 
+    setSavedStapleHint(null);
     setSelectedStaples([]);
     setSeenStapleCandidates([]);
     setMealPrefs((prev) => {
@@ -365,6 +378,7 @@ export default function MealPlanning({
   const toggleStaple = (staple: string) => {
     if (isLoading) return;
 
+    setSavedStapleHint(null);
     setSeenStapleCandidates((prev) => mergeUniqueEntries(prev, [staple]));
     setSelectedStaples((prev) =>
       prev.includes(staple)
@@ -772,14 +786,16 @@ export default function MealPlanning({
 
               if (savedToPantry) {
                 return (
-                  <span
+                  <button
+                    type="button"
                     key={staple}
                     className="planning-added-chip planning-added-chip-saved"
-                    aria-label={`${staple} saved to pantry`}
+                    aria-label={`${staple} saved to pantry. Remove it in Pantry Settings.`}
+                    onClick={() => setSavedStapleHint(staple)}
                   >
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     <span className="planning-added-chip-text">{staple}</span>
-                  </span>
+                  </button>
                 );
               }
 
@@ -799,6 +815,11 @@ export default function MealPlanning({
               );
             })}
           </div>
+          {showSavedStapleHint && (
+            <p className="planning-added-help" role="status">
+              Saved to pantry. Remove it in Pantry Settings.
+            </p>
+          )}
         </div>
       )}
 

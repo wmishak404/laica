@@ -1378,6 +1378,14 @@ html, body {
     opacity: 0.72;
   }
 
+  .planning-added-help {
+    margin: 0.6rem 0 0;
+    color: hsl(var(--planning-ink) / 0.62);
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
   .planning-staple-row {
     animation: planning-row-slide 0.18s ease-out both;
   }

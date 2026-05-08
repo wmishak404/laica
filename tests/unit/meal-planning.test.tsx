@@ -286,6 +286,9 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.queryByText(/^saved$/i)).toBeNull();
     expect(screen.queryByText(/saved to pantry/i)).toBeNull();
 
+    fireEvent.click(screen.getByLabelText(/tortillas saved to pantry/i));
+    expect(screen.getByRole('status').textContent).toMatch(/saved to pantry\. remove it in pantry settings\./i);
+
     await act(async () => {
       recipesDeferred.resolve(recipeResponse);
       await recipesDeferred.promise;
@@ -300,6 +303,9 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.getByLabelText(/tortillas saved to pantry/i)).toBeTruthy();
     expect(screen.queryByText(/^saved$/i)).toBeNull();
     expect(screen.queryByText(/saved to pantry/i)).toBeNull();
+
+    fireEvent.click(screen.getByLabelText(/tortillas saved to pantry/i));
+    expect(screen.getByRole('status').textContent).toMatch(/saved to pantry\. remove it in pantry settings\./i);
 
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
