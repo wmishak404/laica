@@ -206,6 +206,12 @@ This adds a refinement to the pattern: when a selected chip is also an undo cont
 
 The same follow-up differentiates pending undo chips from saved pantry facts: after persistence succeeds, the chip switches to a non-removable green check-only treatment instead of keeping an `X` or spelling out `Saved`. If a saved chip is tapped, it shows a brief inline Pantry Settings removal direction rather than deleting the pantry fact in place. That keeps the interaction language honest: removable chips are pending selections, while saved chips are inventory state.
 
+### 2026-05-08 — Phase 3.2 merge confirms shipped chip states
+
+PR #46 merged Phase 3.2 after Wilson's authenticated Replit/browser validation at `9646c80`. The shipped Chef It Up staple check now provides a concrete selection-control reference for Phase 3.1: full-row discovery controls, pending Added chips with visible `+` and `X`, disabled row/chip state during loading, and saved green check-only pantry-fact chips that explain Pantry Settings removal instead of deleting in place.
+
+This is still not the final setup/settings closeout for EPIC-004, but it is the preferred comparison point when Slop Bowl pantry-check visuals are aligned in Phase 3.1.
+
 ## Next steps when work resumes
 
 1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings

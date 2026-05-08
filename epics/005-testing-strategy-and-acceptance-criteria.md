@@ -314,6 +314,12 @@ Phase 3.2 follow-up coverage now asserts that saved selected staples become non-
 
 This adds a useful acceptance pattern for DB-backed optimistic UI: tests should prove both duplicate-prevention behavior and the user-facing status/error signal, while Replit still confirms the real authenticated database row state.
 
+### 2026-05-08 — Phase 3.2 merge records code-vs-browser validation boundary
+
+PR #46 merged after local checks, Replit code-path review, and Wilson's authenticated Replit/browser validation all passed at `9646c80`. The merge confirmed that code verification alone was not enough for this feature: Replit's non-authenticated review could certify tests, TypeScript, build, and behavior paths, but Wilson still had to run the live Firebase-authenticated preview to close the browser gate.
+
+The acceptance signal is now recorded in INIT-001 and the Phase 3.2 feature record. EPIC-005 stays open only for the broader testing-workflow graduation work tracked separately under EPIC-020; it should not become a running ledger for every future feature's acceptance criteria.
+
 ## Next steps when work resumes
 
 1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design

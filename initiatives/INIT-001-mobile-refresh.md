@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
-**Current phase:** Phase 3.2 implementation
-**Active PR:** [#46](https://github.com/wmishak404/laica/pull/46)
-**Active branch:** `codex/mobile-refresh-phase-3-2-progressive-staples`
+**Current phase:** Phase 3.1 / Phase 4 planning
+**Active PR:** None
+**Active branch:** None
 
 ## Overview
 
@@ -26,7 +26,7 @@ The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Pha
 
 ## Current Status
 
-Phase 0, Phase 1, Phase 2, Phase 2.1, Phase 2.2, Phase 3, and the INIT/process documentation split are merged.
+Phase 0, Phase 1, Phase 2, Phase 2.1, Phase 2.2, Phase 3, Phase 3.2, and the INIT/process documentation split are merged.
 
 Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Deeper scan-session duplicate refinement remains deferred to [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md).
 
@@ -38,7 +38,9 @@ Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, de
 
 [Phase 3.2](../product-decisions/features/mobile-refresh/phase-03-2-progressive-staples.md) is a separate behavior/interaction polish slice on top of the merged Phase 3 + PR #45 cancellation behavior. It is not blocked by Phase 3.1 because it does not decide the broader visual facelift or recipe imagery direction. Phase 3.1 should treat the Phase 3.2 Added shelf / rolling staple queue as the current behavior to preserve or intentionally restyle during the facelift.
 
-Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple queue, queue exhaustion, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The remaining Phase 3.2 follow-up keeps the Added-only shelf and submit timing, adds a visible `X` remove affordance to pending Added chips, uses `+` instead of checkmarks for pending additions, marks successfully saved chips as green-check-only pantry facts, shows an inline Pantry Settings removal note when a saved chip is tapped, skips repeat pantry-save calls for already-saved selected staples, clarifies the helper copy, and documents Slop Bowl pantry-check visual alignment as Phase 3.1 scope.
+Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple queue, queue exhaustion, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up kept the Added-only shelf and submit timing, added a visible `X` remove affordance to pending Added chips, used `+` instead of checkmarks for pending additions, marked successfully saved chips as green-check-only pantry facts, showed an inline Pantry Settings removal note when a saved chip is tapped, skipped repeat pantry-save calls for already-saved selected staples, clarified the helper copy, and documented Slop Bowl pantry-check visual alignment as Phase 3.1 scope.
+
+[PR #46](https://github.com/wmishak404/laica/pull/46) shipped Phase 3.2 after Wilson's authenticated Replit/browser validation at `9646c80`; it merged into `main` as `b22f6b6`. Phase 3.2 is now the behavior baseline for Chef It Up's staple-check step. Phase 3.1 should preserve or intentionally restyle that behavior during the design facelift.
 
 ## Source Docs
 
@@ -84,7 +86,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
 | Phase 3.1 | Planned | TBD | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots |
-| Phase 3.2 | In Progress | `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue on top of the merged generation lock/cancel behavior; visible chip undo and saved-chip confirmation follow-up in progress after Replit feedback; not blocked by Phase 3.1 |
+| Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
 
@@ -106,7 +108,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 | #43 | Merged | `codex/epic-018-auth-ai-errors` | EPIC-018 authenticated AI error handling merged as `1110b00`; Replit PASS at `860bd68` carried to `14ac1c4` by Wilson diff review |
 | #44 | Merged | `codex/epic-018-closeout` | EPIC-018 docs closeout merged as `24decb2`; PR #45 later rebased onto this main head before merging |
 | #45 | Merged | `codex/phase-3-generation-cancel` | Phase 3 generation lock/cancel follow-up validated at `0c98a47`; merged as `8892327` |
-| #46 | Draft | `codex/mobile-refresh-phase-3-2-progressive-staples` | Phase 3.2 progressive staple queue local validation passed; Replit validation pending |
+| #46 | Merged | `codex/mobile-refresh-phase-3-2-progressive-staples` | Phase 3.2 progressive staple queue authenticated Replit/browser validation passed at `9646c80`; merged as `b22f6b6` |
 
 ## Epics and Governance
 
@@ -123,6 +125,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 | [EPIC-014](../epics/014-scan-session-diff-and-duplicate-refinement.md) | Future latest-scan chip indicators and duplicate-like scan cleanup |
 | [EPIC-018](../epics/018-authenticated-ai-error-handling.md) | Resolved authenticated AI error handling and pantry recipe 400 follow-up; Phase 4 still owns live-cooking inline recovery |
 | [EPIC-019](../epics/019-ai-error-telemetry-and-eval-monitoring.md) | Parallel follow-up for redacted operational AI error telemetry and eval monitoring |
+| [EPIC-020](../epics/020-workflow-documentation-audit.md) | Workflow-doc audit filed from Phase 3.2 validation/closeout so EPIC-005 can later graduate without blocking feature work |
 
 ## Changes Added After Initial Plan
 
@@ -147,6 +150,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 - Phase 3.2 was added after PR #45 merged so the Chef It Up staple check can use a progressive Added shelf and rolling queue. This is behavior/interaction polish, not the Phase 3.1 visual facelift; Phase 3.1 should preserve or deliberately restyle the Phase 3.2 behavior when it implements the facelift.
 - Phase 3.2 Replit review at `968d39a` kept pantry persistence timing as designed: pending Added chips are not saved on Back before submit, and confirmed staples become pantry facts only when `View recipe suggestions` starts generation. The follow-up adds pending-chip `+` + visible `X` removal, green check-only saved chips after the DB write succeeds, duplicate-save avoidance for already-saved selected staples, and submit-timing copy; full pantry-list context stays out of Phase 3.2.
 - Slop Bowl pantry-check visual alignment was added to Phase 3.1 scope after Wilson preferred the newer Chef It Up Phase 3.2 chip/row direction. Phase 3.1 should compare the two surfaces and align visual grammar where appropriate without changing Slop Bowl behavior unless explicitly revisited.
+- Phase 3.2 shipped through PR #46 after Wilson's authenticated Replit/browser validation at `9646c80`. Replit code-path review also passed, but the team explicitly recorded the distinction between code-verified checks and authenticated browser validation, feeding the later EPIC-017 / dev-test-harness automation work.
 
 ## Validation State
 
@@ -167,25 +171,21 @@ Known validation facts:
 - The recipe-suggestion metadata patch passed `git diff --check`, `npm run check`, and `npm run build`.
 - EPIC-018 Replit validation passed at `860bd68`; Wilson reviewed the post-validation cleanup diff and confirmed the pass carries to `14ac1c4`. PR #43 merged the branch into `main` as `1110b0088211be593d234ea26392b47384d43470`.
 - The Phase 3 generation lock/cancel follow-up on `codex/phase-3-generation-cancel` passed `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check` on top of PR #44 (`24decb2`). Replit validation passed at `0c98a47`; PR #45 merged the follow-up into `main` as `8892327`.
-- Phase 3.2 is not yet Replit-validated.
-- Wilson partially reviewed Phase 3.2 in Replit at `968d39a`: rolling reveal, queue exhaustion, submit-time pantry save, and saved staples after returning from suggestions worked. Follow-up validation is still required for the pending-chip `+` + visible `X` remove affordance, green check-only saved-chip confirmation, saved-chip tap-to-explain Pantry Settings note, no duplicate/resave behavior after returning to the staple step, submit-timing copy, Back-before-submit no-save clarity, loading freeze, Back cancel, and full Ticket Pass completion.
+- Phase 3.2 local validation passed `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check`.
+- Phase 3.2 Replit code-path review passed at `9646c80`: 19/19 targeted unit tests, TypeScript clean, build clean, and behavioral code checks confirmed. Pantry-save failure remained code-verified rather than manually forced in the live UI.
+- Phase 3.2 authenticated Replit/browser validation passed at `9646c80` by Wilson manual live preview: all 11 live UI steps passed, including rolling queue, pending chip undo, Back-before-submit no-save, submit-time pantry persistence, saved green-check-only chips, Pantry Settings inline note, no duplicate/resave behavior, loading freeze, Back cancel, Ticket Pass completion, and exactly three suggestions.
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
 
-Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8892327`). Do not resume `codex/mobile-refresh-phase-3-planning` or `codex/phase-3-generation-cancel`.
-
-Continue Phase 3.2 behavior polish on `codex/mobile-refresh-phase-3-2-progressive-staples`.
+Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8892327`). Phase 3.2 is also merged after PR #46 (`b22f6b6`). Do not resume `codex/mobile-refresh-phase-3-planning`, `codex/phase-3-generation-cancel`, or `codex/mobile-refresh-phase-3-2-progressive-staples`.
 
 Next implementation / validation focus:
 
-1. Keep Phase 3.2 scoped to the Chef It Up staple-check interaction: full ranked staple queue, Added-only shelf, pending chips with `+` + visible `X` undo, green check-only saved-chip confirmation after DB write, saved-chip tap-to-explain Pantry Settings removal note, no duplicate/resave calls for already-saved staples, seen-vs-selected unconfirmed context, submit-time freeze, Back abort, and no immediate pantry write before `View recipe suggestions`.
-2. Run local validation for Phase 3.2: `npx vitest run tests/unit/meal-planning.test.tsx tests/unit/planning-staples.test.ts`, `npm run check`, `npm run build`, and `git diff --check`.
-3. Run Replit validation for authenticated Chef It Up with cuisines that produce more than four missing staples: select two staples, verify two new rows appear, verify the pending Added chip uses `+` + `X` and undo works, press Back before submit and verify pending additions are not saved, submit, verify saved chips become green check-only non-removable pantry facts once the DB write succeeds, tap a saved chip and verify the inline Pantry Settings removal note, verify no reshuffle/taps during `Finding recipes...`, press Back during loading and verify no late auto-advance, then repeat and let Ticket Pass appear with confirmed staples saved to pantry. Return to the staple step and verify already-saved staples are not added twice or re-presented as pending additions.
-4. Refresh the PR/handoff `Last Replit-validated at` SHA after Replit passes.
-5. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Slop Bowl pantry-check visual alignment with the preferred Chef It Up Phase 3.2 chip/row direction, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots. Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue behavior, including the pending `+` + `X` versus saved green-check-only chip distinction and saved-chip tap-to-explain removal note.
-6. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EPIC-018 intentionally deferred.
-7. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
+1. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Slop Bowl pantry-check visual alignment with the shipped Chef It Up Phase 3.2 chip/row direction, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots. Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue behavior, including the pending `+` + `X` versus saved green-check-only chip distinction and saved-chip tap-to-explain removal note.
+2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EPIC-018 intentionally deferred.
+3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
+4. Continue the authenticated smoke automation / workflow-doc work in separate branches under EPIC-017 and EPIC-020; do not fold those system upgrades back into completed Phase 3.2.
 
 ## Chronology
 
@@ -231,4 +231,8 @@ Wilson accepted **Slop It Up** as the Planning choice card title for the Slop Bo
 
 ### 2026-05-08 - Phase 3.2 progressive staples opened
 
-Phase 3.2 was filed for the progressive Chef It Up Added shelf / rolling staple queue. It is intentionally separate from Phase 3.1: Phase 3.1 owns facelift and imagery, while Phase 3.2 can implement behavior now on top of the merged cancellation fix and should become the behavior baseline for the later facelift.
+Phase 3.2 was filed for the progressive Chef It Up Added shelf / rolling staple queue. It is intentionally separate from Phase 3.1: Phase 3.1 owns facelift and imagery, while Phase 3.2 could implement behavior on top of the merged cancellation fix and later become the behavior baseline for the facelift.
+
+### 2026-05-08 - Phase 3.2 progressive staples merged
+
+PR #46 merged Phase 3.2 into `main` as `b22f6b6` after Wilson's authenticated Replit/browser validation at `9646c80`. The shipped behavior is now the Chef It Up staple-check baseline for Phase 3.1: rolling ranked staple rows, Added shelf, pending `+` + `X` undo chips, submit-time pantry persistence, saved green-check-only pantry facts, saved-chip Pantry Settings explanation, no duplicate/resave calls for already-saved staples, submit-time freeze, and Back cancellation.
