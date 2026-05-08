@@ -103,3 +103,4 @@ If closeout cannot happen immediately, the agent must document the deferral in t
 ## Current Initiatives
 
 - [INIT-001 — Mobile Refresh](INIT-001-mobile-refresh.md)
+- [INIT-002 — AI Error Telemetry & Eval Monitoring](INIT-002-ai-error-telemetry.md)
