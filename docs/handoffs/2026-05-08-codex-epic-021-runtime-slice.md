@@ -56,7 +56,7 @@ Compared with the old 8 Pantry / 6 Kitchen maximum, the max-refresh spend rises 
 
 Wilson raised a fresh-account churn case: a user could sign in, scan 20 photos, avoid saving, sign out, then repeat with another fresh account. The current decision is not to add daily IP caps, global cross-area IP caps, or a save-before-scan gate in this slice.
 
-Current protection is considered enough for rollout: scans require auth, accepted images count against per-user/per-area daily limits, and short-window IP limits make rapid repeat abuse annoying and bounded. This remains a known non-blocking risk to revisit if billing, usage, or account-churn signals show the heavier guardrails are needed.
+Current protection is considered enough for rollout: scans require auth, accepted images count against per-user/per-area daily limits, and short-window IP limits make rapid repeat abuse annoying and bounded. OpenAI/project-level API limits are an additional last-resort spend backstop if something goes badly wrong, but they are not the normal product control because they can fail user flows outside Laica's scan-specific copy. This remains a known non-blocking risk to revisit if billing, usage, or account-churn signals show the heavier guardrails are needed.
 
 ## Remaining EPIC-021 Work
 

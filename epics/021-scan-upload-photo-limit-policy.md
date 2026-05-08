@@ -59,7 +59,7 @@ This epic owns the implementation follow-through. [EPIC-020](020-workflow-docume
 - The happy path is one batched vision call per refresh.
 - Adaptive chunking should split automatically when payload size, request body limits, provider image-count limits, or latency risk make one call unsafe.
 - Server-side rate limits count images, not API requests, so chunking does not multiply the user's effective quota.
-- Fresh-account scan churn is a known non-blocking abuse risk. Keep current auth, per-user/per-area limits, and short-window IP limits for this slice; do not add daily/global IP caps unless observed usage or cost signals justify them.
+- Fresh-account scan churn is a known non-blocking abuse risk. Keep current auth, per-user/per-area limits, and short-window IP limits for this slice; do not add daily/global IP caps unless observed usage or cost signals justify them. OpenAI/project-level limits remain a last-resort backstop, not the primary product control.
 - Partial chunk successes are kept. The user should see a clear summary of what was saved or suggested and what could not be analyzed.
 - The UI should show progress for long scans and protect against stale late results when the user cancels, backs out, starts a newer scan, or leaves the surface.
 - Preserve scan-specific error taxonomy. Do not route scan failures through generic cooking or generic AI error copy.
@@ -72,7 +72,7 @@ Future implementation should review these before changing runtime behavior:
 - Scan-specific error messaging: preserve text-only rejection, no-detection, rate-limit, auth, service, malformed-image, over-cap, and generic scan failure distinctions.
 - Batch route parser and body limits: raising image count may require multipart/base64 parser changes, explicit decoded-image-size checks, and provider payload guardrails.
 - Image-count rate limiting: limit by accepted image count, not request count, so adaptive chunks cannot bypass daily budgets.
-- Abuse guardrails: current rollout relies on auth, per-user/per-area daily limits, and short-window IP limits. Daily/global IP caps are intentionally deferred until usage, cost, or account-churn signals show they are needed.
+- Abuse guardrails: current rollout relies on auth, per-user/per-area daily limits, and short-window IP limits. Daily/global IP caps are intentionally deferred until usage, cost, or account-churn signals show they are needed. Provider-side OpenAI limits can cap runaway spend but should not replace app-owned limits and scan-specific error handling.
 - [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) telemetry constraints: scan failure telemetry may include `image_count` only, never raw images, bytes, filenames, EXIF, base64 payloads, or detected labels.
 - Phase 5 post-cook rescan capacity: inherited default is 20 images per refresh and 40 per day per area unless Phase 5 records an exception.
 - Settings scan test gap: returning Settings needs the same limit, fail-closed behavior, progress, partial-success summary, and rate-limit coverage as setup.
@@ -166,4 +166,4 @@ Wilson's Replit validation found that the serial path took about 1-2 seconds per
 
 ### 2026-05-08 - Fresh-account abuse guardrail decision
 
-Wilson raised the corner case where someone repeatedly signs in with fresh accounts, scans 20 photos, never saves, signs out, and repeats. The decision is to treat this as a known but non-blocking risk for the current slice. Auth, per-user/per-area daily limits, and short-window IP limits stay in place; daily IP caps, cross-area global IP caps, and save-before-scan gates are deferred unless observed cost or abuse signals justify them.
+Wilson raised the corner case where someone repeatedly signs in with fresh accounts, scans 20 photos, never saves, signs out, and repeats. The decision is to treat this as a known but non-blocking risk for the current slice. Auth, per-user/per-area daily limits, and short-window IP limits stay in place; daily IP caps, cross-area global IP caps, and save-before-scan gates are deferred unless observed cost or abuse signals justify them. OpenAI/project-level API limits are noted as a final spend-safety backstop, but not a substitute for Laica-owned limits and messaging.

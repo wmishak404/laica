@@ -45,6 +45,7 @@ Use "per refresh" in product copy. Avoid "per batch" because adaptive chunking m
 - The current implementation should keep auth-required scan access, per-user/per-area daily image limits, and short-window IP limits.
 - Do not add a daily IP cap, cross-area global IP cap, profile-save-before-scan gate, or fresh-account abuse workflow for this slice.
 - The repeat-fresh-account scenario is a known non-blocking risk: a user could create or use multiple Firebase accounts, scan without saving, sign out, and repeat. The short-window IP limiter makes this annoying and bounded for casual abuse, while heavier controls can wait for real cost, usage, or abuse signals.
+- OpenAI/project-level API limits are an additional last-resort backstop if usage goes badly wrong. They should not be treated as the normal product limit because they can fail user flows abruptly and outside Laica's scan-specific messaging.
 - Revisit stronger abuse controls if billing spikes, scan usage shows suspicious account churn, or Replit/runtime telemetry shows repeated high-volume scans from the same network.
 
 ### Messaging direction
@@ -76,7 +77,7 @@ This policy inherits [PD-010](010-ai-error-telemetry-allowlist.md). Scan telemet
 - Counting images instead of requests keeps adaptive chunking honest.
 - Preserving partial successes respects the user's time and avoids discarding good work because one chunk failed.
 - Scan-specific messaging matters because inventory scans fail for reasons that cooking/recipe AI failures do not: unsupported files, text-only evidence, no physical items detected, malformed images, over-cap selection, and duplicate-only results.
-- The fresh-account abuse case is possible but sufficiently intentional and high-friction that extra daily/global IP caps are deferred until observed usage justifies the added product and operational complexity.
+- The fresh-account abuse case is possible but sufficiently intentional and high-friction that extra daily/global IP caps are deferred until observed usage justifies the added product and operational complexity. Provider-side OpenAI limits remain a hard spend-safety backstop, but the app should not rely on them for ordinary user experience.
 
 ## Cost and latency planning notes
 
