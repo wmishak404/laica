@@ -5,7 +5,7 @@
 **Date:** 2026-05-08
 **Initiative:** INIT-001
 **INIT updated:** yes
-**Replit validated:** stale after latest patch; previous pass at `aa2f434`
+**Replit validated:** yes at `ef28e59`
 
 ## Summary
 
@@ -46,7 +46,7 @@ This branch does not yet implement provider-level multi-image vision batching or
 - Local dotenvx dev-server boot on port 3000, with `curl -I http://127.0.0.1:3000` returning HTTP 200
 - Earlier in this branch: in-app browser smoke to `http://127.0.0.1:3000/`, confirming the client serves the unauthenticated Laica welcome screen
 
-`npm run build` passed with the existing Vite chunk-size warning and existing dynamic/static Firebase import warning. The local browser smoke did not exercise authenticated Pantry/Settings scan flows because it landed on the unauthenticated welcome screen. Wilson later ran authenticated Replit validation at `aa2f434` before the bounded-concurrency patch; that pass is now stale, so Replit/mobile validation still needs to cover the signed-in high-photo-count scan behavior at the latest branch head.
+`npm run build` passed with the existing Vite chunk-size warning and existing dynamic/static Firebase import warning. The local browser smoke did not exercise authenticated Pantry/Settings scan flows because it landed on the unauthenticated welcome screen. Wilson ran authenticated Replit validation for the scan scenarios earlier in the branch, then completed a narrow final Replit validation at `ef28e59` after the Planning status copy/icon design adjustments.
 
 ## Cost and Latency Note
 
@@ -70,11 +70,10 @@ Current protection is considered enough for rollout: scans require auth, accepte
 
 ## Replit Follow-up Note
 
-Wilson reported that the core latest Replit testing looked good, including active-scan Save/Reset controls being non-pressable during scan. The remaining UX issue was that Chef It Up's empty-Pantry message fired only after cuisine/staple choices, which made the flow look like it could cook from only newly added staples. The latest patch moves that blocker to the Planning choice card tap and adds the morphing Pantry status line under the title.
+Wilson reported that the core latest Replit testing looked good, including active-scan Save/Reset controls being non-pressable during scan. The remaining UX issue was that Chef It Up's empty-Pantry message fired only after cuisine/staple choices, which made the flow look like it could cook from only newly added staples. The latest patch moves that blocker to the Planning choice card tap and adds the morphing Pantry status line under the title. After removing the misaligned notification icon and deferring final visual treatment to Phase 3.1, Wilson validated the latest Replit build at `ef28e59` and confirmed all items work as designed.
 
 ## Remaining EPIC-021 Work
 
 - Decide whether provider-level multi-image batching and adaptive chunk thresholds should land in this branch or a follow-up. This slice only prepares the policy/cap/rate-limit semantics and keeps the current per-image API path.
-- Replit/mobile re-validate the Planning choice empty-Pantry status/tap blocker after this latest patch. Wilson's latest Replit pass otherwise looked good, including active-scan Save/Reset controls being non-pressable during scan.
+- Keep the final Pantry status visual treatment deferred to Phase 3.1. This slice intentionally keeps the line as plain supporting copy with no notification icon.
 - If provider-level batching lands later, make sure server-side rate limits count accepted images rather than requests, and keep PD-010 telemetry to `image_count` only.
-- Update PR description validation notes after the next Replit pass.
