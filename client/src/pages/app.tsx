@@ -474,11 +474,11 @@ export default function MobileApp() {
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
-          <div className="mt-2 flex max-w-sm items-start justify-between gap-3">
+          <div className="mt-2 flex max-w-sm items-start gap-2">
+            <Bell className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--planning-ink)/0.78)]" aria-hidden="true" />
             <p className="planning-choice-copy !mt-0 flex-1">
               {planningPantryStatusCopy}
             </p>
-            <Bell className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--planning-ink)/0.78)]" aria-hidden="true" />
           </div>
         </div>
       </div>
