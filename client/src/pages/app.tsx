@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { ToastAction } from '@/components/ui/toast';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
-import { ArrowRight, ChefHat, History, Info, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
+import { ArrowRight, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
 import {
   DEFAULT_PLANNING_TIME_VALUE,
   PLANNING_TIME_STORAGE_KEY,
@@ -474,12 +474,9 @@ export default function MobileApp() {
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
-          <div className="mt-2 flex max-w-sm items-start gap-2">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--planning-coral))]" aria-hidden="true" />
-            <p className="planning-choice-copy !mt-0 flex-1">
-              {planningPantryStatusCopy}
-            </p>
-          </div>
+          <p className="planning-choice-copy max-w-sm">
+            {planningPantryStatusCopy}
+          </p>
         </div>
       </div>
 
