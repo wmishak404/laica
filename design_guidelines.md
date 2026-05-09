@@ -1,6 +1,6 @@
 # Laica — Design Guidelines
 
-> **Status: canonical living standard.** Visual identity, tokens, surface posture, and mockup-conformance expectations live here. Governance rules (token enforcement, primitive lock order, tone-override convention, scoped-style reuse contract) live in [PD-005](product-decisions/pd-005-ui-governance.md). Historical context: [EPIC-001](efforts/effort-001-ui-governance.md) (resolved) and [EPIC-012](efforts/effort-012-laica-design-language.md) (resolved).
+> **Status: canonical living standard.** Visual identity, tokens, surface posture, and mockup-conformance expectations live here. Governance rules (token enforcement, primitive lock order, tone-override convention, scoped-style reuse contract) live in [PD-005](product-decisions/pd-005-ui-governance.md). Historical context: [EFFORT-001](efforts/effort-001-ui-governance.md) (resolved) and [EFFORT-012](efforts/effort-012-laica-design-language.md) (resolved).
 
 ## Visual Identity
 
