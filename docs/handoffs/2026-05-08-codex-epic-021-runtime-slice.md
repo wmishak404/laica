@@ -72,8 +72,7 @@ Current protection is considered enough for rollout: scans require auth, accepte
 
 Wilson reported that the core latest Replit testing looked good, including active-scan Save/Reset controls being non-pressable during scan. The remaining UX issue was that Chef It Up's empty-Pantry message fired only after cuisine/staple choices, which made the flow look like it could cook from only newly added staples. The latest patch moves that blocker to the Planning choice card tap and adds the morphing Pantry status line under the title. After removing the misaligned notification icon and deferring final visual treatment to Phase 3.1, Wilson validated the latest Replit build at `ef28e59` and confirmed all items work as designed.
 
-## Remaining EPIC-021 Work
+## Closeout Note
 
-- Decide whether provider-level multi-image batching and adaptive chunk thresholds should land in this branch or a follow-up. This slice only prepares the policy/cap/rate-limit semantics and keeps the current per-image API path.
+- Wilson later confirmed provider-level multi-image batching and final adaptive chunk thresholds are not needed at this point. The validated bounded-concurrency implementation is accepted as the EPIC-021 resolution.
 - Keep the final Pantry status visual treatment deferred to Phase 3.1. This slice intentionally keeps the line as plain supporting copy with no notification icon.
-- If provider-level batching lands later, make sure server-side rate limits count accepted images rather than requests, and keep PD-010 telemetry to `image_count` only.
