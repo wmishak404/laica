@@ -16,20 +16,18 @@ The merged runtime slice implements the EPIC-021 cap/concurrency work: shared 20
 
 - `initiatives/INIT-001-mobile-refresh.md`: cleared the EPIC-021 active branch, added PR #53 merge status, recorded validation and merge SHAs, and updated the resume point.
 - `initiatives/registry.md`: updated INIT-001's last signal to the merged EPIC-021 runtime slice.
-- `epics/021-scan-upload-photo-limit-policy.md`: appended the runtime-slice merge signal and preserved remaining follow-up scope.
-- `epics/registry.md`: updated EPIC-021's last signal to PR #53's merge while keeping the epic open.
+- `epics/021-scan-upload-photo-limit-policy.md`: appended the runtime-slice merge signal. A later closeout records Wilson's decision to close the epic.
+- `epics/registry.md`: updated EPIC-021's last signal to PR #53's merge. A later closeout records Wilson's decision to close the epic.
 - `docs/handoffs/2026-05-08-codex-epic-021-merge-closeout.md`: this handoff.
 
 ## Impact on other agents
 
-Do not resume `codex/epic-021-scan-upload-implementation`; its runtime slice is merged. Future EPIC-021 work should start from fresh `origin/main` on a new branch, and should focus on provider-level multi-image batching and final adaptive chunk thresholds unless Wilson pulls in other scan-policy scope.
+Do not resume `codex/epic-021-scan-upload-implementation`; its runtime slice is merged. Wilson later accepted the validated bounded-concurrency implementation as sufficient, so provider-level multi-image batching and final adaptive chunk thresholds are not active follow-up scope.
 
-EPIC-021 stays open intentionally. The merged PR satisfies the current runtime cap, same-limit, rate-limit, progress, partial-success, active-scan lifecycle, and empty-Pantry guardrail work, but it does not implement the provider-level happy-path batch call or final adaptive payload chunking.
+The merged PR satisfies the current runtime cap, same-limit, rate-limit, progress, partial-success, active-scan lifecycle, and empty-Pantry guardrail work.
 
 ## Open items
 
-- Provider-level multi-image batching.
-- Final adaptive chunk thresholds for payload/API limits.
 - Phase 3.1 owns any final visual treatment for the Planning choice Pantry status line.
 
 ## Verification

@@ -30,14 +30,14 @@ The 2026-05-08 planning discussion considered cost, latency, engagement, batchin
 - Unsupported files do not count because they never become accepted scan images.
 - Supported images count after acceptance even if they are empty, duplicate-only, text-only rejected, failed, or return no detected items.
 
-Use "per refresh" in product copy. Avoid "per batch" because adaptive chunking means one visible refresh may become multiple server/provider chunks.
+Use "per refresh" in product copy. Avoid "per batch" because users are refreshing an inventory area, not managing implementation-level request groups.
 
-### Batch processing direction
+### Processing direction
 
-- The happy path is one batched vision call per inventory refresh.
-- Adaptive chunking should split automatically when payload size, request body limits, provider image-count limits, or latency risk make a single request unsafe.
-- Server-side rate limits count images, not API requests, so chunking does not multiply a user's effective quota.
-- Partial chunk successes are preserved. The UI should summarize what was saved or suggested and what could not be analyzed.
+- The accepted runtime path may use bounded concurrent per-image processing over the existing scan route.
+- Provider-level multi-image batching and final adaptive payload chunking are not active requirements unless future cost, latency, or provider-limit signals justify reopening the topic.
+- Server-side rate limits count images, not API requests, so implementation details do not multiply a user's effective quota.
+- Partial successes are preserved. The UI should summarize what was saved or suggested and what could not be analyzed.
 - The UI should show progress for long scans and protect against stale late results when the user cancels, backs out, starts a newer scan, or leaves the surface.
 
 ### Abuse guardrail posture
@@ -53,7 +53,7 @@ Use "per refresh" in product copy. Avoid "per batch" because adaptive chunking m
 - Preserve the scan-specific error taxonomy from Phase 2.1: text-only rejection, no-detection, rate limit, auth, service, malformed-image, over-cap, and generic scan failure should remain distinguishable.
 - Do not route scan failures through generic cooking or generic AI error copy.
 - Replace "per batch" phrasing with "per refresh."
-- Add progress and partial-success copy for long or chunked scans.
+- Add progress and partial-success copy for long scans.
 
 Example copy posture:
 
@@ -86,15 +86,15 @@ This policy inherits [PD-010](010-ai-error-telemetry-allowlist.md). Scan telemet
 - A shared Pantry/Kitchen cap avoids unexplained asymmetry. Different old caps were an implementation detail, not a product principle.
 - 20 images is a middle path between the old 8/6 caps and the 30-photo feedback case. It materially helps thorough users while keeping upload latency, mobile engagement, and provider costs inside a controllable envelope.
 - 40 images per day per area lets a user recover from a failed or incomplete refresh without opening unlimited scan abuse.
-- Counting images instead of requests keeps adaptive chunking honest.
-- Preserving partial successes respects the user's time and avoids discarding good work because one chunk failed.
+- Counting images instead of requests keeps implementation details from changing the user's effective quota.
+- Preserving partial successes respects the user's time and avoids discarding good work because one image failed.
 - Scan-specific messaging matters because inventory scans fail for reasons that cooking/recipe AI failures do not: unsupported files, text-only evidence, no physical items detected, malformed images, over-cap selection, and duplicate-only results.
 - The fresh-account abuse case is possible but sufficiently intentional and high-friction that extra daily/global IP caps are deferred until observed usage justifies the added product and operational complexity. Provider-side OpenAI limits remain a hard spend-safety backstop, but the app should not rely on them for ordinary user experience.
 - Treating empty Pantry as valid preserves returning-user trust: reset/cleanup should not erase profile identity, Kitchen equipment, or History. The recipe-generation blocker is the right point to enforce the dependency because it is where Pantry contents are actually required.
 
 ## Cost and latency planning notes
 
-During planning, maxing both Pantry and Kitchen under the accepted daily cap was estimated around `$0.67-$0.89` per user per day if each photo were processed independently. Batched processing was estimated closer to `$0.18-$0.28` per user per day, with `$0.35` as a planning guardrail.
+During planning, maxing both Pantry and Kitchen under the accepted daily cap was estimated around `$0.67-$0.89` per user per day if each photo were processed independently. Provider-level batching was considered as a possible cost-reduction path, but the validated bounded-concurrency implementation is accepted for the resolved runtime slice.
 
 These are planning estimates, not billing guarantees. Implementation should recalculate with the live model, compression, provider pricing, and observed token/image usage before rollout. If real latency is high enough that users may disengage, progress UI, cancellability, stale-result protection, and partial-success summaries are product requirements, not polish.
 
@@ -106,24 +106,21 @@ These are planning estimates, not billing guarantees. Implementation should reca
 | Raise only first-time setup | First setup is high value, but returning users also rescan after restocks, reorganizing, or cooking; one rule is easier to understand |
 | Raise to 30 immediately | It best matches the reported case but raises cost, latency, and payload risk before batching/chunking is implemented |
 | Use different Pantry and Kitchen limits | Future asymmetry should require an explicit product decision; default policy keeps the same limit |
-| Count API requests instead of images | Adaptive chunking could accidentally increase effective quota or punish users for server-side implementation details |
-| Fail the whole refresh on any chunk failure | This discards successful analysis and makes long scans feel brittle |
+| Count API requests instead of images | Server-side processing details could accidentally increase effective quota or punish users for implementation choices |
+| Fail the whole refresh on any image failure | This discards successful analysis and makes long scans feel brittle |
 | Use generic AI error messaging | Scan failures need inventory-specific recovery and should not borrow cooking/recipe failure copy |
 | Add daily/global IP caps immediately | More machinery than the current risk deserves; existing auth, per-user limits, and short-window IP limits are enough for this rollout unless real usage says otherwise |
 
 ## Consequences
 
-- [EPIC-021](../epics/021-scan-upload-photo-limit-policy.md) owns implementation follow-through and should stay open until runtime limits, tests, and validation match this policy.
+- [EPIC-021](../epics/021-scan-upload-photo-limit-policy.md) closed after PR #53 shipped and Wilson validated the accepted runtime policy.
 - Setup, Settings, and post-cook rescan docs should treat old 8/6/4 photo caps as historical unless a later decision supersedes this policy.
-- The scan route may need a new batch contract or a backward-compatible batch mode, plus explicit parser/body/provider payload guardrails.
+- The current scan route can remain per-image with bounded concurrency unless future product or cost signals reopen provider-level batching.
 - Tests must cover setup and Settings limits, same-limit Pantry/Kitchen behavior, fail-closed over-cap copy, unsupported-file counting, accepted-image counting, image-count rate limits, partial-success behavior, and stale-result protection.
 - Tests should also cover returning-user empty-Pantry states, Pantry-dependent recipe blockers, Settings Back/cancel behavior during active scans, and persistence boundaries after clearing Pantry.
-- Replit validation should include a high-photo-count mobile scan scenario before this epic resolves.
+- Replit validation covered the high-photo-count scan slice and follow-up Planning blocker behavior before this epic resolved.
 - Abuse hardening beyond the existing short-window IP limit is a monitoring follow-up, not a blocker for the current EPIC-021 runtime slice.
 
 ## Open follow-ups
 
-- Pick exact compression, dimension, and byte-size thresholds for adaptive chunking.
-- Decide whether setup and Settings share one batch endpoint or layer batch semantics over the existing scan route.
-- Finalize copy for progress, daily cap, partial success, and per-refresh over-cap messages.
 - Add the Feature Impact Review/system-touchpoint checklist to the future testing/acceptance workflow under [EPIC-020](../epics/020-workflow-documentation-audit.md), using this policy review as a worked example.

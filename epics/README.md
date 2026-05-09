@@ -90,4 +90,3 @@ Read these before starting work in their governed domains:
 | [016](016-slop-bowl-hex-literal-cleanup.md) | Slop Bowl hex literal cleanup | `Open` | Wilson / Codex / Claude | 2026-05-02 |
 | [019](019-ai-error-telemetry-and-eval-monitoring.md) | AI error telemetry and eval monitoring | `Open` | Wilson / Codex / Claude | 2026-05-07 |
 | [020](020-workflow-documentation-audit.md) | Workflow documentation audit and graduation | `Open` | Wilson / Codex / Claude | 2026-05-08 |
-| [021](021-scan-upload-photo-limit-policy.md) | Scan upload photo limit policy | `Open` | Wilson / Codex / Claude | 2026-05-08 |

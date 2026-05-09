@@ -1,13 +1,13 @@
 # EPIC-021 - Scan upload photo limit policy
 
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-08
 **Updated:** 2026-05-08
 
 ## One-line summary
 
-Implement the accepted Pantry/Kitchen inventory-refresh scan limit policy: 20 images per refresh, 40 images per day per area, same limits across setup and later rescans, batched processing with adaptive chunking, and scan-specific progress/error messaging.
+Implement the accepted Pantry/Kitchen inventory-refresh scan limit policy: 20 images per refresh, 40 images per day per area, same limits across setup and later rescans, image-count rate limits, bounded concurrent scan processing, and scan-specific progress/error messaging.
 
 ## Linked Initiatives
 
@@ -17,15 +17,15 @@ Implement the accepted Pantry/Kitchen inventory-refresh scan limit policy: 20 im
 
 Wilson reported a real pantry setup feedback case: a user tried to be thorough and had about 30 pantry photos, but Laica limited the batch upload to 8 pantry photos.
 
-Current implementation evidence:
+Implementation evidence at filing:
 
 - First-time setup caps Pantry at 8 photos and Kitchen at 6 photos.
 - Returning Settings uses the same split limit.
 - Over-cap upload batches fail closed with "Too many photos" feedback, so no partial scan is processed.
 
-The original caps were accepted during Phase 2.1 as a trust, cost, and reliability guardrail, but the user feedback showed that a careful inventory pass can exceed the current limits. The 2026-05-08 discussion accepted a new policy in [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md): raise capacity to 20 images per inventory refresh per area, keep Pantry and Kitchen aligned, and use batching/chunking plus image-count rate limits to control cost and latency.
+The original caps were accepted during Phase 2.1 as a trust, cost, and reliability guardrail, but the user feedback showed that a careful inventory pass can exceed those limits. The 2026-05-08 discussion accepted a new policy in [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md): raise capacity to 20 images per inventory refresh per area, keep Pantry and Kitchen aligned, and use bounded concurrent scan processing plus image-count rate limits to control cost and latency.
 
-This epic owns the implementation follow-through. [EPIC-020](020-workflow-documentation-audit.md) is the separate workflow-documentation audit and owns EPIC-005 closeout.
+This epic owned the implementation follow-through. [EPIC-020](020-workflow-documentation-audit.md) is the separate workflow-documentation audit and owns EPIC-005 closeout.
 
 ## Scope
 
@@ -36,7 +36,7 @@ This epic owns the implementation follow-through. [EPIC-020](020-workflow-docume
 - Future post-cook cleanup or rescan flows that let users refresh Pantry or Kitchen inventory.
 - Upload and camera-capture counting semantics.
 - Client and server enforcement for over-cap, unsupported-file, malformed-image, duplicate-only, no-detection, partial-success, and failed-image outcomes.
-- Batched vision request shape, adaptive chunking, payload/body limits, stale-result protection, progress UI, and summary copy.
+- Scan request processing shape, payload/body limits, stale-result protection, progress UI, and summary copy.
 - Scan-specific error messaging, including rate-limit and partial-success copy.
 - Tests that cover the accepted limit policy across setup, Settings, server rate limits, and scan messaging.
 
@@ -56,11 +56,10 @@ This epic owns the implementation follow-through. [EPIC-020](020-workflow-docume
 - Over-cap selections fail closed: no subset is silently processed.
 - Unsupported files do not count because they never become accepted scan images.
 - Supported images count after acceptance even if they are empty, duplicate-only, text-only rejected, failed, or return no detected items.
-- The happy path is one batched vision call per refresh.
-- Adaptive chunking should split automatically when payload size, request body limits, provider image-count limits, or latency risk make one call unsafe.
-- Server-side rate limits count images, not API requests, so chunking does not multiply the user's effective quota.
+- The accepted runtime implementation processes accepted images with bounded concurrency over the existing per-image scan route. Provider-level multi-image batching and final adaptive payload chunking are not active requirements unless future cost, latency, or provider-limit signals justify reopening the topic.
+- Server-side rate limits count images, not API requests, so implementation details do not multiply the user's effective quota.
 - Fresh-account scan churn is a known non-blocking abuse risk. Keep current auth, per-user/per-area limits, and short-window IP limits for this slice; do not add daily/global IP caps unless observed usage or cost signals justify them. OpenAI/project-level limits remain a last-resort backstop, not the primary product control.
-- Partial chunk successes are kept. The user should see a clear summary of what was saved or suggested and what could not be analyzed.
+- Partial successes are kept. The user should see a clear summary of what was saved or suggested and what could not be analyzed.
 - The UI should show progress for long scans and protect against stale late results when the user cancels, backs out, starts a newer scan, or leaves the surface.
 - Preserve scan-specific error taxonomy. Do not route scan failures through generic cooking or generic AI error copy.
 - User-facing copy should say "per refresh" rather than "per batch."
@@ -75,8 +74,8 @@ This epic owns the implementation follow-through. [EPIC-020](020-workflow-docume
 Future implementation should review these before changing runtime behavior:
 
 - Scan-specific error messaging: preserve text-only rejection, no-detection, rate-limit, auth, service, malformed-image, over-cap, and generic scan failure distinctions.
-- Batch route parser and body limits: raising image count may require multipart/base64 parser changes, explicit decoded-image-size checks, and provider payload guardrails.
-- Image-count rate limiting: limit by accepted image count, not request count, so adaptive chunks cannot bypass daily budgets.
+- Route parser and body limits: raising image count may require multipart/base64 parser changes, explicit decoded-image-size checks, and provider payload guardrails.
+- Image-count rate limiting: limit by accepted image count, not request count, so implementation details cannot bypass daily budgets.
 - Abuse guardrails: current rollout relies on auth, per-user/per-area daily limits, and short-window IP limits. Daily/global IP caps are intentionally deferred until usage, cost, or account-churn signals show they are needed. Provider-side OpenAI limits can cap runaway spend but should not replace app-owned limits and scan-specific error handling.
 - [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) telemetry constraints: scan failure telemetry may include `image_count` only, never raw images, bytes, filenames, EXIF, base64 payloads, or detected labels.
 - Phase 5 post-cook rescan capacity: inherited default is 20 images per refresh and 40 per day per area unless Phase 5 records an exception.
@@ -89,19 +88,18 @@ Future implementation should review these before changing runtime behavior:
 
 ## Cost and latency planning notes
 
-The planning discussion estimated that maxing both Pantry and Kitchen under the accepted daily cap could cost roughly `$0.67-$0.89` per user per day if each photo were processed independently, while batched processing was estimated closer to `$0.18-$0.28` per user per day with a `$0.35` planning guardrail. These are planning estimates, not billing guarantees; implementation should recalculate with the live model, image compression, and observed token usage before rollout.
+The planning discussion estimated that maxing both Pantry and Kitchen under the accepted daily cap could cost roughly `$0.67-$0.89` per user per day if each photo were processed independently. A provider-level batched approach was considered as a possible cost-reduction path, but Wilson later decided it is not needed for this resolved slice. Future implementation should revisit only if real cost, latency, or provider-limit signals justify the added complexity.
 
 Latency is part of product quality for this policy. If the happy path takes long enough that users may disengage, the UI needs visible progress, cancellability, stale-result protection, and partial-success handling rather than a silent spinner.
 
-The first runtime performance patch uses bounded concurrency of 4 images at a time while keeping the current one-image `/api/vision/analyze` request shape. This changes wall-clock latency, not direct provider cost: the app still sends one vision request per accepted image, so the serial and concurrent implementations have the same estimated per-image spend. Using the planning estimate above, one 20-photo refresh remains roughly `$0.17-$0.22`, a maxed Pantry plus Kitchen refresh remains roughly `$0.34-$0.45`, and a maxed 40/day per-area user remains roughly `$0.67-$0.89` per day. Compared with the old 8 Pantry / 6 Kitchen maximum, the higher max-refresh cost comes from allowing 40 images instead of 14, not from concurrency. Provider-level batching remains the later cost-reduction path.
+The runtime performance patch uses bounded concurrency of 4 images at a time while keeping the current one-image `/api/vision/analyze` request shape. This changes wall-clock latency, not direct provider cost: the app still sends one vision request per accepted image, so the serial and concurrent implementations have the same estimated per-image spend. Using the planning estimate above, one 20-photo refresh remains roughly `$0.17-$0.22`, a maxed Pantry plus Kitchen refresh remains roughly `$0.34-$0.45`, and a maxed 40/day per-area user remains roughly `$0.67-$0.89` per day. Compared with the old 8 Pantry / 6 Kitchen maximum, the higher max-refresh cost comes from allowing 40 images instead of 14, not from concurrency.
 
-## Open implementation questions
+## Closed implementation calls
 
-1. What exact image compression, dimension, and byte-size thresholds should trigger adaptive chunking?
-2. Should setup and Settings share one batch endpoint, or should the existing scan endpoint grow a batch-compatible request contract?
-3. What progress states are enough for mobile trust: selected, uploading, analyzing, saving, partial completion, and retry?
-4. What copy should summarize mixed outcomes when some chunks succeed and some fail?
-5. Which Replit validation scenario should prove the 20-image path without requiring a human to upload 40 real photos during every smoke test?
+1. Provider-level multi-image batching and final adaptive payload chunking are no longer active requirements for this epic.
+2. Setup and Settings can keep the existing per-image scan route with bounded concurrency.
+3. Progress, partial-success, and per-refresh copy shipped and were validated as part of PR #53.
+4. Future batching work should start from a new explicit product signal instead of reopening this resolved epic by default.
 
 ## Agent checklist - when to read this epic
 
@@ -111,7 +109,7 @@ Read EPIC-021 before starting any of the following:
 - [ ] Changing Pantry or Kitchen scan caps in returning Settings
 - [ ] Changing "Too many photos" copy or over-cap fail-closed behavior
 - [ ] Changing scan rate-limit behavior for Pantry or Kitchen uploads
-- [ ] Adding or modifying batched scan routes, payload parsing, image compression, or adaptive chunking
+- [ ] Adding or modifying scan routes, payload parsing, image compression, or provider-level batching
 - [ ] Adding post-cook cleanup, rescan, or inventory-refresh capacity
 - [ ] Changing scan progress, partial-success, stale-result, or retry copy
 - [ ] Changing returning-user profile readiness, empty Pantry behavior, Pantry reset behavior, or pantry-dependent recipe generation blockers
@@ -134,8 +132,8 @@ This epic is `Resolved` when all of the following are true:
 3. Server-side enforcement applies 40 scanned images per day per area and counts accepted images rather than requests.
 4. Uploads and camera captures share the same counting semantics.
 5. Over-cap selections fail closed; unsupported files do not count; supported accepted images count even when rejected, failed, duplicate-only, text-only, empty, or no-detection.
-6. Batched scan processing uses one call on the happy path and adaptive chunking when payload/provider limits are at risk.
-7. Partial chunk successes are preserved with clear summary copy.
+6. Scan processing uses the accepted bounded-concurrency per-image route, with provider-level batching intentionally out of scope unless reopened by a future product decision.
+7. Partial successes are preserved with clear summary copy.
 8. Progress and stale-result protection exist on mobile scan surfaces.
 9. Scan-specific error taxonomy and "per refresh" copy are implemented without falling back to generic cooking/AI messaging.
 10. Returning users can intentionally clear Pantry without losing Kitchen equipment, cooking profile, or History, and pantry-based recipe generation blocks with explicit empty-Pantry recovery copy.
@@ -189,4 +187,8 @@ Wilson's Replit follow-up confirmed the main scan behavior was otherwise good, i
 
 ### 2026-05-08 - Runtime slice merged
 
-[PR #53](https://github.com/wmishak404/laica/pull/53) merged the first runtime implementation slice into `main` as `9aa6c1c` after Wilson's final Replit validation at `ef28e59`. The merged slice implements the shared 20-photo per-refresh cap for Pantry/Kitchen setup and Settings, image-count-aware rate limiting, bounded 4-at-a-time scan processing, per-refresh copy, progress/partial-success behavior, unsupported-file counting semantics, empty-Pantry returning-user guardrails, active Settings scan cancellation/stale-result protection, and the Planning choice empty-Pantry status/tap blocker. This epic remains open for provider-level multi-image batching and final adaptive chunk thresholds.
+[PR #53](https://github.com/wmishak404/laica/pull/53) merged the first runtime implementation slice into `main` as `9aa6c1c` after Wilson's final Replit validation at `ef28e59`. The merged slice implements the shared 20-photo per-refresh cap for Pantry/Kitchen setup and Settings, image-count-aware rate limiting, bounded 4-at-a-time scan processing, per-refresh copy, progress/partial-success behavior, unsupported-file counting semantics, empty-Pantry returning-user guardrails, active Settings scan cancellation/stale-result protection, and the Planning choice empty-Pantry status/tap blocker.
+
+### 2026-05-08 - Resolved
+
+Wilson confirmed provider-level multi-image batching and final adaptive chunk thresholds are not needed at this point. The validated bounded-concurrency implementation is accepted as the resolved EPIC-021 runtime policy. Future provider-batching work should require a new explicit product signal rather than keeping this epic open.
