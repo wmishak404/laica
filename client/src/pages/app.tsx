@@ -10,6 +10,7 @@ import CookingHistory from '@/components/cooking/cooking-history';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { ToastAction } from '@/components/ui/toast';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 import { ArrowRight, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
 import {
@@ -55,6 +56,16 @@ const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined)
 // (race-neutral). A fresh one is picked each time the planning-choice
 // screen is shown so the card alternates representation.
 const CHEF_EMOJIS = ['👨‍🍳', '👩‍🍳'];
+export const EMPTY_PANTRY_RECIPE_COPY = 'Add or scan pantry items before I can suggest recipes.';
+export const EMPTY_PANTRY_CHEF_IT_UP_COPY = 'Your pantry is empty. Add or scan pantry items before Chef It Up can suggest recipes.';
+
+export function getPlanningPantryStatusCopy(pantryItemCount: number) {
+  if (pantryItemCount <= 0) {
+    return EMPTY_PANTRY_CHEF_IT_UP_COPY;
+  }
+
+  return `Right now I see ${pantryItemCount} pantry item${pantryItemCount === 1 ? '' : 's'} we can work with.`;
+}
 
 export default function MobileApp() {
   const { user } = useAuth();
@@ -89,6 +100,9 @@ export default function MobileApp() {
     [showPlanningChoice]
   );
   const hasExistingProfile = hasAnySavedProfileSignal(userProfile);
+  const pantryItemCount = userProfile.pantryIngredients.length;
+  const hasPantryItems = pantryItemCount > 0;
+  const planningPantryStatusCopy = getPlanningPantryStatusCopy(pantryItemCount);
   const feedbackCurrentPage = useMemo(() => {
     if (currentPhase === 'settings') return `/app-settings-${settingsSection}`;
     if (currentPhase === 'planning') return showPlanningChoice ? '/app-planning-choice' : '/app-planning-manual';
@@ -327,6 +341,28 @@ export default function MobileApp() {
     setIsMenuOpen(false);
   };
 
+  const showEmptyPantryToast = () => {
+    toast({
+      title: 'Your pantry is empty',
+      description: EMPTY_PANTRY_RECIPE_COPY,
+      action: (
+        <ToastAction altText="Open Pantry Settings" onClick={() => openSettings('pantry')}>
+          Add pantry
+        </ToastAction>
+      ),
+      variant: 'destructive',
+    });
+  };
+
+  const handleChefItUpSelect = () => {
+    if (!hasPantryItems) {
+      showEmptyPantryToast();
+      return;
+    }
+
+    setShowPlanningChoice(false);
+  };
+
   const renderAppMenu = (
     trigger: ReactNode,
     options: { allowSettings?: boolean; allowHistory?: boolean } = {},
@@ -438,6 +474,13 @@ export default function MobileApp() {
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
+          <p
+            className={`planning-copy mt-2 max-w-sm text-sm font-bold leading-relaxed ${
+              hasPantryItems ? '' : 'text-[hsl(var(--planning-coral-strong)/0.9)]'
+            }`}
+          >
+            {planningPantryStatusCopy}
+          </p>
         </div>
       </div>
 
@@ -446,7 +489,7 @@ export default function MobileApp() {
         <button
           type="button"
           className="planning-choice-card planning-choice-primary"
-          onClick={() => setShowPlanningChoice(false)}
+          onClick={handleChefItUpSelect}
         >
           <span className="planning-chef-mark" aria-hidden="true">{chefEmoji}</span>
           <span className="min-w-0 flex-1 text-left">

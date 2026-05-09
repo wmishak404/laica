@@ -66,6 +66,8 @@ This epic owns the implementation follow-through. [EPIC-020](020-workflow-docume
 - User-facing copy should say "per refresh" rather than "per batch."
 - Empty Pantry is a valid returning-user state. Clearing Pantry in Settings should not reset Kitchen, cooking profile, or History, and should not send the user back through first-time setup.
 - Pantry-based recipe generation should block when Pantry is empty with: "Your pantry is empty. Add or scan pantry items before I can suggest recipes."
+- Chef It Up should surface zero-Pantry status on the Planning choice screen and block immediately on the Chef It Up card tap; it should not wait until after cuisine or staple selection.
+- The Planning choice screen should show a quiet Pantry count status line when Pantry has items.
 - Settings inventory scans may continue across Settings sections, but leaving Settings should cancel/abort the active scan and ignore stale late results. Inventory save, reset, manual-entry, and item-removal edits should be locked while a scan is active.
 
 ## System touchpoints
@@ -180,3 +182,7 @@ Wilson raised the corner case where someone repeatedly signs in with fresh accou
 Wilson reproduced a returning-user corner case by clearing Pantry in Settings, starting a Pantry scan, navigating to Kitchen, and then pressing Back while the scan was still running. The product decision is that empty Pantry is a valid returning-user inventory state, not a first-time setup trigger. Clearing Pantry must not wipe Kitchen equipment, cooking profile, or History. If the user tries to generate pantry-based recipes with zero pantry items, Laica should block with the explicit empty-Pantry message and a path to Settings > Pantry.
 
 The same review accepted Settings scan lifecycle guardrails: scans can continue when switching Settings sections, but leaving Settings should cancel/abort active scan work and stale late results should be ignored. Inventory save, reset, manual-entry, and item-removal actions should be locked while a scan is active. This corner case also feeds [EPIC-020](020-workflow-documentation-audit.md)'s future testing methodology: feature acceptance should include destructive reset-to-empty states, navigation during in-flight async work, and persistence-boundary checks across related domains.
+
+### 2026-05-08 - Planning choice Pantry status line
+
+Wilson's Replit follow-up confirmed the main scan behavior was otherwise good, including Save/Reset controls being non-pressable during active scans, but found that Chef It Up's empty-Pantry blocker appeared too late after cuisine/staple choices. The accepted adjustment is to show a quiet Pantry status line under "What are we cooking today?", morphing between empty-Pantry recovery copy and the current Pantry item count, and to block Chef It Up immediately on card tap when Pantry is empty. Slop Bowl remains accessible because it has its own pantry confirmation/manual-add flow.

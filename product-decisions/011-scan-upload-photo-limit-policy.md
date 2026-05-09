@@ -69,6 +69,8 @@ These are directional examples, not final string locks.
 - An empty Pantry is a valid returning-user inventory state. Profile/onboarding readiness depends on cooking profile completion, not on Pantry having at least one saved item.
 - Clearing Pantry in Settings should clear only Pantry. It must not reset Kitchen equipment, cooking profile fields, or cooking History.
 - Pantry-based recipe generation is blocked when Pantry is empty. Use the direct empty-pantry message: "Your pantry is empty. Add or scan pantry items before I can suggest recipes." Include a path back to Settings > Pantry where the surface supports it.
+- Chef It Up should show the zero-Pantry state on the Planning choice screen and block immediately on the Chef It Up card tap. Do not wait until after time, cuisine, or staple selection, because that makes the flow look like it can cook from newly added staples alone.
+- The Planning choice screen should also show a quiet pantry status line when Pantry has items, e.g. "Right now I see 13 pantry items we can work with."
 - Do not silently generate pantry-based recipes with zero pantry items, and do not send returning users back through first-time setup just because they cleared Pantry.
 - Settings scans may continue while the user switches between Settings sections, but leaving Settings should cancel or abort the active scan and ignore stale late results.
 - Inventory save, reset, manual-entry, and remove-item actions should be blocked while an inventory scan is active so late scan results cannot race against destructive edits.
