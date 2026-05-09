@@ -153,6 +153,33 @@ describe("Phase 0 protected routes", () => {
     }
   });
 
+  it("blocks pantry recipe generation when the pantry ingredient list is empty", async () => {
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/pantry`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({
+          preferences: "quick dinner",
+          ingredients: [],
+        }),
+      });
+
+      expect(response.status).toBe(422);
+      await expect(response.json()).resolves.toEqual({
+        code: "EMPTY_PANTRY",
+        message: "Your pantry is empty. Add or scan pantry items before I can suggest recipes.",
+      });
+      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
+    } finally {
+      await closeServer(server);
+    }
+  });
+
   it("returns a typed 400 when recipe suggestion preferences exceed the route contract", async () => {
     const { server, url } = await startTestServer();
 

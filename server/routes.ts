@@ -19,9 +19,7 @@ import {
   speechIpHourLimit,
   speechUserDayLimit,
   speechUserHourLimit,
-  visionIpShortLimit,
-  visionUserDayLimit,
-  visionUserShortLimit,
+  consumeVisionImageRateLimits,
   voiceIpHourLimit,
   voiceUserDayLimit,
   voiceUserHourLimit,
@@ -250,6 +248,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const { ingredients, preferences, timeAvailable } = schema.parse(req.body);
+      const distinctIngredients = Array.from(
+        new Set(ingredients.map((ingredient) => ingredient.trim().toLowerCase()).filter(Boolean))
+      );
+      if (distinctIngredients.length === 0) {
+        return res.status(422).json({
+          code: "EMPTY_PANTRY",
+          message: "Your pantry is empty. Add or scan pantry items before I can suggest recipes.",
+        });
+      }
+
       // Convert timeAvailable to a preference string if provided
       const enhancedPreferences = preferences 
         ? (timeAvailable ? `${preferences}, ready in ${timeAvailable}` : preferences)
@@ -412,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Image analysis endpoint with HEIC conversion support
-  app.post('/api/vision/analyze', isAuthenticated, visionIpShortLimit, visionUserShortLimit, visionUserDayLimit, visionJsonParser, async (req, res) => {
+  app.post('/api/vision/analyze', isAuthenticated, visionJsonParser, async (req, res) => {
     try {
       const schema = z.object({
         image: z.string().min(1),
@@ -430,6 +438,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (imageBuffer.length > MAX_IMAGE_BYTES) {
         return tooLargeImageResponse(res);
+      }
+
+      if (!consumeVisionImageRateLimits(req, res, 1)) {
+        return;
       }
       
       // Convert HEIC to JPEG if needed

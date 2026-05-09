@@ -19,6 +19,7 @@ import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Trash2, Settings, Package, User, Clock, MoreVertical, History, Check, ImagePlus, Loader2, X } from 'lucide-react';
+import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
 import { mergeUniqueEntries, mergeUniqueEntriesWithMetadata, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
@@ -30,6 +31,12 @@ import {
 } from '@/lib/visionResult';
 import type { CookingSession } from '@shared/schema';
 import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
+import {
+  SCAN_ANALYSIS_CONCURRENCY,
+  SCAN_UPLOAD_LIMITS,
+  scanAreaLabel,
+  type InventoryScanType,
+} from '@shared/scan-policy';
 
 interface UserProfile {
   cookingSkill: string;
@@ -47,6 +54,16 @@ interface UserSettingsProps {
 }
 
 export type SettingsSection = 'hub' | 'pantry' | 'kitchen' | 'profile';
+type ScanProgress = { completed: number; total: number } | null;
+
+function isAbortError(error: unknown) {
+  if (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') {
+    return true;
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  return /abort|cancelled|canceled/i.test(message);
+}
 
 function HistoryTab() {
   const { toast } = useToast();
@@ -397,7 +414,86 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const [manualOpen, setManualOpen] = useState<Record<'pantry' | 'kitchen', boolean>>({ pantry: false, kitchen: false });
   const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
+  const [scanProgress, setScanProgress] = useState<Record<InventoryScanType, ScanProgress>>({ pantry: null, kitchen: null });
+  const scanRunIds = useRef<Record<InventoryScanType, number>>({ pantry: 0, kitchen: 0 });
+  const scanControllers = useRef<Record<InventoryScanType, AbortController | null>>({ pantry: null, kitchen: null });
   const { toast } = useToast();
+
+  useEffect(() => () => {
+    scanControllers.current.pantry?.abort();
+    scanControllers.current.kitchen?.abort();
+    scanControllers.current.pantry = null;
+    scanControllers.current.kitchen = null;
+    scanRunIds.current.pantry += 1;
+    scanRunIds.current.kitchen += 1;
+  }, []);
+
+  const setInventoryAnalyzing = (type: InventoryScanType, value: boolean) => {
+    if (type === 'pantry') {
+      setIsAnalyzingPantry(value);
+    } else {
+      setIsAnalyzingEquipment(value);
+    }
+  };
+
+  const startInventoryScan = (type: InventoryScanType, total = 1) => {
+    scanControllers.current[type]?.abort();
+    const controller = new AbortController();
+    const id = scanRunIds.current[type] + 1;
+    scanRunIds.current[type] = id;
+    scanControllers.current[type] = controller;
+    setInventoryAnalyzing(type, true);
+    setScanProgress(prev => ({
+      ...prev,
+      [type]: total > 1 ? { completed: 0, total } : null,
+    }));
+
+    return { id, controller };
+  };
+
+  const isActiveInventoryScan = (type: InventoryScanType, id: number, controller: AbortController) =>
+    scanRunIds.current[type] === id && scanControllers.current[type] === controller && !controller.signal.aborted;
+
+  const finishInventoryScan = (type: InventoryScanType, id: number, controller: AbortController) => {
+    if (scanRunIds.current[type] !== id || scanControllers.current[type] !== controller) {
+      return;
+    }
+
+    scanControllers.current[type] = null;
+    setInventoryAnalyzing(type, false);
+    setScanProgress(prev => ({ ...prev, [type]: null }));
+  };
+
+  const cancelInventoryScan = (type: InventoryScanType) => {
+    scanControllers.current[type]?.abort();
+    scanControllers.current[type] = null;
+    scanRunIds.current[type] += 1;
+    setInventoryAnalyzing(type, false);
+    setScanProgress(prev => ({ ...prev, [type]: null }));
+  };
+
+  const hasActiveScan = isAnalyzingPantry || isAnalyzingEquipment;
+
+  const showScanBlockedToast = (action: string) => {
+    toast({
+      title: "Scan in progress",
+      description: `Wait for the active scan to finish or leave Settings to cancel it before ${action}.`,
+    });
+  };
+
+  const handleBack = () => {
+    if (hasActiveScan) {
+      const shouldLeave = window.confirm('Leave Settings and cancel the active scan? Items found so far may not be saved.');
+      if (!shouldLeave) {
+        return;
+      }
+
+      cancelInventoryScan('pantry');
+      cancelInventoryScan('kitchen');
+    }
+
+    onBackToPlanning();
+  };
 
   // Handler functions matching the initial profiling
   const handleDietaryChange = (restriction: string) => {
@@ -419,6 +515,11 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const updateProfileMutation = useUpdateUserProfile();
 
   const handleResetPantry = async () => {
+    if (hasActiveScan) {
+      showScanBlockedToast('resetting inventory');
+      return;
+    }
+
     if (window.confirm('Are you sure you want to completely reset your pantry? This will remove all current ingredients and cannot be undone.')) {
       try {
         await resetPantryMutation.mutateAsync();
@@ -441,6 +542,11 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   };
 
   const handleResetEquipment = async () => {
+    if (hasActiveScan) {
+      showScanBlockedToast('resetting inventory');
+      return;
+    }
+
     if (window.confirm('Are you sure you want to reset your equipment list? This will remove all current equipment.')) {
       try {
         await updateProfileMutation.mutateAsync({ 
@@ -465,6 +571,11 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   };
 
   const handleSavePantry = async () => {
+    if (hasActiveScan) {
+      showScanBlockedToast('saving inventory changes');
+      return;
+    }
+
     try {
       // Save only pantry ingredients without navigating away
       await updateProfileMutation.mutateAsync({ 
@@ -484,6 +595,11 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   };
 
   const handleSaveEquipment = async () => {
+    if (hasActiveScan) {
+      showScanBlockedToast('saving inventory changes');
+      return;
+    }
+
     try {
       // Save only kitchen equipment without navigating away
       await updateProfileMutation.mutateAsync({ 
@@ -523,11 +639,37 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   };
 
   const handlePantryImageCapture = async (imageData: string) => {
+    if (hasActiveScan) {
+      showScanBlockedToast('starting another scan');
+      return;
+    }
+
     await handlePantryImageAnalysis(imageData);
   };
 
   const handleEquipmentImageCapture = async (imageData: string) => {
+    if (hasActiveScan) {
+      showScanBlockedToast('starting another scan');
+      return;
+    }
+
     await handleEquipmentImageAnalysis(imageData);
+  };
+
+  const readImageAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (typeof result !== 'string') {
+          reject(new Error('Failed to read file'));
+          return;
+        }
+        resolve(result.includes(',') ? result.split(',')[1] : result);
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
   };
 
   const compressImage = (file: File): Promise<string> => {
@@ -604,12 +746,13 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       : '';
 
   const handlePantryImageAnalysis = async (imageData: string) => {
-    setIsAnalyzingPantry(true);
+    const scan = startInventoryScan('pantry');
     try {
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      const result = await analyzeImage(imageData, isHEIC, { scanType: 'pantry' }) as VisionAnalysisResult;
+      const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal, scanType: 'pantry' }) as VisionAnalysisResult;
+      if (!isActiveInventoryScan('pantry', scan.id, scan.controller)) return;
       console.log('Pantry image analysis result:', result);
 
       if (isRejectedVisionResult(result)) {
@@ -644,6 +787,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         });
       }
     } catch (error) {
+      if (isAbortError(error) || !isActiveInventoryScan('pantry', scan.id, scan.controller)) return;
+
       console.error('Error analyzing pantry image:', error);
       toast({
         title: "Analysis failed",
@@ -651,17 +796,18 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         variant: "destructive"
       });
     } finally {
-      setIsAnalyzingPantry(false);
+      finishInventoryScan('pantry', scan.id, scan.controller);
     }
   };
 
   const handleEquipmentImageAnalysis = async (imageData: string) => {
-    setIsAnalyzingEquipment(true);
+    const scan = startInventoryScan('kitchen');
     try {
       // Detect if image is HEIC format
       const isHEIC = imageData.includes('data:image/heic') || imageData.includes('data:image/heif');
       
-      const result = await analyzeImage(imageData, isHEIC, { scanType: 'kitchen' }) as VisionAnalysisResult;
+      const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal, scanType: 'kitchen' }) as VisionAnalysisResult;
+      if (!isActiveInventoryScan('kitchen', scan.id, scan.controller)) return;
       console.log('Equipment image analysis result:', result);
 
       if (isRejectedVisionResult(result)) {
@@ -696,6 +842,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         });
       }
     } catch (error) {
+      if (isAbortError(error) || !isActiveInventoryScan('kitchen', scan.id, scan.controller)) return;
+
       console.error('Error analyzing kitchen image:', error);
       toast({
         title: "Analysis failed",
@@ -703,25 +851,21 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         variant: "destructive"
       });
     } finally {
-      setIsAnalyzingEquipment(false);
+      finishInventoryScan('kitchen', scan.id, scan.controller);
     }
   };
 
   const handleMultipleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'pantry' | 'kitchen') => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    const maxFiles = type === 'pantry' ? 8 : 6;
-    const selectedFiles = Array.from(files);
-
-    if (selectedFiles.length > maxFiles) {
-      toast({
-        title: "Too many photos",
-        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} scan accepts up to ${maxFiles} photos per batch. Select ${maxFiles} or fewer and try again.`,
-        variant: "destructive"
-      });
+    if (hasActiveScan) {
+      showScanBlockedToast('starting another scan');
       event.target.value = '';
       return;
     }
+
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const maxFiles = SCAN_UPLOAD_LIMITS[type];
+    const selectedFiles = Array.from(files);
 
     const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const processedFiles = selectedFiles.filter(file => {
@@ -730,6 +874,16 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
       return supportedTypes.includes(fileType) || isHEIC;
     });
+
+    if (processedFiles.length > maxFiles) {
+      toast({
+        title: "Too many photos",
+        description: `${scanAreaLabel(type)} scan accepts up to ${maxFiles} photos per refresh. Select ${maxFiles} or fewer supported photos and try again.`,
+        variant: "destructive"
+      });
+      event.target.value = '';
+      return;
+    }
 
     if (processedFiles.length === 0) {
       toast({
@@ -744,60 +898,47 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     if (processedFiles.length !== selectedFiles.length) {
       toast({
         title: "Some files skipped",
-        description: `${type === 'pantry' ? 'Pantry' : 'Kitchen'} accepts up to ${maxFiles} photos per batch. Processing ${processedFiles.length} image(s).`
+        description: `Unsupported files do not count toward the ${maxFiles}-photo ${type} refresh limit. Processing ${processedFiles.length} supported photo${processedFiles.length === 1 ? '' : 's'}.`
       });
     }
 
-    // Set analyzing state
-    if (type === 'pantry') {
-      setIsAnalyzingPantry(true);
-    } else {
-      setIsAnalyzingEquipment(true);
-    }
+    const scan = startInventoryScan(type, processedFiles.length);
 
     // Collect all results first, then update state once
     let allNewIngredients: string[] = [];
     let allNewEquipment: string[] = [];
     let rejectedCount = 0;
+    let failedCount = 0;
     let lastRejectedResult: VisionAnalysisResult | null = null;
+    let lastError: unknown = null;
+    let completedCount = 0;
 
     try {
-      // Process files sequentially to avoid overwhelming the API
-      for (let i = 0; i < processedFiles.length; i++) {
-        const file = processedFiles[i];
-        const fileType = file.type.toLowerCase();
+      await processWithBoundedConcurrency(processedFiles, SCAN_ANALYSIS_CONCURRENCY, async (file, i) => {
+        if (!isActiveInventoryScan(type, scan.id, scan.controller)) return;
+
         const fileName = file.name.toLowerCase();
         const isHEIC = fileName.endsWith('.heic') || fileName.endsWith('.heif');
 
         try {
           let result: VisionAnalysisResult;
           if (isHEIC) {
-            // Handle HEIC files
-            const reader = new FileReader();
-            result = await new Promise<VisionAnalysisResult>((resolve, reject) => {
-              reader.onload = async (e) => {
-                try {
-                  const base64 = e.target?.result as string;
-                  const base64Data = base64.split(',')[1];
-                  const analysisResult = await analyzeImage(base64Data, true, { scanType: type });
-                  resolve(analysisResult);
-                } catch (error) {
-                  reject(error);
-                }
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(file);
-            });
+            const base64Data = await readImageAsBase64(file);
+            if (!isActiveInventoryScan(type, scan.id, scan.controller)) return;
+            result = await analyzeImage(base64Data, true, { signal: scan.controller.signal, scanType: type }) as VisionAnalysisResult;
           } else {
             // Handle regular image files
             const compressedBase64 = await compressImage(file);
-            result = await analyzeImage(compressedBase64, false, { scanType: type }) as VisionAnalysisResult;
+            if (!isActiveInventoryScan(type, scan.id, scan.controller)) return;
+            result = await analyzeImage(compressedBase64, false, { signal: scan.controller.signal, scanType: type }) as VisionAnalysisResult;
           }
+
+          if (!isActiveInventoryScan(type, scan.id, scan.controller)) return;
 
           if (isRejectedVisionResult(result)) {
             rejectedCount += 1;
             lastRejectedResult = result;
-            continue;
+            return;
           }
 
           // Extract ingredients or equipment from this image
@@ -822,16 +963,26 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
               console.log('Added equipment:', cleanEquipment);
             }
           }
-          
-          // Small delay between processing images to avoid overwhelming the API
-          if (i < processedFiles.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
         } catch (error) {
+          if (isAbortError(error) || !isActiveInventoryScan(type, scan.id, scan.controller)) return;
+
           console.error(`Error processing image ${i + 1}:`, error);
-          // Continue processing other images even if one fails
+          failedCount += 1;
+          lastError = error;
+        } finally {
+          if (isActiveInventoryScan(type, scan.id, scan.controller)) {
+            completedCount += 1;
+            setScanProgress(prev => ({
+              ...prev,
+              [type]: { completed: completedCount, total: processedFiles.length },
+            }));
+          }
         }
-      }
+      }, {
+        shouldContinue: () => isActiveInventoryScan(type, scan.id, scan.controller),
+      });
+
+      if (!isActiveInventoryScan(type, scan.id, scan.controller)) return;
 
       // Update state once with all accumulated results
       if (type === 'pantry' && allNewIngredients.length > 0) {
@@ -848,6 +999,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
             title: `Scan complete!`,
             description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
               rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }${
+              failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
             }`
           });
         }
@@ -865,11 +1018,20 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
             title: `Scan complete!`,
             description: `Found ${mergeResult.added.length} new equipment item${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
               rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
+            }${
+              failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
             }`
           });
         }
       } else if (rejectedCount > 0 && lastRejectedResult) {
         showRejectedScanFeedback(type, lastRejectedResult);
+      } else if (failedCount > 0) {
+        console.error('Every selected scan photo failed:', lastError);
+        toast({
+          title: "Photos were not scanned",
+          description: "I couldn't finish that refresh. Try again in a moment, upload clearer photos, or enter items manually.",
+          variant: "destructive"
+        });
       } else {
         toast({
           title: "No items detected",
@@ -878,6 +1040,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         });
       }
     } catch (error) {
+      if (isAbortError(error) || !isActiveInventoryScan(type, scan.id, scan.controller)) return;
+
       console.error('Error processing multiple images:', error);
       toast({
         title: "Processing error",
@@ -885,18 +1049,18 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         variant: "destructive"
       });
     } finally {
-      // Reset analyzing state
-      if (type === 'pantry') {
-        setIsAnalyzingPantry(false);
-      } else {
-        setIsAnalyzingEquipment(false);
-      }
+      finishInventoryScan(type, scan.id, scan.controller);
     }
     
     event.target.value = '';
   };
 
   const handleManualEntry = (type: 'pantry' | 'kitchen') => {
+    if (hasActiveScan) {
+      showScanBlockedToast('editing inventory');
+      return;
+    }
+
     const value = manualEntry[type];
     if (!value.trim()) return;
 
@@ -938,6 +1102,33 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       tone: 'profile',
     },
   ];
+
+  const activeScanRows = [
+    { id: 'pantry' as const, label: 'Pantry', active: isAnalyzingPantry, progress: scanProgress.pantry },
+    { id: 'kitchen' as const, label: 'Kitchen', active: isAnalyzingEquipment, progress: scanProgress.kitchen },
+  ].filter((row) => row.active);
+
+  const renderActiveScanNotice = () => {
+    if (activeScanRows.length === 0) return null;
+
+    return (
+      <div className="setup-surface flex items-center gap-3 p-4 text-primary" role="status" aria-live="polite">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--setup-coral-soft)/0.9)]">
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-extrabold text-[hsl(var(--setup-ink))]">Inventory scan still running</p>
+          <p className="setup-copy text-xs">
+            {activeScanRows.map((row) =>
+              row.progress
+                ? `${row.label}: ${row.progress.completed} of ${row.progress.total} photos`
+                : `${row.label}: scanning photo`
+            ).join(' | ')}
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   const renderSectionNav = () => (
     <div className="returning-section-nav" aria-label="Settings sections">
@@ -999,6 +1190,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     const isPantry = type === 'pantry';
     const items = isPantry ? profile.pantryIngredients : profile.kitchenEquipment;
     const isAnalyzing = isPantry ? isAnalyzingPantry : isAnalyzingEquipment;
+    const isInventoryLocked = hasActiveScan;
     const uploadId = isPantry ? 'pantry-upload' : 'equipment-upload';
     const manualId = isPantry ? 'manual-ingredients' : 'manual-equipment';
     const title = isPantry ? 'Pantry' : 'Kitchen';
@@ -1008,6 +1200,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     const placeholder = isPantry ? 'rice, eggs, spinach' : 'oven, blender, sheet pan';
     const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
     const handleReset = isPantry ? handleResetPantry : handleResetEquipment;
+    const progress = scanProgress[type];
 
     return (
       <div className={`returning-setup-anchor space-y-4 ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}>
@@ -1034,7 +1227,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                 ? 'Open cabinets, use good light, and scan one area at a time.'
                 : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
               showUploadButton={false}
-              disabled={isAnalyzing}
+              disabled={isInventoryLocked}
               onImageCapture={isPantry ? handlePantryImageCapture : handleEquipmentImageCapture}
               onError={(error) => {
                 toast({
@@ -1052,6 +1245,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                 accept="image/*,.heic,.heif"
                 multiple
                 onChange={(e) => handleMultipleImageUpload(e, type)}
+                disabled={isInventoryLocked}
                 className="hidden"
               />
               <div className="grid gap-3">
@@ -1060,7 +1254,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                   className="setup-secondary-button h-14 w-full justify-start px-4"
                   variant="ghost"
                   onClick={() => document.getElementById(uploadId)?.click()}
-                  disabled={isAnalyzing}
+                  disabled={isInventoryLocked}
                 >
                   <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.85)] text-primary ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
                     <ImagePlus className="h-4 w-4" />
@@ -1078,7 +1272,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                   aria-expanded={manualOpen[type]}
                   aria-pressed={manualOpen[type]}
                   data-active={manualOpen[type] ? 'true' : undefined}
-                  disabled={isAnalyzing}
+                  disabled={isInventoryLocked}
                 >
                   <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))] ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
                     <Package className="h-4 w-4" />
@@ -1110,6 +1304,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                       onChange={(event) => setManualEntry(prev => ({ ...prev, [type]: event.target.value }))}
                       placeholder={placeholder}
                       className={`h-12 rounded-2xl border-primary/20 bg-white/75 text-base font-bold placeholder:text-muted-foreground ${!isPantry ? 'setup-kitchen-input' : ''}`}
+                      disabled={isInventoryLocked}
                       onKeyDown={(event) => {
                         if (event.key === 'Enter') {
                           event.preventDefault();
@@ -1123,6 +1318,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                       variant="ghost"
                       className={`setup-primary-button h-12 w-full ${!isPantry ? 'setup-kitchen-primary-button' : ''}`}
                       onClick={() => handleManualEntry(type)}
+                      disabled={isInventoryLocked}
                     >
                       Save {isPantry ? 'ingredients' : 'equipment'}
                     </Button>
@@ -1137,7 +1333,9 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                   <Loader2 className="h-5 w-5 animate-spin" />
                 </div>
                 <p className="mt-2 text-sm font-extrabold">
-                  {isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
+                  {progress
+                    ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'kitchen'} photos...`
+                    : isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
                 </p>
                 <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
               </div>
@@ -1156,6 +1354,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                     size="sm"
                     onClick={handleReset}
                     className="setup-ghost-button text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    disabled={isInventoryLocked}
                   >
                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                     Reset
@@ -1181,6 +1380,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                             ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
                             : 'setup-kitchen-chip-remove'
                         }`}
+                        disabled={isInventoryLocked}
                         onClick={() => {
                           setProfile(prev => ({
                             ...prev,
@@ -1201,7 +1401,12 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
             <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => setActiveSection('hub')}>
               Settings
             </Button>
-            <Button variant="ghost" className={`setup-primary-button h-12 ${isPantry ? '' : 'setup-kitchen-primary-button'}`} onClick={handleSave}>
+            <Button
+              variant="ghost"
+              className={`setup-primary-button h-12 ${isPantry ? '' : 'setup-kitchen-primary-button'}`}
+              onClick={handleSave}
+              disabled={isInventoryLocked}
+            >
               {isPantry ? 'Save pantry' : 'Save kitchen'}
             </Button>
           </div>
@@ -1322,6 +1527,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     return renderHub();
   };
 
+  const showCrossSectionScanNotice = activeScanRows.some((row) => activeSection !== row.id);
+
   return (
     <main className="returning-ui min-h-screen pb-24">
       <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5">
@@ -1330,12 +1537,18 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
             type="button"
             variant="ghost"
             className="returning-back-button"
-            onClick={onBackToPlanning}
+            onClick={handleBack}
           >
             Back
           </Button>
           <span className="returning-mini-chip">Settings</span>
         </div>
+
+        {showCrossSectionScanNotice && (
+          <div className="mb-4">
+            {renderActiveScanNotice()}
+          </div>
+        )}
 
         {renderActiveSection()}
       </div>

@@ -77,7 +77,7 @@ Use this map as the starting point for the future audit. It records what we alre
 - Prefer central workflow docs for repeatable operating procedures, and use top-level PDs for stable decisions behind those procedures.
 - Preserve feature-specific criteria in feature phase records; preserve current validation status in INITs; preserve run evidence in handoffs and PR descriptions.
 - Keep this broader workflow audit separate from Phase 3.2 implementation so the feature can finish validation and merge.
-- Let this epic own the future Feature Impact Review/system-touchpoint checklist rather than creating another process epic. [EPIC-021](021-scan-upload-photo-limit-policy.md)'s scan-capacity review is the first concrete example: error messaging, parser/body limits, rate limits, telemetry constraints, post-cook capacity, Settings tests, and related epics all needed review before policy was locked.
+- Let this epic own the future Feature Impact Review/system-touchpoint checklist rather than creating another process epic. [EPIC-021](021-scan-upload-photo-limit-policy.md)'s scan-capacity review is the first concrete example: error messaging, parser/body limits, rate limits, telemetry constraints, post-cook capacity, Settings tests, empty valid states, in-flight async navigation, persistence boundaries, and related epics all needed review before policy was locked.
 
 ## Open questions
 
@@ -139,3 +139,9 @@ Wilson and Codex audited whether EPIC-005 was redundant while preparing to close
 Wilson accepted that the scan upload photo-limit discussion exposed a repeatable workflow need: before a feature enhancement locks direction, agents should review the upper-level system touchpoints it may affect. For the scan-limit policy, that meant scan-specific error messaging, route parser/body limits, image-count rate limits, PD-010 telemetry constraints, Phase 5 rescan capacity, Settings test gaps, and EPIC-007/EPIC-014 interactions.
 
 Do not create a separate process epic for that checklist. This workflow belongs under EPIC-020's future central testing/acceptance artifact, likely `docs/workflows/testing-and-acceptance.md`, and EPIC-005 should stay open until that artifact exists, active references are repointed, `epics/README.md` and `epics/registry.md` are updated, and a closeout handoff records the final workflow map.
+
+## 2026-05-08 - Corner-case testing methodology signal from EPIC-021
+
+Wilson's returning-user empty-Pantry scan test added a concrete methodology requirement for the future testing/acceptance workflow: acceptance should cover valid empty states and cross-surface persistence, not only happy-path completion. The tested pattern was: clear a domain to zero items, start in-flight async work, navigate across sibling sections, leave/back out while work is active, and confirm unrelated saved domains still persist.
+
+Fold this into the future Feature Impact Review/system-touchpoint checklist. For any enhancement that changes workflows, agents should ask whether the feature has destructive reset-to-empty states, long-running async work, navigation/back/cancel behavior, stale-result risk, and persistence boundaries across adjacent domains such as Profile, Pantry, Kitchen, and History.

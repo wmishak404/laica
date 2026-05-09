@@ -10,6 +10,7 @@ import CookingHistory from '@/components/cooking/cooking-history';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { ToastAction } from '@/components/ui/toast';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
 import { ArrowRight, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
 import {
@@ -19,6 +20,7 @@ import {
   type PlanningTimeValue,
 } from '@shared/planning';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
+import { hasAnySavedProfileSignal, hasCompletedCookingProfile } from '@/lib/profileReadiness';
 import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
@@ -47,12 +49,6 @@ interface RecipeRecommendation {
 
 type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'history' | 'slop-bowl';
 
-const hasPlanningProfile = (profile: UserProfile) =>
-  Boolean(
-    profile.cookingSkill &&
-    profile.pantryIngredients.length > 0
-  );
-
 const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined) =>
   (restrictions || []).map((restriction) => restriction === 'None' ? 'No restrictions' : restriction);
 
@@ -60,6 +56,16 @@ const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined)
 // (race-neutral). A fresh one is picked each time the planning-choice
 // screen is shown so the card alternates representation.
 const CHEF_EMOJIS = ['👨‍🍳', '👩‍🍳'];
+export const EMPTY_PANTRY_RECIPE_COPY = 'Add or scan pantry items before I can suggest recipes.';
+export const EMPTY_PANTRY_CHEF_IT_UP_COPY = 'Your pantry is empty. Please add or scan more items.';
+
+export function getPlanningPantryStatusCopy(pantryItemCount: number) {
+  if (pantryItemCount <= 0) {
+    return EMPTY_PANTRY_CHEF_IT_UP_COPY;
+  }
+
+  return `Right now I see ${pantryItemCount} pantry item${pantryItemCount === 1 ? '' : 's'} we can work with.`;
+}
 
 export default function MobileApp() {
   const { user } = useAuth();
@@ -93,7 +99,10 @@ export default function MobileApp() {
     () => CHEF_EMOJIS[Math.floor(Math.random() * CHEF_EMOJIS.length)],
     [showPlanningChoice]
   );
-  const hasExistingProfile = hasPlanningProfile(userProfile);
+  const hasExistingProfile = hasAnySavedProfileSignal(userProfile);
+  const pantryItemCount = userProfile.pantryIngredients.length;
+  const hasPantryItems = pantryItemCount > 0;
+  const planningPantryStatusCopy = getPlanningPantryStatusCopy(pantryItemCount);
   const feedbackCurrentPage = useMemo(() => {
     if (currentPhase === 'settings') return `/app-settings-${settingsSection}`;
     if (currentPhase === 'planning') return showPlanningChoice ? '/app-planning-choice' : '/app-planning-manual';
@@ -132,7 +141,7 @@ export default function MobileApp() {
         setHasLoadedFromDb(true);
 
         // Check if profile is complete
-        const isProfileComplete = hasPlanningProfile(profileFromDb);
+        const isProfileComplete = hasCompletedCookingProfile(profileFromDb);
 
         if (isProfileComplete) {
           setShowPlanningChoice(true);
@@ -251,8 +260,7 @@ export default function MobileApp() {
 
   const handleBackToPlanning = () => {
     // Check if profile is complete before allowing access to planning
-    const isProfileComplete = userProfile.cookingSkill &&
-      userProfile.pantryIngredients.length > 0;
+    const isProfileComplete = hasCompletedCookingProfile(userProfile);
 
     if (isProfileComplete) {
       setShowPlanningChoice(true);
@@ -268,8 +276,7 @@ export default function MobileApp() {
     saveProfile(updatedProfile);
     
     // Check if profile is complete before going to planning
-    const isProfileComplete = updatedProfile.cookingSkill && 
-      updatedProfile.pantryIngredients.length > 0;
+    const isProfileComplete = hasCompletedCookingProfile(updatedProfile);
     
     if (isProfileComplete) {
       // Show confirmation toast with link to settings
@@ -332,6 +339,28 @@ export default function MobileApp() {
   const openHistory = () => {
     setCurrentPhase('history');
     setIsMenuOpen(false);
+  };
+
+  const showEmptyPantryToast = () => {
+    toast({
+      title: 'Your pantry is empty',
+      description: EMPTY_PANTRY_RECIPE_COPY,
+      action: (
+        <ToastAction altText="Open Pantry Settings" onClick={() => openSettings('pantry')}>
+          Add pantry
+        </ToastAction>
+      ),
+      variant: 'destructive',
+    });
+  };
+
+  const handleChefItUpSelect = () => {
+    if (!hasPantryItems) {
+      showEmptyPantryToast();
+      return;
+    }
+
+    setShowPlanningChoice(false);
   };
 
   const renderAppMenu = (
@@ -445,6 +474,9 @@ export default function MobileApp() {
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
+          <p className="planning-choice-copy max-w-sm">
+            {planningPantryStatusCopy}
+          </p>
         </div>
       </div>
 
@@ -453,7 +485,7 @@ export default function MobileApp() {
         <button
           type="button"
           className="planning-choice-card planning-choice-primary"
-          onClick={() => setShowPlanningChoice(false)}
+          onClick={handleChefItUpSelect}
         >
           <span className="planning-chef-mark" aria-hidden="true">{chefEmoji}</span>
           <span className="min-w-0 flex-1 text-left">
@@ -577,6 +609,7 @@ export default function MobileApp() {
                 initialTimeAvailable={lastPlanningTime}
                 onPlanningTimeChange={handlePlanningTimeChange}
                 onPantryIngredientsAdded={handlePlanningPantryIngredientsAdded}
+                onEditPantry={() => openSettings('pantry')}
                 onBackToProfile={() => {
                   // Back from step 1 of manual planning returns to the
                   // Slop Bowl vs Chef it up choice screen, not the profile.

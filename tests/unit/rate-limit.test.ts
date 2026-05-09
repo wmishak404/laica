@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Request } from 'express';
 import {
+  consumeRateLimit,
   createRateLimit,
   getVisionIpRateLimitKey,
   getVisionUserRateLimitKey,
@@ -53,6 +54,30 @@ describe('vision rate-limit keys', () => {
 
     expect(next).toHaveBeenCalledTimes(1);
     expect(res.setHeader).toHaveBeenCalledWith('Retry-After', expect.any(String));
+    expect(status).toHaveBeenCalledWith(429);
+    expect(json).toHaveBeenCalledWith({
+      code: 'RATE_LIMITED',
+      message: 'Too many requests. Try again later.',
+    });
+  });
+
+  it('can consume multiple image slots for image-count based limits', () => {
+    const options = {
+      name: 'test:image-count',
+      windowMs: 60_000,
+      max: 3,
+      keyGenerator: () => 'user-1',
+    };
+    const json = vi.fn();
+    const status = vi.fn(() => ({ json }));
+    const res = {
+      setHeader: vi.fn(),
+      status,
+    };
+
+    expect(consumeRateLimit(options, makeRequest(), res as any, 2)).toBe(true);
+    expect(consumeRateLimit(options, makeRequest(), res as any, 2)).toBe(false);
+
     expect(status).toHaveBeenCalledWith(429);
     expect(json).toHaveBeenCalledWith({
       code: 'RATE_LIMITED',

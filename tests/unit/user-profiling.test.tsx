@@ -6,6 +6,7 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { analyzeImage } from '@/lib/openai';
+import { SCAN_ANALYSIS_CONCURRENCY } from '@shared/scan-policy';
 import UserProfiling from '../../client/src/components/cooking/user-profiling';
 
 const toastMock = vi.hoisted(() => vi.fn());
@@ -22,6 +23,13 @@ function makeImageFiles(count: number) {
   return Array.from(
     { length: count },
     (_, index) => new File(['image'], `setup-photo-${index + 1}.jpg`, { type: 'image/jpeg' }),
+  );
+}
+
+function makeHeicFiles(count: number) {
+  return Array.from(
+    { length: count },
+    (_, index) => new File(['image'], `setup-photo-${index + 1}.heic`, { type: 'image/heic' }),
   );
 }
 
@@ -99,12 +107,12 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
 
     const pantryUpload = container.querySelector('#pantry-setup-upload') as HTMLInputElement;
-    fireEvent.change(pantryUpload, { target: { files: makeImageFiles(9) } });
+    fireEvent.change(pantryUpload, { target: { files: makeImageFiles(21) } });
 
     expect(analyzeImageMock).not.toHaveBeenCalled();
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Too many photos',
-      description: expect.stringContaining('up to 8 photos'),
+      description: expect.stringContaining('up to 20 photos per refresh'),
       variant: 'destructive',
     }));
 
@@ -116,14 +124,83 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
     const kitchenUpload = container.querySelector('#kitchen-setup-upload') as HTMLInputElement;
-    fireEvent.change(kitchenUpload, { target: { files: makeImageFiles(7) } });
+    fireEvent.change(kitchenUpload, { target: { files: makeImageFiles(21) } });
 
     expect(analyzeImageMock).not.toHaveBeenCalled();
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Too many photos',
-      description: expect.stringContaining('up to 6 photos'),
+      description: expect.stringContaining('up to 20 photos per refresh'),
       variant: 'destructive',
     }));
+  });
+
+  it('does not count unsupported setup files toward the 20-photo refresh cap', async () => {
+    vi.mocked(analyzeImage).mockResolvedValue({ ingredients: [] });
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+
+    const pantryUpload = container.querySelector('#pantry-setup-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, {
+      target: {
+        files: [
+          ...makeHeicFiles(20),
+          new File(['not an image'], 'notes.txt', { type: 'text/plain' }),
+        ],
+      },
+    });
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(20);
+    });
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Some photos were skipped',
+      description: expect.stringContaining('Unsupported files do not count'),
+    }));
+    expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Too many photos',
+    }));
+  });
+
+  it('processes setup upload batches with bounded concurrency', async () => {
+    const resolvers: Array<(value: { ingredients: string[] }) => void> = [];
+    const resolved = new Set<number>();
+    vi.mocked(analyzeImage).mockImplementation(() => new Promise((resolve) => {
+      resolvers.push(resolve);
+    }));
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+
+    const pantryUpload = container.querySelector('#pantry-setup-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, {
+      target: { files: makeHeicFiles(SCAN_ANALYSIS_CONCURRENCY + 1) },
+    });
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(SCAN_ANALYSIS_CONCURRENCY);
+    });
+
+    const resolveAt = (index: number) => {
+      if (!resolved.has(index)) {
+        resolved.add(index);
+        resolvers[index]({ ingredients: [`setup item ${index + 1}`] });
+      }
+    };
+
+    resolveAt(0);
+
+    await waitFor(() => {
+      expect(analyzeImage).toHaveBeenCalledTimes(SCAN_ANALYSIS_CONCURRENCY + 1);
+    });
+
+    for (let index = 1; index < resolvers.length; index += 1) {
+      resolveAt(index);
+    }
+
+    await waitFor(() => {
+      expect(screen.getByText('setup item 1')).toBeTruthy();
+    });
   });
 
   it('cancels an active kitchen upload when backing out of the step', async () => {
