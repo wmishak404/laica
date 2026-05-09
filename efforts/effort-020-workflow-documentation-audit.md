@@ -1,4 +1,4 @@
-# EFFORT-020 - Workflow documentation audit and graduation
+# EFFORT-020 — Workflow documentation audit and graduation
 
 **Former ID:** EPIC-020
 **Status:** Resolved

@@ -1,4 +1,4 @@
-# EFFORT-021 - Scan upload photo limit policy
+# EFFORT-021 — Scan upload photo limit policy
 
 **Former ID:** EPIC-021
 **Status:** Resolved

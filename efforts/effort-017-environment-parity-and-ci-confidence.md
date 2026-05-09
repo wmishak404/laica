@@ -1,9 +1,9 @@
 # EFFORT-017 — Environment parity + CI confidence (reduce manual Replit validation)
 
 **Former ID:** EPIC-017
-**Status:** Deferred  
-**Owner:** Wilson / Codex / Claude  
-**Created:** 2026-05-05  
+**Status:** Deferred
+**Owner:** Wilson / Codex / Claude
+**Created:** 2026-05-05
 **Updated:** 2026-05-08
 
 ## One-line summary
