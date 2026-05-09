@@ -25,22 +25,22 @@ Wilson's Replit functionality test surfaced the trust issue: if the user selects
 - `tests/unit/user-profiling.test.tsx`
   - Adds coverage for 9 pantry photos and 7 kitchen photos.
   - Verifies no vision analysis call is made for either oversized selection.
-- `product-decisions/features/mobile-refresh/phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md`
   - Records that over-cap setup uploads cancel the whole batch instead of partially processing.
-- `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
   - Adds the Phase 2.1 accepted upload-limit behavior.
-- `product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`
+- `product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md`
   - Records fail-closed setup and Settings upload caps as a client-side privacy/trust behavior.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Updates current status, resume point, and chronology.
 
 ## Impact on other agents
 
-- EPIC-005: conforms by adding focused unit coverage for the changed setup behavior and documenting the Replit validation item.
-- EPIC-007: scan feedback remains explicit; this change happens before vision analysis for over-cap batches and does not change no-detection handling.
-- EPIC-009: no change to comma-separated manual entry.
-- EPIC-010: no DB/schema changes.
-- EPIC-012: no visual redesign; supports setup trust/clarity within the accepted design.
+- EFFORT-005: conforms by adding focused unit coverage for the changed setup behavior and documenting the Replit validation item.
+- EFFORT-007: scan feedback remains explicit; this change happens before vision analysis for over-cap batches and does not change no-detection handling.
+- EFFORT-009: no change to comma-separated manual entry.
+- EFFORT-010: no DB/schema changes.
+- EFFORT-012: no visual redesign; supports setup trust/clarity within the accepted design.
 
 ## Open items
 

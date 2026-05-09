@@ -1,4 +1,4 @@
-# EPIC-021 runtime slice merge closeout
+# EFFORT-021 runtime slice merge closeout
 
 **Agent:** codex
 **Branch:** codex/epic-021-merge-closeout
@@ -10,14 +10,14 @@
 
 PR #53 (`codex/epic-021-scan-upload-implementation`) merged into `main` as `9aa6c1c` after Wilson's final Replit validation at `ef28e59`. This closeout records that merge on fresh `origin/main` and clears the old active branch from INIT-001.
 
-The merged runtime slice implements the EPIC-021 cap/concurrency work: shared 20-photo per-refresh limits for Pantry and Kitchen setup/Settings, image-count-aware rate limiting, bounded 4-at-a-time scan processing, per-refresh/progress/partial-success copy, unsupported-file counting semantics, empty-Pantry returning-user guardrails, active Settings scan cancellation/stale-result protection, and the Planning choice empty-Pantry status/tap blocker.
+The merged runtime slice implements the EFFORT-021 cap/concurrency work: shared 20-photo per-refresh limits for Pantry and Kitchen setup/Settings, image-count-aware rate limiting, bounded 4-at-a-time scan processing, per-refresh/progress/partial-success copy, unsupported-file counting semantics, empty-Pantry returning-user guardrails, active Settings scan cancellation/stale-result protection, and the Planning choice empty-Pantry status/tap blocker.
 
 ## Changes
 
-- `initiatives/INIT-001-mobile-refresh.md`: cleared the EPIC-021 active branch, added PR #53 merge status, recorded validation and merge SHAs, and updated the resume point.
-- `initiatives/registry.md`: updated INIT-001's last signal to the merged EPIC-021 runtime slice.
-- `epics/021-scan-upload-photo-limit-policy.md`: appended the runtime-slice merge signal. A later closeout records Wilson's decision to close the epic.
-- `epics/registry.md`: updated EPIC-021's last signal to PR #53's merge. A later closeout records Wilson's decision to close the epic.
+- `initiatives/INIT-001-mobile-refresh.md`: cleared the EFFORT-021 active branch, added PR #53 merge status, recorded validation and merge SHAs, and updated the resume point.
+- `initiatives/registry.md`: updated INIT-001's last signal to the merged EFFORT-021 runtime slice.
+- `efforts/effort-021-scan-upload-photo-limit-policy.md`: appended the runtime-slice merge signal. A later closeout records Wilson's decision to close the epic.
+- `efforts/registry.md`: updated EFFORT-021's last signal to PR #53's merge. A later closeout records Wilson's decision to close the epic.
 - `docs/handoffs/2026-05-08-codex-epic-021-merge-closeout.md`: this handoff.
 
 ## Impact on other agents

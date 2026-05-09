@@ -49,9 +49,9 @@ This branch is stacked on `codex/mobile-refresh-phase-1-auth`, which is itself s
   - Removed Weekly Cooking Time from Slop Bowl readiness checks and prompt inputs.
   - Slop Bowl now uses a conservative default 60-minute target until Phase 3's per-session time slider replaces it.
 
-- `epics/004-selection-controls-tap-targets.md`
-- `epics/007-vision-scan-no-detection-feedback.md`
-- `epics/009-consistent-comma-separated-ingredient-entry.md`
+- `efforts/effort-004-selection-controls-tap-targets.md`
+- `efforts/effort-007-vision-scan-no-detection-feedback.md`
+- `efforts/effort-009-consistent-comma-separated-ingredient-entry.md`
   - Added dated implementation notes for the Phase 2 branch.
 
 ## Impact on other agents
@@ -72,7 +72,7 @@ This branch is stacked on `codex/mobile-refresh-phase-1-auth`, which is itself s
   - Known negative-control scan produces explicit no-detection feedback.
   - Manual `buns, mayo` creates separate badges.
   - Settings no longer shows Weekly Cooking Time.
-- Browser-level Slop Bowl quick-add validation is still needed before EPIC-009 can close.
+- Browser-level Slop Bowl quick-add validation is still needed before EFFORT-009 can close.
 
 ## Verification
 

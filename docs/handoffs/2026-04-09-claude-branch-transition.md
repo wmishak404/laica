@@ -33,7 +33,7 @@ A "Branch transitions" section has been added to `AGENTS.md` covering:
 
 1. **Wait for PR #4 to merge** (Wilson will merge or approve).
 2. **Read the merged docs on `main`** — especially:
-   - `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md` (final API contract)
+   - `product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md` (final API contract)
    - `docs/handoffs/2026-04-09-claude-slop-bowl-revised.md` (revised spec)
 3. **Create `codex/slop-bowl-api` from `main`** and begin server implementation:
    - `POST /api/recipes/slop-bowl` endpoint
@@ -52,6 +52,6 @@ A "Branch transitions" section has been added to `AGENTS.md` covering:
 ## Context checkpoint
 
 - All planning decisions are in `product-decisions/` and `product-decisions/features/slop-bowl/`
-- API contract (simplified, no rigid components): `phase-03-simplified-bowl.md`
-- Model strategy: `product-decisions/003-openai-model-strategy.md`
+- API contract (simplified, no rigid components): `pd-phase-03-simplified-bowl.md`
+- Model strategy: `product-decisions/pd-003-openai-model-strategy.md`
 - No source code has been committed yet — both agents start clean

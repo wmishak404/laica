@@ -37,15 +37,15 @@ Follow-up note: Wilson's next Replit pass superseded the Pantry heading from thi
   - Removes legacy shared `Header` imports/usages so app pages do not reintroduce top website chrome.
 - `tests/unit/user-profiling.test.tsx`
   - Updates assertions for `Yes, Chef!`, the pantry heading, the `1/5` progress count, and the new pantry placeholder.
-- `initiatives/INIT-001-mobile-refresh.md`, `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
+- `initiatives/INIT-001-mobile-refresh.md`, `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
   - Record that Wilson's Replit feedback is now implemented locally and Replit validation is the next gate.
 
 ## Impact on other agents
 
-- EPIC-001: conforms to the no persistent app-header direction and keeps setup visual primitives scoped to setup utilities.
-- EPIC-004: implements the isolated `No restrictions` default-style choice.
-- EPIC-005: local checks passed, but Replit validation remains required before merge.
-- EPIC-012: implements the Replit visual review direction for setup chrome, camera controls, Kitchen accents, and illustration-style setup choices.
+- EFFORT-001: conforms to the no persistent app-header direction and keeps setup visual primitives scoped to setup utilities.
+- EFFORT-004: implements the isolated `No restrictions` default-style choice.
+- EFFORT-005: local checks passed, but Replit validation remains required before merge.
+- EFFORT-012: implements the Replit visual review direction for setup chrome, camera controls, Kitchen accents, and illustration-style setup choices.
 
 ## Open items
 

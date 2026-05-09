@@ -21,7 +21,7 @@ Last Replit-validated at: not needed (docs-only).
 ## Impact on other agents
 
 - Start INIT-001 Phase 3 from fresh `origin/main` at or after `6288aefce3d923092d496ace535f7a3e8841f506`.
-- Use the cleaned documentation structure from PR #34: top-level PDs for durable rationale, feature-phase records for phase-scoped specs/outcomes, INITs for current state, active epics for cross-cutting concerns, handoffs for point-in-time coordination, and `design_guidelines.md` for the living visual standard.
+- Use the cleaned documentation structure from PR #34: top-level PDs for durable rationale, feature-phase records for phase-scoped specs/outcomes, INITs for current state, active Efforts for cross-cutting concerns, handoffs for point-in-time coordination, and `design_guidelines.md` for the living visual standard.
 - No Replit validation is needed for PR #34 or this closeout because both are docs-only.
 
 ## Open items

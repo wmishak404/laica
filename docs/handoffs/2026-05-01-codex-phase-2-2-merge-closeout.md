@@ -17,17 +17,17 @@ Last Replit-validated at: `dc59796ae1602af4643c5fc640be47ab19a59e04`.
 - Updated `initiatives/INIT-001-mobile-refresh.md` so Phase 2.2 is marked merged and the resume point moves to Phase 3 Planning kickoff.
 - Updated `initiatives/registry.md` with the Phase 3 resume signal.
 - Updated `product-decisions/features/mobile-refresh/README.md` so Phase 2.2 is recorded as merged and Phase 3 starts from the refreshed Settings/History IA.
-- Updated `product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md` with the PR #30 merge closeout and final validation state.
-- Updated `product-decisions/features/mobile-refresh/design-language.md` to record Phase 2.2 as an accepted returning-user visual proof point.
-- Added dated EPIC-001, EPIC-005, and EPIC-012 notes with the merge signal.
-- Updated `epics/registry.md` with the latest signals for EPIC-001, EPIC-005, and EPIC-012.
+- Updated `product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md` with the PR #30 merge closeout and final validation state.
+- Updated `product-decisions/features/mobile-refresh/pd-design-language.md` to record Phase 2.2 as an accepted returning-user visual proof point.
+- Added dated EFFORT-001, EFFORT-005, and EFFORT-012 notes with the merge signal.
+- Updated `efforts/registry.md` with the latest signals for EFFORT-001, EFFORT-005, and EFFORT-012.
 
 ## Impact on other agents
 
 - Start Phase 3 Planning from fresh `origin/main`.
 - Treat Phase 2.1 setup and Phase 2.2 returning Settings as accepted visual anchors.
 - Keep richer History detail/share/cook-again/taste-memory behavior in Phase 5 unless Wilson explicitly pulls it forward.
-- Do not graduate EPIC-001 or EPIC-012 yet; the separate governance closeout remains deferred per Claude's review.
+- Do not graduate EFFORT-001 or EFFORT-012 yet; the separate governance closeout remains deferred per Claude's review.
 
 ## Verification
 

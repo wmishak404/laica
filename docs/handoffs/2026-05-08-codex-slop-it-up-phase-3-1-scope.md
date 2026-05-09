@@ -14,7 +14,7 @@ The key product boundary is: **Slop It Up** is the Planning choice card title, w
 
 ## Changes
 
-- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md`
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`
   - Added `2026-05-08 - Slop It Up Planning-Card Copy Direction`.
   - Recorded the plain-English intent: Chef It Up stays elegant/refined/collaborative; the Slop Bowl path gets a more culturally playful, sloppy, chaotic card voice without making the food sound bad.
   - Added a machine-readable YAML block with the accepted card title, copy-selection behavior, typography rule, approved copy options, and explicit out-of-scope items.

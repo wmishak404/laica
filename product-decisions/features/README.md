@@ -16,7 +16,8 @@ Feature phase records are not top-level PDs. They may evolve while a feature is 
 
 - One folder per feature: `product-decisions/features/<feature>/`
 - Include a `README.md` with a phase index and current status
-- Prefer phase files named `phase-0N-short-name.md`
+- Prefer phase files named `pd-phase-0N-short-name.md`
+- Non-phase feature records should also use a `pd-` prefix, for example `pd-design-language.md`
 
 Suggested phases:
 

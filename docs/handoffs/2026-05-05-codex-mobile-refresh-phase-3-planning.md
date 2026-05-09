@@ -22,15 +22,15 @@ Last Replit-validated at: not yet validated.
 - `client/src/lib/openai.ts`, `server/routes.ts`, `server/openai.ts`: extend Slop Bowl API input with `planningTimeAvailable`; server validates the four approved values and feeds the time bound into the Slop Bowl prompt. Recipe suggestion prompt now frames `additionalIngredientsNeeded` as optional enhancements, not shopping requirements.
 - `client/src/pages/cooking-new.tsx`: keeps the legacy cooking route compatible with the new `MealPlanning` props.
 - `tests/unit/planning-time.test.ts`, `tests/unit/slop-bowl-route.test.ts`: cover planning-time normalization and Slop Bowl API time passthrough / validation.
-- Docs updated: INIT-001, initiative registry, Phase 3 record, EPIC-004, EPIC-009, and EPIC-016.
+- Docs updated: INIT-001, initiative registry, Phase 3 record, EFFORT-004, EFFORT-009, and EFFORT-016.
 
 ## Impact on other agents
 
-- Phase 3 intentionally stores last planning time in client localStorage for now. It does not repurpose `weekly_time` and does not add a DB schema change, in line with EPIC-010.
+- Phase 3 intentionally stores last planning time in client localStorage for now. It does not repurpose `weekly_time` and does not add a DB schema change, in line with EFFORT-010.
 - Internal fields such as `pantryMatch`, `missingIngredients`, and `additionalIngredientsNeeded` remain in client/server contracts for compatibility, cooking-session history, and evaluation paths; the new Phase 3 UI does not expose them as match scores or mandatory grocery-list copy.
 - Slop Bowl quick-add still uses `parseCommaSeparatedEntries`, including period-as-comma typo recovery from Phase 2.1.
 - History share/cook-again/taste-memory behavior remains deferred to Phase 5.
-- EPIC-016 is not resolved yet. This branch removes touched Slop Bowl raw-hex callsites, but visual comparison and the future EPIC-015 lint gate are still needed before closeout.
+- EFFORT-016 is not resolved yet. This branch removes touched Slop Bowl raw-hex callsites, but visual comparison and the future EFFORT-015 lint gate are still needed before closeout.
 
 ## Open items
 
@@ -55,7 +55,7 @@ Follow-up patch:
 - Initial correction made `client/src/pages/app.tsx` and `client/src/components/cooking/meal-planning.tsx` import `@assets/laica_logo_v1_cropped_1763444931884.png`; the later brand-mark restraint follow-up below removes visible logos from Phase 3 process screens.
 - `.planning-brand` text/pseudo-mark CSS was removed and replaced with `.planning-logo`.
 - `design_guidelines.md` now includes the canonical-logo guardrail and review checklist item.
-- `product-decisions/features/mobile-refresh/phase-03-planning.md` records this as Phase 3 implementation evidence.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md` records this as Phase 3 implementation evidence.
 
 ## 2026-05-05 time-slider geometry follow-up
 
@@ -115,8 +115,8 @@ Wilson's Replit screenshot review caught two linked problems on the suggestion s
 
 Root cause in the docs/context system:
 
-- `phase-03-planning.md` said generated recipe imagery was deferred.
-- `design_guidelines.md` and `design-language.md` said Ticket Pass should be a distinctive signature object, but they did not explicitly require Phase 3 to reserve stable image slots for a later imagery pass.
+- `pd-phase-03-planning.md` said generated recipe imagery was deferred.
+- `design_guidelines.md` and `pd-design-language.md` said Ticket Pass should be a distinctive signature object, but they did not explicitly require Phase 3 to reserve stable image slots for a later imagery pass.
 - Implementation treated the imagery deferral too broadly, so it avoided AI image generation but also failed to leave a durable place where generated images could hydrate.
 
 Follow-up patch:
@@ -124,8 +124,8 @@ Follow-up patch:
 - `client/src/components/cooking/meal-planning.tsx` now supports optional `imageUrl` on recipe suggestions and renders designed placeholders when no image is present.
 - Ticket Pass featured ticket, compact alternate tickets, and Prep Tray all reserve generated-image slots now.
 - `client/src/index.css` reshapes Ticket Pass into a stronger featured-ticket plus compact alternate-ticket stack, with stable image placeholders that can hydrate without layout shift.
-- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` now owns actual recipe imagery/illustration direction.
-- `design_guidelines.md`, `product-decisions/features/mobile-refresh/design-language.md`, and `phase-03-planning.md` now distinguish Phase 3 image placeholders from Phase 3.1 generated/illustrated recipe imagery.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md` now owns actual recipe imagery/illustration direction.
+- `design_guidelines.md`, `product-decisions/features/mobile-refresh/pd-design-language.md`, and `pd-phase-03-planning.md` now distinguish Phase 3 image placeholders from Phase 3.1 generated/illustrated recipe imagery.
 
 Speed guidance:
 
@@ -140,7 +140,7 @@ Follow-up patch:
 
 - `client/src/pages/app.tsx` no longer marks Cook/Menu bottom buttons as active based on the current phase.
 - `client/src/index.css` makes bottom nav buttons larger and neutral, with no coral selected pill.
-- `product-decisions/009-mobile-refresh-navigation.md` records the neutral bottom-nav rule: screen content communicates process status; bottom nav remains neutral access to Cook/Planning and Menu.
+- `product-decisions/pd-009-mobile-refresh-navigation.md` records the neutral bottom-nav rule: screen content communicates process status; bottom nav remains neutral access to Cook/Planning and Menu.
 
 ## 2026-05-05 Planning entry handwriting/Slop Bowl art follow-up
 
@@ -153,7 +153,7 @@ Follow-up patch, later superseded by the typography follow-up below:
 - `client/src/pages/app.tsx` and `client/src/index.css` rebuild the Slop Bowl art as a messier ingredient-storm doodle with splashes, a tilted spoon, and a `???` scribble.
 - `design_guidelines.md` briefly recorded `Patrick Hand` for small tone-forward Planning labels; later review narrowed it to micro-accents only.
 - The Slop Bowl sticker itself is later removed in the sticker/banner reset below.
-- EPIC-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
+- EFFORT-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
 
 ## 2026-05-05 Planning entry label-legibility follow-up
 
@@ -181,8 +181,8 @@ Wilson asked that the Phase 3 design-drift review be included in Phase 3.1 work 
 
 Follow-up docs patch:
 
-- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` now owns the drift inventory, root-cause notes, recommendations, and recipe imagery follow-up.
-- `epics/README.md` and `epics/registry.md` do not list a Phase 3 drift epic.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md` now owns the drift inventory, root-cause notes, recommendations, and recipe imagery follow-up.
+- `efforts/README.md` and `efforts/registry.md` do not list a Phase 3 drift epic.
 - `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md` now describe Phase 3.1 as the next design-drift plus imagery pass.
 
 Phase 3.1 should review the documented drift rows and mark each one fixed, accepted, or deferred before closeout. Real imagery remains async/cached and must not block the first recipe-suggestion reveal.
@@ -193,8 +193,8 @@ Wilson decided to stop Phase 3 visual iteration and close this phase on function
 
 Follow-up docs patch:
 
-- `product-decisions/features/mobile-refresh/phase-03-planning.md` now states that Phase 3 should not receive more visual changes unless an issue blocks functional validation or basic usability.
-- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` is reframed as design facelift plus recipe imagery.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md` now states that Phase 3 should not receive more visual changes unless an issue blocks functional validation or basic usability.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md` is reframed as design facelift plus recipe imagery.
 - `initiatives/INIT-001-mobile-refresh.md`, `initiatives/registry.md`, and the mobile-refresh phase index now point Phase 3.1 at the design facelift and imagery work.
 
 Phase 3 closeout should focus on authenticated Planning entry, Chef It Up time/cuisine, recipe generation, refresh suggestions, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry. Phase 3.1 should plan and implement whitespace/card grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
@@ -208,7 +208,7 @@ Follow-up patch:
 - `client/src/components/cooking/meal-planning.tsx` now renders the three recipe suggestions in generated order and expands the selected ticket in place.
 - The selected expanded ticket does not show a top selected-label; selection is communicated by stable in-place expansion.
 - Recipe names are display-split into a main title and smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names remain a single title, and the underlying `recipeName` remains unchanged.
-- `product-decisions/features/mobile-refresh/phase-03-planning.md` and `phase-03-1-recipe-imagery.md` record this as a Phase 3 basic-usability exception to the visual freeze.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md` and `pd-phase-03-1-recipe-imagery.md` record this as a Phase 3 basic-usability exception to the visual freeze.
 
 Replit validation should explicitly tap recipe 1, 2, and 3 and confirm the order stays stable while the selected ticket expands in its original position.
 
@@ -269,4 +269,4 @@ Not green / not authoritative:
 - Base refreshed: yes
 - Current base: `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`
 - Last Replit-validated at: not yet validated
-- Notes: Branch started from fresh `origin/main` after PR #34 and the later EPIC-017 merge. EPIC-017 is deferred until INIT-001 completes and does not change the current Replit validation gate.
+- Notes: Branch started from fresh `origin/main` after PR #34 and the later EFFORT-017 merge. EFFORT-017 is deferred until INIT-001 completes and does not change the current Replit validation gate.

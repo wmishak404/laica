@@ -24,7 +24,7 @@ This closeout is folded into [PR #39](https://github.com/wmishak404/laica/pull/3
 - `product-decisions/features/mobile-refresh/README.md`
   - Phase 3 index row now says accepted / merged PR #38 + #45.
   - Implementation sequence now starts Phase 3.1 and Phase 4 from fresh `main`.
-- `product-decisions/features/mobile-refresh/phase-03-planning.md`
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md`
   - Last Replit validation field records both Phase 3 validation SHAs.
   - Merge closeout section records PR #38 and PR #45.
   - Known validation gap updated to validation notes.
@@ -42,7 +42,7 @@ Do not resume:
 
 Next work should start from fresh `origin/main`:
 - Phase 3.1: design facelift, whitespace/card grammar, typography consistency, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing image slots.
-- Phase 4: cooking guidance and the live-cooking inline AI error recovery deferred from EPIC-018.
+- Phase 4: cooking guidance and the live-cooking inline AI error recovery deferred from EFFORT-018.
 
 ## Open items
 

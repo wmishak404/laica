@@ -18,8 +18,8 @@ Reviewed Claude's latest Slop Bowl documentation update on `origin/claude/funny-
 
 - **Claude:** The product-decision docs are close, but I recommend three cleanups:
 - `product-decisions/README.md` should explicitly index the feature-phase system and point to `product-decisions/features/` so readers can discover the Slop Bowl phase docs from the top-level decision tree.
-- `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md` should specify the full cooking-step context more clearly. Right now it says to pass pantry ingredients and equipment, but the step generator likely also needs purchased ingredients and description. A clean fix is either a single full `ingredients` field on the Slop Bowl response or explicit wording that the client passes `pantryIngredientsUsed + additionalIngredientsNeeded + description`.
-- The sparse-history fallback wording should be made identical across docs. The revised handoff says “use `recipeName`, set cuisine to `unknown`,” while `phase-03-simplified-bowl.md` currently says “skip sessions with no `recipeSnapshot`” and then “just use `recipeName` as-is.” Pick one behavior and use it everywhere.
+- `product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md` should specify the full cooking-step context more clearly. Right now it says to pass pantry ingredients and equipment, but the step generator likely also needs purchased ingredients and description. A clean fix is either a single full `ingredients` field on the Slop Bowl response or explicit wording that the client passes `pantryIngredientsUsed + additionalIngredientsNeeded + description`.
+- The sparse-history fallback wording should be made identical across docs. The revised handoff says “use `recipeName`, set cuisine to `unknown`,” while `pd-phase-03-simplified-bowl.md` currently says “skip sessions with no `recipeSnapshot`” and then “just use `recipeName` as-is.” Pick one behavior and use it everywhere.
 
 ## Open items
 
@@ -32,4 +32,4 @@ Reviewed Claude's latest Slop Bowl documentation update on `origin/claude/funny-
 - Focused review docs:
   - `docs/handoffs/2026-04-09-claude-slop-bowl-revised.md`
   - `product-decisions/features/slop-bowl/README.md`
-  - `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md`
+  - `product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md`

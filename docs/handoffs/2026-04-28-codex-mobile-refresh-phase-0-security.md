@@ -6,7 +6,7 @@
 
 ## Summary
 
-Implemented the first Phase 0 backend/security pass from `product-decisions/features/mobile-refresh/phase-00-cross-phase-security.md`.
+Implemented the first Phase 0 backend/security pass from `product-decisions/features/mobile-refresh/pd-phase-00-cross-phase-security.md`.
 
 This branch focuses on auth verification, protected cost-bearing routes, basic abuse limits, session ownership, body limits, logging cleanup, and AI prompt/log privacy guards. It does not implement Phase 1-5 UI changes.
 

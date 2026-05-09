@@ -16,9 +16,9 @@ Claude's external review file was incorporated from:
 
 ## Changes
 
-- `product-decisions/009-mobile-refresh-navigation.md`
+- `product-decisions/pd-009-mobile-refresh-navigation.md`
   - New durable decision: mobile refresh removes the redundant authenticated Home step and routes users directly to Setup or Planning.
-- `product-decisions/006-home-and-cook-remain-separate.md`
+- `product-decisions/pd-006-home-and-cook-remain-separate.md`
   - Marked superseded by PD-009 while preserving historical context.
 - `product-decisions/README.md`
   - Indexed PD-009 and marked PD-006 as superseded.
@@ -27,9 +27,9 @@ Claude's external review file was incorporated from:
   - Added cross-phase AI privacy, prompt-injection, logging, and abuse-prevention rules.
 - `docs/assets/mobile-refresh/`
   - Added approved mockups for Phase 1, Phase 2, Phase 3 planning, Phase 3 Ticket Pass, Phase 4, and Phase 5.
-- `epics/`
+- `efforts/`
   - Added dated notes where the mobile-refresh plan touches active governance: UI governance, full-row tap targets, acceptance criteria, zero-result scan feedback, comma-separated ingredient entry, and local DB schema strategy.
-  - Updated EPIC-002 and the registry to show PD-006 was superseded by PD-009.
+  - Updated EFFORT-002 and the registry to show PD-006 was superseded by PD-009.
 - `product-decisions/features/README.md`
   - Listed the new Mobile Refresh feature folder.
 
@@ -57,7 +57,7 @@ Important accepted deviations from Claude's recommendations:
 
 - No implementation has started.
 - Phase 0 is the implementation prerequisite before feature UI work depends on secured backend flows.
-- EPIC-010 remains open. Phase 5 schema fields are documented, but local agents should not run `npm run db:push` against shared databases.
+- EFFORT-010 remains open. Phase 5 schema fields are documented, but local agents should not run `npm run db:push` against shared databases.
 - Replit validation remains required before deployment-bound merge.
 
 ## Verification

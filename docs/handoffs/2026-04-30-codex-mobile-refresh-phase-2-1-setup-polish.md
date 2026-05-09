@@ -29,19 +29,19 @@ Follow-up visual conformance pass: Wilson reviewed setup and said it still felt 
   - Adds optional `rejected`, `rejectionCode: "TEXT_ONLY_DOCUMENT"`, and `rejectionMessage` metadata while preserving existing `ingredients` / `equipment` arrays.
   - Prompts reject screenshots/documents/lists/receipts/menus/recipes/notes as inventory evidence while preserving physical product/tool labels.
   - Client setup/settings scan handlers avoid adding rejected results and route users to manual-entry guidance.
-- `product-decisions/features/mobile-refresh/design-language.md`, `initiatives/INIT-001-mobile-refresh.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`, `initiatives/INIT-001-mobile-refresh.md`
   - Record the setup-only typography pilot and the visual conformance resume point.
 - Tests added/updated for prompt rules, vision result normalization, camera-off default, welcome/back flow, and Cooking Skill auto-advance.
 
 ## Impact on other agents
 
-- EPIC-001: conforms by scoping new typography and setup visual utilities behind setup-only classes instead of replacing the global app font stack or shared primitives.
-- EPIC-004: conforms by keeping single-choice setup rows full-row and adding auto-advance for Cooking Skill while preserving explicit continuation on multi-select Dietary Restrictions.
-- EPIC-005: conforms by recording local checks and keeping Replit validation as the merge gate.
-- EPIC-007: conforms by preserving explicit no-detection feedback; rejected text-only scans are treated as a separate clear feedback path.
-- EPIC-009: conforms by preserving shared comma-separated manual entry in setup/settings.
-- EPIC-010: conforms by avoiding DB/schema changes and not running `db:push`.
-- EPIC-012: conforms by applying the Phase 2 setup mockup/design-language trust and control direction, including the setup-only typography pilot and deliberate cream/coral scan-object treatment.
+- EFFORT-001: conforms by scoping new typography and setup visual utilities behind setup-only classes instead of replacing the global app font stack or shared primitives.
+- EFFORT-004: conforms by keeping single-choice setup rows full-row and adding auto-advance for Cooking Skill while preserving explicit continuation on multi-select Dietary Restrictions.
+- EFFORT-005: conforms by recording local checks and keeping Replit validation as the merge gate.
+- EFFORT-007: conforms by preserving explicit no-detection feedback; rejected text-only scans are treated as a separate clear feedback path.
+- EFFORT-009: conforms by preserving shared comma-separated manual entry in setup/settings.
+- EFFORT-010: conforms by avoiding DB/schema changes and not running `db:push`.
+- EFFORT-012: conforms by applying the Phase 2 setup mockup/design-language trust and control direction, including the setup-only typography pilot and deliberate cream/coral scan-object treatment.
 
 ## Open items
 

@@ -5,7 +5,7 @@
 **Date:** 2026-04-10
 
 ## Summary
-Implemented the client-side Slop Bowl flow per phase-3 spec (`product-decisions/features/slop-bowl/phase-03-simplified-bowl.md`). Carried forward the prototype WIP from the now-merged planning branch (`claude/funny-boyd`), fixed the missing `RecipeRecommendation` type fields that prevented `npm run check` from passing, and wired the cooking-step enrichment context-pass-through that phase-3 explicitly requires.
+Implemented the client-side Slop Bowl flow per phase-3 spec (`product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md`). Carried forward the prototype WIP from the now-merged planning branch (`claude/funny-boyd`), fixed the missing `RecipeRecommendation` type fields that prevented `npm run check` from passing, and wired the cooking-step enrichment context-pass-through that phase-3 explicitly requires.
 
 The branch is the client-side counterpart to `codex/slop-bowl-api` (handoff: `docs/handoffs/2026-04-10-codex-slop-bowl-api.md`). Both are ready for integration testing together; neither is independently mergeable.
 

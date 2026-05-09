@@ -14,12 +14,12 @@ This spec is intentionally exhaustive. It defines what “parity” means for LA
 LAICA currently relies on:
 
 - Replit as the authoritative runtime, secrets store, database, and deployment environment (`AGENTS.md`, `docs/adr/0001-replit-primary-local-agents.md`).
-- Local macOS worktrees for faster editing and compile/build checks, with optional full local runtime via dotenvx (`product-decisions/001-secrets-management.md`).
+- Local macOS worktrees for faster editing and compile/build checks, with optional full local runtime via dotenvx (`product-decisions/pd-001-secrets-management.md`).
 
 This is a workable workflow, but “workable” is not “parity”. Drift has already shown up in practice:
 
-- Local database schema drift created false negatives/positives during feature validation (`product-decisions/008-optional-context-and-local-validation-boundaries.md`, `epics/010-local-db-schema-strategy.md`).
-- Local agent browser environments struggle with Firebase popup auth automation, creating a validation gap (`product-decisions/features/mobile-refresh/dev-test-harness.md`).
+- Local database schema drift created false negatives/positives during feature validation (`product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`, `efforts/effort-010-local-db-schema-strategy.md`).
+- Local agent browser environments struggle with Firebase popup auth automation, creating a validation gap (`product-decisions/features/mobile-refresh/pd-dev-test-harness.md`).
 - Local runtime version drift is possible even when the repo contains a pin (Replit pins Node via `.replit`; local pin via `.nvmrc` is advisory unless enforced).
 - `.replit` currently runs dotenvx even though several workflow docs say Replit doesn’t need dotenvx, creating a “two sources of secrets truth” ambiguity.
 
@@ -106,7 +106,7 @@ Replit ports behavior and autoscale constraints are documented here:
 
 ### 2.4 Secrets + dotenvx
 
-- Secrets decision: encrypted `.env` is committed; `.env.keys` is not committed (`product-decisions/001-secrets-management.md`, `.gitignore`).
+- Secrets decision: encrypted `.env` is committed; `.env.keys` is not committed (`product-decisions/pd-001-secrets-management.md`, `.gitignore`).
 - Local full dev command is documented as `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` (`AGENTS.md`, `CLAUDE.md`).
 - Replit secrets are documented as injected via Replit Secrets tab (`AGENTS.md`).
 - However, Replit workflow currently runs dotenvx anyway (`.replit` workflow task runs `npx --yes @dotenvx/dotenvx run -- npm run dev`).
@@ -123,7 +123,7 @@ Replit Secrets injection:
 - App requires `DATABASE_URL` at runtime and crashes if missing (`server/db.ts`, `drizzle.config.ts`).
 - Replit provides `DATABASE_URL` and related `PG*` env vars for its built-in DB (`docs.replit.com`):
   - Replit Database docs (env vars): https://docs.replit.com/cloud-services/storage-and-databases/sql-database
-- Local DB drift has been observed and is tracked as an epic (`epics/010-local-db-schema-strategy.md`).
+- Local DB drift has been observed and is tracked as an Effort (`efforts/effort-010-local-db-schema-strategy.md`).
 
 Key constraint: Replit’s built-in database `DATABASE_URL` is app-scoped and not usable externally, which prevents “use the same DB URL locally” as a parity strategy:
 - Replit Database docs: https://docs.replit.com/cloud-services/storage-and-databases/replit-database
@@ -138,7 +138,7 @@ Key constraint: Replit’s built-in database `DATABASE_URL` is app-scoped and no
 ### 2.7 Testing / validation
 
 - Repo workflow docs define local checks (`npm ci`, `npm run check`, `npm run build`) and a Replit validation gate for service-backed flows (`AGENTS.md`, `docs/adr/0001-replit-primary-local-agents.md`).
-- EPIC-005 tracks the fact that test scripts are not standardized in `package.json` and acceptance criteria live in inconsistent places (`epics/005-testing-strategy-and-acceptance-criteria.md`).
+- [`testing-and-acceptance.md`](testing-and-acceptance.md) records how validation evidence and acceptance criteria should be routed; standard test scripts are still an environment-parity follow-up.
 
 ### 2.8 Agent tooling constraints (Codex + Claude)
 
@@ -189,7 +189,7 @@ Why patch-level matters:
 1. Both environments run against a DB with the same schema version (Drizzle schema parity).
 2. Schema migrations/push policy is explicit (who can run `db:push`, and against which DB).
 3. Optional-context behavior is consistent across environments, per PD-008:
-   - optional reads degrade gracefully; required persistence fails loudly (`product-decisions/008-optional-context-and-local-validation-boundaries.md`).
+   - optional reads degrade gracefully; required persistence fails loudly (`product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`).
 
 ### 3.5 Auth invariants
 
@@ -298,7 +298,7 @@ Relevant docs:
 
 **Current facts (provenance):**
 - The app requires `DATABASE_URL` and will crash without it (`server/db.ts`, `drizzle.config.ts`).
-- Local schema drift happened and is tracked as EPIC-010.
+- Local schema drift happened and is tracked as EFFORT-010.
 - Replit Database `DATABASE_URL` is app-scoped and cannot be used externally, so local cannot “just point at Replit DB” (Replit DB docs).
 
 **Options:**
@@ -324,7 +324,7 @@ Relevant docs:
 
 - Option 4 (DB-less):
   - Pros: simplest local setup.
-  - Cons: violates “same behavior” for DB-backed features; pushes most correctness checks to Replit; repeats the drift problems that created EPIC-010.
+  - Cons: violates “same behavior” for DB-backed features; pushes most correctness checks to Replit; repeats the drift problems that created EFFORT-010.
 
 **Recommendation: Option 1 (Neon per worktree) if you want “exact parity”, otherwise Option 3.**
 
@@ -441,7 +441,7 @@ Revisit when:
 ### D6 — Authenticated test automation gap (Replit vs local)
 
 **Current facts (provenance):**
-- Agents cannot reliably drive Google popup sign-in in local in-app browser; this gap is documented (`product-decisions/features/mobile-refresh/dev-test-harness.md`).
+- Agents cannot reliably drive Google popup sign-in in local in-app browser; this gap is documented (`product-decisions/features/mobile-refresh/pd-dev-test-harness.md`).
 - The accepted direction rejects a backend auth bypass as the default and prefers a dev-only Firebase custom token lane.
 
 **Options:**
@@ -695,7 +695,7 @@ AI features are costly and non-deterministic; parity means:
 
 Provenance:
 - `server/openai.ts`
-- AI privacy policy: `product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`
+- AI privacy policy: `product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md`
 
 ---
 
@@ -713,7 +713,7 @@ Parity is not “set and forget”. This spec requires explicit drift detection.
 ### 9.2 Where to record drift findings
 
 - Short term: `docs/handoffs/YYYY-MM-DD-<agent>-env-parity.md`
-- Durable: append dated sections to `epics/005-testing-strategy-and-acceptance-criteria.md` and/or create a dedicated parity epic if needed.
+- Durable: append dated sections to this workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), or EFFORT-010/EFFORT-017 as appropriate.
 
 ---
 
@@ -731,7 +731,7 @@ This is the explicit “what it would take” list. Each item has an owner and a
    - Output: `.replit` workflow and docs match.
 
 4. Decide D3 (local DB strategy) and implement the workflow.
-   - Output: a documented, repeatable local DB setup; EPIC-010 advances toward resolution.
+   - Output: a documented, repeatable local DB setup; EFFORT-010 advances toward resolution.
 
 5. Decide D4 (Firebase domain strategy) and implement stable auth domain if chosen.
    - Output: documented Firebase config; local + Replit sign-in works reliably.
@@ -739,7 +739,7 @@ This is the explicit “what it would take” list. Each item has an owner and a
 6. Normalize dev entrypoint command(s).
    - Output: one documented `npm run dev` wrapper that works in both envs (or explicit env-specific wrappers), with a parity check that catches missing secrets.
 
-7. Standardize test scripts in `package.json` (EPIC-005).
+7. Standardize test scripts in `package.json` (testing workflow / environment-parity follow-up).
    - Output: `test:unit`, `test:e2e`, `test:smoke:*` scripts with clear semantics.
 
 8. Implement dev-test harness (planned) to close authenticated smoke gap.
@@ -831,8 +831,8 @@ Replit deploy environments can differ from dev workspaces (environment vars, dom
    - Provenance: dotenvx `--strict` docs: https://dotenvx.com/docs/advanced/run-strict
 
 5. Validate local DB per the chosen D3 strategy:
-   - Before running service-backed flows, run schema health checks (see EPIC-010).
-   - Provenance: `epics/010-local-db-schema-strategy.md`
+   - Before running service-backed flows, run schema health checks (see EFFORT-010).
+   - Provenance: `efforts/effort-010-local-db-schema-strategy.md`
 
 6. Auth parity:
    - Ensure Firebase authorized domains include `localhost` (Firebase no longer guarantees it by default after 2025-04-28).

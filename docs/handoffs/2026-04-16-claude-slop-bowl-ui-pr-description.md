@@ -30,7 +30,7 @@
 - Custom `slop-ingredient-fall` and `slop-wobble` keyframes for the Slop Bowl card
 
 ### Docs
-- `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — records all UX/copy/visual decisions from this round (planning-choice design, tagline iterations, chef emoji rotation, back-button behavior, etc.)
+- `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md` — records all UX/copy/visual decisions from this round (planning-choice design, tagline iterations, chef emoji rotation, back-button behavior, etc.)
 - `design_guidelines.md` — reconciled to match current code (Merriweather + SF Pro / Source Sans Pro, lucide-react, `rounded-lg` default). Future tone/type refresh is flagged as a separate workstream.
 
 ## What's **not** in this PR (deferred, by design)
@@ -61,7 +61,7 @@ Replit validation (all against the merged `main` once both branches land):
 
 ## References
 
-- Decision record: `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`
+- Decision record: `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`
 - Codex's server handoff: `docs/handoffs/2026-04-10-codex-slop-bowl-api.md`
 - My pre-integration handoff: `docs/handoffs/2026-04-10-claude-slop-bowl-replit-merge.md`
 

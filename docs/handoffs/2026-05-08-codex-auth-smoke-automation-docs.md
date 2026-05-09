@@ -10,23 +10,23 @@
 
 Documented Wilson's desire to automate the authenticated browser validation that Phase 3.2 still requires manually. This is intentionally separate from the Phase 3.2 feature branch so the system-upgrade tangent can continue in another window without moving the validated feature target.
 
-The existing home is [EPIC-017](../../epics/017-environment-parity-and-ci-confidence.md), not a new epic. EPIC-017 already tracks reducing manual Replit validation through environment parity, CI confidence, deterministic auth, and repeatable smoke paths.
+The existing home is [EFFORT-017](../../efforts/effort-017-environment-parity-and-ci-confidence.md), not a new epic. EFFORT-017 already tracks reducing manual Replit validation through environment parity, CI confidence, deterministic auth, and repeatable smoke paths.
 
 ## Changes
 
-- `epics/017-environment-parity-and-ci-confidence.md`
+- `efforts/effort-017-environment-parity-and-ci-confidence.md`
   - Added the Phase 3.2 authenticated browser-smoke gap.
   - Recorded blockers: Firebase Google sign-in, deterministic test users/data, DB assertions/reset, live provider cost/flakiness, and the need to distinguish code-verified from browser-verified validation.
   - Added Chef It Up progressive staples as a candidate high-value smoke journey.
-- `product-decisions/features/mobile-refresh/dev-test-harness.md`
+- `product-decisions/features/mobile-refresh/pd-dev-test-harness.md`
   - Added a concrete Phase 3.2 Chef It Up smoke target for the future dev-test harness.
   - Preserves the accepted direction: dev-only Firebase custom-token or emulator-backed lane, not a backend auth bypass.
-- `epics/registry.md`
-  - Updated EPIC-017's last signal.
+- `efforts/registry.md`
+  - Updated EFFORT-017's last signal.
 
 ## Impact on other agents
 
-Future automation work should start from EPIC-017 and the dev-test harness note. The desired first concrete browser smoke is:
+Future automation work should start from EFFORT-017 and the dev-test harness note. The desired first concrete browser smoke is:
 
 - deterministic `dev-test-*` user sign-in
 - seed profile/pantry so Chef It Up has more than four missing staple candidates

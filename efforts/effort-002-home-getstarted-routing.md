@@ -1,0 +1,192 @@
+# EFFORT-002 — Home / Get Started routing & Home-Cook nav consolidation
+
+**Former ID:** EPIC-002
+**Status:** Resolved
+**Owner:** Wilson (product direction) / Claude (next implementation pass)
+**Created:** 2026-04-16
+**Updated:** 2026-04-17
+
+## One-line summary
+
+Home → "Get Started" currently re-runs the full first-time-user profile builder even when the user already has a complete profile. Desired behavior: if the profile exists, "Get Started" should land directly on the Planning screen (Slop Bowl vs Chef it up!). Cook nav already routes to Planning, so consider consolidating Home and Cook into a single surface.
+
+## Context — why this exists
+
+Captured from Wilson during Slop Bowl implementation on 2026-04-16:
+
+> When we press Home > Get Started, it restarts the whole profile builder again, where a user already clearly has setup the Kitchen and Pantry. If the user has already set the kitchen and pantry before, it shouldn't go to the first time user experience again but rather go to the pantry. Desired behavior: when clicking Get Started, it should go straight to Planning i.e. in this case its Slop Bowl vs. Chef it Up menu selection. I also noticed Cook goes to this Plan mode directly, so maybe we should think about consolidating Home and Cook somewhere.
+
+### Current implementation (evidence)
+
+In `client/src/pages/app.tsx`:
+
+- **`currentPhase` state** at line 69 — workflow phases: `welcome` / `profiling` / `planning` / `slop-bowl` / `cooking` / `settings` etc.
+- **`showPlanningChoice` state** at line 83 — toggles the two-card Slop Bowl vs Chef it up! screen inside the `planning` phase
+- **"Get Started" button** at lines 474–479 on the welcome screen:
+  ```tsx
+  <Button
+    onClick={() => setCurrentPhase('profiling')}
+    className="w-full bg-[#FF6B6B] hover:bg-[#FF5252] text-white py-3 text-lg"
+  >
+    Get Started
+  </Button>
+  ```
+  This always routes to `profiling` — no branching on whether the profile is already complete.
+- **`hasExistingProfile()` helper** at lines 487–491 already exists and is the right predicate:
+  ```tsx
+  const hasExistingProfile = () => {
+    return userProfile.cookingSkill &&
+           userProfile.weeklyTime &&
+           userProfile.pantryIngredients.length > 0;
+  };
+  ```
+  It's defined but not used on the Get Started path.
+- **Bottom nav at line 437** — Cook tab already highlights when `currentPhase === 'planning' || currentPhase === 'slop-bowl'`, meaning Cook's click handler routes straight to the planning-choice screen. Home's nav highlights on `welcome`.
+
+So two different surfaces (Home "Get Started" and bottom-nav Cook) are solving overlapping intents, and only one of them respects existing profile state.
+
+## Scope
+
+### In scope
+
+- Branch the "Get Started" click handler on `hasExistingProfile()`:
+  - If profile is complete → `setCurrentPhase('planning')` + `setShowPlanningChoice(true)`
+  - If profile is incomplete → keep current behavior (`setCurrentPhase('profiling')`)
+- Consider whether the welcome screen itself should auto-skip for returning users (i.e. land directly on Planning after sign-in rather than show the "Welcome to Laica / Get Started" card at all)
+- Evaluate Home vs Cook nav consolidation:
+  - Option A: Keep both, but make Home a real dashboard (saved recipes, continue cooking, recommendations per `design_guidelines.md`) — Cook stays as the Planning entry
+  - Option B: Merge Home + Cook into one tab. Bottom nav becomes 3-tab instead of 4-tab
+  - Option C: Keep Home as the post-signin landing screen but make its primary CTA identical to Cook (both go to Planning) — acceptable short-term but defers the IA question
+- Document the decision as either a product-decisions entry or a PD graduation from this Effort
+
+### Out of scope
+
+- Redesigning the welcome / first-time experience itself — that's a separate tone/onboarding workstream
+- Profile edit flow — "Settings" already covers that, not part of this Effort
+- Bottom-nav visual redesign — this Effort is about IA (information architecture), not styling. If the nav count changes from 4 → 3, the token-level styling change rides on EFFORT-001's rubric
+
+## Decisions made so far
+
+- **"Get Started" should not re-run profile builder for users with a complete profile** — Wilson, 2026-04-16
+- **Cook nav's existing behavior (→ Planning choice) is the desired target state for returning users** — Wilson, 2026-04-16
+- **Home/Cook consolidation is worth considering but not mandated** — Wilson flagged it as an IA question, not a must-do
+- **Home and Cook stay separate** — Wilson, 2026-04-17. Rationale: Cook is already disabled during first-time setup, so the overlap concern is acceptable without nav consolidation.
+
+## Open questions
+
+Historical questions from the active decision window are preserved below. They were resolved by `product-decisions/pd-006-home-and-cook-remain-separate.md` on 2026-04-17.
+
+### 1. How strictly to detect "profile complete"?
+
+`hasExistingProfile()` checks `cookingSkill && weeklyTime && pantryIngredients.length > 0`. Is that the right bar? Consider:
+
+- `kitchenEquipment` is also part of the profile but not in the predicate
+- `favoriteChefs` is optional and not checked
+- Users who sign in with a partially-filled profile (e.g. skipped pantry) should still be able to get to Slop Bowl — Slop Bowl's `pantry-check` state handles empty pantry gracefully
+
+Default proposal: expand the predicate to also accept "any pantry ingredients OR any kitchen equipment" so partial profiles still skip the FTUE but push the user to fill the gap inside Slop Bowl (see EFFORT-003 for inline pantry edit).
+
+### 2. Home as dashboard vs Home as redirect
+
+Should Home be:
+- **(a) A dashboard** matching the spec in `design_guidelines.md` (featured recipe, continue cooking, recommendations, categories)
+- **(b) A lightweight landing that just redirects returning users to Planning** — effectively making Home a sign-in thank-you screen
+- **(c) Dropped entirely in favor of Cook** — nav goes from 4 → 3 tabs (Cook / Pantry / Profile)
+
+(a) is the most work but matches the original design intent. (b) is the cheapest fix. (c) is the most opinionated IA move.
+
+**Decision needed:** Wilson to pick direction before implementation.
+
+### 3. Nav consolidation — if yes, how?
+
+If Home and Cook merge:
+- Which label wins? "Cook" is more action-oriented; "Home" is more conventional
+- Which icon wins? Home icon is more universal; ChefHat matches the product
+- Does "Plan a meal" remain as a sub-label, or is it implicit?
+
+Claude's lean: **Cook + ChefHat** if they merge, but Wilson's call.
+
+## Agent checklist — when to read this Effort
+
+Read EFFORT-002 before starting any of the following:
+
+- [ ] Adding or changing navigation entry points in `client/src/pages/app.tsx` (welcome screen, bottom nav, routing logic)
+- [ ] Modifying the `currentPhase` state machine or the phases (`welcome` / `profiling` / `planning` / etc.)
+- [ ] Changing `hasExistingProfile()` or any profile-complete predicate
+- [ ] Designing a new post-sign-in landing surface
+- [ ] Adding a new bottom-nav tab, renaming one, or changing the count
+- [ ] Writing a handoff that describes a new "Get Started" / FTUE / returning-user flow
+
+When one of these applies, cite EFFORT-002 in your handoff and note how the change interacts (conforms / defers / adds new signal). If you add new routing paths that intersect with the questions above, document them here under a `## YYYY-MM-DD — <summary>` section.
+
+## Resolution criteria — what "done" looks like
+
+This Effort is `Resolved` when all of the following are true:
+
+1. "Get Started" on the welcome screen respects `hasExistingProfile()` — returning users land on Planning, not the profile builder
+2. A product decision exists for the Home-vs-Cook question (consolidate / keep both with clear separation / other)
+3. The bottom nav reflects the accepted IA — if consolidated, the active-state logic and icon are updated consistently
+4. `design_guidelines.md`'s "Home Dashboard" section is reconciled to match the accepted direction (either kept as the aspirational target, updated to reflect consolidation, or marked deferred)
+5. This Effort file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the product decision
+
+## Linked artifacts
+
+- `client/src/pages/app.tsx` — welcome screen, `currentPhase` state machine, bottom nav (Home + Cook tabs)
+- `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md` — planning-choice screen decisions (the target of the corrected routing)
+- `design_guidelines.md` — "Home Dashboard" section (currently aspirational, not implemented)
+- `product-decisions/pd-006-home-and-cook-remain-separate.md` — historical product decision for the earlier Home/Cook split, now superseded
+- `product-decisions/pd-009-mobile-refresh-navigation.md` — accepted mobile-refresh decision consolidating authenticated entry into Planning
+- `docs/handoffs/2026-04-17-codex-Effort-002-003-flow-fixes.md` — implementation handoff for the returning-user routing fix
+- `docs/handoffs/2026-04-17-codex-Effort-002-003-validation.md` — follow-up handoff recording validation/test confirmation
+
+## Chronology — how we got here
+
+### 2026-04-16 — Effort created
+
+During Slop Bowl implementation, Wilson navigated the app end-to-end and noticed two independent issues in the same message:
+
+1. Home "Get Started" re-runs the profile builder even when the profile is complete
+2. Cook nav already goes to Planning directly, which overlaps with Home's role
+
+Wilson asked both items be parked as a backlog Effort rather than fixed inline during Slop Bowl. This doc is that record. Implementation is deferred to a future window after Slop Bowl ships.
+
+### 2026-04-17 — Returning-user routing fix landed
+
+Codex implemented the low-risk half of this Effort in `client/src/pages/app.tsx`:
+
+- The welcome-screen CTA now branches on a shared `hasPlanningProfile` helper instead of always forcing users back through profiling
+- Returning users now see updated welcome copy and a **Start Planning** CTA that sends them directly to the Slop Bowl vs Chef it up! planning-choice screen
+- The planning-ready predicate now accepts `cookingSkill + weeklyTime + (pantry OR kitchen equipment)` so users with enough setup to cook are not forced back through FTUE
+
+At this point in the chronology, the Home-vs-Cook information-architecture question was still open. That decision was later settled in the 2026-04-17 resolution note below.
+
+### 2026-04-17 — Implemented behavior validated/tested
+
+Wilson later confirmed that the implemented EFFORT-002 behavior was validated and tested.
+
+This adds confidence that the returning-user routing fix works as intended in practice:
+
+- users with an existing planning-ready profile no longer have to re-run the first-time profile builder from Home
+- the welcome CTA routes them into the planning-choice screen as intended
+
+At the time this validation note was added, the Effort still remained `In Progress` because the Home-vs-Cook information-architecture decision had not yet been finalized. That final product call was recorded later the same day and is captured in the resolution note below.
+
+### 2026-04-17 — Resolved
+
+Wilson later made the remaining product call: **leave Home and Cook as they are**.
+
+Accepted rationale:
+
+- during the first-time-user experience, Cook is already grayed out / disabled until the profile is set up
+- that gating removes the main reason to consolidate the two surfaces right now
+- the implemented Home routing fix already solves the practical bug for returning users
+
+This decision is recorded in `product-decisions/pd-006-home-and-cook-remain-separate.md`. `design_guidelines.md` now marks the richer Home Dashboard section as deferred / aspirational rather than a required current implementation target. With that, EFFORT-002's resolution criteria are met and the Effort flips to `Resolved`.
+
+### 2026-04-28 — Historical decision superseded by mobile refresh
+
+Mobile-refresh planning reopened the information architecture because Wilson wanted the app to feel native-mobile rather than like a website with a redundant post-login Home step. `product-decisions/pd-009-mobile-refresh-navigation.md` supersedes PD-006: incomplete users route directly to Setup, complete users route directly to Planning, and the redundant authenticated Home tab is removed in the refresh.
+
+## Next steps when work resumes
+
+Resolved on 2026-04-17 for the earlier app shape, then superseded on 2026-04-28 by the mobile-refresh direction. Future Home-dashboard expansion can still be tracked as a new work item if it becomes active, but implementation should follow PD-009 for the mobile-refresh work.

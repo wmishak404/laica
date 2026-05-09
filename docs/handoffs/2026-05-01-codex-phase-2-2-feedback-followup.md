@@ -45,13 +45,13 @@ Recommended UX for scan cognitive load:
 - `CLAUDE.md`
 - `initiatives/INIT-001-mobile-refresh.md`
 - `initiatives/registry.md`
-- `product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md`
-- `product-decisions/features/mobile-refresh/design-language.md`
-- `epics/001-ui-governance.md`
-- `epics/004-selection-controls-tap-targets.md`
-- `epics/005-testing-strategy-and-acceptance-criteria.md`
-- `epics/012-laica-design-language.md`
-- `epics/registry.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
+- `efforts/effort-001-ui-governance.md`
+- `efforts/effort-004-selection-controls-tap-targets.md`
+- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
+- `efforts/effort-012-laica-design-language.md`
+- `efforts/registry.md`
 
 ## Open Items
 

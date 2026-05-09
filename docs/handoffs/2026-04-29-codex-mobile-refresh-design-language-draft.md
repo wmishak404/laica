@@ -6,16 +6,16 @@
 
 ## Summary
 
-Created the first concrete LAICA mobile-refresh design-language draft so EPIC-012 can guide Phase 2 setup polish and later Phase 3-5 visual implementation.
+Created the first concrete LAICA mobile-refresh design-language draft so EFFORT-012 can guide Phase 2 setup polish and later Phase 3-5 visual implementation.
 
 ## Changes
 
-- `product-decisions/features/mobile-refresh/design-language.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
   - New draft target design-language artifact.
   - Defines LAICA positioning, core principles, annotated visual exemplars, color/type/shape/icon/imagery/motion direction, surface taxonomy, phase guidance, and a visual review checklist.
 - `product-decisions/features/mobile-refresh/README.md`
   - Links the new design-language draft from the mobile-refresh design principles.
-- `epics/012-laica-design-language.md`
+- `efforts/effort-012-laica-design-language.md`
   - Records the new draft artifact and adds a chronology note.
 - `design_guidelines.md`
   - Clarifies that it remains a current-implementation record while the mobile-refresh target identity is drafted separately.

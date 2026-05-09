@@ -32,8 +32,8 @@ Reviewed Claude's pushed Slop Bowl planning docs on `origin/claude/funny-boyd` a
 
 - Reviewed pushed docs from `origin/claude/funny-boyd`:
   - `docs/handoffs/2026-04-09-claude-slop-bowl-plan.md`
-  - `product-decisions/002-slop-bowl.md`
-  - `product-decisions/003-openai-model-strategy.md`
+  - `product-decisions/pd-002-slop-bowl.md`
+  - `product-decisions/pd-003-openai-model-strategy.md`
   - `AGENTS.md`
 - Cross-checked against committed code in:
   - `server/openai.ts`
