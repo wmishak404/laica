@@ -1,9 +1,9 @@
 # EPIC-007 — Vision scan should explicitly say when nothing was detected
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (future implementation review)
 **Created:** 2026-04-27
-**Updated:** 2026-05-07
+**Updated:** 2026-05-09
 
 ## One-line summary
 
@@ -124,3 +124,7 @@ PR #27 merged Phase 2.1's explicit scan outcome feedback into `main`. This satis
 ### 2026-05-07 — EPIC-018 copy pass removes blame-y scan failure language
 
 The EPIC-018 authenticated error handling branch also touched scan failure copy in `client/src/components/cooking/user-profiling.tsx` where existing rate-limit text said the user made several scans quickly. The copy now keeps the same recovery paths while using first-person, plain-English phrasing. This conforms to the epic's distinction between valid zero-result scans and service/request failures; it does not resolve the remaining negative-control validation criterion.
+
+### 2026-05-09 - Epic status audit
+
+Status changed from `Open` to `In Progress`. Explicit no-detection feedback has shipped across the refreshed setup/settings scan surfaces, and later scan-message work preserved that distinction. The epic remains unresolved because the final criterion still requires named negative-control pantry/kitchen validation evidence for a valid empty scan.

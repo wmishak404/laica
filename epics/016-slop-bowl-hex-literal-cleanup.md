@@ -1,8 +1,9 @@
 # EPIC-016 — Slop Bowl Hex Literal Cleanup
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-02
+**Updated:** 2026-05-09
 
 ## One-line summary
 
@@ -73,3 +74,7 @@ This does not close EPIC-016 yet. Resolution still needs visual comparison again
 Wilson's Phase 3 Replit review found the Slop Bowl planning-entry card had become too vanilla and no longer carried the joke/slang identity. The follow-up keeps the styling under tokenized `planning-*` / `slop-*` classes, centers the `MAKE GOOD SLOP` sticker mechanically, adds a scoped handwritten label treatment, and restores a messier ingredient-storm bowl doodle.
 
 This adds design evidence for Slop Bowl tone while preserving the EPIC-016 cleanup direction: no new raw hex literals were added.
+
+## 2026-05-09 - Epic status audit
+
+Status changed from `Open` to `In Progress`. Slop Bowl's raw hex cleanup has effectively started: `client/src/components/cooking/slop-bowl.tsx` and the Planning entry now use scoped/tokenized styling and a PD-005 tone-override comment instead of the original raw `bg-[#hex]` / `hover:bg-[#hex]` drift. The epic remains unresolved because visual comparison has not been recorded and EPIC-015's lint/PR-template enforcement has not shipped.

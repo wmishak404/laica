@@ -1,9 +1,9 @@
 # EPIC-009 — Consistent comma-separated ingredient entry
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-04-28
+**Updated:** 2026-05-09
 
 ## One-line summary
 
@@ -102,3 +102,7 @@ Wilson's Phase 2.1 setup validation found that `ground beef. mayo. rice` was tre
 `codex/mobile-refresh-phase-3-planning` refreshes the Slop Bowl confirmation surface for INIT-001 Phase 3 while keeping `parseCommaSeparatedEntries` and duplicate prevention as the quick-add behavior. The visible helper now says users can add more or remove anything while preserving the 3+ ingredient guard.
 
 This is supporting evidence for the epic, not closeout. Browser/Replit validation of the refreshed Slop Bowl quick-add surface is still needed before resolving the remaining Slop Bowl validation criterion.
+
+## 2026-05-09 - Epic status audit
+
+Status changed from `Open` to `In Progress`. The shared parser and Slop Bowl quick-add integration are on `main`, and parser/unit coverage exists for comma, period, duplicate, and prompt-marker cases. The epic remains unresolved because the refreshed Slop Bowl quick-add surface still needs browser/Replit validation that `buns, mayo` creates separate temporary badges and keeps duplicate behavior intact.

@@ -1,9 +1,9 @@
 # EPIC-019 — AI error telemetry and eval monitoring
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-07
-**Updated:** 2026-05-07
+**Updated:** 2026-05-09
 **Linked initiative:** [INIT-002 — AI Error Telemetry & Eval Monitoring](../initiatives/INIT-002-ai-error-telemetry.md)
 
 ## One-line summary
@@ -95,3 +95,7 @@ Filed after Wilson asked to keep authenticated AI error copy and no-redirect beh
 ## 2026-05-07 — Promoted to INIT-002
 
 Wilson confirmed the work is phased (stdout logs → real-traffic observation → DB persistence → admin APIs → cluster→action triage) and asked to file it as [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md). Phase 0 created the INIT hub, [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md), and active-list updates. Phase 1 (request-id middleware + stdout structured logger + 9 AI routes) is gated on EPIC-018 merging.
+
+## 2026-05-09 - Epic status audit
+
+Status changed from `Open` to `In Progress`. Phase 0 has merged on `main` through INIT-002 and PD-010, and EPIC-018 has been resolved so Phase 1 is unblocked. The epic remains unresolved because stdout logging, observation, DB persistence, admin APIs, worked cluster examples, and Replit redaction validation are still future phases.

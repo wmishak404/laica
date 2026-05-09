@@ -79,14 +79,14 @@ Read these before starting work in their governed domains:
 
 | # | Title | Status | Owner | Created |
 |---|---|---|---|---|
-| [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Open` | Wilson / Claude / Codex | 2026-04-17 |
-| [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Open` | Wilson / Codex / Claude | 2026-04-17 |
-| [007](007-vision-scan-no-detection-feedback.md) | Vision scan should explicitly say when nothing was detected | `Open` | Wilson / Codex / Claude | 2026-04-27 |
-| [009](009-consistent-comma-separated-ingredient-entry.md) | Consistent comma-separated ingredient entry | `Open` | Wilson / Codex / Claude | 2026-04-27 |
+| [004](004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `In Progress` | Wilson / Claude / Codex | 2026-04-17 |
+| [005](005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `In Progress` | Wilson / Codex / Claude | 2026-04-17 |
+| [007](007-vision-scan-no-detection-feedback.md) | Vision scan should explicitly say when nothing was detected | `In Progress` | Wilson / Codex / Claude | 2026-04-27 |
+| [009](009-consistent-comma-separated-ingredient-entry.md) | Consistent comma-separated ingredient entry | `In Progress` | Wilson / Codex / Claude | 2026-04-27 |
 | [010](010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [013](013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |
 | [014](014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |
 | [015](015-ui-governance-enforcement.md) | UI governance enforcement (lint + PR template) | `Open` | Wilson / Codex / Claude | 2026-05-02 |
-| [016](016-slop-bowl-hex-literal-cleanup.md) | Slop Bowl hex literal cleanup | `Open` | Wilson / Codex / Claude | 2026-05-02 |
-| [019](019-ai-error-telemetry-and-eval-monitoring.md) | AI error telemetry and eval monitoring | `Open` | Wilson / Codex / Claude | 2026-05-07 |
-| [020](020-workflow-documentation-audit.md) | Workflow documentation audit and graduation | `Open` | Wilson / Codex / Claude | 2026-05-08 |
+| [016](016-slop-bowl-hex-literal-cleanup.md) | Slop Bowl hex literal cleanup | `In Progress` | Wilson / Codex / Claude | 2026-05-02 |
+| [019](019-ai-error-telemetry-and-eval-monitoring.md) | AI error telemetry and eval monitoring | `In Progress` | Wilson / Codex / Claude | 2026-05-07 |
+| [020](020-workflow-documentation-audit.md) | Workflow documentation audit and graduation | `In Progress` | Wilson / Codex / Claude | 2026-05-08 |

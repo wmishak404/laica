@@ -1,8 +1,9 @@
 # EPIC-020 - Workflow documentation audit and graduation
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-08
+**Updated:** 2026-05-09
 
 ## One-line summary
 
@@ -145,3 +146,7 @@ Do not create a separate process epic for that checklist. This workflow belongs 
 Wilson's returning-user empty-Pantry scan test added a concrete methodology requirement for the future testing/acceptance workflow: acceptance should cover valid empty states and cross-surface persistence, not only happy-path completion. The tested pattern was: clear a domain to zero items, start in-flight async work, navigate across sibling sections, leave/back out while work is active, and confirm unrelated saved domains still persist.
 
 Fold this into the future Feature Impact Review/system-touchpoint checklist. For any enhancement that changes workflows, agents should ask whether the feature has destructive reset-to-empty states, long-running async work, navigation/back/cancel behavior, stale-result risk, and persistence boundaries across adjacent domains such as Profile, Pantry, Kitchen, and History.
+
+## 2026-05-09 - Epic status audit
+
+Status changed from `Open` to `In Progress`. The audit has already mapped the existing workflow docs, captured the EPIC-005 graduation path, and absorbed EPIC-021's feature-impact and corner-case testing signals. The epic remains unresolved until the central testing/acceptance workflow exists, EPIC-005 is closed out, references agree, registry drift is fixed or explicitly deferred, and a final workflow-map handoff is pushed.

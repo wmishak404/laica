@@ -1,9 +1,9 @@
 # EPIC-005 — App-wide testing strategy and acceptance criteria workflow
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (workflow review)
 **Created:** 2026-04-17
-**Updated:** 2026-05-01
+**Updated:** 2026-05-09
 
 ## One-line summary
 
@@ -319,6 +319,10 @@ This adds a useful acceptance pattern for DB-backed optimistic UI: tests should 
 PR #46 merged after local checks, Replit code-path review, and Wilson's authenticated Replit/browser validation all passed at `9646c80`. The merge confirmed that code verification alone was not enough for this feature: Replit's non-authenticated review could certify tests, TypeScript, build, and behavior paths, but Wilson still had to run the live Firebase-authenticated preview to close the browser gate.
 
 The acceptance signal is now recorded in INIT-001 and the Phase 3.2 feature record. EPIC-005 stays open only for the broader testing-workflow graduation work tracked separately under EPIC-020; it should not become a running ledger for every future feature's acceptance criteria.
+
+### 2026-05-09 - Epic status audit
+
+Status changed from `Open` to `In Progress`. The repo now has repeated accepted validation patterns, the Replit validation focus guide, phase-level acceptance records, and EPIC-020 as the dedicated graduation track. This epic remains unresolved because the central testing/acceptance workflow artifact and active-reference repointing still have not landed.
 
 ## Next steps when work resumes
 

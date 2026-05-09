@@ -1,9 +1,9 @@
 # EPIC-004 — Selection controls should be full-row tap targets
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson (product direction) / Claude (next implementation pass) / Codex (doc capture)
 **Created:** 2026-04-17
-**Updated:** 2026-05-05
+**Updated:** 2026-05-09
 
 ## One-line summary
 
@@ -212,9 +212,13 @@ PR #46 merged Phase 3.2 after Wilson's authenticated Replit/browser validation a
 
 This is still not the final setup/settings closeout for EPIC-004, but it is the preferred comparison point when Slop Bowl pantry-check visuals are aligned in Phase 3.1.
 
+### 2026-05-09 - Epic status audit
+
+Status changed from `Open` to `In Progress`. The current app has already shipped full-row setup/settings profile controls and multiple Phase 3 selection-control refinements, so this is no longer untouched backlog. The epic should still not be resolved until a dedicated setup/settings closeout verifies mobile tap behavior, keyboard/focus behavior, assistive semantics, and records how the removed Weekly Cooking Time criterion is handled.
+
 ## Next steps when work resumes
 
-1. Implement and validate the full-row selection style for Phase 2 Cooking Skill and Dietary Restrictions in setup and settings
-2. Make setup Cooking Skill auto-advance after one selection, while keeping explicit continuation for Dietary Restrictions and future multi-select screens
+1. Run a dedicated setup/settings closeout against the shipped Cooking Skill and Dietary Restrictions controls
+2. Confirm setup Cooking Skill still auto-advances after one selection, while Dietary Restrictions and future multi-select screens retain explicit continuation
 3. Validate keyboard, focus, assistive-technology, and mobile tap behavior
-4. Record the accepted pattern in a durable implementation note and resolve this epic
+4. Record the accepted pattern and the Weekly Cooking Time removal in a durable implementation note, then resolve this epic
