@@ -1,5 +1,6 @@
-# EPIC-018 — Authenticated AI error handling and pantry recipe 400s
+# EFFORT-018 — Authenticated AI error handling and pantry recipe 400s
 
+**Former ID:** EPIC-018
 **Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-06
@@ -40,10 +41,10 @@ In scope:
 Out of scope:
 
 - Changing rate-limit quotas themselves.
-- Replacing Replit validation policy or solving broader environment parity; see EPIC-017.
+- Replacing Replit validation policy or solving broader environment parity; see EFFORT-017.
 - Redesigning all error UI visuals beyond direct, non-demo copy.
 - Designing live-cooking-specific inline retry, persistent Feedback placement, or active-cooking recovery UI; Mobile Refresh Phase 4 owns that surface.
-- Persistent AI error/eval telemetry; see [EPIC-019](019-ai-error-telemetry-and-eval-monitoring.md).
+- Persistent AI error/eval telemetry; see [EFFORT-019](effort-019-ai-error-telemetry-and-eval-monitoring.md).
 
 ## Decisions made so far
 
@@ -51,25 +52,25 @@ Out of scope:
 - AI/service/rate-limit errors should not force navigation to `/`.
 - The first observed user failure was a 400 validation problem, not a true rate-limit problem; later 429s were caused by repeated retries.
 - Preference caps for recipe suggestion routes should remain aligned so stale callers and alternate paths do not fail differently.
-- EPIC-018 should replace demo-era handling in live-cooking AI calls, but Phase 4 owns inline cooking-step recovery, Coach Feed failure placement, and inline Feedback actions because active cooking needs hands-busy-safe UI.
+- EFFORT-018 should replace demo-era handling in live-cooking AI calls, but Phase 4 owns inline cooking-step recovery, Coach Feed failure placement, and inline Feedback actions because active cooking needs hands-busy-safe UI.
 - Copy should use first person, plain English, no user blame for app-generated request-shape failures, and `Laica` casing when the product name appears.
 - 429 copy should not show exact retry seconds; `Retry-After` stays available on the typed error for classification/timing.
 - Feedback CTAs belong on errors where retrying may not be enough. Live-cooking callsites may suppress toast Feedback CTA behavior because Phase 4 owns inline Feedback placement.
-- Operational AI error/eval logging should proceed as a separate epic so this branch can ship the user-facing fix cleanly.
+- Operational AI error/eval logging should proceed as a separate Effort so this branch can ship the user-facing fix cleanly.
 
 ## Open questions
 
-None for EPIC-018. Follow-up operational telemetry work is tracked separately in [EPIC-019](019-ai-error-telemetry-and-eval-monitoring.md), and live-cooking inline recovery remains in Mobile Refresh Phase 4.
+None for EFFORT-018. Follow-up operational telemetry work is tracked separately in [EFFORT-019](effort-019-ai-error-telemetry-and-eval-monitoring.md), and live-cooking inline recovery remains in Mobile Refresh Phase 4.
 
 Historical answers from resolution:
 
 1. Replit validation confirmed the 1000-character preference cap path at `860bd68`; Wilson reviewed the post-validation cleanup diff and carried the pass forward to `14ac1c4`.
-2. No separate validator needed an EPIC-018 code change after the fresh branch/rebase validation.
+2. No separate validator needed an EFFORT-018 code change after the fresh branch/rebase validation.
 3. `Retry-After` remains on `ApiRequestError` for classification/timing, but 429 user copy intentionally says "a few minutes" rather than exact seconds.
 
 ## Agent checklist
 
-Read this epic before:
+Read this Effort before:
 
 - Changing `client/src/lib/rateLimitHandler.ts` or replacing `withDemoErrorHandling`
 - Changing AI route error handling, toast copy, or redirect behavior
@@ -79,13 +80,13 @@ Read this epic before:
 
 Also read:
 
-- [EPIC-005](005-testing-strategy-and-acceptance-criteria.md)
-- [EPIC-017](017-environment-parity-and-ci-confidence.md) if the failure appears to be stale Replit build/cache/runtime drift
+- [EFFORT-005](effort-005-testing-strategy-and-acceptance-criteria.md)
+- [EFFORT-017](effort-017-environment-parity-and-ci-confidence.md) if the failure appears to be stale Replit build/cache/runtime drift
 - [product-decisions/005-ui-governance.md](../product-decisions/005-ui-governance.md) for safety/error tone
 
 ## Resolution criteria
 
-This epic can be resolved when all of the following are true:
+This Effort can be resolved when all of the following are true:
 
 1. No authenticated AI flow shows "Demo Limit Reached" or demo-limit fallback copy.
 2. No AI flow automatically redirects to `/` solely because a request failed or rate-limited.
@@ -95,15 +96,15 @@ This epic can be resolved when all of the following are true:
 
 ## 2026-05-06 — Filed From Phase 3 Replit Validation
 
-Filed after Wilson reported the misleading demo-limit toast and repeated pantry recipe 400s during INIT-001 Phase 3 validation. Current branch has already aligned recipe preference caps locally, but the epic remains open because the cross-app error handler still carries demo-era behavior and the Replit 500-character symptom needs validation against the running environment.
+Filed after Wilson reported the misleading demo-limit toast and repeated pantry recipe 400s during INIT-001 Phase 3 validation. Current branch has already aligned recipe preference caps locally, but the Effort remains open because the cross-app error handler still carries demo-era behavior and the Replit 500-character symptom needs validation against the running environment.
 
 ## 2026-05-07 — Live Cooking Error UX Deferred to Phase 4
 
-Wilson decided that live-cooking-specific error presentation should not be solved through EPIC-018 toasts. EPIC-018 remains responsible for typed authenticated AI error classification, non-demo copy, and no redirect behavior across AI calls, including live-cooking callsites. Mobile Refresh Phase 4 now owns inline cooking-step retry/recovery, Coach Feed failure placement, and inline Feedback access for persistent mid-cook issues.
+Wilson decided that live-cooking-specific error presentation should not be solved through EFFORT-018 toasts. EFFORT-018 remains responsible for typed authenticated AI error classification, non-demo copy, and no redirect behavior across AI calls, including live-cooking callsites. Mobile Refresh Phase 4 now owns inline cooking-step retry/recovery, Coach Feed failure placement, and inline Feedback access for persistent mid-cook issues.
 
 ## 2026-05-07 — Resolved by PR #43
 
-PR #43 merged EPIC-018 into `main` as squash commit `1110b0088211be593d234ea26392b47384d43470`.
+PR #43 merged EFFORT-018 into `main` as squash commit `1110b0088211be593d234ea26392b47384d43470`.
 
 Resolution evidence:
 
@@ -112,4 +113,4 @@ Resolution evidence:
 - 400, 401/403, 404, 413, 422, 429, 5xx, network/offline, and unknown AI-adjacent errors now have classified plain-English behavior and focused tests where applicable.
 - Server route/rate-limit payloads return typed codes where needed for client classification, while Slop Bowl keeps the `SLOP_BOWL_TOO_FEW_INGREDIENTS` precondition contract.
 - Replit validation passed at `860bd68`; Wilson reviewed the only post-validation code diff and confirmed the pass carries to current head `14ac1c4`.
-- EPIC-019 preserves the separate redacted error/eval telemetry track, and Phase 4 preserves live-cooking-specific inline retry/recovery work.
+- EFFORT-019 preserves the separate redacted error/eval telemetry track, and Phase 4 preserves live-cooking-specific inline retry/recovery work.

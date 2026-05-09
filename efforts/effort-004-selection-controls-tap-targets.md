@@ -1,13 +1,15 @@
-# EPIC-004 — Selection controls should be full-row tap targets
+# EFFORT-004 — Selection controls should be full-row tap targets
 
-**Status:** In Progress
+**Former ID:** EPIC-004
+**Status:** Resolved
 **Owner:** Wilson (product direction) / Claude (next implementation pass) / Codex (doc capture)
 **Created:** 2026-04-17
 **Updated:** 2026-05-09
+**Resolved:** 2026-05-09
 
 ## One-line summary
 
-Onboarding and profile-edit selection menus currently behave like small radio bullets, forcing users to click the dot precisely. Replace them with full-width selectable button/card rows so users can press anywhere in the option area.
+Make setup and profile choices easy to tap anywhere in the row, not tiny radio-dot targets.
 
 ## Context — why this exists
 
@@ -50,7 +52,7 @@ In `client/src/components/ui/radio-group.tsx`:
 ### Out of scope
 
 - Rewriting the full onboarding flow or changing step order/copy
-- Global visual refresh, palette, or typography work — tracked separately under EPIC-001
+- Global visual refresh, palette, or typography work — tracked separately under EFFORT-001
 - Converting every checkbox or multi-select surface in the app to card-style controls in the same pass
 - Replacing the underlying Radix radio primitive with a different control library
 
@@ -86,7 +88,7 @@ Possible expansion:
 
 - Similar checkbox rows if the same problem exists there
 
-Default lean: ship the radio-style single-select menus first, then review whether checkbox rows deserve a follow-up epic.
+Default lean: ship the radio-style single-select menus first, then review whether checkbox rows deserve a follow-up Effort.
 
 ### 3. What selected-state language should the UI use?
 
@@ -107,9 +109,9 @@ The request clearly asks for "less bullet point" and "more like a big button." T
 
 Wilson to confirm if implementation proposals differ meaningfully in density or visual weight.
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-004 before starting any of the following:
+Read EFFORT-004 before starting any of the following:
 
 - [ ] Modifying the onboarding selection rows in `client/src/components/cooking/user-profiling.tsx`
 - [ ] Modifying the profile settings selection rows in `client/src/components/cooking/user-settings.tsx`
@@ -117,11 +119,11 @@ Read EPIC-004 before starting any of the following:
 - [ ] Creating a reusable full-row radio/selectable-row primitive
 - [ ] Reworking how single-select options look and behave in the cooking-profile flow
 
-When one of these applies, cite EPIC-004 in your handoff and note how the change interacts with it (conforms / defers / adds new signal). If the implementation expands beyond the radio-style menus listed above, add a dated note here documenting the broader rollout.
+When one of these applies, cite EFFORT-004 in your handoff and note how the change interacts with it (conforms / defers / adds new signal). If the implementation expands beyond the radio-style menus listed above, add a dated note here documenting the broader rollout.
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. In onboarding, users can click/tap anywhere in a skill-level option row to select it
 2. In onboarding, users can click/tap anywhere in a weekly-time option row to select it
@@ -129,20 +131,20 @@ This epic is `Resolved` when all of the following are true:
 4. The selected state is visually legible as a button/card choice, not just a tiny filled dot
 5. Single-choice setup rows that are designed as one-tap decisions auto-advance after selection, while multi-select rows retain explicit continuation
 6. Keyboard and assistive-technology behavior still works correctly for the radio groups
-7. A durable implementation note exists in a handoff, feature phase note, or product decision, and this epic has a final `## YYYY-MM-DD — Resolved` section pointing to it
+7. A durable implementation note exists in a handoff, feature phase note, or product decision, and this Effort has a final `## YYYY-MM-DD — Resolved` section pointing to it
 
 ## Linked artifacts
 
 - `client/src/components/cooking/user-profiling.tsx` — onboarding radio-style selection rows
 - `client/src/components/cooking/user-settings.tsx` — settings radio-style selection rows
 - `client/src/components/ui/radio-group.tsx` — shared primitive currently used by both surfaces
-- `epics/001-ui-governance.md` — related governance epic; this issue reinforces utilitarian-form consistency and tap-target quality
+- `efforts/effort-001-ui-governance.md` — related governance Effort; this issue reinforces utilitarian-form consistency and tap-target quality
 
 ## Chronology — how we got here
 
-### 2026-04-17 — Epic created
+### 2026-04-17 — Effort created
 
-During localhost review, Wilson flagged that the cooking-profile menu selections require overly precise clicking on the radio dot itself. The visible row reads like a selectable option, but the interaction does not match that expectation. Rather than fold this into EPIC-001's broad governance work, it is tracked here as a focused form-control usability epic so it can be implemented cleanly and then referenced from the wider governance track.
+During localhost review, Wilson flagged that the cooking-profile menu selections require overly precise clicking on the radio dot itself. The visible row reads like a selectable option, but the interaction does not match that expectation. Rather than fold this into EFFORT-001's broad governance work, it is tracked here as a focused form-control usability Effort so it can be implemented cleanly and then referenced from the wider governance track.
 
 ### 2026-04-28 — Mobile refresh expands the full-row pattern
 
@@ -162,7 +164,7 @@ Wilson's Phase 2.1 Replit visual review clarified that `No restrictions` should 
 
 ### 2026-05-01 — Returning Settings should share profile-control composition
 
-Wilson's Phase 2.2 review challenged the difference between first-time setup and returning Settings. This adds a direct EPIC-004 signal: Cooking Profile controls in Settings should not duplicate and drift from setup-only full-row choices. The recommended implementation direction is a shared profile-choice composition used by both flows, with first-time setup retaining auto-advance/completion behavior and returning Settings retaining independent save behavior.
+Wilson's Phase 2.2 review challenged the difference between first-time setup and returning Settings. This adds a direct EFFORT-004 signal: Cooking Profile controls in Settings should not duplicate and drift from setup-only full-row choices. The recommended implementation direction is a shared profile-choice composition used by both flows, with first-time setup retaining auto-advance/completion behavior and returning Settings retaining independent save behavior.
 
 ### 2026-05-01 — Returning Settings profile choices aligned to setup rows
 
@@ -172,7 +174,7 @@ The Phase 2.2 Settings alignment pass mirrors the accepted setup Cooking Skill a
 
 `codex/mobile-refresh-phase-3-planning` applies the full-row tap-target rule to the Chef It Up cuisine screen. Cuisine options render as illustrated full-width buttons, support multi-select, and keep `No preference` as an isolated exclusive row in the lower thumb zone.
 
-This adds Phase 3 evidence for the pattern. It does not resolve the epic because the original resolution criteria still require a final documented closeout across setup/settings selection controls and validation.
+This adds Phase 3 evidence for the pattern. It does not resolve the Effort because the original resolution criteria still require a final documented closeout across setup/settings selection controls and validation.
 
 ### 2026-05-05 — Cuisine picker defaults and scroll behavior clarified
 
@@ -184,7 +186,7 @@ This reinforces the full-row selection pattern for long mobile multi-select menu
 
 Phase 3 adds a deterministic cuisine-aware staple verification step after Cuisine when LAICA has likely missing staples to ask about. The step uses full-width selectable rows with `aria-pressed` and visible selected-state icons, matching the established mobile multi-select pattern rather than introducing tiny checkbox/radio hit targets.
 
-This adds another Phase 3 example of the full-row tap target rule applying to short, contextual multi-select follow-up questions. It does not resolve the epic because the original setup/settings closeout criteria still require final validation.
+This adds another Phase 3 example of the full-row tap target rule applying to short, contextual multi-select follow-up questions. It does not resolve the Effort because the original setup/settings closeout criteria still require final validation.
 
 ### 2026-05-07 — Phase 3 selection rows lock during generation
 
@@ -196,7 +198,7 @@ This conforms to the existing multi-select pattern: users keep an explicit conti
 
 Phase 3.2 keeps the Chef It Up staple check in the full-row selection family while adding an Added shelf above the visible queue. Staple rows remain full-width tap targets, selected staples move into tappable undo chips, and both rows and chips become disabled during the in-flight submit.
 
-This is still Chef It Up-specific and does not resolve the original setup/settings epic criteria. It does add a useful pattern note: contextual multi-select follow-ups can use full-row discovery plus chip-level undo as long as explicit submit, keyboard/focus behavior, and loading locks remain clear.
+This is still Chef It Up-specific and does not resolve the original setup/settings Effort criteria. It does add a useful pattern note: contextual multi-select follow-ups can use full-row discovery plus chip-level undo as long as explicit submit, keyboard/focus behavior, and loading locks remain clear.
 
 ### 2026-05-08 — Added chip undo affordance clarified
 
@@ -210,15 +212,14 @@ The same follow-up differentiates pending undo chips from saved pantry facts: af
 
 PR #46 merged Phase 3.2 after Wilson's authenticated Replit/browser validation at `9646c80`. The shipped Chef It Up staple check now provides a concrete selection-control reference for Phase 3.1: full-row discovery controls, pending Added chips with visible `+` and `X`, disabled row/chip state during loading, and saved green check-only pantry-fact chips that explain Pantry Settings removal instead of deleting in place.
 
-This is still not the final setup/settings closeout for EPIC-004, but it is the preferred comparison point when Slop Bowl pantry-check visuals are aligned in Phase 3.1.
+This is still not the final setup/settings closeout for EFFORT-004, but it is the preferred comparison point when Slop Bowl pantry-check visuals are aligned in Phase 3.1.
 
-### 2026-05-09 - Epic status audit
+### 2026-05-09 - Effort status audit
 
-Status changed from `Open` to `In Progress`. The current app has already shipped full-row setup/settings profile controls and multiple Phase 3 selection-control refinements, so this is no longer untouched backlog. The epic should still not be resolved until a dedicated setup/settings closeout verifies mobile tap behavior, keyboard/focus behavior, assistive semantics, and records how the removed Weekly Cooking Time criterion is handled.
+Status changed from `Open` to `In Progress`. The current app has already shipped full-row setup/settings profile controls and multiple Phase 3 selection-control refinements, so this is no longer untouched backlog. The Effort should still not be resolved until a dedicated setup/settings closeout verifies mobile tap behavior, keyboard/focus behavior, assistive semantics, and records how the removed Weekly Cooking Time criterion is handled.
 
-## Next steps when work resumes
+### 2026-05-09 — Resolved
 
-1. Run a dedicated setup/settings closeout against the shipped Cooking Skill and Dietary Restrictions controls
-2. Confirm setup Cooking Skill still auto-advances after one selection, while Dietary Restrictions and future multi-select screens retain explicit continuation
-3. Validate keyboard, focus, assistive-technology, and mobile tap behavior
-4. Record the accepted pattern and the Weekly Cooking Time removal in a durable implementation note, then resolve this epic
+Wilson closed this standalone Effort because the bigger picture now lives in INIT-001. Mobile Refresh Phase 2, Phase 2.2, Phase 3, and Phase 3.2 already established the full-row/chip selection pattern across setup, Settings, cuisine selection, and Chef It Up staple confirmation. Any remaining visual alignment or polish belongs in the current Mobile Refresh phase records, especially Phase 3.1, instead of keeping this as an open to-do.
+
+Future agents should not create a new Effort for selection-control cleanup that is part of an active Mobile Refresh phase; update INIT-001 and the relevant feature phase record instead.

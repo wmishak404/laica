@@ -7,15 +7,15 @@
 **Scope:** Server — operational AI error logging
 **Applies when:** Adding any persistent or stdout logging of AI request failures, defining or extending the `ai_error_events` schema, exposing failure data through admin APIs, or correlating failures with Feedback or eval rows.
 **Related Initiatives:** [INIT-002 — AI Error Telemetry & Eval Monitoring](../initiatives/INIT-002-ai-error-telemetry.md)
-**Related Epics:** [EPIC-019](../epics/019-ai-error-telemetry-and-eval-monitoring.md), [EPIC-018](../epics/018-authenticated-ai-error-handling.md), [EPIC-010](../epics/010-local-db-schema-strategy.md)
+**Related Efforts:** [EFFORT-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md), [EFFORT-018](../efforts/effort-018-authenticated-ai-error-handling.md), [EFFORT-010](../efforts/effort-010-local-db-schema-strategy.md)
 
 ## Context
 
-[EPIC-019](../epics/019-ai-error-telemetry-and-eval-monitoring.md) adds persistent telemetry for AI request failures so recurring patterns can be turned into eval cases, prompt fixes, product bugs, or infra tickets. The codebase today has no persistent error logging — every AI route catches errors, calls `console.error`, and returns a generic 500. Adding a generic JSONB error column would invite future callers to dump raw prompts, preferences, headers, images, audio, or auth payloads into it and discover the leak only after the fact.
+[INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) adds persistent telemetry for AI request failures so recurring patterns can be turned into eval cases, prompt fixes, product bugs, or infra tickets. Former [EFFORT-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md) is resolved as a standalone Effort and kept as history. The codebase today has no persistent error logging — every AI route catches errors, calls `console.error`, and returns a generic 500. Adding a generic JSONB error column would invite future callers to dump raw prompts, preferences, headers, images, audio, or auth payloads into it and discover the leak only after the fact.
 
-Mobile Refresh has already committed to strict AI privacy rules in [`product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`](features/mobile-refresh/cross-phase-ai-privacy.md): no raw tokens, emails, Firebase UIDs, image bytes, or audio bytes in `aiInteractions` rows; redact email-, token-, and Firebase-UID-shaped strings before persistence; 90-day retention. EPIC-019 inherits those rules and tightens them for an *operational* error stream where no free-text content is ever required for triage.
+Mobile Refresh has already committed to strict AI privacy rules in [`product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`](features/mobile-refresh/cross-phase-ai-privacy.md): no raw tokens, emails, Firebase UIDs, image bytes, or audio bytes in `aiInteractions` rows; redact email-, token-, and Firebase-UID-shaped strings before persistence; 90-day retention. INIT-002 inherits those rules and tightens them for an *operational* error stream where no free-text content is ever required for triage.
 
-This decision locks the redaction policy *before* any row writes, which is a first-class acceptance criterion of EPIC-019.
+This decision locks the redaction policy *before* any row writes, which is a first-class acceptance criterion of INIT-002.
 
 ## Decision
 
@@ -32,7 +32,7 @@ Adopt an **allowlist-first** policy enforced at the writer boundary by TypeScrip
 | `feature` | varchar(48) | no | Stable enum: `recipe_suggestions`, `pantry_recipes`, `slop_bowl`, `cooking_steps`, `cooking_assistance`, `ingredient_detection`, `tts`, `tts_voices`, `transcription` |
 | `vendor` | varchar(16) | no | `openai` \| `elevenlabs` \| `whisper` \| `internal` |
 | `http_status` | integer | no | Response status (400, 429, 500, 502, 503, 504, …) |
-| `error_class` | varchar(32) | no | Stable enum mirroring [EPIC-018](../epics/018-authenticated-ai-error-handling.md)'s taxonomy. v0 set: `validation` \| `rate_limit` \| `upstream_timeout` \| `upstream_5xx` \| `upstream_auth` \| `unknown`. May expand in INIT-002 Phase 1 to distinguish 401/403/404/413/network if real Replit traffic shows the v0 set collapses too much. Any expansion lands in EPIC-018's surface first; PD-010 amendment follows. |
+| `error_class` | varchar(32) | no | Stable enum mirroring [EFFORT-018](../efforts/effort-018-authenticated-ai-error-handling.md)'s taxonomy. v0 set: `validation` \| `rate_limit` \| `upstream_timeout` \| `upstream_5xx` \| `upstream_auth` \| `unknown`. May expand in INIT-002 Phase 1 to distinguish 401/403/404/413/network if real Replit traffic shows the v0 set collapses too much. Any expansion lands in EFFORT-018's surface first; PD-010 amendment follows. |
 | `error_code` | varchar(128) | yes | Short vendor code if available (e.g. OpenAI `rate_limit_exceeded`); not the message body |
 | `is_authenticated` | boolean | no (default `false`) | Denormalized for cleaner anon-vs-authed queries |
 | `auth_user_id` | varchar(128) | yes | Firebase UID **only when route is authenticated**; FK to `auth_users(id)` `ON DELETE SET NULL` |
@@ -66,7 +66,7 @@ These never enter `ai_error_events`, stdout JSON logs, or admin API responses, r
 
 Even though the allowlist column types prevent free text from entering the table, all string fields that pass through the writer are run through [`server/ai-privacy.ts`](../server/ai-privacy.ts) `redactForAiLog` before persistence. This catches accidental future regressions where a string column is added without thinking through what callers might pass.
 
-The classifier returns a stable enum and short error code only — never the original error message, stack, or response body. Telemetry callers consume the classifier's output, not the raw error. **Taxonomy ownership:** [EPIC-018](../epics/018-authenticated-ai-error-handling.md) owns the canonical taxonomy (400/401/403/404/413/429/5xx/network), shipped in client-side [`rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts) and the typed payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 builds the *server-side* classifier function (`classifyAiError`) that mirrors that taxonomy for the writer to consume. Any taxonomy change lands in EPIC-018's surface first; INIT-002 follows.
+The classifier returns a stable enum and short error code only — never the original error message, stack, or response body. Telemetry callers consume the classifier's output, not the raw error. **Taxonomy ownership:** [EFFORT-018](../efforts/effort-018-authenticated-ai-error-handling.md) owns the canonical taxonomy (400/401/403/404/413/429/5xx/network), shipped in client-side [`rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts) and the typed payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 builds the *server-side* classifier function (`classifyAiError`) that mirrors that taxonomy for the writer to consume. Any taxonomy change lands in EFFORT-018's surface first; INIT-002 follows.
 
 ### Retention
 
@@ -87,10 +87,10 @@ The classifier returns a stable enum and short error code only — never the ori
 | `rate_limit` concentrated on a single `auth_user_id` | Quota abuse or buggy retry on the client — infra ticket, possibly tighten per-uid limit |
 | `upstream_5xx` with shared `error_code` across users | Vendor incident — monitor, no action; dashboard signal only |
 | `upstream_auth` cluster | Vendor key rotation or expiry — infra ticket, rotate via Replit secrets |
-| `unknown` cluster | Classifier gap — extend `classifyAiError` with the new shape, ship via EPIC-018 channel |
+| `unknown` cluster | Classifier gap — extend `classifyAiError` with the new shape, ship via EFFORT-018 channel |
 | Recurring `input_shape_hash` that fails consistently | Engineer manually constructs an `aiInteractions` eval row that exercises the trigger. **No user data leaves the failure stream**; the engineer reproduces from the shape signal alone (preference_length, ingredient_count, image_count, error_class, error_code) |
 
-Phase 5 of [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) appends one worked example per cluster type from real Replit data so the process is non-theoretical (epic resolution criterion 5).
+Phase 5 of [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) appends one worked example per cluster type from real Replit data so the process is non-theoretical.
 
 ### Admin API exposure
 
@@ -115,10 +115,10 @@ The admin endpoints under `/api/admin/ai-errors/*` may expose any allowlist fiel
 | Alternative | Why not chosen |
 |---|---|
 | Reuse `aiInteractions` with a nullable `errorMode` column and write rows on failure | The `inputData jsonb` column would tempt callers to dump raw payloads; the table's eval lifecycle (batched, completed) does not match operational failure semantics |
-| Generic JSONB `payload` column on `ai_error_events` | The whole point of EPIC-019 is to prevent the first JSON-blob leak. A generic payload column has no enforcement boundary |
+| Generic JSONB `payload` column on `ai_error_events` | The whole point of EFFORT-019 is to prevent the first JSON-blob leak. A generic payload column has no enforcement boundary |
 | Free-text `error_message` column with redaction | Even with `redactForAiLog`, a free-text column drifts toward "log everything" over time. Stable enum + short `error_code` is enough for triage |
 | Per-user opt-in for telemetry | Operational error logging without content is industry-standard and required for product reliability; opt-in would create gaps in the failure picture without privacy benefit |
-| Send to third-party analytics (Sentry, Datadog, etc.) | Out of v1 scope; would require a separate privacy review per the EPIC-019 out-of-scope list |
+| Send to third-party analytics (Sentry, Datadog, etc.) | Out of v1 scope; would require a separate privacy review per the EFFORT-019 out-of-scope list |
 | Skip retention and let rows accumulate | 90 days matches the mobile-refresh AI privacy commitment and keeps the table small enough for `db.select().from(...)` admin queries without pagination |
 
 ## Consequences
@@ -127,4 +127,4 @@ The admin endpoints under `/api/admin/ai-errors/*` may expose any allowlist fiel
 - A field added to the table without updating PD-010 is a privacy regression and should be reverted on review.
 - Admin API consumers (today: humans hitting the endpoints; future: any internal tool) can rely on the response shape being safe to display, paste into tickets, or share in handoffs.
 - The 90-day retention deletion job becomes operational debt that must land before high traffic. It is not blocking for the initial INIT-002 phases.
-- Future epics that want to extend telemetry (Feedback correlation, eval graduation tooling, retention scheduling) inherit this allowlist and must respect it.
+- Future Efforts, INIT phases, or workflow changes that extend telemetry (Feedback correlation, eval graduation tooling, retention scheduling) inherit this allowlist and must respect it.

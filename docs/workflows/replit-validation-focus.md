@@ -6,7 +6,7 @@ After a feature is validated locally, Replit validation should focus on the **en
 
 For the exhaustive drift-vector inventory and longer-term parity plan, see:
 - `docs/workflows/environment-parity-spec.md`
-- `epics/017-environment-parity-and-ci-confidence.md`
+- `efforts/effort-017-environment-parity-and-ci-confidence.md`
 
 ## What Is Different On Replit (And Why We Validate There)
 

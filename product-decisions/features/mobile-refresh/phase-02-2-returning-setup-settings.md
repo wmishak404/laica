@@ -34,7 +34,7 @@ Accepted durable outcomes:
 
 ## Design and UX Gate
 
-- Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../005-ui-governance.md), [EPIC-004](../../../epics/004-selection-controls-tap-targets.md), and [EPIC-005](../../../epics/005-testing-strategy-and-acceptance-criteria.md).
+- Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../005-ui-governance.md), the full-row selection pattern established in setup, and the [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md).
 - Treat the Phase 2.2 storyboard as an implementation input, not loose inspiration.
 - Settings should be utilitarian but still Laica-native: calm, mobile-first, touch-friendly, and not admin-like.
 - History should feel like cooking memory, not account configuration.
@@ -122,15 +122,15 @@ Validated scope for PR #30:
 - Visual review confirms returning Pantry/Kitchen/Profile remain consistent with the accepted Phase 2.1 first-time setup direction while honoring returning-user edit needs.
 - Visual review confirms setup-derived controls in returning Settings preserve first-time setup's computed circular camera controls and `Nunito`/800 upload/manual action typography.
 
-## Epic and Governance Interactions
+## Effort and Governance Interactions
 
 - [PD-005](../../005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Phase 2.2 is a UI-governance pressure test for utilitarian but branded app surfaces.
-- [EPIC-004](../../../epics/004-selection-controls-tap-targets.md): Settings profile choices must keep full-row tap targets.
-- [EPIC-005](../../../epics/005-testing-strategy-and-acceptance-criteria.md): Phase 2.2 adds explicit acceptance and visual-review gates.
-- [EPIC-007](../../../epics/007-vision-scan-no-detection-feedback.md): Pantry/Kitchen scan outcome feedback remains explicit.
-- [EPIC-009](../../../epics/009-consistent-comma-separated-ingredient-entry.md): Manual Pantry/Kitchen entry keeps the shared comma/period parser.
-- [EPIC-013](../../../epics/013-pantry-manual-entry-spell-correction.md): Pantry spell correction remains deferred.
-- [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md): Latest-scan chip states and deeper duplicate refinement remain deferred.
+- Full-row selection pattern: Settings profile choices must keep full-row tap targets.
+- [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.2 adds explicit acceptance and visual-review gates.
+- Scan feedback: Pantry/Kitchen scan outcome feedback remains explicit.
+- Shared manual-entry parser: Manual Pantry/Kitchen entry keeps the shared comma/period parser.
+- [EFFORT-013](../../../efforts/effort-013-pantry-manual-entry-spell-correction.md): Pantry spell correction remains deferred.
+- [EFFORT-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md): Latest-scan chip states and deeper duplicate refinement remain deferred.
 
 ## Deferrals
 

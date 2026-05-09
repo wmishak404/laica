@@ -17,7 +17,7 @@ Phase 3.2 is a focused behavior/interaction polish slice under INIT-001 Mobile R
 
 - Not Phase 3: Phase 3 closed functional correctness around recipe-generation lock/cancel first.
 - Not Phase 3.1: Phase 3.1 owns the visual facelift and recipe imagery, while this is staple-check behavior.
-- Not a new epic: the pattern is Chef It Up-specific and shippable in one focused PR. Create a new epic only if this becomes a reusable progressive-selection pattern across setup, settings, pantry management, or other multi-select flows.
+- Not a new Effort: the pattern is Chef It Up-specific and shippable in one focused PR. Create a new Effort only if this becomes a reusable progressive-selection pattern across setup, settings, pantry management, or other multi-select flows.
 
 ## Sequencing Decision
 
@@ -99,10 +99,10 @@ Implementation guardrails:
 14. If pantry persistence fails, recipe generation can continue with the selected staples for the current request and the user receives an explicit save-failure toast.
 15. Tapping an already-saved chip does not remove it; it shows a brief inline direction to remove saved pantry facts in Pantry Settings.
 
-## Epic Interactions
+## Effort Interactions
 
-- [EPIC-004](../../../epics/004-selection-controls-tap-targets.md): conforms. The rolling queue keeps full-row multi-select buttons, and Added chips use full chip targets for undo instead of tiny checkboxes.
-- [EPIC-005](../../../epics/005-testing-strategy-and-acceptance-criteria.md): conforms. The implementation adds focused helper and component tests, and still requires authenticated Replit validation for the real Chef It Up pantry-save/generation path.
+- Full-row selection pattern: conforms. The rolling queue keeps full-row multi-select buttons, and Added chips use full chip targets for undo instead of tiny checkboxes.
+- [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): conforms. The implementation adds focused helper and component tests, and still requires authenticated Replit validation for the real Chef It Up pantry-save/generation path.
 
 ## Validation Criteria
 

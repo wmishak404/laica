@@ -115,13 +115,13 @@ flowchart TD
 - History detail supports the Phase 5 memory intent: share and cook-again direction, without turning History back into Settings.
 - Pantry/session mutations require explicit user confirmation and session ownership.
 
-## Epic Interactions
+## Effort Interactions
 
 - PD-005 / `design_guidelines.md`: Post-cook review follows mobile-refresh design principles.
-- EPIC-007: Empty rescan must show explicit no-detection feedback.
-- EPIC-009: Any quick-add in cleanup uses the shared comma parser.
-- EPIC-010: New cooking-session fields require Replit-first schema handling.
-- EPIC-021 / PD-011: Optional post-cook rescan capacity, batching/chunking, progress, partial-success copy, stale-result protection, and image-count rate limits inherit the accepted scan upload photo-limit policy unless this phase records an exception.
+- Scan feedback: Empty rescan must show explicit no-detection feedback.
+- Shared manual-entry parser: Any quick-add in cleanup uses the shared comma parser.
+- EFFORT-010: New cooking-session fields require Replit-first schema handling.
+- EFFORT-021 / PD-011: Optional post-cook rescan capacity, batching/chunking, progress, partial-success copy, stale-result protection, and image-count rate limits inherit the accepted scan upload photo-limit policy unless this phase records an exception.
 
 ## Schema Notes
 

@@ -34,7 +34,7 @@ Accepted durable outcomes:
 - Pantry requires at least 3 ingredients before setup can continue.
 - Cooking Skill auto-advances after one full-row single-choice selection; multi-select screens keep explicit continuation.
 - Exact and near-exact duplicate scan labels are skipped; duplicate-only scans show `Already saved`.
-- Deeper semantic/label-drift duplicate refinement is deferred to [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
+- Deeper semantic/label-drift duplicate refinement is deferred to [EFFORT-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
 
 ## Visual Direction
 
@@ -82,15 +82,15 @@ Replit validation covered:
 - Setup completion transition to Planning.
 - No DB schema change or API contract break.
 
-## Epic and Governance Interactions
+## Effort and Governance Interactions
 
 - [PD-005](../../005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Setup typography and visual utilities remain scoped and documented as a pilot, not a silent global primitive/font change.
-- [EPIC-004](../../../epics/004-selection-controls-tap-targets.md): Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
-- [EPIC-005](../../../epics/005-testing-strategy-and-acceptance-criteria.md): Phase 2.1 is the feature-level acceptance pattern for combining local gates, Replit prerequisites, visual review, and merge acceptance.
-- [EPIC-007](../../../epics/007-vision-scan-no-detection-feedback.md): Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.
-- [EPIC-009](../../../epics/009-consistent-comma-separated-ingredient-entry.md): Comma-separated manual entry stays shared; Phase 2.1 also accepts period-as-comma typo recovery for manual entry.
-- [EPIC-010](../../../epics/010-local-db-schema-strategy.md): Phase 2.1 did not add DB schema changes or reopen the validated Phase 2 data contract.
-- [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md): Latest-scan chip states and deeper duplicate/overlap refinement remain deferred.
+- Full-row selection pattern: Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
+- [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.1 is the feature-level acceptance pattern for combining local gates, Replit prerequisites, visual review, and merge acceptance.
+- Scan feedback: Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.
+- Shared manual-entry parser: Comma-separated manual entry stays shared; Phase 2.1 also accepts period-as-comma typo recovery for manual entry.
+- [EFFORT-010](../../../efforts/effort-010-local-db-schema-strategy.md): Phase 2.1 did not add DB schema changes or reopen the validated Phase 2 data contract.
+- [EFFORT-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md): Latest-scan chip states and deeper duplicate/overlap refinement remain deferred.
 
 ## Deferrals
 

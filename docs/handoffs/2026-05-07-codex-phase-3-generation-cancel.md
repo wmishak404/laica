@@ -16,15 +16,15 @@ Fixed the Phase 3 Chef It Up async bug Wilson found in Replit: after tapping `Vi
 - `client/src/lib/openai.ts` passes an optional `AbortSignal` through `fetchPantryRecipes` into the existing `apiRequest` path.
 - `client/src/index.css` adds disabled hover/opacity treatment for the Phase 3 full-row selection controls.
 - `tests/unit/meal-planning.test.tsx` covers frozen staple rows during pantry save, disabled cuisine/staple inputs during loading, Back aborting generation, late canceled responses not navigating, and a normal successful three-suggestion reveal.
-- Docs updated: INIT-001, Phase 3 planning record, and EPIC-004.
+- Docs updated: INIT-001, Phase 3 planning record, and EFFORT-004.
 
 ## Impact on other agents
 
 - This branch is rebased onto `origin/main` at PR #44 (`24decb2ee5ee4d0aa8221324bde52eb1823061cc`) and intentionally does not carry the older open PR #41 docs commits.
-- The fix uses the resolved EPIC-018 `withAiErrorHandling` path, so aborts/cancellations stay toast-silent while real 400/429/5xx errors use authenticated-app copy.
+- The fix uses the resolved EFFORT-018 `withAiErrorHandling` path, so aborts/cancellations stay toast-silent while real 400/429/5xx errors use authenticated-app copy.
 - Confirmed staples still save to pantry even if the user backs out during generation. Back cancels only the recipe-generation request.
-- EPIC-004 interaction: conforms. Full-row multi-select rows remain explicit-submit controls, then become read-only during the in-flight submit; Back is the cancellation path.
-- EPIC-005 interaction: conforms. Added focused unit coverage and records the Replit validation scenario that remains required before merge.
+- EFFORT-004 interaction: conforms. Full-row multi-select rows remain explicit-submit controls, then become read-only during the in-flight submit; Back is the cancellation path.
+- EFFORT-005 interaction: conforms. Added focused unit coverage and records the Replit validation scenario that remains required before merge.
 
 ## Open items
 

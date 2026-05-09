@@ -30,10 +30,10 @@ Do **not** promote these to top-level PDs:
 - Visual tokens, palette, typography, and surface posture rules: update [`../design_guidelines.md`](../design_guidelines.md).
 - Phase-specific acceptance criteria: keep them in the feature phase record.
 - Implementation logs, validation timelines, branch context, or who-does-what-next notes: write a handoff.
-- Deferred work with a linked active epic: keep it in the phase/feature record and the epic.
-- In-flight enforcement or rollout work: track it in an active epic until the stable rule itself changes.
+- Deferred work with a linked active Effort: keep it in the phase/feature record and the Effort.
+- In-flight standalone enforcement or rollout work: track it in an active Effort until the stable rule itself changes.
 
-Governance PDs define stable rules; active epics carry ongoing enforcement, rollout, and evidence-gathering work. When a rule is settled, it lives in a PD. When the work to enforce or prove that rule is in flight, it lives in an active epic.
+Governance PDs define stable rules; active Efforts carry standalone enforcement, rollout, and evidence-gathering work. When a rule is settled, it lives in a PD. When the work belongs to an active initiative or workflow, update that INIT or workflow doc instead of creating an Effort.
 
 Recommended metadata near the top of each top-level PD:
 
@@ -65,7 +65,7 @@ Recommended metadata near the top of each top-level PD:
 |----|-------|------|--------|
 | [PD-004](004-feature-phase-records.md) | Feature Phase Decision Records | 2026-04-09 | Accepted |
 | [PD-005](005-ui-governance.md) | UI Governance Operating Model | 2026-05-02 | Accepted |
-| [PD-007](007-epic-status-and-registry-workflow.md) | Epic status and registry workflow | 2026-04-21 | Accepted |
+| [PD-007](007-effort-status-and-registry-workflow.md) | Effort status and registry workflow | 2026-04-21 | Accepted |
 
 ## Superseded
 

@@ -1,5 +1,6 @@
-# EPIC-014 — Scan session diff and duplicate refinement
+# EFFORT-014 — Scan session diff and duplicate refinement
 
+**Former ID:** EPIC-014
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
@@ -17,7 +18,7 @@ Make Pantry/Kitchen scan results easier to review by showing what was new in the
 
 During Phase 2.1 mobile validation, Wilson confirmed that upload smoke tests from different sources passed and that the current duplicate mitigation skips some already-saved scan labels. However, duplicate-like entries can still appear because vision labels may vary across repeated captures of the same physical items.
 
-Wilson chose not to keep refining this inside Phase 2.1. Instead, the deeper UX should become a future epic: after a scan, Laica should visually label what came from the latest scan session so users can understand what overlapped, what was newly added, and which entries they may want to remove or merge.
+Wilson chose not to keep refining this inside Phase 2.1. Instead, the deeper UX should become a future Effort: after a scan, Laica should visually label what came from the latest scan session so users can understand what overlapped, what was newly added, and which entries they may want to remove or merge.
 
 This is bigger than exact dedupe. It touches inventory review UX, scan-session memory, chip styling, and likely future cleanup/rescan flows.
 
@@ -39,7 +40,7 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
 - Blocking Phase 2.1 setup merge on perfect duplicate removal.
 - Full pantry/equipment ontology or semantic canonicalization.
 - Model-side inventory memory beyond the current user's saved list unless a later design explicitly chooses it.
-- Automatic spell correction for pantry manual entry; that is tracked in [EPIC-013](013-pantry-manual-entry-spell-correction.md).
+- Automatic spell correction for pantry manual entry; that is tracked in [EFFORT-013](effort-013-pantry-manual-entry-spell-correction.md).
 - DB schema changes unless a future implementation proves scan-session state must persist beyond the current UI session.
 
 ## Decisions made so far
@@ -62,9 +63,9 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
 5. Should scan-session state be purely client-side, or should any part of it persist for later review?
 6. What chip color/state works best with the Phase 2.1 Pantry/Kitchen visual system without overloading users?
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-014 before starting any of the following:
+Read EFFORT-014 before starting any of the following:
 
 - [ ] Changing Pantry/Kitchen scan result chip states or list review UX
 - [ ] Adding "new", "found again", "already saved", or "latest scan" visual indicators
@@ -73,17 +74,17 @@ Read EPIC-014 before starting any of the following:
 - [ ] Implementing post-cook cleanup/rescan inventory review
 - [ ] Changing how setup or Settings communicate what a scan added versus skipped
 
-When this epic applies, also cite:
+When this Effort applies, also cite:
 
-- [EPIC-005](005-testing-strategy-and-acceptance-criteria.md) for validation and acceptance criteria
-- [EPIC-007](007-vision-scan-no-detection-feedback.md) for scan outcome messaging
-- [EPIC-009](009-consistent-comma-separated-ingredient-entry.md) when manual entry normalization intersects with duplicates
-- [EPIC-012](012-laica-design-language.md) for chip color/state design language
-- [EPIC-013](013-pantry-manual-entry-spell-correction.md) if pantry correction and duplicate behavior interact
+- [EFFORT-005](effort-005-testing-strategy-and-acceptance-criteria.md) for validation and acceptance criteria
+- [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md) for scan outcome messaging
+- [EFFORT-009](effort-009-consistent-comma-separated-ingredient-entry.md) when manual entry normalization intersects with duplicates
+- [EFFORT-012](effort-012-laica-design-language.md) for chip color/state design language
+- [EFFORT-013](effort-013-pantry-manual-entry-spell-correction.md) if pantry correction and duplicate behavior interact
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. Pantry and Kitchen scan review surfaces clearly distinguish latest-scan new items from already-saved/found-again items.
 2. Users have an obvious way to remove or resolve duplicate-like entries discovered after a scan.
@@ -96,9 +97,9 @@ This epic is `Resolved` when all of the following are true:
 
 - [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
-- [EPIC-005 — App-wide testing strategy and acceptance criteria workflow](005-testing-strategy-and-acceptance-criteria.md)
-- [EPIC-007 — Vision scan should explicitly say when nothing was detected](007-vision-scan-no-detection-feedback.md)
-- [EPIC-012 — LAICA Design Language & Visual Identity](012-laica-design-language.md)
+- [EFFORT-005 — App-wide testing strategy and acceptance criteria workflow](effort-005-testing-strategy-and-acceptance-criteria.md)
+- [EFFORT-007 — Vision scan should explicitly say when nothing was detected](effort-007-vision-scan-no-detection-feedback.md)
+- [EFFORT-012 — LAICA Design Language & Visual Identity](effort-012-laica-design-language.md)
 
 ## Chronology
 

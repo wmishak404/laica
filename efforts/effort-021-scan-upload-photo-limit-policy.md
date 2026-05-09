@@ -1,5 +1,6 @@
-# EPIC-021 - Scan upload photo limit policy
+# EFFORT-021 - Scan upload photo limit policy
 
+**Former ID:** EPIC-021
 **Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-08
@@ -25,7 +26,7 @@ Implementation evidence at filing:
 
 The original caps were accepted during Phase 2.1 as a trust, cost, and reliability guardrail, but the user feedback showed that a careful inventory pass can exceed those limits. The 2026-05-08 discussion accepted a new policy in [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md): raise capacity to 20 images per inventory refresh per area, keep Pantry and Kitchen aligned, and use bounded concurrent scan processing plus image-count rate limits to control cost and latency.
 
-This epic owned the implementation follow-through. [EPIC-020](020-workflow-documentation-audit.md) is the separate workflow-documentation audit and owns EPIC-005 closeout.
+This Effort owned the implementation follow-through. [EFFORT-020](effort-020-workflow-documentation-audit.md) is the separate workflow-documentation audit and owns EFFORT-005 closeout.
 
 ## Scope
 
@@ -42,8 +43,8 @@ This epic owned the implementation follow-through. [EPIC-020](020-workflow-docum
 
 ### Out of scope
 
-- Replacing exact/near-exact duplicate mitigation; that remains in [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md).
-- Changing zero-result scan feedback semantics beyond capacity-related copy; that remains in [EPIC-007](007-vision-scan-no-detection-feedback.md).
+- Replacing exact/near-exact duplicate mitigation; that remains in [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md).
+- Changing zero-result scan feedback semantics beyond capacity-related copy; that remains in [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md).
 - Changing AI error telemetry storage beyond the [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) image-count-only constraints.
 - Quantity-based pantry tracking, inventory confidence scoring, or photo-specific long-term inventory memory.
 
@@ -82,9 +83,9 @@ Future implementation should review these before changing runtime behavior:
 - Settings scan test gap: returning Settings needs the same limit, fail-closed behavior, progress, partial-success summary, and rate-limit coverage as setup.
 - Returning-user empty-inventory workflow: profile readiness, Pantry reset, Kitchen/Profile/History persistence, and pantry-dependent recipe generation should be reviewed together so an intentionally empty Pantry does not look like first-time setup.
 - In-flight scan navigation: Back/unmount/cancel paths need stale-result protection so a scan cannot finish into a surface the user has already left.
-- [EPIC-007](007-vision-scan-no-detection-feedback.md): valid zero-result scans still need explicit no-detection feedback.
-- [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md): larger refreshes increase duplicate/latest-scan/found-again surface area, but this epic does not own chip-state semantics.
-- [EPIC-020](020-workflow-documentation-audit.md): the system-touchpoint review pattern should feed the future testing/acceptance workflow rather than becoming a separate process epic.
+- [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md): valid zero-result scans still need explicit no-detection feedback.
+- [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md): larger refreshes increase duplicate/latest-scan/found-again surface area, but this Effort does not own chip-state semantics.
+- [EFFORT-020](effort-020-workflow-documentation-audit.md): the system-touchpoint review pattern should feed the future testing/acceptance workflow rather than becoming a separate process Effort.
 
 ## Cost and latency planning notes
 
@@ -96,14 +97,14 @@ The runtime performance patch uses bounded concurrency of 4 images at a time whi
 
 ## Closed implementation calls
 
-1. Provider-level multi-image batching and final adaptive payload chunking are no longer active requirements for this epic.
+1. Provider-level multi-image batching and final adaptive payload chunking are no longer active requirements for this Effort.
 2. Setup and Settings can keep the existing per-image scan route with bounded concurrency.
 3. Progress, partial-success, and per-refresh copy shipped and were validated as part of PR #53.
-4. Future batching work should start from a new explicit product signal instead of reopening this resolved epic by default.
+4. Future batching work should start from a new explicit product signal instead of reopening this resolved Effort by default.
 
-## Agent checklist - when to read this epic
+## Agent checklist - when to read this Effort
 
-Read EPIC-021 before starting any of the following:
+Read EFFORT-021 before starting any of the following:
 
 - [ ] Changing Pantry or Kitchen scan caps in first-time setup
 - [ ] Changing Pantry or Kitchen scan caps in returning Settings
@@ -115,17 +116,17 @@ Read EPIC-021 before starting any of the following:
 - [ ] Changing returning-user profile readiness, empty Pantry behavior, Pantry reset behavior, or pantry-dependent recipe generation blockers
 - [ ] Defining acceptance criteria for high-photo-count Pantry or Kitchen validation
 
-When this epic applies, also cite:
+When this Effort applies, also cite:
 
 - [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) for the accepted policy
-- [EPIC-005](005-testing-strategy-and-acceptance-criteria.md) for validation and acceptance criteria until it graduates under EPIC-020
-- [EPIC-007](007-vision-scan-no-detection-feedback.md) for scan outcome messaging
-- [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md) when upload capacity intersects with latest-scan or duplicate-review state
-- [EPIC-020](020-workflow-documentation-audit.md) if the work changes the cross-feature impact review workflow itself
+- [EFFORT-005](effort-005-testing-strategy-and-acceptance-criteria.md) for validation and acceptance criteria until it graduates under EFFORT-020
+- [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md) for scan outcome messaging
+- [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md) when upload capacity intersects with latest-scan or duplicate-review state
+- [EFFORT-020](effort-020-workflow-documentation-audit.md) if the work changes the cross-feature impact review workflow itself
 
 ## Resolution criteria - what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. Setup and Settings enforce 20 scanned images per Pantry refresh and 20 per Kitchen refresh.
 2. Setup, Settings, and any implemented post-cook rescan flow share the same accepted limit unless a later product decision explicitly documents an exception.
@@ -148,10 +149,10 @@ This epic is `Resolved` when all of the following are true:
 - [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
 - [Phase 5 post-cook cleanup and retention](../product-decisions/features/mobile-refresh/phase-05-post-cook.md)
 - [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
-- [EPIC-005 - App-wide testing strategy and acceptance criteria workflow](005-testing-strategy-and-acceptance-criteria.md)
-- [EPIC-007 - Vision scan should explicitly say when nothing was detected](007-vision-scan-no-detection-feedback.md)
-- [EPIC-014 - Scan session diff and duplicate refinement](014-scan-session-diff-and-duplicate-refinement.md)
-- [EPIC-020 - Workflow documentation audit and graduation](020-workflow-documentation-audit.md)
+- [EFFORT-005 - App-wide testing strategy and acceptance criteria workflow](effort-005-testing-strategy-and-acceptance-criteria.md)
+- [EFFORT-007 - Vision scan should explicitly say when nothing was detected](effort-007-vision-scan-no-detection-feedback.md)
+- [EFFORT-014 - Scan session diff and duplicate refinement](effort-014-scan-session-diff-and-duplicate-refinement.md)
+- [EFFORT-020 - Workflow documentation audit and graduation](effort-020-workflow-documentation-audit.md)
 
 ## Chronology
 
@@ -159,13 +160,13 @@ This epic is `Resolved` when all of the following are true:
 
 Wilson reported that a user tried to be thorough with about 30 pantry photos but hit the current 8-photo pantry upload cap. The first filing preserved the product questions around raising the limit, defining the lifecycle semantics, and keeping Pantry/Kitchen aligned.
 
-### 2026-05-08 - Renumbered to EPIC-021 and accepted policy recorded
+### 2026-05-08 - Renumbered to EFFORT-021 and accepted policy recorded
 
-After `origin/main` claimed EPIC-020 for the workflow-documentation audit, this scan-limit epic was renumbered to EPIC-021. Wilson accepted the 20-image per-refresh policy, 40-image daily budget per area, same-limit Pantry/Kitchen rule, batched happy path, adaptive chunking direction, image-count rate limits, partial-success preservation, progress/stale-result UI direction, and scan-specific messaging posture. [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) is the durable decision record.
+After `origin/main` claimed EFFORT-020 for the workflow-documentation audit, this scan-limit Effort was renumbered to EFFORT-021. Wilson accepted the 20-image per-refresh policy, 40-image daily budget per area, same-limit Pantry/Kitchen rule, batched happy path, adaptive chunking direction, image-count rate limits, partial-success preservation, progress/stale-result UI direction, and scan-specific messaging posture. [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) is the durable decision record.
 
 ### 2026-05-08 - First runtime implementation slice opened
 
-Branch `codex/epic-021-scan-upload-implementation` started the runtime follow-through after PR #52 merged the policy docs. The first slice centralizes the 20-photo / 40-per-day policy in shared code, updates setup and Settings to the same 20-photo per-refresh cap, moves unsupported-file filtering before over-cap checks so unsupported files do not count, changes user-facing cap copy from "per batch" to "per refresh", adds simple scan progress and partial-success copy for multi-photo refreshes, and makes the server vision limiter capable of consuming image counts. This does not yet implement a provider-level multi-image vision request or final adaptive chunk-size thresholds.
+Branch `codex/Effort-021-scan-upload-implementation` started the runtime follow-through after PR #52 merged the policy docs. The first slice centralizes the 20-photo / 40-per-day policy in shared code, updates setup and Settings to the same 20-photo per-refresh cap, moves unsupported-file filtering before over-cap checks so unsupported files do not count, changes user-facing cap copy from "per batch" to "per refresh", adds simple scan progress and partial-success copy for multi-photo refreshes, and makes the server vision limiter capable of consuming image counts. This does not yet implement a provider-level multi-image vision request or final adaptive chunk-size thresholds.
 
 ### 2026-05-08 - Bounded concurrency performance patch
 
@@ -179,7 +180,7 @@ Wilson raised the corner case where someone repeatedly signs in with fresh accou
 
 Wilson reproduced a returning-user corner case by clearing Pantry in Settings, starting a Pantry scan, navigating to Kitchen, and then pressing Back while the scan was still running. The product decision is that empty Pantry is a valid returning-user inventory state, not a first-time setup trigger. Clearing Pantry must not wipe Kitchen equipment, cooking profile, or History. If the user tries to generate pantry-based recipes with zero pantry items, Laica should block with the explicit empty-Pantry message and a path to Settings > Pantry.
 
-The same review accepted Settings scan lifecycle guardrails: scans can continue when switching Settings sections, but leaving Settings should cancel/abort active scan work and stale late results should be ignored. Inventory save, reset, manual-entry, and item-removal actions should be locked while a scan is active. This corner case also feeds [EPIC-020](020-workflow-documentation-audit.md)'s future testing methodology: feature acceptance should include destructive reset-to-empty states, navigation during in-flight async work, and persistence-boundary checks across related domains.
+The same review accepted Settings scan lifecycle guardrails: scans can continue when switching Settings sections, but leaving Settings should cancel/abort active scan work and stale late results should be ignored. Inventory save, reset, manual-entry, and item-removal actions should be locked while a scan is active. This corner case also feeds [EFFORT-020](effort-020-workflow-documentation-audit.md)'s future testing methodology: feature acceptance should include destructive reset-to-empty states, navigation during in-flight async work, and persistence-boundary checks across related domains.
 
 ### 2026-05-08 - Planning choice Pantry status line
 
@@ -191,4 +192,4 @@ Wilson's Replit follow-up confirmed the main scan behavior was otherwise good, i
 
 ### 2026-05-08 - Resolved
 
-Wilson confirmed provider-level multi-image batching and final adaptive chunk thresholds are not needed at this point. The validated bounded-concurrency implementation is accepted as the resolved EPIC-021 runtime policy. Future provider-batching work should require a new explicit product signal rather than keeping this epic open.
+Wilson confirmed provider-level multi-image batching and final adaptive chunk thresholds are not needed at this point. The validated bounded-concurrency implementation is accepted as the resolved EFFORT-021 runtime policy. Future provider-batching work should require a new explicit product signal rather than keeping this Effort open.

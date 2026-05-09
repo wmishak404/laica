@@ -1,12 +1,12 @@
 # Mobile Refresh Design Language
 
-> **Status: Superseded by [`design_guidelines.md`](../../../design_guidelines.md) on 2026-05-02.** This document is retained as Phase 2.x design-language evidence (Phase 2.1 setup pilot direction, Phase 2.2 returning Settings alignment). Future visual direction lives in `design_guidelines.md`; governance rules in [PD-005](../../005-ui-governance.md). EPIC-012 history is in [`epics/012-laica-design-language.md`](../../../epics/012-laica-design-language.md).
+> **Status: Superseded by [`design_guidelines.md`](../../../design_guidelines.md) on 2026-05-02.** This document is retained as Phase 2.x design-language evidence (Phase 2.1 setup pilot direction, Phase 2.2 returning Settings alignment). Future visual direction lives in `design_guidelines.md`; governance rules in [PD-005](../../005-ui-governance.md). EFFORT-012 history is in [`efforts/effort-012-laica-design-language.md`](../../../efforts/effort-012-laica-design-language.md).
 
 **Status:** Superseded
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-29
-**Source epic:** [EPIC-012](../../../epics/012-laica-design-language.md) (resolved 2026-05-02)
+**Source Effort:** [EFFORT-012](../../../efforts/effort-012-laica-design-language.md) (resolved 2026-05-02)
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 **Applies to:** Mobile-refresh Phase 2-5 implementation and visual review (historical reference)
 
@@ -300,7 +300,7 @@ Phase 2 is the first active pilot for this design language. Before merge:
 - Chips should look warm, readable, and tokenized.
 - Pantry and Kitchen should share component structure, but Kitchen may shift selected accents toward gray/silver and light wood beige to reflect modern kitchen tools while retaining enough coral to stay within the Laica system.
 - Kitchen-specific action buttons, saved-equipment chips, and review/list states should lean gray/silver where possible so the tool page feels distinct from the warmer pantry page without becoming a separate design system.
-- Future scan-review chips may need session-state colors or indicators for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should build on the Pantry/Kitchen chip palette without creating a noisy third design system; see [EPIC-014](../../../epics/014-scan-session-diff-and-duplicate-refinement.md).
+- Future scan-review chips may need session-state colors or indicators for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should build on the Pantry/Kitchen chip palette without creating a noisy third design system; see [EFFORT-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
 - `No restrictions` should be visually separated from the rest of the dietary options so users who have nothing to add can choose the default quickly.
 
 ### Phase 2.2 Returning Setup, Settings, And History IA

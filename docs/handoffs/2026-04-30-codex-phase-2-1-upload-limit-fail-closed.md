@@ -36,11 +36,11 @@ Wilson's Replit functionality test surfaced the trust issue: if the user selects
 
 ## Impact on other agents
 
-- EPIC-005: conforms by adding focused unit coverage for the changed setup behavior and documenting the Replit validation item.
-- EPIC-007: scan feedback remains explicit; this change happens before vision analysis for over-cap batches and does not change no-detection handling.
-- EPIC-009: no change to comma-separated manual entry.
-- EPIC-010: no DB/schema changes.
-- EPIC-012: no visual redesign; supports setup trust/clarity within the accepted design.
+- EFFORT-005: conforms by adding focused unit coverage for the changed setup behavior and documenting the Replit validation item.
+- EFFORT-007: scan feedback remains explicit; this change happens before vision analysis for over-cap batches and does not change no-detection handling.
+- EFFORT-009: no change to comma-separated manual entry.
+- EFFORT-010: no DB/schema changes.
+- EFFORT-012: no visual redesign; supports setup trust/clarity within the accepted design.
 
 ## Open items
 

@@ -1,5 +1,6 @@
-# EPIC-017 — Environment parity + CI confidence (reduce manual Replit validation)
+# EFFORT-017 — Environment parity + CI confidence (reduce manual Replit validation)
 
+**Former ID:** EPIC-017
 **Status:** Deferred  
 **Owner:** Wilson / Codex / Claude  
 **Created:** 2026-05-05  
@@ -13,7 +14,7 @@ Capture the decisions + open questions required to make local + CI validation tr
 
 Today, LAICA uses a manual “Replit validation gate” because local macOS runs and Replit runs can diverge (runtime, env vars, database, OAuth domains, etc.). This creates friction and correctness ambiguity: “it worked locally” does not reliably imply “it will work on Replit deploy.”
 
-This epic exists to preserve the decision points and intended direction so we can resume after the current initiative work (INIT-001) without re-deriving this context from chat.
+This Effort exists to preserve the decision points and intended direction so we can resume after the current initiative work (INIT-001) without re-deriving this context from chat.
 
 Primary spec / drift-vector inventory:
 - `docs/workflows/environment-parity-spec.md`
@@ -65,15 +66,15 @@ These are recorded from discussion; they are not yet implemented repo-wide.
    - Replit deployment domain(s) only vs custom domain only vs both
 2. Should the preflight gate run on every PR merge, only on release, or as a nightly canary?
 3. CI DB approach: Neon Local vs ephemeral Postgres vs other — and how schema health is enforced.
-4. How should this epic’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EPIC-005 / EPIC-010)?
+4. How should this Effort’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EFFORT-005 / EFFORT-010)?
 5. Which smoke journeys are the first automation targets?
    - Candidate from Phase 3.2: authenticated Chef It Up progressive staples, including staple queue UI, submit-time pantry write, duplicate prevention, loading Back/cancel, and Ticket Pass completion.
 6. Should live AI recipe generation be part of every browser smoke, gated behind an explicit live-service flag, or replaced by a controlled fixture for most PR runs with a smaller live-provider canary?
 7. What reset/seed API or script can safely prepare deterministic `dev-test-*` users without touching real user data?
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-017 before:
+Read EFFORT-017 before:
 
 - Changing `.replit`, runtime pins, or install/run commands
 - Changing auth flows (Firebase client config, token verification, domain requirements)
@@ -81,20 +82,20 @@ Read EPIC-017 before:
 - Changing app-wide merge validation policy (CI vs Replit gate)
 
 Also read:
-- `epics/005-testing-strategy-and-acceptance-criteria.md`
-- `epics/010-local-db-schema-strategy.md`
+- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
+- `efforts/effort-010-local-db-schema-strategy.md`
 
 ## Resolution criteria — what "done" looks like
 
-This epic should remain `Deferred` until `initiatives/INIT-001-mobile-refresh.md` is complete.
+This Effort should remain `Deferred` until `initiatives/INIT-001-mobile-refresh.md` is complete.
 
-This epic can be `Resolved` when all of the following are true:
+This Effort can be `Resolved` when all of the following are true:
 
 1. CI is the primary merge gate for correctness (with explicit exceptions documented).
 2. Local + CI run a repeatable authenticated smoke path (emulator-based) and DB schema health checks.
 3. A prod OAuth-domain preflight gate exists (automated) and prevents `auth/unauthorized-domain` regressions.
 4. At least one high-value authenticated browser flow is automated end to end with deterministic test data, UI assertions, persistence/no-duplicate checks, and clear handling for live-provider calls.
-5. `AGENTS.md` + ADR-0001 + EPIC-005/010 are updated so policy is consistent everywhere.
+5. `AGENTS.md` + ADR-0001 + EFFORT-005/010 are updated so policy is consistent everywhere.
 
 ## 2026-05-05 — Parked
 
@@ -125,4 +126,4 @@ Desired future automation:
 - A controlled choice for recipe generation: fixture/stub for routine UI smoke, plus explicit live-provider smoke or canary when validating OpenAI/Replit provider integration.
 - Clear separation between code-verified checks and runtime/browser-verified checks in PR/handoff validation notes.
 
-This does not reactivate EPIC-017 during INIT-001. It preserves the new concrete acceptance target for the later environment-parity/dev-test-harness window.
+This does not reactivate EFFORT-017 during INIT-001. It preserves the new concrete acceptance target for the later environment-parity/dev-test-harness window.

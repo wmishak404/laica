@@ -6,7 +6,7 @@
 **Type:** Governance
 **Scope:** Global
 **Applies when:** Adding UI surfaces, custom styling, primitive changes, token changes, or scoped-class reuse.
-**Supersedes:** [EPIC-001](../epics/001-ui-governance.md) (graduated)
+**Supersedes:** [EFFORT-001](../efforts/effort-001-ui-governance.md) (graduated)
 
 ## Related Initiatives
 
@@ -16,7 +16,7 @@
 
 Slop Bowl, Phase 2.1 setup, and Phase 2.2 returning Settings each surfaced the same drift class: feature work bypasses tokens (`bg-[#FF6B6B]` instead of `bg-primary`), overrides shadcn primitives without `variant`, and reuses phase-scoped utility classes without preserving the specificity contract that makes them render correctly. The token, primitive, and icon layers are settled — the drift is enforcement, not design.
 
-EPIC-001 accumulated the rubric across Slop Bowl and mobile-refresh phases. Phase 2.2 added the last rule (scoped-style reuse must verify *computed* style, not just class-name reuse). The rubric is content-complete and graduates here. Visual targets (palette, typography, surface posture) live in [`design_guidelines.md`](../design_guidelines.md); this PD is the operating model only.
+EFFORT-001 accumulated the rubric across Slop Bowl and mobile-refresh phases. Phase 2.2 added the last rule (scoped-style reuse must verify *computed* style, not just class-name reuse). The rubric is content-complete and graduates here. Visual targets (palette, typography, surface posture) live in [`design_guidelines.md`](../design_guidelines.md); this PD is the operating model only.
 
 ## Decision
 
@@ -84,13 +84,13 @@ The handoff and PR description must state how the change interacts with this PD 
 
 The token, primitive, and icon layers already exist. A heavier design-system platform would route around the drift, not fix it. Five required rules are short enough for a reviewer to memorize and dense enough to catch every drift class observed in Slop Bowl, Phase 2.1, and Phase 2.2.
 
-Rule 5 (scoped-style reuse contract) is the only rule added after EPIC-001 was filed. Phase 2.2's returning-Settings drift proved that visual conformance cannot be inferred from class-name reuse when the accepted CSS depends on selector specificity from a wrapper the destination surface does not provide.
+Rule 5 (scoped-style reuse contract) is the only rule added after EFFORT-001 was filed. Phase 2.2's returning-Settings drift proved that visual conformance cannot be inferred from class-name reuse when the accepted CSS depends on selector specificity from a wrapper the destination surface does not provide.
 
 ## Alternatives considered
 
 | Alternative | Why not chosen |
 |---|---|
-| Keep EPIC-001 active alongside PD-005 | Duplicates governance content; bloats agent reading and risks drift between the two surfaces |
+| Keep EFFORT-001 active alongside PD-005 | Duplicates governance content; bloats agent reading and risks drift between the two surfaces |
 | Wait for Phase 3-5 evidence before graduating | Phase 2.2 added the last rule; further phase evidence applies the rubric rather than redefines it |
 | Ship enforcement mechanism before graduating | Enforcement is implementation; the operating model is durable independently. Linking them delays the PD without changing what it says. |
 | Mass codemod the 23 custom-Button callsites | Small enough to migrate by hand once the lint rule breaks CI on them |
@@ -98,13 +98,13 @@ Rule 5 (scoped-style reuse contract) is the only rule added after EPIC-001 was f
 
 ## Consequences
 
-- EPIC-001 flips to `Resolved` with a pointer to this PD; the historical chronology is preserved in the epic file.
+- EFFORT-001 flips to `Resolved` with a pointer to this PD; the historical chronology is preserved in the Effort file.
 - [`design_guidelines.md`](../design_guidelines.md) is the canonical living UI/design standard. It references this PD for governance rules.
 - Enforcement mechanism (ESLint rule rejecting `className` matching `/bg-\[#|text-\[#|border-\[#/`, plus a PR-template gate) is **not yet shipped on `main`**. Tracked as an open follow-up, not a blocker for this PD being authoritative.
-- AGENTS.md and CLAUDE.md active read lists drop EPIC-001 and replace it with PD-005 + `design_guidelines.md`.
+- AGENTS.md and CLAUDE.md active read lists drop EFFORT-001 and replace it with PD-005 + `design_guidelines.md`.
 - INIT-001 governance references repoint to this PD.
 
 ## Open follow-ups
 
-- [EPIC-015](../epics/015-ui-governance-enforcement.md) — ESLint rule rejecting hex literals in `className` + PR-template gate citing this PD. Closes the enforcement-mechanism criterion deferred from EPIC-001 at graduation.
-- [EPIC-016](../epics/016-slop-bowl-hex-literal-cleanup.md) — Slop Bowl hex-literal cleanup so EPIC-015's lint rule passes on existing code. Independent of EPIC-015 sequencing; gate-then-cleanup is the recommended order.
+- [EFFORT-015](../efforts/effort-015-ui-governance-enforcement.md) — ESLint rule rejecting hex literals in `className` + PR-template gate citing this PD. Closes the enforcement-mechanism criterion deferred from EFFORT-001 at graduation.
+- Slop Bowl visual/token cleanup is no longer tracked as an active Effort; INIT-001 Phase 3.1 owns remaining Slop Bowl design alignment while EFFORT-015 owns enforcement.

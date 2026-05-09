@@ -6,7 +6,7 @@
 
 ## Summary
 
-Implemented the first production pass for EPIC-006 by tightening the equipment-vision prompts, documenting the local dotenvx worktree setup, and adding a narrow server-side filter for fixed kitchen infrastructure labels that continued to leak through live vision results.
+Implemented the first production pass for EFFORT-006 by tightening the equipment-vision prompts, documenting the local dotenvx worktree setup, and adding a narrow server-side filter for fixed kitchen infrastructure labels that continued to leak through live vision results.
 
 This pass keeps `French press` and `carafe` in-bounds for `kitchenEquipment`, while excluding fixed infrastructure such as `range hood`, `vent hood`, `sink`, and `faucet`.
 
@@ -32,13 +32,13 @@ This pass keeps `French press` and `carafe` in-bounds for `kitchenEquipment`, wh
   - Added guardrail assertions for the tightened prompt wording.
 - `tests/unit/equipment-filter.test.ts`
   - Added direct coverage for the infrastructure filter.
-- `epics/006-equipment-vision-exclusions.md`
+- `efforts/effort-006-equipment-vision-exclusions.md`
   - Moved the epic to `In Progress`.
   - Recorded fixture-set provenance, live validation signal, and the product decision separating `equipment` from kitchen infrastructure/context.
-- `epics/README.md`
-  - Added EPIC-006 to the active read list.
-- `epics/registry.md`
-  - Updated EPIC-006 from `Deferred` to `In Progress`.
+- `efforts/README.md`
+  - Added EFFORT-006 to the active read list.
+- `efforts/registry.md`
+  - Updated EFFORT-006 from `Deferred` to `In Progress`.
 - `AGENTS.md`
   - Documented the required `.env.keys` symlink step for worktrees.
 - `CLAUDE.md`
@@ -46,7 +46,7 @@ This pass keeps `French press` and `carafe` in-bounds for `kitchenEquipment`, wh
 
 ## Impact on other agents
 
-- Read `epics/006-equipment-vision-exclusions.md` before continuing any work on `/api/vision/analyze` or the equipment prompt stack.
+- Read `efforts/effort-006-equipment-vision-exclusions.md` before continuing any work on `/api/vision/analyze` or the equipment prompt stack.
 - The current product taxonomy is:
   - `kitchenEquipment` = usable cooking / prep / serving gear
   - fixed kitchen infrastructure like `range hood` and `sink` = out of scope for this field

@@ -76,14 +76,14 @@ Use this policy for optional context and local-vs-production validation:
 
 - Slop Bowl's sparse-pantry guard is permanent product behavior, not a local-only patch.
 - Slop Bowl and profile recent-session reads may be best-effort, with warnings when history cannot be loaded.
-- Local Neon schema drift still needs its own workflow/epic/product decision if the project wants reliable full local validation.
+- Local Neon schema drift still needs its own workflow, Effort, or product decision if the project wants reliable full local validation.
 - Future code should clearly separate required dependencies from optional context before deciding whether to fail or degrade.
 - Handoffs and PRs should note when a feature intentionally degrades without optional context, and cite this PD when relevant.
 
 ## Linked artifacts
 
 - [`PD-002: Slop Bowl`](002-slop-bowl.md)
-- [`EPIC-005: App-wide testing strategy and acceptance criteria workflow`](../epics/005-testing-strategy-and-acceptance-criteria.md)
-- [`EPIC-008: Slop Bowl sparse-pantry guard`](../epics/008-slop-bowl-sparse-pantry-guard.md)
-- [`EPIC-010: Local database schema strategy`](../epics/010-local-db-schema-strategy.md)
+- [`Testing and Acceptance Workflow`](../docs/workflows/testing-and-acceptance.md)
+- [`EFFORT-008: Slop Bowl sparse-pantry guard`](../efforts/effort-008-slop-bowl-sparse-pantry-guard.md)
+- [`EFFORT-010: Local database schema strategy`](../efforts/effort-010-local-db-schema-strategy.md)
 - [`docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md`](../docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md)

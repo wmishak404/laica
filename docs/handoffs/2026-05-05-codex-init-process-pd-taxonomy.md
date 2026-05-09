@@ -10,7 +10,7 @@
 
 Implemented Wilson's docs-only process cleanup plan for INIT-001 and product decisions. The branch keeps product rationale strong while reducing duplicate diary-like context across INIT, phase records, handoffs, and governance docs.
 
-The main policy change is documentation taxonomy: top-level `PD-xxx` files are stable decision records with controlled amendments; feature-phase records are phase-scoped working specs/outcomes; INITs are current-state hubs; epics are active cross-cutting concerns; handoffs are point-in-time coordination.
+The main policy change is documentation taxonomy: top-level `PD-xxx` files are stable decision records with controlled amendments; feature-phase records are phase-scoped working specs/outcomes; INITs are current-state hubs; Efforts are active cross-cutting concerns; handoffs are point-in-time coordination.
 
 ## Changes
 
@@ -33,7 +33,7 @@ Before starting INIT-001 Phase 3, read:
 - `product-decisions/features/mobile-refresh/phase-03-planning.md`
 - `product-decisions/005-ui-governance.md`
 - `design_guidelines.md`
-- any active epic whose checklist matches the work
+- any active Effort whose checklist matches the work
 
 Claude review request before merge:
 
@@ -48,7 +48,7 @@ Claude review request before merge:
 ## Verification
 
 - `git diff --check`
-- Stale-reference searches for live EPIC-001/EPIC-012 pointers and merged-phase validation language
+- Stale-reference searches for live EFFORT-001/EFFORT-012 pointers and merged-phase validation language
 - Manual scan that INIT-001 exposes the Phase 3 resume point and required Phase 3 inputs quickly
 
 ## Stack / base status

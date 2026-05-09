@@ -30,12 +30,12 @@ Applied a finer-grained taxonomy refinement to the equipment scan based on Wilso
   - Added explicit assertions for the new excluded aliases and preserved allowed labels.
 - `tests/unit/equipment-vision-prompts.test.ts`
   - Added prompt assertions for the new drinkware/water-filter/storage wording.
-- `epics/006-equipment-vision-exclusions.md`
+- `efforts/effort-006-equipment-vision-exclusions.md`
   - Recorded the product taxonomy decision and the latest live rerun signal.
 
 ## Impact on other agents
 
-- Read `epics/006-equipment-vision-exclusions.md` before making further changes to equipment-scan taxonomy.
+- Read `efforts/effort-006-equipment-vision-exclusions.md` before making further changes to equipment-scan taxonomy.
 - The current agreed line is:
   - exclude: `wine glass`, `wine bottle`, water-filter-family labels, generic `utensil set`
   - include: `mason jars`, `serving tray`, `French press`, `carafe`

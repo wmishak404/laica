@@ -1,5 +1,6 @@
-# EPIC-002 — Home / Get Started routing & Home-Cook nav consolidation
+# EFFORT-002 — Home / Get Started routing & Home-Cook nav consolidation
 
+**Former ID:** EPIC-002
 **Status:** Resolved
 **Owner:** Wilson (product direction) / Claude (next implementation pass)
 **Created:** 2026-04-16
@@ -56,13 +57,13 @@ So two different surfaces (Home "Get Started" and bottom-nav Cook) are solving o
   - Option A: Keep both, but make Home a real dashboard (saved recipes, continue cooking, recommendations per `design_guidelines.md`) — Cook stays as the Planning entry
   - Option B: Merge Home + Cook into one tab. Bottom nav becomes 3-tab instead of 4-tab
   - Option C: Keep Home as the post-signin landing screen but make its primary CTA identical to Cook (both go to Planning) — acceptable short-term but defers the IA question
-- Document the decision as either a product-decisions entry or a PD graduation from this epic
+- Document the decision as either a product-decisions entry or a PD graduation from this Effort
 
 ### Out of scope
 
 - Redesigning the welcome / first-time experience itself — that's a separate tone/onboarding workstream
-- Profile edit flow — "Settings" already covers that, not part of this epic
-- Bottom-nav visual redesign — this epic is about IA (information architecture), not styling. If the nav count changes from 4 → 3, the token-level styling change rides on EPIC-001's rubric
+- Profile edit flow — "Settings" already covers that, not part of this Effort
+- Bottom-nav visual redesign — this Effort is about IA (information architecture), not styling. If the nav count changes from 4 → 3, the token-level styling change rides on EFFORT-001's rubric
 
 ## Decisions made so far
 
@@ -83,7 +84,7 @@ Historical questions from the active decision window are preserved below. They w
 - `favoriteChefs` is optional and not checked
 - Users who sign in with a partially-filled profile (e.g. skipped pantry) should still be able to get to Slop Bowl — Slop Bowl's `pantry-check` state handles empty pantry gracefully
 
-Default proposal: expand the predicate to also accept "any pantry ingredients OR any kitchen equipment" so partial profiles still skip the FTUE but push the user to fill the gap inside Slop Bowl (see EPIC-003 for inline pantry edit).
+Default proposal: expand the predicate to also accept "any pantry ingredients OR any kitchen equipment" so partial profiles still skip the FTUE but push the user to fill the gap inside Slop Bowl (see EFFORT-003 for inline pantry edit).
 
 ### 2. Home as dashboard vs Home as redirect
 
@@ -105,9 +106,9 @@ If Home and Cook merge:
 
 Claude's lean: **Cook + ChefHat** if they merge, but Wilson's call.
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-002 before starting any of the following:
+Read EFFORT-002 before starting any of the following:
 
 - [ ] Adding or changing navigation entry points in `client/src/pages/app.tsx` (welcome screen, bottom nav, routing logic)
 - [ ] Modifying the `currentPhase` state machine or the phases (`welcome` / `profiling` / `planning` / etc.)
@@ -116,17 +117,17 @@ Read EPIC-002 before starting any of the following:
 - [ ] Adding a new bottom-nav tab, renaming one, or changing the count
 - [ ] Writing a handoff that describes a new "Get Started" / FTUE / returning-user flow
 
-When one of these applies, cite EPIC-002 in your handoff and note how the change interacts (conforms / defers / adds new signal). If you add new routing paths that intersect with the questions above, document them here under a `## YYYY-MM-DD — <summary>` section.
+When one of these applies, cite EFFORT-002 in your handoff and note how the change interacts (conforms / defers / adds new signal). If you add new routing paths that intersect with the questions above, document them here under a `## YYYY-MM-DD — <summary>` section.
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. "Get Started" on the welcome screen respects `hasExistingProfile()` — returning users land on Planning, not the profile builder
 2. A product decision exists for the Home-vs-Cook question (consolidate / keep both with clear separation / other)
 3. The bottom nav reflects the accepted IA — if consolidated, the active-state logic and icon are updated consistently
 4. `design_guidelines.md`'s "Home Dashboard" section is reconciled to match the accepted direction (either kept as the aspirational target, updated to reflect consolidation, or marked deferred)
-5. This epic file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the product decision
+5. This Effort file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the product decision
 
 ## Linked artifacts
 
@@ -135,23 +136,23 @@ This epic is `Resolved` when all of the following are true:
 - `design_guidelines.md` — "Home Dashboard" section (currently aspirational, not implemented)
 - `product-decisions/006-home-and-cook-remain-separate.md` — historical product decision for the earlier Home/Cook split, now superseded
 - `product-decisions/009-mobile-refresh-navigation.md` — accepted mobile-refresh decision consolidating authenticated entry into Planning
-- `docs/handoffs/2026-04-17-codex-epic-002-003-flow-fixes.md` — implementation handoff for the returning-user routing fix
-- `docs/handoffs/2026-04-17-codex-epic-002-003-validation.md` — follow-up handoff recording validation/test confirmation
+- `docs/handoffs/2026-04-17-codex-Effort-002-003-flow-fixes.md` — implementation handoff for the returning-user routing fix
+- `docs/handoffs/2026-04-17-codex-Effort-002-003-validation.md` — follow-up handoff recording validation/test confirmation
 
 ## Chronology — how we got here
 
-### 2026-04-16 — Epic created
+### 2026-04-16 — Effort created
 
 During Slop Bowl implementation, Wilson navigated the app end-to-end and noticed two independent issues in the same message:
 
 1. Home "Get Started" re-runs the profile builder even when the profile is complete
 2. Cook nav already goes to Planning directly, which overlaps with Home's role
 
-Wilson asked both items be parked as a backlog epic rather than fixed inline during Slop Bowl. This doc is that record. Implementation is deferred to a future window after Slop Bowl ships.
+Wilson asked both items be parked as a backlog Effort rather than fixed inline during Slop Bowl. This doc is that record. Implementation is deferred to a future window after Slop Bowl ships.
 
 ### 2026-04-17 — Returning-user routing fix landed
 
-Codex implemented the low-risk half of this epic in `client/src/pages/app.tsx`:
+Codex implemented the low-risk half of this Effort in `client/src/pages/app.tsx`:
 
 - The welcome-screen CTA now branches on a shared `hasPlanningProfile` helper instead of always forcing users back through profiling
 - Returning users now see updated welcome copy and a **Start Planning** CTA that sends them directly to the Slop Bowl vs Chef it up! planning-choice screen
@@ -161,14 +162,14 @@ At this point in the chronology, the Home-vs-Cook information-architecture quest
 
 ### 2026-04-17 — Implemented behavior validated/tested
 
-Wilson later confirmed that the implemented EPIC-002 behavior was validated and tested.
+Wilson later confirmed that the implemented EFFORT-002 behavior was validated and tested.
 
 This adds confidence that the returning-user routing fix works as intended in practice:
 
 - users with an existing planning-ready profile no longer have to re-run the first-time profile builder from Home
 - the welcome CTA routes them into the planning-choice screen as intended
 
-At the time this validation note was added, the epic still remained `In Progress` because the Home-vs-Cook information-architecture decision had not yet been finalized. That final product call was recorded later the same day and is captured in the resolution note below.
+At the time this validation note was added, the Effort still remained `In Progress` because the Home-vs-Cook information-architecture decision had not yet been finalized. That final product call was recorded later the same day and is captured in the resolution note below.
 
 ### 2026-04-17 — Resolved
 
@@ -180,7 +181,7 @@ Accepted rationale:
 - that gating removes the main reason to consolidate the two surfaces right now
 - the implemented Home routing fix already solves the practical bug for returning users
 
-This decision is recorded in `product-decisions/006-home-and-cook-remain-separate.md`. `design_guidelines.md` now marks the richer Home Dashboard section as deferred / aspirational rather than a required current implementation target. With that, EPIC-002's resolution criteria are met and the epic flips to `Resolved`.
+This decision is recorded in `product-decisions/006-home-and-cook-remain-separate.md`. `design_guidelines.md` now marks the richer Home Dashboard section as deferred / aspirational rather than a required current implementation target. With that, EFFORT-002's resolution criteria are met and the Effort flips to `Resolved`.
 
 ### 2026-04-28 — Historical decision superseded by mobile refresh
 

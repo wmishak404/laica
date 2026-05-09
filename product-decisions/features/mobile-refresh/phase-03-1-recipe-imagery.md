@@ -11,7 +11,7 @@
 
 Take a deliberate design step back after Phase 3 functional closeout, then improve the Phase 3 look and feel while adding real recipe imagery or illustration to the Ticket Pass and Prep Tray without slowing the first recipe-suggestion reveal.
 
-Wilson redirected the proposed "Phase 3 design drifts" epic into this Phase 3.1 work package, then froze Phase 3 visuals so Phase 3 can close on functionality. Phase 3.1 is therefore the design facelift plus imagery pass, not a continuation of piecemeal Phase 3 visual tuning.
+Wilson redirected the proposed "Phase 3 design drifts" Effort into this Phase 3.1 work package, then froze Phase 3 visuals so Phase 3 can close on functionality. Phase 3.1 is therefore the design facelift plus imagery pass, not a continuation of piecemeal Phase 3 visual tuning.
 
 Phase 3.2 is split out separately for the progressive Chef It Up Added shelf / rolling staple queue. That behavior polish was not blocked by Phase 3.1, shipped first through PR #46, and is now the Chef It Up staple-check behavior that Phase 3.1 should preserve or intentionally restyle during the facelift.
 
@@ -112,7 +112,7 @@ slopItUpPlanningCard:
 - Keep a hard split between shipped Phase 3.2 behavior polish and Phase 3.1 facelift work: Phase 3.1 decides how the Added shelf / rolling queue should look in the facelift without reverting its behavior contract.
 - Use the Chef It Up Phase 3.2 Added shelf/chip/row treatment as the preferred pantry-confirmation visual direction when reviewing Slop Bowl pantry-check consistency, while keeping Slop Bowl's existing behavior unless Phase 3.1 explicitly changes it. The latest accepted chip distinction is: pending/removable equals coral plus + X; persisted pantry fact equals green check only, with tap-to-explain inline direction for removal in Pantry Settings.
 - Do not make image generation part of the recipe-suggestion critical path. Suggestions should remain usable before any image arrives.
-- If similar drift spans beyond Phase 3.1 or crosses multiple future phases, then create a temporary drift epic. For now, this feature-phase record is the source of truth.
+- If similar drift spans beyond Phase 3.1 or crosses multiple future phases, then create a temporary drift Effort. For now, this feature-phase record is the source of truth.
 
 ## Speed Requirement
 

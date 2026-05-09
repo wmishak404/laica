@@ -1,5 +1,6 @@
-# EPIC-012 — Laica Design Language & Visual Identity
+# EFFORT-012 — Laica Design Language & Visual Identity
 
+**Former ID:** EPIC-012
 **Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-29
@@ -19,12 +20,12 @@ Define Laica's durable visual language — look, feel, personality, color, typog
 
 Phase 2 mobile-refresh validation surfaced a planning gap: PR #23 implemented much of the setup behavior, but the screens did not yet feel close enough to the approved visual mockups. The app had UX principles and UI governance, but not a strong enough source of truth for the target Laica design language.
 
-This epic is distinct from `epics/001-ui-governance.md`:
+This Effort is distinct from `efforts/effort-001-ui-governance.md`:
 
-- EPIC-001 governs consistency and enforcement: tokens, primitives, escape hatches, and avoiding ad hoc styling.
-- EPIC-012 defines the visual identity those tokens and primitives should express: Laica's personality, art direction, layout feel, color mood, typography direction, illustration/photo treatment, and how the app should avoid feeling like a generic AI product.
+- EFFORT-001 governs consistency and enforcement: tokens, primitives, escape hatches, and avoiding ad hoc styling.
+- EFFORT-012 defines the visual identity those tokens and primitives should express: Laica's personality, art direction, layout feel, color mood, typography direction, illustration/photo treatment, and how the app should avoid feeling like a generic AI product.
 
-`design_guidelines.md` is currently a record of the implementation as it exists, not the target design language. This epic should eventually graduate into a durable design-language product decision or a replacement/major revision of that guideline.
+`design_guidelines.md` is currently a record of the implementation as it exists, not the target design language. This Effort should eventually graduate into a durable design-language product decision or a replacement/major revision of that guideline.
 
 ## Scope
 
@@ -45,7 +46,7 @@ This epic is distinct from `epics/001-ui-governance.md`:
 - Replacing shadcn/ui or Tailwind as implementation tools
 - Shipping a full component-library platform before the app can move forward
 - Treating mockups as pixel-perfect specs when responsive behavior or platform constraints require adaptation
-- Implementing code changes directly inside this epic
+- Implementing code changes directly inside this Effort
 
 ## Decisions made so far
 
@@ -56,14 +57,14 @@ This epic is distinct from `epics/001-ui-governance.md`:
 - Laica should not feel like a generic AI app, generic SaaS dashboard, or plain shadcn demo.
 - Warm/coral remains the leading brand energy for the current mobile refresh, but future palette work should avoid one-note coral-only screens.
 - Design implementation should use reusable tokens and component patterns where practical, with deliberate documented exceptions for tone-forward surfaces.
-- Phase 2 setup is the first active correction point for this epic.
+- Phase 2 setup is the first active correction point for this Effort.
 - Phase 2.1 setup pilots `Fraunces` display typography and `Nunito` UI/body typography, scoped to setup only until later mobile-refresh phases either adopt or revise it.
 - User-facing brand copy should use `Laica`, not all-caps `LAICA`, unless a logo/artwork/legal context requires otherwise.
 - Authenticated mobile-refresh pages should avoid persistent top headers; account/profile/sign-out access belongs in the bottom-menu/account surface.
 
 ## Phase 2 starting point
 
-The Phase 2 setup polish pass should use this epic as an active design-language pilot:
+The Phase 2 setup polish pass should use this Effort as an active design-language pilot:
 
 - Camera-first setup should feel intentionally Laica-branded, not like a native camera preview surrounded by ordinary buttons.
 - Capture should be the primary visual action; upload/manual/tips should sit in a clear secondary hierarchy.
@@ -89,9 +90,9 @@ The Phase 2 setup polish pass should use this epic as an active design-language 
 6. Which mockup elements are hard requirements versus directional examples?
 7. What should the final design-language artifact be: a new product decision, a revised `design_guidelines.md`, or both?
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-012 before starting any of the following:
+Read EFFORT-012 before starting any of the following:
 
 - [ ] Implementing or polishing any mobile-refresh Phase 2-5 screen
 - [ ] Translating a mockup into code
@@ -104,28 +105,28 @@ Read EPIC-012 before starting any of the following:
 
 When one of these applies, the handoff for the work must:
 
-1. Cite this epic.
+1. Cite this Effort.
 2. State whether the work conforms, defers, or adds new evidence.
 3. Include any intentional visual deviations from linked mockups.
 4. Note whether the visual change is reusable system direction or a one-off phase exception.
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. A durable Laica design-language artifact exists, either as a product decision, revised `design_guidelines.md`, or both.
 2. The artifact defines visual personality, color direction, typography direction, imagery/illustration approach, surface taxonomy, and mockup-conformance expectations.
-3. EPIC-001's governance/enforcement plan knows how to enforce or review the accepted design language.
+3. EFFORT-001's governance/enforcement plan knows how to enforce or review the accepted design language.
 4. At least one mobile-refresh phase, starting with Phase 2 setup, has been implemented and validated against the accepted design language.
 5. Phase handoff templates or PR validation notes include visual conformance as an explicit review item.
-6. This epic has a final dated resolution note with links to the accepted artifact and merged pilot implementation.
+6. This Effort has a final dated resolution note with links to the accepted artifact and merged pilot implementation.
 
 ## Linked artifacts
 
 - `product-decisions/features/mobile-refresh/design-language.md` — draft target design language for mobile refresh
 - `design_guidelines.md` — current implementation record, not yet target identity
-- `epics/001-ui-governance.md` — consistency and enforcement companion epic
-- `epics/005-testing-strategy-and-acceptance-criteria.md` — validation companion epic
+- `efforts/effort-001-ui-governance.md` — consistency and enforcement companion Effort
+- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md` — validation companion Effort
 - `initiatives/INIT-001-mobile-refresh.md` — living Mobile Refresh initiative hub
 - `product-decisions/features/mobile-refresh/README.md` — mobile-refresh phase index and mockup conformance gate
 - `product-decisions/features/mobile-refresh/phase-02-setup.md` — first active correction point
@@ -133,9 +134,9 @@ This epic is `Resolved` when all of the following are true:
 
 ## Chronology
 
-### 2026-04-29 — Epic created from Phase 2 design gap
+### 2026-04-29 — Effort created from Phase 2 design gap
 
-Wilson clarified that "design principles" means more than UX principles: Laica needs a universal design system and guidance for visual identity, look and feel, colors, personality, and the aesthetic direction behind the mockups. This epic records that work and makes Phase 2 setup the first active place to apply it.
+Wilson clarified that "design principles" means more than UX principles: Laica needs a universal design system and guidance for visual identity, look and feel, colors, personality, and the aesthetic direction behind the mockups. This Effort records that work and makes Phase 2 setup the first active place to apply it.
 
 ### 2026-04-29 — Draft mobile-refresh design language added
 
@@ -165,15 +166,15 @@ The review also adds one durable selection-surface detail: `No restrictions` sho
 
 Wilson confirmed that the Phase 2.1 setup design now looks great after the final welcome, camera-control, Kitchen-accent, and upload-limit polish passes. This is the first accepted pilot signal for the mobile-refresh design language: setup-scoped `Fraunces` / `Nunito` typography, warm cream/coral phone-flow shell, one top progress treatment, camera controls inside the scan object, translucent utility controls, blank shutter capture, peer-level upload/manual actions, multicolor setup-choice illustrations, isolated `No restrictions`, and a Kitchen-specific gray/silver/light-wood accent layer while keeping progress coral.
 
-This does not resolve EPIC-012 yet because Phase 2.1 still needs full Replit functional validation and the design language still needs later Phase 3-5 proof points, but it gives future agents a concrete accepted setup reference.
+This does not resolve EFFORT-012 yet because Phase 2.1 still needs full Replit functional validation and the design language still needs later Phase 3-5 proof points, but it gives future agents a concrete accepted setup reference.
 
 ### 2026-04-30 — Future scan-session chip states identified
 
-Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language signal: Pantry/Equipment chips may need visual state for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should probably use a different hue or lightweight indicator so users can understand overlap and clean up duplicate-like entries without a heavy review screen. The detailed product work is tracked in [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md), while the design-language note is captured in `product-decisions/features/mobile-refresh/design-language.md`.
+Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language signal: Pantry/Equipment chips may need visual state for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should probably use a different hue or lightweight indicator so users can understand overlap and clean up duplicate-like entries without a heavy review screen. The detailed product work is tracked in [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md), while the design-language note is captured in `product-decisions/features/mobile-refresh/design-language.md`.
 
 ### 2026-05-01 — Phase 2.1 setup pilot merged
 
-PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scoped `Fraunces` / `Nunito`, warm cream/coral phone-flow surfaces, designed camera object, single top progress treatment, translucent camera controls, peer upload/manual actions, multicolor choice illustrations, and Kitchen-specific gray/silver/light-wood accents. This is a major proof point for EPIC-012, but the epic stays `In Progress` until the durable design-language artifact is promoted and later Phase 3-5 proof points clarify whether the setup typography/palette become global or stay setup-scoped.
+PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scoped `Fraunces` / `Nunito`, warm cream/coral phone-flow surfaces, designed camera object, single top progress treatment, translucent camera controls, peer upload/manual actions, multicolor choice illustrations, and Kitchen-specific gray/silver/light-wood accents. This is a major proof point for EFFORT-012, but the Effort stays `In Progress` until the durable design-language artifact is promoted and later Phase 3-5 proof points clarify whether the setup typography/palette become global or stay setup-scoped.
 
 ### 2026-05-01 — Phase 2.2 extends setup language to returning edits
 
@@ -193,12 +194,12 @@ Wilson's follow-up Replit screenshots showed that visual conformance cannot be i
 
 ### 2026-05-01 — Phase 2.2 merged as returning-user design proof point
 
-PR #30 merged Phase 2.2 into `main` after Replit validation at `dc59796ae1602af4643c5fc640be47ab19a59e04`. This gives EPIC-012 a second accepted proof point after Phase 2.1 setup: Menu is the global returning-user destination surface, Settings is utilitarian but Laica-native, returning Pantry/Kitchen/Profile reuse the setup look/feel foundation, and History is separated as a warmer cooking-memory surface while richer share/cook-again behavior stays in Phase 5.
+PR #30 merged Phase 2.2 into `main` after Replit validation at `dc59796ae1602af4643c5fc640be47ab19a59e04`. This gives EFFORT-012 a second accepted proof point after Phase 2.1 setup: Menu is the global returning-user destination surface, Settings is utilitarian but Laica-native, returning Pantry/Kitchen/Profile reuse the setup look/feel foundation, and History is separated as a warmer cooking-memory surface while richer share/cook-again behavior stays in Phase 5.
 
 ### 2026-05-02 — Resolved; graduated to design_guidelines.md
 
 The visual identity, tokens, surface taxonomy, accepted Phase 2.1 + 2.2 directions, mockup conformance gate, anti-patterns, and review checklist have moved into [`design_guidelines.md`](../design_guidelines.md) as the canonical living UI/design standard. Governance enforcement lives in [PD-005](../product-decisions/005-ui-governance.md).
 
-The seven open identity questions (typography globalization, palette refinement, canonical motifs, playfulness by surface, imagery approach, mockup hardness, scan-session chip states) are now an "Open Visual Decisions" section inside `design_guidelines.md` and will be edited inline as Phase 3-5 lands evidence — no separate active epic is needed unless one grows into its own multi-phase concern.
+The seven open identity questions (typography globalization, palette refinement, canonical motifs, playfulness by surface, imagery approach, mockup hardness, scan-session chip states) are now an "Open Visual Decisions" section inside `design_guidelines.md` and will be edited inline as Phase 3-5 lands evidence — no separate active Effort is needed unless one grows into its own multi-phase concern.
 
-This file is preserved as historical evidence. Active read lists in `epics/README.md`, `AGENTS.md`, `CLAUDE.md`, and `INIT-001` now point at `design_guidelines.md` + PD-005 instead.
+This file is preserved as historical evidence. Active read lists in `efforts/README.md`, `AGENTS.md`, `CLAUDE.md`, and `INIT-001` now point at `design_guidelines.md` + PD-005 instead.

@@ -1,5 +1,6 @@
-# EPIC-008 — Slop Bowl sparse-pantry guard
+# EFFORT-008 — Slop Bowl sparse-pantry guard
 
+**Former ID:** EPIC-008
 **Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
@@ -37,7 +38,7 @@ Wilson chose the product behavior: ask for more ingredients and gently prompt th
 
 - Designing a full pantry quality scoring system.
 - Auto-suggesting ingredients from inventory history.
-- Changing saved pantry semantics from EPIC-003; Slop Bowl quick edits remain ephemeral unless made through profile settings.
+- Changing saved pantry semantics from EFFORT-003; Slop Bowl quick edits remain ephemeral unless made through profile settings.
 - Reworking the generic demo/rate-limit handler across the whole app.
 
 ## Decisions made so far
@@ -53,20 +54,20 @@ Wilson chose the product behavior: ask for more ingredients and gently prompt th
 - Should the generic API handler eventually support typed domain errors across all AI routes?
 - Should model-generation failures get a Slop Bowl-specific retry message instead of the existing generic service-unavailable toast?
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-008 before starting any of the following:
+Read EFFORT-008 before starting any of the following:
 
 - [ ] Modifying `client/src/components/cooking/slop-bowl.tsx` pantry-check, generation, or error handling behavior
 - [ ] Changing `POST /api/recipes/slop-bowl` validation or request/response semantics
 - [ ] Changing `client/src/lib/openai.ts` Slop Bowl error handling
 - [ ] Defining Slop Bowl acceptance criteria or verification for sparse pantry states
 
-When this applies, also cite EPIC-005 because sparse-pantry behavior is part of core cooking-flow acceptance criteria.
+When this applies, also cite EFFORT-005 because sparse-pantry behavior is part of core cooking-flow acceptance criteria.
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. The Slop Bowl pantry-check screen blocks generation with 0, 1, or 2 distinct ingredients.
 2. The 1-2 ingredient state shows inline helper copy prompting the user to add more likely bowl builders.
@@ -80,8 +81,8 @@ This epic is `Resolved` when all of the following are true:
 - `client/src/lib/openai.ts`
 - `server/routes.ts`
 - `product-decisions/008-optional-context-and-local-validation-boundaries.md`
-- `epics/003-slop-bowl-pantry-quick-actions.md`
-- `epics/005-testing-strategy-and-acceptance-criteria.md`
+- `efforts/effort-003-slop-bowl-pantry-quick-actions.md`
+- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
 
 ## 2026-04-27 — Implementation pass
 
@@ -92,7 +93,7 @@ Codex implemented the first sparse-pantry guard pass on `codex/slop-bowl-sparse-
 - Slop Bowl generation now preserves typed API error details and handles `SLOP_BOWL_TOO_FEW_INGREDIENTS` inline instead of routing it through the generic service-unavailable toast.
 - The server route now returns HTTP `422` with `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"` before calling OpenAI when the effective pantry has fewer than 3 distinct ingredients.
 
-Local verification passed with `npm run check` and `npm run build`. Replit/manual service-backed validation remains before this epic should be marked `Resolved`.
+Local verification passed with `npm run check` and `npm run build`. Replit/manual service-backed validation remains before this Effort should be marked `Resolved`.
 
 The local-vs-production fallback policy that came out of this work is now captured in `product-decisions/008-optional-context-and-local-validation-boundaries.md`.
 
@@ -106,7 +107,7 @@ Wilson validated the main authenticated Replit flow on `codex/slop-bowl-sparse-p
 - No `[user-profile] Recent cooking sessions unavailable` or `[slop-bowl] Recent cooking sessions unavailable` warnings appeared in the Replit logs.
 - Accepting the generated recipe and entering cooking worked; cooking steps loaded successfully.
 
-The remaining strict API-specific check, if needed before marking this epic resolved, is a direct authenticated call with fewer than 3 ingredients returning `422` and `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
+The remaining strict API-specific check, if needed before marking this Effort resolved, is a direct authenticated call with fewer than 3 ingredients returning `422` and `SLOP_BOWL_TOO_FEW_INGREDIENTS`.
 
 ## 2026-04-27 — Resolved
 
@@ -123,4 +124,4 @@ Verification passed:
 - `npm run check`
 - `npm run build`
 
-EPIC-008 is resolved. Future Slop Bowl pantry-entry improvements should use EPIC-009, and local DB strategy work should use EPIC-010.
+EFFORT-008 is resolved. Future Slop Bowl pantry-entry improvements should use EFFORT-009, and local DB strategy work should use EFFORT-010.

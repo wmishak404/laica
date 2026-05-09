@@ -33,10 +33,10 @@ Make the first screen feel like a native mobile app instead of a desktop website
 - Returning incomplete account lands in Setup and cannot bypass required setup.
 - Bottom navigation no longer exposes a redundant Home surface in the refreshed authenticated flow.
 
-## Epic Interactions
+## Effort Interactions
 
 - PD-005 / `design_guidelines.md`: New auth surface must use existing tokens/icons/type primitives and avoid ad hoc hex literals.
-- EPIC-005: Readiness depends on manual Replit smoke for Firebase sign-in and routing states.
+- [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Readiness depends on manual Replit smoke for Firebase sign-in and routing states.
 
 ## Open Questions
 

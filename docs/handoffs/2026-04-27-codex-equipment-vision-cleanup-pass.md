@@ -16,7 +16,7 @@ Applied one more narrow cleanup pass to the server-side equipment filter to remo
     - `flower vase`
 - `tests/unit/equipment-filter.test.ts`
   - Added coverage for both exclusions.
-- `epics/006-equipment-vision-exclusions.md`
+- `efforts/effort-006-equipment-vision-exclusions.md`
   - Recorded the organizer/decor cleanup pass and the latest live rerun signal.
 
 ## Impact on other agents

@@ -25,19 +25,19 @@ The feedback accepts the broad setup visual direction but requests one more poli
   - Adds Wilson's exact Replit feedback as Phase 2.1 acceptance criteria and a dated feedback section.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Updates current status, required-before-merge items, and resume point to make this Replit feedback the next implementation focus.
-- `epics/001-ui-governance.md`
+- `efforts/effort-001-ui-governance.md`
   - Adds app-shell/control-pattern governance signal: no authenticated app header by default, one setup progress treatment, readable secondary actions, and in-camera controls.
-- `epics/004-selection-controls-tap-targets.md`
+- `efforts/effort-004-selection-controls-tap-targets.md`
   - Adds the dietary default selection note: `No restrictions` should be isolated and visually distinguished.
-- `epics/012-laica-design-language.md`
+- `efforts/effort-012-laica-design-language.md`
   - Adds durable design-language signals for `Laica` casing, no persistent app header, in-frame camera controls, multicolor setup illustrations, Kitchen accent treatment, and the isolated dietary default.
 
 ## Impact on other agents
 
-- EPIC-001: adds app-shell and reusable setup-control governance. Future mobile-refresh surfaces should not reintroduce a website-style top header by default.
-- EPIC-004: adds a concrete multi-select default-choice pattern for Dietary Restrictions.
-- EPIC-005: reinforces that Replit visual review can produce merge-blocking acceptance criteria, not only functional smoke results.
-- EPIC-012: adds durable design-language direction from the Replit visual review.
+- EFFORT-001: adds app-shell and reusable setup-control governance. Future mobile-refresh surfaces should not reintroduce a website-style top header by default.
+- EFFORT-004: adds a concrete multi-select default-choice pattern for Dietary Restrictions.
+- EFFORT-005: reinforces that Replit visual review can produce merge-blocking acceptance criteria, not only functional smoke results.
+- EFFORT-012: adds durable design-language direction from the Replit visual review.
 - PD-009: now owns the no-authenticated-header decision for future app-shell work.
 
 ## Open items

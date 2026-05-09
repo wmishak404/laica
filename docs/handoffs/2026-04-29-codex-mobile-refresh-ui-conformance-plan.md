@@ -18,9 +18,9 @@ Captured Wilson's Phase 2 UI review as a docs-only planning correction. The new 
   - Recorded that setup visual polish and Back/escape from camera flow are Phase 2 readiness items.
 - `product-decisions/features/mobile-refresh/phase-03-planning.md`
   - Added a visual scope note that the unchanged Planning cards are pre-refresh UI and are not acceptable Phase 3 completion.
-- `epics/001-ui-governance.md`
+- `efforts/effort-001-ui-governance.md`
   - Added new evidence that mockup conformance should be part of UI governance.
-- `epics/005-testing-strategy-and-acceptance-criteria.md`
+- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
   - Added new evidence that deterministic checks can miss visual acceptance failures.
 
 ## Impact on other agents

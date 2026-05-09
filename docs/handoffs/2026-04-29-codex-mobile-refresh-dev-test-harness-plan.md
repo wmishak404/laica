@@ -13,7 +13,7 @@ Recorded Wilson's requested dev-testable harness direction as a documentation-on
 - `product-decisions/features/mobile-refresh/dev-test-harness.md` documents the planned harness: Firebase custom-token dev auth, strict dev-only gating, deterministic test users, hybrid fixture/live smoke, and no backend auth bypass.
 - `product-decisions/features/mobile-refresh/README.md` now links the harness as a cross-phase validation follow-up that should not block PR #23.
 - `product-decisions/features/mobile-refresh/phase-00-cross-phase-security.md` clarifies that future dev-test auth must preserve Firebase Admin token verification and stay unavailable in production.
-- `epics/005-testing-strategy-and-acceptance-criteria.md` records the Phase 2 authenticated-smoke automation gap as new evidence for the broader testing strategy.
+- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md` records the Phase 2 authenticated-smoke automation gap as new evidence for the broader testing strategy.
 
 ## Impact on other agents
 

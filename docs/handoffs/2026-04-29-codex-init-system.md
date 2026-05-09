@@ -8,7 +8,7 @@
 
 ## Summary
 
-Created the INIT documentation layer for multi-phase initiatives and filed INIT-001 for Mobile Refresh. INITs are living project hubs that connect phase docs, product decisions, epics, assets, PRs, handoffs, validation status, and current resume context.
+Created the INIT documentation layer for multi-phase initiatives and filed INIT-001 for Mobile Refresh. INITs are living project hubs that connect phase docs, product decisions, Efforts, assets, PRs, handoffs, validation status, and current resume context.
 
 ## Changes
 
@@ -17,9 +17,9 @@ Created the INIT documentation layer for multi-phase initiatives and filed INIT-
 - `initiatives/registry.md`
   - Adds the searchable INIT index.
 - `initiatives/INIT-001-mobile-refresh.md`
-  - Captures Mobile Refresh current state across Phase 0-5, assets, PRs, epics, validation, changes added after initial planning, and resume point.
+  - Captures Mobile Refresh current state across Phase 0-5, assets, PRs, Efforts, validation, changes added after initial planning, and resume point.
 - Workflow and relationship docs
-  - Updated `AGENTS.md`, `CLAUDE.md`, `docs/handoffs/README.md`, `product-decisions/README.md`, and `epics/README.md` with INIT reading/citation/update expectations.
+  - Updated `AGENTS.md`, `CLAUDE.md`, `docs/handoffs/README.md`, `product-decisions/README.md`, and `efforts/README.md` with INIT reading/citation/update expectations.
 - Mobile-refresh source docs
   - Added INIT links to the mobile-refresh feature docs and PD-009.
 

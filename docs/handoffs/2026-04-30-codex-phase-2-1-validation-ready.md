@@ -25,20 +25,20 @@ The branch should now be treated as implementation-complete for Phase 2.1 unless
   - Marks Phase 2.1 as `Validation Ready`.
 - `product-decisions/features/mobile-refresh/design-language.md`
   - Adds the accepted Phase 2.1 setup pilot checkpoint for future Phase 3-5 consistency.
-- `epics/012-laica-design-language.md`
+- `efforts/effort-012-laica-design-language.md`
   - Records the accepted setup visual direction as the first concrete design-language pilot signal.
-- `epics/005-testing-strategy-and-acceptance-criteria.md`
+- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
   - Records the Phase 2.1 checklist as a useful feature-level acceptance pattern.
 
 ## Impact on other agents
 
-- EPIC-001: no primitive or token change; the docs preserve scoped setup-specific visual decisions.
-- EPIC-004: acceptance checklist preserves Cooking Skill auto-advance and Dietary Restrictions explicit continuation.
-- EPIC-005: adds a concrete phase-level validation checklist pattern, while leaving the app-wide testing strategy unresolved.
-- EPIC-007: Replit checklist explicitly includes no-detection feedback.
-- EPIC-009: Replit checklist explicitly includes comma-separated manual entry.
-- EPIC-010: Replit checklist explicitly confirms no DB/schema changes.
-- EPIC-012: adds new durable signal that Phase 2.1 setup visuals are accepted, pending full Replit functional validation.
+- EFFORT-001: no primitive or token change; the docs preserve scoped setup-specific visual decisions.
+- EFFORT-004: acceptance checklist preserves Cooking Skill auto-advance and Dietary Restrictions explicit continuation.
+- EFFORT-005: adds a concrete phase-level validation checklist pattern, while leaving the app-wide testing strategy unresolved.
+- EFFORT-007: Replit checklist explicitly includes no-detection feedback.
+- EFFORT-009: Replit checklist explicitly includes comma-separated manual entry.
+- EFFORT-010: Replit checklist explicitly confirms no DB/schema changes.
+- EFFORT-012: adds new durable signal that Phase 2.1 setup visuals are accepted, pending full Replit functional validation.
 
 ## Open items
 

@@ -1,19 +1,21 @@
-# EPIC-005 — App-wide testing strategy and acceptance criteria workflow
+# EFFORT-005 — App-wide testing strategy and acceptance criteria workflow
 
-**Status:** In Progress
+**Former ID:** EPIC-005
+**Status:** Resolved
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (workflow review)
 **Created:** 2026-04-17
 **Updated:** 2026-05-09
+**Resolved:** 2026-05-09
 
 ## One-line summary
 
-Define a consistent app-wide testing strategy so feature work is validated before merge with a shared bar for local checks, service-backed checks, acceptance criteria, and how results are recorded.
+Define how agents decide what must be tested before code is ready to merge.
 
 ## Context — why this exists
 
 Captured from Wilson during localhost review on 2026-04-17:
 
-> How should test these features going forward instead of pushing? Lets make an epic discussing the test strategy, acceptance criterias and all throughout the app when we make changes.
+> How should test these features going forward instead of pushing? Lets make an Effort discussing the test strategy, acceptance criterias and all throughout the app when we make changes.
 
 Today the repo has pieces of a validation workflow, but not one clearly unified system:
 
@@ -147,7 +149,7 @@ Question:
 
 Current candidates:
 
-- epic file
+- Effort file
 - feature phase note in `product-decisions/features/...`
 - implementation handoff
 - PR description
@@ -197,9 +199,9 @@ Question:
 
 - Do we want a standard verification template/checklist for all future handoffs and PRs?
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-005 before starting any of the following:
+Read EFFORT-005 before starting any of the following:
 
 - [ ] Planning or implementing a feature that changes a core user flow
 - [ ] Deciding what verification is "enough" before merge
@@ -208,18 +210,18 @@ Read EPIC-005 before starting any of the following:
 - [ ] Writing feature acceptance criteria for a new implementation branch
 - [ ] Updating `AGENTS.md`, handoff conventions, or PR verification expectations
 
-When one of these applies, cite EPIC-005 in the handoff and note how the work interacts with it (conforms / defers / adds new signal). If the work establishes a new repeatable verification pattern, append a dated note here.
+When one of these applies, cite EFFORT-005 in the handoff and note how the work interacts with it (conforms / defers / adds new signal). If the work establishes a new repeatable verification pattern, append a dated note here.
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. A durable repo-level testing strategy exists, with clear local-vs-Replit boundaries
 2. The project has a documented validation matrix for common change types
 3. The canonical location and carry-forward format for feature acceptance criteria is defined
 4. Verification expectations for handoffs / PRs are standardized
 5. If adopted, standard test scripts are wired into `package.json` and documented
-6. This epic has a final `## YYYY-MM-DD — Resolved` section pointing to the accepted product decision / workflow doc
+6. This Effort has a final `## YYYY-MM-DD — Resolved` section pointing to the accepted product decision / workflow doc
 
 ## Linked artifacts
 
@@ -232,13 +234,13 @@ This epic is `Resolved` when all of the following are true:
 
 ## Chronology — how we got here
 
-### 2026-04-17 — Epic created
+### 2026-04-17 — Effort created
 
-After getting localhost running again with the encrypted dotenv setup, Wilson asked for a better app-wide testing workflow so feature changes can be validated deliberately before code is merely pushed around. This epic records that ask as a cross-cutting governance track, separate from any one feature branch.
+After getting localhost running again with the encrypted dotenv setup, Wilson asked for a better app-wide testing workflow so feature changes can be validated deliberately before code is merely pushed around. This Effort records that ask as a cross-cutting governance track, separate from any one feature branch.
 
-### 2026-04-27 — Epic closeout expectation clarified
+### 2026-04-27 — Effort closeout expectation clarified
 
-The equipment-vision branch merged code that satisfied EPIC-006 in practice, but the epic docs remained active until a separate cleanup pass caught the drift. That adds a useful workflow signal: when a merged PR satisfies an epic's resolution criteria, the repo still needs a short docs closeout pass from fresh `main` to flip the epic status, update `epics/README.md` and `epics/registry.md`, append a final resolution note, and push a handoff. `AGENTS.md` and `CLAUDE.md` now call that out explicitly so merge-ready feature work and epic bookkeeping do not drift apart again.
+The equipment-vision branch merged code that satisfied EFFORT-006 in practice, but the Effort docs remained active until a separate cleanup pass caught the drift. That adds a useful workflow signal: when a merged PR satisfies an Effort's resolution criteria, the repo still needs a short docs closeout pass from fresh `main` to flip the Effort status, update `efforts/README.md` and `efforts/registry.md`, append a final resolution note, and push a handoff. `AGENTS.md` and `CLAUDE.md` now call that out explicitly so merge-ready feature work and Effort bookkeeping do not drift apart again.
 
 ### 2026-04-28 — Mobile refresh adopts phase-level acceptance criteria
 
@@ -246,7 +248,7 @@ The mobile-refresh records in `product-decisions/features/mobile-refresh/` inclu
 
 ### 2026-04-29 — Phase 2 exposes authenticated smoke automation gap
 
-PR #23 validation showed that deterministic Replit checks can pass while authenticated UI smoke still depends on a human completing Google sign-in. Wilson and Codex agreed not to bypass Google auth for Phase 2. The planned mobile-refresh [dev-test harness](../product-decisions/features/mobile-refresh/dev-test-harness.md) records the preferred future direction: dev-only Firebase custom-token auth, deterministic test users, and hybrid fixture/live-service smoke. This is new evidence for the testing strategy, not a resolution of this epic.
+PR #23 validation showed that deterministic Replit checks can pass while authenticated UI smoke still depends on a human completing Google sign-in. Wilson and Codex agreed not to bypass Google auth for Phase 2. The planned mobile-refresh [dev-test harness](../product-decisions/features/mobile-refresh/dev-test-harness.md) records the preferred future direction: dev-only Firebase custom-token auth, deterministic test users, and hybrid fixture/live-service smoke. This is new evidence for the testing strategy, not a resolution of this Effort.
 
 ### 2026-04-29 — Phase 2 exposes visual acceptance gap
 
@@ -254,7 +256,7 @@ Wilson's PR #23 walkthrough also showed that a deterministic green run can still
 
 ### 2026-04-30 — Phase 2.1 uses a consolidated phase validation checklist
 
-After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated local gates, Replit prerequisites, Replit acceptance items, and merge acceptance into `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`. This is a useful feature-level pattern for carrying acceptance criteria from product notes into Replit validation and PR handoffs, but it does not replace the still-needed app-wide validation matrix for this epic.
+After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated local gates, Replit prerequisites, Replit acceptance items, and merge acceptance into `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`. This is a useful feature-level pattern for carrying acceptance criteria from product notes into Replit validation and PR handoffs, but it does not replace the still-needed app-wide validation matrix for this Effort.
 
 ### 2026-04-30 — Phase 2.1 validation feedback tightened acceptance granularity
 
@@ -270,7 +272,7 @@ Wilson's mobile Phase 2.1 smoke passed the broad setup/profile-save path but fou
 
 ### 2026-04-30 — Phase 2.1 defers ultra-refined duplicate cleanup
 
-Wilson retested the duplicate-prevention pass on mobile and confirmed upload smoke from different sources passed. The current implementation skips some already-saved entries, but model-label drift can still create duplicate-like chips. The accepted validation outcome is to ship the Phase 2.1 mitigation and file [EPIC-014](014-scan-session-diff-and-duplicate-refinement.md) for latest-scan indicators and richer duplicate cleanup. This is useful acceptance-criteria evidence: not every discovered edge must block merge when the product owner explicitly defers it and creates a tracked follow-up.
+Wilson retested the duplicate-prevention pass on mobile and confirmed upload smoke from different sources passed. The current implementation skips some already-saved entries, but model-label drift can still create duplicate-like chips. The accepted validation outcome is to ship the Phase 2.1 mitigation and file [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md) for latest-scan indicators and richer duplicate cleanup. This is useful acceptance-criteria evidence: not every discovered edge must block merge when the product owner explicitly defers it and creates a tracked follow-up.
 
 ### 2026-05-01 — Phase 2.1 merge records docs-only-after-validation nuance
 
@@ -294,7 +296,7 @@ PR #30 merged only after Wilson confirmed the Replit checklist at `dc59796ae1602
 
 ### 2026-05-06 — Phase 3 staple-check work adds focused acceptance tests
 
-`codex/mobile-refresh-phase-3-planning` adds focused Vitest coverage for Chef It Up staple candidate filtering/deduping and recipe optional-ingredient cleanup. The branch still treats authenticated recipe generation, pantry persistence, and active Replit prompt state as Replit validation requirements, which conforms to this epic's local-vs-service-backed boundary.
+`codex/mobile-refresh-phase-3-planning` adds focused Vitest coverage for Chef It Up staple candidate filtering/deduping and recipe optional-ingredient cleanup. The branch still treats authenticated recipe generation, pantry persistence, and active Replit prompt state as Replit validation requirements, which conforms to this Effort's local-vs-service-backed boundary.
 
 ### 2026-05-08 — Phase 3.2 scopes progressive-staple validation
 
@@ -318,16 +320,14 @@ This adds a useful acceptance pattern for DB-backed optimistic UI: tests should 
 
 PR #46 merged after local checks, Replit code-path review, and Wilson's authenticated Replit/browser validation all passed at `9646c80`. The merge confirmed that code verification alone was not enough for this feature: Replit's non-authenticated review could certify tests, TypeScript, build, and behavior paths, but Wilson still had to run the live Firebase-authenticated preview to close the browser gate.
 
-The acceptance signal is now recorded in INIT-001 and the Phase 3.2 feature record. EPIC-005 stays open only for the broader testing-workflow graduation work tracked separately under EPIC-020; it should not become a running ledger for every future feature's acceptance criteria.
+The acceptance signal is now recorded in INIT-001 and the Phase 3.2 feature record. EFFORT-005 stays open only for the broader testing-workflow graduation work tracked separately under EFFORT-020; it should not become a running ledger for every future feature's acceptance criteria.
 
-### 2026-05-09 - Epic status audit
+### 2026-05-09 - Effort status audit
 
-Status changed from `Open` to `In Progress`. The repo now has repeated accepted validation patterns, the Replit validation focus guide, phase-level acceptance records, and EPIC-020 as the dedicated graduation track. This epic remains unresolved because the central testing/acceptance workflow artifact and active-reference repointing still have not landed.
+Status changed from `Open` to `In Progress`. The repo now has repeated accepted validation patterns, the Replit validation focus guide, phase-level acceptance records, and EFFORT-020 as the dedicated graduation track. This Effort remains unresolved because the central testing/acceptance workflow artifact and active-reference repointing still have not landed.
 
-## Next steps when work resumes
+### 2026-05-09 — Resolved
 
-1. Open a dedicated planning window for test strategy / acceptance-criteria workflow design
-2. Draft a validation matrix by change type
-3. Decide the canonical home for acceptance criteria and required verification notes
-4. Decide whether to standardize `package.json` test scripts
-5. Promote the accepted workflow to a durable product decision or workflow doc and resolve this epic
+The useful governance from this Effort graduated into [`docs/workflows/testing-and-acceptance.md`](../docs/workflows/testing-and-acceptance.md). Future agents should use that workflow for validation matrices, Feature Impact Review, handoff/PR verification notes, and the split between phase acceptance criteria, INIT validation state, and point-in-time test evidence.
+
+This file remains as history for how the testing workflow emerged, but it is no longer an active read requirement.

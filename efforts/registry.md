@@ -1,0 +1,34 @@
+# Effort Registry
+
+Complete searchable index of Laica Efforts, including active, deferred, and resolved history.
+
+Default agent workflow:
+
+- Start with [`README.md`](README.md) for the status model and active Effort read list.
+- Open this registry only when historical context is directly relevant or a task references a resolved/deferred Effort.
+- Treat the `Status` field inside each Effort file as authoritative if this registry ever drifts.
+
+Durable workflow decision: [`PD-007`](../product-decisions/007-effort-status-and-registry-workflow.md).
+
+| # | Title | Status | Owner | Created | Resolved/deferred | Last signal |
+|---|---|---|---|---|---|---|
+| [001](effort-001-ui-governance.md) | UI Consistency & Design Governance | `Resolved` | Wilson / Codex / Claude | 2026-04-16 | 2026-05-02 | Graduated to [`PD-005`](../product-decisions/005-ui-governance.md) and [`design_guidelines.md`](../design_guidelines.md) |
+| [002](effort-002-home-getstarted-routing.md) | Home / Get Started routing & Home-Cook nav consolidation | `Resolved` | Wilson / Claude / Codex | 2026-04-16 | 2026-04-28 | Returning-user routing fixed; earlier Home/Cook split in [`PD-006`](../product-decisions/006-home-and-cook-remain-separate.md) superseded by [`PD-009`](../product-decisions/009-mobile-refresh-navigation.md) |
+| [003](effort-003-slop-bowl-pantry-quick-actions.md) | Slop Bowl pantry-check quick actions | `Resolved` | Wilson / Claude / Codex | 2026-04-16 | 2026-04-17 | Inline pantry add/remove implemented and validated |
+| [004](effort-004-selection-controls-tap-targets.md) | Selection controls should be full-row tap targets | `Resolved` | Wilson / Claude / Codex | 2026-04-17 | 2026-05-09 | Closed because Mobile Refresh Phase 2, Phase 2.2, Phase 3, and Phase 3.2 established the full-row/chip selection pattern; remaining Phase 3.1 visual alignment belongs in INIT-001 |
+| [005](effort-005-testing-strategy-and-acceptance-criteria.md) | App-wide testing strategy and acceptance criteria workflow | `Resolved` | Wilson / Codex / Claude | 2026-04-17 | 2026-05-09 | Graduated into [`docs/workflows/testing-and-acceptance.md`](../docs/workflows/testing-and-acceptance.md); feature criteria live in phase records, validation state in INITs, and run evidence in PRs/handoffs |
+| [006](effort-006-equipment-vision-exclusions.md) | Tighten equipment vision prompts to exclude non-kitchen items | `Resolved` | Wilson / Codex / Claude | 2026-04-22 | 2026-04-27 | Prompt tightening, narrow equipment filter, and fixture validation merged via PR #17 |
+| [007](effort-007-vision-scan-no-detection-feedback.md) | Vision scan should explicitly say when nothing was detected | `Resolved` | Wilson / Codex / Claude | 2026-04-27 | 2026-05-09 | Closed because refreshed setup/settings scan feedback already handles valid no-detection outcomes; future scan-message work belongs in INIT-001 phases or EFFORT-014 when duplicate/diff review is touched |
+| [008](effort-008-slop-bowl-sparse-pantry-guard.md) | Slop Bowl sparse-pantry guard | `Resolved` | Wilson / Codex / Claude | 2026-04-27 | 2026-04-27 | Replit flow validated; route-contract test covers typed 422 bypass guard |
+| [009](effort-009-consistent-comma-separated-ingredient-entry.md) | Consistent comma-separated ingredient entry | `Resolved` | Wilson / Codex / Claude | 2026-04-27 | 2026-05-09 | Closed because Phase 2/2.1 introduced the shared parser and Phase 3 preserved it in Slop Bowl quick-add; future parser changes should update the relevant feature phase or active parser-adjacent Effort |
+| [010](effort-010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |  | Standalone schema/local-DB workflow issue remains unresolved |
+| [012](effort-012-laica-design-language.md) | LAICA Design Language & Visual Identity | `Resolved` | Wilson / Codex / Claude | 2026-04-29 | 2026-05-02 | Graduated to [`design_guidelines.md`](../design_guidelines.md) |
+| [013](effort-013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |  | Future pantry-only conservative autocorrect with rare/stylized term preservation |
+| [014](effort-014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |  | Future latest-scan chip indicators and duplicate-like inventory cleanup |
+| [015](effort-015-ui-governance-enforcement.md) | UI Governance Enforcement (Lint + PR Template) | `Open` | Wilson / Codex / Claude | 2026-05-02 |  | Enforcement follow-through for [`PD-005`](../product-decisions/005-ui-governance.md) remains standalone |
+| [016](effort-016-slop-bowl-hex-literal-cleanup.md) | Slop Bowl Hex Literal Cleanup | `Resolved` | Wilson / Codex / Claude | 2026-05-02 | 2026-05-09 | Closed because INIT-001/Phase 3.1 now owns Slop Bowl visual redesign and any remaining token/visual parity work; enforcement remains in EFFORT-015 |
+| [017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `Deferred` | Wilson / Codex / Claude | 2026-05-05 | 2026-05-05 | Deferred until after INIT-001; Phase 3.2 added a concrete authenticated browser-smoke target for the later parity window |
+| [018](effort-018-authenticated-ai-error-handling.md) | Authenticated AI error handling and pantry recipe 400s | `Resolved` | Wilson / Codex / Claude | 2026-05-06 | 2026-05-07 | PR #43 merged as `1110b00`; authenticated AI failures now use typed classification, first-person copy, Feedback CTA wiring, and no demo redirect behavior |
+| [019](effort-019-ai-error-telemetry-and-eval-monitoring.md) | AI error telemetry and eval monitoring | `Resolved` | Wilson / Codex / Claude | 2026-05-07 | 2026-05-09 | Closed as a standalone Effort because active implementation and governance now live in INIT-002, [`PD-010`](../product-decisions/010-ai-error-telemetry-allowlist.md), and [`docs/workflows/ai-error-handling-and-telemetry.md`](../docs/workflows/ai-error-handling-and-telemetry.md) |
+| [020](effort-020-workflow-documentation-audit.md) | Workflow documentation audit and graduation | `Resolved` | Wilson / Codex / Claude | 2026-05-08 | 2026-05-09 | Closed because the audit findings moved into [`docs/workflows/effort-system-audit.md`](../docs/workflows/effort-system-audit.md), [`docs/workflows/testing-and-acceptance.md`](../docs/workflows/testing-and-acceptance.md), and [`PD-007`](../product-decisions/007-effort-status-and-registry-workflow.md) |
+| [021](effort-021-scan-upload-photo-limit-policy.md) | Scan upload photo limit policy | `Resolved` | Wilson / Codex / Claude | 2026-05-08 | 2026-05-08 | PR #53 merged the runtime cap/concurrency/empty-Pantry guardrail slice as `9aa6c1c`; Wilson accepted that provider-level batching is not needed |

@@ -54,15 +54,15 @@ tests/           # Playwright + Vitest tests
 docs/adr/        # Architecture decision records
 docs/handoffs/   # Agent coordination handoff files
 product-decisions/ # Documented product and architecture decisions
-epics/           # Open stories / backlog / governance — agents must check before related work
+efforts/         # Standalone follow-up work — agents must check active Efforts before related work
 initiatives/     # Living hubs for multi-phase initiatives
 ```
 
 ## Active initiatives — check before resuming phased work
 
-The `initiatives/` directory tracks living hubs for multi-phase projects. INITs connect phase docs, product decisions, epics, assets, PRs, handoffs, validation state, and the current resume point. Read the relevant INIT before starting or resuming work on that initiative, and update it when phase status, PR status, validation status, assets, major decisions, or resume context changes.
+The `initiatives/` directory tracks living hubs for multi-phase projects. INITs connect phase docs, product decisions, Efforts, assets, PRs, handoffs, validation state, and the current resume point. Read the relevant INIT before starting or resuming work on that initiative, and update it when phase status, PR status, validation status, assets, major decisions, or resume context changes.
 
-**INIT post-merge closeout.** When an INIT-bound PR merges, the agent who performed or confirmed the merge must do an immediate docs closeout from fresh `origin/main` before treating the work as finished. Update the INIT, initiative registry, related feature phase/product-decision docs, active epic notes/registry entries when the merge adds signal, and a merge-closeout handoff. Push the closeout to `origin` through a docs-only PR, or explicitly record why it is deferred, who owns it, and the exact branch/PR/SHA it must reference. A final response after merging INIT work should mention the closeout PR or the documented deferral.
+**INIT post-merge closeout.** When an INIT-bound PR merges, the agent who performed or confirmed the merge must do an immediate docs closeout from fresh `origin/main` before treating the work as finished. Update the INIT, initiative registry, related feature phase/product-decision docs, active Effort notes/registry entries when the merge adds signal, and a merge-closeout handoff. Push the closeout to `origin` through a docs-only PR, or explicitly record why it is deferred, who owns it, and the exact branch/PR/SHA it must reference. A final response after merging INIT work should mention the closeout PR or the documented deferral.
 
 Current active INITs:
 
@@ -71,29 +71,24 @@ Current active INITs:
 
 ## UI governance — check before any UI work
 
-UI governance and visual standards are **not** tracked as active epics. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/005-ui-governance.md`](product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`epics/registry.md`](epics/registry.md).
+UI governance and visual standards are **not** tracked as active Efforts. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/005-ui-governance.md`](product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`efforts/registry.md`](efforts/registry.md).
 
-## Active epics — check before starting work in a governed domain
+## Active Efforts — check before starting work in a governed domain
 
-The `epics/` directory tracks long-lived stories (Kanban-style) — cross-cutting concerns, governance systems, and backlog items that span multiple features. These are **not** GitHub Issues and **not** bug reports. See `epics/README.md` for the convention, status model, and current active read list. Use `epics/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/007-epic-status-and-registry-workflow.md`.
+The `efforts/` directory tracks standalone follow-up work that does not currently belong inside an active INIT, feature phase record, PD, ADR, or workflow doc. These are **not** GitHub Issues and **not** bug reports. See `efforts/README.md` for the convention, status model, and current active read list. Use `efforts/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/007-effort-status-and-registry-workflow.md`.
 
-**When to read `epics/NNN-*.md`:** start with the `epics/README.md` active read list. `Resolved` means closed/completed; `Open`, `In Progress`, and `Blocked` are active. Read an active epic every time you start work that touches its governed domain. Use `epics/registry.md` only if you need resolved/deferred history. Each epic has an *Agent checklist* section listing the exact triggers. Current active epics:
+Current active Efforts:
 
-- `epics/004-selection-controls-tap-targets.md` — read before changing onboarding/settings radio-style menus, selection-row hit areas, or the shared radio-group composition
-- `epics/005-testing-strategy-and-acceptance-criteria.md` — read before deciding merge readiness, defining feature acceptance criteria, or changing the app-wide verification workflow
-- `epics/007-vision-scan-no-detection-feedback.md` — read before changing image-scan result messaging or zero-result scan behavior
-- `epics/009-consistent-comma-separated-ingredient-entry.md` — read before changing multi-ingredient manual entry or delimiter behavior
-- `epics/010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
-- `epics/013-pantry-manual-entry-spell-correction.md` — read before adding pantry ingredient spellcheck/autocorrect, ingredient dictionaries, or pantry label canonicalization
-- `epics/014-scan-session-diff-and-duplicate-refinement.md` — read before changing Pantry/Kitchen scan chip states, latest-scan indicators, duplicate cleanup, or found-again/overlap messaging
-- `epics/015-ui-governance-enforcement.md` — read before adding/modifying ESLint config or `.github/PULL_REQUEST_TEMPLATE.md`, or expanding UI governance enforcement
-- `epics/016-slop-bowl-hex-literal-cleanup.md` — read before changing Slop Bowl styling or migrating hex literals to tokens
-- `epics/019-ai-error-telemetry-and-eval-monitoring.md` — read before adding persistent AI request error logging, creating an `ai_error_events` schema, adding admin APIs for AI error summary/list/detail/clusters, correlating Feedback with AI failures, or feeding operational error clusters into the eval pipeline
-- `epics/020-workflow-documentation-audit.md` — read before creating or reorganizing workflow docs, resolving EPIC-005, or changing where acceptance criteria, validation state, and verification evidence live
+- `efforts/effort-010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
+- `efforts/effort-013-pantry-manual-entry-spell-correction.md` — read before adding pantry ingredient spellcheck/autocorrect, ingredient dictionaries, or pantry label canonicalization
+- `efforts/effort-014-scan-session-diff-and-duplicate-refinement.md` — read before changing Pantry/Kitchen scan chip states, latest-scan indicators, duplicate cleanup, or found-again/overlap messaging
+- `efforts/effort-015-ui-governance-enforcement.md` — read before adding/modifying ESLint config or `.github/PULL_REQUEST_TEMPLATE.md`, or expanding UI governance enforcement
 
-If your work intersects with an active epic, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
+If work belongs to an active/future INIT phase, update the INIT or feature phase record instead of creating a new Effort. If work is governance/process, update a workflow doc, ADR, or PD instead of creating a new Effort.
 
-**Epic closeout after merge.** If a merged PR satisfies an epic's resolution criteria, do a short docs closeout pass from fresh `main` instead of assuming the merged code will implicitly close the epic. The closeout should flip the epic status to `Resolved`, add a final dated resolution note with merged PR / handoff references, remove the epic from `epics/README.md`'s active read list, update `epics/registry.md`, and push a handoff. If real follow-up scope remains, track it as a separate active epic rather than leaving the resolved implementation epic stale.
+If your work intersects with an active Effort, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
+
+**Effort closeout after merge.** If a merged PR satisfies an Effort's resolution criteria, do a short docs closeout pass from fresh `main` instead of assuming the merged code will implicitly close the Effort. The closeout should flip the Effort status to `Resolved`, add a final dated resolution note with merged PR / handoff references, remove the Effort from `efforts/README.md`'s active read list, update `efforts/registry.md`, and push a handoff. If real follow-up scope remains, track it as a separate active Effort only when it is standalone; otherwise document it in the relevant INIT, phase record, workflow doc, ADR, or PD.
 
 ## Secrets
 
@@ -147,14 +142,14 @@ The goal is zero lost context — the human (or a fresh agent session) should be
 
 When completing a task, write a handoff file in `docs/handoffs/` so the other agent (Codex) can pick up context. When starting new work, read recent handoffs to understand what's changed. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention and required sections. PR descriptions should include the same structured summary.
 
-**Documentation foundation rule.** Do not leave product rationale, UX direction, validation scope, or operational lessons trapped in chat. When work changes behavior, IA, visual direction, acceptance criteria, validation status, or agent workflow, update the durable source of truth in the same branch: the relevant INIT, feature phase/product-decision note, active epic(s), handoff, and PR description as applicable. Capture what changed, why it changed, what was validated, what remains unvalidated, and any explicit deferrals. No shortcut docs: future agents should be able to resume from the repository without re-deriving the thread. When documenting design consistency, include implementation guardrails too: shared component/root wrappers, CSS specificity or token requirements, and the exact visual comparison needed so matching class names do not hide computed-style drift.
+**Documentation foundation rule.** Do not leave product rationale, UX direction, validation scope, or operational lessons trapped in chat. When work changes behavior, IA, visual direction, acceptance criteria, validation status, or agent workflow, update the durable source of truth in the same branch: the relevant INIT, feature phase/product-decision note, active Effort(s), workflow doc, handoff, and PR description as applicable. Capture what changed, why it changed, what was validated, what remains unvalidated, and any explicit deferrals. No shortcut docs: future agents should be able to resume from the repository without re-deriving the thread. When documenting design consistency, include implementation guardrails too: shared component/root wrappers, CSS specificity or token requirements, and the exact visual comparison needed so matching class names do not hide computed-style drift.
 
 ## Auto-push permissions for planning documents
 
 Claude may **commit and push without asking** when the changes are limited to planning and coordination documents:
 - `docs/handoffs/*.md` — agent handoff files
 - `product-decisions/*.md` and `product-decisions/README.md` — product decision records
-- `epics/*.md` and `epics/README.md` — open stories / backlog / governance
+- `efforts/effort-*.md` and `efforts/README.md` — standalone follow-up work
 - `initiatives/*.md` and `initiatives/README.md` — living multi-phase initiative hubs
 - `AGENTS.md` and `CLAUDE.md` — workflow/process updates
 

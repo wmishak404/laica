@@ -1,5 +1,6 @@
-# EPIC-003 — Slop Bowl pantry-check quick actions (inline remove / add)
+# EFFORT-003 — Slop Bowl pantry-check quick actions (inline remove / add)
 
+**Former ID:** EPIC-003
 **Status:** Resolved
 **Owner:** Wilson (product direction) / Claude (next implementation pass)
 **Created:** 2026-04-16
@@ -46,7 +47,7 @@ In `client/src/components/cooking/slop-bowl.tsx`:
 
 The "edit pantry in profile" button is heavyweight: it navigates the user out of the Slop Bowl flow, loads the full Pantry page, and requires them to navigate back. For the common case of "oh, I actually ate the last of the chicken yesterday" or "forgot to add eggs," that's too much friction for a zero-decision cooking path.
 
-The server contract and client generation function already accept a one-shot override. This epic is just about surfacing UI affordances that write into that override without mutating the canonical pantry.
+The server contract and client generation function already accept a one-shot override. This Effort is just about surfacing UI affordances that write into that override without mutating the canonical pantry.
 
 ## Scope
 
@@ -90,9 +91,9 @@ Claude's lean: **Ephemeral** for v1 because the API is already there and it matc
 
 The Slop Bowl phase-04 implementation-polish doc (`product-decisions/features/slop-bowl/phase-04-implementation-polish.md`) records a decision to keep the pantry-check screen read-only, with a single "Edit pantry in profile" escape hatch. That decision was made in the context of shipping Phase 3 cleanly and avoiding scope creep.
 
-This epic **revises** that decision for the remove/add case specifically: inline edits are now in scope, but with the ephemeral-only semantics above so we don't reopen the question of whether Slop Bowl should also write to the permanent pantry. The "Edit pantry in profile" button stays for camera / bulk / permanent operations.
+This Effort **revises** that decision for the remove/add case specifically: inline edits are now in scope, but with the ephemeral-only semantics above so we don't reopen the question of whether Slop Bowl should also write to the permanent pantry. The "Edit pantry in profile" button stays for camera / bulk / permanent operations.
 
-When implementation lands, update phase-04 with a `## YYYY-MM-DD — Revised by EPIC-003` section pointing here.
+When implementation lands, update phase-04 with a `## YYYY-MM-DD — Revised by EFFORT-003` section pointing here.
 
 ### 3. Visual affordance for the X
 
@@ -110,9 +111,9 @@ Claude's lean: **inline X inside the badge** for v1 — simplest, most discovera
 
 Default proposal: single ingredient per submit, trim whitespace, case-insensitive dedupe against the current list, placeholder `Add an ingredient`. Keep it minimal; expand only if Wilson wants bulk.
 
-## Agent checklist — when to read this epic
+## Agent checklist — when to read this Effort
 
-Read EPIC-003 before starting any of the following:
+Read EFFORT-003 before starting any of the following:
 
 - [ ] Modifying `client/src/components/cooking/slop-bowl.tsx` — specifically the `renderPantryCheck` function or anything that touches the ingredient Badge rendering
 - [ ] Changing the `generateBowl` signature or the `pantryOverride` pass-through
@@ -120,37 +121,37 @@ Read EPIC-003 before starting any of the following:
 - [ ] Introducing a new way to edit the pantry outside the full Pantry menu
 - [ ] Changing the `POST /api/recipes/slop-bowl` request body contract (would affect `pantryOverride`)
 
-When one of these applies, cite EPIC-003 in your handoff and note how the change interacts. If the UI work introduces new styling patterns, also check EPIC-001 for the rubric.
+When one of these applies, cite EFFORT-003 in your handoff and note how the change interacts. If the UI work introduces new styling patterns, also check EFFORT-001 for the rubric.
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. The Slop Bowl `renderPantryCheck` screen renders each ingredient with a remove affordance (X or equivalent)
 2. An add affordance (input + submit) appears below the tag list
 3. Remove and Add operations mutate ephemeral local state, not `userProfile.pantryIngredients` (unless Open Question #1 resolves differently)
 4. `confirmPantry` passes the modified list as `pantryOverride` to `generateBowl`
 5. "Edit pantry in profile" button remains for heavy / permanent operations
-6. Phase-04 doc is updated with a revision note pointing to this epic's resolution
-7. This epic file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the product decision or phase update
+6. Phase-04 doc is updated with a revision note pointing to this Effort's resolution
+7. This Effort file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the product decision or phase update
 
 ## Linked artifacts
 
 - `client/src/components/cooking/slop-bowl.tsx` — `renderPantryCheck` at lines 158–215; `generateBowl` at line 99 with existing `pantryOverride` param
 - `client/src/lib/openai.ts:169` — `fetchSlopBowlRecipe` request type already includes `pantryOverride?: string[]`
 - `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md:58` — API contract documenting `pantryOverride?: string[]`
-- `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — the read-only-pantry decision that this epic partially revises
+- `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — the read-only-pantry decision that this Effort partially revises
 - `docs/handoffs/2026-04-10-claude-slop-bowl-ui-ready.md` — confirms client-server contract alignment (no server changes needed)
-- `docs/handoffs/2026-04-17-codex-epic-002-003-flow-fixes.md` — implementation handoff for the resolved quick-actions work
-- `docs/handoffs/2026-04-17-codex-epic-002-003-validation.md` — follow-up handoff recording validation/test confirmation
+- `docs/handoffs/2026-04-17-codex-Effort-002-003-flow-fixes.md` — implementation handoff for the resolved quick-actions work
+- `docs/handoffs/2026-04-17-codex-Effort-002-003-validation.md` — follow-up handoff recording validation/test confirmation
 
 ## Chronology — how we got here
 
-### 2026-04-16 — Epic created
+### 2026-04-16 — Effort created
 
-During the same post-implementation walkthrough that surfaced EPIC-002, Wilson asked for inline quick-actions on the Slop Bowl pantry-check screen. The feature works today (read-only tags + "edit in profile" escape hatch) but the friction of navigating away for a single-ingredient tweak is high enough to flag as a backlog item.
+During the same post-implementation walkthrough that surfaced EFFORT-002, Wilson asked for inline quick-actions on the Slop Bowl pantry-check screen. The feature works today (read-only tags + "edit in profile" escape hatch) but the friction of navigating away for a single-ingredient tweak is high enough to flag as a backlog item.
 
-Claude verified while drafting this epic that the server + client already accept `pantryOverride` end-to-end — so implementation is purely a client-side UI addition, no server coordination needed. That's what makes this a tight, self-contained epic rather than a feature requiring Codex involvement.
+Claude verified while drafting this Effort that the server + client already accept `pantryOverride` end-to-end — so implementation is purely a client-side UI addition, no server coordination needed. That's what makes this a tight, self-contained Effort rather than a feature requiring Codex involvement.
 
 ## 2026-04-17 — Resolved
 
@@ -161,11 +162,11 @@ Codex implemented the pantry-check quick actions in `client/src/components/cooki
 - Quick edits are stored in ephemeral local state only, then passed through `pantryOverride` when generating or regenerating a bowl
 - The existing **Edit pantry in profile** button remains for camera features, bulk edits, and permanent pantry changes
 
-Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EPIC-003` note in `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
+Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EFFORT-003` note in `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
 
 ## 2026-04-17 — Validated/tested after implementation
 
-Wilson later confirmed that the implemented EPIC-003 behavior was validated and tested.
+Wilson later confirmed that the implemented EFFORT-003 behavior was validated and tested.
 
 That validation confirms the resolved implementation is functioning as intended:
 
@@ -175,4 +176,4 @@ That validation confirms the resolved implementation is functioning as intended:
 
 ## Next steps when work resumes
 
-Resolved on 2026-04-17. Future pantry-edit enhancements, if any, should spin out as a new epic or a later Slop Bowl phase note rather than reopening this one.
+Resolved on 2026-04-17. Future pantry-edit enhancements, if any, should spin out as a new Effort or a later Slop Bowl phase note rather than reopening this one.

@@ -24,7 +24,7 @@ Implemented the Phase 2.2 bridge before Phase 3 so returning users can revisit P
 
 - Phase 3 should start after Phase 2.2 merges, from fresh `origin/main`, so Planning and Slop Bowl do not link into legacy Settings.
 - Phase 5 owns richer History behavior: share, cook again, taste memory, cleanup continuity, and retention.
-- EPIC-013 pantry spell correction and EPIC-014 scan-session duplicate refinement remain deferred.
+- EFFORT-013 pantry spell correction and EFFORT-014 scan-session duplicate refinement remain deferred.
 - History is no longer part of the active Settings UI; future cleanup can further slim old settings internals if desired.
 
 ## Open items

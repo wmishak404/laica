@@ -76,8 +76,8 @@ When implemented in a separate branch, the harness should include:
 - smoke coverage for authenticated routing, setup, settings, Chef It Up progressive staples, Slop Bowl quick-add, and protected API access
 - a separate explicit live-service smoke path for camera/vision, recipe generation, speech, and persistence
 
-## Epic Interactions
+## Effort Interactions
 
-- EPIC-005: Adds concrete evidence for the app-wide testing strategy and local-vs-Replit validation matrix.
-- EPIC-010: Reinforces that schema pushes and database drift handling remain separate from feature smoke tooling.
-- EPIC-017: Owns the broader environment parity and CI confidence work that would let this harness reduce manual Replit browser validation later.
+- [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Adds concrete evidence for the app-wide testing strategy and local-vs-Replit validation matrix.
+- EFFORT-010: Reinforces that schema pushes and database drift handling remain separate from feature smoke tooling.
+- EFFORT-017: Owns the broader environment parity and CI confidence work that would let this harness reduce manual Replit browser validation later.

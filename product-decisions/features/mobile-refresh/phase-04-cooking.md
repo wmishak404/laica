@@ -32,7 +32,7 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 - If cooking-step generation fails, show a calm inline recovery state with retry and a practical fallback path.
 - If cooking assistance fails mid-step, keep the current step visible and show the failure in the Coach Feed area.
 - Feedback appears as an inline action in the cooking display when the issue persists, not as a toaster CTA.
-- Error copy follows EPIC-018 principles: first person, plain English, no user blame, and `Laica` casing.
+- Error copy follows EFFORT-018 principles: first person, plain English, no user blame, and `Laica` casing.
 
 ### Timer behavior
 
@@ -77,13 +77,13 @@ suggestedTimer?: {
 - Cooking-assistance failure appears in Coach Feed or the relevant inline guidance area, not only in a toast.
 - Persistent live-cooking failures offer inline Feedback access.
 - No live-cooking failure hides the pinned current step or leaves the cook without a next action.
-- Live-cooking errors follow EPIC-018 status classification and copy principles.
+- Live-cooking errors follow EFFORT-018 status classification and copy principles.
 
-## Epic Interactions
+## Effort Interactions
 
 - PD-005 / `design_guidelines.md`: Establishes the Warm Focus cooking surface and avoids generic AI-chat styling.
-- EPIC-005: Requires Replit smoke for cooking-session persistence and speech routes.
-- EPIC-018: Provides shared authenticated AI error classification and non-demo copy; Phase 4 owns live-cooking presentation, retry, and Feedback placement.
+- [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Requires Replit smoke for cooking-session persistence and speech routes.
+- EFFORT-018: Provides shared authenticated AI error classification and non-demo copy; Phase 4 owns live-cooking presentation, retry, and Feedback placement.
 
 ## Backend Notes
 

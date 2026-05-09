@@ -61,7 +61,7 @@ This means PR #23's merge bar is functional correctness plus the recorded Replit
 
 - Kitchen scan uses the same camera-first pattern as Pantry.
 - Visual treatment should signal a different setup phase while preserving the same interaction model.
-- Kitchen results should honor EPIC-006 equipment exclusions.
+- Kitchen results should honor EFFORT-006 equipment exclusions.
 
 ### Profile selections
 
@@ -96,14 +96,14 @@ This means PR #23's merge bar is functional correctness plus the recorded Replit
 - Weekly Cooking Time no longer appears in setup, settings, onboarding completion, or server readiness gates.
 - Manual entry `"buns, mayo"` creates two ingredient chips.
 
-## Epic Interactions
+## Effort Interactions
 
 - PD-005 / `design_guidelines.md`: Applies the mobile-refresh design principles and tokenized warm palette.
-- EPIC-004: Skill and dietary rows must be full-row tap targets.
-- EPIC-006: Kitchen/equipment scan excludes non-kitchen items.
-- EPIC-007: Empty scan feedback applies to Pantry and Kitchen.
-- EPIC-009: Comma-separated manual ingredient entry expands beyond Slop Bowl into Setup.
-- EPIC-010: No local DB pushes for schema changes; Replit remains the DB authority.
+- Full-row selection pattern: Skill and dietary rows must be full-row tap targets.
+- EFFORT-006: Kitchen/equipment scan excludes non-kitchen items.
+- Scan feedback: Empty scan feedback applies to Pantry and Kitchen.
+- Shared manual-entry parser: Comma-separated manual ingredient entry expands beyond Slop Bowl into Setup.
+- EFFORT-010: No local DB pushes for schema changes; Replit remains the DB authority.
 - `design_guidelines.md`: Phase 2 setup is the first active pilot for Laica's target design language and visual mockup conformance.
 
 ## Backend Notes

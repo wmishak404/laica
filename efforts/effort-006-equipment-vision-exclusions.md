@@ -1,5 +1,6 @@
-# EPIC-006 — Tighten equipment vision prompts to exclude non-kitchen items
+# EFFORT-006 — Tighten equipment vision prompts to exclude non-kitchen items
 
+**Former ID:** EPIC-006
 **Status:** Resolved
 **Owner:** Wilson (product direction) / Codex (doc capture) / Claude (future implementation review)
 **Created:** 2026-04-22
@@ -27,7 +28,7 @@ The current equipment-scanning prompt stack asks the model to identify kitchen e
 
 ### Logging caveat discovered during filing
 
-The screenshot suggested confirming that entries continue landing in the `ai_interactions` table with the new prompt version, but current exploration showed that `analyzeIngredientImage(...)` does not call the existing `logInteraction(...)` helper today. That means vision-route logging is a separate scope decision, not a simple regression check for this epic.
+The screenshot suggested confirming that entries continue landing in the `ai_interactions` table with the new prompt version, but current exploration showed that `analyzeIngredientImage(...)` does not call the existing `logInteraction(...)` helper today. That means vision-route logging is a separate scope decision, not a simple regression check for this Effort.
 
 ## Scope
 
@@ -49,11 +50,11 @@ The screenshot suggested confirming that entries continue landing in the `ai_int
 
 ## Decisions made so far
 
-- This should be tracked as a separate epic rather than folded into a larger prompt or UI cleanup item.
+- This should be tracked as a separate Effort rather than folded into a larger prompt or UI cleanup item.
 - The later fix should start with prompt tightening, because the current route behavior is driven directly by prompt wording.
 - Negative constraints need to cover both concrete examples (soap dispenser, umbrella stand, coat rack) and a general "omit uncertain non-cooking items" rule.
 - Runtime prompt files and fallback prompt strings must stay aligned so the behavior does not drift when file loads fail.
-- Vision logging is important context, but it is not part of this epic's initial acceptance bar.
+- Vision logging is important context, but it is not part of this Effort's initial acceptance bar.
 
 ## Open questions
 
@@ -83,11 +84,11 @@ The screenshot references:
 - several known-good kitchen photos
 - one mixed kitchen-plus-doorway photo
 
-Implementation should identify or capture durable fixtures for those cases before this epic is resolved.
+Implementation should identify or capture durable fixtures for those cases before this Effort is resolved.
 
-## Agent checklist — when to read or reopen this epic
+## Agent checklist — when to read or reopen this Effort
 
-Read EPIC-006 before starting any of the following:
+Read EFFORT-006 before starting any of the following:
 
 - [ ] Editing `server/prompts/molecules/vision-base.md`
 - [ ] Editing `server/prompts/organisms/equipment-analysis.md`
@@ -95,18 +96,18 @@ Read EPIC-006 before starting any of the following:
 - [ ] Changing `/api/vision/analyze` behavior in a way intended to reduce non-kitchen equipment false positives
 - [ ] Adding evaluation or logging coverage specifically for equipment-vision prompt behavior
 
-When this epic is reactivated, cite it in the handoff and note whether the work conforms to, expands, or supersedes the prompt-first approach captured here.
+When this Effort is reactivated, cite it in the handoff and note whether the work conforms to, expands, or supersedes the prompt-first approach captured here.
 
 ## Resolution criteria — what "done" looks like
 
-This epic is `Resolved` when all of the following are true:
+This Effort is `Resolved` when all of the following are true:
 
 1. Re-uploading the known bad photo no longer returns umbrella stand, freestanding coat/coat rack, soap dispenser, or similar non-kitchen objects as equipment.
 2. Known-good kitchen photos still return real cookware, appliances, and tools without obvious regressions.
 3. A deliberately mixed kitchen-plus-doorway photo returns only the kitchen items from the scene.
 4. The accepted implementation keeps the prompt files and fallback prompt strings aligned.
-5. Vision logging is either explicitly added and documented as follow-up scope, or explicitly ruled unnecessary for resolving this epic.
-6. A durable implementation note exists in a handoff, feature note, or product decision, and this epic includes a final dated resolution section pointing to it.
+5. Vision logging is either explicitly added and documented as follow-up scope, or explicitly ruled unnecessary for resolving this Effort.
+6. A durable implementation note exists in a handoff, feature note, or product decision, and this Effort includes a final dated resolution section pointing to it.
 
 ## Linked artifacts
 
@@ -118,13 +119,13 @@ This epic is `Resolved` when all of the following are true:
 
 ## Chronology — how we got here
 
-### 2026-04-22 — Epic filed for later work
+### 2026-04-22 — Effort filed for later work
 
 This issue was recorded as a deferred backlog item so the false-positive pattern is not lost while other work takes priority. The core observation is narrow and actionable: the equipment-vision prompts need exclusion rules for non-kitchen context, but the implementation should remain separate from this filing pass.
 
 ### 2026-04-27 — Prompt-first implementation started
 
-The first implementation pass reactivated this epic and stayed intentionally narrow: tighten the prompt wording in the markdown prompt files and in `server/prompts/composer.ts`, then verify with local compile/build checks plus a small prompt-composition guardrail test. Vision-route logging and prompt-version plumbing remain out of scope for this pass unless the prompt-only fix proves insufficient.
+The first implementation pass reactivated this Effort and stayed intentionally narrow: tighten the prompt wording in the markdown prompt files and in `server/prompts/composer.ts`, then verify with local compile/build checks plus a small prompt-composition guardrail test. Vision-route logging and prompt-version plumbing remain out of scope for this pass unless the prompt-only fix proves insufficient.
 
 ### 2026-04-27 — Validation fixture set captured
 
@@ -164,9 +165,9 @@ Follow-up product review clarified that some remaining false positives are not r
 
 Live local fixture retesting showed that prompt tightening alone reduced many false positives, but the vision model still occasionally reintroduced excluded infrastructure under nearby synonyms such as `vent hood`, `farmhouse kitchen sink`, or `kitchen faucet`. The implementation therefore graduated from pure prompt control to a narrow server-side equipment filter for fixed infrastructure and plumbing labels that are out of scope for the current `kitchenEquipment` product surface. This keeps `French press` and `carafe` in-bounds while enforcing the agreed exclusion for sinks and hoods.
 
-### 2026-04-27 — Empty-result UI follow-up split into EPIC-007
+### 2026-04-27 — Empty-result UI follow-up split into EFFORT-007
 
-Negative-control fixture testing also surfaced a smaller product gap outside the model itself: some scan flows clearly communicate a valid empty result, while others still end silently when nothing is detected. That follow-up now lives in `epics/007-vision-scan-no-detection-feedback.md` so it remains visible during ongoing and future equipment-scan validation without widening EPIC-006 itself.
+Negative-control fixture testing also surfaced a smaller product gap outside the model itself: some scan flows clearly communicate a valid empty result, while others still end silently when nothing is detected. That follow-up now lives in `efforts/effort-007-vision-scan-no-detection-feedback.md` so it remains visible during ongoing and future equipment-scan validation without widening EFFORT-006 itself.
 
 ### 2026-04-27 — Fine-grained taxonomy call for serving/storage vs. drinkware
 
@@ -189,14 +190,14 @@ Product confirmed that `magnetic knife rack` and `flower vase` should not be ret
 
 ### 2026-04-27 — Resolved after PR #17 merged
 
-PR #17 merged the equipment-scan tightening work into `main`, satisfying this epic's accepted implementation bar.
+PR #17 merged the equipment-scan tightening work into `main`, satisfying this Effort's accepted implementation bar.
 
 - `server/prompts/molecules/vision-base.md`, `server/prompts/organisms/equipment-analysis.md`, and the fallback strings in `server/prompts/composer.ts` were tightened together so file-backed and fallback prompt behavior stay aligned.
 - `server/vision/equipment-filter.ts` and its integration in `server/openai.ts` now backstop the agreed exclusions for infrastructure and clutter labels the model still occasionally reintroduced.
 - The named local fixture set was used for live manual validation, including negative controls (`suitcases.jpeg`, living-room fixtures) and mixed kitchen images (`kitchenfar_beckoit.jpeg`, `209E6358-...jpeg`).
 - Final live results removed the targeted non-kitchen returns from `equipment`, including doorway clutter, soap dispensers, sink/faucet/hood labels, casual drinkware, water-filter labels, organizer surfaces, and decor objects.
 
-The logging caveat was explicitly treated as separate scope: vision-route logging was not added, and it is not required for EPIC-006 resolution. The empty-result UI gap discovered during validation remains tracked separately in `epics/007-vision-scan-no-detection-feedback.md`.
+The logging caveat was explicitly treated as separate scope: vision-route logging was not added, and it is not required for EFFORT-006 resolution. The empty-result UI gap discovered during validation remains tracked separately in `efforts/effort-007-vision-scan-no-detection-feedback.md`.
 
 Resolution artifacts:
 

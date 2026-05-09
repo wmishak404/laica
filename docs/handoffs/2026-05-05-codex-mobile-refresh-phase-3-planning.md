@@ -22,15 +22,15 @@ Last Replit-validated at: not yet validated.
 - `client/src/lib/openai.ts`, `server/routes.ts`, `server/openai.ts`: extend Slop Bowl API input with `planningTimeAvailable`; server validates the four approved values and feeds the time bound into the Slop Bowl prompt. Recipe suggestion prompt now frames `additionalIngredientsNeeded` as optional enhancements, not shopping requirements.
 - `client/src/pages/cooking-new.tsx`: keeps the legacy cooking route compatible with the new `MealPlanning` props.
 - `tests/unit/planning-time.test.ts`, `tests/unit/slop-bowl-route.test.ts`: cover planning-time normalization and Slop Bowl API time passthrough / validation.
-- Docs updated: INIT-001, initiative registry, Phase 3 record, EPIC-004, EPIC-009, and EPIC-016.
+- Docs updated: INIT-001, initiative registry, Phase 3 record, EFFORT-004, EFFORT-009, and EFFORT-016.
 
 ## Impact on other agents
 
-- Phase 3 intentionally stores last planning time in client localStorage for now. It does not repurpose `weekly_time` and does not add a DB schema change, in line with EPIC-010.
+- Phase 3 intentionally stores last planning time in client localStorage for now. It does not repurpose `weekly_time` and does not add a DB schema change, in line with EFFORT-010.
 - Internal fields such as `pantryMatch`, `missingIngredients`, and `additionalIngredientsNeeded` remain in client/server contracts for compatibility, cooking-session history, and evaluation paths; the new Phase 3 UI does not expose them as match scores or mandatory grocery-list copy.
 - Slop Bowl quick-add still uses `parseCommaSeparatedEntries`, including period-as-comma typo recovery from Phase 2.1.
 - History share/cook-again/taste-memory behavior remains deferred to Phase 5.
-- EPIC-016 is not resolved yet. This branch removes touched Slop Bowl raw-hex callsites, but visual comparison and the future EPIC-015 lint gate are still needed before closeout.
+- EFFORT-016 is not resolved yet. This branch removes touched Slop Bowl raw-hex callsites, but visual comparison and the future EFFORT-015 lint gate are still needed before closeout.
 
 ## Open items
 
@@ -153,7 +153,7 @@ Follow-up patch, later superseded by the typography follow-up below:
 - `client/src/pages/app.tsx` and `client/src/index.css` rebuild the Slop Bowl art as a messier ingredient-storm doodle with splashes, a tilted spoon, and a `???` scribble.
 - `design_guidelines.md` briefly recorded `Patrick Hand` for small tone-forward Planning labels; later review narrowed it to micro-accents only.
 - The Slop Bowl sticker itself is later removed in the sticker/banner reset below.
-- EPIC-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
+- EFFORT-016 remains open; this patch keeps Slop Bowl styling tokenized and does not add raw hex literals.
 
 ## 2026-05-05 Planning entry label-legibility follow-up
 
@@ -182,7 +182,7 @@ Wilson asked that the Phase 3 design-drift review be included in Phase 3.1 work 
 Follow-up docs patch:
 
 - `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` now owns the drift inventory, root-cause notes, recommendations, and recipe imagery follow-up.
-- `epics/README.md` and `epics/registry.md` do not list a Phase 3 drift epic.
+- `efforts/README.md` and `efforts/registry.md` do not list a Phase 3 drift epic.
 - `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md` now describe Phase 3.1 as the next design-drift plus imagery pass.
 
 Phase 3.1 should review the documented drift rows and mark each one fixed, accepted, or deferred before closeout. Real imagery remains async/cached and must not block the first recipe-suggestion reveal.
@@ -269,4 +269,4 @@ Not green / not authoritative:
 - Base refreshed: yes
 - Current base: `origin/main` at `b4c1747bd20b5be469d11b66f74c79a83fbc8887`
 - Last Replit-validated at: not yet validated
-- Notes: Branch started from fresh `origin/main` after PR #34 and the later EPIC-017 merge. EPIC-017 is deferred until INIT-001 completes and does not change the current Replit validation gate.
+- Notes: Branch started from fresh `origin/main` after PR #34 and the later EFFORT-017 merge. EFFORT-017 is deferred until INIT-001 completes and does not change the current Replit validation gate.

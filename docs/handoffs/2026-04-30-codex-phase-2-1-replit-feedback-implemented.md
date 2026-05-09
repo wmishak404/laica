@@ -42,10 +42,10 @@ Follow-up note: Wilson's next Replit pass superseded the Pantry heading from thi
 
 ## Impact on other agents
 
-- EPIC-001: conforms to the no persistent app-header direction and keeps setup visual primitives scoped to setup utilities.
-- EPIC-004: implements the isolated `No restrictions` default-style choice.
-- EPIC-005: local checks passed, but Replit validation remains required before merge.
-- EPIC-012: implements the Replit visual review direction for setup chrome, camera controls, Kitchen accents, and illustration-style setup choices.
+- EFFORT-001: conforms to the no persistent app-header direction and keeps setup visual primitives scoped to setup utilities.
+- EFFORT-004: implements the isolated `No restrictions` default-style choice.
+- EFFORT-005: local checks passed, but Replit validation remains required before merge.
+- EFFORT-012: implements the Replit visual review direction for setup chrome, camera controls, Kitchen accents, and illustration-style setup choices.
 
 ## Open items
 
