@@ -171,7 +171,7 @@ Branch `codex/epic-021-scan-upload-implementation` started the runtime follow-th
 
 ### 2026-05-08 - Bounded concurrency performance patch
 
-Wilson's Replit validation found that the serial path took about 1-2 seconds per photo, making a full 20-photo refresh a likely engagement risk. The branch added bounded client-side processing of 4 images at a time for setup and Settings uploads, removed the Settings-only 500ms inter-photo delay, and documented that this improves latency without changing direct per-image API cost. The previous Replit pass at `aa2f434` is stale after this patch; authenticated Replit scan validation needs to be rerun at the new branch head.
+Wilson's Replit validation found that the serial path took about 1-2 seconds per photo, making a full 20-photo refresh a likely engagement risk. The branch added bounded client-side processing of 4 images at a time for setup and Settings uploads, removed the Settings-only 500ms inter-photo delay, and documented that this improves latency without changing direct per-image API cost. The earlier Replit pass at `aa2f434` became stale after this patch, then Wilson completed later Replit checks on the branch, including the final Planning-status validation at `ef28e59`.
 
 ### 2026-05-08 - Fresh-account abuse guardrail decision
 
@@ -185,4 +185,4 @@ The same review accepted Settings scan lifecycle guardrails: scans can continue 
 
 ### 2026-05-08 - Planning choice Pantry status line
 
-Wilson's Replit follow-up confirmed the main scan behavior was otherwise good, including Save/Reset controls being non-pressable during active scans, but found that Chef It Up's empty-Pantry blocker appeared too late after cuisine/staple choices. The accepted adjustment is to show a quiet Pantry status line under "What are we cooking today?", morphing between empty-Pantry recovery copy and the current Pantry item count, and to block Chef It Up immediately on card tap when Pantry is empty. Slop Bowl remains accessible because it has its own pantry confirmation/manual-add flow.
+Wilson's Replit follow-up confirmed the main scan behavior was otherwise good, including Save/Reset controls being non-pressable during active scans, but found that Chef It Up's empty-Pantry blocker appeared too late after cuisine/staple choices. The accepted adjustment is to show a quiet Pantry status line under "What are we cooking today?", morphing between empty-Pantry recovery copy and the current Pantry item count, and to block Chef It Up immediately on card tap when Pantry is empty. Slop Bowl remains accessible because it has its own pantry confirmation/manual-add flow. The notification icon experiment was removed after it did not align cleanly; final visual treatment is deferred to Phase 3.1. Wilson validated the latest behavior at `ef28e59` and confirmed all items work as designed.
