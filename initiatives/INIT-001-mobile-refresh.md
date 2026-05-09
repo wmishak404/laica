@@ -34,9 +34,9 @@ Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the g
 
 PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation shipped through [PR #38](https://github.com/wmishak404/laica/pull/38), validated at `8a5c3d5` and merged as `f1d17d8`. The Phase 3 generation lock/cancel follow-up shipped through [PR #45](https://github.com/wmishak404/laica/pull/45), validated at `0c98a47` and merged as `8892327`.
 
-Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, deterministic cuisine-aware staple check, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so the phase could close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md) owns the design facelift, Slop It Up planning-card copy treatment, and recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Post-freeze basic-usability patches keep Ticket Pass recipe order stable, display-split recipe names only when explicit supporting detail exists, ask about/save likely missing cuisine staples as concrete pantry ingredients before generation with multi-cuisine representation before extra slots, align recipe preference caps across recipe suggestion routes, enforce `additionalIngredientsNeeded` as optional enhancements rather than required missing ingredients, and lock/cancel Chef It Up recipe generation so staple rows cannot reshuffle or accept input while suggestions are loading.
+Phase 3 implements the Planning entry redesign, Chef It Up time/cuisine flow, deterministic cuisine-aware staple check, Ticket Pass suggestions, Prep Tray, Slop Bowl confirmation refresh, and Slop Bowl planning-time prompt plumbing. Wilson froze Phase 3 visuals on 2026-05-06 so the phase could close on functional correctness rather than more design iteration. Current Planning/Ticket/Prep visuals are functional scaffolding; [Phase 3.1](../product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md) owns the design facelift, Slop It Up planning-card copy treatment, and recipe imagery follow-up. Ticket Pass reserves generated-image slots with designed placeholders in the selected ticket, compact alternate tickets, and Prep Tray, while actual generated/illustrated recipe imagery should not block suggestion reveal. Post-freeze basic-usability patches keep Ticket Pass recipe order stable, display-split recipe names only when explicit supporting detail exists, ask about/save likely missing cuisine staples as concrete pantry ingredients before generation with multi-cuisine representation before extra slots, align recipe preference caps across recipe suggestion routes, enforce `additionalIngredientsNeeded` as optional enhancements rather than required missing ingredients, and lock/cancel Chef It Up recipe generation so staple rows cannot reshuffle or accept input while suggestions are loading.
 
-[Phase 3.2](../product-decisions/features/mobile-refresh/phase-03-2-progressive-staples.md) is a separate behavior/interaction polish slice on top of the merged Phase 3 + PR #45 cancellation behavior. It is not blocked by Phase 3.1 because it does not decide the broader visual facelift or recipe imagery direction. Phase 3.1 should treat the Phase 3.2 Added shelf / rolling staple queue as the current behavior to preserve or intentionally restyle during the facelift.
+[Phase 3.2](../product-decisions/features/mobile-refresh/pd-phase-03-2-progressive-staples.md) is a separate behavior/interaction polish slice on top of the merged Phase 3 + PR #45 cancellation behavior. It is not blocked by Phase 3.1 because it does not decide the broader visual facelift or recipe imagery direction. Phase 3.1 should treat the Phase 3.2 Added shelf / rolling staple queue as the current behavior to preserve or intentionally restyle during the facelift.
 
 Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple queue, queue exhaustion, submit-time pantry persistence, and saved staples after returning from recipe suggestions. The follow-up kept the Added-only shelf and submit timing, added a visible `X` remove affordance to pending Added chips, used `+` instead of checkmarks for pending additions, marked successfully saved chips as green-check-only pantry facts, showed an inline Pantry Settings removal note when a saved chip is tapped, skipped repeat pantry-save calls for already-saved selected staples, clarified the helper copy, and documented Slop Bowl pantry-check visual alignment as Phase 3.1 scope.
 
@@ -49,21 +49,21 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
-- [Phase 0 security/backend readiness](../product-decisions/features/mobile-refresh/phase-00-cross-phase-security.md)
-- [Phase 1 auth](../product-decisions/features/mobile-refresh/phase-01-auth.md)
-- [Phase 2 setup](../product-decisions/features/mobile-refresh/phase-02-setup.md)
-- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
-- [Phase 2.2 returning setup/settings/history IA](../product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md)
-- [Phase 3 planning](../product-decisions/features/mobile-refresh/phase-03-planning.md)
-- [Phase 3.1 design facelift and recipe imagery](../product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md)
-- [Phase 3.2 progressive pantry staple check](../product-decisions/features/mobile-refresh/phase-03-2-progressive-staples.md)
-- [Phase 4 cooking](../product-decisions/features/mobile-refresh/phase-04-cooking.md)
-- [Phase 5 post-cook](../product-decisions/features/mobile-refresh/phase-05-post-cook.md)
-- [AI privacy, prompt-injection, and abuse rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md)
-- [Dev-test harness plan](../product-decisions/features/mobile-refresh/dev-test-harness.md)
-- [PD-005 UI governance](../product-decisions/005-ui-governance.md)
-- [PD-009 mobile refresh navigation](../product-decisions/009-mobile-refresh-navigation.md)
-- [PD-011 scan upload photo limit policy](../product-decisions/011-scan-upload-photo-limit-policy.md)
+- [Phase 0 security/backend readiness](../product-decisions/features/mobile-refresh/pd-phase-00-cross-phase-security.md)
+- [Phase 1 auth](../product-decisions/features/mobile-refresh/pd-phase-01-auth.md)
+- [Phase 2 setup](../product-decisions/features/mobile-refresh/pd-phase-02-setup.md)
+- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md)
+- [Phase 2.2 returning setup/settings/history IA](../product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md)
+- [Phase 3 planning](../product-decisions/features/mobile-refresh/pd-phase-03-planning.md)
+- [Phase 3.1 design facelift and recipe imagery](../product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md)
+- [Phase 3.2 progressive pantry staple check](../product-decisions/features/mobile-refresh/pd-phase-03-2-progressive-staples.md)
+- [Phase 4 cooking](../product-decisions/features/mobile-refresh/pd-phase-04-cooking.md)
+- [Phase 5 post-cook](../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md)
+- [AI privacy, prompt-injection, and abuse rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md)
+- [Dev-test harness plan](../product-decisions/features/mobile-refresh/pd-dev-test-harness.md)
+- [PD-005 UI governance](../product-decisions/pd-005-ui-governance.md)
+- [PD-009 mobile refresh navigation](../product-decisions/pd-009-mobile-refresh-navigation.md)
+- [PD-011 scan upload photo limit policy](../product-decisions/pd-011-scan-upload-photo-limit-policy.md)
 - [`design_guidelines.md`](../design_guidelines.md)
 
 ## Assets
@@ -120,7 +120,7 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 
 | Reference | Relevance |
 |---|---|
-| [PD-005](../product-decisions/005-ui-governance.md) | UI governance operating model |
+| [PD-005](../product-decisions/pd-005-ui-governance.md) | UI governance operating model |
 | [`design_guidelines.md`](../design_guidelines.md) | Canonical visual identity / design standard |
 | [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) | Merge readiness, validation evidence, and Feature Impact Review workflow formerly tracked by EFFORT-005/EFFORT-020 |
 | [EFFORT-010](../efforts/effort-010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
@@ -138,7 +138,7 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 - Stacked PR base refresh and Replit validation SHA hygiene added after early stale-preview risk.
 - INIT system added to prevent future context loss across long phased work.
 - Phase 2.2 added before Phase 3 so returning users can revisit Pantry, Kitchen, Cooking Profile, Settings, and History through Menu.
-- UI governance and visual standards graduated to [PD-005](../product-decisions/005-ui-governance.md) and [`design_guidelines.md`](../design_guidelines.md).
+- UI governance and visual standards graduated to [PD-005](../product-decisions/pd-005-ui-governance.md) and [`design_guidelines.md`](../design_guidelines.md).
 - Product decision taxonomy cleanup added on 2026-05-05 so top-level PDs stay stable decision records and feature-phase records do not become indefinite diaries.
 - EFFORT-018 was filed from Phase 3 Replit validation to preserve the follow-up bug around demo-era AI error toasts/redirects masking pantry recipe 400s, then resolved by PR #43.
 - EFFORT-019 was filed from the EFFORT-018 messaging review so persistent AI error/eval logging can proceed separately with an allowlist-first redaction policy.
@@ -153,7 +153,7 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 - Phase 3.2 Replit review at `968d39a` kept pantry persistence timing as designed: pending Added chips are not saved on Back before submit, and confirmed staples become pantry facts only when `View recipe suggestions` starts generation. The follow-up adds pending-chip `+` + visible `X` removal, green check-only saved chips after the DB write succeeds, duplicate-save avoidance for already-saved selected staples, and submit-timing copy; full pantry-list context stays out of Phase 3.2.
 - Slop Bowl pantry-check visual alignment was added to Phase 3.1 scope after Wilson preferred the newer Chef It Up Phase 3.2 chip/row direction. Phase 3.1 should compare the two surfaces and align visual grammar where appropriate without changing Slop Bowl behavior unless explicitly revisited.
 - Phase 3.2 shipped through PR #46 after Wilson's authenticated Replit/browser validation at `9646c80`. Replit code-path review also passed, but the team explicitly recorded the distinction between code-verified checks and authenticated browser validation, feeding the later EFFORT-017 / dev-test-harness automation work.
-- Scan upload capacity policy was accepted on 2026-05-08 in [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) and tracked for implementation by [EFFORT-021](../efforts/effort-021-scan-upload-photo-limit-policy.md): Pantry and Kitchen should each support 20 images per inventory refresh, 40 images per day per area, bounded concurrent scan processing, and scan-specific progress/partial-success/error copy.
+- Scan upload capacity policy was accepted on 2026-05-08 in [PD-011](../product-decisions/pd-011-scan-upload-photo-limit-policy.md) and tracked for implementation by [EFFORT-021](../efforts/effort-021-scan-upload-photo-limit-policy.md): Pantry and Kitchen should each support 20 images per inventory refresh, 40 images per day per area, bounded concurrent scan processing, and scan-specific progress/partial-success/error copy.
 - EFFORT-021 runtime implementation started on 2026-05-08 in `codex/epic-021-scan-upload-implementation`: shared scan policy constants, setup/Settings 20-photo per-refresh caps, unsupported-file counting semantics, per-refresh copy, progress/partial-success copy, image-count-aware server limiter plumbing, bounded 4-at-a-time scan concurrency, and focused unit coverage. Fresh-account scan churn is recorded as a known non-blocking risk; stronger daily/global IP caps are deferred until real usage or cost signals justify them, with OpenAI/project-level limits treated as a final spend-safety backstop rather than normal product control.
 - EFFORT-021 also captured returning-user empty-Pantry guardrails on 2026-05-08: clearing Pantry is a valid inventory state and should not return the user to first-time setup or reset Kitchen/Profile/History; pantry-based recipe generation should block with explicit empty-Pantry recovery copy; active Settings scans should cancel/ignore stale results when leaving Settings and lock inventory edits while running. This corner case feeds the testing workflow so reset-to-empty states, in-flight async navigation, and cross-domain persistence checks become part of feature acceptance review.
 - EFFORT-021 Replit follow-up on 2026-05-08 found the empty-Pantry Chef It Up blocker was too late in the flow. The Planning choice now owns a quiet Pantry status line under "What are we cooking today?" and Chef It Up blocks immediately on card tap when Pantry is empty, while Slop Bowl remains available. A final Replit check at `ef28e59` confirmed the latest status-line behavior works as designed; the notification icon was removed and final visual treatment is deferred to Phase 3.1.
@@ -219,7 +219,7 @@ PR #30 merged returning setup edits, Menu, Settings, and History IA into `main`.
 
 ### 2026-05-02 - UI governance graduated
 
-Resolved UI governance and design-language Efforts graduated to [PD-005](../product-decisions/005-ui-governance.md) and [`design_guidelines.md`](../design_guidelines.md). Active UI work should read those instead of treating resolved Efforts as live governance.
+Resolved UI governance and design-language Efforts graduated to [PD-005](../product-decisions/pd-005-ui-governance.md) and [`design_guidelines.md`](../design_guidelines.md). Active UI work should read those instead of treating resolved Efforts as live governance.
 
 ### 2026-05-05 - Process and product-decision taxonomy cleanup
 

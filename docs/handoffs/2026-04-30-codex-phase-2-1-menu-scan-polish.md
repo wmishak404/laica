@@ -35,9 +35,9 @@ This keeps the no-header direction, adds menu access through setup and the post-
   - Adds Kitchen-specific gray/silver and light-wood accents for actions, manual surfaces, and chips.
 - `tests/unit/user-profiling.test.tsx`
   - Updates the setup flow assertion for the new Pantry heading.
-- `product-decisions/features/mobile-refresh/design-language.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
   - Records the setup menu affordance, translucent camera utility controls, simplified secondary action labels, and Kitchen gray/silver equipment accents as Phase 2.1 design-language signal.
-- `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
   - Records Wilson's follow-up feedback and the local implementation note.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Updates Phase 2.1 status, validation state, chronology, and current resume point.

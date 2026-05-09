@@ -20,7 +20,7 @@ Define what Slop Bowl is for users before locking the API and UI contracts.
 
 ## Source decisions
 
-- [PD-002](../../002-slop-bowl.md)
+- [PD-002](../../pd-002-slop-bowl.md)
 
 ## Carry-forward notes for later phases
 

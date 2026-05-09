@@ -14,14 +14,14 @@ The feedback accepts the broad setup visual direction but requests one more poli
 
 ## Changes
 
-- `product-decisions/009-mobile-refresh-navigation.md`
+- `product-decisions/pd-009-mobile-refresh-navigation.md`
   - Adds a 2026-04-30 amendment: authenticated app pages should not show a persistent top header; account/profile/sign-out access belongs in the bottom-menu/account surface.
-- `product-decisions/features/mobile-refresh/design-language.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
   - Records `Laica` casing for user-facing copy.
   - Adds durable design guidance for no app header, one setup progress treatment, in-frame camera controls, readable setup action labels, multicolor setup illustrations, Kitchen accent direction, and the isolated `No restrictions` control.
 - `product-decisions/features/mobile-refresh/README.md`
   - Carries the `Laica` casing convention into the mobile-refresh phase index.
-- `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
   - Adds Wilson's exact Replit feedback as Phase 2.1 acceptance criteria and a dated feedback section.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Updates current status, required-before-merge items, and resume point to make this Replit feedback the next implementation focus.
@@ -51,9 +51,9 @@ The feedback accepts the broad setup visual direction but requests one more poli
 
 - Docs-only change; no runtime checks were needed for this capture pass.
 - To verify the documentation capture, review:
-  - `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
-  - `product-decisions/features/mobile-refresh/design-language.md`
-  - `product-decisions/009-mobile-refresh-navigation.md`
+  - `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
+  - `product-decisions/features/mobile-refresh/pd-design-language.md`
+  - `product-decisions/pd-009-mobile-refresh-navigation.md`
   - `initiatives/INIT-001-mobile-refresh.md`
 
 ## Stack / base status

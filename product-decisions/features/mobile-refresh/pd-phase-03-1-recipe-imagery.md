@@ -5,7 +5,7 @@
 **Phase owner:** Wilson
 **Date:** 2026-05-05
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
-**Builds on:** [Phase 3 Planning](phase-03-planning.md)
+**Builds on:** [Phase 3 Planning](pd-phase-03-planning.md)
 
 ## Goal
 
@@ -43,7 +43,7 @@ Phase 3 reserves generated-image slots now:
 - Cache generated images so refreshes and back/forward navigation do not repeatedly incur cost or latency.
 - Define fallback behavior for failed generation, slow generation, moderation failures, and missing image URLs.
 - Decide whether Phase 3's lightweight deterministic staple check should stay as-is, become part of a pantry-staples profile, or become a smarter AI-assisted follow-up.
-- Treat [Phase 3.2](phase-03-2-progressive-staples.md) as the source of truth for the richer staple-check interaction now that it has shipped.
+- Treat [Phase 3.2](pd-phase-03-2-progressive-staples.md) as the source of truth for the richer staple-check interaction now that it has shipped.
 - Align the Slop Bowl pantry-check menu visually with the newer Chef It Up Phase 3.2 chip/row direction where appropriate. Use computed-style comparison, not class-name matching alone, so chip radius, typography, icon sizing, disabled state, and remove affordances do not drift between the two flows. Preserve the latest Phase 3.2 chip-state grammar: pending additions use a coral `+` plus right-side `X`; saved pantry facts use a green checkmark only, with no visible `Saved` text inside the chip, and tapping a saved chip shows a brief Pantry Settings removal direction instead of deleting it.
 - If Phase 3.1 expands herb handling, keep saved pantry labels concrete. Avoid saving grouped labels like `fresh herbs`; use explicit choices or a richer profile model that can store specificity.
 

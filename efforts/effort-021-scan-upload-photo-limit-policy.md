@@ -24,7 +24,7 @@ Implementation evidence at filing:
 - Returning Settings uses the same split limit.
 - Over-cap upload batches fail closed with "Too many photos" feedback, so no partial scan is processed.
 
-The original caps were accepted during Phase 2.1 as a trust, cost, and reliability guardrail, but the user feedback showed that a careful inventory pass can exceed those limits. The 2026-05-08 discussion accepted a new policy in [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md): raise capacity to 20 images per inventory refresh per area, keep Pantry and Kitchen aligned, and use bounded concurrent scan processing plus image-count rate limits to control cost and latency.
+The original caps were accepted during Phase 2.1 as a trust, cost, and reliability guardrail, but the user feedback showed that a careful inventory pass can exceed those limits. The 2026-05-08 discussion accepted a new policy in [PD-011](../product-decisions/pd-011-scan-upload-photo-limit-policy.md): raise capacity to 20 images per inventory refresh per area, keep Pantry and Kitchen aligned, and use bounded concurrent scan processing plus image-count rate limits to control cost and latency.
 
 This Effort owned the implementation follow-through. [EFFORT-020](effort-020-workflow-documentation-audit.md) is the separate workflow-documentation audit and owns EFFORT-005 closeout.
 
@@ -45,7 +45,7 @@ This Effort owned the implementation follow-through. [EFFORT-020](effort-020-wor
 
 - Replacing exact/near-exact duplicate mitigation; that remains in [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md).
 - Changing zero-result scan feedback semantics beyond capacity-related copy; that remains in [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md).
-- Changing AI error telemetry storage beyond the [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) image-count-only constraints.
+- Changing AI error telemetry storage beyond the [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) image-count-only constraints.
 - Quantity-based pantry tracking, inventory confidence scoring, or photo-specific long-term inventory memory.
 
 ## Decisions made so far
@@ -78,7 +78,7 @@ Future implementation should review these before changing runtime behavior:
 - Route parser and body limits: raising image count may require multipart/base64 parser changes, explicit decoded-image-size checks, and provider payload guardrails.
 - Image-count rate limiting: limit by accepted image count, not request count, so implementation details cannot bypass daily budgets.
 - Abuse guardrails: current rollout relies on auth, per-user/per-area daily limits, and short-window IP limits. Daily/global IP caps are intentionally deferred until usage, cost, or account-churn signals show they are needed. Provider-side OpenAI limits can cap runaway spend but should not replace app-owned limits and scan-specific error handling.
-- [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) telemetry constraints: scan failure telemetry may include `image_count` only, never raw images, bytes, filenames, EXIF, base64 payloads, or detected labels.
+- [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) telemetry constraints: scan failure telemetry may include `image_count` only, never raw images, bytes, filenames, EXIF, base64 payloads, or detected labels.
 - Phase 5 post-cook rescan capacity: inherited default is 20 images per refresh and 40 per day per area unless Phase 5 records an exception.
 - Settings scan test gap: returning Settings needs the same limit, fail-closed behavior, progress, partial-success summary, and rate-limit coverage as setup.
 - Returning-user empty-inventory workflow: profile readiness, Pantry reset, Kitchen/Profile/History persistence, and pantry-dependent recipe generation should be reviewed together so an intentionally empty Pantry does not look like first-time setup.
@@ -118,7 +118,7 @@ Read EFFORT-021 before starting any of the following:
 
 When this Effort applies, also cite:
 
-- [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) for the accepted policy
+- [PD-011](../product-decisions/pd-011-scan-upload-photo-limit-policy.md) for the accepted policy
 - [EFFORT-005](effort-005-testing-strategy-and-acceptance-criteria.md) for validation and acceptance criteria until it graduates under EFFORT-020
 - [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md) for scan outcome messaging
 - [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md) when upload capacity intersects with latest-scan or duplicate-review state
@@ -143,11 +143,11 @@ This Effort is `Resolved` when all of the following are true:
 
 ## Linked artifacts
 
-- [PD-011 - Scan upload photo limit policy](../product-decisions/011-scan-upload-photo-limit-policy.md)
-- [PD-010 - AI error telemetry allowlist](../product-decisions/010-ai-error-telemetry-allowlist.md)
-- [Cross-phase AI privacy, prompt-injection, and abuse rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md)
-- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
-- [Phase 5 post-cook cleanup and retention](../product-decisions/features/mobile-refresh/phase-05-post-cook.md)
+- [PD-011 - Scan upload photo limit policy](../product-decisions/pd-011-scan-upload-photo-limit-policy.md)
+- [PD-010 - AI error telemetry allowlist](../product-decisions/pd-010-ai-error-telemetry-allowlist.md)
+- [Cross-phase AI privacy, prompt-injection, and abuse rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md)
+- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md)
+- [Phase 5 post-cook cleanup and retention](../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md)
 - [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 - [EFFORT-005 - App-wide testing strategy and acceptance criteria workflow](effort-005-testing-strategy-and-acceptance-criteria.md)
 - [EFFORT-007 - Vision scan should explicitly say when nothing was detected](effort-007-vision-scan-no-detection-feedback.md)
@@ -162,7 +162,7 @@ Wilson reported that a user tried to be thorough with about 30 pantry photos but
 
 ### 2026-05-08 - Renumbered to EFFORT-021 and accepted policy recorded
 
-After `origin/main` claimed EFFORT-020 for the workflow-documentation audit, this scan-limit Effort was renumbered to EFFORT-021. Wilson accepted the 20-image per-refresh policy, 40-image daily budget per area, same-limit Pantry/Kitchen rule, batched happy path, adaptive chunking direction, image-count rate limits, partial-success preservation, progress/stale-result UI direction, and scan-specific messaging posture. [PD-011](../product-decisions/011-scan-upload-photo-limit-policy.md) is the durable decision record.
+After `origin/main` claimed EFFORT-020 for the workflow-documentation audit, this scan-limit Effort was renumbered to EFFORT-021. Wilson accepted the 20-image per-refresh policy, 40-image daily budget per area, same-limit Pantry/Kitchen rule, batched happy path, adaptive chunking direction, image-count rate limits, partial-success preservation, progress/stale-result UI direction, and scan-specific messaging posture. [PD-011](../product-decisions/pd-011-scan-upload-photo-limit-policy.md) is the durable decision record.
 
 ### 2026-05-08 - First runtime implementation slice opened
 

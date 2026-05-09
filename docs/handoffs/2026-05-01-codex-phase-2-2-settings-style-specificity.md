@@ -18,9 +18,9 @@ Root cause: first-time setup's accepted styles rely on `.setup-ui .setup-*` sele
   - Added `returning-setup-anchor` specificity to setup primary/secondary/ghost Button styles.
   - Added `returning-setup-anchor` specificity to setup camera round/icon button styles and SVG sizing.
   - Made `setup-action-title` declare the accepted setup `Nunito` / 800 action-label typography directly.
-- `product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md`
   - Recorded the visual consistency correction, root cause, implementation direction, and added an acceptance criterion for computed camera/action controls.
-- `product-decisions/features/mobile-refresh/design-language.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
   - Added guidance that setup-derived controls must preserve rendered typography, shape, icon size, and state under new wrappers.
 - `product-decisions/features/mobile-refresh/README.md`
   - Added the cross-phase principle that class-name reuse is not enough; computed output must match.

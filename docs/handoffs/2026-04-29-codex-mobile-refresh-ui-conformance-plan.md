@@ -13,10 +13,10 @@ Captured Wilson's Phase 2 UI review as a docs-only planning correction. The new 
 - `product-decisions/features/mobile-refresh/README.md`
   - Added a cross-phase mockup conformance gate for phases with linked mockups.
   - Clarified that phase PRs are not ready when primary screens remain visually pre-refresh unless the visual work is explicitly deferred.
-- `product-decisions/features/mobile-refresh/phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md`
   - Added a 2026-04-29 scope correction for PR #23 feedback.
   - Recorded that setup visual polish and Back/escape from camera flow are Phase 2 readiness items.
-- `product-decisions/features/mobile-refresh/phase-03-planning.md`
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md`
   - Added a visual scope note that the unchanged Planning cards are pre-refresh UI and are not acceptable Phase 3 completion.
 - `efforts/effort-001-ui-governance.md`
   - Added new evidence that mockup conformance should be part of UI governance.

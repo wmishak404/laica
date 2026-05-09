@@ -8,16 +8,16 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 
 | Phase | Focus | Status | Primary docs | Mockups |
 |-------|-------|--------|--------------|---------|
-| 0 | Cross-phase security and backend readiness | Accepted | [phase-00-cross-phase-security.md](phase-00-cross-phase-security.md), [cross-phase-ai-privacy.md](cross-phase-ai-privacy.md) | None |
-| 1 | Auth and first authenticated routing | Accepted | [phase-01-auth.md](phase-01-auth.md), [PD-009](../../009-mobile-refresh-navigation.md) | [Auth mockup](../../../docs/assets/mobile-refresh/phase-01-auth.png) |
-| 2 | Setup: pantry, kitchen, profile | Accepted | [phase-02-setup.md](phase-02-setup.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
-| 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Accepted / Merged PR #27 | [phase-02-1-setup-polish.md](phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
-| 2.2 | Returning setup, Settings, and History IA | Accepted / Merged PR #30 | [phase-02-2-returning-setup-settings.md](phase-02-2-returning-setup-settings.md) | [Phase 2.2 storyboard](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
-| 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted / Merged PR #38 + #45 | [phase-03-planning.md](phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
-| 3.1 | Phase 3 design facelift and async recipe imagery | Planned | [phase-03-1-recipe-imagery.md](phase-03-1-recipe-imagery.md) | Builds on [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
-| 3.2 | Progressive Chef It Up pantry staple check | Accepted / Merged PR #46 | [phase-03-2-progressive-staples.md](phase-03-2-progressive-staples.md) | Builds on Phase 3 staple check and PR #45 cancellation lock |
-| 4 | Cooking guidance | Accepted | [phase-04-cooking.md](phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
-| 5 | Post-cook cleanup and retention | Accepted | [phase-05-post-cook.md](phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
+| 0 | Cross-phase security and backend readiness | Accepted | [pd-phase-00-cross-phase-security.md](pd-phase-00-cross-phase-security.md), [pd-cross-phase-ai-privacy.md](pd-cross-phase-ai-privacy.md) | None |
+| 1 | Auth and first authenticated routing | Accepted | [pd-phase-01-auth.md](pd-phase-01-auth.md), [PD-009](../../pd-009-mobile-refresh-navigation.md) | [Auth mockup](../../../docs/assets/mobile-refresh/phase-01-auth.png) |
+| 2 | Setup: pantry, kitchen, profile | Accepted | [pd-phase-02-setup.md](pd-phase-02-setup.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
+| 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Accepted / Merged PR #27 | [pd-phase-02-1-setup-polish.md](pd-phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
+| 2.2 | Returning setup, Settings, and History IA | Accepted / Merged PR #30 | [pd-phase-02-2-returning-setup-settings.md](pd-phase-02-2-returning-setup-settings.md) | [Phase 2.2 storyboard](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
+| 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted / Merged PR #38 + #45 | [pd-phase-03-planning.md](pd-phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
+| 3.1 | Phase 3 design facelift and async recipe imagery | Planned | [pd-phase-03-1-recipe-imagery.md](pd-phase-03-1-recipe-imagery.md) | Builds on [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
+| 3.2 | Progressive Chef It Up pantry staple check | Accepted / Merged PR #46 | [pd-phase-03-2-progressive-staples.md](pd-phase-03-2-progressive-staples.md) | Builds on Phase 3 staple check and PR #45 cancellation lock |
+| 4 | Cooking guidance | Accepted | [pd-phase-04-cooking.md](pd-phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
+| 5 | Post-cook cleanup and retention | Accepted | [pd-phase-05-post-cook.md](pd-phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
 
 ## Implementation Sequence
 
@@ -41,7 +41,7 @@ If a later phase depends on an earlier surface that still has visual drift, reco
 
 ## Cross-Phase Validation Follow-Up
 
-Phase 2 validation exposed a recurring gap: agents can run deterministic checks, but authenticated UI smoke still depends on a human completing Google sign-in. The planned [dev-test harness](dev-test-harness.md) records the future direction for real Firebase custom-token dev auth and hybrid service-backed smoke.
+Phase 2 validation exposed a recurring gap: agents can run deterministic checks, but authenticated UI smoke still depends on a human completing Google sign-in. The planned [dev-test harness](pd-dev-test-harness.md) records the future direction for real Firebase custom-token dev auth and hybrid service-backed smoke.
 
 This follow-up should not block PR #23. If manual sign-in continues slowing Phase 3-5 validation, prioritize the harness before repeating the same smoke bottleneck across later phases.
 
@@ -69,4 +69,4 @@ This follow-up should not block PR #23. If manual sign-in continues slowing Phas
 - First-time setup and returning Settings are separate by user intent but share the same profile database and setup look/feel foundation for Pantry, Kitchen, and Cooking Profile.
 - When a phase reuses accepted visual patterns under a different wrapper, visual consistency means matching rendered/computed typography, radius, icon sizing, and states, not only matching class names.
 
-For visual identity beyond these UX principles, read [`design_guidelines.md`](../../../design_guidelines.md) and [PD-005](../../005-ui-governance.md). Mobile-refresh implementation should use these alongside the linked mockups: `design_guidelines.md` defines the target look and feel, PD-005 governs consistent implementation, and the phase records define surface-specific acceptance.
+For visual identity beyond these UX principles, read [`design_guidelines.md`](../../../design_guidelines.md) and [PD-005](../../pd-005-ui-governance.md). Mobile-refresh implementation should use these alongside the linked mockups: `design_guidelines.md` defines the target look and feel, PD-005 governs consistent implementation, and the phase records define surface-specific acceptance.

@@ -15,7 +15,7 @@ Align the API contract, model strategy, and current app behavior so the feature 
 - The request may include `pantryOverride`, `feedback`, and `previousRecipe`.
 - The response returns one recipe plus component breakdown for the bowl.
 - Slop Bowl recipe generation uses `gpt-4.1`.
-- Existing OpenAI endpoints move to a tiered model strategy per [PD-003](../../003-openai-model-strategy.md).
+- Existing OpenAI endpoints move to a tiered model strategy per [PD-003](../../pd-003-openai-model-strategy.md).
 
 ## Resolved alignment questions
 
@@ -39,11 +39,11 @@ Accepted direction: define null-safe fallback behavior in the route and prompt w
 
 ## Sources
 
-- [PD-003](../../003-openai-model-strategy.md)
+- [PD-003](../../pd-003-openai-model-strategy.md)
 - `docs/handoffs/2026-04-09-claude-slop-bowl-plan.md`
 - `docs/handoffs/2026-04-09-codex-slop-bowl-doc-review.md`
 
 ## Exit criteria for Phase 2
 
-- Resolved by [Phase 3 simplified bowl](phase-03-simplified-bowl.md).
+- Resolved by [Phase 3 simplified bowl](pd-phase-03-simplified-bowl.md).
 - The API contract was stable enough for server and client work to proceed independently.

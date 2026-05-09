@@ -22,7 +22,7 @@ Captured Wilson's latest PR #23 setup-flow UI feedback as Phase 2 polish guidanc
 
 ## Docs Updated
 
-- `product-decisions/features/mobile-refresh/phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md`
 - `initiatives/INIT-001-mobile-refresh.md`
 - `efforts/effort-012-laica-design-language.md`
 

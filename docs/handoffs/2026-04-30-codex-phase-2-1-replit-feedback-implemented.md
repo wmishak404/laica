@@ -37,7 +37,7 @@ Follow-up note: Wilson's next Replit pass superseded the Pantry heading from thi
   - Removes legacy shared `Header` imports/usages so app pages do not reintroduce top website chrome.
 - `tests/unit/user-profiling.test.tsx`
   - Updates assertions for `Yes, Chef!`, the pantry heading, the `1/5` progress count, and the new pantry placeholder.
-- `initiatives/INIT-001-mobile-refresh.md`, `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
+- `initiatives/INIT-001-mobile-refresh.md`, `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
   - Record that Wilson's Replit feedback is now implemented locally and Replit validation is the next gate.
 
 ## Impact on other agents

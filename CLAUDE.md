@@ -71,11 +71,11 @@ Current active INITs:
 
 ## UI governance — check before any UI work
 
-UI governance and visual standards are **not** tracked as active Efforts. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/005-ui-governance.md`](product-decisions/005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`efforts/registry.md`](efforts/registry.md).
+UI governance and visual standards are **not** tracked as active Efforts. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/pd-005-ui-governance.md`](product-decisions/pd-005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`efforts/registry.md`](efforts/registry.md).
 
 ## Active Efforts — check before starting work in a governed domain
 
-The `efforts/` directory tracks standalone follow-up work that does not currently belong inside an active INIT, feature phase record, PD, ADR, or workflow doc. These are **not** GitHub Issues and **not** bug reports. See `efforts/README.md` for the convention, status model, and current active read list. Use `efforts/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/007-effort-status-and-registry-workflow.md`.
+The `efforts/` directory tracks standalone follow-up work that does not currently belong inside an active INIT, feature phase record, PD, ADR, or workflow doc. These are **not** GitHub Issues and **not** bug reports. See `efforts/README.md` for the convention, status model, and current active read list. Use `efforts/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/pd-007-effort-status-and-registry-workflow.md`.
 
 Current active Efforts:
 
@@ -92,7 +92,7 @@ If your work intersects with an active Effort, cite it in your handoff and state
 
 ## Secrets
 
-Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to the repo). Decision documented in `product-decisions/001-secrets-management.md`.
+Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to the repo). Decision documented in `product-decisions/pd-001-secrets-management.md`.
 
 - `.env` — encrypted, safe in git. Decrypted at runtime.
 - `.env.keys` — private decryption key, **never commit this**

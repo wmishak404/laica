@@ -32,7 +32,7 @@ This branch does not yet implement provider-level multi-image vision batching or
 - `tests/unit/user-settings-scan-policy.test.tsx`: covers active Settings scan cancellation on Back.
 - `tests/unit/phase0-security-routes.test.ts`: covers the server-side empty-Pantry recipe blocker.
 - `tests/unit/rate-limit.test.ts`: adds image-count limiter coverage.
-- `product-decisions/011-scan-upload-photo-limit-policy.md`, `efforts/effort-021-scan-upload-photo-limit-policy.md`, `efforts/effort-020-workflow-documentation-audit.md`, and `initiatives/INIT-001-mobile-refresh.md`: record empty-Pantry guardrails, active-scan lifecycle decisions, and the corner-case testing methodology signal.
+- `product-decisions/pd-011-scan-upload-photo-limit-policy.md`, `efforts/effort-021-scan-upload-photo-limit-policy.md`, `efforts/effort-020-workflow-documentation-audit.md`, and `initiatives/INIT-001-mobile-refresh.md`: record empty-Pantry guardrails, active-scan lifecycle decisions, and the corner-case testing methodology signal.
 
 ## Validation
 

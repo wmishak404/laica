@@ -39,10 +39,10 @@ Before locking direction for a feature enhancement, review the adjacent system s
 - Auth, ownership, persistence, and valid empty states.
 - In-flight async work, Back/cancel behavior, stale-result handling, and navigation away from the surface.
 - Related INITs, active Efforts, PDs, workflow docs, and phase records.
-- Telemetry/privacy rules, especially [`PD-010`](../../product-decisions/010-ai-error-telemetry-allowlist.md) for AI error logging.
+- Telemetry/privacy rules, especially [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md) for AI error logging.
 - Settings/setup parity, post-cook or future rescan implications, and any sibling surfaces that share the same component or API.
 
-The scan upload policy review that produced [`PD-011`](../../product-decisions/011-scan-upload-photo-limit-policy.md) is the model: it considered scan copy, route limits, image-count rate limits, telemetry allowlists, Settings behavior, empty-Pantry state, active-scan cancellation, and related Efforts before the policy was accepted.
+The scan upload policy review that produced [`PD-011`](../../product-decisions/pd-011-scan-upload-photo-limit-policy.md) is the model: it considered scan copy, route limits, image-count rate limits, telemetry allowlists, Settings behavior, empty-Pantry state, active-scan cancellation, and related Efforts before the policy was accepted.
 
 ## Required Handoff / PR Verification Notes
 

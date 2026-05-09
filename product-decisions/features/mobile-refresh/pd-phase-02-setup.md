@@ -40,7 +40,7 @@ Wilson's in-flow Phase 2 testing added trust, privacy, and action-hierarchy feed
 
 ## 2026-04-29 Deferral To Phase 2.1
 
-After PR #23 passed functional Replit validation, Wilson decided not to add another visual/interaction pass to PR #23 because the branch is already large and messy. PR #23 should close the functional Phase 2 setup scope. The latest UI trust/privacy feedback above is deferred to [Phase 2.1 setup polish](phase-02-1-setup-polish.md).
+After PR #23 passed functional Replit validation, Wilson decided not to add another visual/interaction pass to PR #23 because the branch is already large and messy. PR #23 should close the functional Phase 2 setup scope. The latest UI trust/privacy feedback above is deferred to [Phase 2.1 setup polish](pd-phase-02-1-setup-polish.md).
 
 This means PR #23's merge bar is functional correctness plus the recorded Replit validation, not completion of Phase 2.1 visual-flow polish.
 

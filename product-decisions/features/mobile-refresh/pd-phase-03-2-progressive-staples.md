@@ -5,7 +5,7 @@
 **Phase owner:** Wilson
 **Date:** 2026-05-08
 **Initiative:** [INIT-001 - Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
-**Builds on:** [Phase 3 Planning](phase-03-planning.md), PR #45 (`codex/phase-3-generation-cancel`)
+**Builds on:** [Phase 3 Planning](pd-phase-03-planning.md), PR #45 (`codex/phase-3-generation-cancel`)
 
 ## Goal
 

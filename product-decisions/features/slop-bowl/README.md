@@ -6,9 +6,9 @@ This folder tracks phase-by-phase decisions for the Slop Bowl feature.
 
 | Phase | Focus | Status | Primary docs |
 |-------|-------|--------|--------------|
-| 1 | Product direction and user flow | Accepted | [PD-002](../../002-slop-bowl.md), [phase-01-product-direction.md](phase-01-product-direction.md) |
-| 2 | API, model, and implementation alignment | Resolved | [PD-003](../../003-openai-model-strategy.md), [phase-02-api-alignment.md](phase-02-api-alignment.md) |
-| 3 | Simplified bowl & cooking steps enrichment | Accepted | [phase-03-simplified-bowl.md](phase-03-simplified-bowl.md) |
+| 1 | Product direction and user flow | Accepted | [PD-002](../../pd-002-slop-bowl.md), [pd-phase-01-product-direction.md](pd-phase-01-product-direction.md) |
+| 2 | API, model, and implementation alignment | Resolved | [PD-003](../../pd-003-openai-model-strategy.md), [pd-phase-02-api-alignment.md](pd-phase-02-api-alignment.md) |
+| 3 | Simplified bowl & cooking steps enrichment | Accepted | [pd-phase-03-simplified-bowl.md](pd-phase-03-simplified-bowl.md) |
 | 4 | Implementation coordination | In progress | Codex: `codex/slop-bowl-api`, Claude: `claude/slop-bowl-ui` |
 | 5 | Validation and rollout | Pending | To be added before Replit end-to-end validation |
 

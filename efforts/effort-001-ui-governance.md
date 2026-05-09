@@ -6,7 +6,7 @@
 **Created:** 2026-04-16
 **Updated:** 2026-05-02
 **Resolved:** 2026-05-02
-**Superseded by:** [PD-005](../product-decisions/005-ui-governance.md) — UI Governance Operating Model. Visual targets: [`design_guidelines.md`](../design_guidelines.md).
+**Superseded by:** [PD-005](../product-decisions/pd-005-ui-governance.md) — UI Governance Operating Model. Visual targets: [`design_guidelines.md`](../design_guidelines.md).
 
 ## One-line summary
 
@@ -14,7 +14,7 @@ Establish a hybrid UI-consistency system — concise style rubric + code-level e
 
 ## Context — why this exists
 
-The Slop Bowl feature (see `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`) surfaced how easy it is for a feature branch to introduce bespoke styling that bypasses the tokens and primitives the repo already has. During that implementation, Codex separately drafted a "hybrid UI consistency system" plan. The two threads collided in a productive way: Slop Bowl became a live test case for the rubric, and the rubric became a check on Slop Bowl's drift.
+The Slop Bowl feature (see `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`) surfaced how easy it is for a feature branch to introduce bespoke styling that bypasses the tokens and primitives the repo already has. During that implementation, Codex separately drafted a "hybrid UI consistency system" plan. The two threads collided in a productive way: Slop Bowl became a live test case for the rubric, and the rubric became a check on Slop Bowl's drift.
 
 Wilson then decided to park the governance work until Slop Bowl ships, and track it here as the first entry in the original `epics/` system so it would not get lost. The file now lives in `efforts/` as resolved history.
 
@@ -167,7 +167,7 @@ When one of these applies, the handoff for the work **must**:
 
 This Effort is `Resolved` when all of the following are true:
 
-1. A `product-decisions/PD-005-ui-governance.md` exists with the accepted rubric (require/recommend table, primitive lock order, tone-override convention, rollout plan)
+1. A `product-decisions/PD-pd-005-ui-governance.md` exists with the accepted rubric (require/recommend table, primitive lock order, tone-override convention, rollout plan)
 2. The enforcement mechanism is shipped on `main` (at minimum: lint rule or PR template, whichever Phase 1 v2 lands on)
 3. At least one pilot surface has completed migration under the rubric (no `bg-[#hex]` violations, escape hatches documented where used)
 4. `design_guidelines.md` references the PD and the `efforts/effort-001` graduation note
@@ -182,7 +182,7 @@ At that point, status flips to `Resolved`. Future UI-system concerns (tone refre
 - Claude review — `docs/handoffs/2026-04-16-claude-ui-consistency-review.md`
 - Phase 0 complete — `docs/handoffs/2026-04-16-claude-ui-consistency-phase-0-complete.md`
 - Current design guidelines — `design_guidelines.md` (reconciled to code 2026-04-16)
-- Slop Bowl phase-04 decisions (the tone-forward test case) — `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`
+- Slop Bowl phase-04 decisions (the tone-forward test case) — `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`
 
 ## Chronology — how we got here
 
@@ -259,7 +259,7 @@ PR #30 merged Phase 2.2 after Replit validation confirmed the specific drift fix
 
 ## 2026-05-02 — Resolved; graduated to PD-005
 
-The rubric, primitive lock order, tone-override convention, surface taxonomy, coexistence rule, rollout model, and the Phase 2.2 scoped-style reuse contract have moved into [PD-005](../product-decisions/005-ui-governance.md). Visual targets are now in [`design_guidelines.md`](../design_guidelines.md).
+The rubric, primitive lock order, tone-override convention, surface taxonomy, coexistence rule, rollout model, and the Phase 2.2 scoped-style reuse contract have moved into [PD-005](../product-decisions/pd-005-ui-governance.md). Visual targets are now in [`design_guidelines.md`](../design_guidelines.md).
 
 The "enforcement mechanism shipped on `main`" criterion was deferred from this Effort's resolution: enforcement is implementation, the operating model is durable independently. PD-005 records this as an open follow-up; a narrow active Effort will be filed when work begins.
 

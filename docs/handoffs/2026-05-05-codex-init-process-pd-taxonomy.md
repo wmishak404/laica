@@ -30,8 +30,8 @@ Before starting INIT-001 Phase 3, read:
 
 - `initiatives/INIT-001-mobile-refresh.md`
 - `product-decisions/features/mobile-refresh/README.md`
-- `product-decisions/features/mobile-refresh/phase-03-planning.md`
-- `product-decisions/005-ui-governance.md`
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md`
+- `product-decisions/pd-005-ui-governance.md`
 - `design_guidelines.md`
 - any active Effort whose checklist matches the work
 

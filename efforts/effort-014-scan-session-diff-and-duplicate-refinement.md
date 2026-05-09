@@ -95,7 +95,7 @@ This Effort is `Resolved` when all of the following are true:
 
 ## Linked artifacts
 
-- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
+- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md)
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 - [EFFORT-005 — App-wide testing strategy and acceptance criteria workflow](effort-005-testing-strategy-and-acceptance-criteria.md)
 - [EFFORT-007 — Vision scan should explicitly say when nothing was detected](effort-007-vision-scan-no-detection-feedback.md)

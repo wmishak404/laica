@@ -57,7 +57,7 @@ Anything outside the allowlist is handled as a non-mutating cooking question or 
 ## Abuse Prevention
 
 - Server limits are authoritative; client caps only improve UX.
-- Pantry/Kitchen scan capacity policy is superseded by [PD-011](../../011-scan-upload-photo-limit-policy.md): 20 scanned images per inventory refresh per area, 40 scanned images per day per area, and the same limit across setup, Settings, and post-cook rescans unless Phase 5 explicitly documents an exception.
+- Pantry/Kitchen scan capacity policy is superseded by [PD-011](../../pd-011-scan-upload-photo-limit-policy.md): 20 scanned images per inventory refresh per area, 40 scanned images per day per area, and the same limit across setup, Settings, and post-cook rescans unless Phase 5 explicitly documents an exception.
 - Setup and Settings upload caps are fail-closed in the client: selecting more than the cap cancels the whole refresh so users are not left guessing which photos were processed.
 - Vision scan route rate-limit keys separate Pantry and Kitchen contexts so Pantry abuse testing does not block equipment validation, while both contexts remain route-limited.
 - Batched scan route rate limits count accepted images, not requests, so adaptive chunking cannot bypass the daily budget.

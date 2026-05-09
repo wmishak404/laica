@@ -19,7 +19,7 @@ Added dotenvx (AES-256-GCM) for encrypted secrets management so the app can run 
 | `CLAUDE.md` | Created — Claude Code project instructions with dotenvx workflow and local dev commands |
 | `AGENTS.md` | Created — Codex project instructions with same dotenvx and env var details |
 | `product-decisions/README.md` | Created — decision log framework with index and template guidance |
-| `product-decisions/001-secrets-management.md` | Created — documents dotenvx decision, alternatives considered, and GCP upgrade path |
+| `product-decisions/pd-001-secrets-management.md` | Created — documents dotenvx decision, alternatives considered, and GCP upgrade path |
 
 ## Impact on other agents
 

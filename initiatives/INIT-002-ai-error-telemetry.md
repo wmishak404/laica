@@ -13,7 +13,7 @@ INIT-002 sequences the operational AI error telemetry work formerly filed as [EF
 
 The work is phased so the redaction allowlist is locked before any rows write, and so the field shape is validated against real Replit traffic before committing to a schema:
 
-- Phase 0: INIT-002 hub, [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) redaction policy, active-list updates
+- Phase 0: INIT-002 hub, [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) redaction policy, active-list updates
 - Phase 1: Request-ID middleware + structured stdout logger + wire 9 AI route catch blocks (unblocked — EFFORT-018 merged via [#43](https://github.com/wmishak404/laica/pull/43))
 - Phase 2: Replit observation week — confirm field shape and classifier coverage against real failures
 - Phase 3: `ai_error_events` table + bounded fire-and-forget writer with circuit breaker
@@ -22,18 +22,18 @@ The work is phased so the redaction allowlist is locked before any rows write, a
 
 ## Current Status
 
-**Phase 0 merged** via [PR #41](https://github.com/wmishak404/laica/pull/41) at `cb94f28` on 2026-05-08. The INIT hub, former [EFFORT-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md), [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md), and active-list updates in CLAUDE.md / AGENTS.md / `efforts/` / `initiatives/` are now on `main`. No source code landed in Phase 0.
+**Phase 0 merged** via [PR #41](https://github.com/wmishak404/laica/pull/41) at `cb94f28` on 2026-05-08. The INIT hub, former [EFFORT-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md), [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and active-list updates in CLAUDE.md / AGENTS.md / `efforts/` / `initiatives/` are now on `main`. No source code landed in Phase 0.
 **Phase 1 is the next work.** Start from a fresh branch off `main`. Build a server-side `classifyAiError` mirroring EFFORT-018's taxonomy (400/401/403/404/413/429/5xx/network), a request-id middleware scoped to `/api/*`, and a structured stdout JSON logger; wire all three into the 9 AI route catch blocks. No DB persistence in Phase 1 — that's Phase 3 after a Replit observation week (Phase 2).
 
 ## Source Docs
 
 - [EFFORT-019 — AI error telemetry and eval monitoring](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md)
-- [PD-010 — AI error telemetry allowlist](../product-decisions/010-ai-error-telemetry-allowlist.md)
+- [PD-010 — AI error telemetry allowlist](../product-decisions/pd-010-ai-error-telemetry-allowlist.md)
 - [AI error handling and telemetry workflow](../docs/workflows/ai-error-handling-and-telemetry.md)
 - [EFFORT-018 — Authenticated AI error handling](../efforts/effort-018-authenticated-ai-error-handling.md) — `Resolved` 2026-05-07. Owns the **client-side** classifier (`ApiRequestError` in [`client/src/lib/rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts)) and the typed-error route payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 mirrors its taxonomy in a new server-side `classifyAiError` function
 - [EFFORT-010 — Local DB schema strategy](../efforts/effort-010-local-db-schema-strategy.md) — Replit-authoritative `db:push`; local agents do not push
-- [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md) — 90-day retention, redaction guidance, denylist
-- [PD-007 — Effort status and registry workflow](../product-decisions/007-effort-status-and-registry-workflow.md) — Effort status vocabulary and closeout workflow
+- [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md) — 90-day retention, redaction guidance, denylist
+- [PD-007 — Effort status and registry workflow](../product-decisions/pd-007-effort-status-and-registry-workflow.md) — Effort status vocabulary and closeout workflow
 - [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) — targeted Replit validation by drift vector; INIT-002 phases pick rows from its matrix instead of re-testing everything
 - [server/ai-privacy.ts](../server/ai-privacy.ts) — existing redaction utilities (`redactForAiLog`, `stripPromptMarkers`) reused as defense-in-depth
 
@@ -67,8 +67,8 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 | [EFFORT-018](../efforts/effort-018-authenticated-ai-error-handling.md) | `Resolved` 2026-05-07. Owns the client-side classifier and typed-error route payloads. INIT-002 Phase 1 mirrors its taxonomy in a server-side classifier |
 | [EFFORT-010](../efforts/effort-010-local-db-schema-strategy.md) | Replit-authoritative schema migration; gates Phase 3 `db:push` |
 | [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) | Acceptance criteria and validation evidence routing for merge readiness |
-| [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) | Redaction allowlist enforced at writer boundary |
-| [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md) | Retention and denylist baseline INIT-002 inherits |
+| [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) | Redaction allowlist enforced at writer boundary |
+| [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md) | Retention and denylist baseline INIT-002 inherits |
 
 ## Changes Added After Initial Plan
 
@@ -98,7 +98,7 @@ Phase-specific Replit validation focus areas selected from the [Replit Validatio
 4. Build:
    - `server/aiErrorClassifier.ts` — pure `classifyAiError(err, ctx)` returning `{ errorClass, errorCode, httpStatus, retryAfterSeconds, vendor }`. Mirror EFFORT-018's taxonomy. Wrap callers in try/catch with `unknown/500` fallback so a classifier bug never takes down a route.
    - `server/requestId.ts` — Express middleware scoped to `/api/*`. UUID v4 to `req.requestId`, set `X-Request-Id` response header. Always overwrite client-supplied value.
-   - `server/aiErrors.ts` — `logAiError(input)` that writes one JSON line to `console.error` with the [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) allowlist shape. No DB. Reuse [`server/ai-privacy.ts`](../server/ai-privacy.ts) `redactForAiLog` as defense-in-depth.
+   - `server/aiErrors.ts` — `logAiError(input)` that writes one JSON line to `console.error` with the [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) allowlist shape. No DB. Reuse [`server/ai-privacy.ts`](../server/ai-privacy.ts) `redactForAiLog` as defense-in-depth.
 5. Wire all three into the 9 AI route catch blocks in [`server/routes.ts`](../server/routes.ts): `/api/recipes/suggestions`, `/api/recipes/pantry`, `/api/recipes/slop-bowl`, `/api/cooking/steps`, `/api/cooking/assistance`, `/api/vision/analyze`, `/api/speech/synthesize`, `/api/speech/voices`, `/api/speech/transcribe`. Each catch adds ~3 lines.
 6. Tests: table-driven `tests/server/aiErrorClassifier.test.ts`; mocked-writer assertions in `tests/server/aiErrors.test.ts`.
 7. Validate locally (`npm run check`, `npm run build`, vitest, manual dotenvx dev-server smoke). Open PR with the [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) "Replit validation request" template citing the **AI provider routes**, **ElevenLabs speech routes**, and **Secrets** matrix rows.

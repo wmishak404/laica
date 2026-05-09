@@ -44,12 +44,12 @@ Monthly effort hygiene audit: from fresh origin/main, review efforts/README.md, 
 
 ## 2026-05-09 Cleanup Record
 
-The cleanup renamed `epics/` to `efforts/`, changed numbered filenames to `effort-###-...`, moved the durable workflow decision to [`PD-007`](../../product-decisions/007-effort-status-and-registry-workflow.md), and closed the stale/governance items Wilson groomed:
+The cleanup renamed `epics/` to `efforts/`, changed numbered filenames to `effort-###-...`, moved the durable workflow decision to [`PD-007`](../../product-decisions/pd-007-effort-status-and-registry-workflow.md), and closed the stale/governance items Wilson groomed:
 
 - EFFORT-004 closed because Mobile Refresh phases now own the full-row selection-control pattern.
 - EFFORT-005 closed into [`testing-and-acceptance.md`](testing-and-acceptance.md).
 - EFFORT-007 closed because scan no-detection feedback is part of INIT-001 scan behavior, not a standalone active Effort.
 - EFFORT-009 closed because the shared parser work shipped through Mobile Refresh phases.
 - EFFORT-016 closed because INIT-001 Phase 3.1 owns Slop Bowl visual redesign/polish.
-- EFFORT-019 closed into INIT-002, [`PD-010`](../../product-decisions/010-ai-error-telemetry-allowlist.md), and [`ai-error-handling-and-telemetry.md`](ai-error-handling-and-telemetry.md).
+- EFFORT-019 closed into INIT-002, [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [`ai-error-handling-and-telemetry.md`](ai-error-handling-and-telemetry.md).
 - EFFORT-020 closed into this audit workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), and PD-007.

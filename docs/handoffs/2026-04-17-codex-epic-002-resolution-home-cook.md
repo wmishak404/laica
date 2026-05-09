@@ -10,7 +10,7 @@ Recorded Wilson's final product decision for the remaining EFFORT-002 question: 
 The deciding rationale is that Cook is already disabled during the first-time-user experience until profile setup is complete, so the overlap concern does not justify navigation consolidation. With that decision captured in a durable product-decision doc and the Home Dashboard spec marked aspirational/deferred, EFFORT-002 can now be resolved.
 
 ## Changes
-- `product-decisions/006-home-and-cook-remain-separate.md`
+- `product-decisions/pd-006-home-and-cook-remain-separate.md`
   - New accepted product decision documenting that Home and Cook remain separate surfaces.
 - `product-decisions/README.md`
   - Added PD-006 to the index.

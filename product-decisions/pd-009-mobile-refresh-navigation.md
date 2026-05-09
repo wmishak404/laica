@@ -7,7 +7,7 @@
 **Type:** Product/UX
 **Scope:** Initiative
 **Applies when:** Changing authenticated entry, setup routing, Planning entry, bottom navigation, or authenticated app-shell chrome.
-**Supersedes:** [PD-006](006-home-and-cook-remain-separate.md)
+**Supersedes:** [PD-006](pd-006-home-and-cook-remain-separate.md)
 
 ## Related Initiatives
 
@@ -44,7 +44,7 @@ Consolidate the authenticated Home/Cook entry so users land directly where their
 
 ## Consequences
 
-- [PD-006](006-home-and-cook-remain-separate.md) is superseded.
+- [PD-006](pd-006-home-and-cook-remain-separate.md) is superseded.
 - Phase 1 implementation must update routing, bottom navigation, and onboarding gates together.
 - Any future "Home Dashboard" should be scoped as a new feature rather than reviving the old Home/Cook split by default.
 

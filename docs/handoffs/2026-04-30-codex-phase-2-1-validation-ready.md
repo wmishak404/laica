@@ -14,7 +14,7 @@ The branch should now be treated as implementation-complete for Phase 2.1 unless
 
 ## Changes
 
-- `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
   - Marks Phase 2.1 as `Validation Ready / Replit validation pending`.
   - Adds local gates, Replit prerequisites, Replit acceptance checklist, and merge acceptance criteria.
   - Records the visual acceptance checkpoint and durable setup design direction.
@@ -23,7 +23,7 @@ The branch should now be treated as implementation-complete for Phase 2.1 unless
   - Records Wilson's visual acceptance and the next validation steps.
 - `product-decisions/features/mobile-refresh/README.md`
   - Marks Phase 2.1 as `Validation Ready`.
-- `product-decisions/features/mobile-refresh/design-language.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
   - Adds the accepted Phase 2.1 setup pilot checkpoint for future Phase 3-5 consistency.
 - `efforts/effort-012-laica-design-language.md`
   - Records the accepted setup visual direction as the first concrete design-language pilot signal.
@@ -43,7 +43,7 @@ The branch should now be treated as implementation-complete for Phase 2.1 unless
 ## Open items
 
 - Pull the latest `codex/mobile-refresh-phase-2-1-setup-polish` branch into Replit.
-- Run the full Phase 2.1 Replit checklist now recorded in `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`.
+- Run the full Phase 2.1 Replit checklist now recorded in `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`.
 - Record `Last Replit-validated at: <commit-sha>` in the PR description and a follow-up handoff once validation passes.
 - Open the Phase 2.1 PR after validation state is recorded.
 

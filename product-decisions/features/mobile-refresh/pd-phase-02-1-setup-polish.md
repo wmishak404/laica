@@ -5,7 +5,7 @@
 **Phase owner:** Wilson
 **Date:** 2026-04-29
 **Initiative:** [INIT-001 - Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
-**Source phase:** [Phase 2 setup](phase-02-setup.md)
+**Source phase:** [Phase 2 setup](pd-phase-02-setup.md)
 **Mockup:** [phase-02-setup.png](../../../docs/assets/mobile-refresh/phase-02-setup.png)
 
 ## Goal
@@ -48,7 +48,7 @@ Accepted setup direction:
 - Cooking Skill and Dietary Restrictions use relevant multicolor illustration-style icons.
 - `No restrictions` is isolated from other dietary options.
 - Confirmation keeps its accepted structure while matching the illustration direction.
-- Authenticated app pages do not reintroduce the old persistent top header; account/profile/sign-out access lives in the menu surface per [PD-009](../../009-mobile-refresh-navigation.md).
+- Authenticated app pages do not reintroduce the old persistent top header; account/profile/sign-out access lives in the menu surface per [PD-009](../../pd-009-mobile-refresh-navigation.md).
 
 ## Validation State
 
@@ -84,7 +84,7 @@ Replit validation covered:
 
 ## Effort and Governance Interactions
 
-- [PD-005](../../005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Setup typography and visual utilities remain scoped and documented as a pilot, not a silent global primitive/font change.
+- [PD-005](../../pd-005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Setup typography and visual utilities remain scoped and documented as a pilot, not a silent global primitive/font change.
 - Full-row selection pattern: Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.1 is the feature-level acceptance pattern for combining local gates, Replit prerequisites, visual review, and merge acceptance.
 - Scan feedback: Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.

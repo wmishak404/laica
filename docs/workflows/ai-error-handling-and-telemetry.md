@@ -11,11 +11,11 @@ User-facing AI error handling belongs with the feature or route being changed. O
 | Need | Durable home |
 |---|---|
 | Active telemetry implementation phases | [`INIT-002`](../../initiatives/INIT-002-ai-error-telemetry.md) |
-| Redaction allowlist and forbidden fields | [`PD-010`](../../product-decisions/010-ai-error-telemetry-allowlist.md) |
+| Redaction allowlist and forbidden fields | [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md) |
 | Resolved authenticated-app error UX history | [`EFFORT-018`](../../efforts/effort-018-authenticated-ai-error-handling.md) |
 | Local DB/schema push boundaries | [`EFFORT-010`](../../efforts/effort-010-local-db-schema-strategy.md) |
 | Replit validation focus | [`replit-validation-focus.md`](replit-validation-focus.md) |
-| Mobile Refresh AI privacy baseline | [`cross-phase-ai-privacy.md`](../../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md) |
+| Mobile Refresh AI privacy baseline | [`pd-cross-phase-ai-privacy.md`](../../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md) |
 
 ## Agent Workflow
 

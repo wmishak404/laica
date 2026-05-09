@@ -11,7 +11,7 @@ Ship the automatic enforcement layer PD-005 graduates without — an ESLint rule
 
 ## Linked artifacts
 
-- [PD-005 — UI Governance Operating Model](../product-decisions/005-ui-governance.md) — the rules this Effort enforces
+- [PD-005 — UI Governance Operating Model](../product-decisions/pd-005-ui-governance.md) — the rules this Effort enforces
 - [`design_guidelines.md`](../design_guidelines.md) — the visual standard the PR template must cite
 - [EFFORT-001 (resolved)](effort-001-ui-governance.md) — historical context; this Effort closes the resolution criterion EFFORT-001 explicitly deferred ("enforcement mechanism shipped on `main`")
 - [EFFORT-016](effort-016-slop-bowl-hex-literal-cleanup.md) — companion pilot-surface cleanup so the new rule passes on existing code

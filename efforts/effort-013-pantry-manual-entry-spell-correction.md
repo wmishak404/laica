@@ -100,7 +100,7 @@ This Effort is `Resolved` when all of the following are true:
 ## Linked artifacts
 
 - [EFFORT-009 — Consistent comma-separated ingredient entry](effort-009-consistent-comma-separated-ingredient-entry.md)
-- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md)
+- [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md)
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 
 ## Chronology

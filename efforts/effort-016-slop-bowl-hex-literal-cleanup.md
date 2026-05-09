@@ -13,7 +13,7 @@ Stop tracking Slop Bowl design cleanup separately now that INIT-001 owns the red
 
 ## Linked artifacts
 
-- [PD-005 — UI Governance Operating Model](../product-decisions/005-ui-governance.md) — rule 1 (no hex literals when a token resolves to the same value)
+- [PD-005 — UI Governance Operating Model](../product-decisions/pd-005-ui-governance.md) — rule 1 (no hex literals when a token resolves to the same value)
 - [EFFORT-015](effort-015-ui-governance-enforcement.md) — the lint rule that will fail CI on these callsites once it lands
 - [EFFORT-001 (resolved)](effort-001-ui-governance.md) — original drift evidence; Slop Bowl was the canonical "tone-forward surface" test case
 

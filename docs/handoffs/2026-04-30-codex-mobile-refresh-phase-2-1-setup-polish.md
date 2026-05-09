@@ -29,7 +29,7 @@ Follow-up visual conformance pass: Wilson reviewed setup and said it still felt 
   - Adds optional `rejected`, `rejectionCode: "TEXT_ONLY_DOCUMENT"`, and `rejectionMessage` metadata while preserving existing `ingredients` / `equipment` arrays.
   - Prompts reject screenshots/documents/lists/receipts/menus/recipes/notes as inventory evidence while preserving physical product/tool labels.
   - Client setup/settings scan handlers avoid adding rejected results and route users to manual-entry guidance.
-- `product-decisions/features/mobile-refresh/design-language.md`, `initiatives/INIT-001-mobile-refresh.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`, `initiatives/INIT-001-mobile-refresh.md`
   - Record the setup-only typography pilot and the visual conformance resume point.
 - Tests added/updated for prompt rules, vision result normalization, camera-off default, welcome/back flow, and Cooking Skill auto-advance.
 

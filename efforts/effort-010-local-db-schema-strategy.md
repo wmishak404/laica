@@ -22,8 +22,8 @@ These were not Slop Bowl product bugs. They were local-environment drift: the co
 This local DB issue has been referenced before:
 
 - `docs/handoffs/2026-04-10-claude-slop-bowl-replit-merge.md`
-- `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`
-- `product-decisions/008-optional-context-and-local-validation-boundaries.md`
+- `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`
+- `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`
 
 Until this is resolved, local agents can waste time debugging environment drift instead of feature behavior.
 
@@ -86,8 +86,8 @@ This Effort is `Resolved` when all of the following are true:
 
 ## Linked artifacts
 
-- `product-decisions/008-optional-context-and-local-validation-boundaries.md`
-- `product-decisions/features/mobile-refresh/phase-05-post-cook.md`
+- `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`
+- `product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md`
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
 - `docs/adr/0001-replit-primary-local-agents.md`
 - `docs/handoffs/2026-04-10-claude-slop-bowl-replit-merge.md`

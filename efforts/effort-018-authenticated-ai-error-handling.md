@@ -82,7 +82,7 @@ Also read:
 
 - [EFFORT-005](effort-005-testing-strategy-and-acceptance-criteria.md)
 - [EFFORT-017](effort-017-environment-parity-and-ci-confidence.md) if the failure appears to be stale Replit build/cache/runtime drift
-- [product-decisions/005-ui-governance.md](../product-decisions/005-ui-governance.md) for safety/error tone
+- [product-decisions/pd-005-ui-governance.md](../product-decisions/pd-005-ui-governance.md) for safety/error tone
 
 ## Resolution criteria
 

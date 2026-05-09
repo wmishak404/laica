@@ -18,7 +18,7 @@ Created a new active epic for LAICA's target design language and visual identity
   - Added EFFORT-012 to the active list and registry.
 - `product-decisions/features/mobile-refresh/README.md`
   - Linked EFFORT-012 from the mobile-refresh design principles.
-- `product-decisions/features/mobile-refresh/phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md`
   - Added EFFORT-012 as an explicit Phase 2 interaction.
 - `AGENTS.md` and `CLAUDE.md`
   - Added EFFORT-012 to the current active epic read list for future agent work.

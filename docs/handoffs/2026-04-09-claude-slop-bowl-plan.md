@@ -150,8 +150,8 @@ interface SlopBowlInput {
 
 | File | What |
 |------|------|
-| `product-decisions/002-slop-bowl.md` | Created — Slop Bowl product decision |
-| `product-decisions/003-openai-model-strategy.md` | Created — model upgrade decision |
+| `product-decisions/pd-002-slop-bowl.md` | Created — Slop Bowl product decision |
+| `product-decisions/pd-003-openai-model-strategy.md` | Created — model upgrade decision |
 | `product-decisions/README.md` | Updated index |
 | `docs/handoffs/2026-04-09-claude-slop-bowl-plan.md` | This file |
 

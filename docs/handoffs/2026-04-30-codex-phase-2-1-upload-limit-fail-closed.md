@@ -25,11 +25,11 @@ Wilson's Replit functionality test surfaced the trust issue: if the user selects
 - `tests/unit/user-profiling.test.tsx`
   - Adds coverage for 9 pantry photos and 7 kitchen photos.
   - Verifies no vision analysis call is made for either oversized selection.
-- `product-decisions/features/mobile-refresh/phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md`
   - Records that over-cap setup uploads cancel the whole batch instead of partially processing.
-- `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`
   - Adds the Phase 2.1 accepted upload-limit behavior.
-- `product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`
+- `product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md`
   - Records fail-closed setup and Settings upload caps as a client-side privacy/trust behavior.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Updates current status, resume point, and chronology.

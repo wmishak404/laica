@@ -12,7 +12,7 @@ Implemented the Phase 2.2 bridge before Phase 3 so returning users can revisit P
 
 ## Changes
 
-- Added `product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md` with flow diagrams, storyboard reference, design gate, acceptance criteria, epic interactions, and deferrals.
+- Added `product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md` with flow diagrams, storyboard reference, design gate, acceptance criteria, epic interactions, and deferrals.
 - Added `docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg` as the visual conformance input for Menu, Settings, Pantry, Kitchen, Profile, History list, and future Phase 5 History detail.
 - Updated INIT-001, the mobile-refresh phase index, design-language notes, Phase 5 post-cook docs, and the relevant epic notes/registry entries.
 - Updated `/app` navigation so the bottom nav has Cook and Menu; Menu opens Settings, History, Feedback, and Account/Sign out.

@@ -10,7 +10,7 @@ Refined the Effort status workflow so new agent windows get a small active-work 
 
 ## Changes
 
-- Added `product-decisions/007-effort-status-and-registry-workflow.md` as the durable accepted workflow.
+- Added `product-decisions/pd-007-effort-status-and-registry-workflow.md` as the durable accepted workflow.
 - Added `efforts/registry.md` as the complete all-Effort index.
 - Slimmed `efforts/README.md` so it keeps the status model, active Effort read list, and a link to the full registry.
 - Updated `AGENTS.md` and `CLAUDE.md` to direct agents to `efforts/README.md` first and `efforts/registry.md` only when historical context is directly relevant.

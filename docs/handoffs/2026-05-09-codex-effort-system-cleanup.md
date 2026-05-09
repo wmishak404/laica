@@ -29,7 +29,8 @@ Renamed the former `epics/` system to `efforts/`, changed numbered filenames to 
 - `epics/` moved to `efforts/`; numbered files now use `effort-###-short-name.md`.
 - `efforts/README.md` now defines Efforts as standalone follow-up work and lists only EFFORT-010, 013, 014, and 015 as active.
 - `efforts/registry.md` records resolved dates and final signals for the closed items.
-- `product-decisions/007-effort-status-and-registry-workflow.md` replaces the old Epic workflow decision and records when not to create an Effort.
+- `product-decisions/pd-007-effort-status-and-registry-workflow.md` replaces the old Epic workflow decision and records when not to create an Effort.
+- Product-decision files now use a `pd-` filename prefix: top-level records use `pd-###-short-name.md`, and feature records use names such as `pd-phase-03-planning.md` or `pd-design-language.md`. README files remain folder indexes.
 - Added `docs/workflows/testing-and-acceptance.md`, `docs/workflows/ai-error-handling-and-telemetry.md`, and `docs/workflows/effort-system-audit.md`.
 - Updated `AGENTS.md`, `CLAUDE.md`, INIT-001, INIT-002, initiative registry, and related product/phase docs so active guidance points to Efforts, INITs, workflow docs, or PDs as appropriate.
 
@@ -41,6 +42,7 @@ Please review this branch before merge for:
 - Closeout rationale: EFFORT-004/007/009/016 should be safe to close under INIT-001 ownership; EFFORT-005/019/020 should be safe to close under workflow/INIT/PD ownership.
 - Link migration: source-of-truth docs should not point agents to `epics/` paths or closed Efforts as active read requirements.
 - Filename readability: numbered Effort files should all use `effort-###-...`.
+- Product-decision readability: product-decision and feature-record filenames should use the `pd-` prefix, while README files stay as folder indexes.
 - Active list narrowness: `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` should only list EFFORT-010, 013, 014, and 015 as active.
 
 ## Impact on other agents
@@ -60,3 +62,5 @@ Planned local docs checks:
 - Search for stale live `epics/` references.
 - Verify `efforts/README.md` active list excludes closed items.
 - Verify `efforts/registry.md` records resolved dates/final signals.
+- Search for stale product-decision filenames without the `pd-` prefix.
+- Resolve local Markdown links after the filename migration.

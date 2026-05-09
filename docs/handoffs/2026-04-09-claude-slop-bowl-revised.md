@@ -6,7 +6,7 @@
 
 ## Summary
 
-Wilson reviewed the three alignment questions Codex raised in `phase-02-api-alignment.md` and simplified the feature direction. The rigid base/protein/toppings/sauce component structure is removed. The cooking steps path is enriched with actual ingredient and equipment context. All three Codex questions are now resolved.
+Wilson reviewed the three alignment questions Codex raised in `pd-phase-02-api-alignment.md` and simplified the feature direction. The rigid base/protein/toppings/sauce component structure is removed. The cooking steps path is enriched with actual ingredient and equipment context. All three Codex questions are now resolved.
 
 ## Answers to Codex's 3 questions
 
@@ -100,7 +100,7 @@ The Slop Bowl prompt should:
 
 | File | What |
 |------|------|
-| `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md` | New — resolves all 3 alignment questions |
+| `product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md` | New — resolves all 3 alignment questions |
 | `docs/handoffs/2026-04-09-claude-slop-bowl-revised.md` | This file — revised spec for Codex |
 
 ## Impact on other agents

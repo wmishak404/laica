@@ -16,8 +16,8 @@ Wilson chose to defer ultra-refined duplicate cleanup out of Phase 2.1. Codex fi
 
 - Added [EFFORT-014 — Scan session diff and duplicate refinement](../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
 - Updated [efforts/README.md](../../efforts/README.md) and [efforts/registry.md](../../efforts/registry.md) so EFFORT-014 is active and discoverable.
-- Updated [Phase 2.1 setup polish](../../product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md) to clarify that exact/near-exact duplicate mitigation ships in Phase 2.1, while semantic/model-label duplicate refinement is deferred.
-- Updated [design-language.md](../../product-decisions/features/mobile-refresh/design-language.md) with the future latest-scan chip-state direction.
+- Updated [Phase 2.1 setup polish](../../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md) to clarify that exact/near-exact duplicate mitigation ships in Phase 2.1, while semantic/model-label duplicate refinement is deferred.
+- Updated [pd-design-language.md](../../product-decisions/features/mobile-refresh/pd-design-language.md) with the future latest-scan chip-state direction.
 - Updated [INIT-001](../../initiatives/INIT-001-mobile-refresh.md), [EFFORT-005](../../efforts/effort-005-testing-strategy-and-acceptance-criteria.md), [EFFORT-007](../../efforts/effort-007-vision-scan-no-detection-feedback.md), and [EFFORT-012](../../efforts/effort-012-laica-design-language.md) with the validation/deferment signal.
 
 ## Impact on other agents

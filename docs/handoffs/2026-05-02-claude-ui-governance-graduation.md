@@ -8,7 +8,7 @@
 
 ## Summary
 
-EFFORT-001 (UI Consistency & Design Governance) and EFFORT-012 (Laica Design Language & Visual Identity) graduated to durable artifacts. The four-month accumulation of governance rules moved into [`product-decisions/005-ui-governance.md`](../../product-decisions/005-ui-governance.md); visual identity, tokens, surface taxonomy, accepted Phase 2.1 + 2.2 directions, and the seven previously-open visual identity questions moved into [`design_guidelines.md`](../../design_guidelines.md) as the canonical living UI/design standard.
+EFFORT-001 (UI Consistency & Design Governance) and EFFORT-012 (Laica Design Language & Visual Identity) graduated to durable artifacts. The four-month accumulation of governance rules moved into [`product-decisions/pd-005-ui-governance.md`](../../product-decisions/pd-005-ui-governance.md); visual identity, tokens, surface taxonomy, accepted Phase 2.1 + 2.2 directions, and the seven previously-open visual identity questions moved into [`design_guidelines.md`](../../design_guidelines.md) as the canonical living UI/design standard.
 
 ## Reversal of the earlier deferral
 
@@ -24,7 +24,7 @@ Those examples were not a *gap* in the rubric — they were the rubric's last mi
 ## Changes
 
 ### New
-- [`product-decisions/005-ui-governance.md`](../../product-decisions/005-ui-governance.md) — operating model: 5 required rules + 3 recommended, primitive lock order (Button → Card → Input + Label, page-header primitive deferred), surface taxonomy, tone-override convention, coexistence-via-CVA rule, pilot-then-expand rollout, scoped-style reuse contract (rule 5, codifying the Phase 2.2 finding).
+- [`product-decisions/pd-005-ui-governance.md`](../../product-decisions/pd-005-ui-governance.md) — operating model: 5 required rules + 3 recommended, primitive lock order (Button → Card → Input + Label, page-header primitive deferred), surface taxonomy, tone-override convention, coexistence-via-CVA rule, pilot-then-expand rollout, scoped-style reuse contract (rule 5, codifying the Phase 2.2 finding).
 
 ### Rewritten
 - [`design_guidelines.md`](../../design_guidelines.md) — promoted from "current-implementation record" to canonical living standard. Visual identity (6 principles), tokens (color + typography + spacing), surface taxonomy, mockup conformance gate, accepted Phase 2.1 + 2.2 directions, "Open Visual Decisions" section absorbing EFFORT-012's 7 questions, anti-patterns, review checklist. References PD-005 for governance.
@@ -39,7 +39,7 @@ Those examples were not a *gap* in the rubric — they were the rubric's last mi
 - [`product-decisions/README.md`](../../product-decisions/README.md) — PD-005 added to taxonomy table.
 - [`AGENTS.md`](../../AGENTS.md) and [`CLAUDE.md`](../../CLAUDE.md) — new "UI governance" section above active Efforts list; 001 and 012 lines removed from active Efforts list.
 - [`initiatives/INIT-001-mobile-refresh.md`](../../initiatives/INIT-001-mobile-refresh.md) — Epics & Governance table column renamed `Reference`; PD-005 and design_guidelines.md replace EFFORT-001 / EFFORT-012 rows.
-- [`product-decisions/features/mobile-refresh/design-language.md`](../../product-decisions/features/mobile-refresh/design-language.md) — `Status: Superseded` banner pointing at design_guidelines.md. Retained as Phase 2.x design-language evidence.
+- [`product-decisions/features/mobile-refresh/pd-design-language.md`](../../product-decisions/features/mobile-refresh/pd-design-language.md) — `Status: Superseded` banner pointing at design_guidelines.md. Retained as Phase 2.x design-language evidence.
 
 ### Bundled (history preserved on main)
 - [`2026-05-01-codex-phase-2-2-governance-deferral.md`](2026-05-01-codex-phase-2-2-governance-deferral.md) — copied from `origin/codex/phase-2-2-governance-deferral-handoff`. Codex's original deferral argument with the 4 concrete drift examples.
@@ -47,7 +47,7 @@ Those examples were not a *gap* in the rubric — they were the rubric's last mi
 
 ## Impact on other agents
 
-- **UI work going forward.** Read [PD-005](../../product-decisions/005-ui-governance.md) and [`design_guidelines.md`](../../design_guidelines.md) before adding new pages, tone-forward components, hex-literal styling, primitive overrides, font/icon changes, or scoped-class reuse on a new wrapper. The triggers replicate the former EFFORT-001 / EFFORT-012 agent checklists.
+- **UI work going forward.** Read [PD-005](../../product-decisions/pd-005-ui-governance.md) and [`design_guidelines.md`](../../design_guidelines.md) before adding new pages, tone-forward components, hex-literal styling, primitive overrides, font/icon changes, or scoped-class reuse on a new wrapper. The triggers replicate the former EFFORT-001 / EFFORT-012 agent checklists.
 - **No active EFFORT-001 / EFFORT-012.** Don't append dated entries to those files. New design-language signal goes directly into `design_guidelines.md` — update the "Open Visual Decisions" section inline as Phase 3-5 evidence lands. New governance rules go into PD-005 by amendment or a follow-up PD.
 - **Enforcement mechanism still pending.** ESLint rule + PR-template gate is an open follow-up captured in PD-005. File a narrow active epic when work begins.
 - **Codex's local WIP backup.** The `/private/tmp/...` files Codex archived during the deferral were not used as input for PD-005. PD-005 was written fresh from EFFORT-001 source content. The WIP backup can be discarded if it has not already been claimed by `/private/tmp` cleanup.

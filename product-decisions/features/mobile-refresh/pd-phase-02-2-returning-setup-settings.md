@@ -34,7 +34,7 @@ Accepted durable outcomes:
 
 ## Design and UX Gate
 
-- Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../005-ui-governance.md), the full-row selection pattern established in setup, and the [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md).
+- Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../pd-005-ui-governance.md), the full-row selection pattern established in setup, and the [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md).
 - Treat the Phase 2.2 storyboard as an implementation input, not loose inspiration.
 - Settings should be utilitarian but still Laica-native: calm, mobile-first, touch-friendly, and not admin-like.
 - History should feel like cooking memory, not account configuration.
@@ -92,7 +92,7 @@ Accepted implementation guardrail:
 - Visual review must compare computed control shape, typography, icon size, active state, disabled state, and hierarchy against first-time setup whenever setup patterns are reused under a different root wrapper.
 - Future component extraction should move these setup/returning shared controls behind a small shared component layer so wrappers cannot silently diverge.
 
-This lesson is now codified in [PD-005](../../005-ui-governance.md) and [`design_guidelines.md`](../../../design_guidelines.md).
+This lesson is now codified in [PD-005](../../pd-005-ui-governance.md) and [`design_guidelines.md`](../../../design_guidelines.md).
 
 ## Validation State
 
@@ -124,7 +124,7 @@ Validated scope for PR #30:
 
 ## Effort and Governance Interactions
 
-- [PD-005](../../005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Phase 2.2 is a UI-governance pressure test for utilitarian but branded app surfaces.
+- [PD-005](../../pd-005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Phase 2.2 is a UI-governance pressure test for utilitarian but branded app surfaces.
 - Full-row selection pattern: Settings profile choices must keep full-row tap targets.
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.2 adds explicit acceptance and visual-review gates.
 - Scan feedback: Pantry/Kitchen scan outcome feedback remains explicit.

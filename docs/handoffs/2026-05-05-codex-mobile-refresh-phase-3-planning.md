@@ -55,7 +55,7 @@ Follow-up patch:
 - Initial correction made `client/src/pages/app.tsx` and `client/src/components/cooking/meal-planning.tsx` import `@assets/laica_logo_v1_cropped_1763444931884.png`; the later brand-mark restraint follow-up below removes visible logos from Phase 3 process screens.
 - `.planning-brand` text/pseudo-mark CSS was removed and replaced with `.planning-logo`.
 - `design_guidelines.md` now includes the canonical-logo guardrail and review checklist item.
-- `product-decisions/features/mobile-refresh/phase-03-planning.md` records this as Phase 3 implementation evidence.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md` records this as Phase 3 implementation evidence.
 
 ## 2026-05-05 time-slider geometry follow-up
 
@@ -115,8 +115,8 @@ Wilson's Replit screenshot review caught two linked problems on the suggestion s
 
 Root cause in the docs/context system:
 
-- `phase-03-planning.md` said generated recipe imagery was deferred.
-- `design_guidelines.md` and `design-language.md` said Ticket Pass should be a distinctive signature object, but they did not explicitly require Phase 3 to reserve stable image slots for a later imagery pass.
+- `pd-phase-03-planning.md` said generated recipe imagery was deferred.
+- `design_guidelines.md` and `pd-design-language.md` said Ticket Pass should be a distinctive signature object, but they did not explicitly require Phase 3 to reserve stable image slots for a later imagery pass.
 - Implementation treated the imagery deferral too broadly, so it avoided AI image generation but also failed to leave a durable place where generated images could hydrate.
 
 Follow-up patch:
@@ -124,8 +124,8 @@ Follow-up patch:
 - `client/src/components/cooking/meal-planning.tsx` now supports optional `imageUrl` on recipe suggestions and renders designed placeholders when no image is present.
 - Ticket Pass featured ticket, compact alternate tickets, and Prep Tray all reserve generated-image slots now.
 - `client/src/index.css` reshapes Ticket Pass into a stronger featured-ticket plus compact alternate-ticket stack, with stable image placeholders that can hydrate without layout shift.
-- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` now owns actual recipe imagery/illustration direction.
-- `design_guidelines.md`, `product-decisions/features/mobile-refresh/design-language.md`, and `phase-03-planning.md` now distinguish Phase 3 image placeholders from Phase 3.1 generated/illustrated recipe imagery.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md` now owns actual recipe imagery/illustration direction.
+- `design_guidelines.md`, `product-decisions/features/mobile-refresh/pd-design-language.md`, and `pd-phase-03-planning.md` now distinguish Phase 3 image placeholders from Phase 3.1 generated/illustrated recipe imagery.
 
 Speed guidance:
 
@@ -140,7 +140,7 @@ Follow-up patch:
 
 - `client/src/pages/app.tsx` no longer marks Cook/Menu bottom buttons as active based on the current phase.
 - `client/src/index.css` makes bottom nav buttons larger and neutral, with no coral selected pill.
-- `product-decisions/009-mobile-refresh-navigation.md` records the neutral bottom-nav rule: screen content communicates process status; bottom nav remains neutral access to Cook/Planning and Menu.
+- `product-decisions/pd-009-mobile-refresh-navigation.md` records the neutral bottom-nav rule: screen content communicates process status; bottom nav remains neutral access to Cook/Planning and Menu.
 
 ## 2026-05-05 Planning entry handwriting/Slop Bowl art follow-up
 
@@ -181,7 +181,7 @@ Wilson asked that the Phase 3 design-drift review be included in Phase 3.1 work 
 
 Follow-up docs patch:
 
-- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` now owns the drift inventory, root-cause notes, recommendations, and recipe imagery follow-up.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md` now owns the drift inventory, root-cause notes, recommendations, and recipe imagery follow-up.
 - `efforts/README.md` and `efforts/registry.md` do not list a Phase 3 drift epic.
 - `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md` now describe Phase 3.1 as the next design-drift plus imagery pass.
 
@@ -193,8 +193,8 @@ Wilson decided to stop Phase 3 visual iteration and close this phase on function
 
 Follow-up docs patch:
 
-- `product-decisions/features/mobile-refresh/phase-03-planning.md` now states that Phase 3 should not receive more visual changes unless an issue blocks functional validation or basic usability.
-- `product-decisions/features/mobile-refresh/phase-03-1-recipe-imagery.md` is reframed as design facelift plus recipe imagery.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md` now states that Phase 3 should not receive more visual changes unless an issue blocks functional validation or basic usability.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md` is reframed as design facelift plus recipe imagery.
 - `initiatives/INIT-001-mobile-refresh.md`, `initiatives/registry.md`, and the mobile-refresh phase index now point Phase 3.1 at the design facelift and imagery work.
 
 Phase 3 closeout should focus on authenticated Planning entry, Chef It Up time/cuisine, recipe generation, refresh suggestions, Ticket Pass selection, Prep Tray -> Cooking, Slop Bowl quick-add/remove, sparse-pantry guard, Slop Bowl generation, and Slop Bowl -> Edit pantry. Phase 3.1 should plan and implement whitespace/card grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
@@ -208,7 +208,7 @@ Follow-up patch:
 - `client/src/components/cooking/meal-planning.tsx` now renders the three recipe suggestions in generated order and expands the selected ticket in place.
 - The selected expanded ticket does not show a top selected-label; selection is communicated by stable in-place expansion.
 - Recipe names are display-split into a main title and smaller supporting detail only when the API returns explicit parenthetical or colon-separated detail. Normal dish names remain a single title, and the underlying `recipeName` remains unchanged.
-- `product-decisions/features/mobile-refresh/phase-03-planning.md` and `phase-03-1-recipe-imagery.md` record this as a Phase 3 basic-usability exception to the visual freeze.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md` and `pd-phase-03-1-recipe-imagery.md` record this as a Phase 3 basic-usability exception to the visual freeze.
 
 Replit validation should explicitly tap recipe 1, 2, and 3 and confirm the order stays stable while the selected ticket expands in its original position.
 

@@ -16,9 +16,9 @@ Claude's external review file was incorporated from:
 
 ## Changes
 
-- `product-decisions/009-mobile-refresh-navigation.md`
+- `product-decisions/pd-009-mobile-refresh-navigation.md`
   - New durable decision: mobile refresh removes the redundant authenticated Home step and routes users directly to Setup or Planning.
-- `product-decisions/006-home-and-cook-remain-separate.md`
+- `product-decisions/pd-006-home-and-cook-remain-separate.md`
   - Marked superseded by PD-009 while preserving historical context.
 - `product-decisions/README.md`
   - Indexed PD-009 and marked PD-006 as superseded.

@@ -59,7 +59,7 @@ Implementation should match the planning mockups closely enough that the first p
 
 - The selected ticket opens into a prep-tray detail view.
 - Detail view shows what LAICA will use, optional ingredients if around, and the primary Cook action.
-- Actual recipe imagery is deferred to [Phase 3.1](phase-03-1-recipe-imagery.md); it should not block the recipe-suggestion reveal when introduced later.
+- Actual recipe imagery is deferred to [Phase 3.1](pd-phase-03-1-recipe-imagery.md); it should not block the recipe-suggestion reveal when introduced later.
 
 ## Acceptance Criteria
 
@@ -145,12 +145,12 @@ Implemented locally:
 - Wilson's Replit screenshot review found that recipe suggestions still looked like generic full-width cards and had no stable place for the agreed future recipe imagery.
 - Root cause: the docs said "generated recipe imagery is deferred" but did not require Phase 3 to reserve stable image slots for the later imagery pass. Implementation interpreted the deferral too broadly and shipped generic stacked cards without a real place for generated images to land.
 - Ticket Pass and Prep Tray now reserve generated-image slots and render designed placeholders in Phase 3. The recipe object also accepts optional `imageUrl` so Phase 3.1 can hydrate generated/illustrated imagery without reshaping the UI.
-- The suggestion layout now uses a featured ticket with compact alternate tickets beneath it, closer to the `phase-03-ticket-pass.png` stack/selected-ticket visual model. Actual recipe imagery is tracked in [Phase 3.1](phase-03-1-recipe-imagery.md) and should be async/cached when introduced.
+- The suggestion layout now uses a featured ticket with compact alternate tickets beneath it, closer to the `phase-03-ticket-pass.png` stack/selected-ticket visual model. Actual recipe imagery is tracked in [Phase 3.1](pd-phase-03-1-recipe-imagery.md) and should be async/cached when introduced.
 
 2026-05-05 bottom-navigation follow-up:
 
 - Wilson's Replit screenshot review found the bottom nav made the chef icon look like a selected Cook status badge during Planning because of the coral active pill.
-- Per [PD-009](../../009-mobile-refresh-navigation.md), bottom navigation is now a neutral access surface, not a selected-state tab bar.
+- Per [PD-009](../../pd-009-mobile-refresh-navigation.md), bottom navigation is now a neutral access surface, not a selected-state tab bar.
 - Phase 3 removes the active-state fill from Cook/Menu and increases the icon touch target/visual weight so the menu feels neutral and easier to tap.
 
 2026-05-05 Planning entry handwriting/Slop Bowl art follow-up:
@@ -175,7 +175,7 @@ Implemented locally:
 2026-05-05 Phase 3.1 drift-scope follow-up:
 
 - Wilson asked that the Phase 3 design-drift review live inside Phase 3.1 rather than a standalone active Effort.
-- [Phase 3.1](phase-03-1-recipe-imagery.md) now owns the drift inventory, root-cause notes, recommendations, and real imagery follow-up.
+- [Phase 3.1](pd-phase-03-1-recipe-imagery.md) now owns the drift inventory, root-cause notes, recommendations, and real imagery follow-up.
 - Phase 3 remains responsible for the already-implemented placeholders and process-screen restraint; Phase 3.1 decides whether any remaining visual drift is fixed, accepted, or deferred before closeout.
 
 2026-05-06 Phase 3 visual-freeze / closeout boundary:
@@ -183,7 +183,7 @@ Implemented locally:
 - Wilson decided to stop Phase 3 visual iteration. Current Planning/Ticket/Prep visuals are functional scaffolding, not final design polish.
 - Phase 3 should close on functionality: routing, authenticated AI flows, planning-time persistence, Slop Bowl guard behavior, Ticket Pass selection, Prep Tray -> Cooking, and validation.
 - Do not make more Phase 3 visual changes unless an issue blocks functional validation or basic usability.
-- [Phase 3.1](phase-03-1-recipe-imagery.md) now owns the design facelift: whitespace, card/object grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
+- [Phase 3.1](pd-phase-03-1-recipe-imagery.md) now owns the design facelift: whitespace, card/object grammar, typography, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached recipe imagery.
 
 2026-05-06 Ticket Pass selection-orientation follow-up:
 
@@ -219,12 +219,12 @@ Implemented locally:
 
 - Phase 3 baseline Planning shipped through [PR #38](https://github.com/wmishak404/laica/pull/38), validated in Replit at `8a5c3d5`, and merged as `f1d17d8`.
 - The generation lock/cancel follow-up shipped through [PR #45](https://github.com/wmishak404/laica/pull/45), validated in Replit at `0c98a47`, and merged as `8892327`.
-- Phase 3 is functionally closed. Current Planning/Ticket/Prep visuals remain accepted as functional scaffolding under the visual-freeze decision, while [Phase 3.1](phase-03-1-recipe-imagery.md) owns the deliberate design facelift and async/cached recipe imagery pass.
+- Phase 3 is functionally closed. Current Planning/Ticket/Prep visuals remain accepted as functional scaffolding under the visual-freeze decision, while [Phase 3.1](pd-phase-03-1-recipe-imagery.md) owns the deliberate design facelift and async/cached recipe imagery pass.
 - Do not resume the merged Phase 3 branches. Start Phase 3.1 and Phase 4 work from fresh `origin/main`.
 
 2026-05-08 Phase 3.2 split and merge:
 
-- The richer progressive staple-check interaction is split to [Phase 3.2](phase-03-2-progressive-staples.md) instead of Phase 3.1. Phase 3.1 stays focused on the design facelift and recipe imagery.
+- The richer progressive staple-check interaction is split to [Phase 3.2](pd-phase-03-2-progressive-staples.md) instead of Phase 3.1. Phase 3.1 stays focused on the design facelift and recipe imagery.
 - Phase 3.2 shipped through [PR #46](https://github.com/wmishak404/laica/pull/46), validated in authenticated Replit/browser preview at `9646c80`, and merged as `b22f6b6`.
 - Phase 3.2 was able to land before Phase 3.1 because it is behavior/interaction polish on top of the merged PR #45 cancellation lock, not the broader visual facelift.
 - Phase 3.1 should preserve or intentionally restyle the shipped Phase 3.2 Added shelf / rolling queue when it updates the Chef It Up visual language.

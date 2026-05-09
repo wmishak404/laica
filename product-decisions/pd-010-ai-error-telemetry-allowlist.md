@@ -13,7 +13,7 @@
 
 [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) adds persistent telemetry for AI request failures so recurring patterns can be turned into eval cases, prompt fixes, product bugs, or infra tickets. Former [EFFORT-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md) is resolved as a standalone Effort and kept as history. The codebase today has no persistent error logging — every AI route catches errors, calls `console.error`, and returns a generic 500. Adding a generic JSONB error column would invite future callers to dump raw prompts, preferences, headers, images, audio, or auth payloads into it and discover the leak only after the fact.
 
-Mobile Refresh has already committed to strict AI privacy rules in [`product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`](features/mobile-refresh/cross-phase-ai-privacy.md): no raw tokens, emails, Firebase UIDs, image bytes, or audio bytes in `aiInteractions` rows; redact email-, token-, and Firebase-UID-shaped strings before persistence; 90-day retention. INIT-002 inherits those rules and tightens them for an *operational* error stream where no free-text content is ever required for triage.
+Mobile Refresh has already committed to strict AI privacy rules in [`product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md`](features/mobile-refresh/pd-cross-phase-ai-privacy.md): no raw tokens, emails, Firebase UIDs, image bytes, or audio bytes in `aiInteractions` rows; redact email-, token-, and Firebase-UID-shaped strings before persistence; 90-day retention. INIT-002 inherits those rules and tightens them for an *operational* error stream where no free-text content is ever required for triage.
 
 This decision locks the redaction policy *before* any row writes, which is a first-class acceptance criterion of INIT-002.
 
@@ -94,7 +94,7 @@ Phase 5 of [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) appends one
 
 ### Admin API exposure
 
-The admin endpoints under `/api/admin/ai-errors/*` may expose any allowlist field, including full exemplar rows. Because the allowlist guarantees no sensitive content exists in any column, exemplars are safe to render in summary and cluster responses. Admin endpoints are protected by the existing `X-Admin-Secret` middleware at [`server/admin-routes.ts:26-35`](../server/admin-routes.ts:26).
+The admin endpoints under `/api/admin/ai-errors/*` may expose any allowlist field, including full exemplar rows. Because the allowlist guarantees no sensitive content exists in any column, exemplars are safe to render in summary and cluster responses. Admin endpoints are protected by the existing `X-Admin-Secret` middleware in [`server/admin-routes.ts`](../server/admin-routes.ts).
 
 ### Feedback correlation (deferred)
 

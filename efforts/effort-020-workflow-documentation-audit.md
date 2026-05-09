@@ -65,12 +65,12 @@ Use this map as the starting point for the future audit. It records what we alre
 | Replit/local authority | `AGENTS.md`, `CLAUDE.md`, `docs/adr/0001-replit-primary-local-agents.md`, `docs/workflows/replit-validation-focus.md`, `docs/workflows/environment-parity-spec.md` | Multiple docs are valid but overlapping. Audit should clarify entrypoint vs reference docs. |
 | Branch stacking and validation SHA hygiene | `AGENTS.md`, `CLAUDE.md`, `docs/handoffs/README.md`, ADR-0001 | Rules exist and are working. Future workflow doc may just point to them rather than duplicate. |
 | Handoffs and PR descriptions | `docs/handoffs/README.md`, `AGENTS.md`, `CLAUDE.md` | Durable enough, but may need template alignment after testing workflow graduation. |
-| Product decisions and feature phase records | [PD-004](../product-decisions/004-feature-phase-records.md), `product-decisions/README.md`, `product-decisions/features/README.md` | Roles are mostly clear. Audit should ensure agents know phase docs own acceptance criteria. |
+| Product decisions and feature phase records | [PD-004](../product-decisions/pd-004-feature-phase-records.md), `product-decisions/README.md`, `product-decisions/features/README.md` | Roles are mostly clear. Audit should ensure agents know phase docs own acceptance criteria. |
 | INIT lifecycle | `initiatives/README.md`, `initiatives/registry.md`, `AGENTS.md`, `CLAUDE.md` | Rules are clear, but registry drift was found during Phase 3.2. Audit should add a drift check habit. |
-| Effort lifecycle | [PD-007](../product-decisions/007-effort-status-and-registry-workflow.md), `efforts/README.md`, `efforts/registry.md` | Rules are clear; future audits should use the closeout process captured in the Effort system audit workflow. |
-| UI governance and visual acceptance | [PD-005](../product-decisions/005-ui-governance.md), `design_guidelines.md`, feature phase records | This was already graduated out of active Efforts; do not re-open as an active Effort unless enforcement work changes. |
-| Secrets and local dev | [PD-001](../product-decisions/001-secrets-management.md), `AGENTS.md`, `CLAUDE.md`, ADR-0001 | Mostly documented. Environment parity work may still need sharper workflow entrypoints. |
-| Database schema workflow | [EFFORT-010](effort-010-local-db-schema-strategy.md), `docs/workflows/environment-parity-spec.md`, [PD-008](../product-decisions/008-optional-context-and-local-validation-boundaries.md) | Still active/open; keep schema workflow work with EFFORT-010 unless the audit only links to it. |
+| Effort lifecycle | [PD-007](../product-decisions/pd-007-effort-status-and-registry-workflow.md), `efforts/README.md`, `efforts/registry.md` | Rules are clear; future audits should use the closeout process captured in the Effort system audit workflow. |
+| UI governance and visual acceptance | [PD-005](../product-decisions/pd-005-ui-governance.md), `design_guidelines.md`, feature phase records | This was already graduated out of active Efforts; do not re-open as an active Effort unless enforcement work changes. |
+| Secrets and local dev | [PD-001](../product-decisions/pd-001-secrets-management.md), `AGENTS.md`, `CLAUDE.md`, ADR-0001 | Mostly documented. Environment parity work may still need sharper workflow entrypoints. |
+| Database schema workflow | [EFFORT-010](effort-010-local-db-schema-strategy.md), `docs/workflows/environment-parity-spec.md`, [PD-008](../product-decisions/pd-008-optional-context-and-local-validation-boundaries.md) | Still active/open; keep schema workflow work with EFFORT-010 unless the audit only links to it. |
 | Environment parity and CI confidence | [EFFORT-017](effort-017-environment-parity-and-ci-confidence.md), `docs/workflows/environment-parity-spec.md` | Deferred until after INIT-001; audit should not accidentally reactivate implementation scope. |
 
 ## Decisions made so far
@@ -123,10 +123,10 @@ This Effort is `Resolved` when all of the following are true:
 - [EFFORT-010 - Local database schema strategy](effort-010-local-db-schema-strategy.md)
 - [EFFORT-017 - Environment parity + CI confidence](effort-017-environment-parity-and-ci-confidence.md)
 - [EFFORT-021 - Scan upload photo limit policy](effort-021-scan-upload-photo-limit-policy.md)
-- [PD-004 - Feature Phase Decision Records](../product-decisions/004-feature-phase-records.md)
-- [PD-005 - UI Governance Operating Model](../product-decisions/005-ui-governance.md)
-- [PD-007 - Effort status and registry workflow](../product-decisions/007-effort-status-and-registry-workflow.md)
-- [PD-008 - Optional context and local validation boundaries](../product-decisions/008-optional-context-and-local-validation-boundaries.md)
+- [PD-004 - Feature Phase Decision Records](../product-decisions/pd-004-feature-phase-records.md)
+- [PD-005 - UI Governance Operating Model](../product-decisions/pd-005-ui-governance.md)
+- [PD-007 - Effort status and registry workflow](../product-decisions/pd-007-effort-status-and-registry-workflow.md)
+- [PD-008 - Optional context and local validation boundaries](../product-decisions/pd-008-optional-context-and-local-validation-boundaries.md)
 - [ADR-0001 - Replit-primary with local agent workflow](../docs/adr/0001-replit-primary-local-agents.md)
 - [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md)
 - [Environment Parity Spec](../docs/workflows/environment-parity-spec.md)
@@ -159,6 +159,6 @@ Wilson closed this standalone Effort because the audit findings now live in cent
 
 - [`docs/workflows/effort-system-audit.md`](../docs/workflows/effort-system-audit.md) records stale-status, active-list, and Effort closeout failure modes.
 - [`docs/workflows/testing-and-acceptance.md`](../docs/workflows/testing-and-acceptance.md) records validation ownership and Feature Impact Review.
-- [`PD-007`](../product-decisions/007-effort-status-and-registry-workflow.md) records what the Effort system is and when not to create one.
+- [`PD-007`](../product-decisions/pd-007-effort-status-and-registry-workflow.md) records what the Effort system is and when not to create one.
 
 Future reorganization of the planning-doc system should start from those docs instead of reopening this Effort.

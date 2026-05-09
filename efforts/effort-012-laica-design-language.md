@@ -6,7 +6,7 @@
 **Created:** 2026-04-29
 **Updated:** 2026-05-02
 **Resolved:** 2026-05-02
-**Superseded by:** [`design_guidelines.md`](../design_guidelines.md) — canonical living UI/design standard. Governance rules: [PD-005](../product-decisions/005-ui-governance.md).
+**Superseded by:** [`design_guidelines.md`](../design_guidelines.md) — canonical living UI/design standard. Governance rules: [PD-005](../product-decisions/pd-005-ui-governance.md).
 
 ## One-line summary
 
@@ -50,7 +50,7 @@ This Effort is distinct from `efforts/effort-001-ui-governance.md`:
 
 ## Decisions made so far
 
-- The draft mobile-refresh design-language artifact lives at `product-decisions/features/mobile-refresh/design-language.md`.
+- The draft mobile-refresh design-language artifact lives at `product-decisions/features/mobile-refresh/pd-design-language.md`.
 - The approved mobile-refresh mockups are design inputs, not mood boards.
 - Functional behavior alone is not enough for phase readiness when linked mockups exist.
 - Laica should feel warm, capable, food-native, mobile-native, and lightly playful without becoming childish or cluttered.
@@ -123,13 +123,13 @@ This Effort is `Resolved` when all of the following are true:
 
 ## Linked artifacts
 
-- `product-decisions/features/mobile-refresh/design-language.md` — draft target design language for mobile refresh
+- `product-decisions/features/mobile-refresh/pd-design-language.md` — draft target design language for mobile refresh
 - `design_guidelines.md` — current implementation record, not yet target identity
 - `efforts/effort-001-ui-governance.md` — consistency and enforcement companion Effort
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md` — validation companion Effort
 - `initiatives/INIT-001-mobile-refresh.md` — living Mobile Refresh initiative hub
 - `product-decisions/features/mobile-refresh/README.md` — mobile-refresh phase index and mockup conformance gate
-- `product-decisions/features/mobile-refresh/phase-02-setup.md` — first active correction point
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md` — first active correction point
 - `docs/handoffs/2026-04-29-codex-mobile-refresh-ui-conformance-plan.md`
 
 ## Chronology
@@ -140,7 +140,7 @@ Wilson clarified that "design principles" means more than UX principles: Laica n
 
 ### 2026-04-29 — Draft mobile-refresh design language added
 
-Codex added `product-decisions/features/mobile-refresh/design-language.md` as the first concrete design-language artifact. It is draft-status and intended to guide Phase 2 setup polish immediately while keeping final typography, palette, motif, and imagery decisions open for Wilson review.
+Codex added `product-decisions/features/mobile-refresh/pd-design-language.md` as the first concrete design-language artifact. It is draft-status and intended to guide Phase 2 setup polish immediately while keeping final typography, palette, motif, and imagery decisions open for Wilson review.
 
 ### 2026-04-29 — Phase 2 privacy and trust feedback added
 
@@ -170,7 +170,7 @@ This does not resolve EFFORT-012 yet because Phase 2.1 still needs full Replit f
 
 ### 2026-04-30 — Future scan-session chip states identified
 
-Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language signal: Pantry/Equipment chips may need visual state for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should probably use a different hue or lightweight indicator so users can understand overlap and clean up duplicate-like entries without a heavy review screen. The detailed product work is tracked in [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md), while the design-language note is captured in `product-decisions/features/mobile-refresh/design-language.md`.
+Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language signal: Pantry/Equipment chips may need visual state for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should probably use a different hue or lightweight indicator so users can understand overlap and clean up duplicate-like entries without a heavy review screen. The detailed product work is tracked in [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md), while the design-language note is captured in `product-decisions/features/mobile-refresh/pd-design-language.md`.
 
 ### 2026-05-01 — Phase 2.1 setup pilot merged
 
@@ -198,7 +198,7 @@ PR #30 merged Phase 2.2 into `main` after Replit validation at `dc59796ae1602af4
 
 ### 2026-05-02 — Resolved; graduated to design_guidelines.md
 
-The visual identity, tokens, surface taxonomy, accepted Phase 2.1 + 2.2 directions, mockup conformance gate, anti-patterns, and review checklist have moved into [`design_guidelines.md`](../design_guidelines.md) as the canonical living UI/design standard. Governance enforcement lives in [PD-005](../product-decisions/005-ui-governance.md).
+The visual identity, tokens, surface taxonomy, accepted Phase 2.1 + 2.2 directions, mockup conformance gate, anti-patterns, and review checklist have moved into [`design_guidelines.md`](../design_guidelines.md) as the canonical living UI/design standard. Governance enforcement lives in [PD-005](../product-decisions/pd-005-ui-governance.md).
 
 The seven open identity questions (typography globalization, palette refinement, canonical motifs, playfulness by surface, imagery approach, mockup hardness, scan-session chip states) are now an "Open Visual Decisions" section inside `design_guidelines.md` and will be edited inline as Phase 3-5 lands evidence — no separate active Effort is needed unless one grows into its own multi-phase concern.
 

@@ -19,7 +19,7 @@ Wilson merged PR #23 and deleted the remote feature branch. This closeout record
 
 ## Next Scope
 
-Start Phase 2.1 from fresh `origin/main` and use `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md` as the scope. PR #24 remains superseded by Phase 2.1.
+Start Phase 2.1 from fresh `origin/main` and use `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md` as the scope. PR #24 remains superseded by Phase 2.1.
 
 ## Verification
 

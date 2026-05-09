@@ -21,7 +21,7 @@ The branch was rebased onto `origin/main` after PR #40 merged. PR #40 is `bc242a
 - `server/rate-limit.ts`: returns typed `429` body `{ code: "RATE_LIMITED", message }` while preserving `Retry-After`.
 - `server/routes.ts`: returns typed `400` payloads for AI route Zod failures, `PREFERENCES_TOO_LONG` for preference length violations, and typed `5xx` AI service payloads.
 - Copy pass updates adjacent user-facing errors to first-person/plain-English phrasing and `Laica` casing.
-- `product-decisions/features/mobile-refresh/phase-04-cooking.md`: records Phase 4 ownership of live-cooking inline retry/recovery and inline Feedback placement.
+- `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`: records Phase 4 ownership of live-cooking inline retry/recovery and inline Feedback placement.
 - `efforts/effort-018-authenticated-ai-error-handling.md`: updates EFFORT-018 scope, decisions, copy principles, and telemetry deferral.
 - `efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md`: new separate epic for redacted operational AI error telemetry/evals.
 - `efforts/effort-007-vision-scan-no-detection-feedback.md`, `efforts/README.md`, `efforts/registry.md`, and `initiatives/INIT-001-mobile-refresh.md`: update active epic/initiative context.

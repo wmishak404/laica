@@ -1,6 +1,6 @@
 # Laica — Design Guidelines
 
-> **Status: canonical living standard.** Visual identity, tokens, surface posture, and mockup-conformance expectations live here. Governance rules (token enforcement, primitive lock order, tone-override convention, scoped-style reuse contract) live in [PD-005](product-decisions/005-ui-governance.md). Historical context: [EPIC-001](epics/001-ui-governance.md) (resolved) and [EPIC-012](epics/012-laica-design-language.md) (resolved).
+> **Status: canonical living standard.** Visual identity, tokens, surface posture, and mockup-conformance expectations live here. Governance rules (token enforcement, primitive lock order, tone-override convention, scoped-style reuse contract) live in [PD-005](product-decisions/pd-005-ui-governance.md). Historical context: [EPIC-001](efforts/effort-001-ui-governance.md) (resolved) and [EPIC-012](efforts/effort-012-laica-design-language.md) (resolved).
 
 ## Visual Identity
 
@@ -159,7 +159,7 @@ These are the unresolved identity questions. Edit this section inline as Phase 3
 4. **Playfulness by surface.** How playful Laica should feel by surface type (setup vs Planning vs Cooking vs Settings vs errors vs empty states).
 5. **Imagery approach.** Current signal: Ticket Pass reserves an image slot with a Phase 3 placeholder; actual recipe illustration/generated imagery belongs to Phase 3.1 and should be async/cached if generated.
 6. **Mockup hardness.** Which mockup elements are hard requirements vs directional examples.
-7. **Future scan-session chip states.** How `new from latest scan` / `already saved/found again` / normal saved inventory differentiate visually without creating a noisy third design system. Product work in [EPIC-014](epics/014-scan-session-diff-and-duplicate-refinement.md).
+7. **Future scan-session chip states.** How `new from latest scan` / `already saved/found again` / normal saved inventory differentiate visually without creating a noisy third design system. Product work in [EFFORT-014](efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
 
 ## Anti-patterns
 

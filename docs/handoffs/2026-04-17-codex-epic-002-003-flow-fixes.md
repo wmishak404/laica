@@ -27,7 +27,7 @@ For EFFORT-003, the Slop Bowl pantry-check screen now supports inline remove/add
   - Marked the epic `Resolved` and linked the implementation outcome.
 - `efforts/README.md` and `AGENTS.md`
   - Updated the repo-level open-epic indexes so EFFORT-003 is no longer advertised as an open required-read item.
-- `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`
+- `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`
   - Added a dated revision note explaining how EFFORT-003 narrowed and superseded the original read-only pantry-check decision.
 
 ## Impact on other agents

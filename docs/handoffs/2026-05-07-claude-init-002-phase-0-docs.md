@@ -17,7 +17,7 @@ The driving constraint from EFFORT-019: persistent failure logging must be allow
 **Created:**
 - `efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md` — the implementation epic. Mirrors the structure Wilson pasted with INIT-002 / PD-010 cross-references, working answers to the open questions, and a 2026-05-07 promotion note.
 - `initiatives/INIT-002-ai-error-telemetry.md` — INIT hub mirroring INIT-001 structure. Documents Phase 0 in progress, Phase 1 blocked on EFFORT-018, and the resume point.
-- `product-decisions/010-ai-error-telemetry-allowlist.md` — durable redaction policy. Allowlist (with rationale per field), explicit denylist, retention (90 days, matching mobile-refresh AI privacy), `auth_user_id` deletion behavior (FK with `ON DELETE SET NULL`), cluster→action triage table, alternatives considered, and consequences.
+- `product-decisions/pd-010-ai-error-telemetry-allowlist.md` — durable redaction policy. Allowlist (with rationale per field), explicit denylist, retention (90 days, matching mobile-refresh AI privacy), `auth_user_id` deletion behavior (FK with `ON DELETE SET NULL`), cluster→action triage table, alternatives considered, and consequences.
 
 **Modified:**
 - `initiatives/registry.md` — added INIT-002 row.

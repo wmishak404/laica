@@ -18,7 +18,7 @@ None in this handoff — it's a request, not a completion.
 
 **Context on `claude/slop-bowl-ui`** (HEAD `9c92f3e`, ready for integration test against `codex/slop-bowl-api`):
 
-- Planning-choice screen introduces **two new card styles** — one playful (tilted, gradient, falling-ingredient animation, rotating sticker), one standard. Details in `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`.
+- Planning-choice screen introduces **two new card styles** — one playful (tilted, gradient, falling-ingredient animation, rotating sticker), one standard. Details in `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`.
 - Primitives used: shadcn/ui `Card`, `CardContent`, `Button` (variants: default + outline). No custom primitives introduced.
 - Custom tokens in use: hardcoded `#FF6B6B` coral accent (appears ~6 times in `app.tsx` + `slop-bowl.tsx`), custom Tailwind gradient classes, custom keyframes in `client/src/index.css` (`slop-ingredient-fall`, `slop-wobble`).
 - Typography: `text-lg` / `text-xs` for card titles and taglines. Emoji-as-iconography (`🥣`, `👨‍🍳`, `👩‍🍳`) instead of lucide icons where the tone warranted it.

@@ -45,8 +45,8 @@ Recommended UX for scan cognitive load:
 - `CLAUDE.md`
 - `initiatives/INIT-001-mobile-refresh.md`
 - `initiatives/registry.md`
-- `product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md`
-- `product-decisions/features/mobile-refresh/design-language.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
 - `efforts/effort-001-ui-governance.md`
 - `efforts/effort-004-selection-controls-tap-targets.md`
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`

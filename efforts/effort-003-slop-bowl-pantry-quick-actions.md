@@ -41,7 +41,7 @@ In `client/src/components/cooking/slop-bowl.tsx`:
     pantryOverride,
     ...
   ```
-  This maps to the server's `POST /api/recipes/slop-bowl` body shape documented in `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md:58` (`pantryOverride?: string[]`) and in Codex's API contract. **The override path is already fully wired end-to-end** — it's just never populated today.
+  This maps to the server's `POST /api/recipes/slop-bowl` body shape documented in `product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md:58` (`pantryOverride?: string[]`) and in Codex's API contract. **The override path is already fully wired end-to-end** — it's just never populated today.
 
 ### Why this matters
 
@@ -89,7 +89,7 @@ Claude's lean: **Ephemeral** for v1 because the API is already there and it matc
 
 ### 2. Does this partially revise Phase-04 Decision #7?
 
-The Slop Bowl phase-04 implementation-polish doc (`product-decisions/features/slop-bowl/phase-04-implementation-polish.md`) records a decision to keep the pantry-check screen read-only, with a single "Edit pantry in profile" escape hatch. That decision was made in the context of shipping Phase 3 cleanly and avoiding scope creep.
+The Slop Bowl phase-04 implementation-polish doc (`product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`) records a decision to keep the pantry-check screen read-only, with a single "Edit pantry in profile" escape hatch. That decision was made in the context of shipping Phase 3 cleanly and avoiding scope creep.
 
 This Effort **revises** that decision for the remove/add case specifically: inline edits are now in scope, but with the ephemeral-only semantics above so we don't reopen the question of whether Slop Bowl should also write to the permanent pantry. The "Edit pantry in profile" button stays for camera / bulk / permanent operations.
 
@@ -139,8 +139,8 @@ This Effort is `Resolved` when all of the following are true:
 
 - `client/src/components/cooking/slop-bowl.tsx` — `renderPantryCheck` at lines 158–215; `generateBowl` at line 99 with existing `pantryOverride` param
 - `client/src/lib/openai.ts:169` — `fetchSlopBowlRecipe` request type already includes `pantryOverride?: string[]`
-- `product-decisions/features/slop-bowl/phase-03-simplified-bowl.md:58` — API contract documenting `pantryOverride?: string[]`
-- `product-decisions/features/slop-bowl/phase-04-implementation-polish.md` — the read-only-pantry decision that this Effort partially revises
+- `product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md:58` — API contract documenting `pantryOverride?: string[]`
+- `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md` — the read-only-pantry decision that this Effort partially revises
 - `docs/handoffs/2026-04-10-claude-slop-bowl-ui-ready.md` — confirms client-server contract alignment (no server changes needed)
 - `docs/handoffs/2026-04-17-codex-Effort-002-003-flow-fixes.md` — implementation handoff for the resolved quick-actions work
 - `docs/handoffs/2026-04-17-codex-Effort-002-003-validation.md` — follow-up handoff recording validation/test confirmation
@@ -162,7 +162,7 @@ Codex implemented the pantry-check quick actions in `client/src/components/cooki
 - Quick edits are stored in ephemeral local state only, then passed through `pantryOverride` when generating or regenerating a bowl
 - The existing **Edit pantry in profile** button remains for camera features, bulk edits, and permanent pantry changes
 
-Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EFFORT-003` note in `product-decisions/features/slop-bowl/phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
+Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EFFORT-003` note in `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
 
 ## 2026-04-17 — Validated/tested after implementation
 

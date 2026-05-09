@@ -14,12 +14,12 @@ This spec is intentionally exhaustive. It defines what “parity” means for LA
 LAICA currently relies on:
 
 - Replit as the authoritative runtime, secrets store, database, and deployment environment (`AGENTS.md`, `docs/adr/0001-replit-primary-local-agents.md`).
-- Local macOS worktrees for faster editing and compile/build checks, with optional full local runtime via dotenvx (`product-decisions/001-secrets-management.md`).
+- Local macOS worktrees for faster editing and compile/build checks, with optional full local runtime via dotenvx (`product-decisions/pd-001-secrets-management.md`).
 
 This is a workable workflow, but “workable” is not “parity”. Drift has already shown up in practice:
 
-- Local database schema drift created false negatives/positives during feature validation (`product-decisions/008-optional-context-and-local-validation-boundaries.md`, `efforts/effort-010-local-db-schema-strategy.md`).
-- Local agent browser environments struggle with Firebase popup auth automation, creating a validation gap (`product-decisions/features/mobile-refresh/dev-test-harness.md`).
+- Local database schema drift created false negatives/positives during feature validation (`product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`, `efforts/effort-010-local-db-schema-strategy.md`).
+- Local agent browser environments struggle with Firebase popup auth automation, creating a validation gap (`product-decisions/features/mobile-refresh/pd-dev-test-harness.md`).
 - Local runtime version drift is possible even when the repo contains a pin (Replit pins Node via `.replit`; local pin via `.nvmrc` is advisory unless enforced).
 - `.replit` currently runs dotenvx even though several workflow docs say Replit doesn’t need dotenvx, creating a “two sources of secrets truth” ambiguity.
 
@@ -106,7 +106,7 @@ Replit ports behavior and autoscale constraints are documented here:
 
 ### 2.4 Secrets + dotenvx
 
-- Secrets decision: encrypted `.env` is committed; `.env.keys` is not committed (`product-decisions/001-secrets-management.md`, `.gitignore`).
+- Secrets decision: encrypted `.env` is committed; `.env.keys` is not committed (`product-decisions/pd-001-secrets-management.md`, `.gitignore`).
 - Local full dev command is documented as `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` (`AGENTS.md`, `CLAUDE.md`).
 - Replit secrets are documented as injected via Replit Secrets tab (`AGENTS.md`).
 - However, Replit workflow currently runs dotenvx anyway (`.replit` workflow task runs `npx --yes @dotenvx/dotenvx run -- npm run dev`).
@@ -189,7 +189,7 @@ Why patch-level matters:
 1. Both environments run against a DB with the same schema version (Drizzle schema parity).
 2. Schema migrations/push policy is explicit (who can run `db:push`, and against which DB).
 3. Optional-context behavior is consistent across environments, per PD-008:
-   - optional reads degrade gracefully; required persistence fails loudly (`product-decisions/008-optional-context-and-local-validation-boundaries.md`).
+   - optional reads degrade gracefully; required persistence fails loudly (`product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`).
 
 ### 3.5 Auth invariants
 
@@ -441,7 +441,7 @@ Revisit when:
 ### D6 — Authenticated test automation gap (Replit vs local)
 
 **Current facts (provenance):**
-- Agents cannot reliably drive Google popup sign-in in local in-app browser; this gap is documented (`product-decisions/features/mobile-refresh/dev-test-harness.md`).
+- Agents cannot reliably drive Google popup sign-in in local in-app browser; this gap is documented (`product-decisions/features/mobile-refresh/pd-dev-test-harness.md`).
 - The accepted direction rejects a backend auth bypass as the default and prefers a dev-only Firebase custom token lane.
 
 **Options:**
@@ -695,7 +695,7 @@ AI features are costly and non-deterministic; parity means:
 
 Provenance:
 - `server/openai.ts`
-- AI privacy policy: `product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`
+- AI privacy policy: `product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md`
 
 ---
 

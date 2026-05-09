@@ -15,8 +15,8 @@ This closeout updates the living docs from fresh `origin/main` so the repo no lo
 ## Changes
 
 - Updated `initiatives/INIT-001-mobile-refresh.md` so Phase 2.1 is marked merged and the resume point moves to Phase 3 Planning kickoff.
-- Updated `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md` with the PR #27 merge closeout and final validation state.
-- Updated `product-decisions/features/mobile-refresh/README.md` and `design-language.md` so Phase 2.1 is recorded as the merged setup visual pilot.
+- Updated `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md` with the PR #27 merge closeout and final validation state.
+- Updated `product-decisions/features/mobile-refresh/README.md` and `pd-design-language.md` so Phase 2.1 is recorded as the merged setup visual pilot.
 - Added dated EFFORT-005, EFFORT-007, and EFFORT-012 notes with the merge signal.
 - Updated `efforts/registry.md` with the latest signal for EFFORT-005, EFFORT-007, and EFFORT-012.
 

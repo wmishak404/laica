@@ -33,8 +33,8 @@ The closeout will not start mid-phase. It will only run from clean `main` so the
 
 When triggered, the closeout branch produces:
 
-- A candidate `product-decisions/005-ui-governance.md` carrying EFFORT-001's 4 require/recommend rules, primitive lock order, tone-override surface taxonomy, coexistence rule, rollout model, and the 10-item agent checklist (now 11 with Codex's 2026-05-01 scoped-class addition).
-- A rewrite or supersedence plan for root `design_guidelines.md` — either absorbing the accepted parts of `product-decisions/features/mobile-refresh/design-language.md`, or marking the root file as superseded by a new top-level design-language PD.
+- A candidate `product-decisions/pd-005-ui-governance.md` carrying EFFORT-001's 4 require/recommend rules, primitive lock order, tone-override surface taxonomy, coexistence rule, rollout model, and the 10-item agent checklist (now 11 with Codex's 2026-05-01 scoped-class addition).
+- A rewrite or supersedence plan for root `design_guidelines.md` — either absorbing the accepted parts of `product-decisions/features/mobile-refresh/pd-design-language.md`, or marking the root file as superseded by a new top-level design-language PD.
 - A decision on EFFORT-012's seven open identity questions — either resolved into the new artifact or split into narrower active Efforts with explicit ownership.
 - Resolution banners on `efforts/effort-001-ui-governance.md` and `efforts/effort-012-laica-design-language.md` with dated pointers to the new PD and design-language artifact.
 - A coordinated update to AGENTS.md, CLAUDE.md, INIT-001, and the epic / PD index files in the same PR. No partial migration — partial migration leaves agents reading dead links.

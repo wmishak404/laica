@@ -18,7 +18,7 @@ Captured Wilson's Step 3 setup feedback: Cooking Skill is a single-choice input,
 
 ## Docs Updated
 
-- `product-decisions/features/mobile-refresh/phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md`
 - `efforts/effort-004-selection-controls-tap-targets.md`
 - `initiatives/INIT-001-mobile-refresh.md`
 

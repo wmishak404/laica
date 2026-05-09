@@ -13,13 +13,13 @@ Added a feature-phase decision layer under `product-decisions/` so active work l
 | File | What |
 |------|------|
 | `product-decisions/README.md` | Expanded the decision-tree guidance and indexed Slop Bowl + the new feature-phase model |
-| `product-decisions/002-slop-bowl.md` | Added the accepted Slop Bowl product decision to this branch |
-| `product-decisions/003-openai-model-strategy.md` | Added the accepted model-strategy decision to this branch |
-| `product-decisions/004-feature-phase-records.md` | Added the decision that active features use phase-based decision records |
+| `product-decisions/pd-002-slop-bowl.md` | Added the accepted Slop Bowl product decision to this branch |
+| `product-decisions/pd-003-openai-model-strategy.md` | Added the accepted model-strategy decision to this branch |
+| `product-decisions/pd-004-feature-phase-records.md` | Added the decision that active features use phase-based decision records |
 | `product-decisions/features/README.md` | Documented the feature-phase subtree convention |
 | `product-decisions/features/slop-bowl/README.md` | Added the Slop Bowl phase index |
-| `product-decisions/features/slop-bowl/phase-01-product-direction.md` | Recorded the accepted phase-1 product decisions |
-| `product-decisions/features/slop-bowl/phase-02-api-alignment.md` | Recorded accepted API/model decisions plus open alignment questions |
+| `product-decisions/features/slop-bowl/pd-phase-01-product-direction.md` | Recorded the accepted phase-1 product decisions |
+| `product-decisions/features/slop-bowl/pd-phase-02-api-alignment.md` | Recorded accepted API/model decisions plus open alignment questions |
 | `AGENTS.md` | Updated workflow guidance so agents know to use feature-phase records for active features |
 
 ## Impact on other agents
@@ -27,7 +27,7 @@ Added a feature-phase decision layer under `product-decisions/` so active work l
 - **Claude:** Please use `product-decisions/features/slop-bowl/` as the durable working log for the feature going forward.
 - Keep using `docs/handoffs/` for branch-specific coordination, review replies, and next steps.
 - When a Slop Bowl decision becomes fully settled and worth keeping easy to find later, promote or update the matching top-level `PD-xxx`.
-- The three current API-alignment questions are captured in `product-decisions/features/slop-bowl/phase-02-api-alignment.md`.
+- The three current API-alignment questions are captured in `product-decisions/features/slop-bowl/pd-phase-02-api-alignment.md`.
 
 ## Open items
 

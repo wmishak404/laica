@@ -10,7 +10,7 @@ Implemented EFFORT-008 so Slop Bowl no longer tries to generate from a 1-2 ingre
 
 This work cites EFFORT-005 because it adds acceptance criteria for a core cooking-flow edge case. It also preserves EFFORT-003's ephemeral pantry-edit model: quick add/remove still only affects the current bowl unless the user edits their profile.
 
-Follow-up policy from localhost validation is now captured in `product-decisions/008-optional-context-and-local-validation-boundaries.md`: sparse-pantry checks are core product behavior, while recent cooking history is optional context that can degrade gracefully with warnings.
+Follow-up policy from localhost validation is now captured in `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`: sparse-pantry checks are core product behavior, while recent cooking history is optional context that can degrade gracefully with warnings.
 
 ## Changes
 
@@ -21,7 +21,7 @@ Follow-up policy from localhost validation is now captured in `product-decisions
 - `server/routes.ts` — added a server-side distinct-ingredient guard that returns HTTP `422` with `code: "SLOP_BOWL_TOO_FEW_INGREDIENTS"` before OpenAI is called.
 - `server/routes.ts` — follow-up local validation fix: recent cooking sessions are now best-effort for profile load and Slop Bowl generation, so a stale local DB history schema does not block the current cooking flow.
 - `client/src/pages/app.tsx` — follow-up validation fix: app-level `userProfile` now syncs after `/api/user/profile` refetches, so settings pantry saves/reset updates are reflected when returning to Slop Bowl.
-- `product-decisions/008-optional-context-and-local-validation-boundaries.md` — durable policy for optional context, local validation boundaries, and production-safe graceful degradation.
+- `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md` — durable policy for optional context, local validation boundaries, and production-safe graceful degradation.
 - `tests/unit/slop-bowl-route.test.ts` — route-contract test proving the server returns typed `422 SLOP_BOWL_TOO_FEW_INGREDIENTS` before history lookup or OpenAI when a sparse pantry request bypasses the UI.
 
 ## Impact on other agents

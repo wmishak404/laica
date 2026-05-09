@@ -80,9 +80,9 @@ This Effort is `Resolved` when all of the following are true:
 - `client/src/components/cooking/slop-bowl.tsx`
 - `client/src/components/cooking/user-settings.tsx`
 - `client/src/components/cooking/user-profiling.tsx`
-- `product-decisions/features/mobile-refresh/phase-02-setup.md`
-- `product-decisions/features/mobile-refresh/phase-03-planning.md`
-- `product-decisions/features/mobile-refresh/phase-05-post-cook.md`
+- `product-decisions/features/mobile-refresh/pd-phase-02-setup.md`
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md`
+- `product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md`
 - `efforts/effort-003-slop-bowl-pantry-quick-actions.md`
 - `efforts/effort-008-slop-bowl-sparse-pantry-guard.md`
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`

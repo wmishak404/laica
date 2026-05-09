@@ -18,7 +18,7 @@ The existing home is [EFFORT-017](../../efforts/effort-017-environment-parity-an
   - Added the Phase 3.2 authenticated browser-smoke gap.
   - Recorded blockers: Firebase Google sign-in, deterministic test users/data, DB assertions/reset, live provider cost/flakiness, and the need to distinguish code-verified from browser-verified validation.
   - Added Chef It Up progressive staples as a candidate high-value smoke journey.
-- `product-decisions/features/mobile-refresh/dev-test-harness.md`
+- `product-decisions/features/mobile-refresh/pd-dev-test-harness.md`
   - Added a concrete Phase 3.2 Chef It Up smoke target for the future dev-test harness.
   - Preserves the accepted direction: dev-only Firebase custom-token or emulator-backed lane, not a backend auth bypass.
 - `efforts/registry.md`

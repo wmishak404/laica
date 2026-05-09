@@ -60,7 +60,7 @@ Claude should use the current EFFORT-001 and EFFORT-012 files as active sources 
 2. If validation passes, update only Phase 2.2 validation/closeout docs with the validated SHA.
 3. Merge Phase 2.2.
 4. Start Phase 3 from fresh `origin/main` after Phase 2.2 merges.
-5. Do not commit `product-decisions/005-ui-governance.md`, resolve EFFORT-001/012, or rewrite `design_guidelines.md` on the Phase 2.2 branch.
+5. Do not commit `product-decisions/pd-005-ui-governance.md`, resolve EFFORT-001/012, or rewrite `design_guidelines.md` on the Phase 2.2 branch.
 
 ## What to tell Claude
 

@@ -38,7 +38,7 @@ They are **agent-coordination artifacts**, not GitHub Issues and not bug reports
 | `Deferred` | Intentionally parked for later, with no current action expected | Do not treat as active unless the work directly reopens the area |
 | `Resolved` | Closed/completed, superseded by a better home, or accepted as no longer needed | Use as history; do not include in the active read list |
 
-Durable workflow decision: [`PD-007`](../product-decisions/007-effort-status-and-registry-workflow.md).
+Durable workflow decision: [`PD-007`](../product-decisions/pd-007-effort-status-and-registry-workflow.md).
 
 ## Relationship to other planning docs
 

@@ -17,8 +17,8 @@ Last Replit-validated at: `dc59796ae1602af4643c5fc640be47ab19a59e04`.
 - Updated `initiatives/INIT-001-mobile-refresh.md` so Phase 2.2 is marked merged and the resume point moves to Phase 3 Planning kickoff.
 - Updated `initiatives/registry.md` with the Phase 3 resume signal.
 - Updated `product-decisions/features/mobile-refresh/README.md` so Phase 2.2 is recorded as merged and Phase 3 starts from the refreshed Settings/History IA.
-- Updated `product-decisions/features/mobile-refresh/phase-02-2-returning-setup-settings.md` with the PR #30 merge closeout and final validation state.
-- Updated `product-decisions/features/mobile-refresh/design-language.md` to record Phase 2.2 as an accepted returning-user visual proof point.
+- Updated `product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md` with the PR #30 merge closeout and final validation state.
+- Updated `product-decisions/features/mobile-refresh/pd-design-language.md` to record Phase 2.2 as an accepted returning-user visual proof point.
 - Added dated EFFORT-001, EFFORT-005, and EFFORT-012 notes with the merge signal.
 - Updated `efforts/registry.md` with the latest signals for EFFORT-001, EFFORT-005, and EFFORT-012.
 

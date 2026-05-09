@@ -43,7 +43,7 @@ The application utilizes a full-stack architecture with distinct client and serv
 -   **Cooking History**: A dedicated tab displays chronological cooking history with recipe details and delete functionality.
 
 ### Secrets Management
-Secrets are managed with `dotenvx` for cross-environment portability, decrypting `.env` files at runtime using a `DOTENV_PRIVATE_KEY`. Full rationale in `product-decisions/001-secrets-management.md`.
+Secrets are managed with `dotenvx` for cross-environment portability, decrypting `.env` files at runtime using a `DOTENV_PRIVATE_KEY`. Full rationale in `product-decisions/pd-001-secrets-management.md`.
 
 ### Required Environment Variables
 -   `DATABASE_URL` — Neon PostgreSQL connection string (required, crashes without it).

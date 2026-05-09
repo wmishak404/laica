@@ -10,7 +10,7 @@ Created the first concrete LAICA mobile-refresh design-language draft so EFFORT-
 
 ## Changes
 
-- `product-decisions/features/mobile-refresh/design-language.md`
+- `product-decisions/features/mobile-refresh/pd-design-language.md`
   - New draft target design-language artifact.
   - Defines LAICA positioning, core principles, annotated visual exemplars, color/type/shape/icon/imagery/motion direction, surface taxonomy, phase guidance, and a visual review checklist.
 - `product-decisions/features/mobile-refresh/README.md`

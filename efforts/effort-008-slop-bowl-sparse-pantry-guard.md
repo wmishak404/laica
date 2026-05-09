@@ -80,7 +80,7 @@ This Effort is `Resolved` when all of the following are true:
 - `client/src/components/cooking/slop-bowl.tsx`
 - `client/src/lib/openai.ts`
 - `server/routes.ts`
-- `product-decisions/008-optional-context-and-local-validation-boundaries.md`
+- `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`
 - `efforts/effort-003-slop-bowl-pantry-quick-actions.md`
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
 
@@ -95,7 +95,7 @@ Codex implemented the first sparse-pantry guard pass on `codex/slop-bowl-sparse-
 
 Local verification passed with `npm run check` and `npm run build`. Replit/manual service-backed validation remains before this Effort should be marked `Resolved`.
 
-The local-vs-production fallback policy that came out of this work is now captured in `product-decisions/008-optional-context-and-local-validation-boundaries.md`.
+The local-vs-production fallback policy that came out of this work is now captured in `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`.
 
 ## 2026-04-27 — Replit validation signal
 

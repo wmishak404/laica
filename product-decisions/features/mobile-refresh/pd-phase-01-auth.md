@@ -21,7 +21,7 @@ Make the first screen feel like a native mobile app instead of a desktop website
   - incomplete or first-time user -> Setup
   - complete user -> Planning
 - Remove the authenticated Home tab as a redundant step.
-- This phase implements [PD-009](../../009-mobile-refresh-navigation.md), which supersedes [PD-006](../../006-home-and-cook-remain-separate.md).
+- This phase implements [PD-009](../../pd-009-mobile-refresh-navigation.md), which supersedes [PD-006](../../pd-006-home-and-cook-remain-separate.md).
 
 ## Acceptance Criteria
 

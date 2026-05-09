@@ -15,14 +15,14 @@ This is docs-only. Runtime Pantry/Kitchen scan limits remain unchanged until EFF
 ## Changes
 
 - `efforts/effort-021-scan-upload-photo-limit-policy.md`: active epic for implementing the accepted Pantry/Kitchen scan limit policy.
-- `product-decisions/011-scan-upload-photo-limit-policy.md`: durable accepted policy for scan capacity, batching, chunking, rate limits, counting semantics, partial success, progress, and scan-specific messaging.
+- `product-decisions/pd-011-scan-upload-photo-limit-policy.md`: durable accepted policy for scan capacity, batching, chunking, rate limits, counting semantics, partial success, progress, and scan-specific messaging.
 - `product-decisions/README.md`: added PD-011 to the top-level Product / UX table.
 - `efforts/README.md`: active read list keeps EFFORT-020 workflow audit and adds EFFORT-021 scan upload policy.
 - `efforts/registry.md`: registry keeps EFFORT-020 workflow audit and adds EFFORT-021 with the accepted-policy signal.
 - `efforts/effort-020-workflow-documentation-audit.md`: records that Feature Impact Review/system-touchpoint checklists belong in the future central testing/acceptance workflow and should not become a separate process epic.
 - `initiatives/INIT-001-mobile-refresh.md`: links PD-011 and EFFORT-021 as mobile-refresh scan-capacity follow-ups.
-- `product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md`: supersedes the historical 8/6/4 scan-cap notes with the PD-011 capacity policy.
-- `product-decisions/features/mobile-refresh/phase-05-post-cook.md`: notes that optional post-cook rescans inherit PD-011 unless Phase 5 documents an exception.
+- `product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md`: supersedes the historical 8/6/4 scan-cap notes with the PD-011 capacity policy.
+- `product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md`: notes that optional post-cook rescans inherit PD-011 unless Phase 5 documents an exception.
 - `AGENTS.md` and `CLAUDE.md`: add EFFORT-021 to active epic read triggers for scan-capacity work.
 
 ## Accepted policy

@@ -248,7 +248,7 @@ The mobile-refresh records in `product-decisions/features/mobile-refresh/` inclu
 
 ### 2026-04-29 — Phase 2 exposes authenticated smoke automation gap
 
-PR #23 validation showed that deterministic Replit checks can pass while authenticated UI smoke still depends on a human completing Google sign-in. Wilson and Codex agreed not to bypass Google auth for Phase 2. The planned mobile-refresh [dev-test harness](../product-decisions/features/mobile-refresh/dev-test-harness.md) records the preferred future direction: dev-only Firebase custom-token auth, deterministic test users, and hybrid fixture/live-service smoke. This is new evidence for the testing strategy, not a resolution of this Effort.
+PR #23 validation showed that deterministic Replit checks can pass while authenticated UI smoke still depends on a human completing Google sign-in. Wilson and Codex agreed not to bypass Google auth for Phase 2. The planned mobile-refresh [dev-test harness](../product-decisions/features/mobile-refresh/pd-dev-test-harness.md) records the preferred future direction: dev-only Firebase custom-token auth, deterministic test users, and hybrid fixture/live-service smoke. This is new evidence for the testing strategy, not a resolution of this Effort.
 
 ### 2026-04-29 — Phase 2 exposes visual acceptance gap
 
@@ -256,7 +256,7 @@ Wilson's PR #23 walkthrough also showed that a deterministic green run can still
 
 ### 2026-04-30 — Phase 2.1 uses a consolidated phase validation checklist
 
-After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated local gates, Replit prerequisites, Replit acceptance items, and merge acceptance into `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`. This is a useful feature-level pattern for carrying acceptance criteria from product notes into Replit validation and PR handoffs, but it does not replace the still-needed app-wide validation matrix for this Effort.
+After Wilson accepted the Phase 2.1 setup visual direction, Codex consolidated local gates, Replit prerequisites, Replit acceptance items, and merge acceptance into `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`. This is a useful feature-level pattern for carrying acceptance criteria from product notes into Replit validation and PR handoffs, but it does not replace the still-needed app-wide validation matrix for this Effort.
 
 ### 2026-04-30 — Phase 2.1 validation feedback tightened acceptance granularity
 

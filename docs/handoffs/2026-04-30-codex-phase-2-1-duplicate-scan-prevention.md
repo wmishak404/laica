@@ -16,7 +16,7 @@ Wilson's mobile Phase 2.1 smoke found that setup generally worked and disposable
 - `client/src/components/cooking/user-profiling.tsx` uses that metadata so setup scans add only genuinely new Pantry/Kitchen labels, show `Already saved` for duplicate-only scans, and mention skipped already-saved items in mixed scans.
 - `client/src/components/cooking/user-settings.tsx` uses the same duplicate-aware scan handling so later profile edits do not relearn a different behavior.
 - `tests/unit/entry-parsing.test.ts` and `tests/unit/user-profiling.test.tsx` cover duplicate-key normalization plus duplicate-only and mixed duplicate/new setup scan behavior.
-- `initiatives/INIT-001-mobile-refresh.md`, `product-decisions/features/mobile-refresh/phase-02-1-setup-polish.md`, `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`, and `efforts/effort-007-vision-scan-no-detection-feedback.md` record the mobile finding, accepted behavior, and reduced retest focus.
+- `initiatives/INIT-001-mobile-refresh.md`, `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md`, `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`, and `efforts/effort-007-vision-scan-no-detection-feedback.md` record the mobile finding, accepted behavior, and reduced retest focus.
 
 ## Impact on other agents
 

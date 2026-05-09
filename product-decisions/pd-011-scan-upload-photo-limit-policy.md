@@ -78,7 +78,7 @@ These are directional examples, not final string locks.
 
 ## Privacy and telemetry constraints
 
-This policy inherits [PD-010](010-ai-error-telemetry-allowlist.md). Scan telemetry may use `image_count` as an aggregate count only. Do not log or persist raw images, image bytes, filenames, EXIF data, base64 payloads, detected labels, or per-image content in AI error telemetry, stdout JSON logs, admin APIs, or handoffs.
+This policy inherits [PD-010](pd-010-ai-error-telemetry-allowlist.md). Scan telemetry may use `image_count` as an aggregate count only. Do not log or persist raw images, image bytes, filenames, EXIF data, base64 payloads, detected labels, or per-image content in AI error telemetry, stdout JSON logs, admin APIs, or handoffs.
 
 ## Rationale
 

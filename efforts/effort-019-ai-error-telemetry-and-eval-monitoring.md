@@ -47,7 +47,7 @@ Out of scope:
 - Free-text user preferences are PII-adjacent. Store derived metrics and redacted classifications, not raw text.
 - Feedback correlation should be optional and added deliberately after the Feedback data path is reviewed.
 - The work is phased and tracked under [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md): docs/policy first, stdout logs next, DB persistence and admin APIs last. Phase 1 is gated on EFFORT-018 merging so the typed-error route helper and classifier are stable before INIT-002 wires them in.
-- The redaction allowlist is a durable accepted decision recorded at [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md).
+- The redaction allowlist is a durable accepted decision recorded at [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md).
 
 ## Open questions
 
@@ -74,16 +74,16 @@ Read this Effort before:
 Also read:
 
 - [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) for the active phase, validation state, and current resume point.
-- [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md) for the redaction allowlist enforced in code.
+- [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) for the redaction allowlist enforced in code.
 - [EFFORT-010](effort-010-local-db-schema-strategy.md) before changing schema or migrations.
 - [EFFORT-018](effort-018-authenticated-ai-error-handling.md) for the user-facing classifier and error taxonomy.
-- [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/cross-phase-ai-privacy.md).
+- [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md).
 
 ## Resolution criteria
 
 This Effort can be resolved when all of the following are true:
 
-1. A documented allowlist/redaction policy exists ([PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md)) and is enforced in code at the writer boundary.
+1. A documented allowlist/redaction policy exists ([PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md)) and is enforced in code at the writer boundary.
 2. AI failure events persist to a dedicated table without raw prompts, preferences, headers, auth tokens, images, audio, cookies, or arbitrary payload blobs.
 3. Protected admin APIs can summarize, list, and inspect redacted failure events.
 4. The system records enough route/feature/status/code/error-class signal to prioritize fixes.
@@ -96,7 +96,7 @@ Filed after Wilson asked to keep authenticated AI error copy and no-redirect beh
 
 ## 2026-05-07 — Promoted to INIT-002
 
-Wilson confirmed the work is phased (stdout logs → real-traffic observation → DB persistence → admin APIs → cluster→action triage) and asked to file it as [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md). Phase 0 created the INIT hub, [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md), and active-list updates. Phase 1 (request-id middleware + stdout structured logger + 9 AI routes) is gated on EFFORT-018 merging.
+Wilson confirmed the work is phased (stdout logs → real-traffic observation → DB persistence → admin APIs → cluster→action triage) and asked to file it as [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md). Phase 0 created the INIT hub, [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and active-list updates. Phase 1 (request-id middleware + stdout structured logger + 9 AI routes) is gated on EFFORT-018 merging.
 
 ## 2026-05-09 - Effort status audit
 
@@ -104,6 +104,6 @@ Status changed from `Open` to `In Progress`. Phase 0 has merged on `main` throug
 
 ## 2026-05-09 — Resolved
 
-Wilson closed this standalone Effort because AI error telemetry is now owned by [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md), the redaction decision in [PD-010](../product-decisions/010-ai-error-telemetry-allowlist.md), and [`docs/workflows/ai-error-handling-and-telemetry.md`](../docs/workflows/ai-error-handling-and-telemetry.md). The implementation is still active, but it should be tracked as initiative phases rather than a parallel Effort.
+Wilson closed this standalone Effort because AI error telemetry is now owned by [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md), the redaction decision in [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [`docs/workflows/ai-error-handling-and-telemetry.md`](../docs/workflows/ai-error-handling-and-telemetry.md). The implementation is still active, but it should be tracked as initiative phases rather than a parallel Effort.
 
 Future telemetry changes should update INIT-002 and PD-010 first, then use this file only for history.
