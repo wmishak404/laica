@@ -103,7 +103,7 @@ describe('MobileApp planning choice pantry status', () => {
   it('shows the empty-pantry status line on the planning choice screen', async () => {
     await renderPlanningChoice(makeProfile({ pantryIngredients: [] }));
 
-    expect(screen.getByText('Your pantry is empty. Add or scan pantry items before Chef It Up can suggest recipes.')).toBeTruthy();
+    expect(screen.getByText('Your pantry is empty. Please add or scan more items.')).toBeTruthy();
   });
 
   it('shows the pantry count status line with pluralization', async () => {

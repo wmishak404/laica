@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { ToastAction } from '@/components/ui/toast';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
-import { ArrowRight, Bell, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
+import { ArrowRight, ChefHat, History, Info, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
 import {
   DEFAULT_PLANNING_TIME_VALUE,
   PLANNING_TIME_STORAGE_KEY,
@@ -57,7 +57,7 @@ const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined)
 // screen is shown so the card alternates representation.
 const CHEF_EMOJIS = ['👨‍🍳', '👩‍🍳'];
 export const EMPTY_PANTRY_RECIPE_COPY = 'Add or scan pantry items before I can suggest recipes.';
-export const EMPTY_PANTRY_CHEF_IT_UP_COPY = 'Your pantry is empty. Add or scan pantry items before Chef It Up can suggest recipes.';
+export const EMPTY_PANTRY_CHEF_IT_UP_COPY = 'Your pantry is empty. Please add or scan more items.';
 
 export function getPlanningPantryStatusCopy(pantryItemCount: number) {
   if (pantryItemCount <= 0) {
@@ -475,7 +475,7 @@ export default function MobileApp() {
             What are we cooking today?
           </h2>
           <div className="mt-2 flex max-w-sm items-start gap-2">
-            <Bell className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--planning-ink)/0.78)]" aria-hidden="true" />
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--planning-coral))]" aria-hidden="true" />
             <p className="planning-choice-copy !mt-0 flex-1">
               {planningPantryStatusCopy}
             </p>
