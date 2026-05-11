@@ -37,9 +37,21 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
    - If the work is already done, resolve it and document the accepted outcome in the appropriate closed INIT phase / chronology location.
    - If the work is not done but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch, then resolve the Effort into that phase-owned work.
    - If the work does not clearly belong to a specific unclosed INIT phase, keep it as an Effort even when it is adjacent to initiative work. Add cross-references instead of forcing it into the INIT.
-5. Update `AGENTS.md`, `CLAUDE.md`, INITs, PDs, workflow docs, the Efforts README, and registry if the source of truth changes.
+5. Update `AGENTS.md`, `CLAUDE.md`, `initiatives/registry.md`, relevant INITs, relevant PDs/workflow docs, the Efforts README, and the Effort registry if the source of truth changes.
 6. Write a handoff with what changed, why it changed, remaining active Efforts, and verification.
 7. Ask Claude for peer review through the PR/handoff path when the taxonomy or closeout rationale is non-trivial.
+
+## Cross-Reference Docs
+
+Use these docs deliberately during the audit instead of relying on a generic folder sweep:
+
+- [`../workflows/effort-system-audit.md`](effort-system-audit.md) for the audit steps, failure modes, and closure acceptance criteria.
+- [`../workflows/testing-and-acceptance.md`](testing-and-acceptance.md) when an Effort carries validation workflow, merge-readiness, or acceptance-criteria content that may belong in the shared testing workflow instead.
+- [`../../product-decisions/pd-007-effort-status-and-registry-workflow.md`](../../product-decisions/pd-007-effort-status-and-registry-workflow.md) when deciding whether something should remain an Effort at all or graduate into a PD/workflow/INIT.
+- [`../../product-decisions/README.md`](../../product-decisions/README.md) when the likely durable home is a top-level PD or feature-phase record rather than an Effort.
+- [`../../initiatives/registry.md`](../../initiatives/registry.md) plus the relevant active INIT file when initiative phase ownership, current phase, or last-signal text may need to change.
+- [`../../AGENTS.md`](../../AGENTS.md) and [`../../CLAUDE.md`](../../CLAUDE.md) when the active Effort read list or planning-doc workflow rules need to stay in sync.
+- Domain-specific source docs already linked from the Effort or INIT when those are the likely durable home for the remaining signal.
 
 ## Closure Acceptance Criteria
 
@@ -70,7 +82,7 @@ Before closing or repointing an Effort, use this checklist:
 Use this in the Codex Automations menu for a recurring docs-only hygiene check:
 
 ```text
-Weekly effort hygiene audit: from fresh origin/main, review efforts/README.md, efforts/registry.md, active INITs, product-decisions/README.md, and docs/workflows/. For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, naturally belongs to a specific unclosed phase inside an active INIT, or should graduate into a PD/workflow doc. Check whether the work has actually been addressed in the past before closing it. Apply the closure acceptance criteria in `docs/workflows/effort-system-audit.md`: shipped vs unshipped must be explicit; one specific unclosed phase must clearly own remaining scope; the receiving phase/INIT must be updated in the same branch; resume point and discoverability must stay obvious; and cross-surface work should stay as an Effort if no single unclosed phase truly owns it. If the work is already shipped, resolve it and document the accepted outcome in the appropriate closed INIT phase/chronology location. If the work is not shipped but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch and resolve the Effort into that phase-owned work. If no specific unclosed INIT phase naturally owns it, keep it as an Effort even if the initiative is adjacent. Add or refresh plain-English summaries, update the registry/read lists, and write a handoff. Do not change runtime code. Open a docs-only PR and request Claude peer review before merge.
+Weekly effort hygiene audit: from fresh origin/main, review efforts/README.md, efforts/registry.md, initiatives/registry.md, active INITs, product-decisions/README.md, product-decisions/pd-007-effort-status-and-registry-workflow.md, docs/workflows/effort-system-audit.md, and docs/workflows/testing-and-acceptance.md. Open any domain-specific PD/workflow already linked from an active Effort when that is the likely durable home. For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, naturally belongs to a specific unclosed phase inside an active INIT, or should graduate into a PD/workflow doc. Check whether the work has actually been addressed in the past before closing it. Apply the closure acceptance criteria in `docs/workflows/effort-system-audit.md`: shipped vs unshipped must be explicit; one specific unclosed phase must clearly own remaining scope; the receiving phase/INIT must be updated in the same branch; resume point and discoverability must stay obvious; and cross-surface work should stay as an Effort if no single unclosed phase truly owns it. If the work is already shipped, resolve it and document the accepted outcome in the appropriate closed INIT phase/chronology location. If the work is not shipped but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch and resolve the Effort into that phase-owned work. If no specific unclosed INIT phase naturally owns it, keep it as an Effort even if the initiative is adjacent. Add or refresh plain-English summaries, update the registry/read lists, sync AGENTS.md / CLAUDE.md when the active list changes, and write a handoff. Do not change runtime code. Open a docs-only PR and request Claude peer review before merge.
 ```
 
 ## 2026-05-09 Cleanup Record

@@ -16,6 +16,7 @@ Ran the weekly docs-only Effort hygiene pass from fresh `origin/main`. After Wil
 - Updated `efforts/README.md`, `efforts/registry.md`, `AGENTS.md`, and `CLAUDE.md` so the active list again includes `EFFORT-013` and `EFFORT-014`.
 - Updated `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md` so the INIT stays aware of these Efforts without claiming them as owned phase work yet.
 - Updated `docs/workflows/effort-system-audit.md` so the recurring automation prompt now requires an acceptance check before closing an Effort into an INIT: does it naturally belong to a specific unclosed phase, and has the work actually been addressed already?
+- Tightened that workflow again so the automation explicitly reviews `initiatives/registry.md`, `product-decisions/pd-007-effort-status-and-registry-workflow.md`, and `docs/workflows/testing-and-acceptance.md`, plus any domain-specific source docs that are the likely durable home.
 - Cleaned two resolved-history notes (`effort-007`, `effort-012`) that still described `EFFORT-014` as active.
 
 ## Claude Review Checklist
@@ -26,6 +27,7 @@ Please review this branch before merge for:
 - Active-list accuracy: `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` should again list `EFFORT-010`, `EFFORT-013`, `EFFORT-014`, and `EFFORT-015` as active.
 - Source-of-truth links: `INIT-001` should point to these Efforts as adjacent follow-ups, not as already-rehomed phase work.
 - Audit workflow wording: the recurring prompt should now require a natural unclosed-phase fit before closing an Effort into an INIT.
+- Source-doc coverage: the recurring prompt should explicitly name the core Effort/INIT/workflow docs instead of relying on a broad `docs/workflows/` scan.
 
 ## Impact on other agents
 
@@ -49,6 +51,7 @@ The active standalone Efforts after this pass are:
 - Manual link/reference sweep across `efforts/`, `INIT-001`, and Mobile Refresh phase docs
 - Verified the active Effort list in `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` now includes `EFFORT-013` and `EFFORT-014` again
 - Verified `INIT-001` now treats those two items as adjacent active Efforts unless a future unclosed phase explicitly takes ownership
+- Verified the automation prompt now explicitly names `docs/workflows/effort-system-audit.md`, `docs/workflows/testing-and-acceptance.md`, `product-decisions/pd-007-effort-status-and-registry-workflow.md`, and `initiatives/registry.md`
 
 ## Stack / base status
 
