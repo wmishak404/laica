@@ -1,4 +1,4 @@
-# EFFORT-002 — Home / Get Started routing & Home-Cook nav consolidation
+# EFF-002 — Home / Get Started routing & Home-Cook nav consolidation
 
 **Former ID:** EPIC-002
 **Status:** Resolved
@@ -63,7 +63,7 @@ So two different surfaces (Home "Get Started" and bottom-nav Cook) are solving o
 
 - Redesigning the welcome / first-time experience itself — that's a separate tone/onboarding workstream
 - Profile edit flow — "Settings" already covers that, not part of this Effort
-- Bottom-nav visual redesign — this Effort is about IA (information architecture), not styling. If the nav count changes from 4 → 3, the token-level styling change rides on EFFORT-001's rubric
+- Bottom-nav visual redesign — this Effort is about IA (information architecture), not styling. If the nav count changes from 4 → 3, the token-level styling change rides on EFF-001's rubric
 
 ## Decisions made so far
 
@@ -84,7 +84,7 @@ Historical questions from the active decision window are preserved below. They w
 - `favoriteChefs` is optional and not checked
 - Users who sign in with a partially-filled profile (e.g. skipped pantry) should still be able to get to Slop Bowl — Slop Bowl's `pantry-check` state handles empty pantry gracefully
 
-Default proposal: expand the predicate to also accept "any pantry ingredients OR any kitchen equipment" so partial profiles still skip the FTUE but push the user to fill the gap inside Slop Bowl (see EFFORT-003 for inline pantry edit).
+Default proposal: expand the predicate to also accept "any pantry ingredients OR any kitchen equipment" so partial profiles still skip the FTUE but push the user to fill the gap inside Slop Bowl (see EFF-003 for inline pantry edit).
 
 ### 2. Home as dashboard vs Home as redirect
 
@@ -108,7 +108,7 @@ Claude's lean: **Cook + ChefHat** if they merge, but Wilson's call.
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-002 before starting any of the following:
+Read EFF-002 before starting any of the following:
 
 - [ ] Adding or changing navigation entry points in `client/src/pages/app.tsx` (welcome screen, bottom nav, routing logic)
 - [ ] Modifying the `currentPhase` state machine or the phases (`welcome` / `profiling` / `planning` / etc.)
@@ -117,7 +117,7 @@ Read EFFORT-002 before starting any of the following:
 - [ ] Adding a new bottom-nav tab, renaming one, or changing the count
 - [ ] Writing a handoff that describes a new "Get Started" / FTUE / returning-user flow
 
-When one of these applies, cite EFFORT-002 in your handoff and note how the change interacts (conforms / defers / adds new signal). If you add new routing paths that intersect with the questions above, document them here under a `## YYYY-MM-DD — <summary>` section.
+When one of these applies, cite EFF-002 in your handoff and note how the change interacts (conforms / defers / adds new signal). If you add new routing paths that intersect with the questions above, document them here under a `## YYYY-MM-DD — <summary>` section.
 
 ## Resolution criteria — what "done" looks like
 
@@ -162,7 +162,7 @@ At this point in the chronology, the Home-vs-Cook information-architecture quest
 
 ### 2026-04-17 — Implemented behavior validated/tested
 
-Wilson later confirmed that the implemented EFFORT-002 behavior was validated and tested.
+Wilson later confirmed that the implemented EFF-002 behavior was validated and tested.
 
 This adds confidence that the returning-user routing fix works as intended in practice:
 
@@ -181,7 +181,7 @@ Accepted rationale:
 - that gating removes the main reason to consolidate the two surfaces right now
 - the implemented Home routing fix already solves the practical bug for returning users
 
-This decision is recorded in `product-decisions/pd-006-home-and-cook-remain-separate.md`. `design_guidelines.md` now marks the richer Home Dashboard section as deferred / aspirational rather than a required current implementation target. With that, EFFORT-002's resolution criteria are met and the Effort flips to `Resolved`.
+This decision is recorded in `product-decisions/pd-006-home-and-cook-remain-separate.md`. `design_guidelines.md` now marks the richer Home Dashboard section as deferred / aspirational rather than a required current implementation target. With that, EFF-002's resolution criteria are met and the Effort flips to `Resolved`.
 
 ### 2026-04-28 — Historical decision superseded by mobile refresh
 

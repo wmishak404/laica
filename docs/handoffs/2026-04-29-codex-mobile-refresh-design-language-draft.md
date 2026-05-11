@@ -6,7 +6,7 @@
 
 ## Summary
 
-Created the first concrete LAICA mobile-refresh design-language draft so EFFORT-012 can guide Phase 2 setup polish and later Phase 3-5 visual implementation.
+Created the first concrete LAICA mobile-refresh design-language draft so EFF-012 can guide Phase 2 setup polish and later Phase 3-5 visual implementation.
 
 ## Changes
 

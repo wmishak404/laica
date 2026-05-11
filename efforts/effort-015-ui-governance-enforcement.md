@@ -1,4 +1,4 @@
-# EFFORT-015 — UI Governance Enforcement (Lint + PR Template)
+# EFF-015 — UI Governance Enforcement (Lint + PR Template)
 
 **Former ID:** EPIC-015
 **Status:** Open
@@ -13,12 +13,12 @@ Ship the enforcement layer PD-005 still lacks: an ESLint rule rejecting hex colo
 
 - [PD-005 — UI Governance Operating Model](../product-decisions/pd-005-ui-governance.md) — the rules this Effort enforces
 - [`design_guidelines.md`](../design_guidelines.md) — the visual standard the PR template must cite
-- [EFFORT-001 (resolved)](effort-001-ui-governance.md) — historical context; this Effort closes the resolution criterion EFFORT-001 explicitly deferred ("enforcement mechanism shipped on `main`")
-- [EFFORT-016](effort-016-slop-bowl-hex-literal-cleanup.md) — companion pilot-surface cleanup so the new rule passes on existing code
+- [EFF-001 (resolved)](effort-001-ui-governance.md) — historical context; this Effort closes the resolution criterion EFF-001 explicitly deferred ("enforcement mechanism shipped on `main`")
+- [EFF-016](effort-016-slop-bowl-hex-literal-cleanup.md) — companion pilot-surface cleanup so the new rule passes on existing code
 
 ## Context
 
-PD-005 captures the rubric (5 required + 3 recommended rules, primitive lock order, surface taxonomy, scoped-style reuse contract) but ships without an enforcement mechanism. EFFORT-001's original resolution criterion 2 — "enforcement mechanism shipped on `main`" — was explicitly deferred from the graduation. This Effort closes that loop.
+PD-005 captures the rubric (5 required + 3 recommended rules, primitive lock order, surface taxonomy, scoped-style reuse contract) but ships without an enforcement mechanism. EFF-001's original resolution criterion 2 — "enforcement mechanism shipped on `main`" — was explicitly deferred from the graduation. This Effort closes that loop.
 
 The highest-volume drift class is hex color literals: `bg-[#FF6B6B]`, `text-[#FF5252]`, `border-[#ccc]` used in place of `bg-primary` / `text-primary-foreground` / `border-border`. The token, primitive, and icon layers exist; nothing today stops a developer from typing the hex code instead of the token name. An ESLint rule catches this statically. PD-005 rules 3 (tone-override comment) and 5 (scoped-style reuse / computed-style comparison) cannot be lint-enforced cleanly — a PR-template gate captures them as a reviewer checklist.
 
@@ -36,14 +36,14 @@ The highest-volume drift class is hex color literals: `bg-[#FF6B6B]`, `text-[#FF
 ### Out of scope
 
 - ESLint rules for PD-005 rules 2 (Button `className` overrides) and 4 (`rounded-[N]` arbitrary radii). Could become PD-005 amendments or follow-up Efforts if hex-literal enforcement reveals they remain a high-volume drift class.
-- Slop Bowl hex-literal cleanup — tracked separately as [EFFORT-016](effort-016-slop-bowl-hex-literal-cleanup.md).
+- Slop Bowl hex-literal cleanup — tracked separately as [EFF-016](effort-016-slop-bowl-hex-literal-cleanup.md).
 - Storybook, visual regression infrastructure.
 - Mass codemod for the 23 custom-`Button` callsites (small enough to migrate by hand once a future rule breaks CI on them).
 - Manual reviewer-only gate (paired with the lint rule, redundant).
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-015 before:
+Read EFF-015 before:
 
 - Adding or modifying ESLint configuration in `eslint.config.*` / `.eslintrc.*`
 - Adding or modifying `.github/PULL_REQUEST_TEMPLATE.md`

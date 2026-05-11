@@ -48,7 +48,7 @@ Claude review request before merge:
 ## Verification
 
 - `git diff --check`
-- Stale-reference searches for live EFFORT-001/EFFORT-012 pointers and merged-phase validation language
+- Stale-reference searches for live EFF-001/EFF-012 pointers and merged-phase validation language
 - Manual scan that INIT-001 exposes the Phase 3 resume point and required Phase 3 inputs quickly
 
 ## Stack / base status

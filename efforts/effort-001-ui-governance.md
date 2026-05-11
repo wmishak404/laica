@@ -1,4 +1,4 @@
-# EFFORT-001 — UI Consistency & Design Governance
+# EFF-001 — UI Consistency & Design Governance
 
 **Former ID:** EPIC-001
 **Status:** Resolved
@@ -145,7 +145,7 @@ Claude's proposed table (from the review handoff):
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-001 before starting any of the following:
+Read EFF-001 before starting any of the following:
 
 - [ ] Adding a **new page or top-level surface** to `client/src/pages/`
 - [ ] Creating a **new tone-forward component** with custom animation, tilt, gradient, or non-standard styling
@@ -173,7 +173,7 @@ This Effort is `Resolved` when all of the following are true:
 4. `design_guidelines.md` references the PD and the `efforts/effort-001` graduation note
 5. This Effort file has a final `## YYYY-MM-DD — Resolved` section with a pointer to the PD
 
-At that point, status flips to `Resolved`. Future UI-system concerns (tone refresh, design-system expansion, etc.) get their own Effort numbers — EFFORT-002, 003, etc.
+At that point, status flips to `Resolved`. Future UI-system concerns (tone refresh, design-system expansion, etc.) get their own Effort numbers — EFF-002, 003, etc.
 
 ## Linked artifacts
 
@@ -200,20 +200,20 @@ Captured from the active thread during Slop Bowl implementation:
 6. Wilson decided: **doc follows code** for both — "whatever we have today for now. We can change this later (which I want to in the future to make it less like many AI apps today)"
 7. Claude completed Phase 0 — reconciled `design_guidelines.md` to match `index.css` (Merriweather + SF Pro / Source Sans Pro), `lucide-react`, `rounded-lg` default; added a new **Color Palette & Tokens** section and a status banner flagging the future refresh as a separate workstream
 8. Codex signaled a v2 lean for Phase 1 (keep pilot narrower; lock Button, Input, Card, and page-headers first) — chat-only, not yet pushed
-9. Wilson called to park the governance work until Slop Bowl ships, and asked Claude to document the whole thread as EFFORT-001 so it can resume cleanly later. This doc is that record.
+9. Wilson called to park the governance work until Slop Bowl ships, and asked Claude to document the whole thread as EFF-001 so it can resume cleanly later. This doc is that record.
 
-## 2026-04-17 — Full-row form selection issue split into EFFORT-004
+## 2026-04-17 — Full-row form selection issue split into EFF-004
 
 Localhost review surfaced a utilitarian-form problem in the cooking-profile flow: radio-style choices for skill level and weekly time currently behave like bullet lists with small tap targets, even though users visually parse the full row as selectable. That issue is now tracked in `efforts/effort-004-selection-controls-tap-targets.md`.
 
-This is useful signal for EFFORT-001 because it reinforces two governance points:
+This is useful signal for EFF-001 because it reinforces two governance points:
 
 - utilitarian surfaces need clearer, more reliable hit areas than the current tiny-dot composition provides
 - reusable control patterns for onboarding/settings forms should be treated as consistency primitives, not left as ad-hoc flex rows
 
 ## 2026-04-28 — Mobile refresh planning adds the next design-system pressure test
 
-The mobile-refresh phase records in `product-decisions/features/mobile-refresh/` define new tone-forward surfaces across auth, setup, planning, cooking, and post-cook cleanup. This work conforms to EFFORT-001 by making the design direction explicit before implementation: mobile-native layout, tokenized warm/coral styling, full-row controls, distinctive Ticket Pass recipe cards, and no generic AI percentage-match cards.
+The mobile-refresh phase records in `product-decisions/features/mobile-refresh/` define new tone-forward surfaces across auth, setup, planning, cooking, and post-cook cleanup. This work conforms to EFF-001 by making the design direction explicit before implementation: mobile-native layout, tokenized warm/coral styling, full-row controls, distinctive Ticket Pass recipe cards, and no generic AI percentage-match cards.
 
 Implementation should treat these phase records as the next pilot surface for UI governance. Any new colors, primitives, or icon treatments should be tokenized or documented as an intentional escape hatch.
 
@@ -255,7 +255,7 @@ This is a governance failure mode, not only a CSS bug. Future docs and handoffs 
 
 ## 2026-05-01 — Phase 2.2 merged with visual-conformance gate intact
 
-PR #30 merged Phase 2.2 after Replit validation confirmed the specific drift fixes Wilson flagged: icon-only bottom navigation, circular returning Settings camera controls, first-time setup-matched upload/manual typography, and precise feedback context. This does not resolve EFFORT-001, but it adds a concrete pilot example for future UI governance: visual conformance should be proven at rendered-control level before merge, and the PR/handoff should name any specificity or wrapper contracts that preserve the accepted look.
+PR #30 merged Phase 2.2 after Replit validation confirmed the specific drift fixes Wilson flagged: icon-only bottom navigation, circular returning Settings camera controls, first-time setup-matched upload/manual typography, and precise feedback context. This does not resolve EFF-001, but it adds a concrete pilot example for future UI governance: visual conformance should be proven at rendered-control level before merge, and the PR/handoff should name any specificity or wrapper contracts that preserve the accepted look.
 
 ## 2026-05-02 — Resolved; graduated to PD-005
 

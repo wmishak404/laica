@@ -1,4 +1,4 @@
-# EFFORT-018 authenticated AI error handling
+# EFF-018 authenticated AI error handling
 
 **Agent:** codex
 **Branch:** codex/epic-018-auth-ai-errors
@@ -8,7 +8,7 @@
 
 ## Summary
 
-Implemented EFFORT-018 so authenticated AI failures no longer use demo-era copy or redirect users to `/`. The branch adds a shared typed request error, authenticated AI error classification, typed server payloads for AI/rate-limit failures, first-person plain-English copy, and tests for the status classes Wilson and Claude reviewed.
+Implemented EFF-018 so authenticated AI failures no longer use demo-era copy or redirect users to `/`. The branch adds a shared typed request error, authenticated AI error classification, typed server payloads for AI/rate-limit failures, first-person plain-English copy, and tests for the status classes Wilson and Claude reviewed.
 
 The branch was rebased onto `origin/main` after PR #40 merged. PR #40 is `bc242a0` (`Docs: add Replit validation focus guide (#40)`).
 
@@ -22,7 +22,7 @@ The branch was rebased onto `origin/main` after PR #40 merged. PR #40 is `bc242a
 - `server/routes.ts`: returns typed `400` payloads for AI route Zod failures, `PREFERENCES_TOO_LONG` for preference length violations, and typed `5xx` AI service payloads.
 - Copy pass updates adjacent user-facing errors to first-person/plain-English phrasing and `Laica` casing.
 - `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`: records Phase 4 ownership of live-cooking inline retry/recovery and inline Feedback placement.
-- `efforts/effort-018-authenticated-ai-error-handling.md`: updates EFFORT-018 scope, decisions, copy principles, and telemetry deferral.
+- `efforts/effort-018-authenticated-ai-error-handling.md`: updates EFF-018 scope, decisions, copy principles, and telemetry deferral.
 - `efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md`: new separate epic for redacted operational AI error telemetry/evals.
 - `efforts/effort-007-vision-scan-no-detection-feedback.md`, `efforts/README.md`, `efforts/registry.md`, and `initiatives/INIT-001-mobile-refresh.md`: update active epic/initiative context.
 - Tests added/updated for AI error classification/copy/no redirect, typed route payloads, rate-limit payloads, Slop Bowl guard, and scan rate-limit copy.
@@ -31,9 +31,9 @@ The branch was rebased onto `origin/main` after PR #40 merged. PR #40 is `bc242a
 
 Claude/Replit should validate the branch from GitHub using the exact branch name `codex/epic-018-auth-ai-errors`. The prior docs-only branch `codex/epic-018-ai-error-handling` is not used and was not present on origin when checked locally.
 
-EFFORT-018 intentionally does not implement persistent error logging. Use [EFFORT-019](../../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md) for that parallel work, especially the allowlist-first redaction policy.
+EFF-018 intentionally does not implement persistent error logging. Use [EFF-019](../../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md) for that parallel work, especially the allowlist-first redaction policy.
 
-Phase 4 owns live-cooking-specific presentation: inline step retry/recovery, Coach Feed failure placement, and inline Feedback access. EFFORT-018 only removes demo behavior and supplies shared classification/copy.
+Phase 4 owns live-cooking-specific presentation: inline step retry/recovery, Coach Feed failure placement, and inline Feedback access. EFF-018 only removes demo behavior and supplies shared classification/copy.
 
 ## Open items
 

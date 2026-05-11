@@ -35,13 +35,13 @@ Follow-up visual conformance pass: Wilson reviewed setup and said it still felt 
 
 ## Impact on other agents
 
-- EFFORT-001: conforms by scoping new typography and setup visual utilities behind setup-only classes instead of replacing the global app font stack or shared primitives.
-- EFFORT-004: conforms by keeping single-choice setup rows full-row and adding auto-advance for Cooking Skill while preserving explicit continuation on multi-select Dietary Restrictions.
-- EFFORT-005: conforms by recording local checks and keeping Replit validation as the merge gate.
-- EFFORT-007: conforms by preserving explicit no-detection feedback; rejected text-only scans are treated as a separate clear feedback path.
-- EFFORT-009: conforms by preserving shared comma-separated manual entry in setup/settings.
-- EFFORT-010: conforms by avoiding DB/schema changes and not running `db:push`.
-- EFFORT-012: conforms by applying the Phase 2 setup mockup/design-language trust and control direction, including the setup-only typography pilot and deliberate cream/coral scan-object treatment.
+- EFF-001: conforms by scoping new typography and setup visual utilities behind setup-only classes instead of replacing the global app font stack or shared primitives.
+- EFF-004: conforms by keeping single-choice setup rows full-row and adding auto-advance for Cooking Skill while preserving explicit continuation on multi-select Dietary Restrictions.
+- EFF-005: conforms by recording local checks and keeping Replit validation as the merge gate.
+- EFF-007: conforms by preserving explicit no-detection feedback; rejected text-only scans are treated as a separate clear feedback path.
+- EFF-009: conforms by preserving shared comma-separated manual entry in setup/settings.
+- EFF-010: conforms by avoiding DB/schema changes and not running `db:push`.
+- EFF-012: conforms by applying the Phase 2 setup mockup/design-language trust and control direction, including the setup-only typography pilot and deliberate cream/coral scan-object treatment.
 
 ## Open items
 

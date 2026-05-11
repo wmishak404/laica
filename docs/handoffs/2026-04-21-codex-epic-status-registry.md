@@ -6,14 +6,14 @@
 
 ## Summary
 
-Added a compact Effort status model so new agent windows can quickly tell which Efforts are active versus resolved. This addresses the confusion where EFFORT-002 and EFFORT-003 were closed in their individual files, but that closure was not obvious enough from the top-level discovery surface.
+Added a compact Effort status model so new agent windows can quickly tell which Efforts are active versus resolved. This addresses the confusion where EFF-002 and EFF-003 were closed in their individual files, but that closure was not obvious enough from the top-level discovery surface.
 
 Follow-up note: this initial handoff was refined by `2026-04-21-codex-scalable-epic-registry.md`, which moved the complete all-epic list into `efforts/registry.md` and kept `efforts/README.md` focused on active work.
 
 ## Changes
 
 - `efforts/README.md` now defines the approved status vocabulary: `Open`, `In Progress`, `Blocked`, `Deferred`, and `Resolved`.
-- `efforts/registry.md` now includes an all-epic registry with EFFORT-002 and EFFORT-003 explicitly marked `Resolved`.
+- `efforts/registry.md` now includes an all-epic registry with EFF-002 and EFF-003 explicitly marked `Resolved`.
 - `efforts/README.md` keeps the status model and active read list for Efforts agents must check before governed work.
 - `AGENTS.md` and `CLAUDE.md` now instruct agents to check the active read list first and treat `Resolved` as closed/completed.
 
@@ -25,7 +25,7 @@ Do not introduce a separate `Closed` status; use `Resolved` when an epic's resol
 
 ## Open items
 
-No product or runtime work is included. If the status system needs automation later, EFFORT-005 is the right place to discuss validation/reporting workflow, but this change intentionally stays lightweight.
+No product or runtime work is included. If the status system needs automation later, EFF-005 is the right place to discuss validation/reporting workflow, but this change intentionally stays lightweight.
 
 ## Verification
 

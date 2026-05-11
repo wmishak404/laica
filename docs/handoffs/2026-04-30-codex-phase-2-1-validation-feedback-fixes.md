@@ -33,7 +33,7 @@ Wilson's in-progress Phase 2.1 Replit validation surfaced scan-state and error-f
   - Extended `tests/unit/user-profiling.test.tsx` for active manual state, active-scan Back cancellation, and scan-limit feedback.
   - Extended `tests/unit/native-camera.test.tsx` for camera-unavailable feedback.
 - Docs
-  - Updated INIT-001, Phase 2.1 setup polish, AI privacy/prompt-injection notes, EFFORT-005, and EFFORT-007.
+  - Updated INIT-001, Phase 2.1 setup polish, AI privacy/prompt-injection notes, EFF-005, and EFF-007.
 
 ## Impact on other agents
 
@@ -48,12 +48,12 @@ Wilson's in-progress Phase 2.1 Replit validation surfaced scan-state and error-f
   - manual-entry active state on Pantry and Kitchen
 - The attached `equipment2.png` is a valid physical equipment photo shape. If it still fails after rate-limit cooldown, treat that as a vision/model or route-log follow-up rather than a text-only rejection issue.
 - Epic interactions:
-  - EFFORT-004: conforms; single-choice/multi-select behavior was not changed.
-  - EFFORT-005: adds evidence that cancellation and failure states must be explicit acceptance items.
-  - EFFORT-007: expands no-detection work by separating no-detection from rejection and transport failures.
-  - EFFORT-009: conforms; comma-separated manual entry still uses the shared parser, now with prompt-marker stripping.
-  - EFFORT-010: conforms; no DB schema changes.
-  - EFFORT-012: conforms; visual direction remains accepted and only setup-scoped polish was added.
+  - EFF-004: conforms; single-choice/multi-select behavior was not changed.
+  - EFF-005: adds evidence that cancellation and failure states must be explicit acceptance items.
+  - EFF-007: expands no-detection work by separating no-detection from rejection and transport failures.
+  - EFF-009: conforms; comma-separated manual entry still uses the shared parser, now with prompt-marker stripping.
+  - EFF-010: conforms; no DB schema changes.
+  - EFF-012: conforms; visual direction remains accepted and only setup-scoped polish was added.
 
 ## Open items
 

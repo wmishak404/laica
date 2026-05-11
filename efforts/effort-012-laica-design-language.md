@@ -1,4 +1,4 @@
-# EFFORT-012 — Laica Design Language & Visual Identity
+# EFF-012 — Laica Design Language & Visual Identity
 
 **Former ID:** EPIC-012
 **Status:** Resolved
@@ -22,8 +22,8 @@ Phase 2 mobile-refresh validation surfaced a planning gap: PR #23 implemented mu
 
 This Effort is distinct from `efforts/effort-001-ui-governance.md`:
 
-- EFFORT-001 governs consistency and enforcement: tokens, primitives, escape hatches, and avoiding ad hoc styling.
-- EFFORT-012 defines the visual identity those tokens and primitives should express: Laica's personality, art direction, layout feel, color mood, typography direction, illustration/photo treatment, and how the app should avoid feeling like a generic AI product.
+- EFF-001 governs consistency and enforcement: tokens, primitives, escape hatches, and avoiding ad hoc styling.
+- EFF-012 defines the visual identity those tokens and primitives should express: Laica's personality, art direction, layout feel, color mood, typography direction, illustration/photo treatment, and how the app should avoid feeling like a generic AI product.
 
 `design_guidelines.md` is currently a record of the implementation as it exists, not the target design language. This Effort should eventually graduate into a durable design-language product decision or a replacement/major revision of that guideline.
 
@@ -92,7 +92,7 @@ The Phase 2 setup polish pass should use this Effort as an active design-languag
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-012 before starting any of the following:
+Read EFF-012 before starting any of the following:
 
 - [ ] Implementing or polishing any mobile-refresh Phase 2-5 screen
 - [ ] Translating a mockup into code
@@ -116,7 +116,7 @@ This Effort is `Resolved` when all of the following are true:
 
 1. A durable Laica design-language artifact exists, either as a product decision, revised `design_guidelines.md`, or both.
 2. The artifact defines visual personality, color direction, typography direction, imagery/illustration approach, surface taxonomy, and mockup-conformance expectations.
-3. EFFORT-001's governance/enforcement plan knows how to enforce or review the accepted design language.
+3. EFF-001's governance/enforcement plan knows how to enforce or review the accepted design language.
 4. At least one mobile-refresh phase, starting with Phase 2 setup, has been implemented and validated against the accepted design language.
 5. Phase handoff templates or PR validation notes include visual conformance as an explicit review item.
 6. This Effort has a final dated resolution note with links to the accepted artifact and merged pilot implementation.
@@ -166,7 +166,7 @@ The review also adds one durable selection-surface detail: `No restrictions` sho
 
 Wilson confirmed that the Phase 2.1 setup design now looks great after the final welcome, camera-control, Kitchen-accent, and upload-limit polish passes. This is the first accepted pilot signal for the mobile-refresh design language: setup-scoped `Fraunces` / `Nunito` typography, warm cream/coral phone-flow shell, one top progress treatment, camera controls inside the scan object, translucent utility controls, blank shutter capture, peer-level upload/manual actions, multicolor setup-choice illustrations, isolated `No restrictions`, and a Kitchen-specific gray/silver/light-wood accent layer while keeping progress coral.
 
-This does not resolve EFFORT-012 yet because Phase 2.1 still needs full Replit functional validation and the design language still needs later Phase 3-5 proof points, but it gives future agents a concrete accepted setup reference.
+This does not resolve EFF-012 yet because Phase 2.1 still needs full Replit functional validation and the design language still needs later Phase 3-5 proof points, but it gives future agents a concrete accepted setup reference.
 
 ### 2026-04-30 — Future scan-session chip states identified
 
@@ -174,7 +174,7 @@ Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language s
 
 ### 2026-05-01 — Phase 2.1 setup pilot merged
 
-PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scoped `Fraunces` / `Nunito`, warm cream/coral phone-flow surfaces, designed camera object, single top progress treatment, translucent camera controls, peer upload/manual actions, multicolor choice illustrations, and Kitchen-specific gray/silver/light-wood accents. This is a major proof point for EFFORT-012, but the Effort stays `In Progress` until the durable design-language artifact is promoted and later Phase 3-5 proof points clarify whether the setup typography/palette become global or stay setup-scoped.
+PR #27 merged the accepted Phase 2.1 setup visual pilot into `main`: setup-scoped `Fraunces` / `Nunito`, warm cream/coral phone-flow surfaces, designed camera object, single top progress treatment, translucent camera controls, peer upload/manual actions, multicolor choice illustrations, and Kitchen-specific gray/silver/light-wood accents. This is a major proof point for EFF-012, but the Effort stays `In Progress` until the durable design-language artifact is promoted and later Phase 3-5 proof points clarify whether the setup typography/palette become global or stay setup-scoped.
 
 ### 2026-05-01 — Phase 2.2 extends setup language to returning edits
 
@@ -194,7 +194,7 @@ Wilson's follow-up Replit screenshots showed that visual conformance cannot be i
 
 ### 2026-05-01 — Phase 2.2 merged as returning-user design proof point
 
-PR #30 merged Phase 2.2 into `main` after Replit validation at `dc59796ae1602af4643c5fc640be47ab19a59e04`. This gives EFFORT-012 a second accepted proof point after Phase 2.1 setup: Menu is the global returning-user destination surface, Settings is utilitarian but Laica-native, returning Pantry/Kitchen/Profile reuse the setup look/feel foundation, and History is separated as a warmer cooking-memory surface while richer share/cook-again behavior stays in Phase 5.
+PR #30 merged Phase 2.2 into `main` after Replit validation at `dc59796ae1602af4643c5fc640be47ab19a59e04`. This gives EFF-012 a second accepted proof point after Phase 2.1 setup: Menu is the global returning-user destination surface, Settings is utilitarian but Laica-native, returning Pantry/Kitchen/Profile reuse the setup look/feel foundation, and History is separated as a warmer cooking-memory surface while richer share/cook-again behavior stays in Phase 5.
 
 ### 2026-05-02 — Resolved; graduated to design_guidelines.md
 

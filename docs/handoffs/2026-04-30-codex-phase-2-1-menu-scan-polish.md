@@ -44,13 +44,13 @@ This keeps the no-header direction, adds menu access through setup and the post-
 
 ## Impact on other agents
 
-- EFFORT-001: conforms to no persistent authenticated app header while retaining a documented menu/account surface.
-- EFFORT-004: no behavior change to selection controls; Cooking Skill still auto-advances and Dietary Restrictions still requires explicit continuation.
-- EFFORT-005: local checks passed, but Replit validation is still the merge gate and must be tied to the latest commit SHA.
-- EFFORT-007: no scan-result contract change in this pass; existing no-detection and rejection feedback remains in place.
-- EFFORT-009: comma-separated manual entry behavior is preserved while removing the technical helper label from the UI.
-- EFFORT-010: no DB/schema changes.
-- EFFORT-012: adds durable setup design-language signal for menu placement, scan control visual weight, non-flashlight tips iconography, and Kitchen equipment color treatment.
+- EFF-001: conforms to no persistent authenticated app header while retaining a documented menu/account surface.
+- EFF-004: no behavior change to selection controls; Cooking Skill still auto-advances and Dietary Restrictions still requires explicit continuation.
+- EFF-005: local checks passed, but Replit validation is still the merge gate and must be tied to the latest commit SHA.
+- EFF-007: no scan-result contract change in this pass; existing no-detection and rejection feedback remains in place.
+- EFF-009: comma-separated manual entry behavior is preserved while removing the technical helper label from the UI.
+- EFF-010: no DB/schema changes.
+- EFF-012: adds durable setup design-language signal for menu placement, scan control visual weight, non-flashlight tips iconography, and Kitchen equipment color treatment.
 
 ## Open items
 

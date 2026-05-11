@@ -1,4 +1,4 @@
-# EFFORT-004 Selection Tap Targets
+# EFF-004 Selection Tap Targets
 
 **Agent:** codex
 **Branch:** codex/epic-002-003-flow-fixes
@@ -13,15 +13,15 @@ The new epic frames the work as a focused form-control/tap-target problem rather
 - `efforts/effort-004-selection-controls-tap-targets.md`
   - New epic documenting the problem, current code evidence, scope, open questions, checklist, and resolution criteria.
 - `efforts/README.md`
-  - Added EFFORT-004 to the open-epic index.
+  - Added EFF-004 to the open-epic index.
 - `AGENTS.md`
-  - Added EFFORT-004 to the repo-level active Efforts rule so future work on onboarding/settings selection rows reads it first.
+  - Added EFF-004 to the repo-level active Efforts rule so future work on onboarding/settings selection rows reads it first.
 - `efforts/effort-001-ui-governance.md`
   - Added a dated note linking this new issue back to the broader governance track as utilitarian-form consistency signal.
 
 ## Impact on other agents
-- EFFORT-004 is now the source of truth before anyone changes the cooking-profile radio-style selection rows in onboarding or settings.
-- EFFORT-001 is still deferred overall, but this new epic adds concrete evidence that form-control hit areas are part of the governance story.
+- EFF-004 is now the source of truth before anyone changes the cooking-profile radio-style selection rows in onboarding or settings.
+- EFF-001 is still deferred overall, but this new epic adds concrete evidence that form-control hit areas are part of the governance story.
 - No code behavior changed in this pass; this is planning-doc work only.
 
 ## Open items

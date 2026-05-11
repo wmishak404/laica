@@ -7,11 +7,11 @@
 **Scope:** Surface
 **Applies when:** Reading historical Home/Cook navigation rationale; new implementation should follow PD-009.
 
-> Superseded on 2026-04-28 by the mobile-refresh navigation direction. The earlier decision remains as historical context for EFFORT-002, but implementation should follow [PD-009](pd-009-mobile-refresh-navigation.md).
+> Superseded on 2026-04-28 by the mobile-refresh navigation direction. The earlier decision remains as historical context for EFF-002, but implementation should follow [PD-009](pd-009-mobile-refresh-navigation.md).
 
 ## Context
 
-EFFORT-002 captured two related issues:
+EFF-002 captured two related issues:
 
 1. Returning users should not be forced back through the first-time profile builder from Home
 2. Home and Cook appeared to overlap conceptually, raising the question of whether they should be consolidated
@@ -33,7 +33,7 @@ Keep **Home** and **Cook** as separate navigation surfaces.
 
 - The core confusion case is already mitigated because incomplete-profile users cannot use Cook yet
 - This preserves the current mental model without introducing avoidable navigation churn
-- The returning-user routing fix already solves the practical usability bug that triggered EFFORT-002
+- The returning-user routing fix already solves the practical usability bug that triggered EFF-002
 - It avoids forcing a larger IA change when the current separation is acceptable in practice
 
 ## Alternatives considered
@@ -46,7 +46,7 @@ Keep **Home** and **Cook** as separate navigation surfaces.
 
 ## Consequences
 
-- EFFORT-002 can resolve once the accepted direction is recorded and linked
+- EFF-002 can resolve once the accepted direction is recorded and linked
 - The current bottom-nav structure stays in place
 - The richer "Home Dashboard" concept in `design_guidelines.md` is a future / aspirational direction, not a currently required implementation target
 - If Home later grows into a richer dashboard experience, that should be tracked as a new work item rather than reopening the resolved Home-vs-Cook consolidation question by default

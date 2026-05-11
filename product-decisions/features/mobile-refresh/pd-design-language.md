@@ -1,12 +1,12 @@
 # Mobile Refresh Design Language
 
-> **Status: Superseded by [`design_guidelines.md`](../../../design_guidelines.md) on 2026-05-02.** This document is retained as Phase 2.x design-language evidence (Phase 2.1 setup pilot direction, Phase 2.2 returning Settings alignment). Future visual direction lives in `design_guidelines.md`; governance rules in [PD-005](../../pd-005-ui-governance.md). EFFORT-012 history is in [`efforts/effort-012-laica-design-language.md`](../../../efforts/effort-012-laica-design-language.md).
+> **Status: Superseded by [`design_guidelines.md`](../../../design_guidelines.md) on 2026-05-02.** This document is retained as Phase 2.x design-language evidence (Phase 2.1 setup pilot direction, Phase 2.2 returning Settings alignment). Future visual direction lives in `design_guidelines.md`; governance rules in [PD-005](../../pd-005-ui-governance.md). EFF-012 history is in [`efforts/effort-012-laica-design-language.md`](../../../efforts/effort-012-laica-design-language.md).
 
 **Status:** Superseded
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-29
-**Source Effort:** [EFFORT-012](../../../efforts/effort-012-laica-design-language.md) (resolved 2026-05-02)
+**Source Effort:** [EFF-012](../../../efforts/effort-012-laica-design-language.md) (resolved 2026-05-02)
 **Initiative:** [INIT-001 — Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 **Applies to:** Mobile-refresh Phase 2-5 implementation and visual review (historical reference)
 

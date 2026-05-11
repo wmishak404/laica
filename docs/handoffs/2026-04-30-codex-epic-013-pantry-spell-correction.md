@@ -1,4 +1,4 @@
-# EFFORT-013 Pantry Spell-Correction Filing
+# EFF-013 Pantry Spell-Correction Filing
 
 **Agent:** codex
 **Branch:** `codex/mobile-refresh-phase-2-1-setup-polish`
@@ -8,21 +8,21 @@
 
 ## Summary
 
-Filed Wilson's future pantry manual-entry spell-correction idea as EFFORT-013. This is intentionally not a Phase 2.1 merge gate.
+Filed Wilson's future pantry manual-entry spell-correction idea as EFF-013. This is intentionally not a Phase 2.1 merge gate.
 
 ## Changes
 
 - Added `efforts/effort-013-pantry-manual-entry-spell-correction.md`.
-- Added EFFORT-013 to `efforts/README.md` active read list.
-- Added EFFORT-013 to `efforts/registry.md`.
-- Added EFFORT-013 to the active epic lists in `AGENTS.md` and `CLAUDE.md`.
+- Added EFF-013 to `efforts/README.md` active read list.
+- Added EFF-013 to `efforts/registry.md`.
+- Added EFF-013 to the active epic lists in `AGENTS.md` and `CLAUDE.md`.
 - Updated INIT-001 with the new epic link and chronology note.
 
 ## Impact on other agents
 
-- Read EFFORT-013 before adding pantry ingredient spellcheck/autocorrect, ingredient dictionaries, or pantry label canonicalization.
+- Read EFF-013 before adding pantry ingredient spellcheck/autocorrect, ingredient dictionaries, or pantry label canonicalization.
 - Default direction recorded in the epic: conservative pantry-only correction. Fix high-confidence common ingredient typos, preserve rare/stylized/brand/cultural names such as `sushiritto` and `WTR MLN WTR`, and keep equipment entry out of scope.
-- EFFORT-013 should be considered alongside EFFORT-009 for manual-entry parser behavior.
+- EFF-013 should be considered alongside EFF-009 for manual-entry parser behavior.
 
 ## Open items
 

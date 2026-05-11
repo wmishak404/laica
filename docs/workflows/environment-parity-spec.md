@@ -298,7 +298,7 @@ Relevant docs:
 
 **Current facts (provenance):**
 - The app requires `DATABASE_URL` and will crash without it (`server/db.ts`, `drizzle.config.ts`).
-- Local schema drift happened and is tracked as EFFORT-010.
+- Local schema drift happened and is tracked as EFF-010.
 - Replit Database `DATABASE_URL` is app-scoped and cannot be used externally, so local cannot “just point at Replit DB” (Replit DB docs).
 
 **Options:**
@@ -324,7 +324,7 @@ Relevant docs:
 
 - Option 4 (DB-less):
   - Pros: simplest local setup.
-  - Cons: violates “same behavior” for DB-backed features; pushes most correctness checks to Replit; repeats the drift problems that created EFFORT-010.
+  - Cons: violates “same behavior” for DB-backed features; pushes most correctness checks to Replit; repeats the drift problems that created EFF-010.
 
 **Recommendation: Option 1 (Neon per worktree) if you want “exact parity”, otherwise Option 3.**
 
@@ -713,7 +713,7 @@ Parity is not “set and forget”. This spec requires explicit drift detection.
 ### 9.2 Where to record drift findings
 
 - Short term: `docs/handoffs/YYYY-MM-DD-<agent>-env-parity.md`
-- Durable: append dated sections to this workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), or EFFORT-010/EFFORT-017 as appropriate.
+- Durable: append dated sections to this workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), or EFF-010/EFF-017 as appropriate.
 
 ---
 
@@ -731,7 +731,7 @@ This is the explicit “what it would take” list. Each item has an owner and a
    - Output: `.replit` workflow and docs match.
 
 4. Decide D3 (local DB strategy) and implement the workflow.
-   - Output: a documented, repeatable local DB setup; EFFORT-010 advances toward resolution.
+   - Output: a documented, repeatable local DB setup; EFF-010 advances toward resolution.
 
 5. Decide D4 (Firebase domain strategy) and implement stable auth domain if chosen.
    - Output: documented Firebase config; local + Replit sign-in works reliably.
@@ -831,7 +831,7 @@ Replit deploy environments can differ from dev workspaces (environment vars, dom
    - Provenance: dotenvx `--strict` docs: https://dotenvx.com/docs/advanced/run-strict
 
 5. Validate local DB per the chosen D3 strategy:
-   - Before running service-backed flows, run schema health checks (see EFFORT-010).
+   - Before running service-backed flows, run schema health checks (see EFF-010).
    - Provenance: `efforts/effort-010-local-db-schema-strategy.md`
 
 6. Auth parity:

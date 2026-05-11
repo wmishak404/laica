@@ -16,11 +16,11 @@ The workflow held up well. The main ambiguity found was phase-state detection: s
 
 | Synthetic case | Expected durable home | Outcome |
 |---|---|---|
-| `EFFORT-990` Phase 4 inline cooking recovery | `INIT-001` Phase 4 | Passed. Phase 4 already owns live-cooking inline recovery and the INIT phase table marks Phase 4 as planned/future work. |
-| `EFFORT-991` Phase 3.1 Planning card density | `INIT-001` Phase 3.1 | Passed. Phase 3.1 already owns Planning whitespace/card grammar and the drift inventory calls it out directly. |
-| `EFFORT-992` PR verification note routing | `docs/workflows/testing-and-acceptance.md` | Passed. This is workflow governance, not feature backlog. |
-| `EFFORT-993` Cross-surface pantry label normalization | Standalone active Effort | Passed. Scope spans setup, Settings, and future post-cook cleanup, so no single current unclosed phase honestly owns it. |
-| `EFFORT-994` Added shelf chip grammar | Closed Phase 3.2 / INIT chronology | Passed. The behavior is already shipped and documented in Phase 3.2 and INIT-001 chronology. |
+| `EFF-990` Phase 4 inline cooking recovery | `INIT-001` Phase 4 | Passed. Phase 4 already owns live-cooking inline recovery and the INIT phase table marks Phase 4 as planned/future work. |
+| `EFF-991` Phase 3.1 Planning card density | `INIT-001` Phase 3.1 | Passed. Phase 3.1 already owns Planning whitespace/card grammar and the drift inventory calls it out directly. |
+| `EFF-992` PR verification note routing | `docs/workflows/testing-and-acceptance.md` | Passed. This is workflow governance, not feature backlog. |
+| `EFF-993` Cross-surface pantry label normalization | Standalone active Effort | Passed. Scope spans setup, Settings, and future post-cook cleanup, so no single current unclosed phase honestly owns it. |
+| `EFF-994` Added shelf chip grammar | Closed Phase 3.2 / INIT chronology | Passed. The behavior is already shipped and documented in Phase 3.2 and INIT-001 chronology. |
 
 ## Source docs checked during the smoke test
 

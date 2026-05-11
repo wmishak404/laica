@@ -20,7 +20,7 @@ Use a two-surface Effort workflow:
 - `efforts/README.md` is the lightweight operational entrypoint. It contains the status model, creation/read rules, active Effort read list, deferred Efforts, and a link to the full registry.
 - `efforts/registry.md` is the complete searchable history. It lists active, deferred, and resolved Efforts.
 - Numbered Effort files use `efforts/effort-NNN-<kebab-name>.md` so the filename is self-describing in diffs, search results, PR file lists, and chat windows.
-- Effort IDs use `EFFORT-NNN`. Renamed files keep `Former ID: EPIC-NNN` metadata for historical continuity.
+- Effort IDs use `EFF-NNN`. Renamed files keep `Former ID: EPIC-NNN` metadata for historical continuity.
 - Agents read active Efforts by default, not the full registry.
 - Agents consult `efforts/registry.md` only when a task references a resolved/deferred Effort or needs historical context.
 - `Resolved` is the closed/completed state. Do not introduce a separate `Closed` status.
@@ -70,6 +70,6 @@ The approved status vocabulary is:
 
 ## 2026-05-09 Amendment — Epic system cleanup
 
-The former `epics/` system was renamed to `efforts/`. Wilson explicitly closed EFFORT-004, EFFORT-007, EFFORT-009, and EFFORT-016 because their remaining work is already owned by INIT-001 phases or resolved by Mobile Refresh enhancements. EFFORT-005, EFFORT-019, and EFFORT-020 closed because their durable content now belongs in workflow docs, INIT-002, or PD-010 rather than standalone Efforts.
+The former `epics/` system was renamed to `efforts/`. Wilson explicitly closed EFF-004, EFF-007, EFF-009, and EFF-016 because their remaining work is already owned by INIT-001 phases or resolved by Mobile Refresh enhancements. EFF-005, EFF-019, and EFF-020 closed because their durable content now belongs in workflow docs, INIT-002, or PD-010 rather than standalone Efforts.
 
 The inefficiencies that triggered the cleanup are recorded operationally in [`docs/workflows/effort-system-audit.md`](../docs/workflows/effort-system-audit.md) so future agents can audit stale Efforts without reopening this PD as a running work log.

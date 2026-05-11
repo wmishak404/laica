@@ -79,5 +79,5 @@ When implemented in a separate branch, the harness should include:
 ## Effort Interactions
 
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Adds concrete evidence for the app-wide testing strategy and local-vs-Replit validation matrix.
-- EFFORT-010: Reinforces that schema pushes and database drift handling remain separate from feature smoke tooling.
-- EFFORT-017: Owns the broader environment parity and CI confidence work that would let this harness reduce manual Replit browser validation later.
+- EFF-010: Reinforces that schema pushes and database drift handling remain separate from feature smoke tooling.
+- EFF-017: Owns the broader environment parity and CI confidence work that would let this harness reduce manual Replit browser validation later.

@@ -1,4 +1,4 @@
-# EFFORT-013 — Pantry manual-entry spell correction
+# EFF-013 — Pantry manual-entry spell correction
 
 **Former ID:** EPIC-013
 **Status:** Open
@@ -37,7 +37,7 @@ Equipment should not use this correction pass. Kitchen tools can have model name
   - Settings pantry manual entry
   - Future pantry cleanup/manual-add surfaces that persist to pantry
 - Correcting high-confidence common ingredient misspellings before the pantry list is saved or updated.
-- Preserving comma/period-separated manual-entry behavior from EFFORT-009.
+- Preserving comma/period-separated manual-entry behavior from EFF-009.
 - Giving users a clear edit/undo affordance if a correction is applied.
 - Tracking correction behavior in tests with both corrected and preserved examples.
 
@@ -73,7 +73,7 @@ Equipment should not use this correction pass. Kitchen tools can have model name
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-013 before starting any of the following:
+Read EFF-013 before starting any of the following:
 
 - [ ] Changing saved pantry manual-entry parsing or normalization
 - [ ] Adding ingredient spellcheck/autocorrect/suggestion behavior
@@ -83,7 +83,7 @@ Read EFFORT-013 before starting any of the following:
 
 When this Effort applies, also cite:
 
-- [EFFORT-009](effort-009-consistent-comma-separated-ingredient-entry.md) for delimiter/parser behavior
+- [EFF-009](effort-009-consistent-comma-separated-ingredient-entry.md) for delimiter/parser behavior
 - [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) if defining acceptance criteria or validation coverage
 
 ## Resolution criteria — what "done" looks like
@@ -99,7 +99,7 @@ This Effort is `Resolved` when all of the following are true:
 
 ## Linked artifacts
 
-- [EFFORT-009 — Consistent comma-separated ingredient entry](effort-009-consistent-comma-separated-ingredient-entry.md)
+- [EFF-009 — Consistent comma-separated ingredient entry](effort-009-consistent-comma-separated-ingredient-entry.md)
 - [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md)
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 

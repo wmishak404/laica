@@ -72,7 +72,7 @@ This branch is stacked on `codex/mobile-refresh-phase-1-auth`, which is itself s
   - Known negative-control scan produces explicit no-detection feedback.
   - Manual `buns, mayo` creates separate badges.
   - Settings no longer shows Weekly Cooking Time.
-- Browser-level Slop Bowl quick-add validation is still needed before EFFORT-009 can close.
+- Browser-level Slop Bowl quick-add validation is still needed before EFF-009 can close.
 
 ## Verification
 

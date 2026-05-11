@@ -76,7 +76,7 @@ Use env-configurable defaults with both route-class and per-uid limits:
 ## Effort Interactions
 
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Adds security/data acceptance criteria before feature merge readiness.
-- EFFORT-010: Schema-affecting follow-up work still uses Replit as the authority; local agents do not run `db:push` against shared DBs.
+- EFF-010: Schema-affecting follow-up work still uses Replit as the authority; local agents do not run `db:push` against shared DBs.
 
 ## Replit Validation Gate
 

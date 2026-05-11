@@ -31,7 +31,7 @@ Wilson reported the latest Phase 2.1 Replit test pass as passing except for unte
   - Added rate-limit key coverage.
   - Extended manual-entry parser and setup tests for periods, missing comma spaces, scan context, and 3-ingredient Pantry guard.
 - Docs
-  - Updated INIT-001, Phase 2.1 setup polish, AI privacy/abuse notes, EFFORT-005, and EFFORT-009.
+  - Updated INIT-001, Phase 2.1 setup polish, AI privacy/abuse notes, EFF-005, and EFF-009.
 
 ## Impact on other agents
 
@@ -44,10 +44,10 @@ Wilson reported the latest Phase 2.1 Replit test pass as passing except for unte
   - Do not repeat visually accepted setup screens, Cooking Skill auto-advance, Dietary explicit continuation, or header/menu checks unless a regression appears.
 - Non-gating follow-up: toast left/up swipe dismissal is deferred as a shared toast primitive follow-up. It should not block Phase 2.1.
 - Epic interactions:
-  - EFFORT-005: adds evidence for reduced retest scope after a documented partial pass.
-  - EFFORT-009: expands the shared manual-entry parser with period-as-comma typo recovery.
-  - EFFORT-010: conforms; no DB schema changes.
-  - EFFORT-012: conforms; no visual direction change beyond setup-scoped manual note/placeholder polish.
+  - EFF-005: adds evidence for reduced retest scope after a documented partial pass.
+  - EFF-009: expands the shared manual-entry parser with period-as-comma typo recovery.
+  - EFF-010: conforms; no DB schema changes.
+  - EFF-012: conforms; no visual direction change beyond setup-scoped manual note/placeholder polish.
 
 ## Open items
 

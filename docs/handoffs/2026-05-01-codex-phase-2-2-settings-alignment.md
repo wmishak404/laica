@@ -27,13 +27,13 @@ Implemented Wilson's accepted Phase 2.2 alignment plan for returning Settings. F
 
 ## Epic Interactions
 
-- EFFORT-001: conforms; Settings now mirrors the accepted setup control pattern rather than creating a parallel UI system.
-- EFFORT-004: conforms; returning profile controls use full-row setup choices.
-- EFFORT-005: adds a data-consistency validation requirement between setup, Settings, Planning, and Slop Bowl.
-- EFFORT-007: conforms; no-detection and rejection feedback paths remain explicit.
-- EFFORT-009: conforms; manual Pantry/Kitchen entry continues using the shared parser.
-- EFFORT-012: adds accepted signal that returning Settings can be edit-led without becoming visually separate from setup.
-- EFFORT-014: defers; this pass preserves existing duplicate mitigation and does not add latest-scan chip states.
+- EFF-001: conforms; Settings now mirrors the accepted setup control pattern rather than creating a parallel UI system.
+- EFF-004: conforms; returning profile controls use full-row setup choices.
+- EFF-005: adds a data-consistency validation requirement between setup, Settings, Planning, and Slop Bowl.
+- EFF-007: conforms; no-detection and rejection feedback paths remain explicit.
+- EFF-009: conforms; manual Pantry/Kitchen entry continues using the shared parser.
+- EFF-012: adds accepted signal that returning Settings can be edit-led without becoming visually separate from setup.
+- EFF-014: defers; this pass preserves existing duplicate mitigation and does not add latest-scan chip states.
 
 ## Open Items
 

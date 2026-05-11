@@ -6,7 +6,7 @@
 
 ## Summary
 
-Implemented the first production pass for EFFORT-006 by tightening the equipment-vision prompts, documenting the local dotenvx worktree setup, and adding a narrow server-side filter for fixed kitchen infrastructure labels that continued to leak through live vision results.
+Implemented the first production pass for EFF-006 by tightening the equipment-vision prompts, documenting the local dotenvx worktree setup, and adding a narrow server-side filter for fixed kitchen infrastructure labels that continued to leak through live vision results.
 
 This pass keeps `French press` and `carafe` in-bounds for `kitchenEquipment`, while excluding fixed infrastructure such as `range hood`, `vent hood`, `sink`, and `faucet`.
 
@@ -36,9 +36,9 @@ This pass keeps `French press` and `carafe` in-bounds for `kitchenEquipment`, wh
   - Moved the epic to `In Progress`.
   - Recorded fixture-set provenance, live validation signal, and the product decision separating `equipment` from kitchen infrastructure/context.
 - `efforts/README.md`
-  - Added EFFORT-006 to the active read list.
+  - Added EFF-006 to the active read list.
 - `efforts/registry.md`
-  - Updated EFFORT-006 from `Deferred` to `In Progress`.
+  - Updated EFF-006 from `Deferred` to `In Progress`.
 - `AGENTS.md`
   - Documented the required `.env.keys` symlink step for worktrees.
 - `CLAUDE.md`

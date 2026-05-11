@@ -1,4 +1,4 @@
-# EFFORT-014 — Scan session diff and duplicate refinement
+# EFF-014 — Scan session diff and duplicate refinement
 
 **Former ID:** EPIC-014
 **Status:** Open
@@ -40,7 +40,7 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
 - Blocking Phase 2.1 setup merge on perfect duplicate removal.
 - Full pantry/equipment ontology or semantic canonicalization.
 - Model-side inventory memory beyond the current user's saved list unless a later design explicitly chooses it.
-- Automatic spell correction for pantry manual entry; that is tracked in [EFFORT-013](effort-013-pantry-manual-entry-spell-correction.md).
+- Automatic spell correction for pantry manual entry; that is tracked in [EFF-013](effort-013-pantry-manual-entry-spell-correction.md).
 - DB schema changes unless a future implementation proves scan-session state must persist beyond the current UI session.
 
 ## Decisions made so far
@@ -65,7 +65,7 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-014 before starting any of the following:
+Read EFF-014 before starting any of the following:
 
 - [ ] Changing Pantry/Kitchen scan result chip states or list review UX
 - [ ] Adding "new", "found again", "already saved", or "latest scan" visual indicators
@@ -77,10 +77,10 @@ Read EFFORT-014 before starting any of the following:
 When this Effort applies, also cite:
 
 - [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) for validation and acceptance criteria
-- [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md) for scan outcome messaging
-- [EFFORT-009](effort-009-consistent-comma-separated-ingredient-entry.md) when manual entry normalization intersects with duplicates
+- [EFF-007](effort-007-vision-scan-no-detection-feedback.md) for scan outcome messaging
+- [EFF-009](effort-009-consistent-comma-separated-ingredient-entry.md) when manual entry normalization intersects with duplicates
 - [Mobile Refresh design language](../product-decisions/features/mobile-refresh/pd-design-language.md) for chip color/state design language
-- [EFFORT-013](effort-013-pantry-manual-entry-spell-correction.md) if pantry correction and duplicate behavior interact
+- [EFF-013](effort-013-pantry-manual-entry-spell-correction.md) if pantry correction and duplicate behavior interact
 
 ## Resolution criteria — what "done" looks like
 
@@ -98,7 +98,7 @@ This Effort is `Resolved` when all of the following are true:
 - [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md)
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 - [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md)
-- [EFFORT-007 — Vision scan should explicitly say when nothing was detected](effort-007-vision-scan-no-detection-feedback.md)
+- [EFF-007 — Vision scan should explicitly say when nothing was detected](effort-007-vision-scan-no-detection-feedback.md)
 - [Mobile Refresh design language](../product-decisions/features/mobile-refresh/pd-design-language.md)
 
 ## Chronology

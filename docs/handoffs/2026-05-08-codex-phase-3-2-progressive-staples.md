@@ -21,15 +21,15 @@ Follow-up after Wilson's Replit check at `968d39a`: the core rolling queue and s
 - `client/src/index.css` adds Added shelf/chip/green-check saved-chip styling plus lightweight row/chip entry animations with a `prefers-reduced-motion` fallback.
 - `tests/unit/planning-staples.test.ts` covers the full-list helper and capped-helper compatibility.
 - `tests/unit/meal-planning.test.tsx` covers rolling reveal, visible-X Added chip undo, Back-before-submit no-save behavior, saved-chip confirmation/tap-to-explain/no-resave behavior, save-failure toast behavior, selected-vs-seen submission context, loading freeze with Back cancel, and successful three-suggestion reveal.
-- Docs updated: INIT-001, mobile-refresh phase index, Phase 3 record, Phase 3.1 record, Phase 3.2 feature record, EFFORT-004, and EFFORT-005.
+- Docs updated: INIT-001, mobile-refresh phase index, Phase 3 record, Phase 3.1 record, Phase 3.2 feature record, EFF-004, and EFF-005.
 
 ## Impact on other agents
 
 - Phase 3.1 should treat Phase 3.2 as the current Chef It Up staple-check behavior now that PR #46 has merged.
 - Phase 3.1 should also compare Slop Bowl's pantry-check menu against the newer Chef It Up Phase 3.2 chip/row direction and align visual grammar where behavior overlaps. Latest accepted chip grammar: pending/removable additions use coral `+` + `X`; saved pantry facts use green check-only chips with no visible `Saved` text and tap-to-explain Pantry Settings removal direction. Do not change Slop Bowl behavior unless Phase 3.1 deliberately takes that on.
 - There are no server route, payload contract, database, or environment-variable changes.
-- EFFORT-004 interaction: conforms. The queue keeps full-row rows and uses full chip targets for undo; the visible `X` improves discoverability without shrinking the tap target, and rows/chips disable during submit.
-- EFFORT-005 interaction: conforms. Deterministic UI state is covered by Vitest; authenticated pantry-save/generation behavior still needs Replit validation.
+- EFF-004 interaction: conforms. The queue keeps full-row rows and uses full chip targets for undo; the visible `X` improves discoverability without shrinking the tap target, and rows/chips disable during submit.
+- EFF-005 interaction: conforms. Deterministic UI state is covered by Vitest; authenticated pantry-save/generation behavior still needs Replit validation.
 - Pantry-save timing: the DB write starts when `View recipe suggestions` is pressed and completes before recipe suggestions are fetched. Success is confirmed inline during `Finding recipes...`; failure uses a destructive toast and recipes still use those staples for the current request.
 
 ## Open items

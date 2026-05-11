@@ -83,7 +83,7 @@ Implementation should match the planning mockups closely enough that the first p
 - PD-005 / `design_guidelines.md`: Ticket Pass establishes the distinctive mobile-refresh recipe-suggestion pattern.
 - Full-row selection pattern: Cuisine chips and Slop Bowl confirmation controls must have mobile-appropriate tap targets.
 - Shared manual-entry parser: Slop Bowl quick-add uses the shared comma parser.
-- EFFORT-010: Last planning time setting must follow the repo's DB-change policy if persisted server-side.
+- EFF-010: Last planning time setting must follow the repo's DB-change policy if persisted server-side.
 
 ## Backend Notes
 
@@ -101,13 +101,13 @@ Implemented locally:
 
 - Planning entry now prioritizes Chef It Up as the primary route and places Slop Bowl below it as the scrappy secondary route.
 - Chef It Up removes the avoid/specify step and uses the approved four-stop planning time control: `30m`, `1hr`, `1.5hrs`, and `Got all the time`.
-- Last planning time is stored as a client-side planning preference for this phase, then passed into Slop Bowl generation. This avoids repurposing the legacy `weekly_time` column or adding a schema change before [EFFORT-010](../../../efforts/effort-010-local-db-schema-strategy.md) resolves the DB workflow.
+- Last planning time is stored as a client-side planning preference for this phase, then passed into Slop Bowl generation. This avoids repurposing the legacy `weekly_time` column or adding a schema change before [EFF-010](../../../efforts/effort-010-local-db-schema-strategy.md) resolves the DB workflow.
 - Cuisine selection uses full-row illustrated multi-select chips. `No preference` is exclusive.
 - Suggestions now render as exactly three Ticket Pass tickets, with no visible percentage match and no mandatory grocery-list copy. Internal `pantryMatch`, `missingIngredients`, and `additionalIngredientsNeeded` fields remain available for compatibility/history/cooking-session paths.
 - Ticket Pass now uses image-slot placeholders and a featured-ticket/compact-stack structure so suggestions do not read as generic vertical recipe cards and can accept generated imagery in Phase 3.1.
 - Selected tickets open a Prep Tray showing ingredients Laica will use, optional enhancements if around, and the primary Cook action.
 - Slop Bowl confirmation now uses the approved "one more check" framing, keeps 3+ distinct ingredient gating, keeps shared comma/period parser behavior, and uses the user's last planning time setting with fallback `30m`.
-- Slop Bowl direct hex-literal callsites touched by this phase were migrated to token/CSS-variable styling with tone-forward comments, adding implementation signal now carried forward by INIT-001 Phase 3.1 and EFFORT-015's enforcement work.
+- Slop Bowl direct hex-literal callsites touched by this phase were migrated to token/CSS-variable styling with tone-forward comments, adding implementation signal now carried forward by INIT-001 Phase 3.1 and EFF-015's enforcement work.
 
 2026-05-05 logo drift follow-up:
 
@@ -212,7 +212,7 @@ Implemented locally:
 - Wilson's Phase 3 Replit validation found that after selecting likely missing staples and tapping `View recipe suggestions`, the staple list could reshuffle while `Finding recipes...` stayed on screen. The request still used the original selected staples, but the visible rows changed because confirmed staples saved into the parent pantry profile and recomputed the deterministic missing-staple candidates during the in-flight request.
 - The Chef It Up generation path now snapshots the request context and rendered staple candidates when generation starts. Cuisine, `No preference`, and staple rows are disabled while loading; the Back button stays available.
 - Pantry recipe generation is now abortable from the client. Pressing Back cancels the active request, clears the loading lock, and prevents late responses from auto-advancing to Ticket Pass. Confirmed staples remain saved to pantry because the user's taps are still pantry facts; Back cancels recipe generation only.
-- The implementation is rebased onto `origin/main` at PR #44 (`24decb2`), so it uses the resolved EFFORT-018 authenticated AI error handler instead of the old demo-era handler. Abort/cancel responses stay silent while real 400/429/5xx errors use the new authenticated-app copy.
+- The implementation is rebased onto `origin/main` at PR #44 (`24decb2`), so it uses the resolved EFF-018 authenticated AI error handler instead of the old demo-era handler. Abort/cancel responses stay silent while real 400/429/5xx errors use the new authenticated-app copy.
 - Replit validation must add this scenario: Mediterranean + Mexican, select two staples, tap `View recipe suggestions`, verify no row replacement or extra input is possible while loading, press Back and verify no late auto-advance, then repeat and let generation complete normally.
 
 2026-05-08 merge closeout:

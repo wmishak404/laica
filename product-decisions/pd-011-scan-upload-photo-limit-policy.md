@@ -7,7 +7,7 @@
 **Scope:** Pantry/Kitchen scan upload and camera refresh surfaces
 **Applies when:** Changing Pantry/Kitchen scan caps, camera capture counting, scan batch endpoints, image-count rate limits, scan error copy, or post-cook inventory rescan capacity.
 **Related Initiatives:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
-**Related Efforts:** [EFFORT-021](../efforts/effort-021-scan-upload-photo-limit-policy.md), [EFFORT-007](../efforts/effort-007-vision-scan-no-detection-feedback.md), [EFFORT-014](../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md)
+**Related Efforts:** [EFF-021](../efforts/effort-021-scan-upload-photo-limit-policy.md), [EFF-007](../efforts/effort-007-vision-scan-no-detection-feedback.md), [EFF-014](../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md)
 
 ## Context
 
@@ -113,13 +113,13 @@ These are planning estimates, not billing guarantees. Implementation should reca
 
 ## Consequences
 
-- [EFFORT-021](../efforts/effort-021-scan-upload-photo-limit-policy.md) closed after PR #53 shipped and Wilson validated the accepted runtime policy.
+- [EFF-021](../efforts/effort-021-scan-upload-photo-limit-policy.md) closed after PR #53 shipped and Wilson validated the accepted runtime policy.
 - Setup, Settings, and post-cook rescan docs should treat old 8/6/4 photo caps as historical unless a later decision supersedes this policy.
 - The current scan route can remain per-image with bounded concurrency unless future product or cost signals reopen provider-level batching.
 - Tests must cover setup and Settings limits, same-limit Pantry/Kitchen behavior, fail-closed over-cap copy, unsupported-file counting, accepted-image counting, image-count rate limits, partial-success behavior, and stale-result protection.
 - Tests should also cover returning-user empty-Pantry states, Pantry-dependent recipe blockers, Settings Back/cancel behavior during active scans, and persistence boundaries after clearing Pantry.
 - Replit validation covered the high-photo-count scan slice and follow-up Planning blocker behavior before this Effort resolved.
-- Abuse hardening beyond the existing short-window IP limit is a monitoring follow-up, not a blocker for the current EFFORT-021 runtime slice.
+- Abuse hardening beyond the existing short-window IP limit is a monitoring follow-up, not a blocker for the current EFF-021 runtime slice.
 
 ## Open follow-ups
 

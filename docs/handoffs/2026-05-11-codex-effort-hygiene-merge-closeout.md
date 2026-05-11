@@ -19,7 +19,7 @@ Completed the required post-merge closeout after PR #57 merged. This pass starte
 ## Impact on other agents
 
 - Use the merged PR #57 state on `main` as the source of truth for Effort routing.
-- `EFFORT-013` and `EFFORT-014` remain active until a specific unclosed Mobile Refresh phase explicitly owns them or the work is already shipped.
+- `EFF-013` and `EFF-014` remain active until a specific unclosed Mobile Refresh phase explicitly owns them or the work is already shipped.
 - When evaluating whether a future phase is the right receiving home, use the INIT phase table/current resume point rather than a phase doc `Status:` line by itself.
 
 ## Open items

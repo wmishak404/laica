@@ -1,4 +1,4 @@
-# EFFORT-005 Testing Strategy and Acceptance Criteria
+# EFF-005 Testing Strategy and Acceptance Criteria
 
 **Agent:** codex
 **Branch:** codex/epic-002-003-flow-fixes
@@ -13,12 +13,12 @@ The epic documents the current state accurately: local compile/build checks exis
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
   - New epic covering current evidence, scope, open questions, checklist, and resolution criteria for a repo-wide testing workflow.
 - `efforts/README.md`
-  - Added EFFORT-005 to the open-epic index.
+  - Added EFF-005 to the open-epic index.
 - `AGENTS.md`
-  - Added EFFORT-005 to the repo-level active Efforts rule so future work on merge readiness, acceptance criteria, or verification workflow reads it first.
+  - Added EFF-005 to the repo-level active Efforts rule so future work on merge readiness, acceptance criteria, or verification workflow reads it first.
 
 ## Impact on other agents
-- EFFORT-005 is now the planning artifact to read before reshaping how testing/verification should work across the app.
+- EFF-005 is now the planning artifact to read before reshaping how testing/verification should work across the app.
 - This does not yet change the current validation rules; it only records the gap and frames the planning work.
 - The upcoming dedicated planning thread can start from this epic instead of rebuilding the problem statement from scratch.
 

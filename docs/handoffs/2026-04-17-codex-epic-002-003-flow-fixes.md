@@ -1,15 +1,15 @@
-# EFFORT-002 and EFFORT-003 Flow Fixes
+# EFF-002 and EFF-003 Flow Fixes
 
 **Agent:** codex
 **Branch:** codex/epic-002-003-flow-fixes
 **Date:** 2026-04-17
 
 ## Summary
-Implemented the shippable portions of EFFORT-002 and EFFORT-003 together.
+Implemented the shippable portions of EFF-002 and EFF-003 together.
 
-For EFFORT-002, the welcome-screen CTA no longer forces returning users back through profiling. Users with enough saved setup to plan a meal now jump straight to the Planning choice screen from Home, while the broader Home-vs-Cook IA question remains open.
+For EFF-002, the welcome-screen CTA no longer forces returning users back through profiling. Users with enough saved setup to plan a meal now jump straight to the Planning choice screen from Home, while the broader Home-vs-Cook IA question remains open.
 
-For EFFORT-003, the Slop Bowl pantry-check screen now supports inline remove/add actions using ephemeral local state only. The edited list is sent through `pantryOverride` for bowl generation and regeneration, while permanent pantry changes still live in profile settings.
+For EFF-003, the Slop Bowl pantry-check screen now supports inline remove/add actions using ephemeral local state only. The edited list is sent through `pantryOverride` for bowl generation and regeneration, while permanent pantry changes still live in profile settings.
 
 ## Changes
 - `client/src/pages/app.tsx`
@@ -26,14 +26,14 @@ For EFFORT-003, the Slop Bowl pantry-check screen now supports inline remove/add
 - `efforts/effort-003-slop-bowl-pantry-quick-actions.md`
   - Marked the epic `Resolved` and linked the implementation outcome.
 - `efforts/README.md` and `AGENTS.md`
-  - Updated the repo-level open-epic indexes so EFFORT-003 is no longer advertised as an open required-read item.
+  - Updated the repo-level open-epic indexes so EFF-003 is no longer advertised as an open required-read item.
 - `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`
-  - Added a dated revision note explaining how EFFORT-003 narrowed and superseded the original read-only pantry-check decision.
+  - Added a dated revision note explaining how EFF-003 narrowed and superseded the original read-only pantry-check decision.
 
 ## Impact on other agents
-- EFFORT-002 is only partially closed. The user-facing bug is fixed, but the Home vs Cook information architecture decision is still open and should not be silently collapsed without Wilson's call.
-- EFFORT-003 is implemented in a client-only way and does not require server changes. The existing `pantryOverride` contract is now actively exercised.
-- EFFORT-001 was intentionally deferred per product direction. While touching these flows, no new governance system work was introduced.
+- EFF-002 is only partially closed. The user-facing bug is fixed, but the Home vs Cook information architecture decision is still open and should not be silently collapsed without Wilson's call.
+- EFF-003 is implemented in a client-only way and does not require server changes. The existing `pantryOverride` contract is now actively exercised.
+- EFF-001 was intentionally deferred per product direction. While touching these flows, no new governance system work was introduced.
 
 ## Open items
 - Replit validation is still needed before any deployment-bound merge:
@@ -44,7 +44,7 @@ For EFFORT-003, the Slop Bowl pantry-check screen now supports inline remove/add
   - cooking-session persistence
   - feedback writes
   - ElevenLabs-backed speech routes
-- Wilson still needs to decide the long-term Home/Cook direction before EFFORT-002 can be resolved.
+- Wilson still needs to decide the long-term Home/Cook direction before EFF-002 can be resolved.
 
 ## Verification
 - `npm ci`

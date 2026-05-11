@@ -34,7 +34,7 @@ Accepted durable outcomes:
 - Pantry requires at least 3 ingredients before setup can continue.
 - Cooking Skill auto-advances after one full-row single-choice selection; multi-select screens keep explicit continuation.
 - Exact and near-exact duplicate scan labels are skipped; duplicate-only scans show `Already saved`.
-- Deeper semantic/label-drift duplicate refinement is deferred to [EFFORT-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
+- Deeper semantic/label-drift duplicate refinement is deferred to [EFF-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
 
 ## Visual Direction
 
@@ -89,7 +89,7 @@ Replit validation covered:
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.1 is the feature-level acceptance pattern for combining local gates, Replit prerequisites, visual review, and merge acceptance.
 - Scan feedback: Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.
 - Shared manual-entry parser: Comma-separated manual entry stays shared; Phase 2.1 also accepts period-as-comma typo recovery for manual entry.
-- [EFFORT-010](../../../efforts/effort-010-local-db-schema-strategy.md): Phase 2.1 did not add DB schema changes or reopen the validated Phase 2 data contract.
+- [EFF-010](../../../efforts/effort-010-local-db-schema-strategy.md): Phase 2.1 did not add DB schema changes or reopen the validated Phase 2 data contract.
 - INIT-001 future scan-review work: latest-scan chip states and deeper duplicate/overlap refinement remain deferred in the Mobile Refresh phase records.
 
 ## Deferrals

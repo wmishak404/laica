@@ -1,4 +1,4 @@
-# EFFORT-007 Empty Scan Feedback Filed
+# EFF-007 Empty Scan Feedback Filed
 
 **Agent:** codex
 **Branch:** codex/equipment-vision-prompt-fix
@@ -6,23 +6,23 @@
 
 ## Summary
 
-Filed EFFORT-007 as a small backlog reminder discovered during equipment-scan validation: when image analysis correctly detects nothing, some scan surfaces explicitly tell the user while others silently do nothing. This is intentionally narrower than a broad scan-UX initiative and exists so the gap is not forgotten while EFFORT-006 continues.
+Filed EFF-007 as a small backlog reminder discovered during equipment-scan validation: when image analysis correctly detects nothing, some scan surfaces explicitly tell the user while others silently do nothing. This is intentionally narrower than a broad scan-UX initiative and exists so the gap is not forgotten while EFF-006 continues.
 
 ## Changes
 
 - `efforts/effort-007-vision-scan-no-detection-feedback.md`
   - New `Open` epic capturing the no-detection feedback gap as a validation follow-up rather than an implementation-ready UX project.
 - `efforts/README.md`
-  - Added EFFORT-007 to the active read list as an `Open` epic.
+  - Added EFF-007 to the active read list as an `Open` epic.
 - `efforts/registry.md`
   - Added the new epic to the registry with its current backlog signal.
 - `efforts/effort-006-equipment-vision-exclusions.md`
-  - Added a dated note linking EFFORT-007 as a follow-up discovered during equipment-scan validation.
+  - Added a dated note linking EFF-007 as a follow-up discovered during equipment-scan validation.
 
 ## Impact on other agents
 
 - Read `efforts/effort-007-vision-scan-no-detection-feedback.md` before changing scan-result feedback in `user-settings` or `user-profiling`.
-- EFFORT-006 remains about detection correctness; EFFORT-007 preserves a smaller UI follow-up discovered during that validation work.
+- EFF-006 remains about detection correctness; EFF-007 preserves a smaller UI follow-up discovered during that validation work.
 - This epic does not yet commit the team to a broader scan-feedback redesign.
 
 ## Open items

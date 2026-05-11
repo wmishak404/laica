@@ -15,7 +15,7 @@ Split the Mobile Refresh meta/process/design documentation stack out of PR #23 i
 
 - Dev-test harness planning, explicitly future/planned and not backend auth bypass.
 - Mockup conformance gate for Mobile Refresh phase implementation.
-- EFFORT-012 for LAICA Design Language.
+- EFF-012 for LAICA Design Language.
 - Mobile Refresh Design Language draft and visual exemplar annotations.
 - Stacked PR and Replit validation hygiene rules.
 - INIT system docs, registry, and INIT-001 Mobile Refresh hub.

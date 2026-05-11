@@ -1,4 +1,4 @@
-# EFFORT-005 — App-wide testing strategy and acceptance criteria workflow
+# EFF-005 — App-wide testing strategy and acceptance criteria workflow
 
 **Former ID:** EPIC-005
 **Status:** Resolved
@@ -201,7 +201,7 @@ Question:
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-005 before starting any of the following:
+Read EFF-005 before starting any of the following:
 
 - [ ] Planning or implementing a feature that changes a core user flow
 - [ ] Deciding what verification is "enough" before merge
@@ -210,7 +210,7 @@ Read EFFORT-005 before starting any of the following:
 - [ ] Writing feature acceptance criteria for a new implementation branch
 - [ ] Updating `AGENTS.md`, handoff conventions, or PR verification expectations
 
-When one of these applies, cite EFFORT-005 in the handoff and note how the work interacts with it (conforms / defers / adds new signal). If the work establishes a new repeatable verification pattern, append a dated note here.
+When one of these applies, cite EFF-005 in the handoff and note how the work interacts with it (conforms / defers / adds new signal). If the work establishes a new repeatable verification pattern, append a dated note here.
 
 ## Resolution criteria — what "done" looks like
 
@@ -240,7 +240,7 @@ After getting localhost running again with the encrypted dotenv setup, Wilson as
 
 ### 2026-04-27 — Effort closeout expectation clarified
 
-The equipment-vision branch merged code that satisfied EFFORT-006 in practice, but the Effort docs remained active until a separate cleanup pass caught the drift. That adds a useful workflow signal: when a merged PR satisfies an Effort's resolution criteria, the repo still needs a short docs closeout pass from fresh `main` to flip the Effort status, update `efforts/README.md` and `efforts/registry.md`, append a final resolution note, and push a handoff. `AGENTS.md` and `CLAUDE.md` now call that out explicitly so merge-ready feature work and Effort bookkeeping do not drift apart again.
+The equipment-vision branch merged code that satisfied EFF-006 in practice, but the Effort docs remained active until a separate cleanup pass caught the drift. That adds a useful workflow signal: when a merged PR satisfies an Effort's resolution criteria, the repo still needs a short docs closeout pass from fresh `main` to flip the Effort status, update `efforts/README.md` and `efforts/registry.md`, append a final resolution note, and push a handoff. `AGENTS.md` and `CLAUDE.md` now call that out explicitly so merge-ready feature work and Effort bookkeeping do not drift apart again.
 
 ### 2026-04-28 — Mobile refresh adopts phase-level acceptance criteria
 
@@ -272,7 +272,7 @@ Wilson's mobile Phase 2.1 smoke passed the broad setup/profile-save path but fou
 
 ### 2026-04-30 — Phase 2.1 defers ultra-refined duplicate cleanup
 
-Wilson retested the duplicate-prevention pass on mobile and confirmed upload smoke from different sources passed. The current implementation skips some already-saved entries, but model-label drift can still create duplicate-like chips. The accepted validation outcome is to ship the Phase 2.1 mitigation and file [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md) for latest-scan indicators and richer duplicate cleanup. This is useful acceptance-criteria evidence: not every discovered edge must block merge when the product owner explicitly defers it and creates a tracked follow-up.
+Wilson retested the duplicate-prevention pass on mobile and confirmed upload smoke from different sources passed. The current implementation skips some already-saved entries, but model-label drift can still create duplicate-like chips. The accepted validation outcome is to ship the Phase 2.1 mitigation and file [EFF-014](effort-014-scan-session-diff-and-duplicate-refinement.md) for latest-scan indicators and richer duplicate cleanup. This is useful acceptance-criteria evidence: not every discovered edge must block merge when the product owner explicitly defers it and creates a tracked follow-up.
 
 ### 2026-05-01 — Phase 2.1 merge records docs-only-after-validation nuance
 
@@ -320,11 +320,11 @@ This adds a useful acceptance pattern for DB-backed optimistic UI: tests should 
 
 PR #46 merged after local checks, Replit code-path review, and Wilson's authenticated Replit/browser validation all passed at `9646c80`. The merge confirmed that code verification alone was not enough for this feature: Replit's non-authenticated review could certify tests, TypeScript, build, and behavior paths, but Wilson still had to run the live Firebase-authenticated preview to close the browser gate.
 
-The acceptance signal is now recorded in INIT-001 and the Phase 3.2 feature record. EFFORT-005 stays open only for the broader testing-workflow graduation work tracked separately under EFFORT-020; it should not become a running ledger for every future feature's acceptance criteria.
+The acceptance signal is now recorded in INIT-001 and the Phase 3.2 feature record. EFF-005 stays open only for the broader testing-workflow graduation work tracked separately under EFF-020; it should not become a running ledger for every future feature's acceptance criteria.
 
 ### 2026-05-09 - Effort status audit
 
-Status changed from `Open` to `In Progress`. The repo now has repeated accepted validation patterns, the Replit validation focus guide, phase-level acceptance records, and EFFORT-020 as the dedicated graduation track. This Effort remains unresolved because the central testing/acceptance workflow artifact and active-reference repointing still have not landed.
+Status changed from `Open` to `In Progress`. The repo now has repeated accepted validation patterns, the Replit validation focus guide, phase-level acceptance records, and EFF-020 as the dedicated graduation track. This Effort remains unresolved because the central testing/acceptance workflow artifact and active-reference repointing still have not landed.
 
 ### 2026-05-09 — Resolved
 
