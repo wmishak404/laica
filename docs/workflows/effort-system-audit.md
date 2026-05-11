@@ -41,12 +41,36 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
 6. Write a handoff with what changed, why it changed, remaining active Efforts, and verification.
 7. Ask Claude for peer review through the PR/handoff path when the taxonomy or closeout rationale is non-trivial.
 
+## Closure Acceptance Criteria
+
+Before closing or repointing an Effort, use this checklist:
+
+1. **Shipped vs unshipped is explicit.**
+   - Do not close an Effort as if it is done unless the underlying product or workflow work is actually shipped/accepted.
+2. **A single unclosed phase clearly owns it.**
+   - If the work is moving into an INIT, one specific unclosed phase or active slice should naturally own the remaining scope.
+   - If ownership is split across multiple future phases or surfaces, keep it as an Effort.
+3. **The target phase is updated in the same branch.**
+   - The receiving phase/INIT should be edited at the same time so ownership is not inferred from old docs.
+4. **Resume point stays obvious.**
+   - A future agent should be able to answer “where do I pick this up?” without reading multiple closed phases to reconstruct intent.
+5. **Historical source is preserved.**
+   - Keep the originating closed-phase deferral or chronology note when it explains how the work was discovered.
+6. **Cross-surface scope is honest.**
+   - If the work spans setup, Settings, post-cook cleanup, or multiple initiative surfaces, do not force it into one phase unless the receiving phase really covers that breadth.
+7. **Discoverability is preserved.**
+   - The final home should still be easy to find through the terms a future agent is likely to search.
+8. **No redundancy is introduced.**
+   - After the move, there should be one clear active home. Historical references are fine; duplicate active ownership is not.
+9. **Acceptance/validation context survives the move.**
+   - If the Effort carried meaningful open questions, validation expectations, or design constraints, the new home must preserve them or link back clearly.
+
 ## Automation Prompt
 
 Use this in the Codex Automations menu for a recurring docs-only hygiene check:
 
 ```text
-Weekly effort hygiene audit: from fresh origin/main, review efforts/README.md, efforts/registry.md, active INITs, product-decisions/README.md, and docs/workflows/. For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, naturally belongs to a specific unclosed phase inside an active INIT, or should graduate into a PD/workflow doc. Check whether the work has actually been addressed in the past before closing it. If the work is already shipped, resolve it and document the accepted outcome in the appropriate closed INIT phase/chronology location. If the work is not shipped but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch and resolve the Effort into that phase-owned work. If no specific unclosed INIT phase naturally owns it, keep it as an Effort even if the initiative is adjacent. Add or refresh plain-English summaries, update the registry/read lists, and write a handoff. Do not change runtime code. Open a docs-only PR and request Claude peer review before merge.
+Weekly effort hygiene audit: from fresh origin/main, review efforts/README.md, efforts/registry.md, active INITs, product-decisions/README.md, and docs/workflows/. For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, naturally belongs to a specific unclosed phase inside an active INIT, or should graduate into a PD/workflow doc. Check whether the work has actually been addressed in the past before closing it. Apply the closure acceptance criteria in `docs/workflows/effort-system-audit.md`: shipped vs unshipped must be explicit; one specific unclosed phase must clearly own remaining scope; the receiving phase/INIT must be updated in the same branch; resume point and discoverability must stay obvious; and cross-surface work should stay as an Effort if no single unclosed phase truly owns it. If the work is already shipped, resolve it and document the accepted outcome in the appropriate closed INIT phase/chronology location. If the work is not shipped but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch and resolve the Effort into that phase-owned work. If no specific unclosed INIT phase naturally owns it, keep it as an Effort even if the initiative is adjacent. Add or refresh plain-English summaries, update the registry/read lists, and write a handoff. Do not change runtime code. Open a docs-only PR and request Claude peer review before merge.
 ```
 
 ## 2026-05-09 Cleanup Record
@@ -63,11 +87,9 @@ The cleanup renamed `epics/` to `efforts/`, changed numbered filenames to `effor
 
 ## 2026-05-11 Cleanup Record
 
-The weekly hygiene pass confirmed the Effort system should stay limited to true standalones:
+The weekly hygiene pass initially tried to close EFFORT-013 and EFFORT-014 because both were adjacent to Mobile Refresh work.
 
-- EFFORT-013 closed because pantry spell correction is future Mobile Refresh phase work, not a standalone backlog track.
-- EFFORT-014 closed because richer latest-scan and duplicate-review UX is also Mobile Refresh phase work.
-- `AGENTS.md`, `CLAUDE.md`, `efforts/README.md`, and `INIT-001` were updated so the active read list now only includes true standalone follow-ups.
+That interpretation was later corrected: adjacency to an INIT is not enough by itself. If no specific unclosed phase clearly owns the remaining work, the item should stay as an active Effort.
 
 ## 2026-05-11 Follow-up Clarification
 
