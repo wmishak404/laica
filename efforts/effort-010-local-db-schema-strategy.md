@@ -1,4 +1,4 @@
-# EFFORT-010 — Local database schema strategy
+# EFF-010 — Local database schema strategy
 
 **Former ID:** EPIC-010
 **Status:** Open
@@ -62,7 +62,7 @@ Until this is resolved, local agents can waste time debugging environment drift 
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-010 before starting any of the following:
+Read EFF-010 before starting any of the following:
 
 - [ ] Running or recommending `npm run db:push`
 - [ ] Changing Drizzle schemas or DB-backed persistence paths

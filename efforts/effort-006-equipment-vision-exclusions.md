@@ -1,4 +1,4 @@
-# EFFORT-006 — Tighten equipment vision prompts to exclude non-kitchen items
+# EFF-006 — Tighten equipment vision prompts to exclude non-kitchen items
 
 **Former ID:** EPIC-006
 **Status:** Resolved
@@ -88,7 +88,7 @@ Implementation should identify or capture durable fixtures for those cases befor
 
 ## Agent checklist — when to read or reopen this Effort
 
-Read EFFORT-006 before starting any of the following:
+Read EFF-006 before starting any of the following:
 
 - [ ] Editing `server/prompts/molecules/vision-base.md`
 - [ ] Editing `server/prompts/organisms/equipment-analysis.md`
@@ -165,9 +165,9 @@ Follow-up product review clarified that some remaining false positives are not r
 
 Live local fixture retesting showed that prompt tightening alone reduced many false positives, but the vision model still occasionally reintroduced excluded infrastructure under nearby synonyms such as `vent hood`, `farmhouse kitchen sink`, or `kitchen faucet`. The implementation therefore graduated from pure prompt control to a narrow server-side equipment filter for fixed infrastructure and plumbing labels that are out of scope for the current `kitchenEquipment` product surface. This keeps `French press` and `carafe` in-bounds while enforcing the agreed exclusion for sinks and hoods.
 
-### 2026-04-27 — Empty-result UI follow-up split into EFFORT-007
+### 2026-04-27 — Empty-result UI follow-up split into EFF-007
 
-Negative-control fixture testing also surfaced a smaller product gap outside the model itself: some scan flows clearly communicate a valid empty result, while others still end silently when nothing is detected. That follow-up now lives in `efforts/effort-007-vision-scan-no-detection-feedback.md` so it remains visible during ongoing and future equipment-scan validation without widening EFFORT-006 itself.
+Negative-control fixture testing also surfaced a smaller product gap outside the model itself: some scan flows clearly communicate a valid empty result, while others still end silently when nothing is detected. That follow-up now lives in `efforts/effort-007-vision-scan-no-detection-feedback.md` so it remains visible during ongoing and future equipment-scan validation without widening EFF-006 itself.
 
 ### 2026-04-27 — Fine-grained taxonomy call for serving/storage vs. drinkware
 
@@ -197,7 +197,7 @@ PR #17 merged the equipment-scan tightening work into `main`, satisfying this Ef
 - The named local fixture set was used for live manual validation, including negative controls (`suitcases.jpeg`, living-room fixtures) and mixed kitchen images (`kitchenfar_beckoit.jpeg`, `209E6358-...jpeg`).
 - Final live results removed the targeted non-kitchen returns from `equipment`, including doorway clutter, soap dispensers, sink/faucet/hood labels, casual drinkware, water-filter labels, organizer surfaces, and decor objects.
 
-The logging caveat was explicitly treated as separate scope: vision-route logging was not added, and it is not required for EFFORT-006 resolution. The empty-result UI gap discovered during validation remains tracked separately in `efforts/effort-007-vision-scan-no-detection-feedback.md`.
+The logging caveat was explicitly treated as separate scope: vision-route logging was not added, and it is not required for EFF-006 resolution. The empty-result UI gap discovered during validation remains tracked separately in `efforts/effort-007-vision-scan-no-detection-feedback.md`.
 
 Resolution artifacts:
 

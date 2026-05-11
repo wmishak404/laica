@@ -84,6 +84,6 @@ Use this policy for optional context and local-vs-production validation:
 
 - [`PD-002: Slop Bowl`](pd-002-slop-bowl.md)
 - [`Testing and Acceptance Workflow`](../docs/workflows/testing-and-acceptance.md)
-- [`EFFORT-008: Slop Bowl sparse-pantry guard`](../efforts/effort-008-slop-bowl-sparse-pantry-guard.md)
-- [`EFFORT-010: Local database schema strategy`](../efforts/effort-010-local-db-schema-strategy.md)
+- [`EFF-008: Slop Bowl sparse-pantry guard`](../efforts/effort-008-slop-bowl-sparse-pantry-guard.md)
+- [`EFF-010: Local database schema strategy`](../efforts/effort-010-local-db-schema-strategy.md)
 - [`docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md`](../docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md)

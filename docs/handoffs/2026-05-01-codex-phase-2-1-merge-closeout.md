@@ -17,20 +17,20 @@ This closeout updates the living docs from fresh `origin/main` so the repo no lo
 - Updated `initiatives/INIT-001-mobile-refresh.md` so Phase 2.1 is marked merged and the resume point moves to Phase 3 Planning kickoff.
 - Updated `product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md` with the PR #27 merge closeout and final validation state.
 - Updated `product-decisions/features/mobile-refresh/README.md` and `pd-design-language.md` so Phase 2.1 is recorded as the merged setup visual pilot.
-- Added dated EFFORT-005, EFFORT-007, and EFFORT-012 notes with the merge signal.
-- Updated `efforts/registry.md` with the latest signal for EFFORT-005, EFFORT-007, and EFFORT-012.
+- Added dated EFF-005, EFF-007, and EFF-012 notes with the merge signal.
+- Updated `efforts/registry.md` with the latest signal for EFF-005, EFF-007, and EFF-012.
 
 ## Impact on other agents
 
 - Start the next INIT-001 implementation work from fresh `origin/main`.
 - Phase 3 Planning is the next active mobile-refresh phase.
-- EFFORT-007 remains open because its resolution criteria still require a named negative-control pantry/kitchen image validation note.
-- EFFORT-012 remains `In Progress`; Phase 2.1 is a strong visual pilot, but the durable design-language artifact and Phase 3-5 proof points remain.
+- EFF-007 remains open because its resolution criteria still require a named negative-control pantry/kitchen image validation note.
+- EFF-012 remains `In Progress`; Phase 2.1 is a strong visual pilot, but the durable design-language artifact and Phase 3-5 proof points remain.
 
 ## Open items
 
 - Open Phase 3 planning/implementation branch from `main`.
-- Keep old Profile/Settings visual refresh, EFFORT-013 pantry spell correction, and EFFORT-014 scan-session duplicate refinement out of Phase 3 unless Wilson explicitly pulls them forward.
+- Keep old Profile/Settings visual refresh, EFF-013 pantry spell correction, and EFF-014 scan-session duplicate refinement out of Phase 3 unless Wilson explicitly pulls them forward.
 
 ## Verification
 

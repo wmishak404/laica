@@ -1,4 +1,4 @@
-# EFFORT-008 — Slop Bowl sparse-pantry guard
+# EFF-008 — Slop Bowl sparse-pantry guard
 
 **Former ID:** EPIC-008
 **Status:** Resolved
@@ -38,7 +38,7 @@ Wilson chose the product behavior: ask for more ingredients and gently prompt th
 
 - Designing a full pantry quality scoring system.
 - Auto-suggesting ingredients from inventory history.
-- Changing saved pantry semantics from EFFORT-003; Slop Bowl quick edits remain ephemeral unless made through profile settings.
+- Changing saved pantry semantics from EFF-003; Slop Bowl quick edits remain ephemeral unless made through profile settings.
 - Reworking the generic demo/rate-limit handler across the whole app.
 
 ## Decisions made so far
@@ -56,14 +56,14 @@ Wilson chose the product behavior: ask for more ingredients and gently prompt th
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-008 before starting any of the following:
+Read EFF-008 before starting any of the following:
 
 - [ ] Modifying `client/src/components/cooking/slop-bowl.tsx` pantry-check, generation, or error handling behavior
 - [ ] Changing `POST /api/recipes/slop-bowl` validation or request/response semantics
 - [ ] Changing `client/src/lib/openai.ts` Slop Bowl error handling
 - [ ] Defining Slop Bowl acceptance criteria or verification for sparse pantry states
 
-When this applies, also cite EFFORT-005 because sparse-pantry behavior is part of core cooking-flow acceptance criteria.
+When this applies, also cite EFF-005 because sparse-pantry behavior is part of core cooking-flow acceptance criteria.
 
 ## Resolution criteria — what "done" looks like
 
@@ -124,4 +124,4 @@ Verification passed:
 - `npm run check`
 - `npm run build`
 
-EFFORT-008 is resolved. Future Slop Bowl pantry-entry improvements should use EFFORT-009, and local DB strategy work should use EFFORT-010.
+EFF-008 is resolved. Future Slop Bowl pantry-entry improvements should use EFF-009, and local DB strategy work should use EFF-010.

@@ -57,9 +57,9 @@ Every implementation handoff and PR description should include:
 
 ## Resolved Effort History
 
-This workflow graduates the useful parts of former EFFORT-005 and EFFORT-020:
+This workflow graduates the useful parts of former EFF-005 and EFF-020:
 
-- Former EFFORT-005 asked for an app-wide testing strategy and acceptance criteria workflow.
-- Former EFFORT-020 asked where workflow documentation, Feature Impact Review, and validation evidence should live.
+- Former EFF-005 asked for an app-wide testing strategy and acceptance criteria workflow.
+- Former EFF-020 asked where workflow documentation, Feature Impact Review, and validation evidence should live.
 
 Both are now resolved as standalone Efforts. Future changes should update this workflow, the Replit validation focus guide, or the relevant INIT/phase record instead of reopening those Efforts.

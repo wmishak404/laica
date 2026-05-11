@@ -1,13 +1,13 @@
-# EFFORT-002 Resolution — Home and Cook Stay Separate
+# EFF-002 Resolution — Home and Cook Stay Separate
 
 **Agent:** codex
 **Branch:** codex/epic-002-003-flow-fixes
 **Date:** 2026-04-17
 
 ## Summary
-Recorded Wilson's final product decision for the remaining EFFORT-002 question: Home and Cook should stay separate.
+Recorded Wilson's final product decision for the remaining EFF-002 question: Home and Cook should stay separate.
 
-The deciding rationale is that Cook is already disabled during the first-time-user experience until profile setup is complete, so the overlap concern does not justify navigation consolidation. With that decision captured in a durable product-decision doc and the Home Dashboard spec marked aspirational/deferred, EFFORT-002 can now be resolved.
+The deciding rationale is that Cook is already disabled during the first-time-user experience until profile setup is complete, so the overlap concern does not justify navigation consolidation. With that decision captured in a durable product-decision doc and the Home Dashboard spec marked aspirational/deferred, EFF-002 can now be resolved.
 
 ## Changes
 - `product-decisions/pd-006-home-and-cook-remain-separate.md`
@@ -20,11 +20,11 @@ The deciding rationale is that Cook is already disabled during the first-time-us
   - Marked the epic `Resolved`.
   - Added the final product decision, linked PD-006, and recorded the resolution note.
 - `efforts/README.md`, `AGENTS.md`, `CLAUDE.md`
-  - Removed EFFORT-002 from the open-epic lists because it is no longer an active required-read item.
+  - Removed EFF-002 from the open-epic lists because it is no longer an active required-read item.
 
 ## Impact on other agents
-- EFFORT-002 is no longer open. Future work should not reopen the Home-vs-Cook consolidation question by default.
-- If richer Home dashboard work becomes active later, it should be tracked as new work rather than assuming EFFORT-002 is still pending.
+- EFF-002 is no longer open. Future work should not reopen the Home-vs-Cook consolidation question by default.
+- If richer Home dashboard work becomes active later, it should be tracked as new work rather than assuming EFF-002 is still pending.
 - The current accepted IA is:
   - Home remains the landing/welcome surface
   - Cook remains the planning entry

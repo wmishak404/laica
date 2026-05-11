@@ -1,4 +1,4 @@
-# EFFORT-007 — Vision scan should explicitly say when nothing was detected
+# EFF-007 — Vision scan should explicitly say when nothing was detected
 
 **Former ID:** EPIC-007
 **Status:** Resolved
@@ -45,7 +45,7 @@ The result is a small but real UX gap: a user can take a valid photo that genuin
 
 ## Decisions made so far
 
-- This should be tracked separately from EFFORT-006 so the no-detection feedback gap is not lost inside model-quality work.
+- This should be tracked separately from EFF-006 so the no-detection feedback gap is not lost inside model-quality work.
 - The current behavior gap is real even when the model is behaving correctly.
 - Zero-result scans should be considered a valid outcome, not an error.
 
@@ -64,13 +64,13 @@ Default lean:
 
 Exact copy can be finalized later when implementation starts.
 
-### 3. How much of this should be revisited when EFFORT-006 validation continues?
+### 3. How much of this should be revisited when EFF-006 validation continues?
 
 Default lean: use this Effort as a reminder during future equipment-scan validation runs and only expand it if repeated testing shows the silent-zero-result behavior is materially confusing in practice.
 
 ## Agent checklist — when to read or reopen this Effort
 
-Read EFFORT-007 before starting any of the following:
+Read EFF-007 before starting any of the following:
 
 - [ ] Editing image-scan result messaging in `client/src/components/cooking/user-settings.tsx`
 - [ ] Editing image-scan result messaging in `client/src/components/cooking/user-profiling.tsx`
@@ -97,7 +97,7 @@ This Effort is `Resolved` when all of the following are true:
 
 ### 2026-04-27 — Effort created from live negative-control testing
 
-While validating equipment-vision fixes with living-room and luggage-only photos, the model correctly returned empty arrays for several scans. That surfaced a separate UI follow-up: some scan flows clearly say “No equipment detected,” while others silently finish with no explanation. Wilson asked to capture this as a small backlog Effort so it remains visible while EFFORT-006 continues, rather than disappearing behind model-quality work.
+While validating equipment-vision fixes with living-room and luggage-only photos, the model correctly returned empty arrays for several scans. That surfaced a separate UI follow-up: some scan flows clearly say “No equipment detected,” while others silently finish with no explanation. Wilson asked to capture this as a small backlog Effort so it remains visible while EFF-006 continues, rather than disappearing behind model-quality work.
 
 ### 2026-04-28 — Mobile refresh makes zero-result scan feedback an acceptance criterion
 
@@ -115,17 +115,17 @@ Wilson's Phase 2.1 Replit testing showed that one generic batch-scan error made 
 
 Wilson's mobile Phase 2.1 smoke found that repeated uploads/captures of the same Pantry or Kitchen angle could add duplicate entries. The Phase 2.1 setup branch now treats duplicate-only detections as their own valid scan outcome with `Already saved` feedback, while mixed duplicate/new scans add only the new items and mention that already-saved items were skipped. This keeps duplicate prevention separate from no-detection and service-failure messaging.
 
-### 2026-04-30 — Label-drift duplicate cleanup split to EFFORT-014
+### 2026-04-30 — Label-drift duplicate cleanup split to EFF-014
 
-Wilson's follow-up mobile retest confirmed the current duplicate mitigation can skip some items, but duplicate-like labels can still appear when repeated scans describe the same object differently. The deeper scan-session review pattern now lives in [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md). EFFORT-007 remains focused on clear scan outcome feedback, while EFFORT-014 owns latest-scan/new-vs-overlap indicators and duplicate cleanup UX.
+Wilson's follow-up mobile retest confirmed the current duplicate mitigation can skip some items, but duplicate-like labels can still appear when repeated scans describe the same object differently. The deeper scan-session review pattern now lives in [EFF-014](effort-014-scan-session-diff-and-duplicate-refinement.md). EFF-007 remains focused on clear scan outcome feedback, while EFF-014 owns latest-scan/new-vs-overlap indicators and duplicate cleanup UX.
 
 ### 2026-05-01 — Phase 2.1 merged, but Effort remains open
 
 PR #27 merged Phase 2.1's explicit scan outcome feedback into `main`. This satisfies the implementation direction for setup/settings scan messaging, but this Effort remains open because its resolution criteria still require a named negative-control pantry/kitchen image validation note. Future scan-feedback work should either supply that validation evidence or deliberately split the remaining criterion.
 
-### 2026-05-07 — EFFORT-018 copy pass removes blame-y scan failure language
+### 2026-05-07 — EFF-018 copy pass removes blame-y scan failure language
 
-The EFFORT-018 authenticated error handling branch also touched scan failure copy in `client/src/components/cooking/user-profiling.tsx` where existing rate-limit text said the user made several scans quickly. The copy now keeps the same recovery paths while using first-person, plain-English phrasing. This conforms to the Effort's distinction between valid zero-result scans and service/request failures; it does not resolve the remaining negative-control validation criterion.
+The EFF-018 authenticated error handling branch also touched scan failure copy in `client/src/components/cooking/user-profiling.tsx` where existing rate-limit text said the user made several scans quickly. The copy now keeps the same recovery paths while using first-person, plain-English phrasing. This conforms to the Effort's distinction between valid zero-result scans and service/request failures; it does not resolve the remaining negative-control validation criterion.
 
 ### 2026-05-09 - Effort status audit
 

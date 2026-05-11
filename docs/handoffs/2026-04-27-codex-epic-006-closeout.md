@@ -1,4 +1,4 @@
-# EFFORT-006 closeout and epic-workflow cleanup
+# EFF-006 closeout and epic-workflow cleanup
 
 **Agent:** codex
 **Branch:** codex/epic-006-closeout
@@ -6,9 +6,9 @@
 
 ## Summary
 
-Closed the documentation gap after PR #17 merged. EFFORT-006 is now formally marked `Resolved`, EFFORT-007 remains `Open`, and the workflow docs now explicitly require an epic closeout pass after merged code satisfies an epic's resolution criteria.
+Closed the documentation gap after PR #17 merged. EFF-006 is now formally marked `Resolved`, EFF-007 remains `Open`, and the workflow docs now explicitly require an epic closeout pass after merged code satisfies an epic's resolution criteria.
 
-This handoff also records a small process improvement for EFFORT-005: merge-ready feature work and epic bookkeeping should not drift apart.
+This handoff also records a small process improvement for EFF-005: merge-ready feature work and epic bookkeeping should not drift apart.
 
 ## Changes
 
@@ -16,9 +16,9 @@ This handoff also records a small process improvement for EFFORT-005: merge-read
   - Flipped status from `In Progress` to `Resolved`
   - Added a final dated resolution section referencing PR #17, fixture validation, and the implementation handoffs
 - `efforts/README.md`
-  - Removed EFFORT-006 from the active epic read list
+  - Removed EFF-006 from the active epic read list
 - `efforts/registry.md`
-  - Marked EFFORT-006 as `Resolved` with `2026-04-27` as the resolved date
+  - Marked EFF-006 as `Resolved` with `2026-04-27` as the resolved date
   - Updated the final signal to reflect prompt tightening, the narrow equipment filter, and fixture validation merged via PR #17
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
   - Added a dated note that epic closure after merge needs a docs pass, not just merged code
@@ -32,8 +32,8 @@ This handoff also records a small process improvement for EFFORT-005: merge-read
 
 ## Impact on other agents
 
-- EFFORT-006 should now be treated as historical context, not an active read-before-work epic.
-- EFFORT-007 is still active and should be read before changing zero-result image-scan messaging.
+- EFF-006 should now be treated as historical context, not an active read-before-work epic.
+- EFF-007 is still active and should be read before changing zero-result image-scan messaging.
 - After future feature PRs merge, agents should not assume the merge implicitly closes the related epic. Do a short follow-up docs pass from fresh `main` to:
   1. flip status
   2. add a final resolution note
@@ -43,8 +43,8 @@ This handoff also records a small process improvement for EFFORT-005: merge-read
 
 ## Open items
 
-- EFFORT-007 remains open until the UI explicitly communicates valid zero-result scans on the silent surfaces.
-- EFFORT-005 is still open; this change adds workflow signal but does not resolve the broader testing/acceptance-criteria strategy.
+- EFF-007 remains open until the UI explicitly communicates valid zero-result scans on the silent surfaces.
+- EFF-005 is still open; this change adds workflow signal but does not resolve the broader testing/acceptance-criteria strategy.
 
 ## Verification
 

@@ -34,10 +34,10 @@ The feedback accepts the broad setup visual direction but requests one more poli
 
 ## Impact on other agents
 
-- EFFORT-001: adds app-shell and reusable setup-control governance. Future mobile-refresh surfaces should not reintroduce a website-style top header by default.
-- EFFORT-004: adds a concrete multi-select default-choice pattern for Dietary Restrictions.
-- EFFORT-005: reinforces that Replit visual review can produce merge-blocking acceptance criteria, not only functional smoke results.
-- EFFORT-012: adds durable design-language direction from the Replit visual review.
+- EFF-001: adds app-shell and reusable setup-control governance. Future mobile-refresh surfaces should not reintroduce a website-style top header by default.
+- EFF-004: adds a concrete multi-select default-choice pattern for Dietary Restrictions.
+- EFF-005: reinforces that Replit visual review can produce merge-blocking acceptance criteria, not only functional smoke results.
+- EFF-012: adds durable design-language direction from the Replit visual review.
 - PD-009: now owns the no-authenticated-header decision for future app-shell work.
 
 ## Open items

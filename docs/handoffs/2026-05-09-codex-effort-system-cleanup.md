@@ -14,20 +14,20 @@ Renamed the former `epics/` system to `efforts/`, changed numbered filenames to 
 
 | Former Epic | New Status | What changed | Why |
 |---|---|---|---|
-| EFFORT-004 | `Resolved` | Closed and left a final resolution note in `effort-004-selection-controls-tap-targets.md` | Mobile Refresh phases already established the full-row/chip selection pattern; remaining polish belongs in INIT-001 phases |
-| EFFORT-005 | `Resolved` | Graduated useful testing/acceptance policy into `docs/workflows/testing-and-acceptance.md` | Testing strategy is workflow governance, not a standalone Effort |
-| EFFORT-007 | `Resolved` | Closed and pointed future scan-feedback work to INIT-001 phase records / EFFORT-014 where relevant | Refreshed scan surfaces already handle no-detection feedback; this is mobile-refresh behavior |
-| EFFORT-009 | `Resolved` | Closed with parser/manual-entry resolution note | Shared parser behavior already shipped through Phase 2/2.1 and was preserved in Phase 3 |
-| EFFORT-016 | `Resolved` | Closed and pointed Slop Bowl visual/token cleanup to INIT-001 Phase 3.1 plus EFFORT-015 enforcement | INIT-001 owns the redesign pass; enforcement remains separate |
-| EFFORT-019 | `Resolved` | Closed as a standalone Effort and repointed active work to INIT-002, PD-010, and the AI error workflow | AI telemetry is an active initiative with privacy governance, not a parallel Effort |
-| EFFORT-020 | `Resolved` | Moved audit findings into `docs/workflows/effort-system-audit.md`, `testing-and-acceptance.md`, and PD-007 | The audit describes how to run the Effort system, so it belongs in workflow docs |
-| EFFORT-010, 013, 014, 015 | Active | Renamed and kept in the active Effort list | These remain standalone follow-up work for now |
-| EFFORT-017 | `Deferred` | Renamed and kept out of the active read list | Environment parity remains deferred until INIT-001 is done |
+| EFF-004 | `Resolved` | Closed and left a final resolution note in `effort-004-selection-controls-tap-targets.md` | Mobile Refresh phases already established the full-row/chip selection pattern; remaining polish belongs in INIT-001 phases |
+| EFF-005 | `Resolved` | Graduated useful testing/acceptance policy into `docs/workflows/testing-and-acceptance.md` | Testing strategy is workflow governance, not a standalone Effort |
+| EFF-007 | `Resolved` | Closed and pointed future scan-feedback work to INIT-001 phase records / EFF-014 where relevant | Refreshed scan surfaces already handle no-detection feedback; this is mobile-refresh behavior |
+| EFF-009 | `Resolved` | Closed with parser/manual-entry resolution note | Shared parser behavior already shipped through Phase 2/2.1 and was preserved in Phase 3 |
+| EFF-016 | `Resolved` | Closed and pointed Slop Bowl visual/token cleanup to INIT-001 Phase 3.1 plus EFF-015 enforcement | INIT-001 owns the redesign pass; enforcement remains separate |
+| EFF-019 | `Resolved` | Closed as a standalone Effort and repointed active work to INIT-002, PD-010, and the AI error workflow | AI telemetry is an active initiative with privacy governance, not a parallel Effort |
+| EFF-020 | `Resolved` | Moved audit findings into `docs/workflows/effort-system-audit.md`, `testing-and-acceptance.md`, and PD-007 | The audit describes how to run the Effort system, so it belongs in workflow docs |
+| EFF-010, 013, 014, 015 | Active | Renamed and kept in the active Effort list | These remain standalone follow-up work for now |
+| EFF-017 | `Deferred` | Renamed and kept out of the active read list | Environment parity remains deferred until INIT-001 is done |
 
 ## Changes
 
 - `epics/` moved to `efforts/`; numbered files now use `effort-###-short-name.md`.
-- `efforts/README.md` now defines Efforts as standalone follow-up work and lists only EFFORT-010, 013, 014, and 015 as active.
+- `efforts/README.md` now defines Efforts as standalone follow-up work and lists only EFF-010, 013, 014, and 015 as active.
 - `efforts/registry.md` records resolved dates and final signals for the closed items.
 - `product-decisions/pd-007-effort-status-and-registry-workflow.md` replaces the old Epic workflow decision and records when not to create an Effort.
 - Product-decision files now use a `pd-` filename prefix: top-level records use `pd-###-short-name.md`, and feature records use names such as `pd-phase-03-planning.md` or `pd-design-language.md`. README files remain folder indexes.
@@ -39,11 +39,11 @@ Renamed the former `epics/` system to `efforts/`, changed numbered filenames to 
 Please review this branch before merge for:
 
 - Taxonomy boundary: active Efforts should be standalone, not active INIT phase work or governance docs.
-- Closeout rationale: EFFORT-004/007/009/016 should be safe to close under INIT-001 ownership; EFFORT-005/019/020 should be safe to close under workflow/INIT/PD ownership.
+- Closeout rationale: EFF-004/007/009/016 should be safe to close under INIT-001 ownership; EFF-005/019/020 should be safe to close under workflow/INIT/PD ownership.
 - Link migration: source-of-truth docs should not point agents to `epics/` paths or closed Efforts as active read requirements.
 - Filename readability: numbered Effort files should all use `effort-###-...`.
 - Product-decision readability: product-decision and feature-record filenames should use the `pd-` prefix, while README files stay as folder indexes.
-- Active list narrowness: `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` should only list EFFORT-010, 013, 014, and 015 as active.
+- Active list narrowness: `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` should only list EFF-010, 013, 014, and 015 as active.
 
 ## Impact on other agents
 

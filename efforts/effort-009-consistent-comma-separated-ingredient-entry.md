@@ -1,4 +1,4 @@
-# EFFORT-009 — Consistent comma-separated ingredient entry
+# EFF-009 — Consistent comma-separated ingredient entry
 
 **Former ID:** EPIC-009
 **Status:** Resolved
@@ -36,7 +36,7 @@ Slop Bowl quick-add currently treats the entire input as a single temporary ingr
 
 ### Out of scope
 
-- Changing saved pantry semantics from EFFORT-003; Slop Bowl quick-add remains ephemeral for the current bowl only.
+- Changing saved pantry semantics from EFF-003; Slop Bowl quick-add remains ephemeral for the current bowl only.
 - Changing camera/image pantry detection.
 - Adding autocomplete, suggestions, or recent ingredient chips.
 - Changing equipment entry behavior, unless the implementation extracts a shared parser that can safely be reused later.
@@ -55,14 +55,14 @@ Slop Bowl quick-add currently treats the entire input as a single temporary ingr
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-009 before starting any of the following:
+Read EFF-009 before starting any of the following:
 
 - [ ] Modifying Slop Bowl pantry-check quick-add behavior in `client/src/components/cooking/slop-bowl.tsx`
 - [ ] Changing manual pantry input parsing in `client/src/components/cooking/user-settings.tsx` or `client/src/components/cooking/user-profiling.tsx`
 - [ ] Adding shared ingredient-entry parsing utilities
-- [ ] Changing sparse-pantry readiness counting from EFFORT-008
+- [ ] Changing sparse-pantry readiness counting from EFF-008
 
-When this applies, also cite EFFORT-003 because the quick-add surface came from that resolved Effort, and cite EFFORT-005 if the work defines or changes acceptance criteria.
+When this applies, also cite EFF-003 because the quick-add surface came from that resolved Effort, and cite EFF-005 if the work defines or changes acceptance criteria.
 
 ## Resolution criteria — what "done" looks like
 
@@ -72,7 +72,7 @@ This Effort is `Resolved` when all of the following are true:
 2. Typing a single ingredient still creates one temporary badge.
 3. Empty comma segments are ignored.
 4. Existing case-insensitive duplicate prevention still works for profile and temporary ingredients.
-5. The distinct-ingredient count from EFFORT-008 treats split ingredients separately.
+5. The distinct-ingredient count from EFF-008 treats split ingredients separately.
 6. Local validation and a handoff record the behavior checked.
 
 ## Linked artifacts

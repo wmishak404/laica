@@ -90,17 +90,17 @@ Weekly effort hygiene audit: from fresh origin/main, review efforts/README.md, e
 
 The cleanup renamed `epics/` to `efforts/`, changed numbered filenames to `effort-###-...`, moved the durable workflow decision to [`PD-007`](../../product-decisions/pd-007-effort-status-and-registry-workflow.md), and closed the stale/governance items Wilson groomed:
 
-- EFFORT-004 closed because Mobile Refresh phases now own the full-row selection-control pattern.
-- EFFORT-005 closed into [`testing-and-acceptance.md`](testing-and-acceptance.md).
-- EFFORT-007 closed because scan no-detection feedback is part of INIT-001 scan behavior, not a standalone active Effort.
-- EFFORT-009 closed because the shared parser work shipped through Mobile Refresh phases.
-- EFFORT-016 closed because INIT-001 Phase 3.1 owns Slop Bowl visual redesign/polish.
-- EFFORT-019 closed into INIT-002, [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [`ai-error-handling-and-telemetry.md`](ai-error-handling-and-telemetry.md).
-- EFFORT-020 closed into this audit workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), and PD-007.
+- EFF-004 closed because Mobile Refresh phases now own the full-row selection-control pattern.
+- EFF-005 closed into [`testing-and-acceptance.md`](testing-and-acceptance.md).
+- EFF-007 closed because scan no-detection feedback is part of INIT-001 scan behavior, not a standalone active Effort.
+- EFF-009 closed because the shared parser work shipped through Mobile Refresh phases.
+- EFF-016 closed because INIT-001 Phase 3.1 owns Slop Bowl visual redesign/polish.
+- EFF-019 closed into INIT-002, [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [`ai-error-handling-and-telemetry.md`](ai-error-handling-and-telemetry.md).
+- EFF-020 closed into this audit workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), and PD-007.
 
 ## 2026-05-11 Cleanup Record
 
-The weekly hygiene pass initially tried to close EFFORT-013 and EFFORT-014 because both were adjacent to Mobile Refresh work.
+The weekly hygiene pass initially tried to close EFF-013 and EFF-014 because both were adjacent to Mobile Refresh work.
 
 That interpretation was later corrected: adjacency to an INIT is not enough by itself. If no specific unclosed phase clearly owns the remaining work, the item should stay as an active Effort.
 

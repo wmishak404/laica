@@ -32,13 +32,13 @@ The branch should now be treated as implementation-complete for Phase 2.1 unless
 
 ## Impact on other agents
 
-- EFFORT-001: no primitive or token change; the docs preserve scoped setup-specific visual decisions.
-- EFFORT-004: acceptance checklist preserves Cooking Skill auto-advance and Dietary Restrictions explicit continuation.
-- EFFORT-005: adds a concrete phase-level validation checklist pattern, while leaving the app-wide testing strategy unresolved.
-- EFFORT-007: Replit checklist explicitly includes no-detection feedback.
-- EFFORT-009: Replit checklist explicitly includes comma-separated manual entry.
-- EFFORT-010: Replit checklist explicitly confirms no DB/schema changes.
-- EFFORT-012: adds new durable signal that Phase 2.1 setup visuals are accepted, pending full Replit functional validation.
+- EFF-001: no primitive or token change; the docs preserve scoped setup-specific visual decisions.
+- EFF-004: acceptance checklist preserves Cooking Skill auto-advance and Dietary Restrictions explicit continuation.
+- EFF-005: adds a concrete phase-level validation checklist pattern, while leaving the app-wide testing strategy unresolved.
+- EFF-007: Replit checklist explicitly includes no-detection feedback.
+- EFF-009: Replit checklist explicitly includes comma-separated manual entry.
+- EFF-010: Replit checklist explicitly confirms no DB/schema changes.
+- EFF-012: adds new durable signal that Phase 2.1 setup visuals are accepted, pending full Replit functional validation.
 
 ## Open items
 

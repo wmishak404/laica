@@ -20,10 +20,10 @@ Wilson's mobile Phase 2.1 smoke found that setup generally worked and disposable
 
 ## Impact on other agents
 
-- This conforms to EFFORT-005 by narrowing the final Replit retest after a documented partial/mobile pass.
-- This conforms to EFFORT-007 by making duplicate-only scans an explicit valid scan outcome instead of confusing them with no-detection or service failure.
-- This uses the EFFORT-009 entry-normalization surface but does not change delimiter behavior beyond the existing Phase 2.1 period/comma parsing.
-- This supports EFFORT-012/INIT-001 Phase 2.1 without changing the accepted setup visuals, `/api/vision/analyze` body contract, or DB schema.
+- This conforms to EFF-005 by narrowing the final Replit retest after a documented partial/mobile pass.
+- This conforms to EFF-007 by making duplicate-only scans an explicit valid scan outcome instead of confusing them with no-detection or service failure.
+- This uses the EFF-009 entry-normalization surface but does not change delimiter behavior beyond the existing Phase 2.1 period/comma parsing.
+- This supports EFF-012/INIT-001 Phase 2.1 without changing the accepted setup visuals, `/api/vision/analyze` body contract, or DB schema.
 
 ## Open items
 

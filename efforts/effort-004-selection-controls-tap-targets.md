@@ -1,4 +1,4 @@
-# EFFORT-004 — Selection controls should be full-row tap targets
+# EFF-004 — Selection controls should be full-row tap targets
 
 **Former ID:** EPIC-004
 **Status:** Resolved
@@ -52,7 +52,7 @@ In `client/src/components/ui/radio-group.tsx`:
 ### Out of scope
 
 - Rewriting the full onboarding flow or changing step order/copy
-- Global visual refresh, palette, or typography work — tracked separately under EFFORT-001
+- Global visual refresh, palette, or typography work — tracked separately under EFF-001
 - Converting every checkbox or multi-select surface in the app to card-style controls in the same pass
 - Replacing the underlying Radix radio primitive with a different control library
 
@@ -111,7 +111,7 @@ Wilson to confirm if implementation proposals differ meaningfully in density or 
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-004 before starting any of the following:
+Read EFF-004 before starting any of the following:
 
 - [ ] Modifying the onboarding selection rows in `client/src/components/cooking/user-profiling.tsx`
 - [ ] Modifying the profile settings selection rows in `client/src/components/cooking/user-settings.tsx`
@@ -119,7 +119,7 @@ Read EFFORT-004 before starting any of the following:
 - [ ] Creating a reusable full-row radio/selectable-row primitive
 - [ ] Reworking how single-select options look and behave in the cooking-profile flow
 
-When one of these applies, cite EFFORT-004 in your handoff and note how the change interacts with it (conforms / defers / adds new signal). If the implementation expands beyond the radio-style menus listed above, add a dated note here documenting the broader rollout.
+When one of these applies, cite EFF-004 in your handoff and note how the change interacts with it (conforms / defers / adds new signal). If the implementation expands beyond the radio-style menus listed above, add a dated note here documenting the broader rollout.
 
 ## Resolution criteria — what "done" looks like
 
@@ -144,7 +144,7 @@ This Effort is `Resolved` when all of the following are true:
 
 ### 2026-04-17 — Effort created
 
-During localhost review, Wilson flagged that the cooking-profile menu selections require overly precise clicking on the radio dot itself. The visible row reads like a selectable option, but the interaction does not match that expectation. Rather than fold this into EFFORT-001's broad governance work, it is tracked here as a focused form-control usability Effort so it can be implemented cleanly and then referenced from the wider governance track.
+During localhost review, Wilson flagged that the cooking-profile menu selections require overly precise clicking on the radio dot itself. The visible row reads like a selectable option, but the interaction does not match that expectation. Rather than fold this into EFF-001's broad governance work, it is tracked here as a focused form-control usability Effort so it can be implemented cleanly and then referenced from the wider governance track.
 
 ### 2026-04-28 — Mobile refresh expands the full-row pattern
 
@@ -164,7 +164,7 @@ Wilson's Phase 2.1 Replit visual review clarified that `No restrictions` should 
 
 ### 2026-05-01 — Returning Settings should share profile-control composition
 
-Wilson's Phase 2.2 review challenged the difference between first-time setup and returning Settings. This adds a direct EFFORT-004 signal: Cooking Profile controls in Settings should not duplicate and drift from setup-only full-row choices. The recommended implementation direction is a shared profile-choice composition used by both flows, with first-time setup retaining auto-advance/completion behavior and returning Settings retaining independent save behavior.
+Wilson's Phase 2.2 review challenged the difference between first-time setup and returning Settings. This adds a direct EFF-004 signal: Cooking Profile controls in Settings should not duplicate and drift from setup-only full-row choices. The recommended implementation direction is a shared profile-choice composition used by both flows, with first-time setup retaining auto-advance/completion behavior and returning Settings retaining independent save behavior.
 
 ### 2026-05-01 — Returning Settings profile choices aligned to setup rows
 
@@ -212,7 +212,7 @@ The same follow-up differentiates pending undo chips from saved pantry facts: af
 
 PR #46 merged Phase 3.2 after Wilson's authenticated Replit/browser validation at `9646c80`. The shipped Chef It Up staple check now provides a concrete selection-control reference for Phase 3.1: full-row discovery controls, pending Added chips with visible `+` and `X`, disabled row/chip state during loading, and saved green check-only pantry-fact chips that explain Pantry Settings removal instead of deleting in place.
 
-This is still not the final setup/settings closeout for EFFORT-004, but it is the preferred comparison point when Slop Bowl pantry-check visuals are aligned in Phase 3.1.
+This is still not the final setup/settings closeout for EFF-004, but it is the preferred comparison point when Slop Bowl pantry-check visuals are aligned in Phase 3.1.
 
 ### 2026-05-09 - Effort status audit
 

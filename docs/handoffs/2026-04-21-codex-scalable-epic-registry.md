@@ -28,4 +28,4 @@ No runtime or product behavior changed. If the Effort registry later grows too l
 
 ## Verification
 
-Documentation-only change. Verified the README no longer carries the all-Effort table, the registry lists all five current items, and EFFORT-002/EFFORT-003 are marked `Resolved`.
+Documentation-only change. Verified the README no longer carries the all-Effort table, the registry lists all five current items, and EFF-002/EFF-003 are marked `Resolved`.

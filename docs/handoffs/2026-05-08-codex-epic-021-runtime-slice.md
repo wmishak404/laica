@@ -1,4 +1,4 @@
-# EFFORT-021 scan upload runtime slice
+# EFF-021 scan upload runtime slice
 
 **Agent:** codex
 **Branch:** codex/epic-021-scan-upload-implementation
@@ -9,7 +9,7 @@
 
 ## Summary
 
-Started the runtime implementation for [EFFORT-021](../../efforts/effort-021-scan-upload-photo-limit-policy.md) after PR #52 merged the policy docs. This slice makes setup and Settings enforce the same 20-photo per-refresh cap, updates copy from "per batch" to "per refresh", keeps unsupported files out of the cap count, adds simple multi-photo progress and partial-success copy, makes the server vision limiter capable of consuming image counts, and adds bounded scan concurrency to reduce the full-refresh wait. The latest follow-up also handles the returning-user empty-Pantry corner case and active Settings scan cancellation.
+Started the runtime implementation for [EFF-021](../../efforts/effort-021-scan-upload-photo-limit-policy.md) after PR #52 merged the policy docs. This slice makes setup and Settings enforce the same 20-photo per-refresh cap, updates copy from "per batch" to "per refresh", keeps unsupported files out of the cap count, adds simple multi-photo progress and partial-success copy, makes the server vision limiter capable of consuming image counts, and adds bounded scan concurrency to reduce the full-refresh wait. The latest follow-up also handles the returning-user empty-Pantry corner case and active Settings scan cancellation.
 
 This branch does not yet implement provider-level multi-image vision batching or final adaptive chunk-size thresholds. The current client still sends one `/api/vision/analyze` request per accepted image, now up to 4 at a time, so the server-side limit changes keep the current route aligned with the 40-image per-day-per-area policy without pretending chunking is complete.
 
@@ -52,9 +52,9 @@ This branch does not yet implement provider-level multi-image vision batching or
 
 Wilson's Replit run found the serial scan path operating at about 1-2 seconds per photo. With a 20-photo cap, that means roughly 20-40 seconds for a maxed refresh, which is too long even with "X of 20" progress.
 
-The latest patch processes up to 4 accepted images concurrently. At the same observed per-photo latency, a full 20-photo refresh should trend closer to 5-10 seconds because it runs in about 5 waves instead of 20. Direct provider cost should be unchanged versus the serial EFFORT-021 implementation because the app still analyzes the same accepted images with the same one-image route; it only overlaps the calls.
+The latest patch processes up to 4 accepted images concurrently. At the same observed per-photo latency, a full 20-photo refresh should trend closer to 5-10 seconds because it runs in about 5 waves instead of 20. Direct provider cost should be unchanged versus the serial EFF-021 implementation because the app still analyzes the same accepted images with the same one-image route; it only overlaps the calls.
 
-Using the planning estimates in EFFORT-021, the current per-image implementation remains roughly:
+Using the planning estimates in EFF-021, the current per-image implementation remains roughly:
 
 - 20-photo Pantry or Kitchen refresh: `$0.17-$0.22`
 - Maxed Pantry plus Kitchen refresh, 40 total images: `$0.34-$0.45`
@@ -74,5 +74,5 @@ Wilson reported that the core latest Replit testing looked good, including activ
 
 ## Closeout Note
 
-- Wilson later confirmed provider-level multi-image batching and final adaptive chunk thresholds are not needed at this point. The validated bounded-concurrency implementation is accepted as the EFFORT-021 resolution.
+- Wilson later confirmed provider-level multi-image batching and final adaptive chunk thresholds are not needed at this point. The validated bounded-concurrency implementation is accepted as the EFF-021 resolution.
 - Keep the final Pantry status visual treatment deferred to Phase 3.1. This slice intentionally keeps the line as plain supporting copy with no notification icon.

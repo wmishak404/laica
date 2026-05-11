@@ -19,15 +19,15 @@ Last Replit-validated at: `dc59796ae1602af4643c5fc640be47ab19a59e04`.
 - Updated `product-decisions/features/mobile-refresh/README.md` so Phase 2.2 is recorded as merged and Phase 3 starts from the refreshed Settings/History IA.
 - Updated `product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md` with the PR #30 merge closeout and final validation state.
 - Updated `product-decisions/features/mobile-refresh/pd-design-language.md` to record Phase 2.2 as an accepted returning-user visual proof point.
-- Added dated EFFORT-001, EFFORT-005, and EFFORT-012 notes with the merge signal.
-- Updated `efforts/registry.md` with the latest signals for EFFORT-001, EFFORT-005, and EFFORT-012.
+- Added dated EFF-001, EFF-005, and EFF-012 notes with the merge signal.
+- Updated `efforts/registry.md` with the latest signals for EFF-001, EFF-005, and EFF-012.
 
 ## Impact on other agents
 
 - Start Phase 3 Planning from fresh `origin/main`.
 - Treat Phase 2.1 setup and Phase 2.2 returning Settings as accepted visual anchors.
 - Keep richer History detail/share/cook-again/taste-memory behavior in Phase 5 unless Wilson explicitly pulls it forward.
-- Do not graduate EFFORT-001 or EFFORT-012 yet; the separate governance closeout remains deferred per Claude's review.
+- Do not graduate EFF-001 or EFF-012 yet; the separate governance closeout remains deferred per Claude's review.
 
 ## Verification
 

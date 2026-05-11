@@ -12,7 +12,7 @@ Wilson decided to close PR #24 and fold the text-only scan safeguard intent into
 
 ## Phase 2.1 Addition
 
-Phase 2.1 now includes the former EFFORT-011 intent:
+Phase 2.1 now includes the former EFF-011 intent:
 
 - Reject text-only or text-dominant screenshots, documents, grocery lists, recipes, receipts, menus, or notes as pantry/kitchen inventory evidence.
 - Preserve readable packaging labels on visible physical products and kitchen tools.

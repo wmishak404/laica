@@ -1,4 +1,4 @@
-# EFFORT-003 — Slop Bowl pantry-check quick actions (inline remove / add)
+# EFF-003 — Slop Bowl pantry-check quick actions (inline remove / add)
 
 **Former ID:** EPIC-003
 **Status:** Resolved
@@ -93,7 +93,7 @@ The Slop Bowl phase-04 implementation-polish doc (`product-decisions/features/sl
 
 This Effort **revises** that decision for the remove/add case specifically: inline edits are now in scope, but with the ephemeral-only semantics above so we don't reopen the question of whether Slop Bowl should also write to the permanent pantry. The "Edit pantry in profile" button stays for camera / bulk / permanent operations.
 
-When implementation lands, update phase-04 with a `## YYYY-MM-DD — Revised by EFFORT-003` section pointing here.
+When implementation lands, update phase-04 with a `## YYYY-MM-DD — Revised by EFF-003` section pointing here.
 
 ### 3. Visual affordance for the X
 
@@ -113,7 +113,7 @@ Default proposal: single ingredient per submit, trim whitespace, case-insensitiv
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-003 before starting any of the following:
+Read EFF-003 before starting any of the following:
 
 - [ ] Modifying `client/src/components/cooking/slop-bowl.tsx` — specifically the `renderPantryCheck` function or anything that touches the ingredient Badge rendering
 - [ ] Changing the `generateBowl` signature or the `pantryOverride` pass-through
@@ -121,7 +121,7 @@ Read EFFORT-003 before starting any of the following:
 - [ ] Introducing a new way to edit the pantry outside the full Pantry menu
 - [ ] Changing the `POST /api/recipes/slop-bowl` request body contract (would affect `pantryOverride`)
 
-When one of these applies, cite EFFORT-003 in your handoff and note how the change interacts. If the UI work introduces new styling patterns, also check EFFORT-001 for the rubric.
+When one of these applies, cite EFF-003 in your handoff and note how the change interacts. If the UI work introduces new styling patterns, also check EFF-001 for the rubric.
 
 ## Resolution criteria — what "done" looks like
 
@@ -149,7 +149,7 @@ This Effort is `Resolved` when all of the following are true:
 
 ### 2026-04-16 — Effort created
 
-During the same post-implementation walkthrough that surfaced EFFORT-002, Wilson asked for inline quick-actions on the Slop Bowl pantry-check screen. The feature works today (read-only tags + "edit in profile" escape hatch) but the friction of navigating away for a single-ingredient tweak is high enough to flag as a backlog item.
+During the same post-implementation walkthrough that surfaced EFF-002, Wilson asked for inline quick-actions on the Slop Bowl pantry-check screen. The feature works today (read-only tags + "edit in profile" escape hatch) but the friction of navigating away for a single-ingredient tweak is high enough to flag as a backlog item.
 
 Claude verified while drafting this Effort that the server + client already accept `pantryOverride` end-to-end — so implementation is purely a client-side UI addition, no server coordination needed. That's what makes this a tight, self-contained Effort rather than a feature requiring Codex involvement.
 
@@ -162,11 +162,11 @@ Codex implemented the pantry-check quick actions in `client/src/components/cooki
 - Quick edits are stored in ephemeral local state only, then passed through `pantryOverride` when generating or regenerating a bowl
 - The existing **Edit pantry in profile** button remains for camera features, bulk edits, and permanent pantry changes
 
-Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EFFORT-003` note in `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
+Phase 4's accepted Slop Bowl decision record was revised with a `2026-04-17 — Revised by EFF-003` note in `product-decisions/features/slop-bowl/pd-phase-04-implementation-polish.md`, which now serves as the durable pointer for this resolution.
 
 ## 2026-04-17 — Validated/tested after implementation
 
-Wilson later confirmed that the implemented EFFORT-003 behavior was validated and tested.
+Wilson later confirmed that the implemented EFF-003 behavior was validated and tested.
 
 That validation confirms the resolved implementation is functioning as intended:
 

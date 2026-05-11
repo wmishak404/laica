@@ -1,4 +1,4 @@
-# EFFORT-017 — Environment parity + CI confidence (reduce manual Replit validation)
+# EFF-017 — Environment parity + CI confidence (reduce manual Replit validation)
 
 **Former ID:** EPIC-017
 **Status:** Deferred
@@ -66,7 +66,7 @@ These are recorded from discussion; they are not yet implemented repo-wide.
    - Replit deployment domain(s) only vs custom domain only vs both
 2. Should the preflight gate run on every PR merge, only on release, or as a nightly canary?
 3. CI DB approach: Neon Local vs ephemeral Postgres vs other — and how schema health is enforced.
-4. How should this Effort’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EFFORT-005 / EFFORT-010)?
+4. How should this Effort’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EFF-005 / EFF-010)?
 5. Which smoke journeys are the first automation targets?
    - Candidate from Phase 3.2: authenticated Chef It Up progressive staples, including staple queue UI, submit-time pantry write, duplicate prevention, loading Back/cancel, and Ticket Pass completion.
 6. Should live AI recipe generation be part of every browser smoke, gated behind an explicit live-service flag, or replaced by a controlled fixture for most PR runs with a smaller live-provider canary?
@@ -74,7 +74,7 @@ These are recorded from discussion; they are not yet implemented repo-wide.
 
 ## Agent checklist — when to read this Effort
 
-Read EFFORT-017 before:
+Read EFF-017 before:
 
 - Changing `.replit`, runtime pins, or install/run commands
 - Changing auth flows (Firebase client config, token verification, domain requirements)
@@ -95,7 +95,7 @@ This Effort can be `Resolved` when all of the following are true:
 2. Local + CI run a repeatable authenticated smoke path (emulator-based) and DB schema health checks.
 3. A prod OAuth-domain preflight gate exists (automated) and prevents `auth/unauthorized-domain` regressions.
 4. At least one high-value authenticated browser flow is automated end to end with deterministic test data, UI assertions, persistence/no-duplicate checks, and clear handling for live-provider calls.
-5. `AGENTS.md` + ADR-0001 + EFFORT-005/010 are updated so policy is consistent everywhere.
+5. `AGENTS.md` + ADR-0001 + EFF-005/010 are updated so policy is consistent everywhere.
 
 ## 2026-05-05 — Parked
 
@@ -126,4 +126,4 @@ Desired future automation:
 - A controlled choice for recipe generation: fixture/stub for routine UI smoke, plus explicit live-provider smoke or canary when validating OpenAI/Replit provider integration.
 - Clear separation between code-verified checks and runtime/browser-verified checks in PR/handoff validation notes.
 
-This does not reactivate EFFORT-017 during INIT-001. It preserves the new concrete acceptance target for the later environment-parity/dev-test-harness window.
+This does not reactivate EFF-017 during INIT-001. It preserves the new concrete acceptance target for the later environment-parity/dev-test-harness window.

@@ -1,11 +1,11 @@
-# EFFORT-002 and EFFORT-003 Validation Confirmation
+# EFF-002 and EFF-003 Validation Confirmation
 
 **Agent:** codex
 **Branch:** codex/epic-002-003-flow-fixes
 **Date:** 2026-04-17
 
 ## Summary
-Recorded Wilson's confirmation that the implemented EFFORT-002 and EFFORT-003 behavior has now been validated and tested.
+Recorded Wilson's confirmation that the implemented EFF-002 and EFF-003 behavior has now been validated and tested.
 
 This is a planning-doc follow-up only. No product code changed in this pass. The goal was to preserve the new validation signal in the epic history and make the state easy for the next agent to find on `origin`.
 
@@ -17,14 +17,14 @@ This is a planning-doc follow-up only. No product code changed in this pass. The
   - Added a dated note that the resolved inline pantry quick-actions behavior was validated/tested.
 
 ## Impact on other agents
-- EFFORT-002 now has stronger execution confidence, but it is not ready to close until the Home/Cook product direction is settled and documented.
-- EFFORT-003 remains resolved, now with explicit post-implementation validation signal.
+- EFF-002 now has stronger execution confidence, but it is not ready to close until the Home/Cook product direction is settled and documented.
+- EFF-003 remains resolved, now with explicit post-implementation validation signal.
 - The older implementation handoff remains intact; this new handoff is the attributable follow-up record for testing confirmation.
 
 ## Open items
-- EFFORT-002 still needs the Home vs Cook decision and related doc reconciliation before it can resolve.
+- EFF-002 still needs the Home vs Cook decision and related doc reconciliation before it can resolve.
 - No new automated tests or verification workflow changes were introduced here.
 
 ## Verification
 - No code/runtime verification was run in this pass.
-- This pass records Wilson's direct confirmation that EFFORT-002 and EFFORT-003 were validated/tested.
+- This pass records Wilson's direct confirmation that EFF-002 and EFF-003 were validated/tested.

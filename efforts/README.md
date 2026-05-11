@@ -22,7 +22,7 @@ They are **agent-coordination artifacts**, not GitHub Issues and not bug reports
 ## Convention
 
 - Filename: `effort-NNN-<kebab-name>.md` so the file is self-describing in diffs, search results, and chat windows.
-- ID: `EFFORT-NNN`.
+- ID: `EFF-NNN`.
 - Historical metadata: keep `Former ID: EPIC-NNN` near the top of each renamed file.
 - Status: use one of the statuses below. Do not use `Closed`; use `Resolved`.
 - Required sections: `One-line summary`, `Context`, `Scope`, `Decisions made so far`, `Open questions`, `Agent checklist`, `Resolution criteria`.

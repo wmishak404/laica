@@ -42,7 +42,7 @@ Do not resume:
 
 Next work should start from fresh `origin/main`:
 - Phase 3.1: design facelift, whitespace/card grammar, typography consistency, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing image slots.
-- Phase 4: cooking guidance and the live-cooking inline AI error recovery deferred from EFFORT-018.
+- Phase 4: cooking guidance and the live-cooking inline AI error recovery deferred from EFF-018.
 
 ## Open items
 

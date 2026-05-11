@@ -8,7 +8,7 @@
 
 ## Summary
 
-Wilson asked for Claude to review whether EFFORT-001 and EFFORT-012 should graduate out of active Efforts into durable governance. Claude's review recommended **not graduating yet**. Codex and Wilson agreed with that sequencing.
+Wilson asked for Claude to review whether EFF-001 and EFF-012 should graduate out of active Efforts into durable governance. Claude's review recommended **not graduating yet**. Codex and Wilson agreed with that sequencing.
 
 Phase 2.2 should land as-is at pushed head:
 
@@ -32,11 +32,11 @@ Recommended future Claude branch:
 
 `claude/ui-governance-closeout`
 
-Claude should use the current EFFORT-001 and EFFORT-012 files as active sources for now. The broad governance migration should wait until more evidence lands from mobile-refresh Phase 3-5 or until Wilson explicitly asks for a dedicated governance closeout session.
+Claude should use the current EFF-001 and EFF-012 files as active sources for now. The broad governance migration should wait until more evidence lands from mobile-refresh Phase 3-5 or until Wilson explicitly asks for a dedicated governance closeout session.
 
 ## Why governance graduation is deferred
 
-- EFFORT-001's own resolution criteria are not fully met yet:
+- EFF-001's own resolution criteria are not fully met yet:
   - no accepted `PD-005` exists on `main`
   - no enforcement mechanism has shipped
   - UI governance just gained new specificity/computed-style evidence from Phase 2.2
@@ -45,7 +45,7 @@ Claude should use the current EFFORT-001 and EFFORT-012 files as active sources 
   - The capture shutter, camera/video toggle, and help/tips controls rendered as rounded squares instead of the accepted circular setup camera controls.
   - `Upload photos` and `Enter manually` inherited different Button typography instead of matching first-time setup's `Nunito` / 800 action-label treatment.
   - This means future governance needs to require rendered/computed-style comparison for reused patterns, not only class-name reuse or product-intent documentation.
-- EFFORT-012 still has open identity questions:
+- EFF-012 still has open identity questions:
   - typography rollout beyond setup
   - palette refinement
   - canonical motif set
@@ -60,21 +60,21 @@ Claude should use the current EFFORT-001 and EFFORT-012 files as active sources 
 2. If validation passes, update only Phase 2.2 validation/closeout docs with the validated SHA.
 3. Merge Phase 2.2.
 4. Start Phase 3 from fresh `origin/main` after Phase 2.2 merges.
-5. Do not commit `product-decisions/pd-005-ui-governance.md`, resolve EFFORT-001/012, or rewrite `design_guidelines.md` on the Phase 2.2 branch.
+5. Do not commit `product-decisions/pd-005-ui-governance.md`, resolve EFF-001/012, or rewrite `design_guidelines.md` on the Phase 2.2 branch.
 
 ## What to tell Claude
 
 Wilson can send Claude this:
 
 ```text
-Please own the future governance closeout for EFFORT-001 and EFFORT-012, but do not block Phase 2.2.
+Please own the future governance closeout for EFF-001 and EFF-012, but do not block Phase 2.2.
 
 Current decision:
 - Phase 2.2 should land as-is at pushed head 24a4be019ebcc86960d32a4d99e5e70e51012178.
-- Do not graduate EFFORT-001 or EFFORT-012 in the Phase 2.2 branch.
+- Do not graduate EFF-001 or EFF-012 in the Phase 2.2 branch.
 - Codex had local uncommitted governance-migration WIP, but it has been excluded from Phase 2.2 and backed up outside the repo.
 
-Please plan a later dedicated governance closeout branch, likely after Phase 3-5 provide more design-system evidence. In that later branch, review whether to create PD-005, promote/rewrite design_guidelines.md, resolve EFFORT-001/012, or split remaining unresolved questions into narrower Efforts.
+Please plan a later dedicated governance closeout branch, likely after Phase 3-5 provide more design-system evidence. In that later branch, review whether to create PD-005, promote/rewrite design_guidelines.md, resolve EFF-001/012, or split remaining unresolved questions into narrower Efforts.
 ```
 
 ## Open items
