@@ -39,7 +39,7 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
 Use this in the Codex Automations menu for a recurring docs-only hygiene check:
 
 ```text
-Monthly effort hygiene audit: from fresh origin/main, review efforts/README.md, efforts/registry.md, active INITs, product-decisions/README.md, and docs/workflows/. For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, belongs inside an active INIT/phase record, or should graduate into a PD/workflow doc. Add or refresh plain-English summaries, close resolved efforts, update the registry/read lists, and write a handoff. Do not change runtime code. Open a docs-only PR and request Claude peer review before merge.
+Weekly effort hygiene audit: from fresh origin/main, review efforts/README.md, efforts/registry.md, active INITs, product-decisions/README.md, and docs/workflows/. For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, belongs inside an active INIT/phase record, or should graduate into a PD/workflow doc. Add or refresh plain-English summaries, close resolved efforts, update the registry/read lists, and write a handoff. Do not change runtime code. Open a docs-only PR and request Claude peer review before merge.
 ```
 
 ## 2026-05-09 Cleanup Record
@@ -53,3 +53,11 @@ The cleanup renamed `epics/` to `efforts/`, changed numbered filenames to `effor
 - EFFORT-016 closed because INIT-001 Phase 3.1 owns Slop Bowl visual redesign/polish.
 - EFFORT-019 closed into INIT-002, [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [`ai-error-handling-and-telemetry.md`](ai-error-handling-and-telemetry.md).
 - EFFORT-020 closed into this audit workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), and PD-007.
+
+## 2026-05-11 Cleanup Record
+
+The weekly hygiene pass confirmed the Effort system should stay limited to true standalones:
+
+- EFFORT-013 closed because pantry spell correction is future Mobile Refresh phase work, not a standalone backlog track.
+- EFFORT-014 closed because richer latest-scan and duplicate-review UX is also Mobile Refresh phase work.
+- `AGENTS.md`, `CLAUDE.md`, `efforts/README.md`, and `INIT-001` were updated so the active read list now only includes true standalone follow-ups.

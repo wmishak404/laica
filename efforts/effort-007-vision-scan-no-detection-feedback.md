@@ -135,4 +135,4 @@ Status changed from `Open` to `In Progress`. Explicit no-detection feedback has 
 
 Wilson closed this standalone Effort because scan feedback is now Mobile Refresh behavior, not a separate active to-do. The refreshed setup/settings scan surfaces already distinguish valid no-detection outcomes from text-only rejection, rate limits, unreadable images, auth errors, and generic service failures.
 
-Future zero-result scan feedback work should be documented in the relevant INIT-001 phase record. Deeper scan review, duplicate-like labels, and latest-scan indicators remain in active [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md).
+Future zero-result scan feedback work should be documented in the relevant INIT-001 phase record. Deeper scan review, duplicate-like labels, and latest-scan indicators now live in INIT-001's Mobile Refresh phase records rather than a standalone active Effort.

@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-04-28
+**Updated:** 2026-05-11
 
 ## One-line summary
 
@@ -71,7 +71,7 @@ Read EFFORT-010 before starting any of the following:
 - [ ] Changing `AGENTS.md`, ADRs, handoffs, or product decisions about local-vs-Replit validation
 - [ ] Adding schema-health checks or local setup scripts
 
-When this applies, also cite EFFORT-005 if the work changes validation expectations, and cite PD-008 if the work distinguishes required data from optional context.
+When this applies, also cite the [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) if the work changes validation expectations, and cite PD-008 if the work distinguishes required data from optional context.
 
 ## Resolution criteria — what "done" looks like
 
@@ -88,7 +88,7 @@ This Effort is `Resolved` when all of the following are true:
 
 - `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`
 - `product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md`
-- `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
+- `docs/workflows/testing-and-acceptance.md`
 - `docs/adr/0001-replit-primary-local-agents.md`
 - `docs/handoffs/2026-04-10-claude-slop-bowl-replit-merge.md`
 - `docs/handoffs/2026-04-27-codex-slop-bowl-sparse-pantry-guard.md`

@@ -1,10 +1,10 @@
 # EFFORT-013 — Pantry manual-entry spell correction
 
 **Former ID:** EPIC-013
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
-**Updated:** 2026-04-30
+**Updated:** 2026-05-11
 
 ## One-line summary
 
@@ -108,3 +108,9 @@ This Effort is `Resolved` when all of the following are true:
 ### 2026-04-30 — Effort filed from Phase 2.1 validation follow-up
 
 Wilson asked to capture a future pantry manual-entry autocorrect behavior after Phase 2.1 manual-entry validation. Codex filed this as a separate Effort rather than adding it to the Phase 2.1 merge gate because spelling correction has trust, cultural-term, and brand-name risks that need dedicated acceptance criteria.
+
+### 2026-05-11 — Resolved into INIT-001 phase records
+
+The underlying product work still matters, but it no longer fits the narrower standalone-Effort definition on `main`. Pantry spell correction is Mobile Refresh-owned follow-up work across the accepted setup/settings phases and any later pantry cleanup/manual-add pass.
+
+Future work should update [INIT-001](../initiatives/INIT-001-mobile-refresh.md) plus the relevant Mobile Refresh phase record instead of reactivating this Effort, unless the scope expands beyond the initiative.

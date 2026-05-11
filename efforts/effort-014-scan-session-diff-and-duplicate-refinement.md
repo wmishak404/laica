@@ -1,10 +1,10 @@
 # EFFORT-014 — Scan session diff and duplicate refinement
 
 **Former ID:** EPIC-014
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
-**Updated:** 2026-04-30
+**Updated:** 2026-05-11
 
 ## One-line summary
 
@@ -106,3 +106,9 @@ This Effort is `Resolved` when all of the following are true:
 ### 2026-04-30 — Filed from Phase 2.1 mobile validation
 
 Wilson's mobile smoke confirmed that uploads from different sources passed and that the current duplicate mitigation skipped some items, but duplicate-like entries still appeared. Wilson deferred ultra-refinement out of Phase 2.1 and proposed a future UX direction: visually label what is new from the latest scan so users can tell what overlapped and clean up duplicates based on the most recent scan context.
+
+### 2026-05-11 — Resolved into INIT-001 phase records
+
+This future work is still real, but it now belongs inside Mobile Refresh's phase-owned scan-review and cleanup planning rather than the standalone Effort list. The remaining scope spans setup/settings scan review plus later rescan cleanup, which is already documented in the active initiative and feature phase records.
+
+Future work should update [INIT-001](../initiatives/INIT-001-mobile-refresh.md) and the relevant Mobile Refresh phase record instead of reactivating this Effort, unless the scope escapes Mobile Refresh.
