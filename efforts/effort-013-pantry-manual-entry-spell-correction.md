@@ -1,7 +1,7 @@
 # EFFORT-013 — Pantry manual-entry spell correction
 
 **Former ID:** EPIC-013
-**Status:** Resolved
+**Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
 **Updated:** 2026-05-11
@@ -84,7 +84,7 @@ Read EFFORT-013 before starting any of the following:
 When this Effort applies, also cite:
 
 - [EFFORT-009](effort-009-consistent-comma-separated-ingredient-entry.md) for delimiter/parser behavior
-- [EFFORT-005](effort-005-testing-strategy-and-acceptance-criteria.md) if defining acceptance criteria or validation coverage
+- [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) if defining acceptance criteria or validation coverage
 
 ## Resolution criteria — what "done" looks like
 
@@ -109,8 +109,8 @@ This Effort is `Resolved` when all of the following are true:
 
 Wilson asked to capture a future pantry manual-entry autocorrect behavior after Phase 2.1 manual-entry validation. Codex filed this as a separate Effort rather than adding it to the Phase 2.1 merge gate because spelling correction has trust, cultural-term, and brand-name risks that need dedicated acceptance criteria.
 
-### 2026-05-11 — Resolved into INIT-001 follow-up tracking
+### 2026-05-11 — Kept active after INIT ownership review
 
-The underlying product work still matters, but it no longer fits the narrower standalone-Effort definition on `main`. Pantry spell correction is Mobile Refresh-owned follow-up work across the accepted setup/settings phases and any later pantry cleanup/manual-add pass.
+Wilson clarified the closure rule: an Effort should only close into an INIT when the work is already shipped or when a specific unclosed INIT phase naturally owns the remaining scope. Pantry spell correction does not currently meet that bar. It spans setup/settings pantry entry and possible later cleanup/manual-add work, but no open Mobile Refresh phase has been updated to own it directly.
 
-Future work should start from `INIT-001`'s `Future Initiative-Owned Follow-Ups` section, then update the relevant Mobile Refresh phase record instead of reactivating this Effort, unless the scope expands beyond the initiative.
+Keep this as an active Effort. If a future Mobile Refresh phase takes pantry spell correction explicitly, reconcile it in that branch and only then consider resolving this Effort into the phase record.

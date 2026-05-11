@@ -8,34 +8,34 @@
 
 ## Summary
 
-Ran the weekly docs-only Effort hygiene pass from fresh `origin/main`. The main result is that `EFFORT-013` and `EFFORT-014` are no longer treated as active standalone Efforts; both now live under `INIT-001`, and this follow-up adds an explicit `Future Initiative-Owned Follow-Ups` section so the work has a forward-looking home instead of reading as "done because closed."
+Ran the weekly docs-only Effort hygiene pass from fresh `origin/main`. After Wilson's follow-up clarification, the final result is that `EFFORT-013` and `EFFORT-014` stay active standalone Efforts for now. They remain adjacent to `INIT-001`, but they do not yet belong to a specific unclosed Mobile Refresh phase, so they should not be closed into the initiative yet.
 
 ## Changes
 
-- Closed `efforts/effort-013-pantry-manual-entry-spell-correction.md` as `Resolved` with a final note pointing future work to `INIT-001` plus the relevant Mobile Refresh phase record.
-- Closed `efforts/effort-014-scan-session-diff-and-duplicate-refinement.md` as `Resolved` with the same INIT-owned follow-up rationale for richer scan-review and rescan-cleanup work.
-- Updated `efforts/README.md` and `efforts/registry.md` so the active list now contains only `EFFORT-010` and `EFFORT-015`.
-- Updated `AGENTS.md` and `CLAUDE.md` so future agents read `INIT-001` rather than stale active-Effort entries for pantry spell correction and richer scan review.
-- Updated `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md` so those two follow-ups now have an explicit forward-looking INIT home, not just historical closed-phase deferrals.
-- Updated `docs/workflows/effort-system-audit.md` so the recurring automation prompt now distinguishes between shipped work that belongs in a closed phase/chronology note and unshipped work that needs a forward-looking INIT follow-up section.
+- Kept `efforts/effort-013-pantry-manual-entry-spell-correction.md` and `efforts/effort-014-scan-session-diff-and-duplicate-refinement.md` active after re-checking whether any current unclosed Mobile Refresh phase naturally owns them.
+- Updated `efforts/README.md`, `efforts/registry.md`, `AGENTS.md`, and `CLAUDE.md` so the active list again includes `EFFORT-013` and `EFFORT-014`.
+- Updated `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md` so the INIT stays aware of these Efforts without claiming them as owned phase work yet.
+- Updated `docs/workflows/effort-system-audit.md` so the recurring automation prompt now requires an acceptance check before closing an Effort into an INIT: does it naturally belong to a specific unclosed phase, and has the work actually been addressed already?
 - Cleaned two resolved-history notes (`effort-007`, `effort-012`) that still described `EFFORT-014` as active.
 
 ## Claude Review Checklist
 
 Please review this branch before merge for:
 
-- Boundary correctness: `EFFORT-013` and `EFFORT-014` should now clearly read as Mobile Refresh phase work, not standalone backlog tracks.
-- Active-list narrowness: `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` should only list the two true standalones.
-- Source-of-truth links: future pantry spell correction and richer scan-review guidance should point to `INIT-001`'s forward-looking follow-up section first, then to the historical Mobile Refresh phase docs.
-- Audit workflow wording: the recurring prompt should now require a forward-looking INIT home whenever an Effort closes into initiative-owned work.
+- Boundary correctness: `EFFORT-013` and `EFFORT-014` should remain active Efforts unless a future branch updates a specific unclosed Mobile Refresh phase to own them.
+- Active-list accuracy: `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` should again list `EFFORT-010`, `EFFORT-013`, `EFFORT-014`, and `EFFORT-015` as active.
+- Source-of-truth links: `INIT-001` should point to these Efforts as adjacent follow-ups, not as already-rehomed phase work.
+- Audit workflow wording: the recurring prompt should now require a natural unclosed-phase fit before closing an Effort into an INIT.
 
 ## Impact on other agents
 
-When future work touches pantry spell correction or richer scan-review UX, start from `initiatives/INIT-001-mobile-refresh.md`'s `Future Initiative-Owned Follow-Ups` section, then update the relevant Mobile Refresh phase record instead of reopening a standalone Effort unless the scope escapes Mobile Refresh.
+When future work touches pantry spell correction or richer scan-review UX, start from the active Effort and the relevant Mobile Refresh phase history together. Only resolve the Effort into `INIT-001` if that branch explicitly updates a specific unclosed phase to own the scope.
 
-The only active standalone Efforts after this pass are:
+The active standalone Efforts after this pass are:
 
 - `efforts/effort-010-local-db-schema-strategy.md`
+- `efforts/effort-013-pantry-manual-entry-spell-correction.md`
+- `efforts/effort-014-scan-session-diff-and-duplicate-refinement.md`
 - `efforts/effort-015-ui-governance-enforcement.md`
 
 ## Open items
@@ -47,8 +47,8 @@ The only active standalone Efforts after this pass are:
 
 - `git diff --check`
 - Manual link/reference sweep across `efforts/`, `INIT-001`, and Mobile Refresh phase docs
-- Verified the active Effort list in `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` now excludes `EFFORT-013` and `EFFORT-014`
-- Verified `INIT-001` now contains an explicit forward-looking home for those two follow-ups rather than only closed-phase deferral notes
+- Verified the active Effort list in `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md` now includes `EFFORT-013` and `EFFORT-014` again
+- Verified `INIT-001` now treats those two items as adjacent active Efforts unless a future unclosed phase explicitly takes ownership
 
 ## Stack / base status
 
