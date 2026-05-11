@@ -257,3 +257,10 @@ The weekly Effort hygiene audit initially tried to close EFFORT-013 and EFFORT-0
 ### 2026-05-11 - Follow-up ownership rule corrected
 
 Wilson clarified that adjacent initiative work should only move out of the Effort system when a specific unclosed INIT phase naturally owns it or the work is already shipped. Pantry spell correction and richer scan-review cleanup do not yet meet that bar, so they remain active Efforts even though INIT-001 should stay aware of them during future phase work.
+
+### 2026-05-11 - Effort hygiene closeout merged
+
+PR #57 merged into `main` as `8654d04` and made the corrected routing rule durable in the Effort hygiene workflow, active Effort files, registry/read lists, and INIT references. The resulting baseline is:
+
+- EFFORT-013 and EFFORT-014 stay active until a specific unclosed Mobile Refresh phase is explicitly updated to own them or the work ships.
+- Future effort-hygiene audits should determine whether a phase is still open/future from the INIT phase table, current phase, and current resume point rather than the phase-record `Status:` line alone.
