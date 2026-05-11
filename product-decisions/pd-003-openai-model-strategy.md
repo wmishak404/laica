@@ -6,6 +6,8 @@
 **Type:** Technical/Architecture
 **Scope:** Global
 **Applies when:** Choosing or updating OpenAI models for Laica AI endpoints.
+**Volatility:** External/vendor-dependent
+**Review trigger:** Re-check official OpenAI model availability, capabilities, and pricing before changing model assignments, estimating AI cost, or making deployment-bound AI routing changes.
 
 ## Context
 
@@ -53,3 +55,4 @@ All selected models support structured JSON output (`response_format: { type: "j
 - Codex handles all model reference changes
 - No prompt changes needed — structured output works identically across all selected models
 - Feature-specific alignment notes live under `product-decisions/features/slop-bowl/`
+- Model names, availability, capabilities, and pricing are volatile external facts. Treat the table above as the accepted 2026-04-09 strategy and verify current provider facts before future implementation.

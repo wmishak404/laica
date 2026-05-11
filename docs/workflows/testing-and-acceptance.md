@@ -16,6 +16,7 @@ Every change should say what it was expected to prove, what was actually checked
 | Point-in-time command output, manual checks, and branch status | PR description and `docs/handoffs/` |
 | Replit validation focus by drift vector | [`docs/workflows/replit-validation-focus.md`](replit-validation-focus.md) |
 | Local-vs-Replit authority | [`docs/adr/0001-replit-primary-local-agents.md`](../adr/0001-replit-primary-local-agents.md), `AGENTS.md`, and `CLAUDE.md` |
+| Cross-doc routing and closeout | [`docs/workflows/documentation-routing.md`](documentation-routing.md) |
 
 Do not use an Effort file as the long-term ledger for every feature's validation history.
 
@@ -54,6 +55,8 @@ Every implementation handoff and PR description should include:
 - What was intentionally not tested.
 - Any accepted deferrals and where they are tracked.
 - Whether docs were updated: INIT, feature phase record, PD, active Effort, workflow doc, and handoff as applicable.
+
+Before closeout, use [`documentation-routing.md`](documentation-routing.md) to choose the smallest durable doc home and update only the indexes/read lists whose source-of-truth status changed.
 
 ## Resolved Effort History
 
