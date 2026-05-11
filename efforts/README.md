@@ -62,7 +62,7 @@ Read these before starting work in their governed domains:
 | [010](effort-010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [015](effort-015-ui-governance-enforcement.md) | UI governance enforcement (lint + PR template) | `Open` | Wilson / Codex / Claude | 2026-05-02 |
 
-Mobile Refresh follow-ups such as pantry spell correction and richer scan-review states now live in [`INIT-001`](../initiatives/INIT-001-mobile-refresh.md) plus the relevant phase records instead of the active Effort list.
+Mobile Refresh follow-ups such as pantry spell correction and richer scan-review states now live in [`INIT-001`](../initiatives/INIT-001-mobile-refresh.md)'s `Future Initiative-Owned Follow-Ups` section plus the linked historical phase records instead of the active Effort list.
 
 ## Deferred Efforts
 

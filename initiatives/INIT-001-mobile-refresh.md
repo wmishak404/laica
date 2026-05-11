@@ -28,7 +28,7 @@ The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Pha
 
 Phase 0, Phase 1, Phase 2, Phase 2.1, Phase 2.2, Phase 3, Phase 3.2, and the INIT/process documentation split are merged.
 
-Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Future pantry spell correction and richer scan-review states remain INIT-owned follow-up work in the Mobile Refresh phase records.
+Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Future pantry spell correction and richer scan-review states are not shipped; they now live in the INIT-owned follow-up section below plus the linked historical phase records.
 
 Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Pantry/Kitchen/Profile edits; History is separate cooking memory. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
 
@@ -124,9 +124,18 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 | [`design_guidelines.md`](../design_guidelines.md) | Canonical visual identity / design standard |
 | [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) | Merge readiness, validation evidence, and Feature Impact Review workflow formerly tracked by EFFORT-005/EFFORT-020 |
 | [EFFORT-010](../efforts/effort-010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
-| [Phase 2.1 / Phase 2.2 / Phase 5 records](../product-decisions/features/mobile-refresh/README.md) | Future pantry spell correction and richer scan-review cleanup now live as INIT-owned phase deferrals rather than standalone Efforts |
+| [Future Initiative-Owned Follow-Ups](#future-initiative-owned-follow-ups) | Forward-looking home for former standalone Efforts that are still real Mobile Refresh work, but are no longer active standalone backlog items |
 | [EFFORT-018](../efforts/effort-018-authenticated-ai-error-handling.md) | Resolved authenticated AI error handling and pantry recipe 400 follow-up; Phase 4 still owns live-cooking inline recovery |
 | [EFFORT-021](../efforts/effort-021-scan-upload-photo-limit-policy.md) | Resolved mobile-refresh scan-capacity policy; retained as historical reference for Pantry/Kitchen upload limits and scan-specific messaging |
+
+## Future Initiative-Owned Follow-Ups
+
+These items are **not shipped**. They were removed from the active Effort list only because they are no longer standalone workstreams; they remain future Mobile Refresh work and should resume from this section rather than from a closed phase header alone.
+
+| Former Effort | Follow-up scope | Historical source | Next likely owning phase/slice | Resume when |
+|---|---|---|---|---|
+| [EFFORT-013](../efforts/effort-013-pantry-manual-entry-spell-correction.md) | Conservative pantry manual-entry spell correction for saved pantry surfaces, with visible correction/undo behavior and stylized-term preservation | [Phase 2.1](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md), [Phase 2.2](../product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md) | Future pantry-focused Mobile Refresh slice, likely when setup/settings pantry entry is revisited or when [Phase 5](../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md) expands pantry cleanup/manual-add flows | Resume when saved pantry manual-entry UX or pantry cleanup is back in active scope |
+| [EFFORT-014](../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md) | Latest-scan indicators, overlap messaging, and duplicate-like cleanup across Pantry/Kitchen scan review and later rescan cleanup | [Phase 2.1](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md), [Phase 2.2](../product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md), [Phase 5](../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md), [design language note](../product-decisions/features/mobile-refresh/pd-design-language.md) | Future scan-review or rescan-cleanup Mobile Refresh slice, likely as part of post-cook cleanup/rescan work or a dedicated scan UX follow-up | Resume when Pantry/Kitchen scan review, found-again/new labeling, or post-cook rescan cleanup returns to active scope |
 
 ## Changes Added After Initial Plan
 
@@ -193,7 +202,7 @@ Next implementation / validation focus:
 2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFFORT-018 intentionally deferred.
 3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 4. Continue authenticated smoke automation / environment-parity work in a separate branch under EFFORT-017 when that deferred work reopens. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
-5. If pantry spell correction or richer latest-scan/duplicate-review UX resumes, update INIT-001 and the relevant Mobile Refresh phase record instead of reopening a standalone Effort unless the work expands beyond Mobile Refresh.
+5. If pantry spell correction or richer latest-scan/duplicate-review UX resumes, start from `Future Initiative-Owned Follow-Ups` in this INIT, then update the relevant Mobile Refresh phase record instead of reopening a standalone Effort unless the work expands beyond Mobile Refresh.
 
 ## Chronology
 
@@ -252,3 +261,5 @@ The Effort system cleanup closed EFFORT-004, EFFORT-007, EFFORT-009, and EFFORT-
 ### 2026-05-11 - Pantry spell correction and richer scan review moved back under INIT-001
 
 The weekly Effort hygiene audit closed EFFORT-013 and EFFORT-014 as standalone items. Their future implementation scope is still active, but it is Mobile Refresh-owned work: pantry spell correction stays with setup/settings/post-cook pantry surfaces, and richer latest-scan/duplicate review stays with scan-review and rescan-cleanup planning inside the existing phase records.
+
+The same pass added the `Future Initiative-Owned Follow-Ups` section in this INIT so the work has an explicit forward-looking home and does not read as "done because the Effort is closed."

@@ -132,7 +132,7 @@ Current active INITs:
 - `efforts/effort-010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
 - `efforts/effort-015-ui-governance-enforcement.md` — read before adding/modifying ESLint config or `.github/PULL_REQUEST_TEMPLATE.md`, or expanding UI governance enforcement
 
-Mobile Refresh follow-ups such as pantry spell correction and richer scan-review states now live in `initiatives/INIT-001-mobile-refresh.md` plus the relevant phase records instead of the active Effort list.
+Mobile Refresh follow-ups such as pantry spell correction and richer scan-review states now live in `initiatives/INIT-001-mobile-refresh.md` under `Future Initiative-Owned Follow-Ups`, plus the linked historical phase records, instead of the active Effort list.
 
 If work belongs to an active/future INIT phase, update the INIT or feature phase record instead of creating a new Effort. If work is governance/process, update a workflow doc, ADR, or PD instead of creating a new Effort.
 
