@@ -90,7 +90,7 @@ Replit validation covered:
 - Scan feedback: Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.
 - Shared manual-entry parser: Comma-separated manual entry stays shared; Phase 2.1 also accepts period-as-comma typo recovery for manual entry.
 - [EFFORT-010](../../../efforts/effort-010-local-db-schema-strategy.md): Phase 2.1 did not add DB schema changes or reopen the validated Phase 2 data contract.
-- [EFFORT-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md): Latest-scan chip states and deeper duplicate/overlap refinement remain deferred.
+- INIT-001 future scan-review work: latest-scan chip states and deeper duplicate/overlap refinement remain deferred in the Mobile Refresh phase records.
 
 ## Deferrals
 

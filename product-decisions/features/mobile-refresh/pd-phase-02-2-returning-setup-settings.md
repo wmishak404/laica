@@ -129,8 +129,8 @@ Validated scope for PR #30:
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.2 adds explicit acceptance and visual-review gates.
 - Scan feedback: Pantry/Kitchen scan outcome feedback remains explicit.
 - Shared manual-entry parser: Manual Pantry/Kitchen entry keeps the shared comma/period parser.
-- [EFFORT-013](../../../efforts/effort-013-pantry-manual-entry-spell-correction.md): Pantry spell correction remains deferred.
-- [EFFORT-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md): Latest-scan chip states and deeper duplicate refinement remain deferred.
+- INIT-001 future pantry work: Pantry spell correction remains deferred in the Mobile Refresh phase records.
+- INIT-001 future scan-review work: latest-scan chip states and deeper duplicate refinement remain deferred in the Mobile Refresh phase records.
 
 ## Deferrals
 

@@ -170,7 +170,7 @@ This does not resolve EFFORT-012 yet because Phase 2.1 still needs full Replit f
 
 ### 2026-04-30 — Future scan-session chip states identified
 
-Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language signal: Pantry/Equipment chips may need visual state for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should probably use a different hue or lightweight indicator so users can understand overlap and clean up duplicate-like entries without a heavy review screen. The detailed product work is tracked in [EFFORT-014](effort-014-scan-session-diff-and-duplicate-refinement.md), while the design-language note is captured in `product-decisions/features/mobile-refresh/pd-design-language.md`.
+Wilson's Phase 2.1 mobile duplicate-scan review added a future design-language signal: Pantry/Equipment chips may need visual state for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should probably use a different hue or lightweight indicator so users can understand overlap and clean up duplicate-like entries without a heavy review screen. The detailed product work now lives in INIT-001's Mobile Refresh phase records, while the design-language note is captured in `product-decisions/features/mobile-refresh/pd-design-language.md`.
 
 ### 2026-05-01 — Phase 2.1 setup pilot merged
 

@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
-**Updated:** 2026-04-30
+**Updated:** 2026-05-11
 
 ## One-line summary
 
@@ -76,10 +76,10 @@ Read EFFORT-014 before starting any of the following:
 
 When this Effort applies, also cite:
 
-- [EFFORT-005](effort-005-testing-strategy-and-acceptance-criteria.md) for validation and acceptance criteria
+- [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) for validation and acceptance criteria
 - [EFFORT-007](effort-007-vision-scan-no-detection-feedback.md) for scan outcome messaging
 - [EFFORT-009](effort-009-consistent-comma-separated-ingredient-entry.md) when manual entry normalization intersects with duplicates
-- [EFFORT-012](effort-012-laica-design-language.md) for chip color/state design language
+- [Mobile Refresh design language](../product-decisions/features/mobile-refresh/pd-design-language.md) for chip color/state design language
 - [EFFORT-013](effort-013-pantry-manual-entry-spell-correction.md) if pantry correction and duplicate behavior interact
 
 ## Resolution criteria — what "done" looks like
@@ -97,12 +97,18 @@ This Effort is `Resolved` when all of the following are true:
 
 - [Phase 2.1 setup polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md)
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
-- [EFFORT-005 — App-wide testing strategy and acceptance criteria workflow](effort-005-testing-strategy-and-acceptance-criteria.md)
+- [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md)
 - [EFFORT-007 — Vision scan should explicitly say when nothing was detected](effort-007-vision-scan-no-detection-feedback.md)
-- [EFFORT-012 — LAICA Design Language & Visual Identity](effort-012-laica-design-language.md)
+- [Mobile Refresh design language](../product-decisions/features/mobile-refresh/pd-design-language.md)
 
 ## Chronology
 
 ### 2026-04-30 — Filed from Phase 2.1 mobile validation
 
 Wilson's mobile smoke confirmed that uploads from different sources passed and that the current duplicate mitigation skipped some items, but duplicate-like entries still appeared. Wilson deferred ultra-refinement out of Phase 2.1 and proposed a future UX direction: visually label what is new from the latest scan so users can tell what overlapped and clean up duplicates based on the most recent scan context.
+
+### 2026-05-11 — Kept active after INIT ownership review
+
+Wilson clarified the closure rule: an Effort should only close into an INIT when the work is already shipped or when a specific unclosed INIT phase naturally owns the remaining scope. This scan-review/duplicate-refinement work still spans setup, Settings, and later cleanup/rescan surfaces, and no single current unclosed Mobile Refresh phase has been updated to own that whole scope yet.
+
+Keep this as an active Effort. If a future Mobile Refresh phase or slice explicitly takes over latest-scan indicators, found-again/new labeling, or duplicate-review cleanup, reconcile it there and only then consider resolving this Effort into the phase record.

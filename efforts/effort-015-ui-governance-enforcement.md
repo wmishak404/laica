@@ -7,7 +7,7 @@
 
 ## One-line summary
 
-Ship the automatic enforcement layer PD-005 graduates without — an ESLint rule rejecting hex color literals in `className`, plus a PR-template gate citing PD-005 + design_guidelines.md.
+Ship the enforcement layer PD-005 still lacks: an ESLint rule rejecting hex color literals in `className`, plus a PR-template gate citing PD-005 and `design_guidelines.md`.
 
 ## Linked artifacts
 
