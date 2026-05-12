@@ -167,7 +167,7 @@ When one of these applies, the handoff for the work **must**:
 
 This Effort is `Resolved` when all of the following are true:
 
-1. A `product-decisions/PD-pd-005-ui-governance.md` exists with the accepted rubric (require/recommend table, primitive lock order, tone-override convention, rollout plan)
+1. A `product-decisions/pd-005-ui-governance.md` exists with the accepted rubric (require/recommend table, primitive lock order, tone-override convention, rollout plan)
 2. The enforcement mechanism is shipped on `main` (at minimum: lint rule or PR template, whichever Phase 1 v2 lands on)
 3. At least one pilot surface has completed migration under the rubric (no `bg-[#hex]` violations, escape hatches documented where used)
 4. `design_guidelines.md` references the PD and the `efforts/effort-001` graduation note

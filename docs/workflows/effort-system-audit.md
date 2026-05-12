@@ -47,6 +47,7 @@ Use these docs deliberately during the audit instead of relying on a generic fol
 
 - [`../workflows/effort-system-audit.md`](effort-system-audit.md) for the audit steps, failure modes, and closure acceptance criteria.
 - [`../workflows/testing-and-acceptance.md`](testing-and-acceptance.md) when an Effort carries validation workflow, merge-readiness, or acceptance-criteria content that may belong in the shared testing workflow instead.
+- [`../workflows/documentation-routing.md`](documentation-routing.md) when deciding whether the durable home is a PD, feature phase record, INIT, Effort, workflow doc, or handoff.
 - [`../../product-decisions/pd-007-effort-status-and-registry-workflow.md`](../../product-decisions/pd-007-effort-status-and-registry-workflow.md) when deciding whether something should remain an Effort at all or graduate into a PD/workflow/INIT.
 - [`../../product-decisions/README.md`](../../product-decisions/README.md) when the likely durable home is a top-level PD or feature-phase record rather than an Effort.
 - [`../../initiatives/registry.md`](../../initiatives/registry.md) plus the relevant active INIT file when initiative phase ownership, current phase, or last-signal text may need to change.

@@ -33,13 +33,13 @@ Each active feature folder should track decisions by phase:
 |----------|---------|
 | `docs/handoffs/` | Branch-specific conversation, ownership, review notes, and next steps between agents |
 | `product-decisions/features/<feature>/` | Evolving feature decisions, open questions, and phase-by-phase alignment during delivery |
-| Top-level `PD-xxx` files | Durable accepted product or technical decisions that should remain easy to find later |
+| Top-level `PD-NNN` files | Durable accepted product or technical decisions that should remain easy to find later |
 
 ### Working rules
 
 - Agents may update feature phase records as part of normal implementation and review work.
 - When a phase doc contains an unresolved question, link the relevant handoff so the discussion remains easy to follow.
-- When a decision becomes durable beyond one phase or feature, promote it to a top-level `PD-xxx` file.
+- When a decision becomes durable beyond one phase or feature, promote it to a top-level `PD-NNN` file.
 - Do not let feature phase records become indefinite diaries: during active delivery they may evolve, but after merge/validation they should expose final accepted outcomes, validation facts, and deferrals first.
 - If a change would alter product direction, require human judgment, or affect security/secrets, stop the automatic update flow and ask Wilson to review.
 

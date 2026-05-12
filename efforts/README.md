@@ -18,6 +18,7 @@ They are **agent-coordination artifacts**, not GitHub Issues and not bug reports
 - Use [`registry.md`](registry.md) only when you need historical context, a resolved/deferred record, or a task references an older Effort.
 - If your work intersects with an active Effort, cite it in your handoff and say whether the work conforms, defers, adds evidence, or resolves it.
 - If a merged PR satisfies an Effort, do the docs closeout immediately from fresh `origin/main`: flip status, append the final dated note, remove it from this active list, update the registry, and push a handoff.
+- Use [`../docs/workflows/documentation-routing.md`](../docs/workflows/documentation-routing.md) before creating or closing an Effort so standalone follow-up work does not duplicate INIT phases, PDs, workflow docs, or handoffs.
 
 ## Convention
 
@@ -45,8 +46,8 @@ Durable workflow decision: [`PD-007`](../product-decisions/pd-007-effort-status-
 | Location | Purpose | Lifespan |
 |---|---|---|
 | `initiatives/INIT-NNN-*.md` | Living hub for multi-phase initiative work, phase state, validation, assets, PRs, and current resume point | Evolves until initiative closeout |
-| `product-decisions/PD-NNN-*.md` | Durable accepted decisions and rationale | Stable, amended only when the decision changes |
-| `product-decisions/features/<feature>/phase-NN-*.md` | Feature/phase-scoped specs, outcomes, acceptance criteria, and deferrals | Evolves while the feature phase is active |
+| `product-decisions/pd-NNN-*.md` | Durable accepted decisions and rationale | Stable, amended only when the decision changes |
+| `product-decisions/features/<feature>/pd-phase-NN-*.md` | Feature/phase-scoped specs, outcomes, acceptance criteria, and deferrals | Evolves while the feature phase is active |
 | `docs/workflows/*.md` | Living operating procedures for agents | Evolves when workflow rules change |
 | `docs/handoffs/YYYY-MM-DD-<agent>-*.md` | Point-in-time branch/session transfer notes | Frozen after write |
 | `efforts/effort-NNN-*.md` | Standalone to-do-style follow-up not owned by an active INIT/phase/workflow doc | Evolves until resolved |
@@ -57,20 +58,20 @@ An Effort can graduate into a PD, workflow doc, INIT phase, or feature phase rec
 
 Read these before starting work in their governed domains:
 
-| # | Title | Status | Owner | Created |
+| ID | Title | Status | Owner | Created |
 |---|---|---|---|---|
-| [010](effort-010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
-| [013](effort-013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |
-| [014](effort-014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |
-| [015](effort-015-ui-governance-enforcement.md) | UI governance enforcement (lint + PR template) | `Open` | Wilson / Codex / Claude | 2026-05-02 |
+| [EFF-010](effort-010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
+| [EFF-013](effort-013-pantry-manual-entry-spell-correction.md) | Pantry manual-entry spell correction | `Open` | Wilson / Codex / Claude | 2026-04-30 |
+| [EFF-014](effort-014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |
+| [EFF-015](effort-015-ui-governance-enforcement.md) | UI governance enforcement (lint + PR template) | `Open` | Wilson / Codex / Claude | 2026-05-02 |
 
 ## Deferred Efforts
 
 Deferred Efforts are intentionally not part of the default active read list:
 
-| # | Title | Status | Owner | Created |
+| ID | Title | Status | Owner | Created |
 |---|---|---|---|---|
-| [017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `Deferred` | Wilson / Codex / Claude | 2026-05-05 |
+| [EFF-017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `Deferred` | Wilson / Codex / Claude | 2026-05-05 |
 
 ## Resolved History
 
