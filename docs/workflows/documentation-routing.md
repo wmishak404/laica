@@ -8,6 +8,32 @@ Every meaningful change should update the smallest durable home that future agen
 
 Do not copy the same rationale into every related doc. Pick the primary home, link from the surrounding indexes, and record point-in-time evidence in the handoff or PR.
 
+## Consult Before Filing
+
+Routing starts by consulting the system, not by choosing a file. Before deciding where a request belongs, identify the product capability, behavior, or operating discipline being changed. Do not let the first UI entry point, affected file, or visible screen become the owner by default.
+
+Use this order:
+
+1. Name the capability, behavior, or discipline at stake.
+2. Read the current source docs for that domain: relevant INIT, current phase records, top-level PDs, active Efforts, active epics, workflow docs, design guidance, and validation guidance.
+3. Decide whether the work is already owned by a current or future phase, durable policy, repeatable workflow, or standalone Effort.
+4. Only then choose the primary home from the routing matrix.
+
+For example, a request to combine Pantry and Kitchen scanning should not route only from the setup screen where the complaint appeared. First identify the changed capability, such as inventory capture flow, scan-session policy, duplicate handling, setup completeness, or ongoing ingredient management, then consult the governing INIT/PD/Effort/workflow before filing.
+
+## Closed Phase Boundary
+
+Do not create a new minor phase under an INIT phase that is already closed and merged once the initiative has moved to a later phase. For example, if Phase 2 is closed and work is now in Phase 3.1 or later, do not add `pd-phase-02-3-*` as active scope.
+
+Use one of these homes instead:
+
+- the current or next phase record, when the request changes active initiative work
+- the INIT current-state or chronology section, when the important fact is initiative history or resume context
+- a top-level PD, when the outcome becomes durable product or operating policy
+- an active or new Effort, only when the work is concrete and not owned by an active INIT, phase, PD, ADR, or workflow
+
+Closed phase records may receive a historical note or link when needed, but they should not become new active work queues after the initiative has advanced.
+
 ## Routing Matrix
 
 | Need | Primary home | Update when |
@@ -26,13 +52,14 @@ Do not copy the same rationale into every related doc. Pick the primary home, li
 
 Before closing a branch or PR, run this short loop:
 
-1. Identify the primary durable home using the routing matrix.
-2. Update only the linked indexes/read lists whose status, title, source doc, or active trigger changed.
-3. If an Effort, INIT phase, or feature phase is resolved, moved, or reopened, update its registry/read list in the same branch.
-4. If the change adds or revises a repeatable workflow, update the workflow doc and link it from `AGENTS.md` / `CLAUDE.md` only when it changes global agent behavior.
-5. If the change depends on volatile external facts, mark the owning PD with volatility metadata and verify those facts before implementation or merge.
-6. Record validation, deferrals, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
-7. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
+1. Run the consult-before-filing pass so the system, not the first entry point, determines ownership.
+2. Identify the primary durable home using the routing matrix.
+3. Update only the linked indexes/read lists whose status, title, source doc, or active trigger changed.
+4. If an Effort, INIT phase, or feature phase is resolved, moved, or reopened, update its registry/read list in the same branch.
+5. If the change adds or revises a repeatable workflow, update the workflow doc and link it from `AGENTS.md` / `CLAUDE.md` only when it changes global agent behavior.
+6. If the change depends on volatile external facts, mark the owning PD with volatility metadata and verify those facts before implementation or merge.
+7. Record validation, deferrals, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
+8. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
 
 ## ID and Filename Conventions
 

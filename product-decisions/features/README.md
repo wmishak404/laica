@@ -12,6 +12,7 @@ Feature phase records are not top-level PDs. They may evolve while a feature is 
 - Link the relevant INIT when the feature belongs to an active multi-phase initiative
 - Put branch diary material in `docs/handoffs/` unless it distills into an accepted rule or final phase outcome
 - Use [`../../docs/workflows/documentation-routing.md`](../../docs/workflows/documentation-routing.md) when a phase lesson might need to graduate into a PD, INIT update, Effort, workflow doc, or handoff
+- Do not add a new minor phase under an already closed phase after the initiative has advanced; use the current/future phase, INIT current state, a top-level PD, or an Effort only after consulting the full routing workflow
 
 ## Convention
 
@@ -19,6 +20,7 @@ Feature phase records are not top-level PDs. They may evolve while a feature is 
 - Include a `README.md` with a phase index and current status
 - Prefer phase files named `pd-phase-0N-short-name.md`
 - Non-phase feature records should also use a `pd-` prefix, for example `pd-design-language.md`
+- Closed phase records may keep historical notes, but they should not become active work queues once later phases are underway
 
 Suggested phases:
 
