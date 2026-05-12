@@ -10,8 +10,6 @@
 
 Implemented Wilson's documentation-system cleanup request after reviewing the product decision and Effort taxonomy. The branch fixes the immediate discoverability issues and adds a compact cross-doc routing workflow so future agents can make one source-of-truth decision during closeout instead of appending another checklist item to every doc.
 
-## What changed overall
-
 Documentation routing now starts with system consultation and ends with a concise overall summary. The important shift is that agents should explain what changed for future coordination, not only list the files they touched.
 
 Learning implemented: future closeouts should identify the changed capability, consult the governing docs, choose the smallest durable home, summarize what changed overall, then still list the concrete changes, validation, and deferrals.
@@ -20,7 +18,7 @@ Learning implemented: future closeouts should identify the changed capability, c
 
 - Added `docs/workflows/documentation-routing.md` as the central routing and closeout workflow for PDs, feature phase records, INITs, Efforts, workflow docs, and handoffs.
 - Added consult-before-filing and closed-phase-boundary guardrails so agents identify the product capability and governing context before deciding where to write, and do not create late minor phases under already closed INIT phases.
-- Added the what-changed-overall rule so final responses, handoffs, and PR descriptions surface the broader system change before the normal changelog and validation details.
+- Added the summary opening rule so final responses, handoffs, and PR descriptions open with the broader system change when useful, then continue with the normal changelog and validation details.
 - Updated `product-decisions/README.md` to link the routing workflow, add optional volatility/review-trigger metadata, and index PD-010.
 - Marked `pd-003-openai-model-strategy.md` as external/vendor-dependent so future model/cost work verifies current provider facts before implementation.
 - Updated `efforts/README.md` and `efforts/registry.md` to show full `EFF-NNN` IDs and use current `pd-*` / `pd-phase-*` filename examples.
@@ -46,7 +44,8 @@ The active Effort list now displays `EFF-010`, `EFF-013`, `EFF-014`, and `EFF-01
 - `git diff --check`
 - `rg -n "PD-pd|product-decisions/PD|EFFORT-014|\\| # \\| Title|PD-xxx|PD-XXX" product-decisions efforts docs/workflows AGENTS.md CLAUDE.md` (expected no matches)
 - `rg -n "PD-010|pd-010|documentation-routing|EFF-014" product-decisions efforts docs/workflows AGENTS.md CLAUDE.md`
-- `rg -n "What changed overall|What Changed Overall|concise overall|Consult Before Filing|Closed Phase Boundary" AGENTS.md CLAUDE.md docs/workflows/documentation-routing.md docs/handoffs/README.md docs/handoffs/2026-05-11-codex-documentation-routing-cleanup.md`
+- `rg -n "Summary opening|Closeout Summary Shape|overall summary|Consult Before Filing|Closed Phase Boundary" AGENTS.md CLAUDE.md docs/workflows/documentation-routing.md docs/handoffs/README.md docs/handoffs/2026-05-11-codex-documentation-routing-cleanup.md`
+- Confirmed the removed closeout labels are absent from the touched instruction docs.
 
 ## Stack / base status
 

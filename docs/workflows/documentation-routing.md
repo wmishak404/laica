@@ -60,20 +60,20 @@ Before closing a branch or PR, run this short loop:
 6. If the change depends on volatile external facts, mark the owning PD with volatility metadata and verify those facts before implementation or merge.
 7. Record validation, deferrals, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
 8. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
-9. Start the final response, handoff, and PR summary with what changed overall, then keep the concrete changelog and validation details.
+9. Open the final response, handoff, and PR summary with a concise overall summary when useful, then keep the concrete changelog and validation details.
 
-## What Changed Overall
+## Closeout Summary Shape
 
-Every completed task should leave Wilson with a concise overall summary before the detailed task list. This section does not replace the normal changelog, file list, validation notes, or deferrals.
+Every completed task should leave Wilson with a concise summary before the detailed task list. This should read like a natural opening paragraph, not a required title or forced section. It does not replace the normal changelog, file list, validation notes, or deferrals.
 
 Include:
 
-- what changed across the product, workflow, or documentation system
+- what changed across the product, workflow, or documentation system, when there is a meaningful broader change
 - why it matters to future agent decisions, coordination, or merge readiness
 - the learning or discipline added to the whole system, when the task produced one
 - validation status, unvalidated scope, and any explicit deferrals or owner decisions
 
-If a task has no broader system learning, say that plainly. Do not invent process lessons just to fill the section.
+If a task has no broader system learning, keep the opening simple. Do not add a special heading or invent a process lesson just to fill the section.
 
 After this section, still list what was done in practical terms: files changed, docs updated, commands run, checks passed or skipped, PR/branch state, and remaining work.
 
