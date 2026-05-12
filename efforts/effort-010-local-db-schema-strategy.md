@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-05-11
+**Updated:** 2026-05-12
 
 ## One-line summary
 
@@ -96,3 +96,7 @@ This Effort is `Resolved` when all of the following are true:
 ## 2026-04-28 — Mobile refresh interim schema ruling
 
 Phase 5 introduces pending-cleanup and taste-signal persistence on cooking sessions. The feature docs preserve the schema requirement but explicitly defer local `db:push` until the local DB strategy is resolved. Implementation branches should coordinate schema pushes through Replit and document the Replit validation result before merge.
+
+## 2026-05-12 — Weekly hygiene audit
+
+Reviewed against `docs/workflows/environment-parity-spec.md`, `efforts/effort-017-environment-parity-and-ci-confidence.md`, `docs/adr/0001-replit-primary-local-agents.md`, PD-008, and INIT-002's future DB phase. Keep this as an active standalone Effort: the parity spec is still draft, EFF-017 is deferred, and no durable ADR/PD has selected the local database model, `db:push` permission boundary, `.env.keys` provisioning path, or schema-health check required by this Effort's resolution criteria.

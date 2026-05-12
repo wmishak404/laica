@@ -4,6 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-02
+**Updated:** 2026-05-12
 
 ## One-line summary
 
@@ -64,3 +65,7 @@ This Effort is `Resolved` when all of the following are true:
 2. `.github/PULL_REQUEST_TEMPLATE.md` cites PD-005 + design_guidelines.md and includes the rule-3 / rule-5 / mockup-conformance checkboxes.
 3. PD-005 is annotated to confirm enforcement is shipping.
 4. This Effort file has a final dated resolution note pointing at the merged PR(s).
+
+## 2026-05-12 — Weekly hygiene audit
+
+Reviewed against PD-005, `design_guidelines.md`, the repo's current lint setup, and PR-template state. Keep this as an active standalone Effort: there is no ESLint config or `.github/PULL_REQUEST_TEMPLATE.md` on `main` yet, and raw hex class literals still exist in client UI files. The durable rule lives in PD-005; this Effort still owns shipping the enforcement layer.

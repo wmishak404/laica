@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
-**Updated:** 2026-05-11
+**Updated:** 2026-05-12
 
 ## One-line summary
 
@@ -112,3 +112,7 @@ Wilson's mobile smoke confirmed that uploads from different sources passed and t
 Wilson clarified the closure rule: an Effort should only close into an INIT when the work is already shipped or when a specific unclosed INIT phase naturally owns the remaining scope. This scan-review/duplicate-refinement work still spans setup, Settings, and later cleanup/rescan surfaces, and no single current unclosed Mobile Refresh phase has been updated to own that whole scope yet.
 
 Keep this as an active Effort. If a future Mobile Refresh phase or slice explicitly takes over latest-scan indicators, found-again/new labeling, or duplicate-review cleanup, reconcile it there and only then consider resolving this Effort into the phase record.
+
+### 2026-05-12 — Weekly hygiene audit
+
+Rechecked against INIT-001, Phase 2.1/2.2 scan deferrals, Phase 3.1 visual alignment scope, Phase 5 post-cook rescan labels, PD-011, and the Mobile Refresh design-language records. The work is still unshipped and cross-surface: Phase 5 owns post-cook rescan labels, but not setup/Settings latest-scan review or duplicate-like cleanup as a whole. Keep this as an active standalone Effort until a specific unclosed phase or implementation slice explicitly accepts that broader ownership.

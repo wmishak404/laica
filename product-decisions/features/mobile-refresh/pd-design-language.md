@@ -300,7 +300,7 @@ Phase 2 is the first active pilot for this design language. Before merge:
 - Chips should look warm, readable, and tokenized.
 - Pantry and Kitchen should share component structure, but Kitchen may shift selected accents toward gray/silver and light wood beige to reflect modern kitchen tools while retaining enough coral to stay within the Laica system.
 - Kitchen-specific action buttons, saved-equipment chips, and review/list states should lean gray/silver where possible so the tool page feels distinct from the warmer pantry page without becoming a separate design system.
-- Future scan-review chips may need session-state colors or indicators for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should build on the Pantry/Kitchen chip palette without creating a noisy third design system; keep that work inside INIT-001's Mobile Refresh phase records rather than reviving a standalone Effort unless the scope escapes the initiative.
+- Future scan-review chips may need session-state colors or indicators for `new from latest scan`, `already saved/found again`, and normal saved inventory. This should build on the Pantry/Kitchen chip palette without creating a noisy third design system. Product ownership currently remains in [EFF-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md) until a specific unclosed Mobile Refresh phase or implementation slice explicitly takes over the broader setup/Settings/latest-scan duplicate-review scope.
 - `No restrictions` should be visually separated from the rest of the dietary options so users who have nothing to add can choose the default quickly.
 
 ### Phase 2.2 Returning Setup, Settings, And History IA
