@@ -60,20 +60,22 @@ Before closing a branch or PR, run this short loop:
 6. If the change depends on volatile external facts, mark the owning PD with volatility metadata and verify those facts before implementation or merge.
 7. Record validation, deferrals, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
 8. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
-9. Write the final response, handoff, and PR summary for the system owner, not only for the implementer.
+9. Start the final response, handoff, and PR summary with what changed overall, then keep the concrete changelog and validation details.
 
-## Orchestrator Summary
+## What Changed Overall
 
-Every completed task should leave Wilson with a concise system-owner summary. Do not only list files changed or commands run.
+Every completed task should leave Wilson with a concise overall summary before the detailed task list. This section does not replace the normal changelog, file list, validation notes, or deferrals.
 
 Include:
 
-- a headline for what changed across the product, workflow, or documentation system
-- why it matters to orchestration, future agent decisions, or merge readiness
+- what changed across the product, workflow, or documentation system
+- why it matters to future agent decisions, coordination, or merge readiness
 - the learning or discipline added to the whole system, when the task produced one
 - validation status, unvalidated scope, and any explicit deferrals or owner decisions
 
 If a task has no broader system learning, say that plainly. Do not invent process lessons just to fill the section.
+
+After this section, still list what was done in practical terms: files changed, docs updated, commands run, checks passed or skipped, PR/branch state, and remaining work.
 
 ## ID and Filename Conventions
 

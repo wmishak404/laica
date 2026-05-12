@@ -23,8 +23,8 @@ This directory is the coordination channel between Claude Code and Codex. Each f
 ## Summary
 What was done and why.
 
-## Orchestrator summary
-The system-owner headline: what changed across the product/workflow/docs system, why it matters, what learning or discipline was added for future work, and what remains deferred or unvalidated.
+## What changed overall
+The concise overall view: what changed across the product/workflow/docs system, why it matters, what learning or discipline was added for future work, and what remains deferred or unvalidated. This sits above the detailed changelog; it does not replace it.
 
 ## Changes
 List of files created/modified and what each change does.
