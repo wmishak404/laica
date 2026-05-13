@@ -2,9 +2,17 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeCamera } from '@/components/ui/native-camera';
+import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
-import { mergeUniqueEntriesWithMetadata, parseCommaSeparatedEntries } from '@/lib/entryParsing';
+import {
+  correctPantryManualEntries,
+  mergeUniqueEntries,
+  mergeUniqueEntriesWithMetadata,
+  normalizeEntryDuplicateKey,
+  parseCommaSeparatedEntries,
+  type PantryManualEntryCorrection,
+} from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
   ArrowLeft,
@@ -275,6 +283,43 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }));
   };
 
+  const showPantryCorrectionToast = (
+    originalEntries: string[],
+    corrections: PantryManualEntryCorrection[],
+    correctedAddedEntries: string[],
+  ) => {
+    if (corrections.length === 0 || correctedAddedEntries.length === 0) {
+      return;
+    }
+
+    const correctedAddedKeys = new Set(correctedAddedEntries.map(normalizeEntryDuplicateKey));
+    const description = corrections.map(({ original, corrected }) => `${original} -> ${corrected}`).join('; ');
+
+    toast({
+      title: 'Cleaned up spelling',
+      description,
+      action: (
+        <ToastAction
+          altText="Undo spelling cleanup"
+          onClick={() => {
+            setProfile((prev) => {
+              const withoutCorrectedBatch = prev.pantryIngredients.filter(
+                (entry) => !correctedAddedKeys.has(normalizeEntryDuplicateKey(entry)),
+              );
+
+              return {
+                ...prev,
+                pantryIngredients: mergeUniqueEntries(withoutCorrectedBatch, originalEntries),
+              };
+            });
+          }}
+        >
+          Undo
+        </ToastAction>
+      ),
+    });
+  };
+
   const applyDetectedItems = (
     type: ScanType,
     labels: string[],
@@ -462,10 +507,17 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     const parsed = parseCommaSeparatedEntries(manualEntry[type]);
     if (parsed.length === 0) return;
 
-    const mergeResult = mergeUniqueEntriesWithMetadata(currentItems(type), parsed);
+    const correctionResult = type === 'pantry'
+      ? correctPantryManualEntries(parsed)
+      : { entries: parsed, corrections: [] };
+    const mergeResult = mergeUniqueEntriesWithMetadata(currentItems(type), correctionResult.entries);
     updateItems(type, mergeResult.items);
     setManualEntry((prev) => ({ ...prev, [type]: '' }));
     setManualOpen((prev) => ({ ...prev, [type]: true }));
+
+    if (type === 'pantry') {
+      showPantryCorrectionToast(parsed, correctionResult.corrections, mergeResult.added);
+    }
   };
 
   const removeItem = (type: ScanType, item: string) => {

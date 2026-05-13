@@ -20,7 +20,15 @@ import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { Trash2, Settings, Package, User, Clock, MoreVertical, History, Check, ImagePlus, Loader2, X } from 'lucide-react';
 import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
-import { mergeUniqueEntries, mergeUniqueEntriesWithMetadata, normalizeEntryLabel, parseCommaSeparatedEntries } from '@/lib/entryParsing';
+import {
+  correctPantryManualEntries,
+  mergeUniqueEntries,
+  mergeUniqueEntriesWithMetadata,
+  normalizeEntryDuplicateKey,
+  normalizeEntryLabel,
+  parseCommaSeparatedEntries,
+  type PantryManualEntryCorrection,
+} from '@/lib/entryParsing';
 import { analyzeImage } from '@/lib/openai';
 import {
   extractVisionLabels,
@@ -473,6 +481,43 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   };
 
   const hasActiveScan = isAnalyzingPantry || isAnalyzingEquipment;
+
+  const showPantryCorrectionToast = (
+    originalEntries: string[],
+    corrections: PantryManualEntryCorrection[],
+    correctedAddedEntries: string[],
+  ) => {
+    if (corrections.length === 0 || correctedAddedEntries.length === 0) {
+      return;
+    }
+
+    const correctedAddedKeys = new Set(correctedAddedEntries.map(normalizeEntryDuplicateKey));
+    const description = corrections.map(({ original, corrected }) => `${original} -> ${corrected}`).join('; ');
+
+    toast({
+      title: 'Cleaned up spelling',
+      description,
+      action: (
+        <ToastAction
+          altText="Undo spelling cleanup"
+          onClick={() => {
+            setProfile((prev) => {
+              const withoutCorrectedBatch = prev.pantryIngredients.filter(
+                (entry) => !correctedAddedKeys.has(normalizeEntryDuplicateKey(entry)),
+              );
+
+              return {
+                ...prev,
+                pantryIngredients: mergeUniqueEntries(withoutCorrectedBatch, originalEntries),
+              };
+            });
+          }}
+        >
+          Undo
+        </ToastAction>
+      ),
+    });
+  };
 
   const showScanBlockedToast = (action: string) => {
     toast({
@@ -1066,10 +1111,14 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
 
     const newEntries = parseCommaSeparatedEntries(value);
     if (type === 'pantry') {
+      const correctionResult = correctPantryManualEntries(newEntries);
+      const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, correctionResult.entries);
+
       setProfile(prev => ({
         ...prev,
-        pantryIngredients: mergeUniqueEntries(prev.pantryIngredients, newEntries)
+        pantryIngredients: mergeResult.items
       }));
+      showPantryCorrectionToast(newEntries, correctionResult.corrections, mergeResult.added);
     } else {
       setProfile(prev => ({
         ...prev,

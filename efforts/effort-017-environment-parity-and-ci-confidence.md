@@ -4,7 +4,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-05-08
+**Updated:** 2026-05-13
 
 ## One-line summary
 
@@ -127,3 +127,9 @@ Desired future automation:
 - Clear separation between code-verified checks and runtime/browser-verified checks in PR/handoff validation notes.
 
 This does not reactivate EFF-017 during INIT-001. It preserves the new concrete acceptance target for the later environment-parity/dev-test-harness window.
+
+## 2026-05-13 - EFF-013 pantry correction added as a future smoke candidate
+
+The EFF-013 pantry manual-entry correction slice adds another useful authenticated-smoke target for the later harness. The candidate flow is intentionally narrower than the Phase 3.2 Chef It Up target: sign in with a deterministic test user, exercise setup pantry manual correction, verify toast provenance and Undo, exercise Settings pantry manual correction, confirm kitchen manual entry is not corrected, save pantry, reload or revisit Settings, and assert corrected pantry values persist for the test user.
+
+This note does **not** reactivate EFF-017 or weaken the current Replit validation gate. EFF-013 remains a runtime/client-profile-persistence change that requires targeted manual Replit validation until the dev-auth + seed/reset + authenticated browser-smoke harness exists and is accepted as a merge-readiness signal.

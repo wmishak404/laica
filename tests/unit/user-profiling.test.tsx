@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { analyzeImage } from '@/lib/openai';
 import { SCAN_ANALYSIS_CONCURRENCY } from '@shared/scan-policy';
 import UserProfiling from '../../client/src/components/cooking/user-profiling';
@@ -98,6 +98,59 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /no restrictions/i }));
     expect(nextButton.disabled).toBe(false);
+  });
+
+  it('corrects setup pantry manual-entry spelling and lets Undo restore the original batch', () => {
+    render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'brocolli, rice, eggs' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+
+    expect(screen.getByText('broccoli')).toBeTruthy();
+    expect(screen.queryByText('brocolli')).toBeNull();
+
+    const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Cleaned up spelling')?.[0];
+    expect(correctionToast).toEqual(expect.objectContaining({
+      title: 'Cleaned up spelling',
+      description: 'brocolli -> broccoli',
+    }));
+
+    act(() => {
+      correctionToast.action.props.onClick();
+    });
+
+    expect(screen.getByText('brocolli')).toBeTruthy();
+    expect(screen.queryByText('broccoli')).toBeNull();
+  });
+
+  it('does not correct setup kitchen manual entry', () => {
+    render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    toastMock.mockClear();
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+      target: { value: 'brocolli, sheet pan' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+
+    expect(screen.getByText('brocolli')).toBeTruthy();
+    expect(screen.getByText('sheet pan')).toBeTruthy();
+    expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Cleaned up spelling',
+    }));
   });
 
   it('cancels oversized pantry and kitchen upload batches without partial analysis', () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  correctPantryManualEntries,
   mergeUniqueEntries,
   mergeUniqueEntriesWithMetadata,
   normalizeEntryDuplicateKey,
@@ -59,6 +60,38 @@ describe('entry parsing', () => {
       items: ['Chef Knife', 'cutting board'],
       added: ['cutting board'],
       duplicateCount: 2,
+    });
+  });
+
+  it('corrects only curated pantry misspellings', () => {
+    expect(correctPantryManualEntries(['brocolli', 'avacado', 'zuchini'])).toEqual({
+      entries: ['broccoli', 'avocado', 'zucchini'],
+      corrections: [
+        { original: 'brocolli', corrected: 'broccoli' },
+        { original: 'avacado', corrected: 'avocado' },
+        { original: 'zuchini', corrected: 'zucchini' },
+      ],
+    });
+
+    expect(correctPantryManualEntries(['broccolini', 'avocado oil', 'zucchini blossoms'])).toEqual({
+      entries: ['broccolini', 'avocado oil', 'zucchini blossoms'],
+      corrections: [],
+    });
+  });
+
+  it('preserves niche, cultural, brand-like, and stylized pantry entries', () => {
+    expect(correctPantryManualEntries(['doubanjiang', 'nalewka', 'sushiritto', 'WTR MLN WTR'])).toEqual({
+      entries: ['doubanjiang', 'nalewka', 'sushiritto', 'WTR MLN WTR'],
+      corrections: [],
+    });
+  });
+
+  it('deduplicates after pantry correction', () => {
+    const correctionResult = correctPantryManualEntries(['brocolli', 'broccoli', 'rice']);
+    expect(mergeUniqueEntriesWithMetadata([], correctionResult.entries)).toEqual({
+      items: ['broccoli', 'rice'],
+      added: ['broccoli', 'rice'],
+      duplicateCount: 1,
     });
   });
 });

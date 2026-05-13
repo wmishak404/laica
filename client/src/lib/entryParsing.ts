@@ -56,6 +56,63 @@ export function parseCommaSeparatedEntries(value: string): string[] {
   return entries;
 }
 
+const PANTRY_MANUAL_ENTRY_CORRECTIONS: Record<string, string> = {
+  aspargus: 'asparagus',
+  avacado: 'avocado',
+  brocoli: 'broccoli',
+  brocolli: 'broccoli',
+  cilanto: 'cilantro',
+  mozerella: 'mozzarella',
+  parmesean: 'parmesan',
+  spinich: 'spinach',
+  zuchini: 'zucchini',
+};
+
+export interface PantryManualEntryCorrection {
+  original: string;
+  corrected: string;
+}
+
+export interface PantryManualEntryCorrectionResult {
+  entries: string[];
+  corrections: PantryManualEntryCorrection[];
+}
+
+function pantryCorrectionKey(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isProtectedPantryManualEntry(value: string): boolean {
+  const letters = value.match(/[A-Za-z]/g)?.join('') ?? '';
+  const isAllCaps = letters.length >= 2 && letters === letters.toUpperCase();
+  return isAllCaps || /\d/.test(value);
+}
+
+export function correctPantryManualEntries(entries: string[]): PantryManualEntryCorrectionResult {
+  const corrections: PantryManualEntryCorrection[] = [];
+
+  const correctedEntries = entries.map((entry) => {
+    if (isProtectedPantryManualEntry(entry)) {
+      return entry;
+    }
+
+    const corrected = PANTRY_MANUAL_ENTRY_CORRECTIONS[pantryCorrectionKey(entry)];
+    if (!corrected || corrected === entry) {
+      return entry;
+    }
+
+    corrections.push({ original: entry, corrected });
+    return corrected;
+  });
+
+  return { entries: correctedEntries, corrections };
+}
+
 export function mergeUniqueEntries(existing: string[], incoming: string[]): string[] {
   return mergeUniqueEntriesWithMetadata(existing, incoming).items;
 }
