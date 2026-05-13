@@ -102,11 +102,11 @@ Rule 5 (scoped-style reuse contract) is the only rule added after EFF-001 was fi
 
 - EFF-001 flips to `Resolved` with a pointer to this PD; the historical chronology is preserved in the Effort file.
 - [`design_guidelines.md`](../design_guidelines.md) is the canonical living UI/design standard. It references this PD for governance rules.
-- Enforcement mechanism (ESLint rule rejecting `className` matching `/bg-\[#|text-\[#|border-\[#/`, plus a PR-template gate) is **not yet shipped on `main`**. Tracked as an open follow-up, not a blocker for this PD being authoritative.
+- Enforcement mechanism is tracked by [EFF-015](../efforts/effort-015-ui-governance-enforcement.md). The first enforcement slice is the PR-template reviewer gate for tone overrides, scoped-style reuse, mockup conformance, visible provenance cues, and validation-scope hygiene. EFF-015 remains open until the ESLint rule also rejects `className` matching `/bg-\[#|text-\[#|border-\[#/` and proves CI fails on a deliberate hex-literal test.
 - AGENTS.md and CLAUDE.md active read lists drop EFF-001 and replace it with PD-005 + `design_guidelines.md`.
 - INIT-001 governance references repoint to this PD.
 
 ## Open follow-ups
 
-- [EFF-015](../efforts/effort-015-ui-governance-enforcement.md) — ESLint rule rejecting hex literals in `className` + PR-template gate citing this PD. Closes the enforcement-mechanism criterion deferred from EFF-001 at graduation.
+- [EFF-015](../efforts/effort-015-ui-governance-enforcement.md) — PR-template reviewer gate plus ESLint rule rejecting hex literals in `className`. The template can ship first; the enforcement-mechanism criterion deferred from EFF-001 closes only after the lint gate also lands.
 - Slop Bowl visual/token cleanup is no longer tracked as an active Effort; INIT-001 Phase 3.1 owns remaining Slop Bowl design alignment while EFF-015 owns enforcement.

@@ -87,7 +87,7 @@ Also read:
 
 ## Resolution criteria — what "done" looks like
 
-This Effort should remain `Deferred` until `initiatives/INIT-001-mobile-refresh.md` is complete.
+The full CI-confidence objective remains `Deferred`, but Wilson accepted reopening EFF-017 as a narrow Phase 4 harness pilot before INIT-001 fully completes. Until that implementation branch starts, keep the Effort status `Deferred`; when it reopens, preserve the current Replit validation gate and scope the first slice to authenticated smoke assistance rather than CI replacing Replit.
 
 This Effort can be `Resolved` when all of the following are true:
 
@@ -154,3 +154,9 @@ Wilson then completed the full targeted Replit checklist at the pre-rebase runti
 - Good pattern: the later dictionary-addition spellcheck pass is useful as a scoped validation signal, but it should not silently upgrade to full branch validation. Future EFF-017 process should let agents record partial passes by scope while keeping the full validated-SHA rule strict.
 - Good pattern: Wilson's final visual confirmation closed the loop on the exact thing the previous validation had left open: not "does animation code exist?", but "is the provenance cue obvious enough in the real product surface?"
 - Process implication: future EFF-017 smoke specs should pair each runtime behavior with a small "negative scope" list. That keeps validation focused and reduces Wilson's attention load because the reviewer does not have to re-decide which adjacent systems are irrelevant every time.
+
+## 2026-05-13 - Phase 4 harness pilot trigger accepted
+
+Wilson accepted the recommendation to use EFF-017 during Mobile Refresh Phase 4 instead of waiting until all of INIT-001 is complete. The accepted shape is intentionally narrow: start with an authenticated smoke harness pilot that helps Phase 4 validation, while keeping manual Replit validation authoritative until the harness earns trust.
+
+The first EFF-017 implementation branch should not claim that CI replaces Replit validation. It should use already-shipped behavior such as EFF-013 pantry correction or Phase 3.2 Chef It Up as a stable harness target first, then apply the harness to Phase 4 cooking guidance where auth, persistence, AI-assisted guidance, inline error recovery, and possible speech routes make repeated manual checking expensive.
