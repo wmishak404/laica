@@ -62,7 +62,6 @@ Read these before starting work in their governed domains:
 |---|---|---|---|---|
 | [EFF-010](effort-010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [EFF-014](effort-014-scan-session-diff-and-duplicate-refinement.md) | Scan session diff and duplicate refinement | `Open` | Wilson / Codex / Claude | 2026-04-30 |
-| [EFF-015](effort-015-ui-governance-enforcement.md) | UI governance enforcement (lint + PR template) | `In Progress` | Wilson / Codex / Claude | 2026-05-02 |
 
 ## Deferred Efforts
 

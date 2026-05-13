@@ -1,10 +1,11 @@
 # EFF-015 — UI Governance Enforcement (Lint + PR Template)
 
 **Former ID:** EPIC-015
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-02
 **Updated:** 2026-05-13
+**Resolved:** 2026-05-13
 
 ## One-line summary
 
@@ -88,3 +89,13 @@ The EFF-015 branch now adds a local ESLint rule, `laica-ui/no-token-hex-classnam
 Existing governed callsites were migrated to tokens: primary coral to `primary`, culinary teal to `secondary`, charcoal to `sidebar`, and the Fusion badge to `accent`. The deliberate failure proof used a temporary `client/src/__eff015-lint-probe.tsx` containing `className="bg-[#FF6B6B]"`; `npm run lint:ui` failed with `laica-ui/no-token-hex-classname`, and the probe file was removed before the clean pass.
 
 This branch is intended to satisfy the implementation side of EFF-015 once PR #64 merges. Keep the Effort `In Progress` until the PR lands on `main`, then perform the normal post-merge closeout: flip this file to `Resolved`, remove EFF-015 from the active read list, refresh the registry, and push a merge-closeout handoff.
+
+## 2026-05-13 — Resolved by PR #64
+
+PR #64 merged the UI-governance enforcement layer to `main` as merge commit `e4d5cfe82886f083398d89043a5c215625239a40`. The merged work satisfies the Effort's resolution criteria:
+
+- `.github/PULL_REQUEST_TEMPLATE.md` now cites PD-005 / `design_guidelines.md` and prompts reviewers for tone-override comments, rendered/computed-style checks for scoped class reuse, mockup conformance, visible provenance cues, exact validation scope, and negative scope.
+- `eslint.config.js` adds `laica-ui/no-token-hex-classname`, wired into `npm run check` through `npm run lint:ui`, rejecting `bg-[#...]`, `text-[#...]`, and `border-[#...]` className utilities.
+- Existing governed client callsites were migrated to tokens before merge.
+- The deliberate failure proof used a temporary `client/src/__eff015-lint-probe.tsx` with `className="bg-[#FF6B6B]"`; lint failed with `laica-ui/no-token-hex-classname`, then the probe was removed and clean checks passed.
+- PD-005 now records that enforcement has shipped and future enforcement expansion belongs to PD-005 / the normal workflow rather than this active Effort.
