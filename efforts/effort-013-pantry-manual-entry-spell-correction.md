@@ -136,3 +136,7 @@ Wilson's first Replit spot-check showed the initial v0 correction map was too na
 ### 2026-05-13 — Targeted Replit validation passed
 
 Wilson completed the targeted Replit validation checklist against `e7ebaf22e6c77f7ac4623f16ec684150915c0487`. The validated scope was intentionally narrow: branch/SHA confirmation, Firebase sign-in, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, and pantry save/reload persistence. AI routes, ElevenLabs, vision upload, schema pushes, and broad regression passes stayed out of scope.
+
+### 2026-05-13 — Common-staple dictionary expanded after validation
+
+Wilson accepted one more tiny dictionary bump for highly common pantry staples before merge. The exact-match map now also covers `garilic`, `letuce`, `onoin`, `potatos`, `tomatos`, `mushroms`, `strawbery`, and `bluebery`. This is a runtime behavior change after the validated SHA, so the earlier Replit validation is stale for the new branch head until the targeted pantry checklist is rerun.

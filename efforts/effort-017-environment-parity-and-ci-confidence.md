@@ -149,4 +149,5 @@ Wilson then completed the full targeted Replit checklist at `e7ebaf22e6c77f7ac46
 
 - Good pattern: the checklist was concrete enough to prove the changed behavior without pulling in AI routes, ElevenLabs, vision upload, schema pushes, or broad regression passes.
 - Good pattern: recording the exact validated SHA made the staleness rule mechanical. Any runtime commit after `e7ebaf22e6c77f7ac4623f16ec684150915c0487` should make this validation stale by definition.
+- Good pattern: the later common-staple dictionary expansion is a concrete example of that staleness rule working as intended. Even a tiny exact-match map change is user-visible runtime behavior, so it needs a fresh targeted pantry validation before merge.
 - Process implication: future EFF-017 smoke specs should pair each runtime behavior with a small "negative scope" list. That keeps validation focused and reduces Wilson's attention load because the reviewer does not have to re-decide which adjacent systems are irrelevant every time.

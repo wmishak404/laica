@@ -64,8 +64,42 @@ describe('entry parsing', () => {
   });
 
   it('corrects only curated pantry misspellings', () => {
-    expect(correctPantryManualEntries(['brocoli', 'brocolli', 'avacado', 'avcado', 'beens', 'ryce', 'chickin', 'zuchini'])).toEqual({
-      entries: ['broccoli', 'broccoli', 'avocado', 'avocado', 'beans', 'rice', 'chicken', 'zucchini'],
+    expect(correctPantryManualEntries([
+      'brocoli',
+      'brocolli',
+      'avacado',
+      'avcado',
+      'beens',
+      'ryce',
+      'chickin',
+      'zuchini',
+      'garilic',
+      'letuce',
+      'onoin',
+      'potatos',
+      'tomatos',
+      'mushroms',
+      'strawbery',
+      'bluebery',
+    ])).toEqual({
+      entries: [
+        'broccoli',
+        'broccoli',
+        'avocado',
+        'avocado',
+        'beans',
+        'rice',
+        'chicken',
+        'zucchini',
+        'garlic',
+        'lettuce',
+        'onion',
+        'potatoes',
+        'tomatoes',
+        'mushrooms',
+        'strawberry',
+        'blueberry',
+      ],
       corrections: [
         { original: 'brocoli', corrected: 'broccoli' },
         { original: 'brocolli', corrected: 'broccoli' },
@@ -75,6 +109,14 @@ describe('entry parsing', () => {
         { original: 'ryce', corrected: 'rice' },
         { original: 'chickin', corrected: 'chicken' },
         { original: 'zuchini', corrected: 'zucchini' },
+        { original: 'garilic', corrected: 'garlic' },
+        { original: 'letuce', corrected: 'lettuce' },
+        { original: 'onoin', corrected: 'onion' },
+        { original: 'potatos', corrected: 'potatoes' },
+        { original: 'tomatos', corrected: 'tomatoes' },
+        { original: 'mushroms', corrected: 'mushrooms' },
+        { original: 'strawbery', corrected: 'strawberry' },
+        { original: 'bluebery', corrected: 'blueberry' },
       ],
     });
 
