@@ -35,6 +35,7 @@ EFF-001 accumulated the rubric across Slop Bowl and mobile-refresh phases. Phase
 - Prefer shadcn primitives over ad-hoc `<div>` layouts.
 - Set font-family via CSS class, not inline style.
 - Tone rationale belongs in the PR description for new tone-forward surfaces.
+- For provenance or state-change animation that must tell the user what changed, verify the cue is perceptible on the rendered surface. A fill/background change on the affected chip/card is preferred over a border-only pulse when the surface is small or glanceable.
 
 ### Primitive lock order
 
@@ -76,6 +77,7 @@ Before any of the following, read this PD and `design_guidelines.md`:
 - Changing `client/src/components/ui/*.tsx`
 - Adding a new icon library or changing fonts in `client/src/index.css`
 - Reusing phase-scoped utility classes outside their original root wrapper
+- Adding a new provenance/state-change animation such as a flash, pulse, or corrected-item highlight
 - Writing a feature handoff that describes a new UX pattern
 
 The handoff and PR description must state how the change interacts with this PD (conforms / uses escape hatch / adds new evidence).

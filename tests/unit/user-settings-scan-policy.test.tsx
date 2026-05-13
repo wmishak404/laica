@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { analyzeImage } from '@/lib/openai';
 import { SCAN_ANALYSIS_CONCURRENCY } from '@shared/scan-policy';
 import UserSettings from '../../client/src/components/cooking/user-settings';
@@ -98,6 +98,61 @@ describe('UserSettings scan upload policy', () => {
       title: 'Too many photos',
       description: expect.stringContaining('up to 20 photos per refresh'),
       variant: 'destructive',
+    }));
+  });
+
+  it('corrects Settings pantry manual-entry spelling and lets Undo restore the original batch', () => {
+    render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="pantry"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'brocolli' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+
+    expect(screen.getByText('broccoli')).toBeTruthy();
+    expect(screen.queryByText('brocolli')).toBeNull();
+    expect(screen.getByText('broccoli').closest('.setup-chip')?.getAttribute('data-corrected')).toBe('true');
+
+    const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Corrected some entries')?.[0];
+    expect(correctionToast).toEqual(expect.objectContaining({
+      title: 'Corrected some entries',
+    }));
+
+    act(() => {
+      correctionToast.action.props.onClick();
+    });
+
+    expect(screen.getByText('brocolli')).toBeTruthy();
+    expect(screen.queryByText('broccoli')).toBeNull();
+  });
+
+  it('does not correct Settings kitchen manual entry', () => {
+    render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="kitchen"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+      target: { value: 'brocolli' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+
+    expect(screen.getByText('brocolli')).toBeTruthy();
+    expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Corrected some entries',
     }));
   });
 

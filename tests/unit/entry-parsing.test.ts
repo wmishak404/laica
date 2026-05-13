@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  correctPantryManualEntries,
   mergeUniqueEntries,
   mergeUniqueEntriesWithMetadata,
   normalizeEntryDuplicateKey,
@@ -59,6 +60,85 @@ describe('entry parsing', () => {
       items: ['Chef Knife', 'cutting board'],
       added: ['cutting board'],
       duplicateCount: 2,
+    });
+  });
+
+  it('corrects only curated pantry misspellings', () => {
+    expect(correctPantryManualEntries([
+      'brocoli',
+      'brocolli',
+      'avacado',
+      'avcado',
+      'beens',
+      'ryce',
+      'chickin',
+      'zuchini',
+      'garilic',
+      'letuce',
+      'onoin',
+      'potatos',
+      'tomatos',
+      'mushroms',
+      'strawbery',
+      'bluebery',
+    ])).toEqual({
+      entries: [
+        'broccoli',
+        'broccoli',
+        'avocado',
+        'avocado',
+        'beans',
+        'rice',
+        'chicken',
+        'zucchini',
+        'garlic',
+        'lettuce',
+        'onion',
+        'potatoes',
+        'tomatoes',
+        'mushrooms',
+        'strawberry',
+        'blueberry',
+      ],
+      corrections: [
+        { original: 'brocoli', corrected: 'broccoli' },
+        { original: 'brocolli', corrected: 'broccoli' },
+        { original: 'avacado', corrected: 'avocado' },
+        { original: 'avcado', corrected: 'avocado' },
+        { original: 'beens', corrected: 'beans' },
+        { original: 'ryce', corrected: 'rice' },
+        { original: 'chickin', corrected: 'chicken' },
+        { original: 'zuchini', corrected: 'zucchini' },
+        { original: 'garilic', corrected: 'garlic' },
+        { original: 'letuce', corrected: 'lettuce' },
+        { original: 'onoin', corrected: 'onion' },
+        { original: 'potatos', corrected: 'potatoes' },
+        { original: 'tomatos', corrected: 'tomatoes' },
+        { original: 'mushroms', corrected: 'mushrooms' },
+        { original: 'strawbery', corrected: 'strawberry' },
+        { original: 'bluebery', corrected: 'blueberry' },
+      ],
+    });
+
+    expect(correctPantryManualEntries(['broccolini', 'avocado oil', 'zucchini blossoms'])).toEqual({
+      entries: ['broccolini', 'avocado oil', 'zucchini blossoms'],
+      corrections: [],
+    });
+  });
+
+  it('preserves niche, cultural, brand-like, and stylized pantry entries', () => {
+    expect(correctPantryManualEntries(['doubanjiang', 'nalewka', 'sushiritto', 'WTR MLN WTR'])).toEqual({
+      entries: ['doubanjiang', 'nalewka', 'sushiritto', 'WTR MLN WTR'],
+      corrections: [],
+    });
+  });
+
+  it('deduplicates after pantry correction', () => {
+    const correctionResult = correctPantryManualEntries(['brocolli', 'broccoli', 'rice']);
+    expect(mergeUniqueEntriesWithMetadata([], correctionResult.entries)).toEqual({
+      items: ['broccoli', 'rice'],
+      added: ['broccoli', 'rice'],
+      duplicateCount: 1,
     });
   });
 });
