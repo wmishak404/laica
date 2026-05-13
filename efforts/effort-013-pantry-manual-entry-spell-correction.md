@@ -135,7 +135,7 @@ Wilson's first Replit spot-check showed the initial v0 correction map was too na
 
 ### 2026-05-13 — Targeted Replit validation passed
 
-Wilson completed the targeted Replit validation checklist against `e7ebaf22e6c77f7ac4623f16ec684150915c0487`. The validated scope was intentionally narrow: branch/SHA confirmation, Firebase sign-in, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, and pantry save/reload persistence. AI routes, ElevenLabs, vision upload, schema pushes, and broad regression passes stayed out of scope.
+Wilson completed the targeted Replit validation checklist against the pre-rebase runtime SHA that now corresponds to `6f41ea4aa8b892e0697b5f4d5402a35eb76f95bb`. The validated scope was intentionally narrow: branch/SHA confirmation, Firebase sign-in, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, and pantry save/reload persistence. AI routes, ElevenLabs, vision upload, schema pushes, and broad regression passes stayed out of scope.
 
 ### 2026-05-13 — Common-staple dictionary expanded after validation
 
@@ -148,3 +148,7 @@ Replit review showed the first corrected-chip flash was too subtle because it pr
 ### 2026-05-13 — Common-staple spellcheck validation passed
 
 Wilson reported that Replit spellcheck validation passed for the common-staple dictionary additions. This confirms the new exact-match additions behave as intended, but it is recorded as a scoped spellcheck pass rather than a full current-head runtime validation because the later corrected-chip flash refinement still needs explicit visual confirmation before merge.
+
+### 2026-05-13 — Current-head targeted validation complete
+
+Wilson confirmed the brighter filled-chip flash looks good on corrected pantry tags. Combined with the earlier full targeted Replit checklist and the scoped common-staple spellcheck pass, the EFF-013 targeted runtime content is represented on the rebased branch at `6b093db35074434a914a82f43daa8c680cc091aa`.

@@ -23,17 +23,18 @@ EFF-013 now has a narrow product implementation that exercises provenance withou
 
 ## Impact on other agents
 
-Primary durable home is EFF-013. Future work should keep the correction map deliberately small unless Wilson accepts broader ingredient-correction behavior. If this branch merges, EFF-013 can be resolved only after the post-merge closeout confirms all resolution criteria, Replit validation status, and handoff/PR references from fresh `main`.
+Primary durable home is EFF-013. Future work should keep the correction map deliberately small unless Wilson accepts broader ingredient-correction behavior. The branch was rebased onto fresh `origin/main` at `9a5bc67a4cbec1218422ef6c1359641a9cacbe61` after the effort-hygiene docs refresh; the only conflict was in this Effort's chronology, and both the 2026-05-12 weekly hygiene note and 2026-05-13 product-playground notes were preserved. If this branch merges, EFF-013 can be resolved only after the post-merge closeout confirms all resolution criteria, Replit validation status, and handoff/PR references from fresh `main`.
 
 EFF-017 should treat this as a later harness candidate: deterministic auth, setup pantry correction, corrected-chip highlight, Settings pantry correction, Undo, kitchen non-correction, save/reload persistence.
 
 ## Open items
 
-- Wilson completed targeted Replit validation on `e7ebaf22e6c77f7ac4623f16ec684150915c0487`, before the final common-staple dictionary expansion.
+- Wilson completed targeted Replit validation on the pre-rebase runtime SHA that now corresponds to `6f41ea4aa8b892e0697b5f4d5402a35eb76f95bb`, before the final common-staple dictionary expansion.
 - Wilson later reported that Replit spellcheck validation passed for the common-staple dictionary additions after the current-head runtime updates.
+- Wilson confirmed the brighter filled-chip flash looks good on the corrected pantry tags.
 - The validation stayed scoped to Firebase sign-in/authenticated app access, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, save/reload persistence, and corrected-chip provenance.
 - Replit validation intentionally did not include AI routes, ElevenLabs, vision upload, schema pushes, or broad regression passes.
-- `Last Replit-validated at: not yet full-current-head validated`. Prior full targeted validation passed at `e7ebaf22e6c77f7ac4623f16ec684150915c0487`; the common-staple spellcheck additions have since passed a scoped Replit spellcheck validation, but the latest corrected-chip flash refinement still needs explicit current-head confirmation before merge.
+- `Last Replit-validated runtime content at: 6b093db35074434a914a82f43daa8c680cc091aa`. This is the rebased equivalent of the runtime content Wilson validated through the prior full targeted pass, the scoped common-staple spellcheck pass, and the corrected-chip flash visual confirmation. Current branch head is docs-only after that validation record.
 
 ## Verification
 
@@ -42,7 +43,7 @@ EFF-017 should treat this as a later harness candidate: deterministic auth, setu
 - After the Replit spot-check refinement, `npm run check` passed.
 - After the Replit spot-check refinement, `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
 - After the Replit spot-check refinement, `git diff --check` passed.
-- Wilson manually validated Replit checklist items 1-7 against `e7ebaf22e6c77f7ac4623f16ec684150915c0487`: branch/SHA confirmation, Firebase sign-in, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, and pantry save/reload persistence.
+- Wilson manually validated Replit checklist items 1-7 against the pre-rebase runtime SHA that now corresponds to `6f41ea4aa8b892e0697b5f4d5402a35eb76f95bb`: branch/SHA confirmation, Firebase sign-in, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, and pantry save/reload persistence.
 - After the common-staple dictionary expansion, `npx vitest run tests/unit/entry-parsing.test.ts tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx` passed: 3 files, 27 tests.
 - After the common-staple dictionary expansion, `npm run check` passed.
 - After the common-staple dictionary expansion, `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
@@ -52,3 +53,8 @@ EFF-017 should treat this as a later harness candidate: deterministic auth, setu
 - After the corrected-chip flash refinement, `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
 - After the corrected-chip flash refinement, `git diff --check` passed.
 - Wilson reported the Replit spellcheck validation passed for the common-staple dictionary additions after the latest runtime updates. This is recorded as a scoped spellcheck pass, not a full current-head Replit validation pass.
+- Wilson confirmed the brighter filled-chip flash looks good on corrected pantry tags; this closes the remaining current-head visual validation gap for the EFF-013 targeted Replit scope.
+- After rebasing onto `origin/main` at `9a5bc67a4cbec1218422ef6c1359641a9cacbe61`, `npx vitest run tests/unit/entry-parsing.test.ts tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx` passed: 3 files, 27 tests.
+- After the rebase, `npm run check` passed.
+- After the rebase, `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
+- After the rebase, `git diff --check origin/main...HEAD` passed.
