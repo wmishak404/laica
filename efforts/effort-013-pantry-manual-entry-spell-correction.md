@@ -1,7 +1,7 @@
 # EFF-013 — Pantry manual-entry spell correction
 
 **Former ID:** EPIC-013
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
 **Updated:** 2026-05-13
@@ -152,3 +152,9 @@ Wilson reported that Replit spellcheck validation passed for the common-staple d
 ### 2026-05-13 — Current-head targeted validation complete
 
 Wilson confirmed the brighter filled-chip flash looks good on corrected pantry tags. Combined with the earlier full targeted Replit checklist and the scoped common-staple spellcheck pass, the EFF-013 targeted runtime content is represented on the rebased branch at `6b093db35074434a914a82f43daa8c680cc091aa`.
+
+### 2026-05-13 — Resolved by PR #62
+
+PR #62 merged the conservative pantry manual-entry correction slice to `main` as merge commit `8de1e884c25af7b181bb4c4053f896208d84e679`. The merged behavior satisfies the Effort's resolution criteria: setup and Settings saved pantry manual entry correct curated exact-match misspellings, niche/stylized examples remain unchanged, kitchen manual entry is unaffected, Undo and chip remove remain available, tests cover correction/preservation/dedupe/non-correction behavior, and the accepted provenance pattern is recorded in the branch handoff and PR description.
+
+The system-of-work learning from the slice lives in EFF-017 and UI governance: validation should stay targeted, preserve exact scope/negative scope, distinguish scoped passes from full validation, and verify that visual provenance cues are perceptible in the real product surface.
