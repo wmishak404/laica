@@ -142,7 +142,7 @@ export default function GroceryListMobile() {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-[#4ECDC4] h-2 rounded-full transition-all duration-300" 
+                className="bg-secondary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${itemCount > 0 ? (checkedItemsCount / itemCount) * 100 : 0}%` }}
               ></div>
             </div>
@@ -155,7 +155,7 @@ export default function GroceryListMobile() {
           <div className="space-y-6">
             <Card>
               <CardHeader className="text-center">
-                <div className="bg-[#4ECDC4] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="bg-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingCart className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl">Create Your Smart Grocery List</CardTitle>
@@ -170,11 +170,11 @@ export default function GroceryListMobile() {
         ) : (
           <div className="space-y-4">
             {/* Quick Stats */}
-            <Card className="bg-gradient-to-r from-[#4ECDC4]/10 to-[#FF6B6B]/10">
+            <Card className="bg-gradient-to-r from-secondary/10 to-primary/10">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-[#4ECDC4] mr-2" />
+                    <CheckCircle className="h-5 w-5 text-secondary mr-2" />
                     <span className="font-medium">Shopping Progress</span>
                   </div>
                   <div className="text-right">

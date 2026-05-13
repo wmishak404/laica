@@ -157,7 +157,7 @@ export default function Header() {
             variant="outline" 
             size="sm" 
             onClick={() => setIsFeedbackOpen(true)}
-            className="text-[#FF6B6B] border-[#FF6B6B] bg-transparent hover:bg-[#FF6B6B]/10 text-xs rounded-lg px-2 py-0.5 h-6"
+            className="text-primary border-primary bg-transparent hover:bg-primary/10 text-xs rounded-lg px-2 py-0.5 h-6"
           >
             Feedback
           </Button>

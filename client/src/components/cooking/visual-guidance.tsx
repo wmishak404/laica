@@ -21,7 +21,7 @@ export default function VisualGuidance({ currentStep }: VisualGuidanceProps) {
 
   return (
     <Card className="mb-6">
-      <div className="bg-[#2D3436] p-3 text-white flex justify-between items-center rounded-t-lg">
+      <div className="bg-sidebar p-3 text-white flex justify-between items-center rounded-t-lg">
         <span className="font-medium">Recipe Example</span>
       </div>
       <img 
