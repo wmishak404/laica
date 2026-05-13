@@ -134,6 +134,7 @@ Before a mobile-refresh phase merges:
 ### Motion
 
 - Motion clarifies state change or adds a small moment of delight.
+- Provenance/state-change flashes should be visible on the filled surface when the user needs to know exactly what changed; avoid relying on a thin border-only pulse for small chips or glanceable cards.
 - No constant ambient motion on task surfaces.
 - Cooking-mode motion stays calm and functional: progress, timers, listening/speaking state, step transitions.
 

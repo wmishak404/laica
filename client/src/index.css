@@ -385,7 +385,8 @@ html, body {
   }
 
   .setup-chip[data-corrected="true"] {
-    animation: setup-corrected-chip-blip 1400ms ease-out;
+    animation: setup-corrected-chip-blip 1800ms ease-out;
+    will-change: background-color, border-color, box-shadow;
   }
 
   .setup-kitchen-chip {
@@ -1812,17 +1813,30 @@ html, body {
 
 @keyframes setup-corrected-chip-blip {
   0% {
+    background-color: hsl(var(--setup-coral-soft) / 0.68);
     box-shadow: 0 0 0 0 hsl(var(--setup-butter) / 0);
     border-color: hsl(var(--setup-coral-strong) / 0.2);
   }
-  18% {
-    box-shadow: 0 0 0 0.24rem hsl(var(--setup-butter) / 0.42);
-    border-color: hsl(var(--setup-butter) / 0.9);
+  16% {
+    background-color: hsl(50 100% 94% / 0.98);
+    box-shadow:
+      0 0 0 0.26rem hsl(50 100% 86% / 0.48),
+      inset 0 0 0 1px hsl(48 100% 72% / 0.72);
+    border-color: hsl(48 100% 72% / 0.92);
   }
-  50% {
-    box-shadow: 0 0 0 0.16rem hsl(var(--setup-coral-strong) / 0.22);
+  46% {
+    background-color: hsl(50 100% 94% / 0.98);
+    box-shadow:
+      0 0 0 0.18rem hsl(50 100% 86% / 0.36),
+      inset 0 0 0 1px hsl(48 100% 72% / 0.62);
+    border-color: hsl(48 100% 72% / 0.82);
+  }
+  72% {
+    background-color: hsl(48 100% 90% / 0.78);
+    box-shadow: 0 0 0 0.12rem hsl(var(--setup-coral-strong) / 0.18);
   }
   100% {
+    background-color: hsl(var(--setup-coral-soft) / 0.68);
     box-shadow: 0 0 0 0 hsl(var(--setup-butter) / 0);
     border-color: hsl(var(--setup-coral-strong) / 0.2);
   }

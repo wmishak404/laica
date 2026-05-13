@@ -140,3 +140,7 @@ Wilson completed the targeted Replit validation checklist against `e7ebaf22e6c77
 ### 2026-05-13 — Common-staple dictionary expanded after validation
 
 Wilson accepted one more tiny dictionary bump for highly common pantry staples before merge. The exact-match map now also covers `garilic`, `letuce`, `onoin`, `potatos`, `tomatos`, `mushroms`, `strawbery`, and `bluebery`. This is a runtime behavior change after the validated SHA, so the earlier Replit validation is stale for the new branch head until the targeted pantry checklist is rerun.
+
+### 2026-05-13 — Corrected-chip flash made more visible
+
+Replit review showed the first corrected-chip flash was too subtle because it primarily affected the border. The flash now changes the chip fill to a brighter pale-yellow state before settling back to the pantry chip color. The broader UI-governance lesson was recorded in PD-005 and `design_guidelines.md`: provenance/state-change cues that users must notice should be visible on the filled surface, not only on a thin border.
