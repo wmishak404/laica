@@ -167,7 +167,7 @@ export default function CookingDemo() {
             {/* Right side - Visual Guidance */}
             <div className="lg:w-1/2">
               <Card className="mb-6">
-                <div className="bg-[#2D3436] p-3 text-white flex justify-between items-center rounded-t-lg">
+                <div className="bg-sidebar p-3 text-white flex justify-between items-center rounded-t-lg">
                   <span className="font-medium">Live Cooking View</span>
                   <div>
                     <span className="bg-red-500 h-2 w-2 rounded-full inline-block"></span>

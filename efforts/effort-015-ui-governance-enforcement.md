@@ -79,4 +79,12 @@ Reviewed against PD-005, `design_guidelines.md`, the repo's current lint setup, 
 
 Status changed from `Open` to `In Progress`. Wilson accepted sequencing EFF-015 before the EFF-017 Phase 4 harness work, starting with the smallest mechanical governance slice: add `.github/PULL_REQUEST_TEMPLATE.md`, carry PD-005 / `design_guidelines.md` checks into every PR, and add the EFF-013 lessons about visible provenance, exact validation scope, and negative scope.
 
-This does not resolve EFF-015. The ESLint gate for token-equivalent hex color utilities still needs to land and prove that CI fails on a deliberate `bg-[#hex]` test before the Effort can close.
+This did not resolve EFF-015 by itself. The ESLint gate for token-equivalent hex color utilities still needed to land and prove that CI fails on a deliberate `bg-[#hex]` test before the Effort could close.
+
+## 2026-05-13 — ESLint enforcement implemented in PR #64
+
+The EFF-015 branch now adds a local ESLint rule, `laica-ui/no-token-hex-classname`, wired into `npm run check` through `npm run lint:ui`. The rule walks `className` strings and common `cn`/array/object expression shapes, then rejects `bg-[#...]`, `text-[#...]`, and `border-[#...]` utilities so token-equivalent brand colors must use existing Tailwind tokens instead.
+
+Existing governed callsites were migrated to tokens: primary coral to `primary`, culinary teal to `secondary`, charcoal to `sidebar`, and the Fusion badge to `accent`. The deliberate failure proof used a temporary `client/src/__eff015-lint-probe.tsx` containing `className="bg-[#FF6B6B]"`; `npm run lint:ui` failed with `laica-ui/no-token-hex-classname`, and the probe file was removed before the clean pass.
+
+This branch is intended to satisfy the implementation side of EFF-015 once PR #64 merges. Keep the Effort `In Progress` until the PR lands on `main`, then perform the normal post-merge closeout: flip this file to `Resolved`, remove EFF-015 from the active read list, refresh the registry, and push a merge-closeout handoff.

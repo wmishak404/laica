@@ -296,7 +296,7 @@ function HistoryTab() {
                         <span>{snapshot.cuisine}</span>
                       )}
                       {snapshot?.isFusion && (
-                        <Badge className="bg-[#FFB347] text-white text-xs px-2 py-1">
+                        <Badge className="bg-accent text-accent-foreground text-xs px-2 py-1">
                           Fusion
                         </Badge>
                       )}
@@ -323,7 +323,7 @@ function HistoryTab() {
                           <div className="space-y-1">
                             {recipeIngredients.map((ing: RecipeSnapshotData['ingredients'][number], idx: number) => (
                               <div key={idx} className="flex items-center gap-2 text-sm">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B6B] flex-shrink-0" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                                 <span>{ing.quantity ? `${ing.quantity} ` : ''}{ing.name}</span>
                               </div>
                             ))}
@@ -336,7 +336,7 @@ function HistoryTab() {
                           <ol className="space-y-3">
                             {recipeSteps.map((step: RecipeSnapshotData['steps'][number], idx: number) => (
                               <li key={idx} className="flex gap-3">
-                                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FF6B6B] text-white text-xs flex items-center justify-center font-medium">
+                                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-medium">
                                   {idx + 1}
                                 </span>
                                 <div className="flex-1">

@@ -1144,7 +1144,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     return (
       <div className="w-full max-w-4xl mx-auto p-4 min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B6B] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold mb-2">Preparing Your Cooking Guide</h2>
           <p className="text-gray-600">Setting up personalized step-by-step instructions for {selectedMeal.recipeName}...</p>
         </Card>
