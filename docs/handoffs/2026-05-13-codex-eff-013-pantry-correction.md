@@ -30,9 +30,10 @@ EFF-017 should treat this as a later harness candidate: deterministic auth, setu
 ## Open items
 
 - Wilson completed targeted Replit validation on `e7ebaf22e6c77f7ac4623f16ec684150915c0487`, before the final common-staple dictionary expansion.
+- Wilson later reported that Replit spellcheck validation passed for the common-staple dictionary additions after the current-head runtime updates.
 - The validation stayed scoped to Firebase sign-in/authenticated app access, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, save/reload persistence, and corrected-chip provenance.
 - Replit validation intentionally did not include AI routes, ElevenLabs, vision upload, schema pushes, or broad regression passes.
-- `Last Replit-validated at: not yet validated after latest runtime commit`. Prior targeted validation passed at `e7ebaf22e6c77f7ac4623f16ec684150915c0487`, but the dictionary expansion and corrected-chip flash refinement make it stale for current branch head.
+- `Last Replit-validated at: not yet full-current-head validated`. Prior full targeted validation passed at `e7ebaf22e6c77f7ac4623f16ec684150915c0487`; the common-staple spellcheck additions have since passed a scoped Replit spellcheck validation, but the latest corrected-chip flash refinement still needs explicit current-head confirmation before merge.
 
 ## Verification
 
@@ -50,3 +51,4 @@ EFF-017 should treat this as a later harness candidate: deterministic auth, setu
 - After the corrected-chip flash refinement, `npm run check` passed.
 - After the corrected-chip flash refinement, `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
 - After the corrected-chip flash refinement, `git diff --check` passed.
+- Wilson reported the Replit spellcheck validation passed for the common-staple dictionary additions after the latest runtime updates. This is recorded as a scoped spellcheck pass, not a full current-head Replit validation pass.

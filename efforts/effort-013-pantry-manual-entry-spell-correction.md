@@ -144,3 +144,7 @@ Wilson accepted one more tiny dictionary bump for highly common pantry staples b
 ### 2026-05-13 — Corrected-chip flash made more visible
 
 Replit review showed the first corrected-chip flash was too subtle because it primarily affected the border. The flash now changes the chip fill to a brighter pale-yellow state before settling back to the pantry chip color. The broader UI-governance lesson was recorded in PD-005 and `design_guidelines.md`: provenance/state-change cues that users must notice should be visible on the filled surface, not only on a thin border.
+
+### 2026-05-13 — Common-staple spellcheck validation passed
+
+Wilson reported that Replit spellcheck validation passed for the common-staple dictionary additions. This confirms the new exact-match additions behave as intended, but it is recorded as a scoped spellcheck pass rather than a full current-head runtime validation because the later corrected-chip flash refinement still needs explicit visual confirmation before merge.
