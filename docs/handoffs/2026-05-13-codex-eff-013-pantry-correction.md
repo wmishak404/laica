@@ -28,9 +28,10 @@ EFF-017 should treat this as a later harness candidate: deterministic auth, setu
 
 ## Open items
 
-- Full Replit validation is not yet run. Wilson's first Replit spot-check found the initial correction map was too narrow and the toast detail should move to chip-level provenance; this branch now includes that refinement. The full runtime/client-profile-persistence gate should use targeted Replit validation only: Firebase sign-in/authenticated API access and pantry profile DB write/read persistence.
-- Replit validation should not include AI routes, ElevenLabs, vision upload, schema pushes, or broad regression passes.
-- `Last Replit-validated at: not yet validated`.
+- Wilson completed targeted Replit validation on `e7ebaf22e6c77f7ac4623f16ec684150915c0487`.
+- The validation stayed scoped to Firebase sign-in/authenticated app access, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, save/reload persistence, and corrected-chip provenance.
+- Replit validation intentionally did not include AI routes, ElevenLabs, vision upload, schema pushes, or broad regression passes.
+- `Last Replit-validated at: e7ebaf22e6c77f7ac4623f16ec684150915c0487`.
 
 ## Verification
 
@@ -39,3 +40,4 @@ EFF-017 should treat this as a later harness candidate: deterministic auth, setu
 - After the Replit spot-check refinement, `npm run check` passed.
 - After the Replit spot-check refinement, `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
 - After the Replit spot-check refinement, `git diff --check` passed.
+- Wilson manually validated Replit checklist items 1-7 against `e7ebaf22e6c77f7ac4623f16ec684150915c0487`: branch/SHA confirmation, Firebase sign-in, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, and pantry save/reload persistence.

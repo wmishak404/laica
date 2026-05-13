@@ -132,3 +132,7 @@ Wilson accepted EFF-013 as the first lightweight system-of-work product playgrou
 ### 2026-05-13 — Replit spot-check refined correction coverage and provenance UI
 
 Wilson's first Replit spot-check showed the initial v0 correction map was too narrow and the toast carried too much per-entry detail. The accepted refinement keeps the lightweight exact-match approach but adds the observed high-confidence variants (`brocoli`, `avcado`, `beens`, `ryce`, `chickin`) and moves provenance closer to the product surface: the toast now says `Corrected some entries`, while the corrected pantry chips briefly flash to show which saved tags changed. Undo still restores the original just-added batch, and kitchen manual entry remains untouched.
+
+### 2026-05-13 — Targeted Replit validation passed
+
+Wilson completed the targeted Replit validation checklist against `e7ebaf22e6c77f7ac4623f16ec684150915c0487`. The validated scope was intentionally narrow: branch/SHA confirmation, Firebase sign-in, setup pantry correction + Undo, Settings pantry correction + Undo, duplicate-after-correction behavior, kitchen non-correction, and pantry save/reload persistence. AI routes, ElevenLabs, vision upload, schema pushes, and broad regression passes stayed out of scope.
