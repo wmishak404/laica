@@ -58,12 +58,18 @@ export function parseCommaSeparatedEntries(value: string): string[] {
 
 const PANTRY_MANUAL_ENTRY_CORRECTIONS: Record<string, string> = {
   aspargus: 'asparagus',
+  avcado: 'avocado',
   avacado: 'avocado',
+  beens: 'beans',
   brocoli: 'broccoli',
   brocolli: 'broccoli',
+  broccolli: 'broccoli',
+  chiken: 'chicken',
+  chickin: 'chicken',
   cilanto: 'cilantro',
   mozerella: 'mozzarella',
   parmesean: 'parmesan',
+  ryce: 'rice',
   spinich: 'spinach',
   zuchini: 'zucchini',
 };

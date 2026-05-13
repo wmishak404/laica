@@ -8,33 +8,34 @@
 
 ## Summary
 
-EFF-013 now has a narrow product implementation that exercises provenance without adding a new process layer: saved pantry manual entry in setup and Settings corrects only curated high-confidence misspellings, shows a reversible `Cleaned up spelling` toast with `original -> corrected` provenance, and leaves kitchen equipment, scans, Slop Bowl temporary entries, and unknown/niche/stylized pantry labels unchanged.
+EFF-013 now has a narrow product implementation that exercises provenance without adding a new process layer: saved pantry manual entry in setup and Settings corrects only curated high-confidence misspellings, shows a reversible `Corrected some entries` toast, briefly highlights the corrected pantry chips, and leaves kitchen equipment, scans, Slop Bowl temporary entries, and unknown/niche/stylized pantry labels unchanged.
 
 ## Changes
 
-- `client/src/lib/entryParsing.ts` adds `correctPantryManualEntries`, a tiny exact-match correction map, protected all-caps/digit-containing entry behavior, and correction metadata.
-- `client/src/components/cooking/user-profiling.tsx` applies correction only to setup pantry manual entry and adds toast Undo to restore the original just-added batch.
-- `client/src/components/cooking/user-settings.tsx` applies the same pantry-only correction and Undo behavior in returning Settings.
-- `tests/unit/entry-parsing.test.ts`, `tests/unit/user-profiling.test.tsx`, and `tests/unit/user-settings-scan-policy.test.tsx` cover curated corrections, preserved niche/stylized labels, duplicate-after-correction behavior, setup/settings toast Undo, and kitchen non-correction.
-- `efforts/effort-013-pantry-manual-entry-spell-correction.md` records the accepted v0 mechanism, targeted validation class, and product-playground provenance intent.
+- `client/src/lib/entryParsing.ts` adds `correctPantryManualEntries`, a tiny exact-match correction map, protected all-caps/digit-containing entry behavior, and correction metadata. The first Replit spot-check expanded the map with observed high-confidence variants such as `brocoli`, `avcado`, `beens`, `ryce`, and `chickin`.
+- `client/src/components/cooking/user-profiling.tsx` applies correction only to setup pantry manual entry, shows the generic correction toast, flashes the corrected pantry chips, and adds toast Undo to restore the original just-added batch.
+- `client/src/components/cooking/user-settings.tsx` applies the same pantry-only correction, chip highlight, and Undo behavior in returning Settings.
+- `client/src/index.css` adds the corrected-chip flash animation without layout shift.
+- `tests/unit/entry-parsing.test.ts`, `tests/unit/user-profiling.test.tsx`, and `tests/unit/user-settings-scan-policy.test.tsx` cover curated corrections, preserved niche/stylized labels, duplicate-after-correction behavior, setup/settings toast Undo with chip provenance, and kitchen non-correction.
+- `efforts/effort-013-pantry-manual-entry-spell-correction.md` records the accepted v0 mechanism, Replit spot-check refinement, targeted validation class, and product-playground provenance intent.
 - `efforts/effort-017-environment-parity-and-ci-confidence.md` records this flow as a future authenticated-smoke candidate without reactivating EFF-017 or weakening Replit validation.
 
 ## Impact on other agents
 
 Primary durable home is EFF-013. Future work should keep the correction map deliberately small unless Wilson accepts broader ingredient-correction behavior. If this branch merges, EFF-013 can be resolved only after the post-merge closeout confirms all resolution criteria, Replit validation status, and handoff/PR references from fresh `main`.
 
-EFF-017 should treat this as a later harness candidate: deterministic auth, setup pantry correction, Settings pantry correction, Undo, kitchen non-correction, save/reload persistence.
+EFF-017 should treat this as a later harness candidate: deterministic auth, setup pantry correction, corrected-chip highlight, Settings pantry correction, Undo, kitchen non-correction, save/reload persistence.
 
 ## Open items
 
-- Replit validation is not yet run. This runtime/client-profile-persistence change should use targeted Replit validation only: Firebase sign-in/authenticated API access and pantry profile DB write/read persistence.
+- Full Replit validation is not yet run. Wilson's first Replit spot-check found the initial correction map was too narrow and the toast detail should move to chip-level provenance; this branch now includes that refinement. The full runtime/client-profile-persistence gate should use targeted Replit validation only: Firebase sign-in/authenticated API access and pantry profile DB write/read persistence.
 - Replit validation should not include AI routes, ElevenLabs, vision upload, schema pushes, or broad regression passes.
 - `Last Replit-validated at: not yet validated`.
 
 ## Verification
 
 - `npm ci` passed.
-- `npx vitest run tests/unit/entry-parsing.test.ts tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx` passed: 3 files, 27 tests.
-- `npm run check` passed.
-- `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
-- `git diff --check` passed.
+- After the Replit spot-check refinement, `npx vitest run tests/unit/entry-parsing.test.ts tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx` passed: 3 files, 27 tests.
+- After the Replit spot-check refinement, `npm run check` passed.
+- After the Replit spot-check refinement, `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
+- After the Replit spot-check refinement, `git diff --check` passed.

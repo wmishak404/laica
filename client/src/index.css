@@ -384,6 +384,10 @@ html, body {
     padding: 0.52rem 0.75rem;
   }
 
+  .setup-chip[data-corrected="true"] {
+    animation: setup-corrected-chip-blip 1400ms ease-out;
+  }
+
   .setup-kitchen-chip {
     border-color: hsl(var(--setup-metal) / 0.28);
     background: hsl(var(--setup-wood) / 0.28);
@@ -1803,6 +1807,24 @@ html, body {
   }
   100% {
     opacity: 0;
+  }
+}
+
+@keyframes setup-corrected-chip-blip {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--setup-butter) / 0);
+    border-color: hsl(var(--setup-coral-strong) / 0.2);
+  }
+  18% {
+    box-shadow: 0 0 0 0.24rem hsl(var(--setup-butter) / 0.42);
+    border-color: hsl(var(--setup-butter) / 0.9);
+  }
+  50% {
+    box-shadow: 0 0 0 0.16rem hsl(var(--setup-coral-strong) / 0.22);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--setup-butter) / 0);
+    border-color: hsl(var(--setup-coral-strong) / 0.2);
   }
 }
 

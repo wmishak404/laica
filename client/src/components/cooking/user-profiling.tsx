@@ -207,6 +207,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const { toast } = useToast();
   const scanRunIds = useRef<Record<ScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
+  const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [pantryPlaceholder] = useState(getNextPantryPlaceholder);
   const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
@@ -220,10 +221,14 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const [manualOpen, setManualOpen] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
   const [isAnalyzing, setIsAnalyzing] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
   const [scanProgress, setScanProgress] = useState<Record<ScanType, ScanProgress>>({ pantry: null, kitchen: null });
+  const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
 
   useEffect(() => () => {
     scanControllers.current.pantry?.abort();
     scanControllers.current.kitchen?.abort();
+    if (correctionHighlightTimeoutRef.current) {
+      clearTimeout(correctionHighlightTimeoutRef.current);
+    }
   }, []);
 
   const startScan = (type: ScanType, total = 1) => {
@@ -283,6 +288,23 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }));
   };
 
+  const flashCorrectedPantryEntries = (entries: string[]) => {
+    const keys = entries.map(normalizeEntryDuplicateKey).filter(Boolean);
+    if (keys.length === 0) {
+      return;
+    }
+
+    if (correctionHighlightTimeoutRef.current) {
+      clearTimeout(correctionHighlightTimeoutRef.current);
+    }
+
+    setRecentlyCorrectedPantryKeys(new Set(keys));
+    correctionHighlightTimeoutRef.current = setTimeout(() => {
+      setRecentlyCorrectedPantryKeys(new Set());
+      correctionHighlightTimeoutRef.current = null;
+    }, 2200);
+  };
+
   const showPantryCorrectionToast = (
     originalEntries: string[],
     corrections: PantryManualEntryCorrection[],
@@ -293,15 +315,15 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     const correctedAddedKeys = new Set(correctedAddedEntries.map(normalizeEntryDuplicateKey));
-    const description = corrections.map(({ original, corrected }) => `${original} -> ${corrected}`).join('; ');
+    flashCorrectedPantryEntries(correctedAddedEntries);
 
     toast({
-      title: 'Cleaned up spelling',
-      description,
+      title: 'Corrected some entries',
       action: (
         <ToastAction
           altText="Undo spelling cleanup"
           onClick={() => {
+            setRecentlyCorrectedPantryKeys(new Set());
             setProfile((prev) => {
               const withoutCorrectedBatch = prev.pantryIngredients.filter(
                 (entry) => !correctedAddedKeys.has(normalizeEntryDuplicateKey(entry)),
@@ -821,23 +843,32 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {items.map((item) => (
-                <span key={item} className={`setup-chip ${!isPantry ? 'setup-kitchen-chip' : ''}`}>
-                  <span className="truncate">{item}</span>
-                  <button
-                    type="button"
-                    aria-label={`Remove ${item}`}
-                    className={`rounded-full p-0.5 ${
-                      isPantry
-                        ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
-                        : 'setup-kitchen-chip-remove'
-                    }`}
-                    onClick={() => removeItem(type, item)}
+              {items.map((item) => {
+                const wasRecentlyCorrected = isPantry
+                  && recentlyCorrectedPantryKeys.has(normalizeEntryDuplicateKey(item));
+
+                return (
+                  <span
+                    key={item}
+                    className={`setup-chip ${!isPantry ? 'setup-kitchen-chip' : ''}`}
+                    data-corrected={wasRecentlyCorrected ? 'true' : undefined}
                   >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
+                    <span className="truncate">{item}</span>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${item}`}
+                      className={`rounded-full p-0.5 ${
+                        isPantry
+                          ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
+                          : 'setup-kitchen-chip-remove'
+                      }`}
+                      onClick={() => removeItem(type, item)}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}

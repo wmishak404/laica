@@ -119,11 +119,11 @@ describe('UserSettings scan upload policy', () => {
 
     expect(screen.getByText('broccoli')).toBeTruthy();
     expect(screen.queryByText('brocolli')).toBeNull();
+    expect(screen.getByText('broccoli').closest('.setup-chip')?.getAttribute('data-corrected')).toBe('true');
 
-    const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Cleaned up spelling')?.[0];
+    const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Corrected some entries')?.[0];
     expect(correctionToast).toEqual(expect.objectContaining({
-      title: 'Cleaned up spelling',
-      description: 'brocolli -> broccoli',
+      title: 'Corrected some entries',
     }));
 
     act(() => {
@@ -152,7 +152,7 @@ describe('UserSettings scan upload policy', () => {
 
     expect(screen.getByText('brocolli')).toBeTruthy();
     expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Cleaned up spelling',
+      title: 'Corrected some entries',
     }));
   });
 

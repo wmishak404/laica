@@ -64,11 +64,16 @@ describe('entry parsing', () => {
   });
 
   it('corrects only curated pantry misspellings', () => {
-    expect(correctPantryManualEntries(['brocolli', 'avacado', 'zuchini'])).toEqual({
-      entries: ['broccoli', 'avocado', 'zucchini'],
+    expect(correctPantryManualEntries(['brocoli', 'brocolli', 'avacado', 'avcado', 'beens', 'ryce', 'chickin', 'zuchini'])).toEqual({
+      entries: ['broccoli', 'broccoli', 'avocado', 'avocado', 'beans', 'rice', 'chicken', 'zucchini'],
       corrections: [
+        { original: 'brocoli', corrected: 'broccoli' },
         { original: 'brocolli', corrected: 'broccoli' },
         { original: 'avacado', corrected: 'avocado' },
+        { original: 'avcado', corrected: 'avocado' },
+        { original: 'beens', corrected: 'beans' },
+        { original: 'ryce', corrected: 'rice' },
+        { original: 'chickin', corrected: 'chicken' },
         { original: 'zuchini', corrected: 'zucchini' },
       ],
     });

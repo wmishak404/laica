@@ -423,8 +423,10 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const [isAnalyzingPantry, setIsAnalyzingPantry] = useState(false);
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
   const [scanProgress, setScanProgress] = useState<Record<InventoryScanType, ScanProgress>>({ pantry: null, kitchen: null });
+  const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
   const scanRunIds = useRef<Record<InventoryScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<InventoryScanType, AbortController | null>>({ pantry: null, kitchen: null });
+  const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { toast } = useToast();
 
   useEffect(() => () => {
@@ -434,6 +436,9 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     scanControllers.current.kitchen = null;
     scanRunIds.current.pantry += 1;
     scanRunIds.current.kitchen += 1;
+    if (correctionHighlightTimeoutRef.current) {
+      clearTimeout(correctionHighlightTimeoutRef.current);
+    }
   }, []);
 
   const setInventoryAnalyzing = (type: InventoryScanType, value: boolean) => {
@@ -482,6 +487,23 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
 
   const hasActiveScan = isAnalyzingPantry || isAnalyzingEquipment;
 
+  const flashCorrectedPantryEntries = (entries: string[]) => {
+    const keys = entries.map(normalizeEntryDuplicateKey).filter(Boolean);
+    if (keys.length === 0) {
+      return;
+    }
+
+    if (correctionHighlightTimeoutRef.current) {
+      clearTimeout(correctionHighlightTimeoutRef.current);
+    }
+
+    setRecentlyCorrectedPantryKeys(new Set(keys));
+    correctionHighlightTimeoutRef.current = setTimeout(() => {
+      setRecentlyCorrectedPantryKeys(new Set());
+      correctionHighlightTimeoutRef.current = null;
+    }, 2200);
+  };
+
   const showPantryCorrectionToast = (
     originalEntries: string[],
     corrections: PantryManualEntryCorrection[],
@@ -492,15 +514,15 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     }
 
     const correctedAddedKeys = new Set(correctedAddedEntries.map(normalizeEntryDuplicateKey));
-    const description = corrections.map(({ original, corrected }) => `${original} -> ${corrected}`).join('; ');
+    flashCorrectedPantryEntries(correctedAddedEntries);
 
     toast({
-      title: 'Cleaned up spelling',
-      description,
+      title: 'Corrected some entries',
       action: (
         <ToastAction
           altText="Undo spelling cleanup"
           onClick={() => {
+            setRecentlyCorrectedPantryKeys(new Set());
             setProfile((prev) => {
               const withoutCorrectedBatch = prev.pantryIngredients.filter(
                 (entry) => !correctedAddedKeys.has(normalizeEntryDuplicateKey(entry)),
@@ -1418,29 +1440,38 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {items.map((item, index) => (
-                    <span key={`${item}-${index}`} className={`setup-chip ${isPantry ? '' : 'setup-kitchen-chip'}`}>
-                      <span className="truncate">{item}</span>
-                      <button
-                        type="button"
-                        aria-label={`Remove ${item}`}
-                        className={`rounded-full p-0.5 ${
-                          isPantry
-                            ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
-                            : 'setup-kitchen-chip-remove'
-                        }`}
-                        disabled={isInventoryLocked}
-                        onClick={() => {
-                          setProfile(prev => ({
-                            ...prev,
-                            [isPantry ? 'pantryIngredients' : 'kitchenEquipment']: items.filter((_, i) => i !== index)
-                          }));
-                        }}
+                  {items.map((item, index) => {
+                    const wasRecentlyCorrected = isPantry
+                      && recentlyCorrectedPantryKeys.has(normalizeEntryDuplicateKey(item));
+
+                    return (
+                      <span
+                        key={`${item}-${index}`}
+                        className={`setup-chip ${isPantry ? '' : 'setup-kitchen-chip'}`}
+                        data-corrected={wasRecentlyCorrected ? 'true' : undefined}
                       >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
+                        <span className="truncate">{item}</span>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${item}`}
+                          className={`rounded-full p-0.5 ${
+                            isPantry
+                              ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
+                              : 'setup-kitchen-chip-remove'
+                          }`}
+                          disabled={isInventoryLocked}
+                          onClick={() => {
+                            setProfile(prev => ({
+                              ...prev,
+                              [isPantry ? 'pantryIngredients' : 'kitchenEquipment']: items.filter((_, i) => i !== index)
+                            }));
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    );
+                  })}
                 </div>
               )}
             </div>

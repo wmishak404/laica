@@ -106,25 +106,39 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
     fireEvent.change(screen.getByLabelText(/pantry items/i), {
-      target: { value: 'brocolli, rice, eggs' },
+      target: { value: 'brocoli, avcado, beens, ryce, chickin' },
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
 
     expect(screen.getByText('broccoli')).toBeTruthy();
-    expect(screen.queryByText('brocolli')).toBeNull();
+    expect(screen.getByText('avocado')).toBeTruthy();
+    expect(screen.getByText('beans')).toBeTruthy();
+    expect(screen.getByText('rice')).toBeTruthy();
+    expect(screen.getByText('chicken')).toBeTruthy();
+    expect(screen.queryByText('brocoli')).toBeNull();
+    expect(screen.queryByText('avcado')).toBeNull();
+    expect(screen.queryByText('beens')).toBeNull();
+    expect(screen.queryByText('ryce')).toBeNull();
+    expect(screen.queryByText('chickin')).toBeNull();
+    expect(screen.getByText('broccoli').closest('.setup-chip')?.getAttribute('data-corrected')).toBe('true');
+    expect(screen.getByText('avocado').closest('.setup-chip')?.getAttribute('data-corrected')).toBe('true');
 
-    const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Cleaned up spelling')?.[0];
+    const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Corrected some entries')?.[0];
     expect(correctionToast).toEqual(expect.objectContaining({
-      title: 'Cleaned up spelling',
-      description: 'brocolli -> broccoli',
+      title: 'Corrected some entries',
     }));
 
     act(() => {
       correctionToast.action.props.onClick();
     });
 
-    expect(screen.getByText('brocolli')).toBeTruthy();
+    expect(screen.getByText('brocoli')).toBeTruthy();
+    expect(screen.getByText('avcado')).toBeTruthy();
+    expect(screen.getByText('beens')).toBeTruthy();
+    expect(screen.getByText('ryce')).toBeTruthy();
+    expect(screen.getByText('chickin')).toBeTruthy();
     expect(screen.queryByText('broccoli')).toBeNull();
+    expect(screen.queryByText('avocado')).toBeNull();
   });
 
   it('does not correct setup kitchen manual entry', () => {
@@ -149,7 +163,7 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByText('brocolli')).toBeTruthy();
     expect(screen.getByText('sheet pan')).toBeTruthy();
     expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Cleaned up spelling',
+      title: 'Corrected some entries',
     }));
   });
 

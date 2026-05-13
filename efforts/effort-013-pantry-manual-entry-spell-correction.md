@@ -59,9 +59,9 @@ Equipment should not use this correction pass. Kitchen tools can have model name
   - entries with numbers or unusual spacing
   - cultural/fusion names
   - words already in a known ingredient allowlist
-- The best UX direction is a soft correction with visibility: for example, add the corrected chip but allow immediate edit/remove, or show a small `Corrected to broccoli` note. Silent correction is riskier and should be avoided unless the correction is extremely obvious.
+- The best UX direction is a soft correction with visibility: add the corrected chip, briefly highlight the changed chip, and keep immediate edit/remove/Undo available. Silent correction is riskier and should be avoided unless the correction is extremely obvious.
 - Equipment entries should not be corrected as part of this Effort.
-- V0 mechanism accepted on 2026-05-13: use a tiny curated exact-match dictionary for high-confidence pantry misspellings, apply it only to saved pantry manual entry in setup and Settings, show a `Cleaned up spelling` toast with `original -> corrected` provenance, and include Undo to restore the original just-added batch.
+- V0 mechanism accepted on 2026-05-13: use a tiny curated exact-match dictionary for high-confidence pantry misspellings, apply it only to saved pantry manual entry in setup and Settings, show a `Corrected some entries` toast, briefly flash the corrected chips for provenance, and include Undo to restore the original just-added batch.
 - V0 intentionally does **not** try to recognize every valid ingredient. Unknown, niche, cultural, brand-like, stylized, or all-caps entries such as `doubanjiang`, `nalewka`, `sushiritto`, and `WTR MLN WTR` pass through unchanged unless a future branch explicitly adds a safe exact correction.
 
 ## Open questions
@@ -71,7 +71,7 @@ Equipment should not use this correction pass. Kitchen tools can have model name
 2. What confidence threshold is high enough to auto-apply a correction rather than suggest it?
    - V0 answer: exact entries in the curated dictionary are the confidence boundary.
 3. Should users see a `Corrected from ...` note, an undo action, or only rely on editable chips?
-   - V0 answer: toast provenance plus Undo; existing chip remove remains available.
+   - V0 answer: generic correction toast, temporary corrected-chip highlight, and Undo; existing chip remove remains available.
 4. Should pantry correction happen before duplicate detection, after duplicate detection, or both?
    - V0 answer: correction happens after parsing and before existing merge/dedupe logic.
 5. Should corrected pantry labels preserve user casing or use pantry-list title/lowercase normalization?
@@ -127,4 +127,8 @@ Rechecked against INIT-001, Phase 2.1/2.2 deferrals, and the planned Phase 3.1 /
 
 ### 2026-05-13 — V0 product-playground implementation started
 
-Wilson accepted EFF-013 as the first lightweight system-of-work product playground. The implementation direction is deliberately narrow: deterministic client-side pantry correction, setup + Settings only, toast provenance with Undo, targeted runtime/client-profile-persistence validation, and no new documentation category. EFF-017 remains a separate system-wide effort; this flow is recorded there as a future authenticated-smoke candidate rather than a dependency for the v0 product slice.
+Wilson accepted EFF-013 as the first lightweight system-of-work product playground. The implementation direction is deliberately narrow: deterministic client-side pantry correction, setup + Settings only, visible corrected-chip provenance with toast Undo, targeted runtime/client-profile-persistence validation, and no new documentation category. EFF-017 remains a separate system-wide effort; this flow is recorded there as a future authenticated-smoke candidate rather than a dependency for the v0 product slice.
+
+### 2026-05-13 — Replit spot-check refined correction coverage and provenance UI
+
+Wilson's first Replit spot-check showed the initial v0 correction map was too narrow and the toast carried too much per-entry detail. The accepted refinement keeps the lightweight exact-match approach but adds the observed high-confidence variants (`brocoli`, `avcado`, `beens`, `ryce`, `chickin`) and moves provenance closer to the product surface: the toast now says `Corrected some entries`, while the corrected pantry chips briefly flash to show which saved tags changed. Undo still restores the original just-added batch, and kitchen manual entry remains untouched.
