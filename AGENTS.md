@@ -120,6 +120,8 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 
 **INIT rule.** The `initiatives/` directory tracks living hubs for multi-phase work. Read the relevant INIT before starting or resuming initiative work, and update it when phase status, PR status, validation status, assets, major decisions, or the current resume point changes. Handoffs and PR descriptions for initiative work must cite the INIT and state whether it was updated.
 
+**INIT sequencing rule.** Do not treat INIT phase order as a hard dependency unless the INIT or phase record says so. Before recommending or starting out-of-order INIT work, classify the relationship: hard dependency, soft sequence, parallel-safe, shared-surface conflict, or product priority call. If work skips the listed resume order, state the classification, why the override is reasonable, and what debt or handoff must be recorded.
+
 **INIT post-merge closeout.** When an INIT-bound PR merges, the agent who performed or confirmed the merge must do an immediate docs closeout from fresh `origin/main` before treating the work as finished. Update the INIT, initiative registry, related feature phase/product-decision docs, active Effort notes/registry entries when the merge adds signal, and a merge-closeout handoff. Push the closeout to `origin` through a docs-only PR, or explicitly record why it is deferred, who owns it, and the exact branch/PR/SHA it must reference. A final response after merging INIT work should mention the closeout PR or the documented deferral.
 
 Current active INITs:

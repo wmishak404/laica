@@ -196,6 +196,17 @@ Next implementation / validation focus:
 4. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
 5. If pantry spell correction or richer latest-scan/duplicate-review UX becomes active during a future Mobile Refresh phase, reconcile the corresponding active Effort in that branch. Only close it into the INIT if a specific unclosed phase is updated to own the work.
 
+## Sequencing Semantics
+
+INIT order is the default resume path, not automatically a hard dependency graph.
+
+| Work relationship | Classification | Notes |
+|---|---|---|
+| Phase 3.1 before Phase 4 | Soft sequence | Phase 3.1 is the default next design pass, but Phase 4 is not blocked by it. Phase 4 may start first if cooking guidance is the higher priority. |
+| Phase 3.1 alongside Phase 4 | Parallel-safe with guardrails | Avoid shared file ownership conflicts. If Phase 4 creates or exposes visual consistency debt, record it back to Phase 3.1 or the relevant phase record. |
+| Phase 4 before Phase 5 | Hard dependency | Phase 5 depends on Phase 4 completion semantics: cooking history save, no pantry mutation, and pending cleanup state. |
+| EFF-017 harness with Phase 4 | Support / pilot | The harness can help Phase 4 validation, but it does not replace the current Replit validation gate until a later explicit policy change. |
+
 ## Chronology
 
 ### 2026-04-28 - Initial phase plan captured
