@@ -2,6 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/mobile-refresh-phase-3-1-inventory-chip-states`
+**PR:** [#74](https://github.com/wmishak404/laica/pull/74) draft
 **Date:** 2026-05-14
 **Initiative:** INIT-001
 **Stacking:** stacked on PR #73 / `codex/mobile-refresh-phase-3-1-slop-pantry-align`
