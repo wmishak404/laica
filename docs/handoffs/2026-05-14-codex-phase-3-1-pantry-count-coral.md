@@ -24,7 +24,6 @@ Treat the Planning status sentence contract as unchanged except for visual empha
 
 ## Open items
 
-- Replit/authenticated visual validation is not yet run for this branch.
 - PR #71 is still the lower-stack context for this work. If PR #71 merges before this branch, rebase this branch onto fresh `origin/main` and refresh validation notes before merging.
 - Broader Planning visual-fit review remains open as a later slice if screenshots show spacing/hierarchy drift.
 
@@ -33,8 +32,8 @@ Treat the Planning status sentence contract as unchanged except for visual empha
 - Base refreshed: stacked on PR #71 head `41d0d7a9ae69bc8b726da74147346ea108d05a9d`
 - Lower PR context: [PR #71](https://github.com/wmishak404/laica/pull/71) / `codex/mobile-refresh-phase-3-1-planning-copy`
 - Current base before stack: `origin/main` at `59ee34901b93f23872dd822d377ed39f44540f18`
-- Last Replit-validated at: not yet validated
-- Notes: this branch intentionally includes PR #71 commits because the status-line slice builds on the Slop It Up Planning-entry copy branch.
+- Last Replit-validated at: `ed74a18b074cfec3917788c6ce2b7255d843d513`
+- Notes: this branch intentionally includes PR #71 commits because the status-line slice builds on the Slop It Up Planning-entry copy branch. Any commit after `ed74a18` in this handoff trail is docs-only validation evidence unless noted otherwise.
 
 ## Verification
 
@@ -43,3 +42,4 @@ Treat the Planning status sentence contract as unchanged except for visual empha
 - `npm run check`
 - `npm run build`
 - `git diff --check`
+- Wilson Replit/manual visual validation at `ed74a18b074cfec3917788c6ce2b7255d843d513`: `empty` shows with coral emphasis, and `1`, `17`, and `26` pantry ingredient count states show correctly.

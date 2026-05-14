@@ -126,6 +126,8 @@ Codex implemented the next narrow Planning-entry slice on `codex/mobile-refresh-
 
 The implementation adds a small `getPlanningPantryCountLabel` helper so the full status sentence and highlighted count phrase share pluralization logic, renders only the key pantry fact inside `.planning-pantry-status-emphasis`, and keeps the surrounding helper sentence neutral. This slice intentionally did not touch broader Planning card/whitespace grammar, Slop Bowl pantry-check alignment, Ticket Pass / Prep Tray, or imagery.
 
+Wilson validated the branch in Replit at runtime SHA `ed74a18b074cfec3917788c6ce2b7255d843d513`: the empty-Pantry state now shows `empty` with the coral emphasis, and `1`, `17`, and `26` pantry ingredient count states also show correctly.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |
