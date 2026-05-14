@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Clock, ArrowLeft, ChefHat, Settings, X } from 'lucide-react';
+import { CheckCircle2, Clock, ArrowLeft, ChefHat, Plus, Settings, X } from 'lucide-react';
 import {
   fetchSlopBowlRecipe,
   SLOP_BOWL_TOO_FEW_INGREDIENTS,
@@ -243,6 +243,7 @@ export default function SlopBowl({
   // ── Pantry Check ──────────────────────────────────────────────────────────
   const renderPantryCheck = () => {
     const pantry = pantryItems;
+    const hasSavedPantryItems = pantry.some((item) => item.source === 'profile');
     const hasManualAdditions = pantry.some((item) => item.source === 'manual');
 
     return (
@@ -263,37 +264,36 @@ export default function SlopBowl({
         <Card className="slop-check-card">
           <CardContent className="space-y-4 p-4">
             {pantry.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {pantry.map((item) => (
-                  <Badge
-                    key={item.id}
-                    variant={item.source === 'manual' ? 'outline' : 'secondary'}
-                    className={
-                      item.source === 'manual'
-                        ? 'slop-check-chip slop-check-chip-added'
-                        : 'slop-check-chip'
-                    }
-                  >
-                    {item.source === 'manual' && (
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-primary/80">
-                        Added
-                      </span>
-                    )}
-                    <span>{item.name}</span>
+              <div className="slop-check-chip-row" role="group" aria-label="Ingredients for this bowl">
+                {pantry.map((item) => {
+                  const isManualAddition = item.source === 'manual';
+
+                  return (
                     <button
+                      key={item.id}
                       type="button"
                       onClick={() => handleRemoveIngredient(item.id)}
-                      aria-label={`Remove ${item.name}`}
+                      aria-label={
+                        isManualAddition
+                          ? `Remove temporary ${item.name} from this bowl`
+                          : `Omit ${item.name} from this bowl`
+                      }
                       className={
-                        item.source === 'manual'
-                          ? 'rounded-full p-0.5 text-primary/70 transition hover:bg-primary/15 hover:text-primary'
-                          : 'rounded-full p-0.5 text-gray-500 transition hover:bg-black/5 hover:text-gray-700'
+                        isManualAddition
+                          ? 'slop-check-chip slop-check-chip-added'
+                          : 'slop-check-chip slop-check-chip-saved'
                       }
                     >
-                      <X className="h-3 w-3" />
+                      {isManualAddition ? (
+                        <Plus className="slop-check-chip-status h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <CheckCircle2 className="slop-check-chip-status h-4 w-4" aria-hidden="true" />
+                      )}
+                      <span className="slop-check-chip-text">{item.name}</span>
+                      <X className="slop-check-chip-remove-icon h-3.5 w-3.5" aria-hidden="true" />
                     </button>
-                  </Badge>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-sm text-gray-500 text-center py-2">
@@ -345,7 +345,13 @@ export default function SlopBowl({
 
             {hasManualAdditions && (
               <p className="text-xs text-center text-primary">
-                Ingredients tagged Added are temporary and won&apos;t change your saved pantry.
+                Temporary additions won&apos;t change your saved pantry.
+              </p>
+            )}
+
+            {hasSavedPantryItems && (
+              <p className="text-xs text-center text-gray-500">
+                Removing saved pantry items here only skips them for this bowl.
               </p>
             )}
 
