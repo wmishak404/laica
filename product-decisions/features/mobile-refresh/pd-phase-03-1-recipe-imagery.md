@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 3.1 — Design Facelift and Recipe Imagery
 
-**Status:** Planned
+**Status:** Kickoff / audit ready
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-05
@@ -77,6 +77,34 @@ slopItUpPlanningCard:
     - "backend/API rename"
     - "global Slop Bowl feature rename"
 ```
+
+## 2026-05-14 - Kickoff Audit and Implementation Slices
+
+Codex audited the current Phase 3 surfaces from `origin/main` at `cb0f880` before starting Phase 3.1 implementation. The audit used this phase record, INIT-001, PD-005, `design_guidelines.md`, Phase 3.2, and current code in `client/src/pages/app.tsx`, `client/src/components/cooking/meal-planning.tsx`, `client/src/components/cooking/slop-bowl.tsx`, and `client/src/index.css`.
+
+Current surface notes:
+
+| Surface | Current signal | Phase 3.1 implication |
+|---|---|---|
+| Planning entry | Still renders the Slop path title as `Slop Bowl` with fixed supporting copy `Randomly make me something from the chaos.` The Chef It Up / Slop Bowl choice cards already carry tone-override comments and use the Phase 3 `Nunito` grammar. | First UI slice should implement the accepted `Slop It Up` planning-card title plus one stable random italic supporting line, while preserving the durable `Slop Bowl` feature name in routes, flow names, backend/API contracts, and sparse-pantry guard copy. |
+| Chef It Up time + cuisine | Time labels, scrollable cuisine list, default `No preference`, and neutral process screens are present. No product mark repeats inside the process screens. | Keep in the visual-review set, but do not lead with these unless the rendered screenshot review finds new drift. |
+| Chef It Up staples | Phase 3.2 Added shelf / rolling queue is the shipped baseline. Pending chips use `+` plus `X`; saved pantry facts use green check-only chips and tap-to-explain Pantry Settings copy. | Preserve behavior and chip-state grammar. Any facelift here should verify computed chip radius, typography, icon sizing, disabled state, animation, and tap targets. |
+| Slop Bowl pantry check | Uses its own `slop-check-chip` / `slop-check-chip-added` treatment, visible `Added` text for manual temporary entries, and removable chips for both saved pantry entries and temporary additions. | Align visual grammar with Chef It Up where behavior overlaps, but preserve Slop Bowl's temporary-bowl behavior: removing a saved pantry chip only omits it from this bowl and must not imply deletion from saved Pantry. |
+| Ticket Pass | Selection expands in place without reordering, recipe-name detail splitting is display-only, and ticket/prep image slots render placeholders or `imageUrl` when supplied. | Keep selection orientation and recipe-name contract. Facelift should review ticket object density, featured/alternate hierarchy, and image-slot placement against `phase-03-ticket-pass.png` before imagery pipeline work. |
+| Prep Tray | Larger image slot exists and accepts `imageUrl`; placeholder is stable. | Real imagery can hydrate into this slot later without blocking Prep Tray access or changing layout. |
+| Bottom nav | Icon-only Cook/Menu access remains neutral; no selected Cook badge is applied. | Include in screenshot review for fit with the refreshed Planning/Ticket surfaces, but current behavior matches PD-009's neutral access direction. |
+
+Accepted implementation slices:
+
+1. Kickoff/audit docs only: correct stale agenda references, record the current surface audit, accepted slices, and first UI slice. No runtime code in this PR.
+2. Planning entry copy/title slice: change only the Slop path front-door title to **Slop It Up**, choose one approved supporting line at mount/page load, keep it stable while mounted, italicize only that supporting line, and keep the underlying **Slop Bowl** feature name everywhere else.
+3. Planning entry visual-fit slice: if the copy/title slice exposes spacing or hierarchy drift, adjust card whitespace/title/copy fit as a narrow follow-up with screenshot/computed-style evidence. Avoid adding banners, stickers, new fonts, or a new label system.
+4. Pantry-confirmation visual-alignment slice: compare Chef It Up Phase 3.2 staples against Slop Bowl pantry check and align chip/row grammar where behavior overlaps. Preserve Slop Bowl behavior unless the phase record is explicitly amended.
+5. Ticket Pass / Prep Tray facelift slice: refine ticket-stack density, title hierarchy, placeholder framing, and Prep Tray image layout before adding any image generation path.
+6. Async imagery slice: after the Ticket Pass remains usable with placeholders, add generated or illustrated imagery hydration into existing `imageUrl` slots, with caching and non-blocking fallback for slow/failing/moderated/missing images.
+7. Closeout validation slice: run the required visual review across Planning entry, Chef It Up time, Cuisine, staples, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav; update the drift table with fixed/accepted/deferred status before Phase 3.1 closes.
+
+First recommended UI slice: implement slice 2 only. It is the smallest user-visible Phase 3.1 step, has a clear accepted copy contract, does not require service-backed imagery, and creates a focused screenshot target for the broader Planning-entry facelift.
 
 ## Phase 3 Design Drift Inventory
 

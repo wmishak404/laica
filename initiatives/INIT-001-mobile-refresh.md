@@ -28,7 +28,7 @@ The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Pha
 
 Phase 0, Phase 1, Phase 2, Phase 2.1, Phase 2.2, Phase 3, Phase 3.2, and the INIT/process documentation split are merged.
 
-Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Pantry spell correction and richer scan-review states are still unshipped follow-up work, but they do not currently map cleanly to one open Mobile Refresh phase, so they remain standalone active Efforts for now.
+Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Pantry manual-entry spell correction later shipped through EFF-013 / PR #62 and is now resolved. Richer scan-review states remain standalone active EFF-014 because they do not currently map cleanly to one open Mobile Refresh phase.
 
 Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Pantry/Kitchen/Profile edits; History is separate cooking memory. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
 
@@ -45,6 +45,8 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 [PR #53](https://github.com/wmishak404/laica/pull/53) shipped the EFF-021 runtime slice after Wilson's Replit validation at `ef28e59`; it merged into `main` as `9aa6c1c`. Pantry and Kitchen now share the 20-photo per-refresh cap, scan refreshes process with bounded 4-at-a-time concurrency, empty Pantry remains a valid returning-user state, active Settings scans have cancellation/stale-result protection, and Chef It Up now surfaces the empty-Pantry blocker from the Planning choice screen. Wilson later accepted that provider-level multi-image batching is not needed at this point, so EFF-021 closed as resolved.
 
 The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as standalone Efforts. Full-row selection controls, scan no-detection feedback, shared manual-entry parsing, and Slop Bowl visual cleanup are now documented as INIT-001/phase-owned behavior instead of active Efforts. Future work in those areas should update the relevant phase record, not create a new Effort unless the work becomes standalone outside INIT-001.
+
+The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative setup/Settings pantry manual-entry correction, and resolved EFF-015 after PR #64 shipped UI-governance enforcement. The current active Effort read list for Mobile Refresh-adjacent work is therefore EFF-010 for DB/schema workflow and EFF-014 for scan-session duplicate/latest-scan refinement. EFF-017 remains deferred until a narrow Phase 4 harness pilot explicitly reopens it.
 
 ## Source Docs
 
@@ -90,7 +92,7 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | Planned | TBD | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots |
+| Phase 3.1 | Kickoff / audit ready | TBD | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots; first recommended UI slice is the Planning entry Slop It Up title/supporting-copy treatment |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -124,8 +126,9 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 | [`design_guidelines.md`](../design_guidelines.md) | Canonical visual identity / design standard |
 | [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) | Merge readiness, validation evidence, and Feature Impact Review workflow formerly tracked by EFF-005/EFF-020 |
 | [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
-| [EFF-013](../efforts/effort-013-pantry-manual-entry-spell-correction.md) | Active standalone pantry manual-entry spell correction follow-up; not yet assigned to a specific open Mobile Refresh phase |
+| [EFF-013](../efforts/effort-013-pantry-manual-entry-spell-correction.md) | Resolved pantry manual-entry spell correction; future pantry spelling/canonicalization work should start from the shipped behavior and create a new Effort only if the follow-up is standalone |
 | [EFF-014](../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md) | Active standalone scan-review/duplicate-refinement follow-up; reconcile during future phase work if a specific open phase naturally takes ownership |
+| [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md) | Deferred environment-parity / smoke-confidence work; reopen only as a narrow Phase 4 harness pilot that does not replace Replit validation |
 | [EFF-018](../efforts/effort-018-authenticated-ai-error-handling.md) | Resolved authenticated AI error handling and pantry recipe 400 follow-up; Phase 4 still owns live-cooking inline recovery |
 | [EFF-021](../efforts/effort-021-scan-upload-photo-limit-policy.md) | Resolved mobile-refresh scan-capacity policy; retained as historical reference for Pantry/Kitchen upload limits and scan-specific messaging |
 
@@ -158,6 +161,8 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 - EFF-021 also captured returning-user empty-Pantry guardrails on 2026-05-08: clearing Pantry is a valid inventory state and should not return the user to first-time setup or reset Kitchen/Profile/History; pantry-based recipe generation should block with explicit empty-Pantry recovery copy; active Settings scans should cancel/ignore stale results when leaving Settings and lock inventory edits while running. This corner case feeds the testing workflow so reset-to-empty states, in-flight async navigation, and cross-domain persistence checks become part of feature acceptance review.
 - EFF-021 Replit follow-up on 2026-05-08 found the empty-Pantry Chef It Up blocker was too late in the flow. The Planning choice now owns a quiet Pantry status line under "What are we cooking today?" and Chef It Up blocks immediately on card tap when Pantry is empty, while Slop Bowl remains available. A final Replit check at `ef28e59` confirmed the latest status-line behavior works as designed; the notification icon was removed and final visual treatment is deferred to Phase 3.1.
 - PR #53 merged the EFF-021 runtime slice into `main` as `9aa6c1c`. Wilson accepted the validated bounded-concurrency implementation as sufficient and chose not to keep provider-level batching as active scope, so EFF-021 closed as resolved. The merged slice satisfies the runtime cap, same-limit, rate-limit, progress, partial-success, active-scan lifecycle, and empty-Pantry guardrail work.
+- EFF-013 resolved on 2026-05-13 after PR #62 shipped conservative setup/Settings pantry manual-entry correction with visible chip provenance, Undo, pantry-only scope, targeted tests, and Replit validation. Future pantry spelling/canonicalization starts from the shipped behavior, not an active EFF-013 read-list item.
+- EFF-015 resolved on 2026-05-13 after PR #64 shipped the PR-template reviewer gate and local ESLint hex-class guard. Future UI governance starts from PD-005, `design_guidelines.md`, `.github/PULL_REQUEST_TEMPLATE.md`, and `eslint.config.js`, not an active Effort.
 
 ## Validation State
 
@@ -194,7 +199,7 @@ Next implementation / validation focus:
 2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFF-018 intentionally deferred.
 3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 4. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
-5. If pantry spell correction or richer latest-scan/duplicate-review UX becomes active during a future Mobile Refresh phase, reconcile the corresponding active Effort in that branch. Only close it into the INIT if a specific unclosed phase is updated to own the work.
+5. Pantry spell correction is resolved through EFF-013 / PR #62. Future pantry spelling/canonicalization work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. If richer latest-scan/duplicate-review UX becomes active during a future Mobile Refresh phase, reconcile active EFF-014 in that branch and only close it into the INIT if a specific unclosed phase is updated to own the work.
 
 ## Sequencing Semantics
 
@@ -273,5 +278,9 @@ Wilson clarified that adjacent initiative work should only move out of the Effor
 
 PR #57 merged into `main` as `8654d04` and made the corrected routing rule durable in the Effort hygiene workflow, active Effort files, registry/read lists, and INIT references. The resulting baseline is:
 
-- EFF-013 and EFF-014 stay active until a specific unclosed Mobile Refresh phase is explicitly updated to own them or the work ships.
+- At that point, EFF-013 and EFF-014 stayed active until a specific unclosed Mobile Refresh phase explicitly owned them or the work shipped. EFF-013 later shipped and resolved on 2026-05-13.
 - Future effort-hygiene audits should determine whether a phase is still open/future from the INIT phase table, current phase, and current resume point rather than the phase-record `Status:` line alone.
+
+### 2026-05-13 - EFF-013 and EFF-015 resolved
+
+PR #62 merged pantry manual-entry spell correction as `8de1e88`, and PR #63 closed EFF-013 as `12467f8`. PR #64 merged UI-governance enforcement as `e4d5cfe`, and PR #65 closed EFF-015 as `c969fbd`. The active Effort read list no longer includes EFF-013 or EFF-015; Mobile Refresh-adjacent active Effort work is EFF-014 unless the task touches DB/schema workflow EFF-010. EFF-017 remains deferred until the Phase 4 harness pilot.

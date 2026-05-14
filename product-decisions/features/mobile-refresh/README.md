@@ -14,7 +14,7 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 | 2.1 | Setup polish: trust, privacy, scan safeguards, and visual conformance | Accepted / Merged PR #27 | [pd-phase-02-1-setup-polish.md](pd-phase-02-1-setup-polish.md) | [Setup mockup](../../../docs/assets/mobile-refresh/phase-02-setup.png) |
 | 2.2 | Returning setup, Settings, and History IA | Accepted / Merged PR #30 | [pd-phase-02-2-returning-setup-settings.md](pd-phase-02-2-returning-setup-settings.md) | [Phase 2.2 storyboard](../../../docs/assets/mobile-refresh/phase-02-2-returning-setup-settings-storyboard.svg) |
 | 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted / Merged PR #38 + #45 | [pd-phase-03-planning.md](pd-phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
-| 3.1 | Phase 3 design facelift and async recipe imagery | Planned | [pd-phase-03-1-recipe-imagery.md](pd-phase-03-1-recipe-imagery.md) | Builds on [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
+| 3.1 | Phase 3 design facelift and async recipe imagery | Kickoff / audit ready | [pd-phase-03-1-recipe-imagery.md](pd-phase-03-1-recipe-imagery.md) | Builds on [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 3.2 | Progressive Chef It Up pantry staple check | Accepted / Merged PR #46 | [pd-phase-03-2-progressive-staples.md](pd-phase-03-2-progressive-staples.md) | Builds on Phase 3 staple check and PR #45 cancellation lock |
 | 4 | Cooking guidance | Accepted | [pd-phase-04-cooking.md](pd-phase-04-cooking.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
 | 5 | Post-cook cleanup and retention | Accepted | [pd-phase-05-post-cook.md](pd-phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
@@ -30,6 +30,8 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 7. Implement Phase 3.1 from fresh `main` for the design facelift plus async recipe imagery. Phase 3.1 should preserve or deliberately restyle the shipped Phase 3.2 Added shelf / rolling queue and should align Slop Bowl pantry-check visuals with the preferred Chef It Up Phase 3.2 chip/row direction where behavior overlaps.
 8. Implement Phase 4 after authenticated AI routes and session ownership checks are live; Phase 4 also owns the live-cooking inline AI error recovery deferred from EFF-018.
 9. Implement Phase 5 only after the pantry-write moments are explicit and Phase 4 completion no longer mutates pantry; Phase 5 owns the richer History share/cook-again/retention behavior.
+
+This sequence is the default agenda, not a hard dependency graph. Phase 3.1 before Phase 4 is a soft sequence: Phase 3.1 is the next default design pass, but Phase 4 may start first if cooking guidance is the higher priority. Keep EFF-017 deferred until a narrow Phase 4 harness pilot branch explicitly reopens it, and do not treat that pilot as a replacement for the current Replit validation gate.
 
 ## Mockup Conformance Gate
 
