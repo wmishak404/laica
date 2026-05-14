@@ -121,6 +121,7 @@ describe('UserProfiling setup flow', () => {
     expect(screen.queryByText('ryce')).toBeNull();
     expect(screen.queryByText('chickin')).toBeNull();
     expect(screen.getByText('broccoli').closest('.setup-chip')?.getAttribute('data-corrected')).toBe('true');
+    expect(screen.getByText('broccoli').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
     expect(screen.getByText('avocado').closest('.setup-chip')?.getAttribute('data-corrected')).toBe('true');
 
     const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Corrected some entries')?.[0];
@@ -165,6 +166,38 @@ describe('UserProfiling setup flow', () => {
     expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
       title: 'Corrected some entries',
     }));
+  });
+
+  it('clears setup recent inventory state after continuing past a scan step', () => {
+    render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+
+    expect(screen.getByText('ground beef').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
+
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+
+    expect(screen.getByText('ground beef').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+      target: { value: 'sheet pan' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+
+    expect(screen.getByText('sheet pan').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
+
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+
+    expect(screen.getByText('sheet pan').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
   });
 
   it('cancels oversized pantry and kitchen upload batches without partial analysis', () => {
@@ -358,7 +391,7 @@ describe('UserProfiling setup flow', () => {
     await waitFor(() => {
       expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
         title: 'Already saved',
-        description: 'No new pantry items were added from that scan.',
+        description: 'No new pantry items were added from that scan. 1 saved item was found again.',
       }));
     });
     expect(screen.getAllByText('rice')).toHaveLength(1);
@@ -395,7 +428,7 @@ describe('UserProfiling setup flow', () => {
     await waitFor(() => {
       expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
         title: 'Already saved',
-        description: 'No new kitchen tools were added from that scan.',
+        description: 'No new kitchen tools were added from that scan. 1 saved item was found again.',
       }));
     });
     expect(screen.getAllByText('chef knife')).toHaveLength(1);
@@ -410,7 +443,7 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getAllByText('chef knife')).toHaveLength(1);
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Kitchen scan added items',
-      description: expect.stringContaining('1 already-saved item was skipped'),
+      description: expect.stringContaining('1 saved item was found again'),
     }));
   });
 

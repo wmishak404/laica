@@ -136,6 +136,16 @@ The slice preserves Slop Bowl behavior. Clicking a saved Pantry ingredient still
 
 This slice intentionally did not touch Planning card/whitespace grammar, Ticket Pass / Prep Tray, recipe generation, async imagery, or Chef It Up Phase 3.2 behavior.
 
+## 2026-05-14 - Setup/Settings Inventory Chip State Alignment Implemented Locally
+
+Wilson pulled the EFF-014 scan-session chip-state follow-up into the current Phase 3.1 consistency pass after reviewing returning Settings Pantry list drift against the newer Chef It Up and Slop Bowl chip grammar. Codex started `codex/mobile-refresh-phase-3-1-inventory-chip-states`, stacked on PR #73 while the Slop Bowl pantry-check PR remains open.
+
+The accepted implementation scope is the existing first-time setup and returning Settings Pantry/Kitchen review surfaces only. Saved items use green checked chips; recently-added manual/scan items use coral `+` chips with an `X`; found-again scan matches stay in the same list as quiet green checked chips with scan outcome copy; client-only state clears on setup Continue or successful Settings save. Duplicate-like cleanup stays conservative: the UI makes latest-added variants easy to remove, but Laica does not infer semantic duplicates or auto-collapse labels.
+
+This slice intentionally does not touch broader Planning facelift, Slop Bowl pantry-check behavior beyond the PR #73 baseline, Ticket Pass / Prep Tray, recipe generation, async imagery, or Phase 5 post-cook cleanup/rescan implementation. Phase 5 keeps ownership of its future post-cook rescan labels (`Already saved`, `Found again`, `New`).
+
+Local validation passed for the focused unit suite, `npm run check`, `npm run build`, `git diff --check`, and a dotenvx dev-server HTTP 200 smoke on port 3000 after linking the standard worktree `.env.keys`. Wilson/Replit mobile validation is still required before EFF-014 closeout.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |

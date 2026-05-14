@@ -120,6 +120,7 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByText('broccoli')).toBeTruthy();
     expect(screen.queryByText('brocolli')).toBeNull();
     expect(screen.getByText('broccoli').closest('.setup-chip')?.getAttribute('data-corrected')).toBe('true');
+    expect(screen.getByText('broccoli').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
 
     const correctionToast = toastMock.mock.calls.find(([call]) => call.title === 'Corrected some entries')?.[0];
     expect(correctionToast).toEqual(expect.objectContaining({
@@ -154,6 +155,95 @@ describe('UserSettings scan upload policy', () => {
     expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
       title: 'Corrected some entries',
     }));
+  });
+
+  it('uses saved and recent chip states in Settings and clears them after saving', async () => {
+    updateProfileMock.mockResolvedValue({});
+
+    const pantryRender = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="pantry"
+      />,
+    );
+
+    expect(screen.getByText('rice').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'miso' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+
+    expect(screen.getByText('miso').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
+
+    fireEvent.click(screen.getByRole('button', { name: /save pantry/i }));
+
+    await waitFor(() => {
+      expect(updateProfileMock).toHaveBeenCalledWith(expect.objectContaining({
+        pantryIngredients: expect.arrayContaining(['miso']),
+      }));
+    });
+    expect(screen.getByText('miso').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+
+    pantryRender.unmount();
+
+    render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="kitchen"
+      />,
+    );
+
+    expect(screen.getByText('sheet pan').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+      target: { value: 'blender' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+
+    expect(screen.getByText('blender').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
+
+    fireEvent.click(screen.getByRole('button', { name: /save kitchen/i }));
+
+    await waitFor(() => {
+      expect(updateProfileMock).toHaveBeenCalledWith(expect.objectContaining({
+        kitchenEquipment: expect.arrayContaining(['blender']),
+      }));
+    });
+    expect(screen.getByText('blender').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+  });
+
+  it('marks repeated Settings scan matches as found again without adding duplicate chips', async () => {
+    vi.mocked(analyzeImage).mockResolvedValue({ ingredients: ['Rice'] });
+    const { container } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="pantry"
+      />,
+    );
+
+    const pantryUpload = container.querySelector('#pantry-upload') as HTMLInputElement;
+    fireEvent.change(pantryUpload, {
+      target: { files: [new File(['image'], 'pantry.heic', { type: 'image/heic' })] },
+    });
+
+    await waitFor(() => {
+      expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Already saved',
+        description: 'No new pantry items were added from that scan. 1 saved item was found again.',
+      }));
+    });
+
+    expect(screen.getAllByText('rice')).toHaveLength(1);
+    expect(screen.getByText('rice').closest('.setup-chip')?.getAttribute('data-state')).toBe('found-again');
   });
 
   it('processes Settings upload batches with bounded concurrency', async () => {
