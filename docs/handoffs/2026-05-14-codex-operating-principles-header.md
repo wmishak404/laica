@@ -16,6 +16,7 @@ Wilson's operating principles are now a top-level workflow entrypoint instead of
 - `AGENTS.md`, `CLAUDE.md`, and `replit.md` now open with a concise Operating Principles reminder that links to the canonical workflow.
 - All `docs/workflows/*.md` files now include the reminder near the top. The new canonical workflow carries its own reminder section rather than a self-link.
 - `docs/workflows/documentation-routing.md` now says every future workflow doc must include the reminder immediately after its title.
+- Blocking report storage is now explicit: current response for immediate visibility, dated `docs/handoffs/*-blocked.md` for durable resume context, PR description when applicable, and owning INIT/Effort/phase/PD/workflow docs only when the blocker changes durable state.
 - Duplicate audit kept the lower mechanics/examples that still add value: Documentation foundation rules, Claude's blocked handoff protocol, Documentation Routing's source-of-truth guidance, Effort Audit's no-redundancy checks, and Environment Parity's provenance examples.
 
 ## Impact on other agents

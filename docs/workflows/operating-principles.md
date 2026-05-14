@@ -59,6 +59,19 @@ When work cannot move forward without human input, external action, permissions,
 
 Do not keep retrying blindly or invent a workaround that creates a second path.
 
+## Blocking Report Homes
+
+Blocking reports are point-in-time resume context, not a new backlog system.
+
+| Situation | Where the blocking report lives |
+|---|---|
+| Work stops in an agent conversation | Final response or status update in the current thread |
+| Work has branch state, changed files, validation findings, or another agent/human may resume it | `docs/handoffs/YYYY-MM-DD-<agent>-<short-name>-blocked.md` |
+| A PR already exists or will be opened for the blocked branch | PR description, mirrored from the handoff summary |
+| The blocker changes durable initiative state, Effort status, phase acceptance, validation status, or a workflow rule | The owning INIT, Effort, feature phase record, PD, ADR, or workflow doc, plus the handoff/PR |
+
+Do not create a new Effort just to store a blocked status. Create or update an Effort only when the unresolved follow-up is standalone and not already owned by an INIT, phase record, PD, ADR, or workflow.
+
 ## Examples
 
 ### Documentation routing
@@ -90,3 +103,9 @@ Negative example: A handoff says class names match while ignoring computed-style
 Positive example: Once a new path is accepted, obsolete code/docs are removed in the same branch or documented with an explicit owner and removal trigger.
 
 Negative example: A compatibility shim, old implementation branch, or duplicate workflow remains because it might be useful later, even though git history already preserves it.
+
+### Blocking reports
+
+Positive example: A Replit-only secret/action blocker is reported in the final response and mirrored into a dated handoff with the exact missing secret/action, what was already tried, the branch/SHA, and the first command or UI step to resume. If an INIT validation status changed, the INIT is updated too.
+
+Negative example: An agent writes "blocked on Replit" in chat only, without the missing input, prior checks, branch/SHA, durable handoff, or resume point.

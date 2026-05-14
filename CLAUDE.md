@@ -132,13 +132,14 @@ The symlink stays untracked because `.env.*` is gitignored. Without this link, d
 If you hit a blocker you truly cannot resolve (permissions, secrets rotation, Replit-side action, etc.):
 
 1. **Stop working** — do not retry or work around blindly.
-2. **Write a step-by-step guide** for the human explaining exactly what needs to be done to unblock you, with commands or UI steps where applicable.
+2. **Write a blocking report** in the current response and, when branch state or another handoff is needed, in `docs/handoffs/YYYY-MM-DD-claude-<short-name>-blocked.md`.
 3. **Include a context checkpoint** so work can resume seamlessly:
    - Current branch and last commit
    - What was completed so far
    - What remains on the plan
    - Any decisions made or assumptions in flight
    - Exact next step to pick up after unblock
+4. **Update the owning source doc only when the blocker changes durable state** — for example INIT validation status, Effort status, phase acceptance, or workflow policy.
 
 The goal is zero lost context — the human (or a fresh agent session) should be able to read the checkpoint and continue without re-deriving anything.
 
