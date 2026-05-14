@@ -72,6 +72,14 @@ Blocking reports are point-in-time resume context, not a new backlog system.
 
 Do not create a new Effort just to store a blocked status. Create or update an Effort only when the unresolved follow-up is standalone and not already owned by an INIT, phase record, PD, ADR, or workflow.
 
+## Blocker Discovery
+
+Other agents should not wait for Wilson to ask whether blockers exist. When starting or resuming related work, agents must check the active source docs for the domain and scan `docs/handoffs/` for `*-blocked.md` files. Read the matching blocked handoff before continuing.
+
+If an agent can safely unblock the work within its authority, it should do so, record what changed in its own handoff/PR, and update the owning source doc only when durable state changed. If the blocker still needs human judgment, secrets, Replit-side action, or an external dependency, keep the blocked handoff as the durable resume point and report the smallest next action back to Wilson.
+
+Blocked handoffs are historical coordination records. Do not delete or rewrite them after unblocking; add the resolution in a follow-up handoff, PR description, or owning source doc when state changed.
+
 ## Examples
 
 ### Documentation routing
@@ -109,3 +117,7 @@ Negative example: A compatibility shim, old implementation branch, or duplicate 
 Positive example: A Replit-only secret/action blocker is reported in the final response and mirrored into a dated handoff with the exact missing secret/action, what was already tried, the branch/SHA, and the first command or UI step to resume. If an INIT validation status changed, the INIT is updated too.
 
 Negative example: An agent writes "blocked on Replit" in chat only, without the missing input, prior checks, branch/SHA, durable handoff, or resume point.
+
+Positive discovery example: Before starting a related task, an agent checks `docs/handoffs/*-blocked.md`, reads the matching blocker, unblocks what it can, and records the resolution in its handoff/PR.
+
+Negative discovery example: A human has to ask every agent whether blockers exist because the blocker was only left in chat or no agent checked blocked handoffs before resuming.
