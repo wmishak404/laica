@@ -82,7 +82,7 @@ Secrets are managed with `dotenvx` for cross-environment portability, decrypting
 -   **Playwright**: End-to-end browser automation testing.
 
 ### Multi-Agent Collaboration
--   **AGENTS.md / CLAUDE.md**: Workflow rules and stack constraints for all coding agents (Codex, Claude, Replit). Replit agent is the only one that merges to main and deploys; local agents work on feature branches and open PRs.
+-   **AGENTS.md / CLAUDE.md**: Workflow rules and stack constraints for all coding agents (Codex, Claude, Replit). Replit remains the deployment authority. Codex may auto-merge docs-only workflow PRs only under `docs/workflows/agent-merge-authority.md`; code, repo configuration, product, security/privacy, schema, UI, dependency, or deployment-bound PRs still require stricter gates and explicit human merge instruction.
 -   **docs/adr/**: Architecture Decision Records.
 -   **docs/handoffs/**: Cross-agent coordination notes (e.g. PR #21 handoff at `docs/handoffs/2026-04-28-codex-mobile-refresh-phase-0-security.md`).
 

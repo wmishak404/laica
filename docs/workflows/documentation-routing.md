@@ -110,6 +110,7 @@ Use the metadata to prompt verification, not to reopen settled product intent. W
 ## Relationship to Existing Workflows
 
 - Use [`testing-and-acceptance.md`](testing-and-acceptance.md) for validation ownership and merge-readiness evidence.
+- Use [`agent-merge-authority.md`](agent-merge-authority.md) for docs-only workflow PR auto-merge authority and hard stops.
 - Use [`effort-system-audit.md`](effort-system-audit.md) when closing, repointing, or auditing Efforts.
 - Use [`replit-validation-focus.md`](replit-validation-focus.md) when selecting targeted Replit validation.
 - Use [`ai-error-handling-and-telemetry.md`](ai-error-handling-and-telemetry.md) for AI error and telemetry workflow details.

@@ -56,6 +56,10 @@ The branch owner performs this rebase, triggered by the lower-stack merge handof
 
 **Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include the last Replit-validated commit SHA.
 
+## Agent merge authority
+
+Codex may auto-merge docs-only workflow PRs only under [`docs/workflows/agent-merge-authority.md`](docs/workflows/agent-merge-authority.md): checks pass, branch is current, there are no conflicts, changed files stay in the allowed workflow/process scope, and no human/product/security/Replit decision remains. Code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs still require the stricter validation gates and an explicit human merge instruction.
+
 ## Project structure
 
 ```

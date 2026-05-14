@@ -29,6 +29,10 @@ See [docs/adr/0001-replit-primary-local-agents.md](docs/adr/0001-replit-primary-
 6. **Local dev OK** — full app runs locally via dotenvx (see Secrets below).
 7. **Service validation requires Replit** — deployment-bound changes must be tested there.
 
+## Agent merge authority
+
+Codex may auto-merge docs-only workflow PRs only under [`docs/workflows/agent-merge-authority.md`](docs/workflows/agent-merge-authority.md): checks pass, branch is current, there are no conflicts, changed files stay in the allowed workflow/process scope, and no human/product/security/Replit decision remains. Code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs still require the stricter validation gates and an explicit human merge instruction.
+
 ## Commands
 
 ```bash

@@ -18,11 +18,14 @@ Wilson's operating principles are now a top-level workflow entrypoint instead of
 - `docs/workflows/documentation-routing.md` now says every future workflow doc must include the reminder immediately after its title.
 - Blocking report storage is now explicit: current response for immediate visibility, dated `docs/handoffs/*-blocked.md` for durable resume context, PR description when applicable, and owning INIT/Effort/phase/PD/workflow docs only when the blocker changes durable state.
 - Blocker discovery is now explicit: agents check related `docs/handoffs/*-blocked.md` reports when starting or resuming work, unblock what they can safely unblock, and record resolutions without deleting the original blocked handoff.
+- `docs/workflows/agent-merge-authority.md` now grants Codex standing authority to auto-merge docs-only workflow PRs after the documented checklist passes, while preserving strict gates and explicit human merge instruction for code, repo configuration, dependency, security/privacy, schema, product, UI, and deployment-bound PRs.
 - Duplicate audit kept the lower mechanics/examples that still add value: Documentation foundation rules, Claude's blocked handoff protocol, Documentation Routing's source-of-truth guidance, Effort Audit's no-redundancy checks, and Environment Parity's provenance examples.
 
 ## Impact on other agents
 
 Start workflow and master-doc reading from the top reminder, then use `docs/workflows/operating-principles.md` for the full standard and examples. When creating a new workflow doc, include the same concise reminder immediately after the title before adding workflow-specific mechanics.
+
+For docs-only workflow PRs, use `docs/workflows/agent-merge-authority.md` to decide whether Codex can auto-merge. Past merge blockers checked while drafting that rule included stale Replit validation, unresolved Wilson product/design/security calls, superseded PRs, explicit Claude-review-before-merge requests, branch/base freshness, and INIT/Effort closeout requirements. No repo-local or Codex-local `threads/` directory was found; the durable evidence came from handoffs and workflow docs.
 
 ## Open items
 
