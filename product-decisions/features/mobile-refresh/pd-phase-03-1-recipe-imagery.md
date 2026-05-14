@@ -106,6 +106,8 @@ Accepted implementation slices:
 
 First recommended UI slice: implement slice 2 only. It is the smallest user-visible Phase 3.1 step, has a clear accepted copy contract, does not require service-backed imagery, and creates a focused screenshot target for the broader Planning-entry facelift.
 
+Kickoff merge signal: PR #69 merged this audit and slice plan into `main` as `d6e422e`.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |
