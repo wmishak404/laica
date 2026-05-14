@@ -1,5 +1,9 @@
 # Documentation Routing and Closeout Workflow
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 This workflow keeps planning docs useful without turning every cleanup into another growing checklist. Use it when a change creates, updates, graduates, or closes product rationale, feature specs, validation policy, initiative state, Efforts, or handoffs.
 
 ## Plain-English Rule
@@ -61,6 +65,10 @@ Before closing a branch or PR, run this short loop:
 7. Record validation, deferrals, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
 8. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
 9. Open the final response, handoff, and PR summary with a concise overall summary when useful, then keep the concrete changelog and validation details.
+
+## New Workflow Documents
+
+Every new `docs/workflows/*.md` file must include an `## Operating Principles` reminder immediately after its title, linking to [`operating-principles.md`](operating-principles.md). Keep the top reminder concise; put workflow-specific mechanics, examples, and source-of-truth details in the body of the new workflow.
 
 ## Closeout Summary Shape
 

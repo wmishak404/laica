@@ -1,5 +1,9 @@
 # AI Error Handling and Telemetry Workflow
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 This workflow tells agents where AI error UX, logging, privacy, and eval-monitoring work lives after the former telemetry Effort was closed.
 
 ## Plain-English Rule

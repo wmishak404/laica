@@ -1,5 +1,9 @@
 # Replit.md
 
+## Operating Principles
+
+Follow [docs/workflows/operating-principles.md](docs/workflows/operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 ## Overview
 Laica is an AI-powered cooking assistant designed to simplify meal preparation from planning to plating. It provides AI-driven recipe suggestions based on pantry ingredients, generates grocery lists, and offers interactive, step-by-step cooking guidance with both voice and visual feedback. The application is optimized for a mobile-first user experience, aiming to revolutionize how users interact with their kitchens.
 

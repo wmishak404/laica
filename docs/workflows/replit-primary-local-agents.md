@@ -1,5 +1,9 @@
 # Replit-primary local agent workflow
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 For the detailed “Replit vs local macOS” parity spec (drift vectors, decisions, and enforcement plan), see `docs/workflows/environment-parity-spec.md`.
 
 ## Source of truth

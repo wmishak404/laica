@@ -1,5 +1,9 @@
 # Replit Validation Focus Guide (Local -> Replit)
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 This doc exists to make Replit validation *targeted*.
 
 After a feature is validated locally, Replit validation should focus on the **environmental differences** that can still cause failures (ports/origins, deployment secrets, dev-vs-prod database separation, Firebase OAuth domains, etc.), not re-test everything every time.
@@ -122,4 +126,3 @@ If a regression is caught *only* on Replit after local validation:
 1. Add the root cause to the relevant section above (new drift vector or clearer trigger).
 2. Add a new row to the matrix if the category wasn’t covered.
 3. Update the PR/handoff template if we keep missing the same item.
-

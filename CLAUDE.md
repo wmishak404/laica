@@ -2,6 +2,10 @@
 
 # Laica — Claude Code Project Memory
 
+## Operating Principles
+
+Follow [docs/workflows/operating-principles.md](docs/workflows/operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 ## What is Laica?
 
 Laica is a full-stack cooking assistant app built with React + Express + PostgreSQL, deployed on Replit. It uses Firebase for auth, OpenAI for recipe suggestions/evaluation, and ElevenLabs for text-to-speech cooking guidance.

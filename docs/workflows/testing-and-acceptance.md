@@ -1,5 +1,9 @@
 # Testing and Acceptance Workflow
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 This workflow defines how agents decide whether a Laica change is ready to merge, where acceptance criteria live, and how validation evidence is recorded.
 
 ## Plain-English Rule

@@ -1,5 +1,9 @@
 # Effort System Audit Workflow
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 This workflow records how agents audit the Efforts system, close stale Efforts, and prevent old Epic-style drift from coming back.
 
 ## Why This Exists
