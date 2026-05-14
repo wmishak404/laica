@@ -7,6 +7,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import MobileApp, {
   SLOP_IT_UP_PLANNING_COPY_OPTIONS,
+  getPlanningPantryCountLabel,
   getRandomSlopItUpPlanningCopy,
 } from '../../client/src/pages/app';
 
@@ -114,13 +115,22 @@ describe('MobileApp planning choice pantry status', () => {
       pantryIngredients: Array.from({ length: 13 }, (_, index) => `item ${index + 1}`),
     }));
 
-    expect(screen.getByText('Right now I see 13 pantry items we can work with.')).toBeTruthy();
+    const pluralCount = screen.getByText('13 pantry items');
+    expect(pluralCount.className).toContain('planning-pantry-count');
+    expect(pluralCount.closest('p')?.textContent).toBe('Right now I see 13 pantry items we can work with.');
 
     cleanup();
 
     await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice'] }));
 
-    expect(screen.getByText('Right now I see 1 pantry item we can work with.')).toBeTruthy();
+    const singularCount = screen.getByText('1 pantry item');
+    expect(singularCount.className).toContain('planning-pantry-count');
+    expect(singularCount.closest('p')?.textContent).toBe('Right now I see 1 pantry item we can work with.');
+  });
+
+  it('builds the pantry count phrase separately from the surrounding status line', () => {
+    expect(getPlanningPantryCountLabel(1)).toBe('1 pantry item');
+    expect(getPlanningPantryCountLabel(17)).toBe('17 pantry items');
   });
 
   it('uses the Slop It Up title with italic title and one approved italic supporting line', async () => {

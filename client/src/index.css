@@ -1130,6 +1130,11 @@ html, body {
     line-height: 1.24;
   }
 
+  .planning-pantry-count {
+    color: hsl(var(--planning-coral-strong));
+    font-weight: 900;
+  }
+
   .planning-choice-arrow {
     display: inline-flex;
     height: 3.1rem;

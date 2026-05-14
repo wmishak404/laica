@@ -70,12 +70,16 @@ export function getRandomSlopItUpPlanningCopy(random = Math.random) {
   return SLOP_IT_UP_PLANNING_COPY_OPTIONS[randomIndex] ?? SLOP_IT_UP_PLANNING_COPY_OPTIONS[0];
 }
 
+export function getPlanningPantryCountLabel(pantryItemCount: number) {
+  return `${pantryItemCount} pantry item${pantryItemCount === 1 ? '' : 's'}`;
+}
+
 export function getPlanningPantryStatusCopy(pantryItemCount: number) {
   if (pantryItemCount <= 0) {
     return EMPTY_PANTRY_CHEF_IT_UP_COPY;
   }
 
-  return `Right now I see ${pantryItemCount} pantry item${pantryItemCount === 1 ? '' : 's'} we can work with.`;
+  return `Right now I see ${getPlanningPantryCountLabel(pantryItemCount)} we can work with.`;
 }
 
 export default function MobileApp() {
@@ -114,6 +118,7 @@ export default function MobileApp() {
   const hasExistingProfile = hasAnySavedProfileSignal(userProfile);
   const pantryItemCount = userProfile.pantryIngredients.length;
   const hasPantryItems = pantryItemCount > 0;
+  const planningPantryCountLabel = getPlanningPantryCountLabel(pantryItemCount);
   const planningPantryStatusCopy = getPlanningPantryStatusCopy(pantryItemCount);
   const feedbackCurrentPage = useMemo(() => {
     if (currentPhase === 'settings') return `/app-settings-${settingsSection}`;
@@ -486,8 +491,13 @@ export default function MobileApp() {
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
+          {/* design:tone-override — Planning status emphasizes only the live pantry count in coral per Phase 3.1. */}
           <p className="planning-choice-copy max-w-sm">
-            {planningPantryStatusCopy}
+            {hasPantryItems ? (
+              <>
+                Right now I see <span className="planning-pantry-count">{planningPantryCountLabel}</span> we can work with.
+              </>
+            ) : planningPantryStatusCopy}
           </p>
         </div>
       </div>
