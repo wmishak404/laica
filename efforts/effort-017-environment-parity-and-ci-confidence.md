@@ -4,7 +4,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-05-13
+**Updated:** 2026-05-14
 
 ## One-line summary
 
@@ -160,3 +160,9 @@ Wilson then completed the full targeted Replit checklist at the pre-rebase runti
 Wilson accepted the recommendation to use EFF-017 during Mobile Refresh Phase 4 instead of waiting until all of INIT-001 is complete. The accepted shape is intentionally narrow: start with an authenticated smoke harness pilot that helps Phase 4 validation, while keeping manual Replit validation authoritative until the harness earns trust.
 
 The first EFF-017 implementation branch should not claim that CI replaces Replit validation. It should use already-shipped behavior such as EFF-013 pantry correction or Phase 3.2 Chef It Up as a stable harness target first, then apply the harness to Phase 4 cooking guidance where auth, persistence, AI-assisted guidance, inline error recovery, and possible speech routes make repeated manual checking expensive.
+
+## 2026-05-14 - Phase 3.1 planning-copy validation signal
+
+The Phase 3.1 Planning copy slice reinforced EFF-017's current status rather than reopening it. Codex could run unit/type/build checks locally and boot the dotenvx dev server, but the in-app browser only reached the signed-out landing screen, so the authenticated Planning card still needed Wilson's Replit validation. Wilson confirmed the `Slop It Up` copy/title treatment in Replit at runtime head `39e4a361fb16a22f63638759a801435a5b00715b`.
+
+Process implication: EFF-017 remains `Deferred` until the accepted Phase 4 harness pilot starts, and Replit/manual validation remains authoritative for auth-gated UI surfaces. The eventual harness should support lightweight authenticated visual-smoke assertions too, not only complex AI or persistence flows, because even a small Planning-card copy change cannot be fully observed locally without a reliable dev-auth lane.
