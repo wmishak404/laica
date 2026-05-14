@@ -491,13 +491,17 @@ export default function MobileApp() {
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
-          {/* design:tone-override — Planning status emphasizes only the live pantry count in coral per Phase 3.1. */}
+          {/* design:tone-override — Planning status emphasizes only the live pantry fact in coral per Phase 3.1. */}
           <p className="planning-choice-copy max-w-sm">
             {hasPantryItems ? (
               <>
-                Right now I see <span className="planning-pantry-count">{planningPantryCountLabel}</span> we can work with.
+                Right now I see <span className="planning-pantry-status-emphasis">{planningPantryCountLabel}</span> we can work with.
               </>
-            ) : planningPantryStatusCopy}
+            ) : (
+              <>
+                Your pantry is <span className="planning-pantry-status-emphasis">empty</span>. Please add or scan more items.
+              </>
+            )}
           </p>
         </div>
       </div>

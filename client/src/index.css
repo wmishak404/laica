@@ -1130,7 +1130,7 @@ html, body {
     line-height: 1.24;
   }
 
-  .planning-pantry-count {
+  .planning-pantry-status-emphasis {
     color: hsl(var(--planning-coral-strong));
     font-weight: 900;
   }

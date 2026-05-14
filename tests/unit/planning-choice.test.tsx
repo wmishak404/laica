@@ -107,7 +107,9 @@ describe('MobileApp planning choice pantry status', () => {
   it('shows the empty-pantry status line on the planning choice screen', async () => {
     await renderPlanningChoice(makeProfile({ pantryIngredients: [] }));
 
-    expect(screen.getByText('Your pantry is empty. Please add or scan more items.')).toBeTruthy();
+    const emptyEmphasis = screen.getByText('empty');
+    expect(emptyEmphasis.className).toContain('planning-pantry-status-emphasis');
+    expect(emptyEmphasis.closest('p')?.textContent).toBe('Your pantry is empty. Please add or scan more items.');
   });
 
   it('shows the pantry count status line with pluralization', async () => {
@@ -116,7 +118,7 @@ describe('MobileApp planning choice pantry status', () => {
     }));
 
     const pluralCount = screen.getByText('13 pantry items');
-    expect(pluralCount.className).toContain('planning-pantry-count');
+    expect(pluralCount.className).toContain('planning-pantry-status-emphasis');
     expect(pluralCount.closest('p')?.textContent).toBe('Right now I see 13 pantry items we can work with.');
 
     cleanup();
@@ -124,7 +126,7 @@ describe('MobileApp planning choice pantry status', () => {
     await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice'] }));
 
     const singularCount = screen.getByText('1 pantry item');
-    expect(singularCount.className).toContain('planning-pantry-count');
+    expect(singularCount.className).toContain('planning-pantry-status-emphasis');
     expect(singularCount.closest('p')?.textContent).toBe('Right now I see 1 pantry item we can work with.');
   });
 
