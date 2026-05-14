@@ -128,6 +128,8 @@ The implementation adds a small `getPlanningPantryCountLabel` helper so the full
 
 Wilson validated the branch in Replit at runtime SHA `ed74a18b074cfec3917788c6ce2b7255d843d513`: the empty-Pantry state now shows `empty` with the coral emphasis, and `1`, `17`, and `26` pantry ingredient count states also show correctly.
 
+PR #71 merged the Planning-entry copy/status slice into `main` as `30c7285b4fa850b9744ecf4d0630efa0e212af16`. This merge closes the first runtime slice but not Phase 3.1 overall; the next branch should start from fresh `origin/main` and keep Slop Bowl pantry-check visual alignment, Ticket Pass / Prep Tray polish, and imagery as separate slices unless Wilson explicitly changes priority.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |

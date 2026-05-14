@@ -48,6 +48,8 @@ The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as
 
 The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative setup/Settings pantry manual-entry correction, and resolved EFF-015 after PR #64 shipped UI-governance enforcement. The current active Effort read list for Mobile Refresh-adjacent work is therefore EFF-010 for DB/schema workflow and EFF-014 for scan-session duplicate/latest-scan refinement. EFF-017 remains deferred until a narrow Phase 4 harness pilot explicitly reopens it.
 
+[PR #71](https://github.com/wmishak404/laica/pull/71) shipped the first Phase 3.1 Planning-entry runtime slice after Wilson's Replit/manual validation at `ed74a18`: the Slop Bowl path now appears as italicized **Slop It Up** with stable approved supporting copy, while the existing Planning pantry-status line emphasizes only the key pantry fact (`empty`, `1 pantry item`, or `N pantry items`) in coral. PR #71 merged into `main` as `30c7285`. This does not close Phase 3.1; Ticket Pass / Prep Tray polish, Slop Bowl pantry-check visual alignment, broader Planning visual-fit work, and async imagery remain separate Phase 3.1 slices.
+
 ## Source Docs
 
 - [Mobile Refresh phase index](../product-decisions/features/mobile-refresh/README.md)
@@ -92,7 +94,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | Kickoff / audit ready | [#69](https://github.com/wmishak404/laica/pull/69) / `codex/mobile-refresh-phase-3-1-kickoff` | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots; first recommended UI slice is the Planning entry Slop It Up title/supporting-copy treatment |
+| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69) + [#71](https://github.com/wmishak404/laica/pull/71) | Kickoff audit merged as `d6e422e`; first Planning-entry runtime slice merged as `30c7285` with Slop It Up front-door copy and coral pantry-status emphasis. Remaining slices: Planning visual-fit only if needed, Slop Bowl pantry-check visual alignment, Ticket Pass / Prep Tray polish, async imagery, and closeout visual review |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -117,6 +119,9 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | #45 | Merged | `codex/phase-3-generation-cancel` | Phase 3 generation lock/cancel follow-up validated at `0c98a47`; merged as `8892327` |
 | #46 | Merged | `codex/mobile-refresh-phase-3-2-progressive-staples` | Phase 3.2 progressive staple queue authenticated Replit/browser validation passed at `9646c80`; merged as `b22f6b6` |
 | #53 | Merged | `codex/epic-021-scan-upload-implementation` | EFF-021 scan upload runtime slice validated at `ef28e59`; merged as `9aa6c1c` |
+| #69 | Merged | `codex/mobile-refresh-phase-3-1-kickoff` | Phase 3.1 kickoff/audit docs merged as `d6e422e` |
+| #70 | Merged | `codex/mobile-refresh-phase-3-1-kickoff-closeout` | Phase 3.1 kickoff merge closeout docs merged as `59ee349` |
+| #71 | Merged | `codex/mobile-refresh-phase-3-1-planning-copy` | Phase 3.1 Planning-entry Slop It Up copy and coral pantry-status emphasis validated at `ed74a18`; docs-only evidence head `3eb0843`; merged as `30c7285` |
 
 ## Efforts and Governance
 
@@ -163,6 +168,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 - PR #53 merged the EFF-021 runtime slice into `main` as `9aa6c1c`. Wilson accepted the validated bounded-concurrency implementation as sufficient and chose not to keep provider-level batching as active scope, so EFF-021 closed as resolved. The merged slice satisfies the runtime cap, same-limit, rate-limit, progress, partial-success, active-scan lifecycle, and empty-Pantry guardrail work.
 - EFF-013 resolved on 2026-05-13 after PR #62 shipped conservative setup/Settings pantry manual-entry correction with visible chip provenance, Undo, pantry-only scope, targeted tests, and Replit validation. Future pantry spelling/canonicalization starts from the shipped behavior, not an active EFF-013 read-list item.
 - EFF-015 resolved on 2026-05-13 after PR #64 shipped the PR-template reviewer gate and local ESLint hex-class guard. Future UI governance starts from PD-005, `design_guidelines.md`, `.github/PULL_REQUEST_TEMPLATE.md`, and `eslint.config.js`, not an active Effort.
+- PR #71 merged the first Phase 3.1 Planning-entry runtime slice on 2026-05-14: the Slop Bowl path now uses **Slop It Up** as the front-door card label with stable approved italic supporting copy, and the Planning pantry-status line uses coral emphasis only on the key pantry fact (`empty`, `1 pantry item`, or `N pantry items`). This finishes the Planning copy/status slice but not the broader Planning facelift, Slop Bowl pantry-check visual alignment, Ticket Pass / Prep Tray polish, or imagery.
 
 ## Validation State
 
@@ -187,6 +193,7 @@ Known validation facts:
 - Phase 3.2 Replit code-path review passed at `9646c80`: 19/19 targeted unit tests, TypeScript clean, build clean, and behavioral code checks confirmed. Pantry-save failure remained code-verified rather than manually forced in the live UI.
 - Phase 3.2 authenticated Replit/browser validation passed at `9646c80` by Wilson manual live preview: all 11 live UI steps passed, including rolling queue, pending chip undo, Back-before-submit no-save, submit-time pantry persistence, saved green-check-only chips, Pantry Settings inline note, no duplicate/resave behavior, loading freeze, Back cancel, Ticket Pass completion, and exactly three suggestions.
 - EFF-021 local validation on `codex/epic-021-scan-upload-implementation` passed `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/rate-limit.test.ts`, then the expanded guardrail run `npx vitest run tests/unit/profile-readiness.test.ts tests/unit/meal-planning.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/user-profiling.test.tsx tests/unit/rate-limit.test.ts tests/unit/phase0-security-routes.test.ts`, plus `npm run check`, `npm run build`, `git diff --check`, and a dotenvx dev-server boot with HTTP 200 on port 3000. An earlier local in-app browser smoke reached the unauthenticated Laica welcome screen. Wilson's authenticated Replit pass covered scenarios 1-6 and 8-10 at `aa2f434`, with scenario 7 provisionally passing because native phone/desktop pickers blocked non-image selection; Wilson's later Replit check confirmed the core latest behavior looked good and active-scan Save/Reset controls were not pressable, but found the empty-Pantry Chef It Up blocker needed to move earlier. The follow-up Planning status/tap-blocker changes were validated in Replit at `ef28e59`; all items worked as designed. PR #53 merged the validated runtime slice into `main` as `9aa6c1c`.
+- PR #71 local validation passed `npm ci`, `npx vitest run tests/unit/planning-choice.test.tsx`, `npm run check`, `npm run build`, and `git diff --check`. Wilson's Replit/manual visual validation passed at runtime SHA `ed74a18`: Slop It Up looked italicized and good, `empty` showed coral emphasis, and `1`, `17`, and `26` pantry ingredient count states showed correctly. The branch head `3eb0843` added docs-only validation evidence; PR #71 merged as `30c7285`.
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
@@ -195,7 +202,7 @@ Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8
 
 Next implementation / validation focus:
 
-1. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Slop Bowl pantry-check visual alignment with the shipped Chef It Up Phase 3.2 chip/row direction, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots. Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue behavior, including the pending `+` + `X` versus saved green-check-only chip distinction and saved-chip tap-to-explain removal note.
+1. Start the next Phase 3.1 slice from fresh `origin/main`. Planning-entry Slop It Up copy and pantry-status emphasis are merged through PR #71, so the next narrow UI slice should be either Planning visual-fit only if screenshots show remaining spacing/hierarchy drift, or Slop Bowl pantry-check visual alignment with the shipped Chef It Up Phase 3.2 chip/row direction. Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery remain open later Phase 3.1 scope. Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue behavior, including the pending `+` + `X` versus saved green-check-only chip distinction and saved-chip tap-to-explain removal note.
 2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFF-018 intentionally deferred.
 3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 4. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
@@ -257,6 +264,10 @@ Wilson accepted **Slop It Up** as the Planning choice card title for the Slop Bo
 ### 2026-05-08 - Phase 3.2 progressive staples opened
 
 Phase 3.2 was filed for the progressive Chef It Up Added shelf / rolling staple queue. It is intentionally separate from Phase 3.1: Phase 3.1 owns facelift and imagery, while Phase 3.2 could implement behavior on top of the merged cancellation fix and later become the behavior baseline for the facelift.
+
+### 2026-05-14 - First Phase 3.1 Planning-entry runtime slice merged
+
+PR #71 merged into `main` as `30c7285` after Wilson's Replit/manual validation at `ed74a18`. It shipped italicized **Slop It Up** front-door copy for the Slop Bowl path and coral emphasis for the key Planning pantry-status fact. Phase 3.1 remains open for visual-fit review, Slop Bowl pantry-check visual alignment, Ticket Pass / Prep Tray polish, async imagery, and closeout visual review.
 
 ### 2026-05-08 - Phase 3.2 progressive staples merged
 
