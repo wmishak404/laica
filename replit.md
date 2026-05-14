@@ -1,5 +1,9 @@
 # Replit.md
 
+## Operating Principles
+
+Follow [docs/workflows/operating-principles.md](docs/workflows/operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 ## Overview
 Laica is an AI-powered cooking assistant designed to simplify meal preparation from planning to plating. It provides AI-driven recipe suggestions based on pantry ingredients, generates grocery lists, and offers interactive, step-by-step cooking guidance with both voice and visual feedback. The application is optimized for a mobile-first user experience, aiming to revolutionize how users interact with their kitchens.
 
@@ -78,7 +82,7 @@ Secrets are managed with `dotenvx` for cross-environment portability, decrypting
 -   **Playwright**: End-to-end browser automation testing.
 
 ### Multi-Agent Collaboration
--   **AGENTS.md / CLAUDE.md**: Workflow rules and stack constraints for all coding agents (Codex, Claude, Replit). Replit agent is the only one that merges to main and deploys; local agents work on feature branches and open PRs.
+-   **AGENTS.md / CLAUDE.md**: Workflow rules and stack constraints for all coding agents (Codex, Claude, Replit). Replit remains the deployment authority. Codex may auto-merge docs-only workflow PRs only under `docs/workflows/agent-merge-authority.md`; code, repo configuration, product, security/privacy, schema, UI, dependency, or deployment-bound PRs still require stricter gates and explicit human merge instruction.
 -   **docs/adr/**: Architecture Decision Records.
 -   **docs/handoffs/**: Cross-agent coordination notes (e.g. PR #21 handoff at `docs/handoffs/2026-04-28-codex-mobile-refresh-phase-0-security.md`).
 

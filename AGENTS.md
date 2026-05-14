@@ -1,5 +1,9 @@
 # LAICA Agent Workflow
 
+## Operating Principles
+
+Follow [docs/workflows/operating-principles.md](docs/workflows/operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 Replit is the primary environment for runtime behavior, secrets, database access, and deployment. GitHub is the shared source of truth between Replit and local agent tooling on macOS.
 
 See the full shared workflow in [docs/adr/0001-replit-primary-local-agents.md](docs/adr/0001-replit-primary-local-agents.md).
@@ -52,6 +56,10 @@ The branch owner performs this rebase, triggered by the lower-stack merge handof
 
 **Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include the last Replit-validated commit SHA.
 
+## Agent merge authority
+
+Codex may auto-merge docs-only workflow PRs only under [`docs/workflows/agent-merge-authority.md`](docs/workflows/agent-merge-authority.md): checks pass, branch is current, there are no conflicts, changed files stay in the allowed workflow/process scope, and no human/product/security/Replit decision remains. Code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs still require the stricter validation gates and an explicit human merge instruction.
+
 ## Project structure
 
 ```
@@ -101,7 +109,7 @@ The symlink stays untracked because `.env.*` is gitignored. Without this link, d
 
 ## Agent coordination — handoffs
 
-When completing a task, write a handoff file in `docs/handoffs/` so the other agent can pick up context. When starting new work, read recent handoffs to understand what's changed. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention and required sections. PR descriptions should include the same structured summary.
+When completing a task, write a handoff file in `docs/handoffs/` so the other agent can pick up context. When starting new work, read recent handoffs to understand what's changed and check for related `docs/handoffs/*-blocked.md` reports before assuming the path is clear. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention, blocked-handoff discovery, and required sections. PR descriptions should include the same structured summary.
 
 **Documentation foundation rule.** Do not leave product rationale, UX direction, validation scope, or operational lessons trapped in chat. When work changes behavior, IA, visual direction, acceptance criteria, validation status, or agent workflow, update the durable source of truth in the same branch: the relevant INIT, feature phase/product-decision note, active Effort(s), workflow doc, handoff, and PR description as applicable. Use [`docs/workflows/documentation-routing.md`](docs/workflows/documentation-routing.md) before closeout to choose the smallest durable home and update only the indexes/read lists whose source-of-truth status changed. Capture what changed, why it changed, what was validated, what remains unvalidated, and any explicit deferrals. No shortcut docs: future agents should be able to resume from the repository without re-deriving the thread. When documenting design consistency, include implementation guardrails too: shared component/root wrappers, CSS specificity or token requirements, and the exact visual comparison needed so matching class names do not hide computed-style drift.
 

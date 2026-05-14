@@ -8,6 +8,7 @@ This directory is the coordination channel between Claude Code and Codex. Each f
   - Example: `2026-04-06-claude-onboarding-setup.md`
 - **Write a handoff when finishing a task** — before or alongside the PR.
 - **Read existing handoffs when starting new work** — check what the other agent has done recently.
+- **Check blocked handoffs when starting related work** — search for `docs/handoffs/*-blocked.md` and read any blocker that touches the same feature, workflow, INIT, Effort, or branch.
 
 ## Required sections
 
@@ -41,6 +42,18 @@ How to confirm the changes work — local checks, Replit validation steps, or ma
 If the task changes a multi-phase initiative, cite the relevant INIT and state whether it was updated. If `INIT updated: no`, explain why when the handoff changes initiative state. Initiative changes include phase status, PR status, validation status, assets/mockups, major decisions, and current resume point.
 
 For INIT-bound merge closeouts, create a dedicated handoff named like `YYYY-MM-DD-<agent>-<phase>-merge-closeout.md`. Include the merged PR number, merge commit, last validated SHA, docs updated, next resume point, and any explicit deferrals. This handoff must be pushed to `origin`; otherwise future agents cannot rely on it.
+
+## Blocked handoffs
+
+Use `YYYY-MM-DD-<agent>-<short-name>-blocked.md` when work stops on missing input, permissions, secrets, Replit-side action, external dependency, or human decision and another agent or human may need to resume it.
+
+Agents should proactively discover blocked work instead of waiting for Wilson to ask. Before starting related work, run a targeted handoff scan such as:
+
+```bash
+rg --files docs/handoffs | rg -- '-blocked\.md$'
+```
+
+Read matching blocked handoffs before continuing. If you can safely unblock the work, do it, then record the resolution in your own handoff and PR description. Keep the original blocked handoff as history; do not delete or silently rewrite it. Update an INIT, Effort, phase record, PD, ADR, or workflow doc only when the blocker changed durable state.
 
 ## Stacked PR note
 

@@ -2,6 +2,10 @@
 
 # Laica — Claude Code Project Memory
 
+## Operating Principles
+
+Follow [docs/workflows/operating-principles.md](docs/workflows/operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 ## What is Laica?
 
 Laica is a full-stack cooking assistant app built with React + Express + PostgreSQL, deployed on Replit. It uses Firebase for auth, OpenAI for recipe suggestions/evaluation, and ElevenLabs for text-to-speech cooking guidance.
@@ -24,6 +28,10 @@ See [docs/adr/0001-replit-primary-local-agents.md](docs/adr/0001-replit-primary-
 5. **Local checks OK** — `npm run check`, `npm run build` work on macOS.
 6. **Local dev OK** — full app runs locally via dotenvx (see Secrets below).
 7. **Service validation requires Replit** — deployment-bound changes must be tested there.
+
+## Agent merge authority
+
+Codex may auto-merge docs-only workflow PRs only under [`docs/workflows/agent-merge-authority.md`](docs/workflows/agent-merge-authority.md): checks pass, branch is current, there are no conflicts, changed files stay in the allowed workflow/process scope, and no human/product/security/Replit decision remains. Code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs still require the stricter validation gates and an explicit human merge instruction.
 
 ## Commands
 
@@ -128,19 +136,20 @@ The symlink stays untracked because `.env.*` is gitignored. Without this link, d
 If you hit a blocker you truly cannot resolve (permissions, secrets rotation, Replit-side action, etc.):
 
 1. **Stop working** — do not retry or work around blindly.
-2. **Write a step-by-step guide** for the human explaining exactly what needs to be done to unblock you, with commands or UI steps where applicable.
+2. **Write a blocking report** in the current response and, when branch state or another handoff is needed, in `docs/handoffs/YYYY-MM-DD-claude-<short-name>-blocked.md`.
 3. **Include a context checkpoint** so work can resume seamlessly:
    - Current branch and last commit
    - What was completed so far
    - What remains on the plan
    - Any decisions made or assumptions in flight
    - Exact next step to pick up after unblock
+4. **Update the owning source doc only when the blocker changes durable state** — for example INIT validation status, Effort status, phase acceptance, or workflow policy.
 
 The goal is zero lost context — the human (or a fresh agent session) should be able to read the checkpoint and continue without re-deriving anything.
 
 ## Agent coordination — handoffs
 
-When completing a task, write a handoff file in `docs/handoffs/` so the other agent (Codex) can pick up context. When starting new work, read recent handoffs to understand what's changed. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention and required sections. PR descriptions should include the same structured summary.
+When completing a task, write a handoff file in `docs/handoffs/` so the other agent (Codex) can pick up context. When starting new work, read recent handoffs to understand what's changed and check for related `docs/handoffs/*-blocked.md` reports before assuming the path is clear. See [docs/handoffs/README.md](docs/handoffs/README.md) for the naming convention, blocked-handoff discovery, and required sections. PR descriptions should include the same structured summary.
 
 **Documentation foundation rule.** Do not leave product rationale, UX direction, validation scope, or operational lessons trapped in chat. When work changes behavior, IA, visual direction, acceptance criteria, validation status, or agent workflow, update the durable source of truth in the same branch: the relevant INIT, feature phase/product-decision note, active Effort(s), workflow doc, handoff, and PR description as applicable. Use [`docs/workflows/documentation-routing.md`](docs/workflows/documentation-routing.md) before closeout to choose the smallest durable home and update only the indexes/read lists whose source-of-truth status changed. Capture what changed, why it changed, what was validated, what remains unvalidated, and any explicit deferrals. No shortcut docs: future agents should be able to resume from the repository without re-deriving the thread. When documenting design consistency, include implementation guardrails too: shared component/root wrappers, CSS specificity or token requirements, and the exact visual comparison needed so matching class names do not hide computed-style drift.
 

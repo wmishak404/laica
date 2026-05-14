@@ -1,5 +1,9 @@
 # Documentation Routing and Closeout Workflow
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 This workflow keeps planning docs useful without turning every cleanup into another growing checklist. Use it when a change creates, updates, graduates, or closes product rationale, feature specs, validation policy, initiative state, Efforts, or handoffs.
 
 ## Plain-English Rule
@@ -46,6 +50,7 @@ Closed phase records may receive a historical note or link when needed, but they
 | Visual standard | `design_guidelines.md` with PD-005 for governance | The change affects palette, typography, surface posture, mockup conformance, or visual acceptance |
 | Service-backed validation focus | `docs/workflows/replit-validation-focus.md` | A change affects which Replit checks prove readiness |
 | Local-vs-Replit authority or environment boundaries | ADR-0001 and relevant workflow docs | The change affects where runtime truth, secrets, DB access, or deployment validation live |
+| Blocking report or resume checkpoint | Current agent response plus `docs/handoffs/YYYY-MM-DD-<agent>-*-blocked.md`; mirror in PR description when a PR exists | Work stops on missing input, permissions, secrets, Replit action, external dependency, or human decision |
 | Point-in-time command output, branch status, review notes, or transfer context | `docs/handoffs/YYYY-MM-DD-<agent>-*.md` and PR description | Evidence or coordination is useful, but should not become long-lived policy |
 
 ## Closeout Loop
@@ -58,9 +63,13 @@ Before closing a branch or PR, run this short loop:
 4. If an Effort, INIT phase, or feature phase is resolved, moved, or reopened, update its registry/read list in the same branch.
 5. If the change adds or revises a repeatable workflow, update the workflow doc and link it from `AGENTS.md` / `CLAUDE.md` only when it changes global agent behavior.
 6. If the change depends on volatile external facts, mark the owning PD with volatility metadata and verify those facts before implementation or merge.
-7. Record validation, deferrals, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
+7. Record validation, deferrals, blockers, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
 8. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
 9. Open the final response, handoff, and PR summary with a concise overall summary when useful, then keep the concrete changelog and validation details.
+
+## New Workflow Documents
+
+Every new `docs/workflows/*.md` file must include an `## Operating Principles` reminder immediately after its title, linking to [`operating-principles.md`](operating-principles.md). Keep the top reminder concise; put workflow-specific mechanics, examples, and source-of-truth details in the body of the new workflow.
 
 ## Closeout Summary Shape
 
@@ -101,6 +110,7 @@ Use the metadata to prompt verification, not to reopen settled product intent. W
 ## Relationship to Existing Workflows
 
 - Use [`testing-and-acceptance.md`](testing-and-acceptance.md) for validation ownership and merge-readiness evidence.
+- Use [`agent-merge-authority.md`](agent-merge-authority.md) for docs-only workflow PR auto-merge authority and hard stops.
 - Use [`effort-system-audit.md`](effort-system-audit.md) when closing, repointing, or auditing Efforts.
 - Use [`replit-validation-focus.md`](replit-validation-focus.md) when selecting targeted Replit validation.
 - Use [`ai-error-handling-and-telemetry.md`](ai-error-handling-and-telemetry.md) for AI error and telemetry workflow details.

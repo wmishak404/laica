@@ -1,5 +1,9 @@
 # Environment Parity Spec (Replit <-> Local macOS)
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 **Status:** Draft (proposed)  
 **Last updated:** 2026-05-04  
 **Scope:** LAICA repo runtime + developer environments  

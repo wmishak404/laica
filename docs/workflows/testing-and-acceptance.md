@@ -1,5 +1,9 @@
 # Testing and Acceptance Workflow
 
+## Operating Principles
+
+Follow [operating-principles.md](operating-principles.md): evidence first, no unsupported assumptions, objective detail, visible rationale and provenance, feedback from first principles, no hacks or duplicate paths, deletion of obsolete paths, explicit decisions, and blocking reports with exact missing inputs and smallest next actions.
+
 This workflow defines how agents decide whether a Laica change is ready to merge, where acceptance criteria live, and how validation evidence is recorded.
 
 ## Plain-English Rule
@@ -17,6 +21,7 @@ Every change should say what it was expected to prove, what was actually checked
 | Replit validation focus by drift vector | [`docs/workflows/replit-validation-focus.md`](replit-validation-focus.md) |
 | Local-vs-Replit authority | [`docs/adr/0001-replit-primary-local-agents.md`](../adr/0001-replit-primary-local-agents.md), `AGENTS.md`, and `CLAUDE.md` |
 | Cross-doc routing and closeout | [`docs/workflows/documentation-routing.md`](documentation-routing.md) |
+| Docs-only workflow PR auto-merge authority | [`docs/workflows/agent-merge-authority.md`](agent-merge-authority.md) |
 
 Do not use an Effort file as the long-term ledger for every feature's validation history.
 
