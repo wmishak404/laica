@@ -123,16 +123,18 @@ describe('MobileApp planning choice pantry status', () => {
     expect(screen.getByText('Right now I see 1 pantry item we can work with.')).toBeTruthy();
   });
 
-  it('uses the Slop It Up title with one approved italic supporting line', async () => {
+  it('uses the Slop It Up title with italic title and one approved italic supporting line', async () => {
     const expectedCopy = getRandomSlopItUpPlanningCopy(() => 0.5);
     const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
 
     await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice', 'eggs'] }));
 
     const slopCard = screen.getByRole('button', { name: /slop it up/i });
+    const slopTitle = screen.getByText('Slop It Up');
     const supportingCopy = screen.getByText(expectedCopy);
 
     expect(slopCard).toBeTruthy();
+    expect(slopTitle.className).toContain('italic');
     expect(supportingCopy.className).toContain('italic');
     expect(SLOP_IT_UP_PLANNING_COPY_OPTIONS).toContain(supportingCopy.textContent);
     expect(screen.queryByText('Randomly make me something from the chaos.')).toBeNull();

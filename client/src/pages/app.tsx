@@ -533,7 +533,7 @@ export default function MobileApp() {
             <span className="slop-emoji text-5xl leading-none">🥣</span>
           </span>
           <span className="min-w-0 flex-1 text-left">
-            <span className="planning-choice-title">Slop It Up</span>
+            <span className="planning-choice-title italic">Slop It Up</span>
             <span className="planning-choice-copy italic">
               {slopItUpPlanningCopy}
             </span>

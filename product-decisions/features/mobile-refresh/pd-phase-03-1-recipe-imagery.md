@@ -53,7 +53,7 @@ Wilson clarified that the Planning choice screen should sharpen the contrast bet
 
 The accepted Planning card title for the Slop Bowl path is **Slop It Up**. This is a front-door label for the Planning choice card, not a global feature rename. The underlying feature remains **Slop Bowl** in flow names, recipe language, backend/API contracts, sparse-pantry guard copy, durable product docs, and other places where the app is referring to the generated bowl concept itself.
 
-The Slop It Up card should use one approved supporting-copy line chosen at page load or refresh. It should remain stable while the page is open so the card does not animate or distract while the user is reading. The supporting copy should be italicized on the Slop It Up card only, giving the card a slightly different voice from Chef It Up while preserving the same planning-card title system.
+The Slop It Up card should use one approved supporting-copy line chosen at page load or refresh. It should remain stable while the page is open so the card does not animate or distract while the user is reading. The title and supporting copy should be italicized on the Slop It Up card only, giving the card a slightly different voice from Chef It Up while preserving the same planning-card title system.
 
 ```yaml
 slopItUpPlanningCard:
@@ -64,7 +64,7 @@ slopItUpPlanningCard:
   copySelection: "random-on-page-load"
   copyStability: "stable-during-mounted-session"
   typography:
-    title: "same planning-card title system as Chef It Up"
+    title: "same planning-card title system as Chef It Up, italic only on Slop It Up card"
     supportingCopy: "italic only on Slop It Up card"
   supportingCopyOptions:
     - "We'll turn your ingredients into a Slop Bowl."
@@ -97,7 +97,7 @@ Current surface notes:
 Accepted implementation slices:
 
 1. Kickoff/audit docs only: correct stale agenda references, record the current surface audit, accepted slices, and first UI slice. No runtime code in this PR.
-2. Planning entry copy/title slice: change only the Slop path front-door title to **Slop It Up**, choose one approved supporting line at mount/page load, keep it stable while mounted, italicize only that supporting line, and keep the underlying **Slop Bowl** feature name everywhere else.
+2. Planning entry copy/title slice: change only the Slop path front-door title to **Slop It Up**, choose one approved supporting line at mount/page load, keep it stable while mounted, italicize the Slop It Up title and supporting line, and keep the underlying **Slop Bowl** feature name everywhere else.
 3. Planning entry visual-fit slice: if the copy/title slice exposes spacing or hierarchy drift, adjust card whitespace/title/copy fit as a narrow follow-up with screenshot/computed-style evidence. Avoid adding banners, stickers, new fonts, or a new label system.
 4. Pantry-confirmation visual-alignment slice: compare Chef It Up Phase 3.2 staples against Slop Bowl pantry check and align chip/row grammar where behavior overlaps. Preserve Slop Bowl behavior unless the phase record is explicitly amended.
 5. Ticket Pass / Prep Tray facelift slice: refine ticket-stack density, title hierarchy, placeholder framing, and Prep Tray image layout before adding any image generation path.
@@ -110,7 +110,9 @@ Kickoff merge signal: PR #69 merged this audit and slice plan into `main` as `d6
 
 ## 2026-05-14 - Planning Entry Copy Slice Implemented
 
-Codex implemented the first runtime slice on `codex/mobile-refresh-phase-3-1-planning-copy`: the Planning entry now shows **Slop It Up** as the Slop Bowl path's front-door title, selects one approved supporting line when the app component mounts, keeps that line stable while mounted, and italicizes only that supporting line. The underlying feature path, component names, route state, tests, and Slop Bowl flow language still use **Slop Bowl**.
+Codex implemented the first runtime slice on `codex/mobile-refresh-phase-3-1-planning-copy`: the Planning entry now shows **Slop It Up** as the Slop Bowl path's front-door title, selects one approved supporting line when the app component mounts, keeps that line stable while mounted, and italicizes the Slop It Up title plus supporting line. The underlying feature path, component names, route state, tests, and Slop Bowl flow language still use **Slop Bowl**.
+
+Wilson validated the original 1-7 Replit checklist at `5412c3e3b8bbce3f3b8574be8b7ddc0b2142dc50`, then requested the small title-italic follow-up. Replit validation is stale for commits after that SHA until the updated title treatment is refreshed in Replit.
 
 This slice intentionally did not expand into broader Phase 3.1 facelift, pantry-check alignment, Ticket Pass / Prep Tray polish, or imagery work. No local card spacing/CSS change was added because the new title is shorter than the previous `Slop Bowl` title and the approved supporting-copy options fit the existing card copy pattern. Authenticated browser visual validation remains a Replit/manual validation item before Phase 3.1 closeout.
 
@@ -164,7 +166,7 @@ Recipe suggestions must appear as soon as the recipe response is ready. Image ge
 - Every known Phase 3 drift row is marked fixed, accepted, or deferred with owner/scope.
 - Phase 3.1 visual review covers Planning entry, Chef It Up time, Cuisine, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav against current docs/mockups and current Phase 3 screenshots.
 - Phase 3.1 docs record the accepted facelift direction before implementation starts.
-- Planning entry shows **Slop It Up** for the Slop Bowl choice with one approved italic supporting line, while Chef It Up remains unchanged in its refined, collaborative register.
+- Planning entry shows italicized **Slop It Up** for the Slop Bowl choice with one approved italic supporting line, while Chef It Up remains unchanged in its refined, collaborative register.
 - Ticket Pass and Prep Tray image placeholders are replaced by real imagery when `imageUrl` is available.
 - Placeholders remain polished and stable when imagery is unavailable or still loading.
 - The layout does not shift when images hydrate.
