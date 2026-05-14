@@ -1775,20 +1775,61 @@ html, body {
     box-shadow: 0 0.85rem 1.9rem hsl(var(--planning-coral) / 0.08);
   }
 
+  .slop-check-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   .slop-check-chip {
-    gap: 0.35rem;
-    border: 1px solid hsl(var(--planning-ticket-edge) / 0.42);
-    background: hsl(var(--planning-ticket) / 0.76);
-    color: hsl(var(--planning-ink) / 0.8);
-    font-size: 0.9rem;
-    font-weight: 800;
-    padding: 0.58rem 0.72rem;
+    display: inline-flex;
+    min-height: 2.35rem;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.42rem;
+    border: 1px solid hsl(var(--planning-herb) / 0.28);
+    border-radius: 999px;
+    background: hsl(var(--planning-herb-soft) / 0.82);
+    color: hsl(var(--planning-herb));
+    font-size: 0.86rem;
+    font-weight: 950;
+    line-height: 1.05;
+    padding: 0.45rem 0.72rem;
+    transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  }
+
+  .slop-check-chip:hover {
+    border-color: hsl(var(--planning-herb) / 0.42);
+    background: hsl(var(--planning-herb-soft) / 0.95);
+    transform: translateY(-1px);
+  }
+
+  .slop-check-chip-saved {
+    border-color: hsl(var(--planning-herb) / 0.28);
+    background: hsl(var(--planning-herb-soft) / 0.82);
+    color: hsl(var(--planning-herb));
   }
 
   .slop-check-chip-added {
-    border-color: hsl(var(--planning-coral) / 0.22);
-    background: hsl(var(--planning-coral-soft) / 0.64);
-    color: hsl(var(--planning-coral));
+    border-color: hsl(var(--planning-coral) / 0.34);
+    background: hsl(var(--planning-coral-soft) / 0.82);
+    color: hsl(var(--planning-coral-strong));
+  }
+
+  .slop-check-chip-added:hover {
+    border-color: hsl(var(--planning-coral) / 0.48);
+    background: hsl(var(--planning-coral-soft) / 0.94);
+  }
+
+  .slop-check-chip-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .slop-check-chip-status,
+  .slop-check-chip-remove-icon {
+    flex-shrink: 0;
+    stroke-width: 3;
   }
 
 }
