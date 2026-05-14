@@ -1,10 +1,19 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { InventoryReviewChip } from '@/components/cooking/inventory-review-chip';
 import { Input } from '@/components/ui/input';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
+import {
+  clearInventoryReviewType,
+  createInventoryReviewState,
+  getInventoryReviewChipState,
+  markInventoryReviewEntries,
+  pruneInventoryReviewType,
+  removeInventoryReviewEntries,
+} from '@/lib/inventoryReviewState';
 import {
   correctPantryManualEntries,
   mergeUniqueEntries,
@@ -25,7 +34,6 @@ import {
   ScanLine,
   ShieldCheck,
   Sparkles,
-  X,
 } from 'lucide-react';
 import {
   extractVisionLabels,
@@ -222,6 +230,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const [isAnalyzing, setIsAnalyzing] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
   const [scanProgress, setScanProgress] = useState<Record<ScanType, ScanProgress>>({ pantry: null, kitchen: null });
   const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
+  const [inventoryReviewState, setInventoryReviewState] = useState(createInventoryReviewState);
 
   useEffect(() => () => {
     scanControllers.current.pantry?.abort();
@@ -286,7 +295,21 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       ...prev,
       [type === 'pantry' ? 'pantryIngredients' : 'kitchenEquipment']: items,
     }));
+    setInventoryReviewState((prev) => pruneInventoryReviewType(prev, type, items));
   };
+
+  const markReviewEntries = (type: ScanType, entries: string[], marker: 'recent' | 'found-again') => {
+    setInventoryReviewState((prev) => markInventoryReviewEntries(prev, type, entries, marker));
+  };
+
+  const clearReviewEntries = (type: ScanType) => {
+    setInventoryReviewState((prev) => clearInventoryReviewType(prev, type));
+  };
+
+  const foundAgainCopy = (count: number) =>
+    count > 0
+      ? ` ${count} saved item${count === 1 ? ' was' : 's were'} found again.`
+      : '';
 
   const flashCorrectedPantryEntries = (entries: string[]) => {
     const keys = entries.map(normalizeEntryDuplicateKey).filter(Boolean);
@@ -334,6 +357,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                 pantryIngredients: mergeUniqueEntries(withoutCorrectedBatch, originalEntries),
               };
             });
+            setInventoryReviewState((prev) => markInventoryReviewEntries(
+              removeInventoryReviewEntries(prev, 'pantry', correctedAddedEntries),
+              'pantry',
+              originalEntries,
+              'recent',
+            ));
           }}
         >
           Undo
@@ -360,11 +389,13 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
     const mergeResult = mergeUniqueEntriesWithMetadata(currentItems(type), labels);
     updateItems(type, mergeResult.items);
+    markReviewEntries(type, mergeResult.added, 'recent');
+    markReviewEntries(type, mergeResult.foundAgain, 'found-again');
 
     if (mergeResult.added.length === 0) {
       toast({
         title: 'Already saved',
-        description: `No new ${scanItemLabel(type)} were added from that scan.`,
+        description: `No new ${scanItemLabel(type)} were added from that scan.${foundAgainCopy(mergeResult.foundAgain.length)}`,
       });
       return;
     }
@@ -372,7 +403,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     toast({
       title: type === 'pantry' ? 'Pantry scan added items' : 'Kitchen scan added items',
       description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}. Review the list before moving on.${
-        mergeResult.duplicateCount > 0 ? ` ${mergeResult.duplicateCount} already-saved item${mergeResult.duplicateCount === 1 ? ' was' : 's were'} skipped.` : ''
+        foundAgainCopy(mergeResult.foundAgain.length)
       }${
         rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
       }${
@@ -534,6 +565,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       : { entries: parsed, corrections: [] };
     const mergeResult = mergeUniqueEntriesWithMetadata(currentItems(type), correctionResult.entries);
     updateItems(type, mergeResult.items);
+    markReviewEntries(type, mergeResult.added, 'recent');
     setManualEntry((prev) => ({ ...prev, [type]: '' }));
     setManualOpen((prev) => ({ ...prev, [type]: true }));
 
@@ -601,6 +633,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     if (currentStep === TOTAL_STEPS) {
       onProfileComplete(profile);
       return;
+    }
+
+    if (currentScanType) {
+      clearReviewEntries(currentScanType);
     }
 
     setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
@@ -848,25 +884,14 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                   && recentlyCorrectedPantryKeys.has(normalizeEntryDuplicateKey(item));
 
                 return (
-                  <span
+                  <InventoryReviewChip
                     key={item}
-                    className={`setup-chip ${!isPantry ? 'setup-kitchen-chip' : ''}`}
-                    data-corrected={wasRecentlyCorrected ? 'true' : undefined}
-                  >
-                    <span className="truncate">{item}</span>
-                    <button
-                      type="button"
-                      aria-label={`Remove ${item}`}
-                      className={`rounded-full p-0.5 ${
-                        isPantry
-                          ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
-                          : 'setup-kitchen-chip-remove'
-                      }`}
-                      onClick={() => removeItem(type, item)}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
+                    item={item}
+                    state={getInventoryReviewChipState(inventoryReviewState, type, item)}
+                    wasRecentlyCorrected={wasRecentlyCorrected}
+                    disabled={isAnalyzing[type]}
+                    onRemove={() => removeItem(type, item)}
+                  />
                 );
               })}
             </div>

@@ -15,11 +15,20 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useResetPantry, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useDeleteCookingSession, useDeleteAllCookingSessions } from '@/hooks/useCookingSession';
 
+import { InventoryReviewChip } from '@/components/cooking/inventory-review-chip';
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import { Trash2, Settings, Package, User, Clock, MoreVertical, History, Check, ImagePlus, Loader2, X } from 'lucide-react';
+import { Trash2, Settings, Package, User, Clock, MoreVertical, History, Check, ImagePlus, Loader2 } from 'lucide-react';
 import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
+import {
+  clearInventoryReviewType,
+  createInventoryReviewState,
+  getInventoryReviewChipState,
+  markInventoryReviewEntries,
+  pruneInventoryReviewType,
+  removeInventoryReviewEntries,
+} from '@/lib/inventoryReviewState';
 import {
   correctPantryManualEntries,
   mergeUniqueEntries,
@@ -424,6 +433,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const [isAnalyzingEquipment, setIsAnalyzingEquipment] = useState(false);
   const [scanProgress, setScanProgress] = useState<Record<InventoryScanType, ScanProgress>>({ pantry: null, kitchen: null });
   const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
+  const [inventoryReviewState, setInventoryReviewState] = useState(createInventoryReviewState);
   const scanRunIds = useRef<Record<InventoryScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<InventoryScanType, AbortController | null>>({ pantry: null, kitchen: null });
   const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -487,6 +497,27 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
 
   const hasActiveScan = isAnalyzingPantry || isAnalyzingEquipment;
 
+  const updateInventoryItems = (type: InventoryScanType, items: string[]) => {
+    setProfile(prev => ({
+      ...prev,
+      [type === 'pantry' ? 'pantryIngredients' : 'kitchenEquipment']: items,
+    }));
+    setInventoryReviewState(prev => pruneInventoryReviewType(prev, type, items));
+  };
+
+  const markReviewEntries = (type: InventoryScanType, entries: string[], marker: 'recent' | 'found-again') => {
+    setInventoryReviewState(prev => markInventoryReviewEntries(prev, type, entries, marker));
+  };
+
+  const clearReviewEntries = (type: InventoryScanType) => {
+    setInventoryReviewState(prev => clearInventoryReviewType(prev, type));
+  };
+
+  const foundAgainCopy = (count: number) =>
+    count > 0
+      ? ` ${count} saved item${count === 1 ? ' was' : 's were'} found again.`
+      : '';
+
   const flashCorrectedPantryEntries = (entries: string[]) => {
     const keys = entries.map(normalizeEntryDuplicateKey).filter(Boolean);
     if (keys.length === 0) {
@@ -533,6 +564,12 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                 pantryIngredients: mergeUniqueEntries(withoutCorrectedBatch, originalEntries),
               };
             });
+            setInventoryReviewState(prev => markInventoryReviewEntries(
+              removeInventoryReviewEntries(prev, 'pantry', correctedAddedEntries),
+              'pantry',
+              originalEntries,
+              'recent',
+            ));
           }}
         >
           Undo
@@ -590,10 +627,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     if (window.confirm('Are you sure you want to completely reset your pantry? This will remove all current ingredients and cannot be undone.')) {
       try {
         await resetPantryMutation.mutateAsync();
-        setProfile(prev => ({
-          ...prev,
-          pantryIngredients: []
-        }));
+        updateInventoryItems('pantry', []);
+        clearReviewEntries('pantry');
         toast({
           title: "Pantry Reset",
           description: "Your pantry has been completely cleared. You can now rescan or add ingredients fresh.",
@@ -619,10 +654,8 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         await updateProfileMutation.mutateAsync({ 
           kitchenEquipment: [] 
         });
-        setProfile(prev => ({
-          ...prev,
-          kitchenEquipment: []
-        }));
+        updateInventoryItems('kitchen', []);
+        clearReviewEntries('kitchen');
         toast({
           title: "Equipment Reset",
           description: "Your equipment list has been cleared.",
@@ -648,6 +681,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       await updateProfileMutation.mutateAsync({ 
         pantryIngredients: profile.pantryIngredients 
       });
+      clearReviewEntries('pantry');
       toast({
         title: "Pantry saved!",
         description: "Your pantry ingredients have been updated successfully."
@@ -672,6 +706,7 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       await updateProfileMutation.mutateAsync({ 
         kitchenEquipment: profile.kitchenEquipment 
       });
+      clearReviewEntries('kitchen');
       toast({
         title: "Equipment saved!",
         description: "Your kitchen equipment has been updated successfully."
@@ -800,17 +835,12 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     });
   };
 
-  const showAlreadySavedFeedback = (type: VisionScanType) => {
+  const showAlreadySavedFeedback = (type: VisionScanType, foundAgainCount = 0) => {
     toast({
       title: "Already saved",
-      description: `No new ${type === 'pantry' ? 'pantry items' : 'kitchen tools'} were added from that scan.`,
+      description: `No new ${type === 'pantry' ? 'pantry items' : 'kitchen tools'} were added from that scan.${foundAgainCopy(foundAgainCount)}`,
     });
   };
-
-  const duplicateSkipCopy = (duplicateCount: number) =>
-    duplicateCount > 0
-      ? ` ${duplicateCount} already-saved item${duplicateCount === 1 ? ' was' : 's were'} skipped.`
-      : '';
 
   const handlePantryImageAnalysis = async (imageData: string) => {
     const scan = startInventoryScan('pantry');
@@ -835,16 +865,18 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
           .map(i => normalizeEntryLabel(String(i).toLowerCase()))
           .filter(i => i && i.length > 1);
         const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, cleanIngredients);
-        setProfile(prev => ({ ...prev, pantryIngredients: mergeResult.items }));
+        updateInventoryItems('pantry', mergeResult.items);
+        markReviewEntries('pantry', mergeResult.added, 'recent');
+        markReviewEntries('pantry', mergeResult.foundAgain, 'found-again');
 
         if (mergeResult.added.length === 0) {
-          showAlreadySavedFeedback('pantry');
+          showAlreadySavedFeedback('pantry', mergeResult.foundAgain.length);
           return;
         }
         
         toast({
           title: "Pantry scan complete",
-          description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${duplicateSkipCopy(mergeResult.duplicateCount)}`
+          description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${foundAgainCopy(mergeResult.foundAgain.length)}`
         });
       } else {
         toast({
@@ -890,16 +922,18 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
           .map(e => normalizeEntryLabel(String(e).toLowerCase()))
           .filter(e => e && e.length > 1);
         const mergeResult = mergeUniqueEntriesWithMetadata(profile.kitchenEquipment, cleanEquipment);
-        setProfile(prev => ({ ...prev, kitchenEquipment: mergeResult.items }));
+        updateInventoryItems('kitchen', mergeResult.items);
+        markReviewEntries('kitchen', mergeResult.added, 'recent');
+        markReviewEntries('kitchen', mergeResult.foundAgain, 'found-again');
 
         if (mergeResult.added.length === 0) {
-          showAlreadySavedFeedback('kitchen');
+          showAlreadySavedFeedback('kitchen', mergeResult.foundAgain.length);
           return;
         }
         
         toast({
           title: "Kitchen scan complete",
-          description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${duplicateSkipCopy(mergeResult.duplicateCount)}`
+          description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${foundAgainCopy(mergeResult.foundAgain.length)}`
         });
       } else {
         toast({
@@ -1054,17 +1088,16 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       // Update state once with all accumulated results
       if (type === 'pantry' && allNewIngredients.length > 0) {
         const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, allNewIngredients);
-        setProfile(prev => ({
-          ...prev,
-          pantryIngredients: mergeResult.items
-        }));
+        updateInventoryItems('pantry', mergeResult.items);
+        markReviewEntries('pantry', mergeResult.added, 'recent');
+        markReviewEntries('pantry', mergeResult.foundAgain, 'found-again');
 
         if (mergeResult.added.length === 0) {
-          showAlreadySavedFeedback('pantry');
+          showAlreadySavedFeedback('pantry', mergeResult.foundAgain.length);
         } else {
           toast({
             title: `Scan complete!`,
-            description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
+            description: `Found ${mergeResult.added.length} new ingredient${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${foundAgainCopy(mergeResult.foundAgain.length)}${
               rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
             }${
               failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
@@ -1073,17 +1106,16 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         }
       } else if (type === 'kitchen' && allNewEquipment.length > 0) {
         const mergeResult = mergeUniqueEntriesWithMetadata(profile.kitchenEquipment, allNewEquipment);
-        setProfile(prev => ({
-          ...prev,
-          kitchenEquipment: mergeResult.items
-        }));
+        updateInventoryItems('kitchen', mergeResult.items);
+        markReviewEntries('kitchen', mergeResult.added, 'recent');
+        markReviewEntries('kitchen', mergeResult.foundAgain, 'found-again');
 
         if (mergeResult.added.length === 0) {
-          showAlreadySavedFeedback('kitchen');
+          showAlreadySavedFeedback('kitchen', mergeResult.foundAgain.length);
         } else {
           toast({
             title: `Scan complete!`,
-            description: `Found ${mergeResult.added.length} new equipment item${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${duplicateSkipCopy(mergeResult.duplicateCount)}${
+            description: `Found ${mergeResult.added.length} new equipment item${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${foundAgainCopy(mergeResult.foundAgain.length)}${
               rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
             }${
               failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
@@ -1136,16 +1168,13 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       const correctionResult = correctPantryManualEntries(newEntries);
       const mergeResult = mergeUniqueEntriesWithMetadata(profile.pantryIngredients, correctionResult.entries);
 
-      setProfile(prev => ({
-        ...prev,
-        pantryIngredients: mergeResult.items
-      }));
+      updateInventoryItems('pantry', mergeResult.items);
+      markReviewEntries('pantry', mergeResult.added, 'recent');
       showPantryCorrectionToast(newEntries, correctionResult.corrections, mergeResult.added);
     } else {
-      setProfile(prev => ({
-        ...prev,
-        kitchenEquipment: mergeUniqueEntries(prev.kitchenEquipment, newEntries)
-      }));
+      const mergeResult = mergeUniqueEntriesWithMetadata(profile.kitchenEquipment, newEntries);
+      updateInventoryItems('kitchen', mergeResult.items);
+      markReviewEntries('kitchen', mergeResult.added, 'recent');
     }
     setManualEntry(prev => ({ ...prev, [type]: '' }));
   };
@@ -1445,31 +1474,14 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
                       && recentlyCorrectedPantryKeys.has(normalizeEntryDuplicateKey(item));
 
                     return (
-                      <span
+                      <InventoryReviewChip
                         key={`${item}-${index}`}
-                        className={`setup-chip ${isPantry ? '' : 'setup-kitchen-chip'}`}
-                        data-corrected={wasRecentlyCorrected ? 'true' : undefined}
-                      >
-                        <span className="truncate">{item}</span>
-                        <button
-                          type="button"
-                          aria-label={`Remove ${item}`}
-                          className={`rounded-full p-0.5 ${
-                            isPantry
-                              ? 'text-primary/70 hover:bg-primary/10 hover:text-primary'
-                              : 'setup-kitchen-chip-remove'
-                          }`}
-                          disabled={isInventoryLocked}
-                          onClick={() => {
-                            setProfile(prev => ({
-                              ...prev,
-                              [isPantry ? 'pantryIngredients' : 'kitchenEquipment']: items.filter((_, i) => i !== index)
-                            }));
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
+                        item={item}
+                        state={getInventoryReviewChipState(inventoryReviewState, type, item)}
+                        wasRecentlyCorrected={wasRecentlyCorrected}
+                        disabled={isInventoryLocked}
+                        onRemove={() => updateInventoryItems(type, items.filter((_, i) => i !== index))}
+                      />
                     );
                   })}
                 </div>

@@ -404,6 +404,66 @@ html, body {
     color: hsl(216 11% 30%);
   }
 
+  .setup-review-chip {
+    min-height: 2.35rem;
+    gap: 0.42rem;
+    border-color: hsl(var(--setup-herb) / 0.28);
+    background: hsl(104 42% 88% / 0.82);
+    color: hsl(var(--setup-herb));
+    font-size: 0.86rem;
+    font-weight: 950;
+    line-height: 1.05;
+    padding: 0.45rem 0.72rem;
+  }
+
+  .setup-review-chip[data-state="recent"] {
+    border-color: hsl(var(--setup-coral-strong) / 0.34);
+    background: hsl(var(--setup-coral-soft) / 0.82);
+    color: hsl(var(--setup-coral-strong));
+    animation: planning-chip-pop 0.18s ease-out both;
+  }
+
+  .setup-review-chip[data-state="found-again"] {
+    box-shadow:
+      inset 0 0 0 0.12rem hsl(var(--setup-herb) / 0.14),
+      0 0.45rem 1rem hsl(var(--setup-herb) / 0.08);
+    animation: setup-found-again-chip-blip 1800ms ease-out;
+  }
+
+  .setup-review-chip[data-corrected="true"] {
+    animation: setup-corrected-chip-blip 1800ms ease-out;
+  }
+
+  .setup-review-chip-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .setup-review-chip-status,
+  .setup-review-chip-remove {
+    flex-shrink: 0;
+    stroke-width: 3;
+  }
+
+  .setup-review-chip-remove {
+    color: currentColor;
+  }
+
+  .setup-review-chip-remove:hover {
+    background: hsl(var(--setup-herb) / 0.12);
+    color: hsl(var(--setup-herb));
+  }
+
+  .setup-review-chip[data-state="recent"] .setup-review-chip-remove:hover {
+    background: hsl(var(--setup-coral-strong) / 0.12);
+    color: hsl(var(--setup-coral-strong));
+  }
+
+  .setup-review-chip-remove:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
   .setup-bottom-bar {
     border-top: 1px solid hsl(var(--setup-coral-strong) / 0.14);
     background: linear-gradient(180deg, hsl(var(--setup-cream) / 0.58), hsl(var(--setup-cream) / 0.96));
@@ -1885,6 +1945,33 @@ html, body {
     background-color: hsl(var(--setup-coral-soft) / 0.68);
     box-shadow: 0 0 0 0 hsl(var(--setup-butter) / 0);
     border-color: hsl(var(--setup-coral-strong) / 0.2);
+  }
+}
+
+@keyframes setup-found-again-chip-blip {
+  0% {
+    background-color: hsl(104 42% 88% / 0.82);
+    box-shadow:
+      inset 0 0 0 0 hsl(var(--setup-herb) / 0),
+      0 0 0 0 hsl(var(--setup-herb) / 0);
+  }
+  18% {
+    background-color: hsl(104 48% 84% / 0.98);
+    box-shadow:
+      inset 0 0 0 0.12rem hsl(var(--setup-herb) / 0.28),
+      0 0 0 0.24rem hsl(var(--setup-herb) / 0.1);
+  }
+  58% {
+    background-color: hsl(104 48% 84% / 0.94);
+    box-shadow:
+      inset 0 0 0 0.12rem hsl(var(--setup-herb) / 0.22),
+      0 0 0 0.14rem hsl(var(--setup-herb) / 0.08);
+  }
+  100% {
+    background-color: hsl(104 42% 88% / 0.82);
+    box-shadow:
+      inset 0 0 0 0.12rem hsl(var(--setup-herb) / 0.14),
+      0 0.45rem 1rem hsl(var(--setup-herb) / 0.08);
   }
 }
 

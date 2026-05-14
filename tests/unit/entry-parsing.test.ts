@@ -60,6 +60,7 @@ describe('entry parsing', () => {
       items: ['Chef Knife', 'cutting board'],
       added: ['cutting board'],
       duplicateCount: 2,
+      foundAgain: ['Chef Knife'],
     });
   });
 
@@ -139,6 +140,7 @@ describe('entry parsing', () => {
       items: ['broccoli', 'rice'],
       added: ['broccoli', 'rice'],
       duplicateCount: 1,
+      foundAgain: [],
     });
   });
 });
