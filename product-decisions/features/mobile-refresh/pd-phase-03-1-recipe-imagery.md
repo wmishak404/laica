@@ -138,7 +138,7 @@ This slice intentionally did not touch Planning card/whitespace grammar, Ticket 
 
 ## 2026-05-14 - Setup/Settings Inventory Chip State Alignment Implemented Locally
 
-Wilson pulled the EFF-014 scan-session chip-state follow-up into the current Phase 3.1 consistency pass after reviewing returning Settings Pantry list drift against the newer Chef It Up and Slop Bowl chip grammar. Codex started `codex/mobile-refresh-phase-3-1-inventory-chip-states`, stacked on PR #73 while the Slop Bowl pantry-check PR remains open.
+Wilson pulled the EFF-014 scan-session chip-state follow-up into the current Phase 3.1 consistency pass after reviewing returning Settings Pantry list drift against the newer Chef It Up and Slop Bowl chip grammar. Codex opened PR #74 from `codex/mobile-refresh-phase-3-1-inventory-chip-states`, stacked on PR #73 while the Slop Bowl pantry-check PR remains open.
 
 The accepted implementation scope is the existing first-time setup and returning Settings Pantry/Kitchen review surfaces only. Saved items use green checked chips; recently-added manual/scan items use coral `+` chips with an `X`; found-again scan matches stay in the same list as quiet green checked chips with scan outcome copy; client-only state clears on setup Continue or successful Settings save. Duplicate-like cleanup stays conservative: the UI makes latest-added variants easy to remove, but Laica does not infer semantic duplicates or auto-collapse labels.
 

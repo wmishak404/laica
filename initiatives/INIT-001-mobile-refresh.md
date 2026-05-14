@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 3.1 / Phase 4 planning
-**Active PR:** [#73](https://github.com/wmishak404/laica/pull/73) lower stack; inventory chip-state PR not opened yet
+**Active PR:** [#74](https://github.com/wmishak404/laica/pull/74) stacked on [#73](https://github.com/wmishak404/laica/pull/73)
 **Active branch:** `codex/mobile-refresh-phase-3-1-inventory-chip-states` (stacked on PR #73)
 
 ## Overview
@@ -94,7 +94,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), `codex/mobile-refresh-phase-3-1-inventory-chip-states` | Design facelift and imagery work is landing in narrow slices; current stack aligns Slop Bowl pantry-check chips, then Setup/Settings inventory review chip states for EFF-014 |
+| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#74](https://github.com/wmishak404/laica/pull/74) | Design facelift and imagery work is landing in narrow slices; current stack aligns Slop Bowl pantry-check chips, then Setup/Settings inventory review chip states for EFF-014 |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -120,7 +120,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | #46 | Merged | `codex/mobile-refresh-phase-3-2-progressive-staples` | Phase 3.2 progressive staple queue authenticated Replit/browser validation passed at `9646c80`; merged as `b22f6b6` |
 | #53 | Merged | `codex/epic-021-scan-upload-implementation` | EFF-021 scan upload runtime slice validated at `ef28e59`; merged as `9aa6c1c` |
 | #73 | Open | `codex/mobile-refresh-phase-3-1-slop-pantry-align` | Lower stack for current inventory chip-state branch; aligns Slop Bowl pantry-check chips with Chef It Up saved/recent grammar |
-| TBD | Not opened | `codex/mobile-refresh-phase-3-1-inventory-chip-states` | Stacked on #73; implements Setup/Settings Pantry/Kitchen saved/recent/found-again chip states and EFF-014 resolution path |
+| #74 | Draft / open | `codex/mobile-refresh-phase-3-1-inventory-chip-states` | Stacked on #73; implements Setup/Settings Pantry/Kitchen saved/recent/found-again chip states and EFF-014 resolution path |
 
 ## Efforts and Governance
 
