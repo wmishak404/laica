@@ -5,7 +5,10 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import MobileApp from '../../client/src/pages/app';
+import MobileApp, {
+  SLOP_IT_UP_PLANNING_COPY_OPTIONS,
+  getRandomSlopItUpPlanningCopy,
+} from '../../client/src/pages/app';
 
 const mocks = vi.hoisted(() => ({
   toast: vi.fn(),
@@ -118,6 +121,30 @@ describe('MobileApp planning choice pantry status', () => {
     await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice'] }));
 
     expect(screen.getByText('Right now I see 1 pantry item we can work with.')).toBeTruthy();
+  });
+
+  it('uses the Slop It Up title with one approved italic supporting line', async () => {
+    const expectedCopy = getRandomSlopItUpPlanningCopy(() => 0.5);
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+    await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice', 'eggs'] }));
+
+    const slopCard = screen.getByRole('button', { name: /slop it up/i });
+    const supportingCopy = screen.getByText(expectedCopy);
+
+    expect(slopCard).toBeTruthy();
+    expect(supportingCopy.className).toContain('italic');
+    expect(SLOP_IT_UP_PLANNING_COPY_OPTIONS).toContain(supportingCopy.textContent);
+    expect(screen.queryByText('Randomly make me something from the chaos.')).toBeNull();
+    expect(screen.queryByRole('button', { name: /^slop bowl/i })).toBeNull();
+
+    fireEvent.click(slopCard);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('slop-bowl')).toBeTruthy();
+    });
+
+    randomSpy.mockRestore();
   });
 
   it('keeps an empty-pantry user on the choice screen and opens Pantry settings from the toast action', async () => {

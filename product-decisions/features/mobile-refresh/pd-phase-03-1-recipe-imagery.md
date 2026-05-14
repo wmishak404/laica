@@ -58,7 +58,7 @@ The Slop It Up card should use one approved supporting-copy line chosen at page 
 ```yaml
 slopItUpPlanningCard:
   scope: phase-3-1
-  implementationStatus: planned
+  implementationStatus: implemented
   cardTitle: "Slop It Up"
   featureNameRemains: "Slop Bowl"
   copySelection: "random-on-page-load"
@@ -107,6 +107,12 @@ Accepted implementation slices:
 First recommended UI slice: implement slice 2 only. It is the smallest user-visible Phase 3.1 step, has a clear accepted copy contract, does not require service-backed imagery, and creates a focused screenshot target for the broader Planning-entry facelift.
 
 Kickoff merge signal: PR #69 merged this audit and slice plan into `main` as `d6e422e`.
+
+## 2026-05-14 - Planning Entry Copy Slice Implemented
+
+Codex implemented the first runtime slice on `codex/mobile-refresh-phase-3-1-planning-copy`: the Planning entry now shows **Slop It Up** as the Slop Bowl path's front-door title, selects one approved supporting line when the app component mounts, keeps that line stable while mounted, and italicizes only that supporting line. The underlying feature path, component names, route state, tests, and Slop Bowl flow language still use **Slop Bowl**.
+
+This slice intentionally did not expand into broader Phase 3.1 facelift, pantry-check alignment, Ticket Pass / Prep Tray polish, or imagery work. No local card spacing/CSS change was added because the new title is shorter than the previous `Slop Bowl` title and the approved supporting-copy options fit the existing card copy pattern. Authenticated browser visual validation remains a Replit/manual validation item before Phase 3.1 closeout.
 
 ## Phase 3 Design Drift Inventory
 
