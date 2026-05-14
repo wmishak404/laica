@@ -5,7 +5,11 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import MobileApp from '../../client/src/pages/app';
+import MobileApp, {
+  SLOP_IT_UP_PLANNING_COPY_OPTIONS,
+  getPlanningPantryCountLabel,
+  getRandomSlopItUpPlanningCopy,
+} from '../../client/src/pages/app';
 
 const mocks = vi.hoisted(() => ({
   toast: vi.fn(),
@@ -103,7 +107,9 @@ describe('MobileApp planning choice pantry status', () => {
   it('shows the empty-pantry status line on the planning choice screen', async () => {
     await renderPlanningChoice(makeProfile({ pantryIngredients: [] }));
 
-    expect(screen.getByText('Your pantry is empty. Please add or scan more items.')).toBeTruthy();
+    const emptyEmphasis = screen.getByText('empty');
+    expect(emptyEmphasis.className).toContain('planning-pantry-status-emphasis');
+    expect(emptyEmphasis.closest('p')?.textContent).toBe('Your pantry is empty. Please add or scan more items.');
   });
 
   it('shows the pantry count status line with pluralization', async () => {
@@ -111,13 +117,48 @@ describe('MobileApp planning choice pantry status', () => {
       pantryIngredients: Array.from({ length: 13 }, (_, index) => `item ${index + 1}`),
     }));
 
-    expect(screen.getByText('Right now I see 13 pantry items we can work with.')).toBeTruthy();
+    const pluralCount = screen.getByText('13 pantry items');
+    expect(pluralCount.className).toContain('planning-pantry-status-emphasis');
+    expect(pluralCount.closest('p')?.textContent).toBe('Right now I see 13 pantry items we can work with.');
 
     cleanup();
 
     await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice'] }));
 
-    expect(screen.getByText('Right now I see 1 pantry item we can work with.')).toBeTruthy();
+    const singularCount = screen.getByText('1 pantry item');
+    expect(singularCount.className).toContain('planning-pantry-status-emphasis');
+    expect(singularCount.closest('p')?.textContent).toBe('Right now I see 1 pantry item we can work with.');
+  });
+
+  it('builds the pantry count phrase separately from the surrounding status line', () => {
+    expect(getPlanningPantryCountLabel(1)).toBe('1 pantry item');
+    expect(getPlanningPantryCountLabel(17)).toBe('17 pantry items');
+  });
+
+  it('uses the Slop It Up title with italic title and one approved italic supporting line', async () => {
+    const expectedCopy = getRandomSlopItUpPlanningCopy(() => 0.5);
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+    await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice', 'eggs'] }));
+
+    const slopCard = screen.getByRole('button', { name: /slop it up/i });
+    const slopTitle = screen.getByText('Slop It Up');
+    const supportingCopy = screen.getByText(expectedCopy);
+
+    expect(slopCard).toBeTruthy();
+    expect(slopTitle.className).toContain('italic');
+    expect(supportingCopy.className).toContain('italic');
+    expect(SLOP_IT_UP_PLANNING_COPY_OPTIONS).toContain(supportingCopy.textContent);
+    expect(screen.queryByText('Randomly make me something from the chaos.')).toBeNull();
+    expect(screen.queryByRole('button', { name: /^slop bowl/i })).toBeNull();
+
+    fireEvent.click(slopCard);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('slop-bowl')).toBeTruthy();
+    });
+
+    randomSpy.mockRestore();
   });
 
   it('keeps an empty-pantry user on the choice screen and opens Pantry settings from the toast action', async () => {

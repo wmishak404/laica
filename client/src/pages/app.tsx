@@ -56,15 +56,30 @@ const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined)
 // (race-neutral). A fresh one is picked each time the planning-choice
 // screen is shown so the card alternates representation.
 const CHEF_EMOJIS = ['👨‍🍳', '👩‍🍳'];
+export const SLOP_IT_UP_PLANNING_COPY_OPTIONS = [
+  "We'll turn your ingredients into a Slop Bowl.",
+  'Fridge chaos, Slop Bowl incoming.',
+  "We'll make a Slop Bowl from whatever's around.",
+  'Let us cook up a Slop Bowl from the chaos.',
+] as const;
 export const EMPTY_PANTRY_RECIPE_COPY = 'Add or scan pantry items before I can suggest recipes.';
 export const EMPTY_PANTRY_CHEF_IT_UP_COPY = 'Your pantry is empty. Please add or scan more items.';
+
+export function getRandomSlopItUpPlanningCopy(random = Math.random) {
+  const randomIndex = Math.floor(random() * SLOP_IT_UP_PLANNING_COPY_OPTIONS.length);
+  return SLOP_IT_UP_PLANNING_COPY_OPTIONS[randomIndex] ?? SLOP_IT_UP_PLANNING_COPY_OPTIONS[0];
+}
+
+export function getPlanningPantryCountLabel(pantryItemCount: number) {
+  return `${pantryItemCount} pantry item${pantryItemCount === 1 ? '' : 's'}`;
+}
 
 export function getPlanningPantryStatusCopy(pantryItemCount: number) {
   if (pantryItemCount <= 0) {
     return EMPTY_PANTRY_CHEF_IT_UP_COPY;
   }
 
-  return `Right now I see ${pantryItemCount} pantry item${pantryItemCount === 1 ? '' : 's'} we can work with.`;
+  return `Right now I see ${getPlanningPantryCountLabel(pantryItemCount)} we can work with.`;
 }
 
 export default function MobileApp() {
@@ -88,6 +103,7 @@ export default function MobileApp() {
   const [showPlanningChoice, setShowPlanningChoice] = useState(true);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [slopItUpPlanningCopy] = useState(() => getRandomSlopItUpPlanningCopy());
   const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() => {
     if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
     return normalizePlanningTimeValue(window.localStorage.getItem(PLANNING_TIME_STORAGE_KEY));
@@ -102,6 +118,7 @@ export default function MobileApp() {
   const hasExistingProfile = hasAnySavedProfileSignal(userProfile);
   const pantryItemCount = userProfile.pantryIngredients.length;
   const hasPantryItems = pantryItemCount > 0;
+  const planningPantryCountLabel = getPlanningPantryCountLabel(pantryItemCount);
   const planningPantryStatusCopy = getPlanningPantryStatusCopy(pantryItemCount);
   const feedbackCurrentPage = useMemo(() => {
     if (currentPhase === 'settings') return `/app-settings-${settingsSection}`;
@@ -474,8 +491,17 @@ export default function MobileApp() {
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
           </h2>
+          {/* design:tone-override — Planning status emphasizes only the live pantry fact in coral per Phase 3.1. */}
           <p className="planning-choice-copy max-w-sm">
-            {planningPantryStatusCopy}
+            {hasPantryItems ? (
+              <>
+                Right now I see <span className="planning-pantry-status-emphasis">{planningPantryCountLabel}</span> we can work with.
+              </>
+            ) : (
+              <>
+                Your pantry is <span className="planning-pantry-status-emphasis">empty</span>. Please add or scan more items.
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -521,9 +547,9 @@ export default function MobileApp() {
             <span className="slop-emoji text-5xl leading-none">🥣</span>
           </span>
           <span className="min-w-0 flex-1 text-left">
-            <span className="planning-choice-title">Slop Bowl</span>
-            <span className="planning-choice-copy">
-              Randomly make me something from the chaos.
+            <span className="planning-choice-title italic">Slop It Up</span>
+            <span className="planning-choice-copy italic">
+              {slopItUpPlanningCopy}
             </span>
           </span>
           <span className="planning-choice-arrow planning-choice-arrow-secondary" aria-hidden="true">

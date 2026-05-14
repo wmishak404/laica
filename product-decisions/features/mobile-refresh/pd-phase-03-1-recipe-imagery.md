@@ -34,6 +34,7 @@ Phase 3 reserves generated-image slots now:
 - Rework Phase 3 visual look and feel as one coherent pass, not as isolated sticker/font/color/card patches.
 - Improve whitespace, card/object grammar, typography consistency, Slop Bowl humor treatment, Ticket Pass hierarchy, Prep Tray image layout, and bottom nav fit.
 - Include the accepted Slop It Up planning-card title and load-time rotating supporting-copy treatment as part of the Slop Bowl humor pass.
+- Highlight the dynamic pantry-count phrase in the Planning entry pantry status line, such as `17 pantry items`, `1 pantry item`, or future `pantry ingredients` wording variants, in the same coral used by the Planning card titles/copy emphasis. Keep the rest of the sentence neutral and do not change the empty-Pantry guard behavior.
 - Review the documented Phase 3 drift inventory before deciding Phase 3.1 is visually ready.
 - Mark each drift as fixed, accepted, or deferred with owner/scope before Phase 3.1 closes.
 - Compare Planning entry, Chef It Up time, Cuisine, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav against current docs, mockups, and Wilson's Replit feedback.
@@ -53,18 +54,18 @@ Wilson clarified that the Planning choice screen should sharpen the contrast bet
 
 The accepted Planning card title for the Slop Bowl path is **Slop It Up**. This is a front-door label for the Planning choice card, not a global feature rename. The underlying feature remains **Slop Bowl** in flow names, recipe language, backend/API contracts, sparse-pantry guard copy, durable product docs, and other places where the app is referring to the generated bowl concept itself.
 
-The Slop It Up card should use one approved supporting-copy line chosen at page load or refresh. It should remain stable while the page is open so the card does not animate or distract while the user is reading. The supporting copy should be italicized on the Slop It Up card only, giving the card a slightly different voice from Chef It Up while preserving the same planning-card title system.
+The Slop It Up card should use one approved supporting-copy line chosen at page load or refresh. It should remain stable while the page is open so the card does not animate or distract while the user is reading. The title and supporting copy should be italicized on the Slop It Up card only, giving the card a slightly different voice from Chef It Up while preserving the same planning-card title system.
 
 ```yaml
 slopItUpPlanningCard:
   scope: phase-3-1
-  implementationStatus: planned
+  implementationStatus: implemented
   cardTitle: "Slop It Up"
   featureNameRemains: "Slop Bowl"
   copySelection: "random-on-page-load"
   copyStability: "stable-during-mounted-session"
   typography:
-    title: "same planning-card title system as Chef It Up"
+    title: "same planning-card title system as Chef It Up, italic only on Slop It Up card"
     supportingCopy: "italic only on Slop It Up card"
   supportingCopyOptions:
     - "We'll turn your ingredients into a Slop Bowl."
@@ -97,16 +98,35 @@ Current surface notes:
 Accepted implementation slices:
 
 1. Kickoff/audit docs only: correct stale agenda references, record the current surface audit, accepted slices, and first UI slice. No runtime code in this PR.
-2. Planning entry copy/title slice: change only the Slop path front-door title to **Slop It Up**, choose one approved supporting line at mount/page load, keep it stable while mounted, italicize only that supporting line, and keep the underlying **Slop Bowl** feature name everywhere else.
-3. Planning entry visual-fit slice: if the copy/title slice exposes spacing or hierarchy drift, adjust card whitespace/title/copy fit as a narrow follow-up with screenshot/computed-style evidence. Avoid adding banners, stickers, new fonts, or a new label system.
-4. Pantry-confirmation visual-alignment slice: compare Chef It Up Phase 3.2 staples against Slop Bowl pantry check and align chip/row grammar where behavior overlaps. Preserve Slop Bowl behavior unless the phase record is explicitly amended.
-5. Ticket Pass / Prep Tray facelift slice: refine ticket-stack density, title hierarchy, placeholder framing, and Prep Tray image layout before adding any image generation path.
-6. Async imagery slice: after the Ticket Pass remains usable with placeholders, add generated or illustrated imagery hydration into existing `imageUrl` slots, with caching and non-blocking fallback for slow/failing/moderated/missing images.
-7. Closeout validation slice: run the required visual review across Planning entry, Chef It Up time, Cuisine, staples, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav; update the drift table with fixed/accepted/deferred status before Phase 3.1 closes.
+2. Planning entry copy/title slice: change only the Slop path front-door title to **Slop It Up**, choose one approved supporting line at mount/page load, keep it stable while mounted, italicize the Slop It Up title and supporting line, and keep the underlying **Slop Bowl** feature name everywhere else.
+3. Planning entry pantry-count emphasis slice: highlight only the dynamic count phrase in the status line (`17 pantry items`, `1 pantry item`, or future ingredient-wording variants) in Planning coral, keeping the sentence structure and empty-Pantry guard behavior unchanged.
+4. Planning entry visual-fit slice: if the copy/title slice exposes spacing or hierarchy drift, adjust card whitespace/title/copy fit as a narrow follow-up with screenshot/computed-style evidence. Avoid adding banners, stickers, new fonts, or a new label system.
+5. Pantry-confirmation visual-alignment slice: compare Chef It Up Phase 3.2 staples against Slop Bowl pantry check and align chip/row grammar where behavior overlaps. Preserve Slop Bowl behavior unless the phase record is explicitly amended.
+6. Ticket Pass / Prep Tray facelift slice: refine ticket-stack density, title hierarchy, placeholder framing, and Prep Tray image layout before adding any image generation path.
+7. Async imagery slice: after the Ticket Pass remains usable with placeholders, add generated or illustrated imagery hydration into existing `imageUrl` slots, with caching and non-blocking fallback for slow/failing/moderated/missing images.
+8. Closeout validation slice: run the required visual review across Planning entry, Chef It Up time, Cuisine, staples, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav; update the drift table with fixed/accepted/deferred status before Phase 3.1 closes.
 
 First recommended UI slice: implement slice 2 only. It is the smallest user-visible Phase 3.1 step, has a clear accepted copy contract, does not require service-backed imagery, and creates a focused screenshot target for the broader Planning-entry facelift.
 
 Kickoff merge signal: PR #69 merged this audit and slice plan into `main` as `d6e422e`.
+
+## 2026-05-14 - Planning Entry Copy Slice Implemented
+
+Codex implemented the first runtime slice on `codex/mobile-refresh-phase-3-1-planning-copy`: the Planning entry now shows **Slop It Up** as the Slop Bowl path's front-door title, selects one approved supporting line when the app component mounts, keeps that line stable while mounted, and italicizes the Slop It Up title plus supporting line. The underlying feature path, component names, route state, tests, and Slop Bowl flow language still use **Slop Bowl**.
+
+Wilson validated the original 1-7 Replit checklist at `5412c3e3b8bbce3f3b8574be8b7ddc0b2142dc50`, then requested the small title-italic follow-up. Wilson then confirmed the latest runtime head `39e4a361fb16a22f63638759a801435a5b00715b` looks italicized and good in Replit.
+
+Wilson also requested one deferred Planning-entry follow-up: make the dynamic pantry-count phrase in the status line (`17 pantry items`, `1 pantry item`, or future `pantry ingredients` variants) coral to match the planning emphasis color. This is now Phase 3.1 scope, but it was intentionally not implemented in the copy/title slice.
+
+This slice intentionally did not expand into broader Phase 3.1 facelift, pantry-check alignment, Ticket Pass / Prep Tray polish, or imagery work. No local card spacing/CSS change was added because the new title is shorter than the previous `Slop Bowl` title and the approved supporting-copy options fit the existing card copy pattern. Authenticated browser visual validation remains a Replit/manual validation item before Phase 3.1 closeout.
+
+## 2026-05-14 - Planning Pantry-Count Coral Emphasis Implemented
+
+Codex implemented the next narrow Planning-entry slice on `codex/mobile-refresh-phase-3-1-pantry-count-coral`, stacked from PR #71's `codex/mobile-refresh-phase-3-1-planning-copy` head. The status line keeps the same sentence and empty-Pantry guard behavior, but highlights only the key pantry fact in Planning coral: `17 pantry items`, `1 pantry item`, future count-label variants, or the word `empty` in the empty-Pantry state.
+
+The implementation adds a small `getPlanningPantryCountLabel` helper so the full status sentence and highlighted count phrase share pluralization logic, renders only the key pantry fact inside `.planning-pantry-status-emphasis`, and keeps the surrounding helper sentence neutral. This slice intentionally did not touch broader Planning card/whitespace grammar, Slop Bowl pantry-check alignment, Ticket Pass / Prep Tray, or imagery.
+
+Wilson validated the branch in Replit at runtime SHA `ed74a18b074cfec3917788c6ce2b7255d843d513`: the empty-Pantry state now shows `empty` with the coral emphasis, and `1`, `17`, and `26` pantry ingredient count states also show correctly.
 
 ## Phase 3 Design Drift Inventory
 
@@ -126,6 +146,7 @@ Kickoff merge signal: PR #69 merged this audit and slice plan into `main` as `d6
 | Slop Bowl pantry-check visuals may drift from Chef It Up staple-check visuals | Slop Bowl already has removable pantry chips/list context, while Chef It Up Phase 3.2 now has the preferred Added shelf / large row / visible remove-affordance direction | The related pantry-confirmation surfaces were built in different passes and should not silently diverge during the facelift | Deferred to Phase 3.1 | Compare Slop Bowl pantry-check menu against Chef It Up Phase 3.2 and align visual grammar where behavior overlaps: pending/removable additions are coral with `+` + `X`; saved pantry facts are green check-only chips with no visible `Saved` text and tap-to-explain Pantry Settings removal. Preserve Slop Bowl behavior unless deliberately changed |
 | Recipe imagery disappeared | No stable place existed for future generated images to land | "Generated recipe imagery deferred" was interpreted as "no image slot needed" | Fixed with placeholders | Phase 3.1 owns real imagery, async hydration, caching, and failure fallback |
 | Planning entry card/whitespace grammar still feels off | The choice cards use too much framed-card language and not enough modern app whitespace | Phase 3 iterated individual concerns instead of stepping back into one coherent facelift | Deferred to Phase 3.1 | Rework Planning entry as a whole surface, with whitespace/card grammar reviewed before implementation |
+| Planning pantry-count status lacks emphasis | The dynamic inventory fact in `Right now I see 17 pantry items we can work with.` and the empty-Pantry state read like the surrounding helper sentence, even though they are the most useful status details | Phase 3 added the empty-Pantry blocker/status line for behavior, then deferred final visual treatment to Phase 3.1 | Fixed in the pantry-count coral slice | Keep only the key pantry fact (`17 pantry items`, `1 pantry item`, future `pantry ingredients` wording variants, or `empty`) in Planning coral. Keep the rest of the status sentence neutral and preserve empty-Pantry guard behavior |
 | Bottom nav showed Cook as selected status | Planning made the chef icon read like a current-state badge | Active tab logic conflicted with PD-009's neutral access-surface direction | Fixed | Bottom nav stays neutral; screen content communicates process status |
 | Slop Bowl sticker/banner drift | `LESS BRAIN POWER` / `NO RULES` / `MAKE GOOD SLOP` kept feeling like extra design pasted onto the card | The implementation kept solving label feedback by adding new label treatments instead of returning to the mockup's simpler card grammar | Fixed by removing the rotating label/banner from the choice card | Do not add a new label system unless the mockup explicitly needs it; let humor live in copy and art first |
 | Planning typography hierarchy split | The page headline, `Chef It Up` / `Slop Bowl` card titles, and short taglines felt like unrelated app surfaces | Design guidance allowed mood-based font swaps and treated individual complaints as permission to change the type system | Fixed by resetting Phase 3 Planning to the generated mockup's `Nunito`-led type grammar | Preserve the mockup's type grammar first; use size, weight, shade, and layout before introducing another font |
@@ -158,7 +179,8 @@ Recipe suggestions must appear as soon as the recipe response is ready. Image ge
 - Every known Phase 3 drift row is marked fixed, accepted, or deferred with owner/scope.
 - Phase 3.1 visual review covers Planning entry, Chef It Up time, Cuisine, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav against current docs/mockups and current Phase 3 screenshots.
 - Phase 3.1 docs record the accepted facelift direction before implementation starts.
-- Planning entry shows **Slop It Up** for the Slop Bowl choice with one approved italic supporting line, while Chef It Up remains unchanged in its refined, collaborative register.
+- Planning entry shows italicized **Slop It Up** for the Slop Bowl choice with one approved italic supporting line, while Chef It Up remains unchanged in its refined, collaborative register.
+- Planning entry highlights only the key pantry fact in the status line with Planning coral while preserving empty-Pantry guard behavior.
 - Ticket Pass and Prep Tray image placeholders are replaced by real imagery when `imageUrl` is available.
 - Placeholders remain polished and stable when imagery is unavailable or still loading.
 - The layout does not shift when images hydrate.
