@@ -92,7 +92,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | Kickoff / audit ready | TBD | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots; first recommended UI slice is the Planning entry Slop It Up title/supporting-copy treatment |
+| Phase 3.1 | Kickoff / audit ready | [#69](https://github.com/wmishak404/laica/pull/69) / `codex/mobile-refresh-phase-3-1-kickoff` | Design facelift, Slop It Up card-title/copy treatment, recipe imagery/illustration direction, and async image hydration into Phase 3 slots; first recommended UI slice is the Planning entry Slop It Up title/supporting-copy treatment |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -284,3 +284,7 @@ PR #57 merged into `main` as `8654d04` and made the corrected routing rule durab
 ### 2026-05-13 - EFF-013 and EFF-015 resolved
 
 PR #62 merged pantry manual-entry spell correction as `8de1e88`, and PR #63 closed EFF-013 as `12467f8`. PR #64 merged UI-governance enforcement as `e4d5cfe`, and PR #65 closed EFF-015 as `c969fbd`. The active Effort read list no longer includes EFF-013 or EFF-015; Mobile Refresh-adjacent active Effort work is EFF-014 unless the task touches DB/schema workflow EFF-010. EFF-017 remains deferred until the Phase 4 harness pilot.
+
+### 2026-05-14 - Phase 3.1 kickoff audit merged
+
+PR #69 merged the Phase 3.1 kickoff/audit docs into `main` as `d6e422e`. Phase 3.1 remains the next default agenda item, still as a soft sequence before Phase 4 rather than a hard blocker. The first recommended runtime slice is the Planning entry **Slop It Up** title and stable italic supporting-copy treatment; broader UI facelift, Slop Bowl pantry-check visual alignment, Ticket Pass/Prep Tray polish, and async imagery stay separate slices.
