@@ -135,12 +135,15 @@ export interface EntryMergeResult {
   items: string[];
   added: string[];
   duplicateCount: number;
+  foundAgain: string[];
 }
 
 export function mergeUniqueEntriesWithMetadata(existing: string[], incoming: string[]): EntryMergeResult {
-  const seen = new Set<string>();
+  const seen = new Map<string, { entry: string; source: 'existing' | 'incoming' }>();
   const items: string[] = [];
   const added: string[] = [];
+  const foundAgain: string[] = [];
+  const foundAgainKeys = new Set<string>();
   let duplicateCount = 0;
 
   existing.forEach((rawEntry) => {
@@ -151,7 +154,7 @@ export function mergeUniqueEntriesWithMetadata(existing: string[], incoming: str
       return;
     }
 
-    seen.add(key);
+    seen.set(key, { entry, source: 'existing' });
     items.push(entry);
   });
 
@@ -163,15 +166,20 @@ export function mergeUniqueEntriesWithMetadata(existing: string[], incoming: str
       return;
     }
 
-    if (seen.has(key)) {
+    const existingMatch = seen.get(key);
+    if (existingMatch) {
       duplicateCount += 1;
+      if (existingMatch.source === 'existing' && !foundAgainKeys.has(key)) {
+        foundAgainKeys.add(key);
+        foundAgain.push(existingMatch.entry);
+      }
       return;
     }
 
-    seen.add(key);
+    seen.set(key, { entry, source: 'incoming' });
     items.push(entry);
     added.push(entry);
   });
 
-  return { items, added, duplicateCount };
+  return { items, added, duplicateCount, foundAgain };
 }

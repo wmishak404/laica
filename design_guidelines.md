@@ -111,6 +111,7 @@ Before a mobile-refresh phase merges:
 - Compact cards stay disciplined; larger radii belong on intentional feature objects.
 - Buttons have clear command roles; the primary CTA is visually obvious without explanatory copy.
 - Pantry/status chips should use icon and color, not extra status words, when the state is otherwise obvious. Current Phase 3.2 pantry-confirmation grammar: pending/removable additions are coral chips with a `+` and right-side `X`; saved pantry facts are green chips with a checkmark only and no visible `Saved` label. If a saved fact is tapped where deletion would be ambiguous, reveal brief inline direction to Pantry Settings instead of deleting it in place.
+- Setup and returning Settings Pantry/Kitchen inventory review uses the same state grammar: saved items are green checked chips, recently-added manual/scan items are coral `+` chips with an `X`, and found-again scan matches remain green checked chips with a quiet latest-scan emphasis plus scan outcome copy. This state is client-side and clears on setup Continue or successful Settings save.
 - Authenticated app pages do not carry a persistent top header (per PD-009). Account, profile, and sign-out access live in the bottom menu/account surface.
 - Setup progress uses one clear top progress treatment (`1/N` bar style), not stacked brand chips + step pills + section labels.
 - Camera utility controls inside the camera object: large circular capture, smaller translucent circular toggles for camera on/off and tips. No flashlight-like icons for non-flashlight tips. Capture is a clean shutter without a camera glyph.
@@ -160,7 +161,7 @@ These are the unresolved identity questions. Edit this section inline as Phase 3
 4. **Playfulness by surface.** How playful Laica should feel by surface type (setup vs Planning vs Cooking vs Settings vs errors vs empty states).
 5. **Imagery approach.** Current signal: Ticket Pass reserves an image slot with a Phase 3 placeholder; actual recipe illustration/generated imagery belongs to Phase 3.1 and should be async/cached if generated.
 6. **Mockup hardness.** Which mockup elements are hard requirements vs directional examples.
-7. **Future scan-session chip states.** How `new from latest scan` / `already saved/found again` / normal saved inventory differentiate visually without creating a noisy third design system. Product work in [EFF-014](efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
+7. **Post-cook scan-session chip states.** Setup/Settings now use the accepted green saved/found-again and coral recently-added inventory chip grammar. Future Phase 5 post-cook rescan labels (`Already saved`, `Found again`, `New`) should build on that grammar without reintroducing a separate chip language.
 
 ## Anti-patterns
 

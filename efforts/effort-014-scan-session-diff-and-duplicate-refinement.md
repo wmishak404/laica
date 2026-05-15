@@ -1,10 +1,10 @@
 # EFF-014 — Scan session diff and duplicate refinement
 
 **Former ID:** EPIC-014
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
-**Updated:** 2026-05-12
+**Updated:** 2026-05-14
 
 ## One-line summary
 
@@ -53,15 +53,27 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
   - a quieter overlap state for items already saved/found again
   - normal chips for older saved inventory
 - The UX should invite users to resolve duplicates without forcing a complex review workflow during first-time setup.
+- The 2026-05-14 Phase 3.1 implementation branch accepted the existing Setup/Settings scope:
+  - saved Pantry/Kitchen items use green checked chips
+  - recently added manual/scan items use coral `+` chips with an `X`
+  - found-again scan matches stay in the same list as quiet green checked chips with latest-scan emphasis and toast copy
+  - recent/found-again state is client-side only and clears on Settings save or setup Continue
+  - duplicate-like cleanup stays conservative: users remove latest-added variants; Laica does not infer semantic duplicates or auto-collapse labels
 
 ## Open questions
 
-1. Should latest-scan indicators clear when the user leaves the step, taps Next, saves profile, or manually dismisses them?
-2. Should "already saved" overlap items appear in the list, in a separate scan summary, or only in toast copy?
-3. Should likely duplicates be suggested visually, or should Laica avoid guessing until a stronger canonicalization model exists?
-4. Is duplicate cleanup needed during first-time setup, Settings, post-cook cleanup, or all three at once?
-5. Should scan-session state be purely client-side, or should any part of it persist for later review?
-6. What chip color/state works best with the Phase 2.1 Pantry/Kitchen visual system without overloading users?
+Resolved for Setup/Settings by the 2026-05-14 Phase 3.1 implementation branch:
+
+1. Latest-scan indicators clear on setup Continue and successful Settings save.
+2. Already-saved overlap appears in the same list as a found-again chip state plus toast copy.
+3. Laica does not guess semantic duplicates in this slice; cleanup happens by making latest additions easy to remove.
+4. First-time setup and returning Settings are covered together for Pantry and Kitchen.
+5. Scan-session state is purely client-side.
+6. The accepted chip grammar is green checked saved/found-again items and coral `+` recently-added items.
+
+Still deferred outside this Effort's Setup/Settings closeout:
+
+- Phase 5 post-cook rescan labels (`Already saved`, `Found again`, `New`) remain owned by the accepted Phase 5 record and its future implementation branch.
 
 ## Agent checklist — when to read this Effort
 
@@ -116,3 +128,9 @@ Keep this as an active Effort. If a future Mobile Refresh phase or slice explici
 ### 2026-05-12 — Weekly hygiene audit
 
 Rechecked against INIT-001, Phase 2.1/2.2 scan deferrals, Phase 3.1 visual alignment scope, Phase 5 post-cook rescan labels, PD-011, and the Mobile Refresh design-language records. The work is still unshipped and cross-surface: Phase 5 owns post-cook rescan labels, but not setup/Settings latest-scan review or duplicate-like cleanup as a whole. Keep this as an active standalone Effort until a specific unclosed phase or implementation slice explicitly accepts that broader ownership.
+
+### 2026-05-14 — Setup/Settings implementation branch
+
+Codex opened draft PR #75 from `codex/mobile-refresh-phase-3-1-inventory-chip-states` after PR #73 merged. The earlier stacked PR #74 auto-closed when the lower-stack base branch was deleted. The replacement branch implements the accepted Setup/Settings scope for this Effort: shared green/coral inventory review chips, client-only recent/found-again state, found-again duplicate metadata from normalized scan matches, save/continue clearing, conservative duplicate cleanup through removable latest-added chips, and focused unit coverage. Local validation passed for the focused unit suite, `npm run check`, `npm run build`, `git diff --check`, and a bounded dotenvx dev-server smoke.
+
+Keep the Effort `In Progress` until the stacked branch merges and Wilson completes the printed Replit/mobile validation checklist. After that closeout can flip this file to `Resolved`, remove it from the active read list, and leave Phase 5 post-cook rescan labels in the Phase 5 record rather than keeping EFF-014 open for future Phase 5 work.
