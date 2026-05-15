@@ -493,4 +493,55 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.getByText('Spinach Egg Skillet')).toBeTruthy();
     expect(screen.getByText('Rice Frittata')).toBeTruthy();
   });
+
+  it('keeps recipe selection in order and leaves split recipe names display-only', async () => {
+    fetchPantryRecipesMock.mockResolvedValue({
+      recipes: [
+        {
+          ...recipeResponse.recipes[0],
+          recipeName: 'Pantry Rice Bowl: Lemon Greens',
+        },
+        {
+          ...recipeResponse.recipes[1],
+          recipeName: 'Spinach Egg Skillet (with lemon)',
+        },
+        recipeResponse.recipes[2],
+      ],
+    });
+    const { onMealSelected } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    const initialTickets = screen.getAllByRole('button', { name: /ticket #/i });
+    expect(initialTickets.map((ticket) => ticket.textContent)).toEqual([
+      expect.stringContaining('Ticket #1'),
+      expect.stringContaining('Ticket #2'),
+      expect.stringContaining('Ticket #3'),
+    ]);
+    expect(initialTickets[0].getAttribute('data-selected')).toBe('true');
+
+    fireEvent.click(initialTickets[1]);
+
+    const updatedTickets = screen.getAllByRole('button', { name: /ticket #/i });
+    expect(updatedTickets.map((ticket) => ticket.textContent)).toEqual([
+      expect.stringContaining('Ticket #1'),
+      expect.stringContaining('Ticket #2'),
+      expect.stringContaining('Ticket #3'),
+    ]);
+    expect(updatedTickets[1].getAttribute('data-selected')).toBe('true');
+    expect(within(updatedTickets[1]).getByText('Spinach Egg Skillet').className).toContain('planning-ticket-title-main');
+    expect(within(updatedTickets[1]).getByText('with lemon').className).toContain('planning-ticket-title-detail');
+
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+    expect(screen.getByRole('heading', { name: /spinach egg skillet with lemon/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /cook this/i }));
+    expect(onMealSelected).toHaveBeenCalledWith(
+      expect.objectContaining({ recipeName: 'Spinach Egg Skillet (with lemon)' }),
+      'now',
+    );
+  });
 });

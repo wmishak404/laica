@@ -894,18 +894,18 @@ export default function MealPlanning({
     </span>
   );
 
-  const renderRecipeTicketTitle = (recipeName: string) => {
+  const renderRecipeTitle = (recipeName: string, className = 'planning-ticket-title') => {
     const { main, detail } = splitRecipeName(recipeName);
 
     return (
-      <span className="planning-ticket-title">
+      <span className={className}>
         <span className="planning-ticket-title-main">{main}</span>
         {detail && <span className="planning-ticket-title-detail">{detail}</span>}
       </span>
     );
   };
 
-  const renderTicket = (recipe: RecipeRecommendation, isLarge = false) => {
+  const renderTicket = (recipe: RecipeRecommendation, index: number, isLarge = false) => {
     const selected = selectedMeal?.id === recipe.id;
 
     return (
@@ -918,7 +918,13 @@ export default function MealPlanning({
         onClick={() => setSelectedMeal(recipe)}
       >
         <span className="planning-ticket-rip" aria-hidden="true" />
-        {renderRecipeTicketTitle(recipe.recipeName)}
+        <span className="planning-ticket-heading">
+          <span className="planning-ticket-kicker">
+            <ChefHat className="h-4 w-4" aria-hidden="true" />
+            Ticket #{index + 1}
+          </span>
+          {renderRecipeTitle(recipe.recipeName)}
+        </span>
         {renderRecipeImageSlot(recipe)}
         <span className="planning-ticket-meta">
           <span><Clock className="h-4 w-4" /> {recipe.cookTime} min</span>
@@ -966,7 +972,7 @@ export default function MealPlanning({
         </div>
 
         <div className="planning-ticket-stack mt-7">
-          {visibleRecommendations.map((recipe) => renderTicket(recipe, recipe.id === selectedMealId))}
+          {visibleRecommendations.map((recipe, index) => renderTicket(recipe, index, recipe.id === selectedMealId))}
         </div>
 
         <div className="mt-6 space-y-3">
@@ -1028,15 +1034,23 @@ export default function MealPlanning({
             {renderRecipeImageSlot(selectedMeal, 'prep')}
           </div>
           <div className="planning-prep-body">
-            <h1 className="planning-display text-3xl font-extrabold leading-tight">{selectedMeal.recipeName}</h1>
-            <p className="planning-ticket-meta mt-3">
-              <span><Clock className="h-4 w-4" /> {selectedMeal.cookTime} min</span>
-              <span>{selectedMeal.difficulty}</span>
-            </p>
+            <span className="planning-prep-kicker">
+              <ChefHat className="h-4 w-4" aria-hidden="true" />
+              Ready ticket
+            </span>
+            <h1 className="planning-display planning-prep-title">
+              {renderRecipeTitle(selectedMeal.recipeName, 'planning-ticket-title planning-prep-title-text')}
+            </h1>
+            <div className="planning-prep-summary">
+              <p className="planning-ticket-meta planning-prep-meta">
+                <span><Clock className="h-4 w-4" /> {selectedMeal.cookTime} min</span>
+                <span>{selectedMeal.difficulty}</span>
+              </p>
 
-            {selectedMeal.description && (
-              <p className="planning-copy mt-4 text-sm font-bold">{selectedMeal.description}</p>
-            )}
+              {selectedMeal.description && (
+                <p className="planning-copy planning-prep-description">{selectedMeal.description}</p>
+              )}
+            </div>
 
             <div className="planning-prep-section mt-5">
               <p className="planning-prep-label">Use these</p>
