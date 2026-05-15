@@ -1,7 +1,7 @@
 # EFF-014 — Scan session diff and duplicate refinement
 
 **Former ID:** EPIC-014
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-30
 **Updated:** 2026-05-14
@@ -26,10 +26,9 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
 
 ### In scope
 
-- Pantry and Kitchen scan result review surfaces:
+- Existing Pantry and Kitchen scan result review surfaces:
   - Phase 2 setup Pantry/Kitchen lists
   - Settings Pantry/Kitchen scan/edit lists
-  - Future post-cook cleanup or rescan surfaces
 - Visual indicators for latest-scan additions, already-saved/overlap labels, and user-reviewed existing items.
 - Lightweight duplicate cleanup affordances after a scan, such as marking likely duplicates, removing a duplicate chip, or reviewing "found again" items.
 - A clear UX rule for how long "new from latest scan" state lasts: current scan session, current page session, or until the user reviews/continues.
@@ -42,6 +41,7 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
 - Model-side inventory memory beyond the current user's saved list unless a later design explicitly chooses it.
 - Automatic spell correction for pantry manual entry; that is tracked in [EFF-013](effort-013-pantry-manual-entry-spell-correction.md).
 - DB schema changes unless a future implementation proves scan-session state must persist beyond the current UI session.
+- Future Phase 5 post-cook cleanup or rescan surfaces; Phase 5 owns those labels and implementation details.
 
 ## Decisions made so far
 
@@ -62,7 +62,7 @@ This is bigger than exact dedupe. It touches inventory review UX, scan-session m
 
 ## Open questions
 
-Resolved for Setup/Settings by the 2026-05-14 Phase 3.1 implementation branch:
+Resolved for Setup/Settings by merged PR #75:
 
 1. Latest-scan indicators clear on setup Continue and successful Settings save.
 2. Already-saved overlap appears in the same list as a found-again chip state plus toast copy.
@@ -71,13 +71,13 @@ Resolved for Setup/Settings by the 2026-05-14 Phase 3.1 implementation branch:
 5. Scan-session state is purely client-side.
 6. The accepted chip grammar is green checked saved/found-again items and coral `+` recently-added items.
 
-Still deferred outside this Effort's Setup/Settings closeout:
+Deferred outside this Effort's Setup/Settings closeout:
 
 - Phase 5 post-cook rescan labels (`Already saved`, `Found again`, `New`) remain owned by the accepted Phase 5 record and its future implementation branch.
 
-## Agent checklist — when to read this Effort
+## Agent checklist — historical context
 
-Read EFF-014 before starting any of the following:
+This Effort is resolved and should not be part of the active read list. Cite it as historical context when changing any of the following:
 
 - [ ] Changing Pantry/Kitchen scan result chip states or list review UX
 - [ ] Adding "new", "found again", "already saved", or "latest scan" visual indicators
@@ -86,7 +86,7 @@ Read EFF-014 before starting any of the following:
 - [ ] Implementing post-cook cleanup/rescan inventory review
 - [ ] Changing how setup or Settings communicate what a scan added versus skipped
 
-When this Effort applies, also cite:
+When this historical context applies, also cite:
 
 - [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) for validation and acceptance criteria
 - [EFF-007](effort-007-vision-scan-no-detection-feedback.md) for scan outcome messaging
@@ -133,4 +133,8 @@ Rechecked against INIT-001, Phase 2.1/2.2 scan deferrals, Phase 3.1 visual align
 
 Codex opened draft PR #75 from `codex/mobile-refresh-phase-3-1-inventory-chip-states` after PR #73 merged. The earlier stacked PR #74 auto-closed when the lower-stack base branch was deleted. The replacement branch implements the accepted Setup/Settings scope for this Effort: shared green/coral inventory review chips, client-only recent/found-again state, found-again duplicate metadata from normalized scan matches, save/continue clearing, conservative duplicate cleanup through removable latest-added chips, and focused unit coverage. Local validation passed for the focused unit suite, `npm run check`, `npm run build`, `git diff --check`, and a bounded dotenvx dev-server smoke.
 
-Keep the Effort `In Progress` until the stacked branch merges and Wilson completes the printed Replit/mobile validation checklist. After that closeout can flip this file to `Resolved`, remove it from the active read list, and leave Phase 5 post-cook rescan labels in the Phase 5 record rather than keeping EFF-014 open for future Phase 5 work.
+### 2026-05-14 — Resolved by PR #75
+
+PR #75 merged into `main` as `c82433d9089ca4e9cc86b5d5e77322981333eba3` after Wilson confirmed Replit was on validated head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1` and checked the Settings Pantry minimum path: saved chips stayed green, new items appeared coral, and Save turned recent chips green. Earlier screenshots on the same branch family validated Settings Kitchen, Slop Bowl parity, and first-time setup Pantry/Kitchen review states. The only changes between that earlier visual pass and the validated head were the PR #73 rebase/main alignment and metadata/docs updates, so no additional runtime behavior was introduced after the final Replit SHA.
+
+This satisfies the Setup/Settings resolution criteria for scan-session diff and duplicate refinement: latest additions are coral `+` chips, saved/found-again items are green checked chips, duplicate scan matches do not add duplicate rows, users can remove latest-added variants, state clears on setup Continue or successful Settings save, and unit coverage exercises the parsing/review-state paths. EFF-014 is now resolved and removed from the active read list. Phase 5 post-cook rescan labels remain owned by the Phase 5 record rather than keeping this Effort open.
