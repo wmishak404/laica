@@ -160,6 +160,22 @@ Authenticated Replit/browser review on pushed runtime head `7e6c8174878e76b01807
 
 Keep PR #78 draft and unmerged. The next runtime slice on this branch should be Ticket Pass-only hierarchy/object-language rework while preserving the accepted selected-in-place behavior, display-only recipe-name split, existing image slots/placeholders, and the Prep Tray placeholder/section improvements. The live recipe sample also did not happen to include a parenthetical or colon-separated title, so that edge remains targeted-unit-test verified rather than live-smoked in Replit.
 
+## 2026-05-15 - Ticket Pass Hierarchy/Object-Language Rework Implemented; Replit Review Pending
+
+Codex followed the validation correction with a second-pass Ticket Pass / Prep Tray runtime implementation on the same PR #78 branch family. This pass stops treating the screen as "large centered card plus smaller cards" and instead rebuilds the surface as one physical ticket system:
+
+- Ticket Pass now uses a shared pass rail/backing, one lifted featured paper ticket in the selected slot, and clipped compact strips for the non-selected tickets.
+- Selection still expands in place without reordering; the generated order remains 1-2-3 no matter which ticket is selected.
+- Time/difficulty now uses a consistent two-line stack in featured tickets, compact strips, and the Prep Tray header.
+- Empty image slots now choose deterministic bowl/noodles/skillet placeholder art from recipe text and keep the same slot contract for future `imageUrl` hydration.
+- Prep Tray now carries the selected ticket forward as a taped ticket-on-tray header rather than a generic separate card.
+
+This pass intentionally does **not** add async/generated imagery, caching, backend/API changes, Planning-entry changes, Slop Bowl pantry-check changes, Setup/Settings inventory work, or broader Phase 4/5 scope. Stored recipe names still remain unchanged, and long parenthetical/colon display splitting remains display-only.
+
+Local validation is green on the implementation pass: `npx vitest run tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check`. The focused tests now also assert selection-driven featured/compact state, deterministic bowl/noodles/skillet placeholder variants, and `imageUrl` suppression of placeholder art.
+
+Authenticated Replit/manual review has **not** been rerun yet on this new head. The local Codex session could start the app server, but the in-app browser surface was unavailable (`agent.browsers.list()` returned `[]`), so the new layout still needs the required Replit side-by-side comparison against `phase-03-ticket-pass.png` before PR #78 can leave draft.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |
@@ -170,7 +186,7 @@ Keep PR #78 draft and unmerged. The next runtime slice on this branch should be 
 | Cuisine list looked capped at six | The user could infer only six cuisines existed | Implementation overfit the visible mockup examples as the full data set | Fixed | Treat mockups as visible slices when content naturally exceeds one screen |
 | `No preference` was not default | The default path required an unnecessary tap | Docs said exclusive anchor option but not initial/default state | Fixed | Document default paths separately from option exclusivity and placement |
 | Suggestion copy exposed "three" | UI surfaced the exact generation count as product language | Acceptance criteria required exactly three but did not say the count should stay hidden in copy | Fixed | Keep deterministic constraints in tests/docs; use browsing language in user-facing UI |
-| Ticket Pass looked like generic cards | Suggestions did not carry the mockup's ticket-stack object language enough | Phase 3 said Ticket Pass, but not enough hard requirements for image slot, density, and hierarchy | Not fixed. The first Ticket Pass / Prep Tray polish slice improved labels, row density, selected state, and placeholder framing, but Wilson's side-by-side review still judged Ticket Pass too close to the old centered generic card stack. Selected-in-place orientation remains the accepted deliberate deviation | Do another Ticket Pass-only hierarchy/object-language pass before async imagery work. Change silhouette and scan hierarchy more materially, then re-review against `phase-03-ticket-pass.png` |
+| Ticket Pass looked like generic cards | Suggestions did not carry the mockup's ticket-stack object language enough | Phase 3 said Ticket Pass, but not enough hard requirements for image slot, density, and hierarchy | In progress. The second pass now adds a shared rail/backing, lifted paper-ticket silhouette, clipped compact strips, deterministic placeholder art, and stronger ticket-to-tray continuity while preserving selected-in-place orientation. Replit side-by-side review is still pending, so this drift is not closed yet | Re-run the required Replit/manual comparison against `phase-03-ticket-pass.png`. If the new silhouette still reads generic, iterate again before async imagery work |
 | Ticket Pass selection reordered recipes | Selecting recipe 2 or 3 made the chosen recipe jump to the featured position and moved recipe 1 into the compact list, so users lost their place | The component modeled selection as promotion to a separate featured slot instead of expanding the chosen ticket in the generated order | Fixed as a Phase 3 basic-usability exception | Phase 3.1 can revisit the ticket hierarchy, but must preserve selection orientation unless a replacement pattern is explicitly validated |
 | Recipe names read like one long paragraph | AI-generated names sometimes contain a main dish plus explicit parenthetical or colon-separated detail | The schema stores one recipe-name string and the UI rendered every name as a single large heading | Fixed; Ticket Pass / Prep Tray visual-polish slice extends the same display-only split to the Prep Tray title | Preserve the underlying recipe-name contract and avoid invented subtitles; the live Replit sample used ordinary titles, so long parenthetical/colon fit remains targeted-unit-test verified until a future closeout sample surfaces one |
 | Cuisine-selected recipes overuse optional ingredients | Suggestions felt like they were completing a cuisine with missing staples instead of cooking from the pantry | Older recipe prompt language prioritized cuisine correction and allowed missing ingredients to complete a cuisine | Fixed with Phase 3 staple check, prompt balance, and optional cleanup; needs Replit validation | Decide whether the staple check needs richer UI, pantry confidence, or a pantry-staples profile in Phase 3.1 |
@@ -188,7 +204,7 @@ Keep PR #78 draft and unmerged. The next runtime slice on this branch should be 
 
 - Treat Phase 3.1 as the deliberate design facelift and imagery pass after Phase 3 functional validation, not as more Phase 3 visual iteration.
 - Do one explicit Replit visual review of the drift surfaces before Phase 3.1 closeout: Planning entry, Time, Cuisine, Ticket Pass, Prep Tray, Slop Bowl, and bottom nav.
-- Keep PR #78 draft until Ticket Pass no longer reads like the old centered generic card stack in side-by-side review.
+- Keep PR #78 draft until the new hierarchy/object-language rework clears side-by-side review and no longer reads like the old centered generic card stack.
 - If a new drift is found during Phase 3.1, add it to the table above before deciding whether to patch, accept, or defer.
 - Review nearby mobile-refresh surfaces for typography drift: page titles, card titles, short hero-card taglines, body copy, chips, banners, and CTAs should preserve the generated mockup's type grammar instead of swapping fonts by mood.
 - Plan the facelift before implementing: choose the visual grammar first, then patch the UI. Do not solve the facelift through isolated local tweaks.
@@ -223,6 +239,6 @@ Recipe suggestions must appear as soon as the recipe response is ready. Image ge
 
 ## Open Questions
 
-- The current Ticket Pass stack does **not** carry enough of the `phase-03-ticket-pass.png` object language yet. The next slice should answer what silhouette/hierarchy change is needed to stop it reading as a generic centered card stack while preserving selected-in-place usability.
+- The new local Ticket Pass rework answers the "what silhouette/hierarchy change should we try?" question with shared rail/backing, lifted paper ticket, clipped compact strips, and deterministic placeholder art. The remaining question is whether that runtime head actually clears the visual bar in authenticated Replit/manual side-by-side review or still needs another pass.
 - What visual grammar should Phase 3.1 use for Planning cards and whitespace so the surface feels modern and coherent without drifting from Laica's food-native identity?
 - Which imagery direction best fits Laica's speed and tone: generated recipe image, custom illustration, recipe-type illustration library, or hybrid?
