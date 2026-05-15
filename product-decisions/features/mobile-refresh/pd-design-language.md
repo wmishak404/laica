@@ -300,7 +300,7 @@ Phase 2 is the first active pilot for this design language. Before merge:
 - Chips should look warm, readable, and tokenized.
 - Pantry and Kitchen should share component structure, but Kitchen may shift selected accents toward gray/silver and light wood beige to reflect modern kitchen tools while retaining enough coral to stay within the Laica system.
 - Kitchen-specific action buttons, saved-equipment chips, and review/list states should lean gray/silver where possible so the tool page feels distinct from the warmer pantry page without becoming a separate design system.
-- Setup/Settings scan-review chips use the accepted state grammar from the 2026-05-14 Phase 3.1 branch: saved Pantry/Kitchen items are green checked chips, recently-added manual/scan items are coral `+` chips with an `X`, and found-again scan matches stay in the same list as quiet green checked chips with scan outcome copy. This state is client-side and clears on setup Continue or successful Settings save. Phase 5 post-cook rescan labels remain owned by the Phase 5 record.
+- Setup/Settings scan-review chips use the accepted state grammar from merged Phase 3.1 PR #75: saved Pantry/Kitchen items are green checked chips, recently-added manual/scan items are coral `+` chips with an `X`, and found-again scan matches stay in the same list as quiet green checked chips with scan outcome copy. This state is client-side and clears on setup Continue or successful Settings save. Phase 5 post-cook rescan labels remain owned by the Phase 5 record.
 - `No restrictions` should be visually separated from the rest of the dietary options so users who have nothing to add can choose the default quickly.
 
 ### Phase 2.2 Returning Setup, Settings, And History IA

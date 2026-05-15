@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 3.1 / Phase 4 planning
-**Active PR:** [#75](https://github.com/wmishak404/laica/pull/75) replacement after [#73](https://github.com/wmishak404/laica/pull/73) merged
-**Active branch:** `codex/mobile-refresh-phase-3-1-inventory-chip-states` (stacked on PR #73)
+**Active PR:** [#76](https://github.com/wmishak404/laica/pull/76) docs-only closeout after [#75](https://github.com/wmishak404/laica/pull/75); no runtime PR active
+**Active branch:** `codex/mobile-refresh-inventory-chip-closeout` docs-only closeout; next implementation branch should start fresh from `origin/main`
 
 ## Overview
 
@@ -28,11 +28,11 @@ The original plan spans Phase 0 through Phase 5, with Phase 3.1 added during Pha
 
 Phase 0, Phase 1, Phase 2, Phase 2.1, Phase 2.2, Phase 3, Phase 3.2, and the INIT/process documentation split are merged.
 
-Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Pantry manual-entry spell correction later shipped through EFF-013 / PR #62 and is now resolved. Richer setup/settings scan-review states are now being pulled into Phase 3.1 through the inventory chip-state branch; EFF-014 remains active until that branch merges and Wilson validates the behavior.
+Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Pantry manual-entry spell correction later shipped through EFF-013 / PR #62 and is now resolved. Richer setup/settings scan-review states shipped through Phase 3.1 / PR #75, resolving EFF-014 for existing Setup and returning Settings Pantry/Kitchen review surfaces.
 
 Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Pantry/Kitchen/Profile edits; History is separate cooking memory. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
 
-The next Phase 3.1 consistency slice is `codex/mobile-refresh-phase-3-1-inventory-chip-states`, stacked on PR #73 because the Slop Bowl pantry-chip alignment branch is still open. It pulls the active EFF-014 setup/settings scope into Phase 3.1: saved Pantry/Kitchen items use green checked chips, recently-added manual/scan items use coral `+` chips with an `X`, found-again scan matches get quiet same-list emphasis plus scan copy, and state clears on setup Continue or successful Settings save. EFF-014 remains active until this stacked branch merges and Wilson completes the printed Replit/mobile validation checklist; Phase 5 still owns future post-cook rescan labels.
+The latest Phase 3.1 consistency slices are merged: PR #73 aligned Slop Bowl pantry-check chips with the Chef It Up saved/recent grammar, and PR #75 aligned existing Setup/Settings Pantry/Kitchen inventory review chips with that same language. Saved Pantry/Kitchen items use green checked chips, recently-added manual/scan items use coral `+` chips with an `X`, found-again scan matches get quiet same-list emphasis plus scan copy, and state clears on setup Continue or successful Settings save. EFF-014 is resolved for Setup/Settings; Phase 5 still owns future post-cook rescan labels.
 
 PR #34 merged the process and product-decision taxonomy cleanup. Phase 3 implementation shipped through [PR #38](https://github.com/wmishak404/laica/pull/38), validated at `8a5c3d5` and merged as `f1d17d8`. The Phase 3 generation lock/cancel follow-up shipped through [PR #45](https://github.com/wmishak404/laica/pull/45), validated at `0c98a47` and merged as `8892327`.
 
@@ -48,7 +48,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 
 The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as standalone Efforts. Full-row selection controls, scan no-detection feedback, shared manual-entry parsing, and Slop Bowl visual cleanup are now documented as INIT-001/phase-owned behavior instead of active Efforts. Future work in those areas should update the relevant phase record, not create a new Effort unless the work becomes standalone outside INIT-001.
 
-The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative setup/Settings pantry manual-entry correction, and resolved EFF-015 after PR #64 shipped UI-governance enforcement. The current active Effort read list for Mobile Refresh-adjacent work is therefore EFF-010 for DB/schema workflow and EFF-014 for scan-session duplicate/latest-scan refinement. EFF-017 remains deferred until a narrow Phase 4 harness pilot explicitly reopens it.
+The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative setup/Settings pantry manual-entry correction, and resolved EFF-015 after PR #64 shipped UI-governance enforcement. The 2026-05-14 closeout pass resolved EFF-014 after PR #75 shipped Setup/Settings scan-review chip states and Wilson confirmed the Replit head. The current active Effort read list for Mobile Refresh-adjacent work is therefore EFF-010 for DB/schema workflow. EFF-017 remains deferred until a narrow Phase 4 harness pilot explicitly reopens it.
 
 ## Source Docs
 
@@ -94,7 +94,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#75](https://github.com/wmishak404/laica/pull/75) | Design facelift and imagery work is landing in narrow slices; current stack aligns Slop Bowl pantry-check chips, then Setup/Settings inventory review chip states for EFF-014 |
+| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#75](https://github.com/wmishak404/laica/pull/75) | Kickoff/audit, Planning copy/count emphasis, Slop Bowl pantry-check chip alignment, and Setup/Settings inventory review chip states are merged; remaining facelift work includes Ticket Pass / Prep Tray polish, async imagery, and closeout visual review |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -119,9 +119,9 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | #45 | Merged | `codex/phase-3-generation-cancel` | Phase 3 generation lock/cancel follow-up validated at `0c98a47`; merged as `8892327` |
 | #46 | Merged | `codex/mobile-refresh-phase-3-2-progressive-staples` | Phase 3.2 progressive staple queue authenticated Replit/browser validation passed at `9646c80`; merged as `b22f6b6` |
 | #53 | Merged | `codex/epic-021-scan-upload-implementation` | EFF-021 scan upload runtime slice validated at `ef28e59`; merged as `9aa6c1c` |
-| #73 | Open | `codex/mobile-refresh-phase-3-1-slop-pantry-align` | Lower stack for current inventory chip-state branch; aligns Slop Bowl pantry-check chips with Chef It Up saved/recent grammar |
+| #73 | Merged | `codex/mobile-refresh-phase-3-1-slop-pantry-align` | Slop Bowl pantry-check chips aligned with Chef It Up saved/recent grammar; merged as `e44c5b0` |
 | #74 | Closed / superseded | `codex/mobile-refresh-phase-3-1-inventory-chip-states` | Stacked PR auto-closed when #73 merged and the base branch was deleted |
-| #75 | Draft / open | `codex/mobile-refresh-phase-3-1-inventory-chip-states` | Replacement against `main`; implements Setup/Settings Pantry/Kitchen saved/recent/found-again chip states and EFF-014 resolution path |
+| #75 | Merged | `codex/mobile-refresh-phase-3-1-inventory-chip-states` | Replacement against `main`; implements Setup/Settings Pantry/Kitchen saved/recent/found-again chip states; Wilson/Replit validated at `1e93bf8`; merged as `c82433d` |
 
 ## Efforts and Governance
 
@@ -132,7 +132,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) | Merge readiness, validation evidence, and Feature Impact Review workflow formerly tracked by EFF-005/EFF-020 |
 | [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) | DB/schema authority and no local shared DB pushes |
 | [EFF-013](../efforts/effort-013-pantry-manual-entry-spell-correction.md) | Resolved pantry manual-entry spell correction; future pantry spelling/canonicalization work should start from the shipped behavior and create a new Effort only if the follow-up is standalone |
-| [EFF-014](../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md) | In-progress setup/settings scan-review chip-state branch; close after merge and Wilson Replit/mobile validation, with Phase 5 rescan labels deferred to Phase 5 |
+| [EFF-014](../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md) | Resolved by PR #75 for existing Setup/Settings scan-review chip states; Phase 5 post-cook rescan labels remain in Phase 5 |
 | [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md) | Deferred environment-parity / smoke-confidence work; reopen only as a narrow Phase 4 harness pilot that does not replace Replit validation |
 | [EFF-018](../efforts/effort-018-authenticated-ai-error-handling.md) | Resolved authenticated AI error handling and pantry recipe 400 follow-up; Phase 4 still owns live-cooking inline recovery |
 | [EFF-021](../efforts/effort-021-scan-upload-photo-limit-policy.md) | Resolved mobile-refresh scan-capacity policy; retained as historical reference for Pantry/Kitchen upload limits and scan-specific messaging |
@@ -192,6 +192,8 @@ Known validation facts:
 - Phase 3.2 Replit code-path review passed at `9646c80`: 19/19 targeted unit tests, TypeScript clean, build clean, and behavioral code checks confirmed. Pantry-save failure remained code-verified rather than manually forced in the live UI.
 - Phase 3.2 authenticated Replit/browser validation passed at `9646c80` by Wilson manual live preview: all 11 live UI steps passed, including rolling queue, pending chip undo, Back-before-submit no-save, submit-time pantry persistence, saved green-check-only chips, Pantry Settings inline note, no duplicate/resave behavior, loading freeze, Back cancel, Ticket Pass completion, and exactly three suggestions.
 - EFF-021 local validation on `codex/epic-021-scan-upload-implementation` passed `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/rate-limit.test.ts`, then the expanded guardrail run `npx vitest run tests/unit/profile-readiness.test.ts tests/unit/meal-planning.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/user-profiling.test.tsx tests/unit/rate-limit.test.ts tests/unit/phase0-security-routes.test.ts`, plus `npm run check`, `npm run build`, `git diff --check`, and a dotenvx dev-server boot with HTTP 200 on port 3000. An earlier local in-app browser smoke reached the unauthenticated Laica welcome screen. Wilson's authenticated Replit pass covered scenarios 1-6 and 8-10 at `aa2f434`, with scenario 7 provisionally passing because native phone/desktop pickers blocked non-image selection; Wilson's later Replit check confirmed the core latest behavior looked good and active-scan Save/Reset controls were not pressable, but found the empty-Pantry Chef It Up blocker needed to move earlier. The follow-up Planning status/tap-blocker changes were validated in Replit at `ef28e59`; all items worked as designed. PR #53 merged the validated runtime slice into `main` as `9aa6c1c`.
+- Phase 3.1 Slop Bowl pantry-check alignment in PR #73 passed `npx vitest run tests/unit/slop-bowl.test.tsx tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check`; PR #73 merged as `e44c5b0`.
+- Phase 3.1 Setup/Settings inventory chip-state alignment in PR #75 passed `npx vitest run tests/unit/entry-parsing.test.ts tests/unit/user-settings-scan-policy.test.tsx tests/unit/user-profiling.test.tsx tests/unit/meal-planning.test.tsx tests/unit/slop-bowl.test.tsx`, `npm run check`, `npm run build`, `git diff --check`, and a dotenvx dev-server HTTP 200 smoke. Wilson confirmed Replit was on head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1` and validated the Settings Pantry minimum path; PR #75 merged as `c82433d9089ca4e9cc86b5d5e77322981333eba3`.
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
@@ -200,11 +202,11 @@ Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8
 
 Next implementation / validation focus:
 
-1. Start Phase 3.1 from fresh `origin/main` for the design facelift and recipe imagery pass: whitespace/card grammar, typography consistency, Slop It Up card-title/copy treatment, Slop Bowl humor treatment, Slop Bowl pantry-check visual alignment with the shipped Chef It Up Phase 3.2 chip/row direction, Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots. Phase 3.1 should preserve or intentionally restyle the Phase 3.2 Added shelf / rolling queue behavior, including the pending `+` + `X` versus saved green-check-only chip distinction and saved-chip tap-to-explain removal note.
+1. Continue Phase 3.1 from fresh `origin/main` for the remaining design facelift and recipe imagery pass: Ticket Pass hierarchy, Prep Tray image layout, bottom nav fit, docs updates, closeout visual review, and async/cached generated or illustrated recipe imagery into the existing Phase 3 image slots. Already-shipped Phase 3.1 slices should be preserved: Slop It Up planning copy, Planning pantry-count/empty emphasis, Slop Bowl pantry-check chip alignment, and Setup/Settings inventory review chip states.
 2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFF-018 intentionally deferred.
 3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 4. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
-5. Pantry spell correction is resolved through EFF-013 / PR #62. Future pantry spelling/canonicalization work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. EFF-014 setup/settings chip-state work is active on `codex/mobile-refresh-phase-3-1-inventory-chip-states`; close EFF-014 only after that branch merges and Wilson completes the printed Replit/mobile validation checklist. Phase 5 post-cook rescan labels remain in the Phase 5 record.
+5. Pantry spell correction is resolved through EFF-013 / PR #62. Setup/Settings scan-review chip states are resolved through EFF-014 / PR #75. Future pantry spelling/canonicalization or scan-review work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. Phase 5 post-cook rescan labels remain in the Phase 5 record.
 
 ## Sequencing Semantics
 
@@ -293,3 +295,7 @@ PR #62 merged pantry manual-entry spell correction as `8de1e88`, and PR #63 clos
 ### 2026-05-14 - Phase 3.1 kickoff audit merged
 
 PR #69 merged the Phase 3.1 kickoff/audit docs into `main` as `d6e422e`. Phase 3.1 remains the next default agenda item, still as a soft sequence before Phase 4 rather than a hard blocker. The first recommended runtime slice is the Planning entry **Slop It Up** title and stable italic supporting-copy treatment; broader UI facelift, Slop Bowl pantry-check visual alignment, Ticket Pass/Prep Tray polish, and async imagery stay separate slices.
+
+### 2026-05-14 - Phase 3.1 inventory chip states merged
+
+PR #73 merged the Slop Bowl pantry-check chip alignment as `e44c5b0`, and PR #75 merged Setup/Settings Pantry/Kitchen saved/recent/found-again inventory review chip states as `c82433d`. Wilson confirmed the Replit head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1` and validated the Settings Pantry minimum path after the branch was rebased onto `main`; earlier screenshots on the same branch family covered Settings Kitchen, Slop Bowl parity, and first-time setup Pantry/Kitchen states. EFF-014 is resolved for Setup/Settings, with Phase 5 post-cook rescan labels still owned by Phase 5.
