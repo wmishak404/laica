@@ -65,6 +65,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 - [Phase 3.2 progressive pantry staple check](../product-decisions/features/mobile-refresh/pd-phase-03-2-progressive-staples.md)
 - [Phase 4 cooking](../product-decisions/features/mobile-refresh/pd-phase-04-cooking.md)
 - [Phase 5 post-cook](../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md)
+- [PD-012 public anonymous trial and account upgrade](../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md)
 - [AI privacy, prompt-injection, and abuse rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md)
 - [Dev-test harness plan](../product-decisions/features/mobile-refresh/pd-dev-test-harness.md)
 - [PD-005 UI governance](../product-decisions/pd-005-ui-governance.md)
@@ -172,6 +173,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 - PR #53 merged the EFF-021 runtime slice into `main` as `9aa6c1c`. Wilson accepted the validated bounded-concurrency implementation as sufficient and chose not to keep provider-level batching as active scope, so EFF-021 closed as resolved. The merged slice satisfies the runtime cap, same-limit, rate-limit, progress, partial-success, active-scan lifecycle, and empty-Pantry guardrail work.
 - EFF-013 resolved on 2026-05-13 after PR #62 shipped conservative setup/Settings pantry manual-entry correction with visible chip provenance, Undo, pantry-only scope, targeted tests, and Replit validation. Future pantry spelling/canonicalization starts from the shipped behavior, not an active EFF-013 read-list item.
 - EFF-015 resolved on 2026-05-13 after PR #64 shipped the PR-template reviewer gate and local ESLint hex-class guard. Future UI governance starts from PD-005, `design_guidelines.md`, `.github/PULL_REQUEST_TEMPLATE.md`, and `eslint.config.js`, not an active Effort.
+- Public guest entry is now governed by [PD-012](../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md) and [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Phase 1's Google-only landing remains the historical shipped baseline, while Phase 5 durable history/cleanup/taste memory is explicitly linked-only in the guest-trial v1 policy.
 - PR #78 proved the current Phase 3.1 Ticket Pass gap is about hierarchy and object language, not just placeholder art. The rejected overcorrection also established a negative constraint for future work: do not use fake bowl/noodle/skillet illustrations as a stand-in for the later async imagery slice, and do not trade away compact-ticket readability for a more theatrical ticket silhouette.
 
 ## Validation State
@@ -213,6 +215,7 @@ Next implementation / validation focus:
 3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 4. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
 5. Pantry spell correction is resolved through EFF-013 / PR #62. Setup/Settings scan-review chip states are resolved through EFF-014 / PR #75. Future pantry spelling/canonicalization or scan-review work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. Phase 5 post-cook rescan labels remain in the Phase 5 record.
+6. Coordinate any future guest-auth, upgrade, or Phase 5 returning-user memory changes with [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Do not reopen Phase 1 or Phase 5 assumptions in isolation.
 
 ## Sequencing Semantics
 

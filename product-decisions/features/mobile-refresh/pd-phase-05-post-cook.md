@@ -31,6 +31,13 @@ Help users come back for a second cook by keeping pantry inventory accurate with
 | Rescan merge -> Save | Yes | Merges confirmed new scan items |
 | Taste signal -> Submit | No | Writes taste signal only |
 
+### Anonymous-trial clarification
+
+- [PD-012](../../pd-012-public-anonymous-trial-and-account-upgrade.md) sets the guest boundary for v1.
+- Anonymous users do not create durable post-cook history, `pending_cleanup`, `taste_signal`, or next-meal retention state.
+- Phase 5 remains a linked-account memory surface until a later decision says otherwise.
+- Anonymous cooks may continue locally on the same browser/device, but completed anonymous post-cook state is not retro-imported into durable history in v1.
+
 ### Cleanup review
 
 - Inventory model remains presence-based in v1.
@@ -114,6 +121,7 @@ flowchart TD
 - Next-meal seed is generated only when viewed.
 - History detail supports the Phase 5 memory intent: share and cook-again direction, without turning History back into Settings.
 - Pantry/session mutations require explicit user confirmation and session ownership.
+- In v1, only linked users create durable Phase 5 history, cleanup, and taste-memory records.
 
 ## Effort Interactions
 
