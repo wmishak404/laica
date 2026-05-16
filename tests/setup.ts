@@ -48,6 +48,11 @@ vi.mock('firebase/app', () => ({
   initializeApp: vi.fn(() => ({}))
 }));
 
+// jsdom does not implement MediaStream (used by voice-recording unit tests)
+if (typeof (globalThis as any).MediaStream === "undefined") {
+  (globalThis as any).MediaStream = class MediaStream {};
+}
+
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({
     currentUser: {
