@@ -522,16 +522,6 @@ describe('MealPlanning recipe generation locking', () => {
       expect.stringContaining('Ticket #3'),
     ]);
     expect(initialTickets[0].getAttribute('data-selected')).toBe('true');
-    expect(initialTickets.map((ticket) => ticket.getAttribute('data-layout'))).toEqual([
-      'featured',
-      'compact',
-      'compact',
-    ]);
-    expect(initialTickets.map((ticket) => ticket.getAttribute('data-relation'))).toEqual([
-      'selected',
-      'after',
-      'after',
-    ]);
 
     fireEvent.click(initialTickets[1]);
 
@@ -542,16 +532,6 @@ describe('MealPlanning recipe generation locking', () => {
       expect.stringContaining('Ticket #3'),
     ]);
     expect(updatedTickets[1].getAttribute('data-selected')).toBe('true');
-    expect(updatedTickets.map((ticket) => ticket.getAttribute('data-layout'))).toEqual([
-      'compact',
-      'featured',
-      'compact',
-    ]);
-    expect(updatedTickets.map((ticket) => ticket.getAttribute('data-relation'))).toEqual([
-      'before',
-      'selected',
-      'after',
-    ]);
     expect(within(updatedTickets[1]).getByText('Spinach Egg Skillet').className).toContain('planning-ticket-title-main');
     expect(within(updatedTickets[1]).getByText('with lemon').className).toContain('planning-ticket-title-detail');
 
@@ -565,45 +545,7 @@ describe('MealPlanning recipe generation locking', () => {
     );
   });
 
-  it('maps bowl, noodle, and skillet recipes to deterministic placeholder variants', async () => {
-    fetchPantryRecipesMock.mockResolvedValue({
-      recipes: [
-        {
-          ...recipeResponse.recipes[0],
-          recipeName: 'Pantry Rice Bowl',
-          pantryIngredientsUsed: ['rice', 'eggs'],
-        },
-        {
-          ...recipeResponse.recipes[1],
-          recipeName: 'Soy Garlic Noodles',
-          pantryIngredientsUsed: ['noodles', 'garlic'],
-        },
-        {
-          ...recipeResponse.recipes[2],
-          recipeName: 'Spinach Egg Skillet',
-          pantryIngredientsUsed: ['spinach', 'eggs'],
-        },
-      ],
-    });
-    renderMealPlanning();
-
-    advanceToCuisine();
-    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
-
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
-
-    const tickets = screen.getAllByRole('button', { name: /ticket #/i });
-    expect(tickets[0].querySelector('.planning-recipe-image-slot')?.getAttribute('data-placeholder-variant')).toBe('bowl');
-    expect(tickets[1].querySelector('.planning-recipe-image-slot')?.getAttribute('data-placeholder-variant')).toBe('noodles');
-    expect(tickets[2].querySelector('.planning-recipe-image-slot')?.getAttribute('data-placeholder-variant')).toBe('skillet');
-
-    fireEvent.click(tickets[2]);
-    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
-
-    expect(document.querySelector('.planning-recipe-image-slot-prep')?.getAttribute('data-placeholder-variant')).toBe('skillet');
-  });
-
-  it('suppresses placeholder art when imageUrl exists', async () => {
+  it('uses the stable utensil placeholder unless imageUrl exists', async () => {
     fetchPantryRecipesMock.mockResolvedValue({
       recipes: [
         {
@@ -628,9 +570,12 @@ describe('MealPlanning recipe generation locking', () => {
 
     expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
 
+    const placeholderSlot = screen.getAllByRole('button', { name: /ticket #/i })[0].querySelector('.planning-recipe-image-slot');
+    expect(placeholderSlot?.getAttribute('data-has-image')).toBe('false');
+    expect(placeholderSlot?.querySelector('.planning-recipe-image-icon')).toBeTruthy();
+
     const imageSlot = screen.getAllByRole('button', { name: /ticket #/i })[2].querySelector('.planning-recipe-image-slot');
     expect(imageSlot?.getAttribute('data-has-image')).toBe('true');
-    expect(imageSlot?.getAttribute('data-placeholder-variant')).toBeNull();
-    expect(imageSlot?.querySelector('[data-placeholder-variant]')).toBeNull();
+    expect(imageSlot?.querySelector('.planning-recipe-image-icon')).toBeNull();
   });
 });

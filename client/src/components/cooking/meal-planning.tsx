@@ -23,8 +23,6 @@ const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
 const NO_PREFERENCE = 'No preference';
 
 type PlanningStep = 'time' | 'cuisine' | 'staples' | 'tickets' | 'prep-tray';
-type RecipeImageSlotVariant = 'featured' | 'compact' | 'prep';
-type RecipePlaceholderVariant = 'bowl' | 'noodles' | 'skillet';
 
 interface SavedMealPlanningSession {
   currentStep: PlanningStep;
@@ -152,92 +150,6 @@ const splitRecipeName = (recipeName: string): { main: string; detail?: string } 
 
   return { main: normalized };
 };
-
-const recipePlaceholderKeywords: Record<RecipePlaceholderVariant, string[]> = {
-  bowl: ['bowl', 'rice', 'soup', 'stew', 'curry', 'risotto', 'congee'],
-  noodles: ['noodle', 'noodles', 'ramen', 'udon', 'soba', 'pasta', 'spaghetti', 'pho', 'lo mein'],
-  skillet: ['skillet', 'frittata', 'scramble', 'hash', 'stir-fry', 'stir fry', 'saute', 'sauteed'],
-};
-
-const getRecipePlaceholderVariant = (recipe: RecipeRecommendation): RecipePlaceholderVariant => {
-  const searchSurface = [
-    recipe.recipeName,
-    recipe.description,
-    ...(recipe.ingredients ?? []),
-  ].join(' ').toLowerCase();
-
-  if (recipePlaceholderKeywords.noodles.some((keyword) => searchSurface.includes(keyword))) {
-    return 'noodles';
-  }
-
-  if (recipePlaceholderKeywords.skillet.some((keyword) => searchSurface.includes(keyword))) {
-    return 'skillet';
-  }
-
-  if (recipePlaceholderKeywords.bowl.some((keyword) => searchSurface.includes(keyword))) {
-    return 'bowl';
-  }
-
-  return 'bowl';
-};
-
-const getTicketRelation = (ticketIndex: number, selectedIndex: number): 'selected' | 'before' | 'after' => {
-  if (ticketIndex === selectedIndex) return 'selected';
-  return ticketIndex < selectedIndex ? 'before' : 'after';
-};
-
-function RecipePlaceholderArt({ variant }: { variant: RecipePlaceholderVariant }) {
-  if (variant === 'skillet') {
-    return (
-      <svg viewBox="0 0 220 160" className="planning-recipe-placeholder-art" data-placeholder-variant={variant} aria-hidden="true">
-        <ellipse className="planning-placeholder-shadow" cx="107" cy="136" rx="70" ry="10" />
-        <ellipse className="planning-placeholder-pan" cx="92" cy="86" rx="56" ry="34" />
-        <ellipse className="planning-placeholder-pan-inner" cx="92" cy="82" rx="46" ry="26" />
-        <path className="planning-placeholder-pan-handle" d="M136 84h38c8 0 15 6 15 14s-7 14-15 14h-38z" />
-        <circle className="planning-placeholder-pan-bolt" cx="140" cy="98" r="4" />
-        <circle className="planning-placeholder-greens" cx="74" cy="74" r="12" />
-        <circle className="planning-placeholder-greens" cx="102" cy="94" r="10" />
-        <circle className="planning-placeholder-greens" cx="120" cy="74" r="9" />
-        <circle className="planning-placeholder-egg-white" cx="92" cy="83" r="17" />
-        <circle className="planning-placeholder-yolk" cx="92" cy="83" r="6.5" />
-      </svg>
-    );
-  }
-
-  if (variant === 'noodles') {
-    return (
-      <svg viewBox="0 0 220 160" className="planning-recipe-placeholder-art" data-placeholder-variant={variant} aria-hidden="true">
-        <ellipse className="planning-placeholder-shadow" cx="110" cy="137" rx="68" ry="10" />
-        <path className="planning-placeholder-bowl" d="M54 80c8 33 27 52 56 52s48-19 56-52Z" />
-        <path className="planning-placeholder-bowl-rim" d="M46 79c14-15 114-15 128 0-14 10-114 10-128 0Z" />
-        <ellipse className="planning-placeholder-broth" cx="110" cy="79" rx="50" ry="15" />
-        <path className="planning-placeholder-noodle-line" d="M72 76c8-8 17 8 27 0s17 10 28 0 15 8 25 0" />
-        <path className="planning-placeholder-noodle-line" d="M68 87c9-8 18 8 28 0s16 10 28 0 16 7 28 0" />
-        <path className="planning-placeholder-noodle-line" d="M75 96c7-6 14 6 22 0s15 8 22 0 15 6 24 0" />
-        <ellipse className="planning-placeholder-mushroom" cx="80" cy="66" rx="12" ry="8" />
-        <path className="planning-placeholder-mushroom" d="M74 66v10m12-10v10" />
-        <ellipse className="planning-placeholder-mushroom" cx="143" cy="69" rx="10" ry="7" />
-        <path className="planning-placeholder-mushroom" d="M138 69v9m10-9v9" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 220 160" className="planning-recipe-placeholder-art" data-placeholder-variant={variant} aria-hidden="true">
-      <ellipse className="planning-placeholder-shadow" cx="110" cy="137" rx="68" ry="10" />
-      <path className="planning-placeholder-bowl" d="M54 82c8 31 27 50 56 50s48-19 56-50Z" />
-      <path className="planning-placeholder-bowl-rim" d="M46 81c14-15 114-15 128 0-14 10-114 10-128 0Z" />
-      <ellipse className="planning-placeholder-broth" cx="110" cy="81" rx="49" ry="15" />
-      <path className="planning-placeholder-steam" d="M82 42c8-10 8-19 0-28" />
-      <path className="planning-placeholder-steam" d="M110 38c7-10 7-18 0-26" />
-      <path className="planning-placeholder-steam" d="M138 42c8-10 8-19 0-28" />
-      <ellipse className="planning-placeholder-egg-white" cx="124" cy="77" rx="16" ry="11" />
-      <circle className="planning-placeholder-yolk" cx="124" cy="77" r="5.5" />
-      <path className="planning-placeholder-greens-line" d="M76 85c7-6 14 8 21 0s15 8 21 0" />
-      <path className="planning-placeholder-greens-line" d="M82 95c8-6 14 6 21 0s13 6 20 0" />
-    </svg>
-  );
-}
 
 export default function MealPlanning({
   userProfile,
@@ -965,24 +877,22 @@ export default function MealPlanning({
     </section>
   );
 
-  const renderRecipeImageSlot = (recipe: RecipeRecommendation, variant: RecipeImageSlotVariant = 'featured') => {
-    const placeholderVariant = getRecipePlaceholderVariant(recipe);
-
-    return (
-      <span
-        className={`planning-recipe-image-slot planning-recipe-image-slot-${variant}`}
-        data-has-image={Boolean(recipe.imageUrl)}
-        data-placeholder-variant={recipe.imageUrl ? undefined : placeholderVariant}
-        aria-hidden="true"
-      >
-        {recipe.imageUrl ? (
-          <img src={recipe.imageUrl} alt="" className="planning-recipe-image" />
-        ) : (
-          <RecipePlaceholderArt variant={placeholderVariant} />
-        )}
-      </span>
-    );
-  };
+  const renderRecipeImageSlot = (recipe: RecipeRecommendation, variant: 'ticket' | 'prep' = 'ticket') => (
+    <span
+      className={`planning-recipe-image-slot ${variant === 'prep' ? 'planning-recipe-image-slot-prep' : ''}`}
+      data-has-image={Boolean(recipe.imageUrl)}
+      aria-hidden="true"
+    >
+      {recipe.imageUrl ? (
+        <img src={recipe.imageUrl} alt="" className="planning-recipe-image" />
+      ) : (
+        <>
+          <span className="planning-recipe-image-plate" />
+          <Utensils className="planning-recipe-image-icon" />
+        </>
+      )}
+    </span>
+  );
 
   const renderRecipeTitle = (recipeName: string, className = 'planning-ticket-title') => {
     const { main, detail } = splitRecipeName(recipeName);
@@ -995,82 +905,58 @@ export default function MealPlanning({
     );
   };
 
-  const renderTicketMeta = (recipe: RecipeRecommendation, className = 'planning-ticket-meta') => (
-    <span className={className}>
-      <span className="planning-ticket-meta-time">
-        <Clock className="h-4 w-4" />
-        {recipe.cookTime} min
-      </span>
-      <span className="planning-ticket-meta-difficulty">{recipe.difficulty}</span>
-    </span>
-  );
-
-  const renderTicket = (recipe: RecipeRecommendation, index: number, selectedIndex: number) => {
-    const selected = index === selectedIndex;
-    const relation = getTicketRelation(index, selectedIndex);
+  const renderTicket = (recipe: RecipeRecommendation, index: number, isLarge = false) => {
+    const selected = selectedMeal?.id === recipe.id;
 
     return (
       <button
         type="button"
         key={recipe.id}
-        className="planning-ticket"
+        className={isLarge ? 'planning-ticket planning-ticket-large' : 'planning-ticket planning-ticket-row'}
         data-selected={selected}
-        data-layout={selected ? 'featured' : 'compact'}
-        data-relation={relation}
-        data-distance={Math.abs(selectedIndex - index)}
         aria-pressed={selected}
         onClick={() => setSelectedMeal(recipe)}
       >
-        <span className="planning-ticket-paper">
-          <span className="planning-ticket-perforation planning-ticket-perforation-top" aria-hidden="true" />
-          {selected && <span className="planning-ticket-fastener" aria-hidden="true" />}
-          <span className="planning-ticket-content">
-            <span className="planning-ticket-leading">
-              <span className="planning-ticket-heading">
-                <span className="planning-ticket-kicker">
-                  <ChefHat className="h-4 w-4" aria-hidden="true" />
-                  Ticket #{index + 1}
-                </span>
-                {renderRecipeTitle(recipe.recipeName)}
-              </span>
-              {renderRecipeImageSlot(recipe, selected ? 'featured' : 'compact')}
-              {renderTicketMeta(recipe)}
-            </span>
-            {selected && (
-              <>
-                <span className="planning-ticket-divider" />
-                <span className="planning-ticket-details">
-                  <span className="planning-ticket-section">
-                    <span className="planning-ticket-section-label">Uses</span>
-                    <span className="planning-ticket-chip-row">
-                      {(recipe.ingredients || []).slice(0, 5).map((ingredient) => (
-                        <Badge key={ingredient} variant="outline" className="planning-use-chip">
-                          {ingredient}
-                        </Badge>
-                      ))}
-                    </span>
-                  </span>
-                  {recipe.missingIngredients.length > 0 && (
-                    <span className="planning-ticket-optional">
-                      <span>Optional:</span> {recipe.missingIngredients.slice(0, 3).join(', ')}
-                    </span>
-                  )}
-                </span>
-              </>
-            )}
+        <span className="planning-ticket-rip" aria-hidden="true" />
+        <span className="planning-ticket-heading">
+          <span className="planning-ticket-kicker">
+            <ChefHat className="h-4 w-4" aria-hidden="true" />
+            Ticket #{index + 1}
           </span>
+          {renderRecipeTitle(recipe.recipeName)}
         </span>
+        {renderRecipeImageSlot(recipe)}
+        <span className="planning-ticket-meta">
+          <span><Clock className="h-4 w-4" /> {recipe.cookTime} min</span>
+          <span>{recipe.difficulty}</span>
+        </span>
+        {isLarge && (
+          <>
+            <span className="planning-ticket-divider" />
+            <span className="planning-ticket-section">
+              <span className="planning-ticket-section-label">Uses</span>
+              <span className="planning-ticket-chip-row">
+                {(recipe.ingredients || []).slice(0, 5).map((ingredient) => (
+                  <Badge key={ingredient} variant="outline" className="planning-use-chip">
+                    {ingredient}
+                  </Badge>
+                ))}
+              </span>
+            </span>
+            {recipe.missingIngredients.length > 0 && (
+              <span className="planning-ticket-optional">
+                <span>Optional:</span> {recipe.missingIngredients.slice(0, 3).join(', ')}
+              </span>
+            )}
+          </>
+        )}
       </button>
     );
   };
 
   const renderTicketsStep = () => {
     const visibleRecommendations = recommendations.slice(0, 3);
-    const selectedIndex = Math.max(
-      0,
-      visibleRecommendations.findIndex((recipe) => recipe.id === selectedMeal?.id),
-    );
-    const selectedTicket = visibleRecommendations[selectedIndex] ?? null;
+    const selectedMealId = selectedMeal?.id ?? visibleRecommendations[0]?.id;
 
     return (
       <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
@@ -1086,13 +972,13 @@ export default function MealPlanning({
         </div>
 
         <div className="planning-ticket-stack mt-7">
-          {visibleRecommendations.map((recipe, index) => renderTicket(recipe, index, selectedIndex))}
+          {visibleRecommendations.map((recipe, index) => renderTicket(recipe, index, recipe.id === selectedMealId))}
         </div>
 
         <div className="mt-6 space-y-3">
           <Button
             className="h-12 w-full rounded-xl font-extrabold"
-            disabled={!selectedTicket}
+            disabled={!selectedMeal}
             onClick={() => setCurrentStep('prep-tray')}
           >
             <ChefHat className="h-5 w-5" />
@@ -1136,39 +1022,31 @@ export default function MealPlanning({
       );
     }
 
-    const selectedTicketNumber = Math.max(
-      0,
-      recommendations.slice(0, 3).findIndex((recipe) => recipe.id === selectedMeal.id),
-    ) + 1;
-
     return (
       <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
         <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
           <ArrowLeft className="h-5 w-5" />
         </button>
 
+        {/* design:tone-override — Prep Tray is the Phase 3 tactile ticket-detail object, not a generic recipe card. */}
         <div className="planning-prep-tray">
           <div className="planning-prep-hero">
-            <span className="planning-prep-rail" aria-hidden="true" />
-            <div className="planning-prep-ticket">
-              <span className="planning-ticket-perforation planning-ticket-perforation-top" aria-hidden="true" />
-              <span className="planning-prep-tape" aria-hidden="true" />
-              <span className="planning-prep-kicker">
-                <ChefHat className="h-4 w-4" aria-hidden="true" />
-                Ready ticket #{selectedTicketNumber}
-              </span>
-              <h1 className="planning-display planning-prep-title">
-                {renderRecipeTitle(selectedMeal.recipeName, 'planning-ticket-title planning-prep-title-text')}
-              </h1>
-              <div className="planning-prep-hero-media">
-                {renderRecipeImageSlot(selectedMeal, 'prep')}
-                {renderTicketMeta(selectedMeal, 'planning-ticket-meta planning-prep-meta')}
-              </div>
-              <span className="planning-ticket-perforation planning-ticket-perforation-bottom" aria-hidden="true" />
-            </div>
+            {renderRecipeImageSlot(selectedMeal, 'prep')}
           </div>
           <div className="planning-prep-body">
+            <span className="planning-prep-kicker">
+              <ChefHat className="h-4 w-4" aria-hidden="true" />
+              Ready ticket
+            </span>
+            <h1 className="planning-display planning-prep-title">
+              {renderRecipeTitle(selectedMeal.recipeName, 'planning-ticket-title planning-prep-title-text')}
+            </h1>
             <div className="planning-prep-summary">
+              <p className="planning-ticket-meta planning-prep-meta">
+                <span><Clock className="h-4 w-4" /> {selectedMeal.cookTime} min</span>
+                <span>{selectedMeal.difficulty}</span>
+              </p>
+
               {selectedMeal.description && (
                 <p className="planning-copy planning-prep-description">{selectedMeal.description}</p>
               )}
