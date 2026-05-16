@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 3.1 — Design Facelift and Recipe Imagery
 
-**Status:** Kickoff / audit ready
+**Status:** In progress; merged consistency slices plus Ticket Pass retry planning
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-05
@@ -146,6 +146,39 @@ This slice intentionally does not touch broader Planning facelift, Slop Bowl pan
 
 Local validation passed for the focused unit suite, `npm run check`, `npm run build`, `git diff --check`, and a dotenvx dev-server HTTP 200 smoke on port 3000 after linking the standard worktree `.env.keys`. Wilson confirmed Replit was on validated head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1` and checked the Settings Pantry minimum path: saved chips stayed green, new items appeared coral, and Save turned recent chips green. Earlier screenshots on the same branch family validated Settings Kitchen, Slop Bowl parity, and first-time setup Pantry/Kitchen review states. EFF-014 is resolved for Setup/Settings; future Phase 5 post-cook rescan labels stay in Phase 5.
 
+## 2026-05-15 - PR #78 Abandoned; Ticket Pass Retry Constraints
+
+PR #78 (`codex/mobile-refresh-phase-3-1-ticket-prep-polish`) attempted the remaining Ticket Pass / Prep Tray polish from fresh `origin/main`, but it did not produce an acceptable visual result and was closed unmerged. Two lessons are now durable Phase 3.1 constraints:
+
+1. Small framing tweaks alone are not enough. The first pass still read too much like the existing centered card stack, so behavioral correctness plus micro-polish should not be mistaken for mockup conformance.
+2. Overcorrection is worse than staying close to `main`. A later same-day experiment introduced fake bowl/noodle/skillet illustration placeholders and a more theatrical compact-ticket layout that broke compact readability and made the surface feel less product-ready than the stable baseline.
+
+The next Ticket Pass attempt should therefore restart from the current `main` layout skeleton and stay much narrower:
+
+```text
+Selected #1
+[ featured ticket #1 ]
+[ compact ticket #2 ]
+[ compact ticket #3 ]
+
+Selected #2
+[ compact ticket #1 ]
+[ featured ticket #2 ]
+[ compact ticket #3 ]
+
+Selected #3
+[ compact ticket #1 ]
+[ compact ticket #2 ]
+[ featured ticket #3 ]
+```
+
+- Preserve the stable generated order, in-place expansion, and display-only recipe-name split contract exactly as shipped.
+- Preserve the current placeholder slot treatment and compact-row readability as the floor for any new work.
+- Improve Ticket Pass primarily through outer composition: shared pass backing, ticket silhouette, overlap, spacing, shadow, perf/top-edge treatment, and clearer featured-vs-compact hierarchy around the existing content skeleton.
+- Do not use fake illustration placeholders as a substitute for the later async/generated imagery slice.
+- Do not broaden Prep Tray into a new design exploration until Ticket Pass itself is visually accepted. Prep Tray should receive only light shell/alignment work in the same pass if needed.
+- Continue to treat real imagery hydration as a later separate slice into the existing `imageUrl` slots.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |
@@ -156,13 +189,13 @@ Local validation passed for the focused unit suite, `npm run check`, `npm run bu
 | Cuisine list looked capped at six | The user could infer only six cuisines existed | Implementation overfit the visible mockup examples as the full data set | Fixed | Treat mockups as visible slices when content naturally exceeds one screen |
 | `No preference` was not default | The default path required an unnecessary tap | Docs said exclusive anchor option but not initial/default state | Fixed | Document default paths separately from option exclusivity and placement |
 | Suggestion copy exposed "three" | UI surfaced the exact generation count as product language | Acceptance criteria required exactly three but did not say the count should stay hidden in copy | Fixed | Keep deterministic constraints in tests/docs; use browsing language in user-facing UI |
-| Ticket Pass looked like generic cards | Suggestions did not carry the mockup's ticket-stack object language enough | Phase 3 said Ticket Pass, but not enough hard requirements for image slot, density, and hierarchy | Partially fixed; needs Replit visual review | Compare against `phase-03-ticket-pass.png` for object shape, density, featured/alternate hierarchy, and image-slot placement |
+| Ticket Pass looked like generic cards | Suggestions did not carry the mockup's ticket-stack object language enough | Phase 3 said Ticket Pass, but not enough hard requirements for image slot, density, hierarchy, or what must remain readable in the compact rows | Not fixed; PR #78 was abandoned after one too-incremental pass and one rejected overcorrection | Retry as a layout-only hierarchy pass from the current `main` baseline. Keep the current image-slot and compact-row skeleton readable, compare directly against `phase-03-ticket-pass.png`, and do not use fake illustrations or aggressive strip layouts as a shortcut |
 | Ticket Pass selection reordered recipes | Selecting recipe 2 or 3 made the chosen recipe jump to the featured position and moved recipe 1 into the compact list, so users lost their place | The component modeled selection as promotion to a separate featured slot instead of expanding the chosen ticket in the generated order | Fixed as a Phase 3 basic-usability exception | Phase 3.1 can revisit the ticket hierarchy, but must preserve selection orientation unless a replacement pattern is explicitly validated |
 | Recipe names read like one long paragraph | AI-generated names sometimes contain a main dish plus explicit parenthetical or colon-separated detail | The schema stores one recipe-name string and the UI rendered every name as a single large heading | Fixed with conservative display-only main/supporting split when explicit detail exists | Phase 3.1 should refine title hierarchy with the broader Ticket Pass facelift while preserving the underlying recipe-name contract and avoiding invented subtitles |
 | Cuisine-selected recipes overuse optional ingredients | Suggestions felt like they were completing a cuisine with missing staples instead of cooking from the pantry | Older recipe prompt language prioritized cuisine correction and allowed missing ingredients to complete a cuisine | Fixed with Phase 3 staple check, prompt balance, and optional cleanup; needs Replit validation | Decide whether the staple check needs richer UI, pantry confidence, or a pantry-staples profile in Phase 3.1 |
 | Staple check can feel capped at four | The first Phase 3 staple check shows only four missing-staple rows, so users cannot keep confirming useful staples after selecting one | Phase 3 optimized for narrow functional correctness and did not yet include a progressive selected shelf | Split to Phase 3.2 | Phase 3.1 should preserve or restyle the Phase 3.2 Added shelf / rolling queue rather than returning to the capped four-row behavior |
 | Slop Bowl pantry-check visuals may drift from Chef It Up staple-check visuals | Slop Bowl already has removable pantry chips/list context, while Chef It Up Phase 3.2 now has the preferred Added shelf / large row / visible remove-affordance direction | The related pantry-confirmation surfaces were built in different passes and should not silently diverge during the facelift | Fixed in the Slop Bowl pantry-check alignment slice | Keep the shared visual grammar: manual temporary additions are coral with `+` + `X`; saved Pantry ingredients are green check chips with no visible `Saved` text. Preserve Slop Bowl's behavior distinction: removing a saved Pantry ingredient only omits it from the current bowl and must not imply deletion from saved Pantry |
-| Recipe imagery disappeared | No stable place existed for future generated images to land | "Generated recipe imagery deferred" was interpreted as "no image slot needed" | Fixed with placeholders | Phase 3.1 owns real imagery, async hydration, caching, and failure fallback |
+| Recipe imagery disappeared | No stable place existed for future generated images to land | "Generated recipe imagery deferred" was interpreted as "no image slot needed" | Fixed with placeholders | Phase 3.1 still owns real imagery, async hydration, caching, and failure fallback. Do not treat custom fake placeholder illustrations as a substitute for this later slice |
 | Planning entry card/whitespace grammar still feels off | The choice cards use too much framed-card language and not enough modern app whitespace | Phase 3 iterated individual concerns instead of stepping back into one coherent facelift | Deferred to Phase 3.1 | Rework Planning entry as a whole surface, with whitespace/card grammar reviewed before implementation |
 | Planning pantry-count status lacks emphasis | The dynamic inventory fact in `Right now I see 17 pantry items we can work with.` and the empty-Pantry state read like the surrounding helper sentence, even though they are the most useful status details | Phase 3 added the empty-Pantry blocker/status line for behavior, then deferred final visual treatment to Phase 3.1 | Fixed in the pantry-count coral slice | Keep only the key pantry fact (`17 pantry items`, `1 pantry item`, future `pantry ingredients` wording variants, or `empty`) in Planning coral. Keep the rest of the status sentence neutral and preserve empty-Pantry guard behavior |
 | Bottom nav showed Cook as selected status | Planning made the chef icon read like a current-state badge | Active tab logic conflicted with PD-009's neutral access-surface direction | Fixed | Bottom nav stays neutral; screen content communicates process status |
@@ -178,9 +211,11 @@ Local validation passed for the focused unit suite, `npm run check`, `npm run bu
 - Review nearby mobile-refresh surfaces for typography drift: page titles, card titles, short hero-card taglines, body copy, chips, banners, and CTAs should preserve the generated mockup's type grammar instead of swapping fonts by mood.
 - Plan the facelift before implementing: choose the visual grammar first, then patch the UI. Do not solve the facelift through isolated local tweaks.
 - Keep a hard split between Phase 3 placeholders and Phase 3.1 real imagery: Phase 3 reserves stable slots; Phase 3.1 decides/generates/hydrates images.
+- Treat PR #78 as a negative reference, not a half-finished base branch. The next Ticket Pass implementation should start from fresh `origin/main`, preserve the current image-slot and compact-row skeleton, and improve hierarchy through composition rather than through fake illustration art or a risky compact-strip rewrite.
 - Keep a hard split between shipped Phase 3.2 behavior polish and Phase 3.1 facelift work: Phase 3.1 decides how the Added shelf / rolling queue should look in the facelift without reverting its behavior contract.
 - Use the Chef It Up Phase 3.2 Added shelf/chip/row treatment as the preferred pantry-confirmation visual direction when reviewing Slop Bowl pantry-check consistency, while keeping Slop Bowl's existing behavior unless Phase 3.1 explicitly changes it. The latest accepted chip distinction is: pending/removable equals coral plus + X; persisted pantry fact equals green check only, with tap-to-explain inline direction for removal in Pantry Settings.
 - Do not make image generation part of the recipe-suggestion critical path. Suggestions should remain usable before any image arrives.
+- Use the current stable `main` Ticket Pass as the readability baseline during review. If a new pass makes the compact rows, title fit, or time/difficulty scanability worse than `main`, stop and correct that before claiming mockup progress.
 - If similar drift spans beyond Phase 3.1 or crosses multiple future phases, then create a temporary drift Effort. For now, this feature-phase record is the source of truth.
 
 ## Speed Requirement
@@ -200,6 +235,7 @@ Recipe suggestions must appear as soon as the recipe response is ready. Image ge
 - Planning entry shows italicized **Slop It Up** for the Slop Bowl choice with one approved italic supporting line, while Chef It Up remains unchanged in its refined, collaborative register.
 - Planning entry highlights only the key pantry fact in the status line with Planning coral while preserving empty-Pantry guard behavior.
 - Slop Bowl pantry-check chips align with the Chef It Up Phase 3.2 pantry-confirmation grammar where behavior overlaps, while preserving Slop Bowl's omit-from-this-bowl behavior for saved Pantry items.
+- Any future Ticket Pass retry preserves at least the current `main` compact-row readability and image-slot stability while making the selected ticket feel more like a shared ticket-pass object rather than a generic featured card.
 - Ticket Pass and Prep Tray image placeholders are replaced by real imagery when `imageUrl` is available.
 - Placeholders remain polished and stable when imagery is unavailable or still loading.
 - The layout does not shift when images hydrate.
@@ -208,6 +244,6 @@ Recipe suggestions must appear as soon as the recipe response is ready. Image ge
 
 ## Open Questions
 
-- Does the current Ticket Pass stack carry enough of the `phase-03-ticket-pass.png` object language, or does it need another density/shape pass before validation?
+- What smallest composition/silhouette changes can make Ticket Pass feel materially closer to `phase-03-ticket-pass.png` without reducing compact-row readability below the current `main` baseline?
 - What visual grammar should Phase 3.1 use for Planning cards and whitespace so the surface feels modern and coherent without drifting from Laica's food-native identity?
 - Which imagery direction best fits Laica's speed and tone: generated recipe image, custom illustration, recipe-type illustration library, or hybrid?
