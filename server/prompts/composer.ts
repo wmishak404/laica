@@ -1,10 +1,7 @@
 import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const PROMPTS_DIR = join(__dirname, '.');
+const PROMPTS_DIR = join(process.cwd(), 'server', 'prompts');
 
 const FALLBACK_PROMPTS: Record<string, Record<string, string>> = {
   atoms: {
