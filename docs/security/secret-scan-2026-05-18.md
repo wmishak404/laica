@@ -9,13 +9,11 @@
 
 This repo is public. If any plaintext secrets were ever committed (even if later “cleaned up”), they must be treated as compromised and rotated.
 
-This file is intentionally a **template** until the scan is executed in a networked environment. Do not mark this complete until the commands below have been run and the results recorded.
-
 ## Tooling and commands (choose one)
 
 ### Option A: TruffleHog
 
-Record the exact TruffleHog version you used, then run a history scan.
+Used for this report (full-history scan against GitHub remote):
 
 ```bash
 trufflehog --version
@@ -31,12 +29,21 @@ gitleaks version
 gitleaks detect --source . --verbose
 ```
 
-## Results (fill in)
+## Results
 
-- Tool used:
-- Version:
-- Command(s) run:
-- Verified findings: yes/no
+- Tool used: TruffleHog
+- Version: 3.95.3
+- Command(s) run: `trufflehog git https://github.com/wmishak404/laica --only-verified`
+- Verified findings: **No** (0)
+
+TruffleHog summary output:
+
+```text
+verified_secrets: 0
+unverified_secrets: 0
+trufflehog_version: 3.95.3
+scan_duration: 3.529581834s
+```
 
 ### If findings exist
 
@@ -48,3 +55,5 @@ gitleaks detect --source . --verbose
 
 - Confirm “0 verified secrets in git history” here
 - Proceed with repo guardrails (GitHub push protection + PR checks) as the forward-looking prevention layer
+
+Confirmed: **0 verified secrets** detected in git history (TruffleHog 3.95.3, 2026-05-18).
