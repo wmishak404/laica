@@ -56,7 +56,7 @@ Wilson's Replit check of Phase 3.2 head `968d39a` confirmed the rolling staple q
 
 The 2026-05-09 Effort cleanup closed several former Mobile Refresh follow-ups as standalone Efforts. Full-row selection controls, scan no-detection feedback, shared manual-entry parsing, and Slop Bowl visual cleanup are now documented as INIT-001/phase-owned behavior instead of active Efforts. Future work in those areas should update the relevant phase record, not create a new Effort unless the work becomes standalone outside INIT-001.
 
-The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative setup/Settings pantry manual-entry correction, and resolved EFF-015 after PR #64 shipped UI-governance enforcement. The 2026-05-14 closeout pass resolved EFF-014 after PR #75 shipped Setup/Settings scan-review chip states and Wilson confirmed the Replit head. The current active Effort read list for Mobile Refresh-adjacent work is therefore EFF-010 for DB/schema workflow. EFF-017 remains deferred until a narrow Phase 4 harness pilot explicitly reopens it.
+The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative setup/Settings pantry manual-entry correction, and resolved EFF-015 after PR #64 shipped UI-governance enforcement. The 2026-05-14 closeout pass resolved EFF-014 after PR #75 shipped Setup/Settings scan-review chip states and Wilson confirmed the Replit head. For current Effort status and the read-before-work list, rely on `efforts/README.md` and the `## Adjacent Efforts` table below.
 
 ## Source Docs
 
