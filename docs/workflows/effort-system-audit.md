@@ -31,6 +31,8 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
 3. Scan for **status mirroring drift** (the common “stale corner sentence” failure mode):
    - Search for status-shaped phrases like `remains open`, `still active`, `active Effort`, `current active`, `active Effort read list`, `keep EFF-`, or `keeps EFF-` across `initiatives/`, `product-decisions/`, `docs/workflows/`, and resolved Effort files.
    - Replace cross-doc status claims with links to the authoritative home (Effort header or INIT resume point), or time-qualify the statement if it is truly historical chronology.
+   - Suggested command (tune the phrase list as needed when new drift patterns are discovered):
+     - `rg -n "remains open|still active|active Effort|current active|active Effort read list|keep EFF-|keeps EFF-" initiatives product-decisions docs/workflows efforts`
 4. For each active Effort, ask:
    - Has merged work already satisfied it?
    - Does it naturally belong to a specific unclosed phase inside an active INIT?
