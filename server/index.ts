@@ -3,6 +3,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+app.set("trust proxy", 1);
+
 const standardJsonParser = express.json({ limit: "1mb" });
 app.use((req, res, next) => {
   if (req.path === "/api/vision/analyze") {

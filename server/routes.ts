@@ -8,6 +8,7 @@ import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenla
 import {
   aiUserDayLimit,
   aiUserHourLimit,
+  apiRequestLimit,
   aiIpHourLimit,
   feedbackIpLimit,
   recipeIpHourLimit,
@@ -177,6 +178,8 @@ async function getRecentCookingSessionsOrEmpty(userId: string, limit: number, co
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  app.use('/api', apiRequestLimit);
+
   // Firebase/Google authentication routes
   app.post('/api/auth/google', verifyFirebaseToken, async (req: any, res) => {
     try {
