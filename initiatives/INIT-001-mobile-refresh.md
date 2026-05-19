@@ -32,7 +32,13 @@ Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shippe
 
 Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Pantry/Kitchen/Profile edits; History is separate cooking memory. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
 
-The latest Phase 3.1 consistency slices are merged: PR #73 aligned Slop Bowl pantry-check chips with the Chef It Up saved/recent grammar, and PR #75 aligned existing Setup/Settings Pantry/Kitchen inventory review chips with that same language. Saved Pantry/Kitchen items use green checked chips, recently-added manual/scan items use coral `+` chips with an `X`, found-again scan matches get quiet same-list emphasis plus scan copy, and state clears on setup Continue or successful Settings save. EFF-014 is resolved for Setup/Settings; Phase 5 still owns future post-cook rescan labels.
+The latest Phase 3.1 consistency slices are merged:
+
+- PR #71 updated the Planning entry to label the Slop Bowl path as italicized **Slop It Up** with one approved supporting line selected per mount, and highlighted only the key pantry fact in the Planning status line (dynamic count phrase or the word `empty`) in Planning coral.
+- PR #73 aligned Slop Bowl pantry-check chips with the Chef It Up saved/pending grammar without changing Slop Bowl behavior.
+- PR #75 aligned first-time setup and returning Settings Pantry/Kitchen inventory review chips with that same saved/pending grammar, resolving EFF-014 for Setup/Settings. Wilson validated the Settings Pantry minimum path in Replit at head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1`.
+
+Across these slices: saved Pantry/Kitchen items render as green checked chips; recently-added manual/scan items render as coral `+` chips with an `X`; found-again scan matches get quiet same-list emphasis plus scan copy; and state clears on setup Continue or successful Settings save. Phase 5 still owns future post-cook rescan labels.
 
 PR #78 attempted the remaining Ticket Pass / Prep Tray polish from fresh `origin/main`, but Wilson rejected the resulting UI. The first pass was too incremental to count as a real Ticket Pass improvement, and a later same-day overcorrection introduced fake illustration placeholders plus broken compact-ticket formatting that read worse than the stable `main` baseline. The branch was rolled back to the safer baseline, then closed unmerged. Phase 3.1 therefore still owes a material Ticket Pass visual improvement, and the next attempt should be a narrower layout-only retry rather than another broad placeholder/art experiment.
 
