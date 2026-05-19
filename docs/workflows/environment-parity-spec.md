@@ -570,6 +570,19 @@ This section defines the canonical environment contract. Every environment (Repl
   - Provenance: `server/replitAuth.ts` (legacy path; should remain disabled unless explicitly used).
 - `PORT`
   - Provenance: `server/index.ts`
+- `REPLIT_DEV_DOMAIN`, `LAICA_DEV_ALLOWED_HOSTS`, `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS`
+  - Provenance: `server/vite-hosts.ts`; development Vite host allowlist inputs.
+
+#### Development Vite host allowlist
+
+`server/vite.ts` no longer permits all development host headers. It builds `server.allowedHosts` from explicit environment metadata:
+
+- `REPLIT_DOMAINS`
+- `REPLIT_DEV_DOMAIN`
+- `LAICA_DEV_ALLOWED_HOSTS`
+- `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS`
+
+When `REPL_ID` is present, Replit suffix patterns are also allowed for workspace compatibility. Localhost and IP literals remain handled by Vite defaults.
 
 #### Optional rate-limit overrides
 
