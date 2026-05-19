@@ -52,7 +52,7 @@ Even after switching to `req.ip`, the in-memory map is still a single-process st
 
 P0 (same PR or next PR):
 
-- Fix `getClientIp` to use Express’s trusted proxy logic (`req.ip`) and ensure `trust proxy` matches the real deployment topology. See Express guidance and warnings about trusting forwarded headers. citeturn1view0
+- Fix `getClientIp` to use Express’s trusted proxy logic (`req.ip`) and ensure `trust proxy` matches the real deployment topology. Express details and warnings: https://expressjs.com/en/guide/behind-proxies/
 - Add an eviction strategy for `buckets`:
   - periodically delete expired buckets, and
   - enforce a maximum map size (LRU or “drop oldest”) to bound memory.
@@ -108,7 +108,7 @@ P1:
 
 ### Why this matters
 
-Vite documents that setting `server.allowedHosts` to `true` allows DNS rebinding attacks against the dev server, potentially exposing source code/content. citeturn3search1
+Vite documents that setting `server.allowedHosts` to `true` allows DNS rebinding attacks against the dev server, potentially exposing source code/content: https://vite.dev/config/server-options.html
 
 This is a dev-time risk, but local dev environments can hold secrets (dotenvx-decrypted env, DB URLs).
 
