@@ -32,14 +32,16 @@ Implemented the first security remediation track from the 2026-05-19 weekly scan
 
 ## Replit Validation
 
-Not yet validated in Replit. Before merge, validate:
+Validated in Replit by Wilson on 2026-05-19:
 
-- app starts successfully
-- feedback still submits
-- authenticated recipe/AI smoke does not unexpectedly rate-limit
-- typed `RATE_LIMITED` responses still surface correctly
+- App started successfully in Replit preview.
+- Firebase sign-in worked.
+- Recipe/AI flow worked without unexpected rate-limit behavior.
+- Normal app validation errors still surfaced correctly, including the more-than-20-photo upload case.
+- `curl -I http://127.0.0.1:5000` returned `HTTP/1.1 200 OK` with normal app-level `RateLimit` headers.
+- Replit Debug with Agent cleared a stale port process; Wilson indicated no code changes were expected from that action.
 
-Last Replit-validated at: not yet validated.
+Last Replit-validated at: `6a25e70`.
 
 ## Follow-up
 
