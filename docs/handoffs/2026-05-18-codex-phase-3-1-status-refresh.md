@@ -14,9 +14,8 @@ This is a docs-only update; no runtime behavior changes.
 
 ## Changes
 
-- `initiatives/INIT-001-mobile-refresh.md`: clears the stale “active PR/branch” metadata, adds a concise Phase 3.1 slice summary (PR #71/#73/#75) with the last Replit-validated runtime head reference for the Setup/Settings chip-state slice.
-- `initiatives/registry.md`: updates INIT-001 “Last signal” so it no longer implies EFF-014 is active and so the next resume point is the remaining Phase 3.1 Ticket Pass / Prep Tray facelift + async imagery work.
-- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`: updates the Phase 3.1 record status line to “In Progress” now that the early consistency slices are shipped.
+- `initiatives/INIT-001-mobile-refresh.md`: expands the Phase 3.1 “what’s merged” status to include PR #71 (Planning Slop It Up + pantry emphasis) alongside PR #73/#75, and keeps the last Replit-validated runtime head reference for the Setup/Settings chip-state slice.
+- `initiatives/registry.md`: consolidates INIT-001’s last-signal blurb so it reflects both the most recent Phase 3.1 outcome (PR #78 closed unmerged after Ticket Pass visual rejection) and the merged Phase 3.1 consistency slices (PR #71/#73/#75; EFF-014 resolved), plus the narrower next attempt brief.
 
 ## Impact on other agents
 
@@ -31,7 +30,7 @@ This is a docs-only update; no runtime behavior changes.
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: origin/main at `6a4ec60382d89338ffa8c672149b6410eda0518c`
+- Current base: origin/main at `c5cad596677402eb11e21dcf54affab1a7ed5fd7`
 - Last Replit-validated at: not applicable (docs-only); last referenced runtime validation remains `1e93bf8fdcd9933dea3200e66c138c91a5c00be1`
 - Notes: no stacked dependencies
 
