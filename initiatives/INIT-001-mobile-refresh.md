@@ -306,7 +306,7 @@ PR #57 merged into `main` as `8654d04` and made the corrected routing rule durab
 
 ### 2026-05-13 - EFF-013 and EFF-015 resolved
 
-PR #62 merged pantry manual-entry spell correction as `8de1e88`, and PR #63 closed EFF-013 as `12467f8`. PR #64 merged UI-governance enforcement as `e4d5cfe`, and PR #65 closed EFF-015 as `c969fbd`. The active Effort read list no longer includes EFF-013 or EFF-015; Mobile Refresh-adjacent active Effort work is EFF-014 unless the task touches DB/schema workflow EFF-010. EFF-017 remains deferred until the Phase 4 harness pilot.
+PR #62 merged pantry manual-entry spell correction as `8de1e88`, and PR #63 closed EFF-013 as `12467f8`. PR #64 merged UI-governance enforcement as `e4d5cfe`, and PR #65 closed EFF-015 as `c969fbd`. For current Effort status (what is active vs deferred vs resolved), rely on `efforts/README.md` (active read list) and each Effort file header, not chronology text.
 
 ### 2026-05-14 - Phase 3.1 kickoff audit merged
 
