@@ -35,11 +35,11 @@ Implemented the second security remediation track from the 2026-05-19 weekly sca
 
 ## Replit Validation
 
-Not yet validated in Replit. Before merge, validate:
+Validated in Replit by Wilson on 2026-05-19:
 
-- app starts successfully in development preview
-- Firebase sign-in still works
-- recipe/AI smoke still works without CSP/network blocks
-- admin/eval error cases still return usable generic errors
+- App started successfully in Replit preview.
+- Firebase sign-in worked.
+- Recipe/AI flow worked without CSP/network blocks.
+- Admin/eval generic `5xx` path was not manually exercised; covered by `tests/unit/security-hardening.test.ts`.
 
-Last Replit-validated at: not yet validated.
+Last Replit-validated at: `2911130`.
