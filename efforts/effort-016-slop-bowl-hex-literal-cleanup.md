@@ -85,4 +85,4 @@ Status changed from `Open` to `In Progress`. Slop Bowl's raw hex cleanup has eff
 
 Wilson closed this standalone Effort because Slop Bowl design cleanup now belongs in INIT-001, especially Phase 3.1's redesign/facelift work. Any remaining token parity, visual comparison, or Slop Bowl copy/styling polish should be recorded in the active Mobile Refresh phase docs.
 
-EFF-015 later resolved on 2026-05-13 via PR #64, shipping the lint and PR-template governance layer that prevents reintroducing raw token-equivalent hex classes.
+See EFF-015 / PR #64 for the lint and PR-template governance layer that prevents reintroducing raw token-equivalent hex classes.

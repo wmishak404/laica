@@ -12,6 +12,22 @@ Every meaningful change should update the smallest durable home that future agen
 
 Do not copy the same rationale into every related doc. Pick the primary home, link from the surrounding indexes, and record point-in-time evidence in the handoff or PR.
 
+## Status Sources of Truth (Avoid Drift)
+
+Status statements are high-churn and are the easiest way for docs to become stale. Keep “current state” in the docs that are designed to be current, and keep everything else as time-bound history or links.
+
+Authoritative homes:
+
+- **Initiative status (current phase, active PR, resume point):** the relevant `initiatives/INIT-NNN-*.md` header plus its `## Current Resume Point`. `initiatives/registry.md` is an index only.
+- **Effort status:** the Effort file header (`**Status:** ...`) is authoritative. `efforts/README.md` is the active read list; `efforts/registry.md` is historical/searchable context. If the registry ever drifts, trust the Effort file.
+- **Phase scope and acceptance criteria:** the phase record in `product-decisions/features/<feature>/` is the canonical scope/criteria home. The INIT should summarize only what is needed for current resume, not repeat the whole phase record.
+
+Avoid status mirroring:
+
+- Avoid sentences like “`EFF-015 remains open`”, “`EFF-014 is the active Effort`”, or “`Phase 3.1 is blocked on X`” in unrelated docs. Those go stale unless maintained continuously.
+- Prefer linking: “See `EFF-015` (status in header)” or “See INIT-001 `## Current Resume Point` for current status.”
+- If a status statement must appear in a chronology or resolved-history record, **time-qualify it** (“As of 2026-05-13…”) so it cannot be misread as current truth later.
+
 ## Consult Before Filing
 
 Routing starts by consulting the system, not by choosing a file. Before deciding where a request belongs, identify the product capability, behavior, or operating discipline being changed. Do not let the first UI entry point, affected file, or visible screen become the owner by default.

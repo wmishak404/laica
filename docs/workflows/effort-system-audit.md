@@ -28,7 +28,10 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
 
 1. Read `efforts/README.md` for the active list.
 2. Read `efforts/registry.md` only as needed for historical status or stale-link checks.
-3. For each active Effort, ask:
+3. Scan for **status mirroring drift** (the common “stale corner sentence” failure mode):
+   - Search for phrases like `remains open`, `still active`, `active Effort`, or `keeps EFF-` across `initiatives/`, `product-decisions/`, `docs/workflows/`, and resolved Effort files.
+   - Replace cross-doc status claims with links to the authoritative home (Effort header or INIT resume point), or time-qualify the statement if it is truly historical chronology.
+4. For each active Effort, ask:
    - Has merged work already satisfied it?
    - Does it naturally belong to a specific unclosed phase inside an active INIT?
    - Has the work already been addressed in the past, either fully or partially, and is that outcome already documented?
@@ -37,13 +40,13 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
    - Is it really a workflow/ADR/PD?
    - Does the one-line summary still explain the goal to a human?
    - Does the active read trigger still prevent useful mistakes?
-4. Close or repoint stale Efforts in the same branch.
+5. Close or repoint stale Efforts in the same branch.
    - If the work is already done, resolve it and document the accepted outcome in the appropriate closed INIT phase / chronology location.
    - If the work is not done but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch, then resolve the Effort into that phase-owned work.
    - If the work does not clearly belong to a specific unclosed INIT phase, keep it as an Effort even when it is adjacent to initiative work. Add cross-references instead of forcing it into the INIT.
-5. Update `AGENTS.md`, `CLAUDE.md`, `initiatives/registry.md`, relevant INITs, relevant PDs/workflow docs, the Efforts README, and the Effort registry if the source of truth changes.
-6. Write a handoff with what changed, why it changed, remaining active Efforts, and verification.
-7. Ask Claude for peer review through the PR/handoff path when the taxonomy or closeout rationale is non-trivial.
+6. Update `AGENTS.md`, `CLAUDE.md`, `initiatives/registry.md`, relevant INITs, relevant PDs/workflow docs, the Efforts README, and the Effort registry if the source of truth changes.
+7. Write a handoff with what changed, why it changed, remaining active Efforts, and verification.
+8. Ask Claude for peer review through the PR/handoff path when the taxonomy or closeout rationale is non-trivial.
 
 ## Cross-Reference Docs
 
@@ -80,6 +83,7 @@ Before closing or repointing an Effort, use this checklist:
    - The final home should still be easy to find through the terms a future agent is likely to search.
 8. **No redundancy is introduced.**
    - After the move, there should be one clear active home. Historical references are fine; duplicate active ownership is not.
+   - Avoid cross-doc status sentences that can drift. Prefer links to Effort headers / INIT resume points.
 9. **Acceptance/validation context survives the move.**
    - If the Effort carried meaningful open questions, validation expectations, or design constraints, the new home must preserve them or link back clearly.
 
