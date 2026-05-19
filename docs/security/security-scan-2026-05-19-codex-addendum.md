@@ -20,6 +20,7 @@ This addendum consolidates *additional* findings from a second manual review of 
 | CONSOLIDATED-02 | **Medium** | Historical plaintext `ADMIN_SECRET` committed in `.replit` (public git history) | Mitigated (assumed rotated) | Not detected by verified-only secret scanners; do not reuse value anywhere. |
 | CONSOLIDATED-03 | **Medium** | 500 responses echo `err.message` to clients (info leak risk) | Open | Fix is low-risk; production should return generic 500 text. |
 | CONSOLIDATED-04 | **Low (dev-time)** | Vite dev server `allowedHosts: true` (DNS rebinding risk) | Open | Dev-only, but dev environments hold secrets. |
+| CONSOLIDATED-05 | **Low** | `RATE_LIMIT_*` env overrides likely nonfunctional (env var mapping bug) | Open | Operators may believe overrides are applied when defaults are still used. |
 
 Claude’s open findings remain valid and are not duplicated here:
 
@@ -118,12 +119,39 @@ P2:
 
 - Replace `allowedHosts: true` with an explicit allowlist (or use Vite’s `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS` mechanism where needed).
 
+## CONSOLIDATED-05 — `RATE_LIMIT_*` env overrides likely nonfunctional
+
+### What we saw
+
+`server/rate-limit.ts` includes `envLimit()` to read values like `RATE_LIMIT_RECIPE_HOUR`.
+
+However, the current env var name computation applies a transformation across the entire string (including the literal `RATE_LIMIT_` prefix), producing keys like:
+
+- `_R_A_T_E__L_I_M_I_T_RECIPE_HOUR`
+
+That means typical overrides such as `RATE_LIMIT_RECIPE_HOUR=5` are very likely **never read**, and the system silently falls back to defaults.
+
+This issue is also called out in `docs/workflows/environment-parity-spec.md` under “Optional rate-limit overrides”.
+
+### Why this matters
+
+- If abuse/cost spikes happen, operators may try to tighten rate limits via env vars and believe it worked when it did not.
+- It removes a useful “fast response” knob for incident mitigation without a code deploy.
+
+### Suggested remediation
+
+P2:
+
+- Decide canonical override env var names (e.g. `RATE_LIMIT_<KEY>_<WINDOW>` where `<KEY>` is UPPER_SNAKE like `SLOP_BOWL`, and `<WINDOW>` is UPPER_SNAKE like `HOUR`).
+- Fix `envLimit()` to match that contract and add a small unit test asserting the mapping.
+
 ## Remediation plan (next actions)
 
 1. **P0:** Fix IP key spoofing (`getClientIp`) + add `buckets` eviction/cap.
 2. **P0:** Confirm historical `ADMIN_SECRET` value is not valid anywhere.
 3. **P1:** Stop echoing `err.message` for 500s.
 4. **P2:** Restrict Vite `allowedHosts` in dev.
+5. **P2:** Fix/clarify `RATE_LIMIT_*` env overrides (or de-scope the contract).
 
 ## Notes on scope
 
