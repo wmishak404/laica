@@ -1,7 +1,17 @@
 import type { Request, RequestHandler, Response } from "express";
+import { rateLimit } from "express-rate-limit";
 import { SCAN_IMAGES_PER_DAY } from "@shared/scan-policy";
 
-type RateLimitKey = "vision" | "recipe" | "slopBowl" | "ai" | "voice" | "speech" | "feedback";
+type RateLimitKey =
+  | "app"
+  | "api"
+  | "vision"
+  | "recipe"
+  | "slopBowl"
+  | "ai"
+  | "voice"
+  | "speech"
+  | "feedback";
 type RateLimitWindow = "short" | "hour" | "day";
 
 interface RateLimitOptions {
@@ -101,6 +111,27 @@ export function createRateLimit(options: RateLimitOptions): RequestHandler {
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
 const ONE_DAY = 24 * ONE_HOUR;
+
+const standardRateLimitResponse = {
+  code: "RATE_LIMITED",
+  message: "Too many requests. Try again later.",
+};
+
+export const appRequestLimit = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  limit: envLimit("app", "short", 1000),
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: standardRateLimitResponse,
+});
+
+export const apiRequestLimit = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  limit: envLimit("api", "short", 300),
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: standardRateLimitResponse,
+});
 
 export const feedbackIpLimit = createRateLimit({
   name: "feedback:ip",
