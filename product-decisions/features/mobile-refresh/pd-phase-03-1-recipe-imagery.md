@@ -179,6 +179,8 @@ Selected #3
 - Do not broaden Prep Tray into a new design exploration until Ticket Pass itself is visually accepted. Prep Tray should receive only light shell/alignment work in the same pass if needed.
 - Continue to treat real imagery hydration as a later separate slice into the existing `imageUrl` slots.
 
+PR #81 merged this abandonment/retry plan into `main` as `7630d97a68a1ca4adfe5915484fbd9c397b4c406`, so future Phase 3.1 runtime branches should treat these constraints as the current baseline rather than reviving PR #78.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |

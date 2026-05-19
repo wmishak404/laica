@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 3.1 / Phase 4 planning
-**Active PR:** none; [#78](https://github.com/wmishak404/laica/pull/78) was closed unmerged on 2026-05-15 after the Ticket Pass / Prep Tray polish attempt failed visual acceptance
-**Active branch:** `codex/mobile-refresh-phase-3-1-ticket-pass-plan` docs-only abandonment and retry-planning branch from fresh `origin/main`
+**Active PR:** none; [#81](https://github.com/wmishak404/laica/pull/81) merged the PR #78 abandonment plan on 2026-05-16, and no runtime PR is currently active
+**Active branch:** none; the next Ticket Pass retry should start from fresh `origin/main` on a new runtime branch
 
 ## Overview
 
@@ -103,7 +103,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#75](https://github.com/wmishak404/laica/pull/75); [#78](https://github.com/wmishak404/laica/pull/78) closed unmerged | Kickoff/audit, Planning copy/count emphasis, Slop Bowl pantry-check chip alignment, and Setup/Settings inventory review chip states are merged. PR #78 did not deliver acceptable Ticket Pass / Prep Tray improvement, so the remaining scope is now a narrower Ticket Pass layout-only retry, light Prep Tray alignment after that, async imagery, and closeout visual review |
+| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#75](https://github.com/wmishak404/laica/pull/75), [#81](https://github.com/wmishak404/laica/pull/81); [#78](https://github.com/wmishak404/laica/pull/78) closed unmerged | Kickoff/audit, Planning copy/count emphasis, Slop Bowl pantry-check chip alignment, Setup/Settings inventory review chip states, and the PR #78 abandonment/retry brief are merged. Remaining scope is a narrower Ticket Pass layout-only retry, light Prep Tray alignment after that, async imagery, and closeout visual review |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -133,6 +133,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | #75 | Merged | `codex/mobile-refresh-phase-3-1-inventory-chip-states` | Replacement against `main`; implements Setup/Settings Pantry/Kitchen saved/recent/found-again chip states; Wilson/Replit validated at `1e93bf8`; merged as `c82433d` |
 | #76 | Merged | `codex/mobile-refresh-inventory-chip-closeout` | Docs-only closeout after PR #75; merged as `f5f7d1d` |
 | #78 | Closed / abandoned | `codex/mobile-refresh-phase-3-1-ticket-prep-polish` | Ticket Pass / Prep Tray polish branch passed focused local checks and earlier behavioral smoke on `7e6c817`, but visual acceptance was withdrawn and later placeholder/layout experiments were rejected; branch rolled back to baseline and closed unmerged at `672f14e` |
+| #81 | Merged | `codex/mobile-refresh-phase-3-1-ticket-pass-plan` | Docs-only abandonment and retry-planning follow-up after PR #78; merged as `7630d97` and establishes the narrower layout-only Ticket Pass brief from fresh `origin/main` |
 
 ## Efforts and Governance
 
@@ -318,3 +319,7 @@ PR #73 merged the Slop Bowl pantry-check chip alignment as `e44c5b0`, and PR #75
 ### 2026-05-15 - PR #78 abandoned; Ticket Pass retry narrowed
 
 PR #78 attempted the remaining Ticket Pass / Prep Tray polish from fresh `origin/main`, but it did not reach an acceptable visual result. The first pass still read too much like the old centered card stack, and a later same-day overcorrection introduced fake illustration placeholders plus compact-ticket layout breakage that Wilson rejected immediately. The branch was rolled back to the safer baseline and closed unmerged at `672f14e`. Phase 3.1 should restart Ticket Pass from the current stable `main` surface with a narrower layout-only brief: preserve the current placeholder slot and readable compact-row skeleton, improve hierarchy through composition and silhouette around that skeleton, and defer generated imagery plus any broader Prep Tray redesign until after Ticket Pass is visually accepted.
+
+### 2026-05-16 - PR #81 merged the abandonment plan
+
+PR #81 merged the docs-only abandonment follow-up as `7630d97`. The rejected PR #78 branch is now historical only, and the durable baseline on `main` is explicit: the next Ticket Pass runtime attempt should start from fresh `origin/main`, preserve the current placeholder slot and compact-row readability as the minimum floor, and pursue a narrower layout-only hierarchy pass before any new imagery experiment.
