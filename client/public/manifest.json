@@ -21,13 +21,5 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["food", "lifestyle", "utilities"],
-  "screenshots": [
-    {
-      "src": "/screenshot-mobile.png",
-      "sizes": "375x812",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ]
+  "categories": ["food", "lifestyle", "utilities"]
 }

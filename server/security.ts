@@ -31,6 +31,7 @@ export function getSecurityHeaderOptions(nodeEnv = process.env.NODE_ENV): Helmet
 
   return {
     contentSecurityPolicy: isProduction ? productionContentSecurityPolicy : false,
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     crossOriginEmbedderPolicy: false,
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     strictTransportSecurity: isProduction

@@ -17,6 +17,9 @@ describe('security hardening', () => {
     expect(productionOptions.strictTransportSecurity).not.toBe(false);
     expect(developmentOptions.contentSecurityPolicy).toBe(false);
     expect(developmentOptions.strictTransportSecurity).toBe(false);
+    expect(productionOptions.crossOriginOpenerPolicy).toEqual({
+      policy: 'same-origin-allow-popups',
+    });
     expect(productionOptions.referrerPolicy).toEqual({ policy: 'strict-origin-when-cross-origin' });
   });
 
