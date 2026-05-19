@@ -24,7 +24,7 @@ Authoritative homes:
 
 Avoid status mirroring:
 
-- Avoid sentences like “`EFF-015 remains open`”, “`EFF-014 is the active Effort`”, or “`Phase 3.1 is blocked on X`” in unrelated docs. Those go stale unless maintained continuously.
+- Avoid sentences like “`EFF-015 remains open`”, “`EFF-014 is the active Effort`”, “`Keep EFF-017 deferred…`”, or “`The current active Effort read list is…`” in unrelated docs. Those go stale unless maintained continuously.
 - Prefer linking: “See `EFF-015` (status in header)” or “See INIT-001 `## Current Resume Point` for current status.”
 - If a status statement must appear in a chronology or resolved-history record, **time-qualify it** (“As of 2026-05-13…”) so it cannot be misread as current truth later.
 
