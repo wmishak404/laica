@@ -26,20 +26,32 @@ interface Bucket {
   resetAt: number;
 }
 
-const buckets = new Map<string, Bucket>();
+export const RATE_LIMIT_BUCKET_CAP = 10_000;
+const RATE_LIMIT_BUCKET_PRUNE_INTERVAL_MS = 60_000;
 
-function envLimit(key: RateLimitKey, window: RateLimitWindow, fallback: number): number {
-  const envKey = `RATE_LIMIT_${key}_${window}`.replace(/[A-Z]/g, (match) => `_${match}`).toUpperCase();
+const buckets = new Map<string, Bucket>();
+let lastBucketPruneAt = 0;
+
+function toRateLimitEnvSegment(value: string): string {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toUpperCase();
+}
+
+export function getRateLimitEnvKey(key: RateLimitKey, window: RateLimitWindow): string {
+  return `RATE_LIMIT_${toRateLimitEnvSegment(key)}_${toRateLimitEnvSegment(window)}`;
+}
+
+export function getConfiguredRateLimit(key: RateLimitKey, window: RateLimitWindow, fallback: number): number {
+  const envKey = getRateLimitEnvKey(key, window);
   const rawValue = process.env[envKey];
   const parsed = rawValue ? Number.parseInt(rawValue, 10) : Number.NaN;
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 export function getClientIp(req: Request): string {
-  const forwardedFor = req.headers["x-forwarded-for"];
-  if (typeof forwardedFor === "string" && forwardedFor.length > 0) {
-    return forwardedFor.split(",")[0].trim();
-  }
   return req.ip || req.socket.remoteAddress || "unknown";
 }
 
@@ -66,6 +78,39 @@ export function getVisionIpRateLimitKey(req: Request): string {
   return `${getClientIp(req)}:${getVisionScanContext(req)}`;
 }
 
+function pruneExpiredBuckets(now: number): void {
+  for (const [key, bucket] of Array.from(buckets.entries())) {
+    if (bucket.resetAt <= now) {
+      buckets.delete(key);
+    }
+  }
+}
+
+function pruneBucketsIfNeeded(now: number): void {
+  if (now - lastBucketPruneAt < RATE_LIMIT_BUCKET_PRUNE_INTERVAL_MS) {
+    return;
+  }
+
+  pruneExpiredBuckets(now);
+  lastBucketPruneAt = now;
+}
+
+function enforceBucketCap(now: number): void {
+  if (buckets.size <= RATE_LIMIT_BUCKET_CAP) {
+    return;
+  }
+
+  pruneExpiredBuckets(now);
+
+  while (buckets.size > RATE_LIMIT_BUCKET_CAP) {
+    const oldestKey = buckets.keys().next().value;
+    if (!oldestKey) {
+      return;
+    }
+    buckets.delete(oldestKey);
+  }
+}
+
 export function consumeRateLimit(
   { name, windowMs, max, keyGenerator }: RateLimitOptions,
   req: Request,
@@ -74,12 +119,16 @@ export function consumeRateLimit(
 ): boolean {
   const safeCount = Number.isInteger(count) && count > 0 ? count : 1;
   const now = Date.now();
+  pruneBucketsIfNeeded(now);
+
   const key = `${name}:${keyGenerator(req)}`;
   const existing = buckets.get(key);
   const bucket = existing && existing.resetAt > now ? existing : { count: 0, resetAt: now + windowMs };
 
   bucket.count += safeCount;
+  buckets.delete(key);
   buckets.set(key, bucket);
+  enforceBucketCap(now);
 
   const remaining = Math.max(0, max - bucket.count);
   res.setHeader("X-RateLimit-Limit", String(max));
@@ -97,6 +146,15 @@ export function consumeRateLimit(
   }
 
   return true;
+}
+
+export function resetRateLimitBucketsForTest(): void {
+  buckets.clear();
+  lastBucketPruneAt = 0;
+}
+
+export function getRateLimitBucketCountForTest(): number {
+  return buckets.size;
 }
 
 export function createRateLimit(options: RateLimitOptions): RequestHandler {
@@ -119,7 +177,7 @@ const standardRateLimitResponse = {
 
 export const appRequestLimit = rateLimit({
   windowMs: FIFTEEN_MINUTES,
-  limit: envLimit("app", "short", 1000),
+  limit: getConfiguredRateLimit("app", "short", 1000),
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: standardRateLimitResponse,
@@ -127,7 +185,7 @@ export const appRequestLimit = rateLimit({
 
 export const apiRequestLimit = rateLimit({
   windowMs: FIFTEEN_MINUTES,
-  limit: envLimit("api", "short", 300),
+  limit: getConfiguredRateLimit("api", "short", 300),
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: standardRateLimitResponse,
@@ -136,14 +194,14 @@ export const apiRequestLimit = rateLimit({
 export const feedbackIpLimit = createRateLimit({
   name: "feedback:ip",
   windowMs: ONE_HOUR,
-  max: envLimit("feedback", "hour", 10),
+  max: getConfiguredRateLimit("feedback", "hour", 10),
   keyGenerator: getClientIp,
 });
 
 const visionUserShortOptions = {
   name: "vision:user:15m",
   windowMs: FIFTEEN_MINUTES,
-  max: envLimit("vision", "short", SCAN_IMAGES_PER_DAY),
+  max: getConfiguredRateLimit("vision", "short", SCAN_IMAGES_PER_DAY),
   keyGenerator: getVisionUserRateLimitKey,
 };
 
@@ -161,7 +219,7 @@ export const visionIpShortLimit = createRateLimit(visionIpShortOptions);
 const visionUserDayOptions = {
   name: "vision:user:day",
   windowMs: ONE_DAY,
-  max: envLimit("vision", "day", SCAN_IMAGES_PER_DAY),
+  max: getConfiguredRateLimit("vision", "day", SCAN_IMAGES_PER_DAY),
   keyGenerator: getVisionUserRateLimitKey,
 };
 
@@ -178,7 +236,7 @@ export function consumeVisionImageRateLimits(req: Request, res: Response, imageC
 export const recipeUserHourLimit = createRateLimit({
   name: "recipe:user:hour",
   windowMs: ONE_HOUR,
-  max: envLimit("recipe", "hour", 10),
+  max: getConfiguredRateLimit("recipe", "hour", 10),
   keyGenerator: getUserRateLimitKey,
 });
 
@@ -192,14 +250,14 @@ export const recipeIpHourLimit = createRateLimit({
 export const recipeUserDayLimit = createRateLimit({
   name: "recipe:user:day",
   windowMs: ONE_DAY,
-  max: envLimit("recipe", "day", 30),
+  max: getConfiguredRateLimit("recipe", "day", 30),
   keyGenerator: getUserRateLimitKey,
 });
 
 export const slopBowlUserHourLimit = createRateLimit({
   name: "slop-bowl:user:hour",
   windowMs: ONE_HOUR,
-  max: envLimit("slopBowl", "hour", 8),
+  max: getConfiguredRateLimit("slopBowl", "hour", 8),
   keyGenerator: getUserRateLimitKey,
 });
 
@@ -213,14 +271,14 @@ export const slopBowlIpHourLimit = createRateLimit({
 export const slopBowlUserDayLimit = createRateLimit({
   name: "slop-bowl:user:day",
   windowMs: ONE_DAY,
-  max: envLimit("slopBowl", "day", 25),
+  max: getConfiguredRateLimit("slopBowl", "day", 25),
   keyGenerator: getUserRateLimitKey,
 });
 
 export const aiUserHourLimit = createRateLimit({
   name: "ai:user:hour",
   windowMs: ONE_HOUR,
-  max: envLimit("ai", "hour", 20),
+  max: getConfiguredRateLimit("ai", "hour", 20),
   keyGenerator: getUserRateLimitKey,
 });
 
@@ -234,14 +292,14 @@ export const aiIpHourLimit = createRateLimit({
 export const aiUserDayLimit = createRateLimit({
   name: "ai:user:day",
   windowMs: ONE_DAY,
-  max: envLimit("ai", "day", 80),
+  max: getConfiguredRateLimit("ai", "day", 80),
   keyGenerator: getUserRateLimitKey,
 });
 
 export const voiceUserHourLimit = createRateLimit({
   name: "voice:user:hour",
   windowMs: ONE_HOUR,
-  max: envLimit("voice", "hour", 20),
+  max: getConfiguredRateLimit("voice", "hour", 20),
   keyGenerator: getUserRateLimitKey,
 });
 
@@ -255,14 +313,14 @@ export const voiceIpHourLimit = createRateLimit({
 export const voiceUserDayLimit = createRateLimit({
   name: "voice:user:day",
   windowMs: ONE_DAY,
-  max: envLimit("voice", "day", 100),
+  max: getConfiguredRateLimit("voice", "day", 100),
   keyGenerator: getUserRateLimitKey,
 });
 
 export const speechUserHourLimit = createRateLimit({
   name: "speech:user:hour",
   windowMs: ONE_HOUR,
-  max: envLimit("speech", "hour", 30),
+  max: getConfiguredRateLimit("speech", "hour", 30),
   keyGenerator: getUserRateLimitKey,
 });
 
@@ -276,6 +334,6 @@ export const speechIpHourLimit = createRateLimit({
 export const speechUserDayLimit = createRateLimit({
   name: "speech:user:day",
   windowMs: ONE_DAY,
-  max: envLimit("speech", "day", 120),
+  max: getConfiguredRateLimit("speech", "day", 120),
   keyGenerator: getUserRateLimitKey,
 });

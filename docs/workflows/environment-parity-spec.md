@@ -571,17 +571,22 @@ This section defines the canonical environment contract. Every environment (Repl
 - `PORT`
   - Provenance: `server/index.ts`
 
-#### Optional rate-limit overrides (naming decision required)
+#### Optional rate-limit overrides
 
-The repo intends to allow `RATE_LIMIT_*` overrides (`replit.md`), but `server/rate-limit.ts` currently computes env var names in a way that appears incorrect for normal usage (it inserts underscores between every capital letter, producing keys like `_R_A_T_E__L_I_M_I_T_SLOP_BOWL_HOUR`).
+The repo allows `RATE_LIMIT_*` overrides (`replit.md`). The canonical form is:
 
-This spec requires a decision:
+```text
+RATE_LIMIT_<KEY>_<WINDOW>
+```
 
-- Either explicitly define the override variable names and fix the implementation to match,
-- Or explicitly de-scope env overrides and remove the contract claim.
+`<KEY>` and `<WINDOW>` are upper-snake-case segments derived independently from the application key and window. Examples:
+
+- `RATE_LIMIT_RECIPE_HOUR`
+- `RATE_LIMIT_SLOP_BOWL_HOUR`
+- `RATE_LIMIT_APP_SHORT`
 
 Monitoring:
-- Add a unit test that asserts the expected env var name mapping for a sample key (ex: `RATE_LIMIT_RECIPE_HOUR`).
+- `tests/unit/rate-limit.test.ts` asserts the env var name mapping and positive-integer override behavior.
 
 ---
 
