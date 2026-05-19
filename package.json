@@ -71,6 +71,7 @@
     "firebase-admin": "^13.8.0",
     "framer-motion": "^11.13.1",
     "heic-convert": "^2.1.0",
+    "helmet": "^8.1.0",
     "input-otp": "^1.4.2",
     "jsdom": "^26.1.0",
     "lucide-react": "^0.453.0",

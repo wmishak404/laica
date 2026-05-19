@@ -16,6 +16,7 @@ import {
   getPromptVersionHistory,
   getAllActivePrompts,
 } from "./prompt-manager";
+import { getPublicErrorMessage } from "./security";
 import type { FeatureType } from "./eval-criteria";
 import { z } from "zod";
 
@@ -26,7 +27,8 @@ import { z } from "zod";
 const adminAuth: RequestHandler = (req, res, next) => {
   const secret = req.headers['x-admin-secret'];
   if (!process.env.ADMIN_SECRET) {
-    return res.status(500).json({ message: "ADMIN_SECRET environment variable not set." });
+    console.error('[admin] ADMIN_SECRET environment variable not set.');
+    return res.status(500).json({ message: getPublicErrorMessage(500) });
   }
   if (!secret || secret !== process.env.ADMIN_SECRET) {
     return res.status(403).json({ message: "Forbidden: invalid admin secret." });
@@ -64,7 +66,7 @@ export function registerAdminRoutes(app: Express): void {
       res.json({ success: true, ...result });
     } catch (err: any) {
       console.error('[admin] Error submitting batch:', err);
-      res.status(500).json({ message: err.message || "Failed to submit batch." });
+      res.status(500).json({ message: getPublicErrorMessage(500) });
     }
   });
 
@@ -76,7 +78,7 @@ export function registerAdminRoutes(app: Express): void {
       res.json(status);
     } catch (err: any) {
       console.error('[admin] Error checking batch status:', err);
-      res.status(500).json({ message: err.message || "Failed to check batch status." });
+      res.status(500).json({ message: getPublicErrorMessage(500) });
     }
   });
 
@@ -88,7 +90,7 @@ export function registerAdminRoutes(app: Express): void {
       res.json({ success: true, ...result });
     } catch (err: any) {
       console.error('[admin] Error processing batch results:', err);
-      res.status(500).json({ message: err.message || "Failed to process batch results." });
+      res.status(500).json({ message: getPublicErrorMessage(500) });
     }
   });
 
@@ -204,7 +206,7 @@ export function registerAdminRoutes(app: Express): void {
       });
     } catch (err: any) {
       console.error('[admin] Error generating improved prompt:', err);
-      res.status(500).json({ message: err.message || "Failed to generate improved prompt." });
+      res.status(500).json({ message: getPublicErrorMessage(500) });
     }
   });
 
@@ -225,7 +227,7 @@ export function registerAdminRoutes(app: Express): void {
       res.json({ success: true, newVersionId: id, message: `Prompt version ${id} saved and activated for ${featureType}.` });
     } catch (err: any) {
       console.error('[admin] Error saving prompt version:', err);
-      res.status(500).json({ message: err.message || "Failed to save prompt version." });
+      res.status(500).json({ message: getPublicErrorMessage(500) });
     }
   });
 
@@ -239,7 +241,7 @@ export function registerAdminRoutes(app: Express): void {
       res.json({ success: true, message: `Prompt version ${id} is now active.` });
     } catch (err: any) {
       console.error('[admin] Error activating prompt version:', err);
-      res.status(500).json({ message: err.message || "Failed to activate prompt version." });
+      res.status(500).json({ message: getPublicErrorMessage(500) });
     }
   });
 }

@@ -1,9 +1,11 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { createSecurityHeaders, getPublicErrorMessage } from "./security";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.set("trust proxy", 1);
+app.use(createSecurityHeaders(app.get("env")));
 
 const standardJsonParser = express.json({ limit: "1mb" });
 app.use((req, res, next) => {
@@ -34,7 +36,7 @@ app.use((req, res, next) => {
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const message = getPublicErrorMessage(status, err.message);
 
     res.status(status).json({ message });
     if (status >= 500) {
