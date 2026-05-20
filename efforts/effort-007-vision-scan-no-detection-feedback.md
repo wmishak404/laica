@@ -117,11 +117,11 @@ Wilson's mobile Phase 2.1 smoke found that repeated uploads/captures of the same
 
 ### 2026-04-30 — Label-drift duplicate cleanup split to EFF-014
 
-Wilson's follow-up mobile retest confirmed the current duplicate mitigation can skip some items, but duplicate-like labels can still appear when repeated scans describe the same object differently. The deeper scan-session review pattern now lives in [EFF-014](effort-014-scan-session-diff-and-duplicate-refinement.md). EFF-007 remains focused on clear scan outcome feedback, while EFF-014 owns latest-scan/new-vs-overlap indicators and duplicate cleanup UX.
+Wilson's follow-up mobile retest confirmed the current duplicate mitigation can skip some items, but duplicate-like labels can still appear when repeated scans describe the same object differently. The deeper scan-session review pattern moved to [EFF-014](effort-014-scan-session-diff-and-duplicate-refinement.md). At that point, EFF-007 stayed focused on clear scan outcome feedback, while EFF-014 owned latest-scan/new-vs-overlap indicators and duplicate cleanup UX.
 
-### 2026-05-01 — Phase 2.1 merged, but Effort remains open
+### 2026-05-01 — Phase 2.1 merged, but Effort stayed open
 
-PR #27 merged Phase 2.1's explicit scan outcome feedback into `main`. This satisfies the implementation direction for setup/settings scan messaging, but this Effort remains open because its resolution criteria still require a named negative-control pantry/kitchen image validation note. Future scan-feedback work should either supply that validation evidence or deliberately split the remaining criterion.
+PR #27 merged Phase 2.1's explicit scan outcome feedback into `main`. This satisfied the implementation direction for setup/settings scan messaging, but the Effort stayed open at that point because its resolution criteria still required a named negative-control pantry/kitchen image validation note. Future scan-feedback work should either supply that validation evidence or deliberately split the remaining criterion.
 
 ### 2026-05-07 — EFF-018 copy pass removes blame-y scan failure language
 
@@ -129,7 +129,7 @@ The EFF-018 authenticated error handling branch also touched scan failure copy i
 
 ### 2026-05-09 - Effort status audit
 
-Status changed from `Open` to `In Progress`. Explicit no-detection feedback has shipped across the refreshed setup/settings scan surfaces, and later scan-message work preserved that distinction. The Effort remains unresolved because the final criterion still requires named negative-control pantry/kitchen validation evidence for a valid empty scan.
+Status changed from `Open` to `In Progress`. Explicit no-detection feedback had shipped across the refreshed setup/settings scan surfaces, and later scan-message work preserved that distinction. The Effort stayed unresolved at that point because the final criterion still required named negative-control pantry/kitchen validation evidence for a valid empty scan.
 
 ### 2026-05-09 — Resolved
 

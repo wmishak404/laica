@@ -96,7 +96,7 @@ This Effort can be resolved when all of the following are true:
 
 ## 2026-05-06 — Filed From Phase 3 Replit Validation
 
-Filed after Wilson reported the misleading demo-limit toast and repeated pantry recipe 400s during INIT-001 Phase 3 validation. Current branch has already aligned recipe preference caps locally, but the Effort remains open because the cross-app error handler still carries demo-era behavior and the Replit 500-character symptom needs validation against the running environment.
+Filed after Wilson reported the misleading demo-limit toast and repeated pantry recipe 400s during INIT-001 Phase 3 validation. The branch had already aligned recipe preference caps locally, but the Effort stayed open at filing time because the cross-app error handler still carried demo-era behavior and the Replit 500-character symptom needed validation against the running environment.
 
 ## 2026-05-07 — Live Cooking Error UX Deferred to Phase 4
 

@@ -138,7 +138,7 @@ Durable saves include:
 
 ## Open follow-ups
 
-- Land the Phase 0 docs baseline in [INIT-003](../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md) and then start runtime work from fresh `origin/main`.
+- Start [INIT-003](../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md) Phase 1 runtime work from fresh `origin/main`; the Phase 0 docs baseline is already on `main` at `f3de076`.
 - Add Firebase App Check before enabling public anonymous auth in production.
 - File separate analytics work for guest-to-link and returning-user measurement rather than expanding this PD into a measurement plan.
 - Re-evaluate the 5-generation cap after real usage evidence, cost signals, and Phase 5 returning-user data exist.

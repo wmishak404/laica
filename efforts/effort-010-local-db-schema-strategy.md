@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-05-12
+**Updated:** 2026-05-20
 
 ## One-line summary
 
@@ -88,6 +88,7 @@ This Effort is `Resolved` when all of the following are true:
 
 - `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`
 - `product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md`
+- `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md`
 - `docs/workflows/testing-and-acceptance.md`
 - `docs/adr/0001-replit-primary-local-agents.md`
 - `docs/handoffs/2026-04-10-claude-slop-bowl-replit-merge.md`
@@ -100,3 +101,9 @@ Phase 5 introduces pending-cleanup and taste-signal persistence on cooking sessi
 ## 2026-05-12 — Weekly hygiene audit
 
 Reviewed against `docs/workflows/environment-parity-spec.md`, `efforts/effort-017-environment-parity-and-ci-confidence.md`, `docs/adr/0001-replit-primary-local-agents.md`, PD-008, and INIT-002's future DB phase. Keep this as an active standalone Effort: the parity spec is still draft, EFF-017 is deferred, and no durable ADR/PD has selected the local database model, `db:push` permission boundary, `.env.keys` provisioning path, or schema-health check required by this Effort's resolution criteria.
+
+## 2026-05-20 — Weekly hygiene audit
+
+Reviewed from fresh `origin/main` at `37329f7` against `efforts/README.md`, `efforts/registry.md`, active INITs 001-003, `product-decisions/README.md`, PD-007, `docs/workflows/effort-system-audit.md`, `docs/workflows/documentation-routing.md`, `docs/workflows/environment-parity-spec.md`, and merged docs/runtime history since the 2026-05-12 audit.
+
+Keep this as the only active standalone Effort. INIT-002 Phase 3 and INIT-003 future quota/promotion phases both depend on the Replit-authoritative schema posture, but neither selects a local database model, `db:push` permission boundary, `.env.keys` provisioning path, or schema-health command for local macOS worktrees. EFF-017 remains deferred and the parity spec remains draft, so closing EFF-010 into an INIT, PD, or workflow doc would hide unresolved local DB ownership decisions rather than resolve them.

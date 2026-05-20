@@ -3,9 +3,9 @@
 **Status:** Planning
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-15
-**Current phase:** Phase 0 — docs baseline and external prerequisites
+**Current phase:** Phase 1 — server auth and abuse-control foundations (next)
 **Active PR:** None
-**Active branch:** `codex/init-003-anonymous-trial-docs`
+**Active branch:** None; the historical docs branch `codex/init-003-anonymous-trial-docs` is already contained in `origin/main`
 
 ## Overview
 
@@ -32,9 +32,9 @@ The current accepted direction is:
 
 ## Current Status
 
-Phase 0 is the current work: documenting the accepted direction in a durable way before runtime changes begin.
+Phase 0 is merged on `main` via docs-baseline commit `f3de076`. It added INIT-003, PD-012, the cross-links from Mobile Refresh Phase 1/Phase 5, and the initial handoff.
 
-No runtime implementation has started yet. The first runtime slice should begin only after this docs baseline is on `main`, so later branches can inherit the same accepted product and security contract instead of rebuilding it from chat.
+No runtime implementation has started yet. The first runtime slice can now begin from fresh `origin/main`, inheriting the same accepted product and security contract instead of rebuilding it from chat.
 
 The first runtime phase should stay narrow:
 
@@ -65,8 +65,8 @@ No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refre
 
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
-| Phase 0 — docs baseline and prerequisites | In progress | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
-| Phase 1 — server auth and abuse-control foundations | Planned | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
+| Phase 0 — docs baseline and prerequisites | Merged | `f3de076` / `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 captured the accepted guest model, security gates, and revisit triggers before runtime work starts |
+| Phase 1 — server auth and abuse-control foundations | Planned (next) | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
 | Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 5-generation anonymous quota accounting |
 | Phase 3 — client guest entry and same-browser persistence | Planned | TBD | Anonymous sign-in, `/api/auth/session` adoption, and local guest-state namespacing/cleanup |
 | Phase 4 — upgrade-to-save boundary and promotion | Planned | TBD | Typed `UPGRADE_REQUIRED` responses, Google link flow, and strict trial-state promotion |
@@ -77,7 +77,7 @@ No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refre
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
-| None yet | Planning/docs in progress | `codex/init-003-anonymous-trial-docs` | Docs-only branch; runtime validation has not started |
+| Docs baseline | Merged | `codex/init-003-anonymous-trial-docs` | Commit `f3de076` is on `origin/main`; runtime validation has not started |
 
 ## Efforts and Governance
 
@@ -106,17 +106,16 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 
 ## Validation State
 
-- Docs-only branch so far. No runtime validation has been performed.
+- Phase 0 docs baseline is on `origin/main` at `f3de076`; no runtime validation has been performed.
 - Future runtime phases should keep Replit as the authoritative validation environment for linked-account, provider-backed, and deployment-bound behavior.
 - Production enablement is blocked until Firebase App Check is configured and anonymous auth can be verified under real rate-limit and kill-switch behavior.
 
 ## Current Resume Point
 
-1. Merge this docs baseline so `INIT-003` and `PD-012` are visible on `main`.
-2. Start Phase 1 runtime work from fresh `origin/main` on a new branch, not on this docs branch.
-3. Keep the first runtime slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, and auth-session groundwork.
-4. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, and linked-save boundaries are implemented and validated.
-5. If measurement work becomes urgent, file a separate analytics effort rather than overloading the Phase 1 runtime branch.
+1. Start Phase 1 runtime work from fresh `origin/main` on a new branch, not on the historical docs branch.
+2. Keep the first runtime slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, and auth-session groundwork.
+3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, and linked-save boundaries are implemented and validated.
+4. If measurement work becomes urgent, file a separate analytics effort rather than overloading the Phase 1 runtime branch.
 
 ## Chronology
 
@@ -140,3 +139,7 @@ Security review also locked several preconditions into the initiative baseline:
 - server kill switch for anonymous traffic
 - App Check before production enablement
 - no anonymous durable-user row creation on sign-in alone
+
+### 2026-05-20 — Phase 0 docs baseline found on main
+
+The weekly Effort hygiene audit found the Phase 0 docs-baseline commit `f3de076` on `origin/main` while INIT-003 still described the docs branch as active. The INIT and registry now treat Phase 0 as merged and Phase 1 as the next runtime slice. No runtime implementation or validation has started.

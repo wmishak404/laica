@@ -78,6 +78,7 @@ Current active INITs:
 
 - `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
 - `initiatives/INIT-002-ai-error-telemetry.md` — read before adding AI error logging/telemetry, creating or migrating an `ai_error_events` schema, adding admin APIs for AI error summaries/lists/details, correlating Feedback with AI failures, or extending the eval pipeline to consume operational error clusters.
+- `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md` — read before changing guest entry, anonymous quota, Google linking, account upgrade boundaries, guest persistence, App Check launch gates, or Phase 5 linked-only memory behavior.
 
 ## UI governance — check before any UI work
 
@@ -90,7 +91,6 @@ The `efforts/` directory tracks standalone follow-up work that does not currentl
 Current active Efforts:
 
 - `efforts/effort-010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
-- `efforts/effort-014-scan-session-diff-and-duplicate-refinement.md` — read before changing Pantry/Kitchen scan chip states, latest-scan indicators, duplicate cleanup, or found-again/overlap messaging
 
 If work belongs to an active/future INIT phase, update the INIT or feature phase record instead of creating a new Effort. If work is governance/process, update a workflow doc, ADR, or PD instead of creating a new Effort.
 

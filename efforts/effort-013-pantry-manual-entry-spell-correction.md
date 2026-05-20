@@ -119,11 +119,11 @@ Wilson asked to capture a future pantry manual-entry autocorrect behavior after 
 
 Wilson clarified the closure rule: an Effort should only close into an INIT when the work is already shipped or when a specific unclosed INIT phase naturally owns the remaining scope. Pantry spell correction does not currently meet that bar. It spans setup/settings pantry entry and possible later cleanup/manual-add work, but no open Mobile Refresh phase has been updated to own it directly.
 
-Keep this as an active Effort. If a future Mobile Refresh phase takes pantry spell correction explicitly, reconcile it in that branch and only then consider resolving this Effort into the phase record.
+At that point, this stayed active. If a future Mobile Refresh phase took pantry spell correction explicitly, that branch needed to reconcile ownership before resolving the Effort into the phase record.
 
 ### 2026-05-12 — Weekly hygiene audit
 
-Rechecked against INIT-001, Phase 2.1/2.2 deferrals, and the planned Phase 3.1 / Phase 4 / Phase 5 records. No merged work implements conservative pantry spell correction, and no single unclosed Mobile Refresh phase has been updated to own the full setup/settings/future-manual-add scope. Keep this as an active standalone Effort with an INIT-001 cross-reference.
+Rechecked against INIT-001, Phase 2.1/2.2 deferrals, and the planned Phase 3.1 / Phase 4 / Phase 5 records. As of this audit, no merged work implemented conservative pantry spell correction, and no single unclosed Mobile Refresh phase had been updated to own the full setup/settings/future-manual-add scope. The Effort therefore stayed active with an INIT-001 cross-reference until PR #62 shipped it the next day.
 
 ### 2026-05-13 — V0 product-playground implementation started
 
