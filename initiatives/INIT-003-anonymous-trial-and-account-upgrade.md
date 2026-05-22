@@ -32,7 +32,7 @@ The current accepted direction is:
 
 ## Current Status
 
-Phase 3 is the current runtime work: client guest entry, same-browser persistence, and the public pre-auth homepage.
+Phase 3 is the current runtime work: client guest entry, same-browser persistence, and the public pre-auth homepage. The accepted launch path is now **Plan B: public homepage + clean guest MVP**, not full anonymous-trial completion.
 
 Runtime implementation has started with a deliberately narrow Phase 3 slice after Wilson chose to place the richer public homepage inside INIT-003 rather than reopening INIT-001 Phase 1 auth polish.
 
@@ -47,6 +47,25 @@ The remaining server-auth foundation should stay narrow:
 - linked-only compatibility guard on the existing `/api/auth/google` path
 
 Public production enablement is blocked until Firebase App Check is configured and enforced.
+
+## Plan B Guest MVP Launch Path
+
+Plan B prioritizes shipping the public pre-auth homepage before INIT-001 Phase 4 or Phase 5, while keeping the guest runtime honest about what is local/session-limited versus durable account memory.
+
+Before public launch, this branch still needs targeted Replit validation and the minimum guest-MVP gates:
+
+- `Let's cook!` creates a real anonymous Firebase session in Replit.
+- Google sign-in still upserts and routes linked users correctly.
+- Same-browser guest setup persists through a normal reopen.
+- Guests can reach recipe ideas without creating durable server-side saves.
+- Anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, and Firebase App Check posture are confirmed before production enablement.
+- Guest quota/upgrade messaging appears inside usage moments, not on the landing page.
+
+Out of scope for this launch path:
+
+- Full INIT-001 Phase 4 cooking guidance.
+- INIT-001 Phase 5 post-cook cleanup, taste memory, next-meal retention, and durable History behavior for guests.
+- Retro-importing anonymous completion state into durable linked-account history after Google linking.
 
 ## Source Docs
 
@@ -70,7 +89,7 @@ No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refre
 | Phase 0 — docs baseline and prerequisites | Complete | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
 | Phase 1 — server auth and abuse-control foundations | Planned | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
 | Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 5-generation anonymous quota accounting |
-| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Let's cook!` CTA and no numeric quota copy |
+| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Plan B public homepage + guest MVP launch path: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Let's cook!` CTA and no numeric quota copy |
 | Phase 4 — upgrade-to-save boundary and promotion | Planned | TBD | Typed `UPGRADE_REQUIRED` responses, Google link flow, and strict trial-state promotion |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
 | Phase 6 — operations, cleanup, and launch | Planned | TBD | Account-mode operational logging, stale anonymous-account cleanup, and production enablement gates |
@@ -106,6 +125,7 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - save moment: save your kitchen
 - Product analytics was intentionally separated from INIT-003 runtime scope so guest auth, quota, persistence, and Phase 5 boundaries can land without also inventing a new analytics foundation.
 - Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Let's cook!` as the guest CTA, keep Google as the linked-account path, and avoid numeric quota language on the landing page.
+- Wilson accepted Plan B on 2026-05-22: ship the public homepage and narrow guest MVP before full INIT-001 Phase 4 or Phase 5, as long as production guest gates remain explicit and durable cooking memory stays linked-account only.
 
 ## Validation State
 
@@ -115,10 +135,11 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 
 ## Current Resume Point
 
-1. Finish and validate `codex/init-003-preauth-homepage`.
-2. Keep the remaining server-auth slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, and auth-session hardening.
-3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, and linked-save boundaries are implemented and validated.
-4. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
+1. Finish and Replit-validate `codex/init-003-preauth-homepage` as the Plan B public homepage + guest MVP launch path.
+2. Keep the remaining server-auth slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, auth-session hardening, and quota enforcement.
+3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, anonymous abuse controls, and linked-save boundaries are implemented and validated.
+4. Coordinate Phase 4/5 guest-facing copy with INIT-001: landing promises cooking guidance, but durable cooking memory and Phase 5 retention remain linked-only in v1.
+5. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
 
 ## Chronology
 

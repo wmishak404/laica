@@ -12,6 +12,8 @@
 
 Implemented the Phase 3 public guest-entry slice for INIT-003: the pre-auth page now explains Laica before asking for Google identity, the public CTA is `Let's cook!`, and that CTA is wired to Firebase anonymous sign-in rather than a fake demo path. This is intentionally still a narrow client/session slice; production guest launch remains blocked on quota accounting, App Check, kill-switch/rate-limit hardening, and upgrade/save boundaries.
 
+Wilson accepted **Plan B** after this implementation: use the pre-auth homepage as the public entry point and ship a clean guest MVP before full INIT-001 Phase 4 or Phase 5. Plan B does not change the linked-account boundary for durable cooking memory, History, cleanup, taste signals, or retention.
+
 ## Product / UX Changes
 
 - Replaced the minimal signed-out landing screen with the A+C hybrid homepage direction:
@@ -48,11 +50,27 @@ Implemented the Phase 3 public guest-entry slice for INIT-003: the pre-auth page
 - [INIT-003](../../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md)
   - status/current phase moved to Phase 3 public pre-auth homepage and client guest entry
   - recorded the soft-sequence override with hard production gates
+  - added Plan B public homepage + clean guest MVP launch path, Replit validation gates, and explicit non-goals
   - recorded branch and validation status
+- [INIT-001](../../initiatives/INIT-001-mobile-refresh.md)
+  - added Plan B sequencing: public homepage/guest MVP can ship before Phase 4, while Phase 5 remains after Phase 4
+- [Mobile Refresh Phase 4](../../product-decisions/features/mobile-refresh/pd-phase-04-cooking.md)
+  - recorded that landing-page cooking-guidance promises are fulfilled later by Phase 4 and that guest Finish must not silently create durable history
+- [Mobile Refresh Phase 5](../../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md)
+  - recorded that Plan B does not pull cleanup/retention forward and anonymous completion state is not retro-imported into durable history in v1
+- [Mobile Refresh phase README](../../product-decisions/features/mobile-refresh/README.md)
+  - added Plan B to the default sequence and preserved Phase 4-before-Phase 5 as the hard dependency
 - [Initiative registry](../../initiatives/registry.md)
-  - INIT-003 now points at this runtime branch and Phase 3 work
+  - INIT-003 now points at this runtime branch, Phase 3 work, and Plan B guest-MVP signal
 - [PD-012](../../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md)
   - landing copy guidance now avoids numeric guest quota language and uses simple guest-entry framing
+
+## PR Summary Notes
+
+- Pre-auth homepage change: A+C hybrid homepage, `Let's cook!` anonymous entry, Google as linked-account path, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
+- Deferred INIT-003 gates: Replit auth smoke, anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, Firebase App Check posture, and full upgrade-to-save boundary.
+- Phase 4 follow-up: linked users get durable cooking guidance/history; guests must see a local-only or link-Google boundary before any completion path that would imply saved history.
+- Phase 5 follow-up: cleanup, taste memory, next-meal seed, History retention, share/cook-again memory, and anonymous-to-linked retro-import remain out of guest MVP v1.
 
 ## Validation
 
@@ -64,6 +82,7 @@ Implemented the Phase 3 public guest-entry slice for INIT-003: the pre-auth page
 - In-app browser visual checks against local `http://127.0.0.1:3000/`:
   - desktop 1280x720: no horizontal overflow, headline and both CTAs visible/enabled
   - mobile 390x844: no horizontal overflow, CTAs stacked/enabled, scan caption no longer overlaps pantry chips
+- Plan B docs follow-up: `git diff --check`
 
 Known build warnings only:
 
@@ -77,8 +96,10 @@ Known build warnings only:
   - `Let's cook!` starts real anonymous Firebase entry in the Replit runtime
   - Google sign-in still upserts/routes correctly
   - guest setup persists across same-browser reopen
-- Quota enforcement, App Check, anonymous kill switch, anonymous rate-limit identity, and full upgrade-to-save boundary are still future INIT-003 phases.
+  - guests reach recipe ideas without durable server saves
+  - linked-user cooking/history flows still work
+- Quota enforcement, App Check, anonymous kill switch, anonymous rate-limit identity, and full upgrade-to-save boundary are still future INIT-003 gates before public guest enablement.
 
 ## Resume Point
 
-Open a PR for `codex/init-003-preauth-homepage`, then run targeted Replit validation for the landing/auth entry surfaces. Do not treat this branch as production-ready guest launch; it is the visual/client/session foundation for the remaining INIT-003 runtime phases.
+Open a PR for `codex/init-003-preauth-homepage`, then run targeted Replit validation for the landing/auth entry surfaces and guest recipe-idea path. Do not treat this branch as production-ready guest launch until the Plan B gates above are implemented or explicitly confirmed.
