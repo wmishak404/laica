@@ -84,8 +84,8 @@ export default function Landing() {
               </p>
             </motion.div>
 
-            <motion.div className="space-y-3" variants={reveal} transition={{ duration: 0.34, ease: "easeOut" }}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <motion.div className="max-w-md space-y-3" variants={reveal} transition={{ duration: 0.34, ease: "easeOut" }}>
+              <div className="grid grid-cols-1 gap-3">
                 <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
                   <Button
                     type="button"
@@ -103,10 +103,10 @@ export default function Landing() {
                 <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
                   <GoogleSignInButton
                     variant="outline"
-                    className="h-14 w-full rounded-full border-2 text-base font-extrabold"
+                    className="h-14 w-full rounded-full border-2 px-5 text-base font-extrabold"
                   >
                     <GoogleIcon />
-                    <span>Continue with Google</span>
+                    <span className="min-w-0 whitespace-nowrap">Continue with Google</span>
                   </GoogleSignInButton>
                 </motion.div>
               </div>

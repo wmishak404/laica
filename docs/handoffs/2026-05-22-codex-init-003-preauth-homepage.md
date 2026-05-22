@@ -45,6 +45,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
   - guest Slop It Up is blocked with an upgrade/save-memory toast
   - guest empty-pantry recovery returns to setup instead of linked-account settings
 - Replit validation follow-up found that guest users could continue from recipe ideas into the cooking guide, where the shared live-cooking component attempted to create durable cooking-session memory. This branch now skips durable cooking-session start/update/complete writes for anonymous users while preserving linked-user session writes.
+- Replit landscape visual smoke found the Google CTA overflowing when the landing buttons switched into two columns. The CTA group now stays stacked with bounded width so `Continue with Google` gets its own row across mobile, landscape, and desktop widths.
 
 ## Docs Updated
 
@@ -81,6 +82,13 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx`
 - `npm run check`
 - `npm run build`
+- Replit browser smoke by Wilson at `87f02c7` before the landing CTA layout patch:
+  - anonymous setup survived reload in the same browser
+  - anonymous cooking guide did not call `POST /api/cooking/session/start`
+  - anonymous profile path did not call `PUT /api/user/profile`
+  - Google linked sign-in upserted/routed
+  - returning linked-user History worked and first-time linked-user empty History was expected
+  - landing had no quota/upgrade pressure
 - In-app browser visual checks against local `http://127.0.0.1:3000/`:
   - desktop 1280x720: no horizontal overflow, headline and both CTAs visible/enabled
   - mobile 390x844: no horizontal overflow, CTAs stacked/enabled, scan caption no longer overlaps pantry chips
@@ -102,6 +110,7 @@ Known build warnings only:
   - guests can enter the cooking guide without creating durable cooking-session rows
   - linked-user cooking/history flows still work
 - Quota enforcement, App Check, anonymous kill switch, anonymous rate-limit identity, and full upgrade-to-save boundary are still future INIT-003 gates before public guest enablement.
+- Because the CTA layout patch changed the branch after Wilson's Replit smoke, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 
 ## Resume Point
 
