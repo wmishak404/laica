@@ -122,6 +122,172 @@ html, body {
 }
 
 @layer components {
+  .landing-ui {
+    --setup-cream: 38 100% 96%;
+    --setup-cream-deep: 35 88% 92%;
+    --setup-coral-soft: 0 100% 93%;
+    --setup-coral-strong: 0 84% 67%;
+    --setup-ink: 223 21% 18%;
+    --setup-butter: 43 100% 76%;
+    --setup-teal: 174 50% 46%;
+    background:
+      radial-gradient(circle at 16% 4%, hsl(var(--setup-butter) / 0.28), transparent 18rem),
+      radial-gradient(circle at 88% 18%, hsl(var(--setup-teal) / 0.16), transparent 18rem),
+      linear-gradient(180deg, hsl(var(--setup-cream)), hsl(var(--setup-cream-deep)));
+    color: hsl(var(--setup-ink));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .landing-ui .setup-display {
+    font-family: 'Fraunces', 'Merriweather', Georgia, serif;
+    letter-spacing: 0;
+  }
+
+  .landing-kicker {
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.22);
+    border-radius: 999px;
+    background: hsl(0 0% 100% / 0.64);
+    color: hsl(var(--setup-coral-strong));
+    font-size: 0.78rem;
+    font-weight: 1000;
+    line-height: 1;
+    padding: 0.62rem 0.78rem;
+    text-transform: uppercase;
+  }
+
+  .landing-demo-object {
+    display: grid;
+    gap: 0.85rem;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.16);
+    border-radius: 1.75rem;
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.52), hsl(0 0% 100% / 0.28)),
+      hsl(var(--setup-cream) / 0.84);
+    box-shadow: 0 1.35rem 3rem hsl(var(--setup-coral-strong) / 0.13);
+    padding: 1rem;
+  }
+
+  .landing-scan-panel {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    min-height: 10.5rem;
+    overflow: hidden;
+    border: 1px solid hsl(var(--setup-ink) / 0.16);
+    border-radius: 1.35rem;
+    background:
+      radial-gradient(circle at 18% 18%, hsl(var(--setup-butter) / 0.22), transparent 10rem),
+      hsl(var(--setup-ink));
+    padding: 1.15rem;
+  }
+
+  .landing-scan-main {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .landing-scan-frame {
+    display: flex;
+    height: 5.7rem;
+    width: 5.7rem;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid hsl(var(--accent));
+    border-radius: 1.15rem;
+    background: hsl(0 0% 100% / 0.1);
+    animation: landing-scan-pulse 1.5s ease-out 2;
+  }
+
+  .landing-pantry-chip {
+    display: block;
+    min-width: 6.4rem;
+    border: 1px solid hsl(135 38% 76%);
+    border-radius: 999px;
+    background: hsl(134 42% 92%);
+    color: hsl(137 28% 40%);
+    font-size: 0.88rem;
+    font-weight: 1000;
+    line-height: 1;
+    padding: 0.62rem 0.9rem;
+    text-align: center;
+  }
+
+  .landing-scan-caption {
+    color: hsl(0 0% 100%);
+    font-size: 0.92rem;
+    font-weight: 1000;
+    line-height: 1.15;
+    max-width: 9.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .landing-scan-caption {
+      max-width: 12rem;
+    }
+  }
+
+  .landing-recipe-ticket,
+  .landing-proof-card {
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
+    border-radius: 1.15rem;
+    background: hsl(0 0% 100% / 0.72);
+    box-shadow: 0 0.6rem 1.4rem hsl(var(--setup-coral-strong) / 0.08);
+  }
+
+  .landing-recipe-ticket {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.2rem;
+  }
+
+  .landing-proof-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1rem;
+  }
+
+  .landing-proof-icon {
+    display: flex;
+    height: 2.75rem;
+    width: 2.75rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
+    border-radius: 0.95rem;
+    background: hsl(var(--setup-coral-soft) / 0.7);
+    color: hsl(var(--setup-coral-strong));
+  }
+
+  @keyframes landing-scan-pulse {
+    0% {
+      box-shadow: 0 0 0 0 hsl(var(--accent) / 0.42);
+      transform: scale(1);
+    }
+
+    72% {
+      box-shadow: 0 0 0 1.1rem hsl(var(--accent) / 0);
+      transform: scale(1.025);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--accent) / 0);
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-scan-frame {
+      animation: none;
+    }
+  }
+
   .setup-ui {
     --setup-cream: 38 100% 96%;
     --setup-cream-deep: 35 88% 92%;

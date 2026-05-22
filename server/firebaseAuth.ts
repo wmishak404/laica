@@ -8,6 +8,8 @@ export interface FirebaseUser {
   displayName: string | null;
   photoURL: string | null;
   emailVerified: boolean;
+  authProvider: string | null;
+  isAnonymous: boolean;
 }
 
 class FirebaseAuthConfigError extends Error {
@@ -58,12 +60,16 @@ function getAdminAuth() {
 }
 
 function firebaseUserFromDecodedToken(decodedToken: DecodedIdToken): FirebaseUser {
+  const authProvider = decodedToken.firebase?.sign_in_provider || null;
+
   return {
     uid: decodedToken.uid,
     email: decodedToken.email || null,
     displayName: decodedToken.name || null,
     photoURL: decodedToken.picture || null,
     emailVerified: decodedToken.email_verified || false,
+    authProvider,
+    isAnonymous: authProvider === "anonymous",
   };
 }
 

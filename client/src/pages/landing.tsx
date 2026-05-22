@@ -1,24 +1,27 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Camera, ChefHat, Clock3, Leaf, Mic2, ScanLine, Utensils } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { ChefHat, ScanLine, UserRound } from "lucide-react";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import laicaLogo from "@assets/laica_logo_v1_cropped_1763444931884.png";
 
-const helpItems = [
+const pantryChips = ["eggs", "rice", "hot sauce"];
+
+const proofCards = [
   {
-    icon: UserRound,
-    title: "Personalized Profiles",
-    description: "Tell Laica how you cook so suggestions fit your skill, diet, and kitchen.",
+    icon: Utensils,
+    title: "Recipe ideas",
+    copy: "Dinner options shaped around pantry facts, time, and taste.",
   },
   {
-    icon: ScanLine,
-    title: "Smart Pantry Recognition",
-    description: "Scan pantry or fridge photos and turn visible ingredients into an editable list.",
+    icon: Camera,
+    title: "Pantry scan",
+    copy: "Photos become an editable list of ingredients Laica can cook with.",
   },
   {
-    icon: ChefHat,
-    title: "Live Cooking Guidance",
-    description: "Cook step by step with cues, timers, and answers while dinner is happening.",
+    icon: Mic2,
+    title: "Cooking guidance",
+    copy: "Step cues, substitutions, and timers stay nearby while you cook.",
   },
 ];
 
@@ -34,57 +37,147 @@ function GoogleIcon() {
 }
 
 export default function Landing() {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const { signInAsGuest, isLoading } = useFirebaseAuth();
+  const prefersReducedMotion = useReducedMotion();
+  const motionEnabled = !prefersReducedMotion;
+
+  const reveal = {
+    hidden: { opacity: 0, y: motionEnabled ? 16 : 0 },
+    show: { opacity: 1, y: 0 },
+  };
 
   return (
-    <main className="min-h-screen bg-sidebar text-sidebar-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-7 pb-8 pt-12">
-        <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <img src={laicaLogo} alt="Laica" className="mb-7 h-20 object-contain" />
-          <h1 className="max-w-xs text-4xl font-semibold leading-tight">
-            Welcome to Laica
-          </h1>
-          <p className="mt-3 text-lg text-sidebar-foreground/75">
-            Your live cooking assistant
-          </p>
-        </div>
+    <main className="landing-ui min-h-screen overflow-hidden">
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pb-7 pt-8 md:max-w-5xl md:px-8">
+        <motion.section
+          className="flex flex-1 flex-col justify-center gap-8 py-4 md:grid md:grid-cols-[0.95fr_1.05fr] md:items-center md:gap-10"
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: {
+              transition: {
+                staggerChildren: motionEnabled ? 0.08 : 0,
+              },
+            },
+          }}
+        >
+          <div className="space-y-6">
+            <motion.img
+              src={laicaLogo}
+              alt="Laica"
+              className="h-12 w-auto object-contain md:h-14"
+              variants={reveal}
+              transition={{ duration: 0.36, ease: "easeOut" }}
+            />
 
-        <div className="space-y-5">
-          <GoogleSignInButton className="h-14 w-full rounded-lg bg-accent text-lg font-semibold text-accent-foreground hover:bg-accent/90">
-            <GoogleIcon />
-            <span>Continue with Google</span>
-          </GoogleSignInButton>
+            <motion.div className="space-y-4" variants={reveal} transition={{ duration: 0.36, ease: "easeOut" }}>
+              <p className="landing-kicker inline-flex items-center gap-2">
+                <Leaf className="h-4 w-4" aria-hidden="true" />
+                Pantry-first cooking help
+              </p>
+              <h1 className="setup-display text-[3rem] font-extrabold leading-[0.96] tracking-normal text-[hsl(var(--setup-ink))] md:text-[4.5rem]">
+                Cook from what you already have.
+              </h1>
+              <p className="max-w-sm text-base font-bold leading-relaxed text-[hsl(var(--setup-ink)/0.68)] md:text-lg">
+                Show Laica your pantry, get dinner ideas that fit your real kitchen, then cook with cues when you need them.
+              </p>
+            </motion.div>
 
-          <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
-            <DialogTrigger asChild>
-              <button className="mx-auto block text-sm text-sidebar-foreground/70 underline underline-offset-4">
-                What can you help me do?
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm rounded-lg">
-              <DialogHeader>
-                <DialogTitle>Laica helps with dinner</DialogTitle>
-                <DialogDescription>
-                  A quick look at what the app can do once you sign in.
-                </DialogDescription>
-              </DialogHeader>
+            <motion.div className="space-y-3" variants={reveal} transition={{ duration: 0.34, ease: "easeOut" }}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={signInAsGuest}
+                    disabled={isLoading}
+                    className="h-14 w-full rounded-full text-base font-extrabold shadow-lg shadow-primary/20"
+                  >
+                    <ChefHat className="h-5 w-5" aria-hidden="true" />
+                    {isLoading ? "Starting..." : "Let's cook!"}
+                    <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                  </Button>
+                </motion.div>
 
-              <div className="space-y-3 pt-2">
-                {helpItems.map((item) => (
-                  <div key={item.title} className="flex items-start gap-3 rounded-lg border bg-card p-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <item.icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-card-foreground">{item.title}</p>
-                      <p className="mt-1 text-sm leading-snug text-muted-foreground">{item.description}</p>
-                    </div>
-                  </div>
+                <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
+                  <GoogleSignInButton
+                    variant="outline"
+                    className="h-14 w-full rounded-full border-2 text-base font-extrabold"
+                  >
+                    <GoogleIcon />
+                    <span>Continue with Google</span>
+                  </GoogleSignInButton>
+                </motion.div>
+              </div>
+              <p className="text-center text-sm font-bold text-[hsl(var(--setup-ink)/0.56)] sm:text-left">
+                Try Laica first, or link Google when you want a kitchen that follows you.
+              </p>
+            </motion.div>
+          </div>
+
+          <motion.div
+            className="landing-demo-object"
+            variants={reveal}
+            transition={{ duration: 0.42, ease: "easeOut" }}
+          >
+            <div className="landing-scan-panel">
+              <div className="landing-scan-main">
+                <div className="landing-scan-frame" aria-hidden="true">
+                  <ScanLine className="h-12 w-12 text-accent" />
+                </div>
+                <p className="landing-scan-caption">Pantry clues become dinner.</p>
+              </div>
+              <div className="space-y-3">
+                {pantryChips.map((chip, index) => (
+                  <motion.span
+                    key={chip}
+                    className="landing-pantry-chip"
+                    initial={motionEnabled ? { opacity: 0, scale: 0.86, y: 8 } : false}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ delay: motionEnabled ? 0.35 + index * 0.08 : 0, duration: 0.2, ease: "easeOut" }}
+                  >
+                    {chip}
+                  </motion.span>
                 ))}
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="landing-recipe-ticket">
+                <div>
+                  <p className="text-xs font-black text-primary">Tonight</p>
+                  <h2 className="mt-2 text-xl font-extrabold leading-tight text-[hsl(var(--setup-ink))]">
+                    Soy butter mushroom noodles
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-extrabold text-[hsl(var(--setup-ink)/0.58)]">
+                  <Clock3 className="h-4 w-4 text-secondary" aria-hidden="true" />
+                  30 min
+                </div>
+              </div>
+
+              {proofCards.map((card, index) => (
+                <motion.article
+                  key={card.title}
+                  className="landing-proof-card"
+                  initial={motionEnabled ? { opacity: 0, y: 18 } : false}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.45 }}
+                  transition={{ delay: motionEnabled ? index * 0.06 : 0, duration: 0.28, ease: "easeOut" }}
+                >
+                  <span className="landing-proof-icon">
+                    <card.icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block text-base font-extrabold text-[hsl(var(--setup-ink))]">{card.title}</span>
+                    <span className="mt-1 block text-sm font-bold leading-snug text-[hsl(var(--setup-ink)/0.62)]">{card.copy}</span>
+                  </span>
+                </motion.article>
+              ))}
+            </div>
+          </motion.div>
+        </motion.section>
       </div>
     </main>
   );

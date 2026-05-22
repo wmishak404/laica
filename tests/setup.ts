@@ -59,25 +59,53 @@ vi.mock('firebase/auth', () => ({
       uid: 'test-user-id',
       email: 'test@example.com',
       displayName: 'Test User',
+      isAnonymous: false,
       getIdToken: vi.fn().mockResolvedValue('mock-token')
     },
     onAuthStateChanged: vi.fn((callback) => {
       callback({
         uid: 'test-user-id',
         email: 'test@example.com',
-        displayName: 'Test User'
+        displayName: 'Test User',
+        isAnonymous: false
       });
       return vi.fn(); // unsubscribe function
     })
   })),
+  onAuthStateChanged: vi.fn((_auth, callback) => {
+    callback({
+      uid: 'test-user-id',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      isAnonymous: false,
+      getIdToken: vi.fn().mockResolvedValue('mock-token')
+    });
+    return vi.fn();
+  }),
   signInWithPopup: vi.fn().mockResolvedValue({
     user: {
       uid: 'test-user-id',
       email: 'test@example.com',
-      displayName: 'Test User'
+      displayName: 'Test User',
+      isAnonymous: false
     }
   }),
-  GoogleAuthProvider: vi.fn(() => ({})),
+  signInAnonymously: vi.fn().mockResolvedValue({
+    user: {
+      uid: 'guest-user-id',
+      email: null,
+      displayName: null,
+      isAnonymous: true
+    }
+  }),
+  GoogleAuthProvider: vi.fn(() => ({
+    addScope: vi.fn(),
+    setCustomParameters: vi.fn(),
+  })),
+  getRedirectResult: vi.fn().mockResolvedValue(null),
+  signInWithRedirect: vi.fn().mockResolvedValue(undefined),
+  setPersistence: vi.fn().mockResolvedValue(undefined),
+  browserLocalPersistence: {},
   signOut: vi.fn().mockResolvedValue(undefined)
 }));
 

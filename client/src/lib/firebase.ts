@@ -1,5 +1,17 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, type User } from "firebase/auth";
+import {
+  getAuth,
+  signInWithRedirect,
+  signInWithPopup,
+  signInAnonymously,
+  GoogleAuthProvider,
+  getRedirectResult,
+  onAuthStateChanged,
+  signOut,
+  setPersistence,
+  browserLocalPersistence,
+  type User,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -32,6 +44,7 @@ export interface FirebaseAuthUser {
   displayName: string | null;
   photoURL: string | null;
   emailVerified: boolean;
+  isAnonymous: boolean;
 }
 
 export class FirebaseAuthService {
@@ -95,6 +108,21 @@ export class FirebaseAuthService {
     }
   }
 
+  static async signInAsGuest(): Promise<FirebaseAuthUser | null> {
+    try {
+      const result = await signInAnonymously(auth);
+      return this.formatUser(result.user);
+    } catch (error: any) {
+      console.error('Anonymous sign-in failed:', error);
+
+      if (error.code === 'auth/operation-not-allowed') {
+        throw new Error('Guest cooking is not available in this environment yet.');
+      }
+
+      throw error;
+    }
+  }
+
   // Handle redirect result on page load with enhanced error handling
   static async handleRedirectResult(): Promise<FirebaseAuthUser | null> {
     try {
@@ -142,6 +170,7 @@ export class FirebaseAuthService {
       displayName: user.displayName,
       photoURL: user.photoURL,
       emailVerified: user.emailVerified,
+      isAnonymous: user.isAnonymous,
     };
   }
 

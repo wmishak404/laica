@@ -1,5 +1,5 @@
 import { type ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
+import { isGuestUser, useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
@@ -29,6 +29,42 @@ interface UserProfile {
   pantryIngredients: string[];
   kitchenEquipment: string[];
   favoriteChefs: string[];
+}
+
+const createEmptyUserProfile = (): UserProfile => ({
+  cookingSkill: '',
+  dietaryRestrictions: [],
+  pantryIngredients: [],
+  kitchenEquipment: [],
+  favoriteChefs: []
+});
+
+const guestProfileStorageKey = (userId: string) => `laica:guest-profile:${userId}`;
+
+function readGuestProfile(userId: string): UserProfile {
+  if (typeof window === 'undefined') return createEmptyUserProfile();
+
+  const rawProfile = window.localStorage.getItem(guestProfileStorageKey(userId));
+  if (!rawProfile) return createEmptyUserProfile();
+
+  try {
+    const parsed = JSON.parse(rawProfile) as Partial<UserProfile>;
+    return {
+      cookingSkill: parsed.cookingSkill || '',
+      dietaryRestrictions: Array.isArray(parsed.dietaryRestrictions) ? parsed.dietaryRestrictions : [],
+      pantryIngredients: Array.isArray(parsed.pantryIngredients) ? parsed.pantryIngredients : [],
+      kitchenEquipment: Array.isArray(parsed.kitchenEquipment) ? parsed.kitchenEquipment : [],
+      favoriteChefs: Array.isArray(parsed.favoriteChefs) ? parsed.favoriteChefs : [],
+    };
+  } catch {
+    return createEmptyUserProfile();
+  }
+}
+
+function writeGuestProfile(userId: string, profile: UserProfile) {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.setItem(guestProfileStorageKey(userId), JSON.stringify(profile));
 }
 
 interface RecipeRecommendation {
@@ -84,17 +120,14 @@ export function getPlanningPantryStatusCopy(pantryItemCount: number) {
 
 export default function MobileApp() {
   const { user } = useAuth();
+  const isGuest = isGuestUser(user);
   const { toast } = useToast();
   const { data: dbProfile, isLoading: isLoadingDbProfile } = useUserProfile();
   const updateProfileMutation = useUpdateUserProfile();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('profiling');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    cookingSkill: '',
-    dietaryRestrictions: [],
-    pantryIngredients: [],
-    kitchenEquipment: [],
-    favoriteChefs: []
+    ...createEmptyUserProfile()
   });
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [scheduledTime, setScheduledTime] = useState<string>('');
@@ -136,6 +169,19 @@ export default function MobileApp() {
   // Load profile from database - database is the single source of truth
   useEffect(() => {
     if (!user?.id) return;
+
+    if (isGuest) {
+      const profileFromBrowser = readGuestProfile(user.id);
+      setUserProfile(profileFromBrowser);
+
+      if (!hasLoadedFromDb) {
+        setHasLoadedFromDb(true);
+        setCurrentPhase(hasCompletedCookingProfile(profileFromBrowser) ? 'planning' : 'profiling');
+      }
+
+      setIsLoadingProfile(false);
+      return;
+    }
     
     // Wait for database query to complete
     if (isLoadingDbProfile) return;
@@ -179,7 +225,7 @@ export default function MobileApp() {
       setCurrentPhase('profiling');
     }
     setIsLoadingProfile(false);
-  }, [user?.id, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
+  }, [user?.id, isGuest, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
 
   // Save profile to database
   const saveProfileToDb = useCallback(async (profile: UserProfile) => {
@@ -204,34 +250,47 @@ export default function MobileApp() {
 
   // Save profile to database only (database is single source of truth)
   const saveProfile = useCallback((profile: UserProfile) => {
+    if (user?.id && isGuest) {
+      writeGuestProfile(user.id, profile);
+      return;
+    }
+
     if (user?.id) {
       saveProfileToDb(profile);
     }
-  }, [user?.id, saveProfileToDb]);
+  }, [isGuest, user?.id, saveProfileToDb]);
 
   const handleProfileComplete = (profile: UserProfile) => {
     setUserProfile(profile);
     saveProfile(profile);
     
-    // Show confirmation toast with link to settings
-    toast({
-      title: "Profile Updated Successfully",
-      description: (
-        <div>
-          Your cooking profile has been saved. Ready to find your perfect meal?{' '}
-          <button 
-            onClick={() => {
-              setSettingsSection('hub');
-              setCurrentPhase('settings');
-            }}
-            className="underline text-primary hover:text-primary/80"
-          >
-            Make changes here
-          </button>
-        </div>
-      ),
-      duration: 5000,
-    });
+    if (isGuest) {
+      toast({
+        title: "Your kitchen is ready",
+        description: "I'll remember this on this browser while you try Laica.",
+        duration: 5000,
+      });
+    } else {
+      // Show confirmation toast with link to settings
+      toast({
+        title: "Profile Updated Successfully",
+        description: (
+          <div>
+            Your cooking profile has been saved. Ready to find your perfect meal?{' '}
+            <button
+              onClick={() => {
+                setSettingsSection('hub');
+                setCurrentPhase('settings');
+              }}
+              className="underline text-primary hover:text-primary/80"
+            >
+              Make changes here
+            </button>
+          </div>
+        ),
+        duration: 5000,
+      });
+    }
     
     setCurrentPhase('planning');
   };
@@ -259,6 +318,11 @@ export default function MobileApp() {
 
     setUserProfile(updatedProfile);
 
+    if (user?.id && isGuest) {
+      writeGuestProfile(user.id, updatedProfile);
+      return true;
+    }
+
     try {
       await updateProfileMutation.mutateAsync({
         cookingSkill: updatedProfile.cookingSkill || undefined,
@@ -273,7 +337,7 @@ export default function MobileApp() {
       setUserProfile(userProfile);
       return false;
     }
-  }, [updateProfileMutation, userProfile]);
+  }, [isGuest, updateProfileMutation, user?.id, userProfile]);
 
   const handleBackToPlanning = () => {
     // Check if profile is complete before allowing access to planning
@@ -296,25 +360,33 @@ export default function MobileApp() {
     const isProfileComplete = hasCompletedCookingProfile(updatedProfile);
     
     if (isProfileComplete) {
-      // Show confirmation toast with link to settings
-      toast({
-        title: "Profile Updated Successfully",
-        description: (
-          <div>
-            Your cooking profile has been updated. Ready to find your perfect meal?{' '}
-            <button 
-              onClick={() => {
-                setSettingsSection('hub');
-                setCurrentPhase('settings');
-              }}
-              className="underline text-primary hover:text-primary/80"
-            >
-              Make changes here
-            </button>
-          </div>
-        ),
-        duration: 5000,
-      });
+      if (isGuest) {
+        toast({
+          title: "Your kitchen is ready",
+          description: "I'll remember this on this browser while you try Laica.",
+          duration: 5000,
+        });
+      } else {
+        // Show confirmation toast with link to settings
+        toast({
+          title: "Profile Updated Successfully",
+          description: (
+            <div>
+              Your cooking profile has been updated. Ready to find your perfect meal?{' '}
+              <button
+                onClick={() => {
+                  setSettingsSection('hub');
+                  setCurrentPhase('settings');
+                }}
+                className="underline text-primary hover:text-primary/80"
+              >
+                Make changes here
+              </button>
+            </div>
+          ),
+          duration: 5000,
+        });
+      }
       
       setCurrentPhase('planning');
     } else {
@@ -333,7 +405,7 @@ export default function MobileApp() {
       return user.username;
     }
 
-    return user.email || 'Account';
+    return isGuest ? 'Guest kitchen' : user.email || 'Account';
   };
 
   const handleLogout = async () => {
@@ -358,7 +430,29 @@ export default function MobileApp() {
     setIsMenuOpen(false);
   };
 
+  const showLinkedAccountToast = (surface: string) => {
+    toast({
+      title: 'Link Google to save your kitchen',
+      description: `${surface} uses your saved kitchen memory. Continue with Chef It Up for this guest session.`,
+      variant: 'destructive',
+    });
+  };
+
   const showEmptyPantryToast = () => {
+    if (isGuest) {
+      toast({
+        title: 'Your pantry is empty',
+        description: 'Add pantry items in setup before I can suggest recipes.',
+        action: (
+          <ToastAction altText="Update guest pantry" onClick={() => setCurrentPhase('profiling')}>
+            Add pantry
+          </ToastAction>
+        ),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     toast({
       title: 'Your pantry is empty',
       description: EMPTY_PANTRY_RECIPE_COPY,
@@ -380,11 +474,23 @@ export default function MobileApp() {
     setShowPlanningChoice(false);
   };
 
+  const handleSlopItUpSelect = () => {
+    if (isGuest) {
+      showLinkedAccountToast('Slop It Up');
+      return;
+    }
+
+    setShowPlanningChoice(false);
+    setCurrentPhase('slop-bowl');
+  };
+
   const renderAppMenu = (
     trigger: ReactNode,
     options: { allowSettings?: boolean; allowHistory?: boolean } = {},
   ) => {
     const { allowSettings = true, allowHistory = allowSettings } = options;
+    const canUseSettings = allowSettings && !isGuest;
+    const canUseHistory = allowHistory && !isGuest;
 
     return (
       <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -393,7 +499,7 @@ export default function MobileApp() {
           <DrawerHeader className="px-0 text-left">
             <DrawerTitle className="menu-sheet-title text-3xl">Menu</DrawerTitle>
             <DrawerDescription className="text-sm font-bold text-[hsl(var(--returning-ink)/0.62)]">
-              {getUserDisplayName()} · {user?.email || 'Signed in'}
+              {getUserDisplayName()} · {isGuest ? 'Guest session' : user?.email || 'Signed in'}
             </DrawerDescription>
           </DrawerHeader>
 
@@ -401,9 +507,9 @@ export default function MobileApp() {
             <button
               type="button"
               className="menu-destination"
-              disabled={!allowSettings}
+              disabled={!canUseSettings}
               onClick={() => {
-                if (allowSettings) openSettings('hub');
+                if (canUseSettings) openSettings('hub');
               }}
             >
               <span className="menu-destination-icon">
@@ -418,9 +524,9 @@ export default function MobileApp() {
             <button
               type="button"
               className="menu-destination"
-              disabled={!allowHistory}
+              disabled={!canUseHistory}
               onClick={() => {
-                if (allowHistory) openHistory();
+                if (canUseHistory) openHistory();
               }}
             >
               <span className="menu-destination-icon">
@@ -529,10 +635,7 @@ export default function MobileApp() {
         <button
           type="button"
           className="planning-choice-card planning-choice-secondary slop-bowl-card"
-          onClick={() => {
-            setShowPlanningChoice(false);
-            setCurrentPhase('slop-bowl');
-          }}
+          onClick={handleSlopItUpSelect}
         >
           <span className="planning-slop-mark" aria-hidden="true">
             <span className="slop-splash slop-splash-a" />

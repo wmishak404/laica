@@ -83,6 +83,38 @@ describe("verifyFirebaseToken", () => {
       displayName: "Test Cook",
       photoURL: "https://example.com/cook.png",
       emailVerified: true,
+      authProvider: null,
+      isAnonymous: false,
+    });
+  });
+
+  it("marks anonymous Firebase sessions without requiring email", async () => {
+    firebaseAdminMocks.verifyIdToken.mockResolvedValueOnce({
+      uid: "guest-123",
+      firebase: {
+        sign_in_provider: "anonymous",
+      },
+    });
+    const { verifyFirebaseToken } = await import("../../server/firebaseAuth");
+    const req = {
+      headers: {
+        authorization: "Bearer anonymous-token",
+      },
+    } as Request;
+    const res = createResponse();
+    const next = vi.fn();
+
+    await verifyFirebaseToken(req, res, next);
+
+    expect(next).toHaveBeenCalledOnce();
+    expect((req as any).firebaseUser).toEqual({
+      uid: "guest-123",
+      email: null,
+      displayName: null,
+      photoURL: null,
+      emailVerified: false,
+      authProvider: "anonymous",
+      isAnonymous: true,
     });
   });
 });

@@ -180,15 +180,57 @@ async function getRecentCookingSessionsOrEmpty(userId: string, limit: number, co
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', apiRequestLimit);
 
+  // Firebase authentication routes
+  app.get('/api/auth/session', verifyFirebaseToken, async (req: any, res) => {
+    try {
+      const firebaseUser: FirebaseUser = req.firebaseUser;
+
+      if (firebaseUser.isAnonymous) {
+        return res.json({
+          authMode: 'anonymous',
+          user: {
+            id: firebaseUser.uid,
+            email: null,
+            firstName: null,
+            lastName: null,
+            profileImageUrl: null,
+            authProvider: 'anonymous',
+            firebaseUid: firebaseUser.uid,
+            isAnonymous: true,
+          },
+        });
+      }
+
+      const user = await storage.getUser(firebaseUser.uid);
+      if (!user) {
+        return res.status(404).json({ message: "Linked user not found" });
+      }
+
+      res.json({
+        authMode: 'linked',
+        user,
+      });
+    } catch (error) {
+      console.error("Error fetching auth session:", error);
+      res.status(500).json({ message: "Failed to fetch auth session" });
+    }
+  });
+
   // Firebase/Google authentication routes
   app.post('/api/auth/google', verifyFirebaseToken, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
+
+      if (firebaseUser.isAnonymous || !firebaseUser.email) {
+        return res.status(400).json({
+          message: "Google sign-in requires a linked account email",
+        });
+      }
       
       // Create or update user in our database
       const userData = {
         id: firebaseUser.uid,
-        email: firebaseUser.email || '',
+        email: firebaseUser.email,
         firstName: firebaseUser.displayName?.split(' ')[0] || '',
         lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
         profileImageUrl: firebaseUser.photoURL || '',

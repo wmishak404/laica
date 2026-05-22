@@ -3,6 +3,19 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FirebaseAuthService, type FirebaseAuthUser } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
+function createGuestUser(firebaseUser: FirebaseAuthUser) {
+  return {
+    id: firebaseUser.uid,
+    email: null,
+    firstName: null,
+    lastName: null,
+    profileImageUrl: null,
+    authProvider: 'anonymous',
+    firebaseUid: firebaseUser.uid,
+    isAnonymous: true,
+  };
+}
+
 export function useFirebaseAuth() {
   const [user, setUser] = useState<FirebaseAuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,10 +29,17 @@ export function useFirebaseAuth() {
       
       // Update React Query cache when auth state changes
       if (firebaseUser) {
-        // User signed in - sync with backend
-        syncWithBackend(firebaseUser);
+        if (firebaseUser.isAnonymous) {
+          const guestUser = createGuestUser(firebaseUser);
+          queryClient.setQueryData(["/api/auth/session"], guestUser);
+          queryClient.setQueryData(["/api/auth/user"], null);
+        } else {
+          // Linked users sync with the backend so durable account data exists.
+          syncWithBackend(firebaseUser);
+        }
       } else {
         // User signed out - clear cache
+        queryClient.setQueryData(["/api/auth/session"], null);
         queryClient.setQueryData(["/api/auth/user"], null);
       }
     });
@@ -65,6 +85,7 @@ export function useFirebaseAuth() {
       if (response.ok) {
         const userData = await response.json();
         console.log('Backend sync successful:', userData);
+        queryClient.setQueryData(["/api/auth/session"], userData);
         queryClient.setQueryData(["/api/auth/user"], userData);
       } else {
         const errorData = await response.text();
@@ -124,6 +145,29 @@ export function useFirebaseAuth() {
     }
   };
 
+  const signInAsGuest = async () => {
+    try {
+      setIsLoading(true);
+
+      const result = await FirebaseAuthService.signInAsGuest();
+      if (result) {
+        const guestUser = createGuestUser(result);
+        queryClient.setQueryData(["/api/auth/session"], guestUser);
+        queryClient.setQueryData(["/api/auth/user"], null);
+      }
+    } catch (error: any) {
+      console.error('Guest sign-in error:', error);
+
+      toast({
+        title: "Guest cooking did not start",
+        description: error.message || "I couldn't start guest cooking. Try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const signOut = async () => {
     try {
       await FirebaseAuthService.signOut();
@@ -147,6 +191,7 @@ export function useFirebaseAuth() {
     isLoading,
     isAuthenticated: !!user,
     signInWithGoogle,
+    signInAsGuest,
     signOut,
   };
 }

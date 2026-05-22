@@ -1,11 +1,11 @@
 # INIT-003 — Anonymous Trial and Account Upgrade
 
-**Status:** Planning
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-15
-**Current phase:** Phase 0 — docs baseline and external prerequisites
+**Current phase:** Phase 3 — public pre-auth homepage and client guest entry
 **Active PR:** None
-**Active branch:** `codex/init-003-anonymous-trial-docs`
+**Active branch:** `codex/init-003-preauth-homepage`
 
 ## Overview
 
@@ -32,11 +32,13 @@ The current accepted direction is:
 
 ## Current Status
 
-Phase 0 is the current work: documenting the accepted direction in a durable way before runtime changes begin.
+Phase 3 is the current runtime work: client guest entry, same-browser persistence, and the public pre-auth homepage.
 
-No runtime implementation has started yet. The first runtime slice should begin only after this docs baseline is on `main`, so later branches can inherit the same accepted product and security contract instead of rebuilding it from chat.
+Runtime implementation has started with a deliberately narrow Phase 3 slice after Wilson chose to place the richer public homepage inside INIT-003 rather than reopening INIT-001 Phase 1 auth polish.
 
-The first runtime phase should stay narrow:
+**Sequencing classification:** this is a soft-sequence override with hard production gates. The public homepage and client anonymous entry can be implemented before the full quota/save-boundary stack, but production readiness still depends on the Phase 1/2 server foundations, quota accounting, App Check, and upgrade boundaries. The homepage CTA must start a real Firebase anonymous session; it must not fake guest mode.
+
+The remaining server-auth foundation should stay narrow:
 
 - provider-aware server auth session metadata
 - anonymous kill switch
@@ -65,10 +67,10 @@ No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refre
 
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
-| Phase 0 — docs baseline and prerequisites | In progress | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
+| Phase 0 — docs baseline and prerequisites | Complete | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
 | Phase 1 — server auth and abuse-control foundations | Planned | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
 | Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 5-generation anonymous quota accounting |
-| Phase 3 — client guest entry and same-browser persistence | Planned | TBD | Anonymous sign-in, `/api/auth/session` adoption, and local guest-state namespacing/cleanup |
+| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Let's cook!` CTA and no numeric quota copy |
 | Phase 4 — upgrade-to-save boundary and promotion | Planned | TBD | Typed `UPGRADE_REQUIRED` responses, Google link flow, and strict trial-state promotion |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
 | Phase 6 — operations, cleanup, and launch | Planned | TBD | Account-mode operational logging, stale anonymous-account cleanup, and production enablement gates |
@@ -77,7 +79,7 @@ No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refre
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
-| None yet | Planning/docs in progress | `codex/init-003-anonymous-trial-docs` | Docs-only branch; runtime validation has not started |
+| None yet | Runtime branch in progress | `codex/init-003-preauth-homepage` | Implements the public pre-auth homepage and first client guest-entry slice; Replit validation not yet performed |
 
 ## Efforts and Governance
 
@@ -103,20 +105,20 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - cap moment: unlock more recipes
   - save moment: save your kitchen
 - Product analytics was intentionally separated from INIT-003 runtime scope so guest auth, quota, persistence, and Phase 5 boundaries can land without also inventing a new analytics foundation.
+- Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Let's cook!` as the guest CTA, keep Google as the linked-account path, and avoid numeric quota language on the landing page.
 
 ## Validation State
 
-- Docs-only branch so far. No runtime validation has been performed.
+- Runtime validation has not yet been performed for `codex/init-003-preauth-homepage`.
 - Future runtime phases should keep Replit as the authoritative validation environment for linked-account, provider-backed, and deployment-bound behavior.
 - Production enablement is blocked until Firebase App Check is configured and anonymous auth can be verified under real rate-limit and kill-switch behavior.
 
 ## Current Resume Point
 
-1. Merge this docs baseline so `INIT-003` and `PD-012` are visible on `main`.
-2. Start Phase 1 runtime work from fresh `origin/main` on a new branch, not on this docs branch.
-3. Keep the first runtime slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, and auth-session groundwork.
-4. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, and linked-save boundaries are implemented and validated.
-5. If measurement work becomes urgent, file a separate analytics effort rather than overloading the Phase 1 runtime branch.
+1. Finish and validate `codex/init-003-preauth-homepage`.
+2. Keep the remaining server-auth slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, and auth-session hardening.
+3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, and linked-save boundaries are implemented and validated.
+4. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
 
 ## Chronology
 
