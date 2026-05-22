@@ -44,6 +44,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
   - guest Settings and History menu buttons are disabled
   - guest Slop It Up is blocked with an upgrade/save-memory toast
   - guest empty-pantry recovery returns to setup instead of linked-account settings
+- Replit validation follow-up found that guest users could continue from recipe ideas into the cooking guide, where the shared live-cooking component attempted to create durable cooking-session memory. This branch now skips durable cooking-session start/update/complete writes for anonymous users while preserving linked-user session writes.
 
 ## Docs Updated
 
@@ -77,6 +78,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - `npm ci`
 - `git diff --check`
 - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/planning-choice.test.tsx`
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx`
 - `npm run check`
 - `npm run build`
 - In-app browser visual checks against local `http://127.0.0.1:3000/`:
@@ -97,6 +99,7 @@ Known build warnings only:
   - Google sign-in still upserts/routes correctly
   - guest setup persists across same-browser reopen
   - guests reach recipe ideas without durable server saves
+  - guests can enter the cooking guide without creating durable cooking-session rows
   - linked-user cooking/history flows still work
 - Quota enforcement, App Check, anonymous kill switch, anonymous rate-limit identity, and full upgrade-to-save boundary are still future INIT-003 gates before public guest enablement.
 

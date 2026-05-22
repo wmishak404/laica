@@ -17,6 +17,7 @@ import { AudioProcessor } from '@/lib/audioUtils';
 import { UsageTracker } from '@/lib/usageTracker';
 import { useStartCookingSession, useUpdateCookingSession, useCompleteCookingSession } from '@/hooks/useCookingSession';
 import { useToast } from '@/hooks/use-toast';
+import { isGuestUser, useAuth } from '@/hooks/useAuth';
 
 const COOKING_SESSION_STORAGE_KEY = 'laica_cooking_session';
 
@@ -62,6 +63,8 @@ interface LiveCookingProps {
 }
 
 export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning }: LiveCookingProps) {
+  const { user } = useAuth();
+  const isGuest = isGuestUser(user);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
@@ -331,6 +334,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   // Cooking session management functions
   const startCookingSession = async (totalSteps: number, steps?: RecipeStep[], ingredients?: Array<{ name: string; quantity?: string; forSteps?: number[] }>) => {
+    if (isGuest) {
+      return;
+    }
+
     try {
       const recipeSnapshot = {
         recipeName: selectedMeal.recipeName,
@@ -386,6 +393,14 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const completeCookingSession = async (rating?: number, notes?: string) => {
     // Clear saved cooking session on completion
     clearCookingSession();
+
+    if (isGuest) {
+      toast({
+        title: "Nice, dinner's ready.",
+        description: "This guest cook stayed on this browser. Link Google before saving cooking history.",
+      });
+      return;
+    }
     
     if (cookingSessionId && cookingStartTime) {
       try {
@@ -414,10 +429,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   // Start cooking session when steps are loaded
   useEffect(() => {
-    if (loadedRecipeSteps.length > 0 && !cookingSessionId) {
+    if (!isGuest && loadedRecipeSteps.length > 0 && !cookingSessionId) {
       startCookingSession(loadedRecipeSteps.length, loadedRecipeSteps, loadedRecipeIngredients);
     }
-  }, [loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId]);
+  }, [isGuest, loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId]);
 
   // Use loaded steps
   const currentRecipeSteps = loadedRecipeSteps;
@@ -450,8 +465,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     }
     
     // Stop browser TTS
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
+    if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
     }
     
     setIsSpeaking(false);
