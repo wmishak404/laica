@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Camera, ChefHat, Clock3, Leaf, Mic2, ScanLine, Utensils } from "lucide-react";
+import { ArrowRight, Camera, ChefHat, Clock3, Mic2, ScanLine, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
@@ -72,10 +72,6 @@ export default function Landing() {
             />
 
             <motion.div className="space-y-4" variants={reveal} transition={{ duration: 0.36, ease: "easeOut" }}>
-              <p className="landing-kicker inline-flex items-center gap-2">
-                <Leaf className="h-4 w-4" aria-hidden="true" />
-                Pantry-first cooking help
-              </p>
               <h1 className="setup-display text-[3rem] font-extrabold leading-[0.96] tracking-normal text-[hsl(var(--setup-ink))] md:text-[4.5rem]">
                 Cook from what you already have.
               </h1>
