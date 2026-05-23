@@ -264,6 +264,20 @@ html, body {
       0 0.85rem 1.6rem hsl(var(--setup-ink) / 0.18);
   }
 
+  .landing-kitchen-photo,
+  .landing-cooking-photo {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .landing-kitchen-photo {
+    filter: saturate(0.96) contrast(0.96);
+  }
+
   .landing-viewfinder-corner {
     position: absolute;
     z-index: 4;
@@ -303,144 +317,6 @@ html, body {
     border-right: 3px solid;
     border-bottom: 3px solid;
     border-radius: 0 0 0.5rem;
-  }
-
-  .landing-kitchen-cabinet,
-  .landing-kitchen-fridge,
-  .landing-kitchen-counter,
-  .landing-kitchen-rice,
-  .landing-kitchen-patty,
-  .landing-kitchen-bbq,
-  .landing-kitchen-egg {
-    position: absolute;
-    display: block;
-  }
-
-  .landing-kitchen-cabinet {
-    top: 1.1rem;
-    height: 4.2rem;
-    border: 1px solid hsl(36 34% 48% / 0.44);
-    border-radius: 0.65rem;
-    background: linear-gradient(180deg, hsl(33 42% 70%), hsl(31 38% 58%));
-    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.18);
-  }
-
-  .landing-kitchen-cabinet-left {
-    left: 1.35rem;
-    width: 6.3rem;
-  }
-
-  .landing-kitchen-cabinet-right {
-    right: 5.2rem;
-    width: 5.6rem;
-  }
-
-  .landing-kitchen-fridge {
-    top: 1.15rem;
-    right: 1.25rem;
-    width: 3.25rem;
-    height: 8.9rem;
-    border: 1px solid hsl(210 14% 82% / 0.74);
-    border-radius: 0.7rem 0.7rem 0.35rem 0.35rem;
-    background: linear-gradient(180deg, hsl(210 22% 88%), hsl(214 15% 72%));
-  }
-
-  .landing-kitchen-fridge::before {
-    content: '';
-    position: absolute;
-    top: 3.1rem;
-    right: 0;
-    left: 0;
-    border-top: 1px solid hsl(214 14% 60% / 0.52);
-  }
-
-  .landing-kitchen-counter {
-    right: 0.8rem;
-    bottom: 2.4rem;
-    left: 0.8rem;
-    height: 5.4rem;
-    border: 1px solid hsl(30 18% 50% / 0.36);
-    border-radius: 0.75rem;
-    background: linear-gradient(180deg, hsl(36 45% 80%), hsl(32 35% 66%));
-    box-shadow: 0 -0.55rem 0 hsl(34 44% 86% / 0.62);
-  }
-
-  .landing-kitchen-rice {
-    bottom: 5.2rem;
-    left: 2rem;
-    width: 3.8rem;
-    height: 3.6rem;
-    border: 1px solid hsl(31 32% 54% / 0.45);
-    border-radius: 0.6rem 0.6rem 1rem 1rem;
-    background:
-      radial-gradient(circle at 36% 34%, hsl(0 0% 100% / 0.9) 0 0.18rem, transparent 0.2rem),
-      radial-gradient(circle at 52% 46%, hsl(0 0% 100% / 0.88) 0 0.17rem, transparent 0.19rem),
-      radial-gradient(circle at 68% 32%, hsl(0 0% 100% / 0.82) 0 0.15rem, transparent 0.18rem),
-      linear-gradient(180deg, hsl(38 68% 92%), hsl(32 42% 72%));
-  }
-
-  .landing-kitchen-patty {
-    width: 2.35rem;
-    height: 0.9rem;
-    border-radius: 999px;
-    background:
-      radial-gradient(circle at 30% 44%, hsl(31 42% 44%), transparent 0.55rem),
-      hsl(20 38% 28%);
-    box-shadow: inset 0 -0.16rem 0 hsl(16 34% 18% / 0.42);
-  }
-
-  .landing-kitchen-patty-one {
-    bottom: 5rem;
-    left: 7rem;
-    transform: rotate(-8deg);
-  }
-
-  .landing-kitchen-patty-two {
-    bottom: 5.72rem;
-    left: 7.48rem;
-    transform: rotate(5deg);
-  }
-
-  .landing-kitchen-bbq {
-    right: 4.5rem;
-    bottom: 4.86rem;
-    width: 1.35rem;
-    height: 4.4rem;
-    border: 1px solid hsl(0 52% 24% / 0.32);
-    border-radius: 0.45rem 0.45rem 0.65rem 0.65rem;
-    background:
-      linear-gradient(180deg, hsl(0 72% 68%) 0 24%, hsl(5 48% 34%) 24% 100%);
-  }
-
-  .landing-kitchen-bbq::before {
-    content: '';
-    position: absolute;
-    top: -0.42rem;
-    left: 0.25rem;
-    width: 0.8rem;
-    height: 0.55rem;
-    border-radius: 0.24rem 0.24rem 0 0;
-    background: hsl(12 22% 18%);
-  }
-
-  .landing-kitchen-egg {
-    width: 1.45rem;
-    height: 1.85rem;
-    border-radius: 55% 55% 48% 48%;
-    background: hsl(0 0% 96%);
-    box-shadow: inset -0.12rem -0.18rem 0 hsl(45 20% 82% / 0.72);
-  }
-
-  .landing-kitchen-egg-one {
-    right: 7.05rem;
-    bottom: 4.88rem;
-    transform: rotate(-12deg);
-  }
-
-  .landing-kitchen-egg-two {
-    right: 6.05rem;
-    bottom: 4.72rem;
-    transform: rotate(10deg);
   }
 
   .landing-kitchen-scan-icon {
@@ -516,110 +392,26 @@ html, body {
     box-shadow: 0 0.85rem 1.7rem hsl(var(--setup-coral-strong) / 0.08);
   }
 
-  .landing-stove,
-  .landing-pan,
-  .landing-pan-handle,
-  .landing-pan-rice,
-  .landing-pan-patty,
-  .landing-pan-egg,
-  .landing-pan-sauce,
+  .landing-cooking-illustration::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(180deg, hsl(var(--setup-ink) / 0.06), transparent 42%),
+      linear-gradient(0deg, hsl(var(--setup-ink) / 0.18), transparent 48%);
+    pointer-events: none;
+  }
+
+  .landing-cooking-photo {
+    filter: saturate(0.96) contrast(0.98);
+  }
+
   .landing-guidance-path,
   .landing-guidance-flame {
     position: absolute;
+    z-index: 2;
     display: block;
-  }
-
-  .landing-stove {
-    right: 2.15rem;
-    bottom: 2.2rem;
-    left: 2.15rem;
-    height: 7.7rem;
-    border: 1px solid hsl(var(--setup-ink) / 0.18);
-    border-radius: 1.05rem;
-    background:
-      radial-gradient(circle at 31% 47%, hsl(var(--setup-ink) / 0.08) 0 1.9rem, transparent 2rem),
-      radial-gradient(circle at 68% 47%, hsl(var(--setup-ink) / 0.08) 0 1.9rem, transparent 2rem),
-      linear-gradient(180deg, hsl(215 15% 92%), hsl(214 13% 72%));
-  }
-
-  .landing-stove-knob {
-    position: absolute;
-    bottom: 0.75rem;
-    width: 0.72rem;
-    height: 0.72rem;
-    border-radius: 999px;
-    background: hsl(var(--setup-ink) / 0.34);
-  }
-
-  .landing-stove-knob-one {
-    left: 40%;
-  }
-
-  .landing-stove-knob-two {
-    right: 40%;
-  }
-
-  .landing-pan {
-    top: 6.1rem;
-    left: 50%;
-    width: 10.8rem;
-    height: 6.1rem;
-    border: 0.42rem solid hsl(var(--setup-ink));
-    border-radius: 50%;
-    background:
-      radial-gradient(ellipse at 50% 58%, hsl(36 80% 88%), hsl(35 46% 70%) 66%, hsl(var(--setup-ink)) 68%);
-    box-shadow: 0 1rem 1.7rem hsl(var(--setup-ink) / 0.18);
-    transform: translateX(-50%) rotate(-5deg);
-  }
-
-  .landing-pan-handle {
-    top: 2.16rem;
-    right: -4.3rem;
-    width: 4.9rem;
-    height: 0.8rem;
-    border-radius: 999px;
-    background: hsl(var(--setup-ink));
-    transform: rotate(-4deg);
-  }
-
-  .landing-pan-rice {
-    right: 2.05rem;
-    bottom: 1.25rem;
-    left: 1.85rem;
-    height: 1.45rem;
-    border-radius: 50%;
-    background: hsl(0 0% 98% / 0.92);
-  }
-
-  .landing-pan-patty {
-    top: 1.85rem;
-    left: 3rem;
-    width: 3.2rem;
-    height: 1.35rem;
-    border-radius: 999px;
-    background: hsl(21 38% 28%);
-    box-shadow: inset 0 -0.18rem 0 hsl(17 34% 18% / 0.38);
-  }
-
-  .landing-pan-egg {
-    top: 1.15rem;
-    right: 3.05rem;
-    width: 2.7rem;
-    height: 2rem;
-    border-radius: 58% 52% 55% 45%;
-    background:
-      radial-gradient(circle at 52% 48%, hsl(43 100% 61%) 0 0.48rem, transparent 0.5rem),
-      hsl(0 0% 100%);
-  }
-
-  .landing-pan-sauce {
-    top: 3.15rem;
-    right: 3.15rem;
-    width: 3.7rem;
-    height: 0.55rem;
-    border-radius: 999px;
-    background: hsl(5 48% 34% / 0.76);
-    transform: rotate(-10deg);
   }
 
   .landing-guidance-path {

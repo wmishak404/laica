@@ -51,6 +51,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - Product review changed the guest CTA to `Start cooking now` and removed the supporting helper sentence below the auth buttons to keep the landing page simpler and less wordy.
 - Product review identified a stronger carousel example around rice, beef patties, BBQ sauce, and eggs becoming a Loco Moco-style bowl, but also noted that Hawaiian does not appear to be a current cuisine picker option. Created [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) so later prompt work can support pantry-grounded cross-cuisine recommendations without implying unavailable picker options.
 - Product review replaced the right-side stacked proof cards with a 3-step horizontal carousel: scan uses a setup-camera-like kitchen photo illustration plus extracted ingredient chips, pick-a-recipe uses the production planning ticket style, and live guidance stays illustrative because today's live-cooking UI is not the final target.
+- Product review selected domestic-realistic generated imagery for that carousel after comparing polished-realistic, cartoony, and domestic-realistic concepts. The selected assets keep the product promise grounded in ordinary kitchens: egg cartons, packaged patties, pantry rice, sauce bottles, home-cooked output, and app-rendered UI chrome instead of text inside the image.
 
 ## Docs Updated
 
@@ -71,6 +72,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
   - INIT-003 now points at this runtime branch, Phase 3 work, and Plan B guest-MVP signal
 - [PD-012](../../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md)
   - landing copy guidance now avoids numeric guest quota language and uses simple guest-entry framing
+  - records the future image-generation approach for public product-flow explanations: default to domestic realism, avoid image-embedded text/logos/people/brands, and keep UI/copy in app-rendered components
 - [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md)
   - new prompt-quality follow-up for cross-cuisine recommendations beyond literal country-cuisine selections
 
@@ -79,6 +81,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - Pre-auth homepage change: A+C hybrid homepage, `Start cooking now` anonymous entry, Google as linked-account path, 3-step proof carousel, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
 - Deferred INIT-003 gates: Replit auth smoke, anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, Firebase App Check posture, and full upgrade-to-save boundary.
 - Deferred recommendation-quality follow-up: [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) tracks prompt/eval work so combinations such as American + Asian can produce pantry-grounded inspired recipes without adding unsupported cuisine picker promises.
+- Landing image approach: domestic-realistic generated assets are selected for the public carousel, with photo content used only inside app-controlled UI frames and PD-012 carrying the reusable generation guardrails.
 - Phase 4 follow-up: linked users get durable cooking guidance/history; guests must see a local-only or link-Google boundary before any completion path that would imply saved history.
 - Phase 5 follow-up: cleanup, taste memory, next-meal seed, History retention, share/cook-again memory, and anonymous-to-linked retro-import remain out of guest MVP v1.
 
@@ -90,6 +93,10 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx`
 - `npm run check`
 - `npm run build`
+- `VITE_FIREBASE_API_KEY=AIzaSyDummyDummyDummyDummyDummyDummyDummy VITE_FIREBASE_PROJECT_ID=laica-preview VITE_FIREBASE_APP_ID=1:123456789:web:preview npm run build`
+- Headless Chrome visual check against local Vite preview on `http://127.0.0.1:4173/`:
+  - desktop 1280x720, mobile 390x844, and landscape 844x390 all rendered 4 loaded images, 3 carousel dots, and no page/body horizontal overflow
+  - mobile dot navigation aligned all three carousel slides after smooth scroll completion
 - Replit browser smoke by Wilson at `87f02c7` before the landing CTA layout patch:
   - anonymous setup survived reload in the same browser
   - anonymous cooking guide did not call `POST /api/cooking/session/start`
@@ -122,6 +129,7 @@ Known build warnings only:
 - Because the hero kicker removal changed the branch after the CTA validation, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 - Because the sample-ticket time UI changed after the hero-kicker removal, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 - Because the CTA copy and helper sentence changed after the sample-ticket time UI, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+- Because the domestic-realistic carousel assets changed the landing visual surface after the proof-carousel commit, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 
 ## Resume Point
 

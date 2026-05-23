@@ -1,10 +1,13 @@
 import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Camera, ChefHat, Check, Clock, Flame, ScanLine, Utensils } from "lucide-react";
+import { ArrowRight, Camera, ChefHat, Check, Clock, Flame, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Badge } from "@/components/ui/badge";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import landingCookingGuidance from "@assets/landing-domestic-cooking-guidance.jpg";
+import landingKitchenScan from "@assets/landing-domestic-kitchen-scan.jpg";
+import landingRecipeBowl from "@assets/landing-domestic-recipe-bowl.jpg";
 import laicaLogo from "@assets/laica_logo_v1_cropped_1763444931884.png";
 
 const journeySteps = [
@@ -157,20 +160,11 @@ export default function Landing() {
                   </div>
 
                   <div className="landing-kitchen-viewfinder" aria-hidden="true">
+                    <img src={landingKitchenScan} alt="" className="landing-kitchen-photo" />
                     <span className="landing-viewfinder-corner landing-viewfinder-corner-tl" />
                     <span className="landing-viewfinder-corner landing-viewfinder-corner-tr" />
                     <span className="landing-viewfinder-corner landing-viewfinder-corner-bl" />
                     <span className="landing-viewfinder-corner landing-viewfinder-corner-br" />
-                    <span className="landing-kitchen-cabinet landing-kitchen-cabinet-left" />
-                    <span className="landing-kitchen-cabinet landing-kitchen-cabinet-right" />
-                    <span className="landing-kitchen-fridge" />
-                    <span className="landing-kitchen-counter" />
-                    <span className="landing-kitchen-rice" />
-                    <span className="landing-kitchen-patty landing-kitchen-patty-one" />
-                    <span className="landing-kitchen-patty landing-kitchen-patty-two" />
-                    <span className="landing-kitchen-bbq" />
-                    <span className="landing-kitchen-egg landing-kitchen-egg-one" />
-                    <span className="landing-kitchen-egg landing-kitchen-egg-two" />
                     <ScanLine className="landing-kitchen-scan-icon" />
                   </div>
                 </div>
@@ -200,9 +194,8 @@ export default function Landing() {
                     <span className="planning-ticket-title-main">Pantry Loco Moco-style bowl</span>
                     <span className="planning-ticket-title-detail">Rice, beef patty, egg, and BBQ pan gravy.</span>
                   </span>
-                  <span className="planning-recipe-image-slot">
-                    <span className="planning-recipe-image-plate" aria-hidden="true" />
-                    <Utensils className="planning-recipe-image-icon" aria-hidden="true" />
+                  <span className="planning-recipe-image-slot" data-has-image="true" aria-hidden="true">
+                    <img src={landingRecipeBowl} alt="" className="planning-recipe-image" />
                   </span>
                   <span className="planning-ticket-meta">
                     <span><Clock className="h-4 w-4" aria-hidden="true" /> 30 min</span>
@@ -229,17 +222,7 @@ export default function Landing() {
                 </div>
 
                 <div className="landing-cooking-illustration" aria-hidden="true">
-                  <span className="landing-stove">
-                    <span className="landing-stove-knob landing-stove-knob-one" />
-                    <span className="landing-stove-knob landing-stove-knob-two" />
-                  </span>
-                  <span className="landing-pan">
-                    <span className="landing-pan-handle" />
-                    <span className="landing-pan-rice" />
-                    <span className="landing-pan-patty" />
-                    <span className="landing-pan-egg" />
-                    <span className="landing-pan-sauce" />
-                  </span>
+                  <img src={landingCookingGuidance} alt="" className="landing-cooking-photo" />
                   <span className="landing-guidance-path">
                     <span>1</span>
                     <span>2</span>

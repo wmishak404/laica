@@ -74,6 +74,10 @@ Durable saves include:
 
 - The landing screen should present guest mode as a simple action such as **"Start cooking now"** with Google as the linked-account path.
 - The landing proof area should stay grounded in product truth: scan and recipe-picking visuals may mirror existing setup/planning UI, while live-guidance visuals should remain illustrative until the final cooking guide UI exists.
+- Static or generated landing imagery should use **domestic realism** by default when it is explaining a real product flow. A pantry scan should look like a normal home kitchen with practical ingredient storage, such as egg cartons, rice containers, sauce bottles, and packaged or stacked patties, not food-magazine staging.
+- Recipe and cooking-guidance imagery should stay plausible as home cooking from those ingredients. Use appetizing but ordinary bowls, pans, counters, and kitchen lighting rather than restaurant plating, fantasy illustration, or unsupported cuisine-promise visuals.
+- Generated images should not contain text, labels, brand logos, people, or UI chrome. Product UI, captions, progress dots, scan frames, and recipe-card structure should be rendered by the app so copy and interaction stay inspectable and maintainable.
+- Cartoon or highly polished image styles may be explored as review candidates, but they need explicit product approval before replacing domestic-realistic assets on public entry surfaces.
 - The landing screen should not advertise the numeric guest quota; first-touch copy should focus on what Laica helps people do.
 - The guest quota should be **subtle first, stronger later**.
 - Remaining quota becomes more prominent as the guest approaches `2`, `1`, and `0` remaining generations.
