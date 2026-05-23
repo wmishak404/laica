@@ -47,6 +47,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - Replit validation follow-up found that guest users could continue from recipe ideas into the cooking guide, where the shared live-cooking component attempted to create durable cooking-session memory. This branch now skips durable cooking-session start/update/complete writes for anonymous users while preserving linked-user session writes.
 - Replit landscape visual smoke found the Google CTA overflowing when the landing buttons switched into two columns. The CTA group now stays stacked with bounded width so `Continue with Google` gets its own row across mobile, landscape, and desktop widths.
 - Product review removed the `Pantry-first cooking help` kicker above the hero because the logo, headline, supporting copy, and proof cards already establish the pantry-first positioning without a marketing-style badge.
+- Product review aligned the homepage sample ticket's `30 min` treatment with the real product recipe-card pattern: compact inline clock icon plus `30 min`, not a stacked number/unit widget.
 
 ## Docs Updated
 
@@ -113,6 +114,7 @@ Known build warnings only:
 - Quota enforcement, App Check, anonymous kill switch, anonymous rate-limit identity, and full upgrade-to-save boundary are still future INIT-003 gates before public guest enablement.
 - Because the CTA layout patch changed the branch after Wilson's Replit smoke, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 - Because the hero kicker removal changed the branch after the CTA validation, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+- Because the sample-ticket time UI changed after the hero-kicker removal, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 
 ## Resume Point
 

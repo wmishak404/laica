@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Camera, ChefHat, Clock3, Mic2, ScanLine, Utensils } from "lucide-react";
+import { ArrowRight, Camera, ChefHat, Clock, Mic2, ScanLine, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
@@ -147,9 +147,9 @@ export default function Landing() {
                     Soy butter mushroom noodles
                   </h2>
                 </div>
-                <div className="flex items-center gap-2 text-sm font-extrabold text-[hsl(var(--setup-ink)/0.58)]">
-                  <Clock3 className="h-4 w-4 text-secondary" aria-hidden="true" />
-                  30 min
+                <div className="landing-ticket-meta">
+                  <Clock className="h-4 w-4" aria-hidden="true" />
+                  <span>30 min</span>
                 </div>
               </div>
 

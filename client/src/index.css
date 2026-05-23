@@ -233,6 +233,18 @@ html, body {
     padding: 1.2rem;
   }
 
+  .landing-ticket-meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    color: hsl(var(--setup-ink) / 0.64);
+    font-size: 0.88rem;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
   .landing-proof-card {
     display: flex;
     align-items: flex-start;
