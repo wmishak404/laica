@@ -49,6 +49,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - Product review removed the `Pantry-first cooking help` kicker above the hero because the logo, headline, supporting copy, and proof cards already establish the pantry-first positioning without a marketing-style badge.
 - Product review aligned the homepage sample ticket's `30 min` treatment with the real product recipe-card pattern: compact inline clock icon plus `30 min`, not a stacked number/unit widget.
 - Product review changed the guest CTA to `Start cooking now` and removed the supporting helper sentence below the auth buttons to keep the landing page simpler and less wordy.
+- Product review identified a stronger carousel example around rice, beef patties, BBQ sauce, and eggs becoming a Loco Moco-style bowl, but also noted that Hawaiian does not appear to be a current cuisine picker option. Created [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) so later prompt work can support pantry-grounded cross-cuisine recommendations without implying unavailable picker options.
 
 ## Docs Updated
 
@@ -69,11 +70,14 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
   - INIT-003 now points at this runtime branch, Phase 3 work, and Plan B guest-MVP signal
 - [PD-012](../../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md)
   - landing copy guidance now avoids numeric guest quota language and uses simple guest-entry framing
+- [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md)
+  - new prompt-quality follow-up for cross-cuisine recommendations beyond literal country-cuisine selections
 
 ## PR Summary Notes
 
 - Pre-auth homepage change: A+C hybrid homepage, `Start cooking now` anonymous entry, Google as linked-account path, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
 - Deferred INIT-003 gates: Replit auth smoke, anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, Firebase App Check posture, and full upgrade-to-save boundary.
+- Deferred recommendation-quality follow-up: [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) tracks prompt/eval work so combinations such as American + Asian can produce pantry-grounded inspired recipes without adding unsupported cuisine picker promises.
 - Phase 4 follow-up: linked users get durable cooking guidance/history; guests must see a local-only or link-Google boundary before any completion path that would imply saved history.
 - Phase 5 follow-up: cleanup, taste memory, next-meal seed, History retention, share/cook-again memory, and anonymous-to-linked retro-import remain out of guest MVP v1.
 
