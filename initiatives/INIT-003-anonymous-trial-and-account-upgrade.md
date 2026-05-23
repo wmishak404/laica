@@ -54,7 +54,7 @@ Plan B prioritizes shipping the public pre-auth homepage before INIT-001 Phase 4
 
 Before public launch, this branch still needs targeted Replit validation and the minimum guest-MVP gates:
 
-- `Let's cook!` creates a real anonymous Firebase session in Replit.
+- `Start cooking now` creates a real anonymous Firebase session in Replit.
 - Google sign-in still upserts and routes linked users correctly.
 - Same-browser guest setup persists through a normal reopen.
 - Guests can reach recipe ideas without creating durable server-side saves.
@@ -89,7 +89,7 @@ No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refre
 | Phase 0 — docs baseline and prerequisites | Complete | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
 | Phase 1 — server auth and abuse-control foundations | Planned | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
 | Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 5-generation anonymous quota accounting |
-| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Plan B public homepage + guest MVP launch path: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Let's cook!` CTA and no numeric quota copy |
+| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Plan B public homepage + guest MVP launch path: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Start cooking now` CTA and no numeric quota copy |
 | Phase 4 — upgrade-to-save boundary and promotion | Planned | TBD | Typed `UPGRADE_REQUIRED` responses, Google link flow, and strict trial-state promotion |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
 | Phase 6 — operations, cleanup, and launch | Planned | TBD | Account-mode operational logging, stale anonymous-account cleanup, and production enablement gates |
@@ -124,7 +124,7 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - cap moment: unlock more recipes
   - save moment: save your kitchen
 - Product analytics was intentionally separated from INIT-003 runtime scope so guest auth, quota, persistence, and Phase 5 boundaries can land without also inventing a new analytics foundation.
-- Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Let's cook!` as the guest CTA, keep Google as the linked-account path, and avoid numeric quota language on the landing page.
+- Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Start cooking now` as the guest CTA, keep Google as the linked-account path, and avoid numeric quota language on the landing page.
 - Wilson accepted Plan B on 2026-05-22: ship the public homepage and narrow guest MVP before full INIT-001 Phase 4 or Phase 5, as long as production guest gates remain explicit and durable cooking memory stays linked-account only.
 
 ## Validation State

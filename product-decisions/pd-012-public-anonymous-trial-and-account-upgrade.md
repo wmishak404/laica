@@ -72,7 +72,7 @@ Durable saves include:
 
 ### User-journey messaging
 
-- The landing screen should present guest mode as a simple action such as **"Let's cook!"** with Google as the linked-account path.
+- The landing screen should present guest mode as a simple action such as **"Start cooking now"** with Google as the linked-account path.
 - The landing screen should not advertise the numeric guest quota; first-touch copy should focus on what Laica helps people do.
 - The guest quota should be **subtle first, stronger later**.
 - Remaining quota becomes more prominent as the guest approaches `2`, `1`, and `0` remaining generations.

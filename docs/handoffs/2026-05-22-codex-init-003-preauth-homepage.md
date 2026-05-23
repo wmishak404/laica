@@ -10,7 +10,7 @@
 
 ## Summary
 
-Implemented the Phase 3 public guest-entry slice for INIT-003: the pre-auth page now explains Laica before asking for Google identity, the public CTA is `Let's cook!`, and that CTA is wired to Firebase anonymous sign-in rather than a fake demo path. This is intentionally still a narrow client/session slice; production guest launch remains blocked on quota accounting, App Check, kill-switch/rate-limit hardening, and upgrade/save boundaries.
+Implemented the Phase 3 public guest-entry slice for INIT-003: the pre-auth page now explains Laica before asking for Google identity, the public CTA is `Start cooking now`, and that CTA is wired to Firebase anonymous sign-in rather than a fake demo path. This is intentionally still a narrow client/session slice; production guest launch remains blocked on quota accounting, App Check, kill-switch/rate-limit hardening, and upgrade/save boundaries.
 
 Wilson accepted **Plan B** after this implementation: use the pre-auth homepage as the public entry point and ship a clean guest MVP before full INIT-001 Phase 4 or Phase 5. Plan B does not change the linked-account boundary for durable cooking memory, History, cleanup, taste signals, or retention.
 
@@ -18,7 +18,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 
 - Replaced the minimal signed-out landing screen with the A+C hybrid homepage direction:
   - hero: `Cook from what you already have.`
-  - primary CTA: `Let's cook!`
+  - primary CTA: `Start cooking now`
   - secondary CTA: `Continue with Google`
   - proof sections for pantry scan, recipe ideas, and cooking guidance
 - Added restrained motion with existing `framer-motion` and CSS only:
@@ -48,6 +48,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 - Replit landscape visual smoke found the Google CTA overflowing when the landing buttons switched into two columns. The CTA group now stays stacked with bounded width so `Continue with Google` gets its own row across mobile, landscape, and desktop widths.
 - Product review removed the `Pantry-first cooking help` kicker above the hero because the logo, headline, supporting copy, and proof cards already establish the pantry-first positioning without a marketing-style badge.
 - Product review aligned the homepage sample ticket's `30 min` treatment with the real product recipe-card pattern: compact inline clock icon plus `30 min`, not a stacked number/unit widget.
+- Product review changed the guest CTA to `Start cooking now` and removed the supporting helper sentence below the auth buttons to keep the landing page simpler and less wordy.
 
 ## Docs Updated
 
@@ -71,7 +72,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 
 ## PR Summary Notes
 
-- Pre-auth homepage change: A+C hybrid homepage, `Let's cook!` anonymous entry, Google as linked-account path, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
+- Pre-auth homepage change: A+C hybrid homepage, `Start cooking now` anonymous entry, Google as linked-account path, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
 - Deferred INIT-003 gates: Replit auth smoke, anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, Firebase App Check posture, and full upgrade-to-save boundary.
 - Phase 4 follow-up: linked users get durable cooking guidance/history; guests must see a local-only or link-Google boundary before any completion path that would imply saved history.
 - Phase 5 follow-up: cleanup, taste memory, next-meal seed, History retention, share/cook-again memory, and anonymous-to-linked retro-import remain out of guest MVP v1.
@@ -105,7 +106,7 @@ Known build warnings only:
 ## Not Yet Validated
 
 - Replit auth smoke is still required before merge/deploy:
-  - `Let's cook!` starts real anonymous Firebase entry in the Replit runtime
+  - `Start cooking now` starts real anonymous Firebase entry in the Replit runtime
   - Google sign-in still upserts/routes correctly
   - guest setup persists across same-browser reopen
   - guests reach recipe ideas without durable server saves
@@ -115,6 +116,7 @@ Known build warnings only:
 - Because the CTA layout patch changed the branch after Wilson's Replit smoke, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 - Because the hero kicker removal changed the branch after the CTA validation, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 - Because the sample-ticket time UI changed after the hero-kicker removal, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+- Because the CTA copy and helper sentence changed after the sample-ticket time UI, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
 
 ## Resume Point
 

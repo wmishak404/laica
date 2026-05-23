@@ -91,7 +91,7 @@ export default function Landing() {
                     className="h-14 w-full rounded-full text-base font-extrabold shadow-lg shadow-primary/20"
                   >
                     <ChefHat className="h-5 w-5" aria-hidden="true" />
-                    {isLoading ? "Starting..." : "Let's cook!"}
+                    {isLoading ? "Starting..." : "Start cooking now"}
                     <ArrowRight className="h-5 w-5" aria-hidden="true" />
                   </Button>
                 </motion.div>
@@ -106,9 +106,6 @@ export default function Landing() {
                   </GoogleSignInButton>
                 </motion.div>
               </div>
-              <p className="text-center text-sm font-bold text-[hsl(var(--setup-ink)/0.56)] sm:text-left">
-                Try Laica first, or link Google when you want a kitchen that follows you.
-              </p>
             </motion.div>
           </div>
 
