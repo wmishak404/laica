@@ -1,28 +1,16 @@
+import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Camera, ChefHat, Clock, Mic2, ScanLine, Utensils } from "lucide-react";
+import { ArrowRight, Camera, ChefHat, Check, Clock, Flame, ScanLine, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { Badge } from "@/components/ui/badge";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import laicaLogo from "@assets/laica_logo_v1_cropped_1763444931884.png";
 
-const pantryChips = ["eggs", "rice", "hot sauce"];
-
-const proofCards = [
-  {
-    icon: Utensils,
-    title: "Recipe ideas",
-    copy: "Dinner options shaped around pantry facts, time, and taste.",
-  },
-  {
-    icon: Camera,
-    title: "Pantry scan",
-    copy: "Photos become an editable list of ingredients Laica can cook with.",
-  },
-  {
-    icon: Mic2,
-    title: "Cooking guidance",
-    copy: "Step cues, substitutions, and timers stay nearby while you cook.",
-  },
+const journeySteps = [
+  "Scan your kitchen for ingredients",
+  "Pick a recipe",
+  "Get live guidance to cook it",
 ];
 
 function GoogleIcon() {
@@ -40,10 +28,43 @@ export default function Landing() {
   const { signInAsGuest, isLoading } = useFirebaseAuth();
   const prefersReducedMotion = useReducedMotion();
   const motionEnabled = !prefersReducedMotion;
+  const journeyRef = useRef<HTMLDivElement>(null);
+  const [activeJourneyStep, setActiveJourneyStep] = useState(0);
 
   const reveal = {
     hidden: { opacity: 0, y: motionEnabled ? 16 : 0 },
     show: { opacity: 1, y: 0 },
+  };
+
+  const updateActiveJourneyStep = () => {
+    const container = journeyRef.current;
+    if (!container) return;
+
+    const slides = Array.from(container.querySelectorAll<HTMLElement>("[data-journey-slide]"));
+    if (slides.length === 0) return;
+
+    const containerLeft = container.getBoundingClientRect().left;
+    const closestIndex = slides.reduce(
+      (closest, slide, index) => {
+        const distance = Math.abs(slide.getBoundingClientRect().left - containerLeft);
+        return distance < closest.distance ? { index, distance } : closest;
+      },
+      { index: 0, distance: Number.POSITIVE_INFINITY },
+    ).index;
+
+    setActiveJourneyStep(closestIndex);
+  };
+
+  const scrollToJourneyStep = (index: number) => {
+    const container = journeyRef.current;
+    const slide = container?.querySelectorAll<HTMLElement>("[data-journey-slide]")[index];
+    if (!slide) return;
+
+    setActiveJourneyStep(index);
+    container.scrollTo({
+      left: slide.offsetLeft - container.offsetLeft,
+      behavior: motionEnabled ? "smooth" : "auto",
+    });
   };
 
   return (
@@ -110,63 +131,143 @@ export default function Landing() {
           </div>
 
           <motion.div
-            className="landing-demo-object"
+            className="landing-journey-object"
             variants={reveal}
             transition={{ duration: 0.42, ease: "easeOut" }}
           >
-            <div className="landing-scan-panel">
-              <div className="landing-scan-main">
-                <div className="landing-scan-frame" aria-hidden="true">
-                  <ScanLine className="h-12 w-12 text-accent" />
+            <div
+              ref={journeyRef}
+              className="landing-journey-scroll"
+              onScroll={updateActiveJourneyStep}
+              aria-label="How Laica turns pantry photos into cooking help"
+            >
+              <article className="landing-journey-slide landing-scan-slide" data-journey-slide aria-label="Step 1 of 3: Scan your kitchen for ingredients">
+                <div className="landing-journey-header">
+                  <span className="landing-journey-count">1/3</span>
+                  <h2>Scan your kitchen for ingredients</h2>
                 </div>
-                <p className="landing-scan-caption">Pantry clues become dinner.</p>
-              </div>
-              <div className="space-y-3">
-                {pantryChips.map((chip, index) => (
-                  <motion.span
-                    key={chip}
-                    className="landing-pantry-chip"
-                    initial={motionEnabled ? { opacity: 0, scale: 0.86, y: 8 } : false}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ delay: motionEnabled ? 0.35 + index * 0.08 : 0, duration: 0.2, ease: "easeOut" }}
-                  >
-                    {chip}
-                  </motion.span>
-                ))}
-              </div>
+
+                <div className="landing-camera-card">
+                  <div className="landing-camera-topbar">
+                    <span>
+                      <Camera className="h-4 w-4" aria-hidden="true" />
+                      Pantry camera
+                    </span>
+                    <span>Live preview</span>
+                  </div>
+
+                  <div className="landing-kitchen-viewfinder" aria-hidden="true">
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-tl" />
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-tr" />
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-bl" />
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-br" />
+                    <span className="landing-kitchen-cabinet landing-kitchen-cabinet-left" />
+                    <span className="landing-kitchen-cabinet landing-kitchen-cabinet-right" />
+                    <span className="landing-kitchen-fridge" />
+                    <span className="landing-kitchen-counter" />
+                    <span className="landing-kitchen-rice" />
+                    <span className="landing-kitchen-patty landing-kitchen-patty-one" />
+                    <span className="landing-kitchen-patty landing-kitchen-patty-two" />
+                    <span className="landing-kitchen-bbq" />
+                    <span className="landing-kitchen-egg landing-kitchen-egg-one" />
+                    <span className="landing-kitchen-egg landing-kitchen-egg-two" />
+                    <ScanLine className="landing-kitchen-scan-icon" />
+                  </div>
+                </div>
+
+                <div className="landing-extracted-panel">
+                  <span className="landing-extracted-label">Found</span>
+                  <div className="landing-extracted-chips" aria-label="Detected ingredients">
+                    {["rice", "beef patties", "BBQ sauce", "eggs"].map((ingredient) => (
+                      <span key={ingredient} className="landing-extracted-chip">
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        {ingredient}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </article>
+
+              <article className="landing-journey-slide landing-recipe-slide" data-journey-slide aria-label="Step 2 of 3: Pick a recipe">
+                <div className="landing-journey-header">
+                  <span className="landing-journey-count">2/3</span>
+                  <h2>Pick a recipe</h2>
+                </div>
+
+                <div className="planning-ticket planning-ticket-large landing-recipe-demo-ticket" data-selected="true">
+                  <span className="planning-ticket-rip" aria-hidden="true" />
+                  <span className="planning-ticket-title">
+                    <span className="planning-ticket-title-main">Pantry Loco Moco-style bowl</span>
+                    <span className="planning-ticket-title-detail">Rice, beef patty, egg, and BBQ pan gravy.</span>
+                  </span>
+                  <span className="planning-recipe-image-slot">
+                    <span className="planning-recipe-image-plate" aria-hidden="true" />
+                    <Utensils className="planning-recipe-image-icon" aria-hidden="true" />
+                  </span>
+                  <span className="planning-ticket-meta">
+                    <span><Clock className="h-4 w-4" aria-hidden="true" /> 30 min</span>
+                    <span>Medium</span>
+                  </span>
+                  <span className="planning-ticket-divider" />
+                  <span className="planning-ticket-section">
+                    <span className="planning-ticket-section-label">Uses</span>
+                    <span className="planning-ticket-chip-row">
+                      {["rice", "beef patties", "BBQ sauce", "eggs"].map((ingredient) => (
+                        <Badge key={ingredient} variant="outline" className="planning-use-chip">
+                          {ingredient}
+                        </Badge>
+                      ))}
+                    </span>
+                  </span>
+                </div>
+              </article>
+
+              <article className="landing-journey-slide landing-guidance-slide" data-journey-slide aria-label="Step 3 of 3: Get live guidance to cook it">
+                <div className="landing-journey-header">
+                  <span className="landing-journey-count">3/3</span>
+                  <h2>Get live guidance to cook it</h2>
+                </div>
+
+                <div className="landing-cooking-illustration" aria-hidden="true">
+                  <span className="landing-stove">
+                    <span className="landing-stove-knob landing-stove-knob-one" />
+                    <span className="landing-stove-knob landing-stove-knob-two" />
+                  </span>
+                  <span className="landing-pan">
+                    <span className="landing-pan-handle" />
+                    <span className="landing-pan-rice" />
+                    <span className="landing-pan-patty" />
+                    <span className="landing-pan-egg" />
+                    <span className="landing-pan-sauce" />
+                  </span>
+                  <span className="landing-guidance-path">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                  </span>
+                  <span className="landing-guidance-flame">
+                    <Flame className="h-8 w-8" />
+                  </span>
+                </div>
+
+                <div className="landing-guidance-note">
+                  <ChefHat className="h-5 w-5" aria-hidden="true" />
+                  <span>Step-by-step help stays nearby while you cook.</span>
+                </div>
+              </article>
             </div>
 
-            <div className="grid gap-3">
-              <div className="landing-recipe-ticket">
-                <div>
-                  <p className="text-xs font-black text-primary">Tonight</p>
-                  <h2 className="mt-2 text-xl font-extrabold leading-tight text-[hsl(var(--setup-ink))]">
-                    Soy butter mushroom noodles
-                  </h2>
-                </div>
-                <div className="landing-ticket-meta">
-                  <Clock className="h-4 w-4" aria-hidden="true" />
-                  <span>30 min</span>
-                </div>
-              </div>
-
-              {proofCards.map((card, index) => (
-                <motion.article
-                  key={card.title}
-                  className="landing-proof-card"
-                  initial={motionEnabled ? { opacity: 0, y: 18 } : false}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.45 }}
-                  transition={{ delay: motionEnabled ? index * 0.06 : 0, duration: 0.28, ease: "easeOut" }}
-                >
-                  <span className="landing-proof-icon">
-                    <card.icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span>
-                    <span className="block text-base font-extrabold text-[hsl(var(--setup-ink))]">{card.title}</span>
-                    <span className="mt-1 block text-sm font-bold leading-snug text-[hsl(var(--setup-ink)/0.62)]">{card.copy}</span>
-                  </span>
-                </motion.article>
+            <div className="landing-journey-dots" aria-label="Homepage proof steps">
+              {journeySteps.map((step, index) => (
+                <button
+                  key={step}
+                  type="button"
+                  className="landing-journey-dot"
+                  data-active={activeJourneyStep === index}
+                  aria-label={`Show step ${index + 1}: ${step}`}
+                  aria-current={activeJourneyStep === index ? "step" : undefined}
+                  onClick={() => scrollToJourneyStep(index)}
+                />
               ))}
             </div>
           </motion.div>

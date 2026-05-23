@@ -20,7 +20,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
   - hero: `Cook from what you already have.`
   - primary CTA: `Start cooking now`
   - secondary CTA: `Continue with Google`
-  - proof sections for pantry scan, recipe ideas, and cooking guidance
+  - horizontal 3-step proof carousel for pantry scan, recipe picking, and cooking guidance
 - Added restrained motion with existing `framer-motion` and CSS only:
   - first-load reveal
   - pantry chip pop-in
@@ -46,10 +46,11 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
   - guest empty-pantry recovery returns to setup instead of linked-account settings
 - Replit validation follow-up found that guest users could continue from recipe ideas into the cooking guide, where the shared live-cooking component attempted to create durable cooking-session memory. This branch now skips durable cooking-session start/update/complete writes for anonymous users while preserving linked-user session writes.
 - Replit landscape visual smoke found the Google CTA overflowing when the landing buttons switched into two columns. The CTA group now stays stacked with bounded width so `Continue with Google` gets its own row across mobile, landscape, and desktop widths.
-- Product review removed the `Pantry-first cooking help` kicker above the hero because the logo, headline, supporting copy, and proof cards already establish the pantry-first positioning without a marketing-style badge.
+- Product review removed the `Pantry-first cooking help` kicker above the hero because the logo, headline, supporting copy, and proof carousel already establish the pantry-first positioning without a marketing-style badge.
 - Product review aligned the homepage sample ticket's `30 min` treatment with the real product recipe-card pattern: compact inline clock icon plus `30 min`, not a stacked number/unit widget.
 - Product review changed the guest CTA to `Start cooking now` and removed the supporting helper sentence below the auth buttons to keep the landing page simpler and less wordy.
 - Product review identified a stronger carousel example around rice, beef patties, BBQ sauce, and eggs becoming a Loco Moco-style bowl, but also noted that Hawaiian does not appear to be a current cuisine picker option. Created [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) so later prompt work can support pantry-grounded cross-cuisine recommendations without implying unavailable picker options.
+- Product review replaced the right-side stacked proof cards with a 3-step horizontal carousel: scan uses a setup-camera-like kitchen photo illustration plus extracted ingredient chips, pick-a-recipe uses the production planning ticket style, and live guidance stays illustrative because today's live-cooking UI is not the final target.
 
 ## Docs Updated
 
@@ -75,7 +76,7 @@ Wilson accepted **Plan B** after this implementation: use the pre-auth homepage 
 
 ## PR Summary Notes
 
-- Pre-auth homepage change: A+C hybrid homepage, `Start cooking now` anonymous entry, Google as linked-account path, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
+- Pre-auth homepage change: A+C hybrid homepage, `Start cooking now` anonymous entry, Google as linked-account path, 3-step proof carousel, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
 - Deferred INIT-003 gates: Replit auth smoke, anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, Firebase App Check posture, and full upgrade-to-save boundary.
 - Deferred recommendation-quality follow-up: [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) tracks prompt/eval work so combinations such as American + Asian can produce pantry-grounded inspired recipes without adding unsupported cuisine picker promises.
 - Phase 4 follow-up: linked users get durable cooking guidance/history; guests must see a local-only or link-Google boundary before any completion path that would imply saved history.

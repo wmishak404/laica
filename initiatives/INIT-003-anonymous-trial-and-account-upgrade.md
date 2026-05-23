@@ -124,7 +124,7 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - cap moment: unlock more recipes
   - save moment: save your kitchen
 - Product analytics was intentionally separated from INIT-003 runtime scope so guest auth, quota, persistence, and Phase 5 boundaries can land without also inventing a new analytics foundation.
-- Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Start cooking now` as the guest CTA, keep Google as the linked-account path, and avoid numeric quota language on the landing page.
+- Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Start cooking now` as the guest CTA, keep Google as the linked-account path, use a 3-step proof carousel for scan/recipe/guidance, and avoid numeric quota language on the landing page.
 - Wilson accepted Plan B on 2026-05-22: ship the public homepage and narrow guest MVP before full INIT-001 Phase 4 or Phase 5, as long as production guest gates remain explicit and durable cooking memory stays linked-account only.
 
 ## Validation State

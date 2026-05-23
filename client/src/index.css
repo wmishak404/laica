@@ -130,6 +130,15 @@ html, body {
     --setup-ink: 223 21% 18%;
     --setup-butter: 43 100% 76%;
     --setup-teal: 174 50% 46%;
+    --planning-coral: var(--setup-coral-strong);
+    --planning-coral-strong: 0 72% 58%;
+    --planning-coral-soft: var(--setup-coral-soft);
+    --planning-ink: var(--setup-ink);
+    --planning-muted: 25 28% 46%;
+    --planning-ticket: 38 82% 94%;
+    --planning-ticket-edge: 33 40% 76%;
+    --planning-herb: 111 31% 43%;
+    --planning-herb-soft: 104 42% 88%;
     background:
       radial-gradient(circle at 16% 4%, hsl(var(--setup-butter) / 0.28), transparent 18rem),
       radial-gradient(circle at 88% 18%, hsl(var(--setup-teal) / 0.16), transparent 18rem),
@@ -143,148 +152,586 @@ html, body {
     letter-spacing: 0;
   }
 
-  .landing-demo-object {
+  .landing-journey-object {
     display: grid;
-    gap: 0.85rem;
-    border: 1px solid hsl(var(--setup-coral-strong) / 0.16);
-    border-radius: 1.75rem;
-    background:
-      linear-gradient(180deg, hsl(0 0% 100% / 0.52), hsl(0 0% 100% / 0.28)),
-      hsl(var(--setup-cream) / 0.84);
-    box-shadow: 0 1.35rem 3rem hsl(var(--setup-coral-strong) / 0.13);
-    padding: 1rem;
-  }
-
-  .landing-scan-panel {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: stretch;
-    min-height: 10.5rem;
-    overflow: hidden;
-    border: 1px solid hsl(var(--setup-ink) / 0.16);
-    border-radius: 1.35rem;
-    background:
-      radial-gradient(circle at 18% 18%, hsl(var(--setup-butter) / 0.22), transparent 10rem),
-      hsl(var(--setup-ink));
-    padding: 1.15rem;
-  }
-
-  .landing-scan-main {
-    display: flex;
     min-width: 0;
-    flex-direction: column;
-    justify-content: space-between;
+    gap: 0.8rem;
   }
 
-  .landing-scan-frame {
-    display: flex;
-    height: 5.7rem;
-    width: 5.7rem;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid hsl(var(--accent));
-    border-radius: 1.15rem;
-    background: hsl(0 0% 100% / 0.1);
-    animation: landing-scan-pulse 1.5s ease-out 2;
+  .landing-journey-scroll {
+    display: grid;
+    grid-auto-columns: 100%;
+    grid-auto-flow: column;
+    gap: 0.85rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 0;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-block: 0.2rem 0.4rem;
   }
 
-  .landing-pantry-chip {
-    display: block;
-    min-width: 6.4rem;
-    border: 1px solid hsl(135 38% 76%);
-    border-radius: 999px;
-    background: hsl(134 42% 92%);
-    color: hsl(137 28% 40%);
-    font-size: 0.88rem;
-    font-weight: 1000;
-    line-height: 1;
-    padding: 0.62rem 0.9rem;
-    text-align: center;
+  .landing-journey-scroll::-webkit-scrollbar {
+    display: none;
   }
 
-  .landing-scan-caption {
-    color: hsl(0 0% 100%);
-    font-size: 0.92rem;
-    font-weight: 1000;
-    line-height: 1.15;
-    max-width: 9.5rem;
-  }
-
-  @media (min-width: 640px) {
-    .landing-scan-caption {
-      max-width: 12rem;
+  @media (min-width: 768px) {
+    .landing-journey-scroll {
+      grid-auto-columns: calc(100% - 2.1rem);
     }
   }
 
-  .landing-recipe-ticket,
-  .landing-proof-card {
+  .landing-journey-slide {
+    display: grid;
+    min-height: 30rem;
+    align-content: start;
+    gap: 0.95rem;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.16);
+    border-radius: 1.55rem;
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.58), hsl(0 0% 100% / 0.32)),
+      hsl(var(--setup-cream) / 0.84);
+    box-shadow: 0 1.15rem 2.7rem hsl(var(--setup-coral-strong) / 0.13);
+    padding: 1rem;
+    scroll-snap-align: start;
+  }
+
+  .landing-journey-header {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .landing-journey-count {
+    color: hsl(var(--setup-coral-strong));
+    font-size: 0.76rem;
+    font-weight: 1000;
+    letter-spacing: 0;
+  }
+
+  .landing-journey-header h2 {
+    color: hsl(var(--setup-ink));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+    font-size: 1.3rem;
+    font-weight: 1000;
+    line-height: 1.08;
+  }
+
+  .landing-camera-card,
+  .landing-extracted-panel,
+  .landing-guidance-note {
     border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
     border-radius: 1.15rem;
-    background: hsl(0 0% 100% / 0.72);
-    box-shadow: 0 0.6rem 1.4rem hsl(var(--setup-coral-strong) / 0.08);
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.7), hsl(var(--setup-coral-soft) / 0.28)),
+      hsl(0 0% 100% / 0.42);
+    box-shadow: 0 0.85rem 1.7rem hsl(var(--setup-coral-strong) / 0.08);
   }
 
-  .landing-recipe-ticket {
+  .landing-camera-card {
+    padding: 0.78rem;
+  }
+
+  .landing-camera-topbar {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 1.2rem;
+    gap: 0.6rem;
+    color: hsl(var(--setup-ink) / 0.64);
+    font-size: 0.74rem;
+    font-weight: 900;
+    padding: 0.1rem 0.15rem 0.65rem;
   }
 
-  .landing-ticket-meta {
+  .landing-camera-topbar span {
     display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 0.25rem;
-    color: hsl(var(--setup-ink) / 0.64);
-    font-size: 0.88rem;
-    font-weight: 900;
-    line-height: 1;
+    gap: 0.35rem;
     white-space: nowrap;
   }
 
-  .landing-proof-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.9rem;
-    padding: 1rem;
+  .landing-kitchen-viewfinder {
+    position: relative;
+    min-height: 15.8rem;
+    overflow: hidden;
+    border: 0.18rem solid hsl(0 0% 100% / 0.72);
+    border-radius: 1.25rem;
+    background:
+      radial-gradient(circle at 22% 16%, hsl(var(--setup-butter) / 0.2), transparent 5.8rem),
+      linear-gradient(145deg, hsl(var(--setup-ink)), hsl(223 26% 24%));
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--setup-coral-strong) / 0.22),
+      0 0.85rem 1.6rem hsl(var(--setup-ink) / 0.18);
   }
 
-  .landing-proof-icon {
+  .landing-viewfinder-corner {
+    position: absolute;
+    z-index: 4;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-color: hsl(0 0% 100% / 0.88);
+    pointer-events: none;
+  }
+
+  .landing-viewfinder-corner-tl {
+    top: 1rem;
+    left: 1rem;
+    border-top: 3px solid;
+    border-left: 3px solid;
+    border-radius: 0.5rem 0 0;
+  }
+
+  .landing-viewfinder-corner-tr {
+    top: 1rem;
+    right: 1rem;
+    border-top: 3px solid;
+    border-right: 3px solid;
+    border-radius: 0 0.5rem 0 0;
+  }
+
+  .landing-viewfinder-corner-bl {
+    bottom: 1rem;
+    left: 1rem;
+    border-bottom: 3px solid;
+    border-left: 3px solid;
+    border-radius: 0 0 0 0.5rem;
+  }
+
+  .landing-viewfinder-corner-br {
+    right: 1rem;
+    bottom: 1rem;
+    border-right: 3px solid;
+    border-bottom: 3px solid;
+    border-radius: 0 0 0.5rem;
+  }
+
+  .landing-kitchen-cabinet,
+  .landing-kitchen-fridge,
+  .landing-kitchen-counter,
+  .landing-kitchen-rice,
+  .landing-kitchen-patty,
+  .landing-kitchen-bbq,
+  .landing-kitchen-egg {
+    position: absolute;
+    display: block;
+  }
+
+  .landing-kitchen-cabinet {
+    top: 1.1rem;
+    height: 4.2rem;
+    border: 1px solid hsl(36 34% 48% / 0.44);
+    border-radius: 0.65rem;
+    background: linear-gradient(180deg, hsl(33 42% 70%), hsl(31 38% 58%));
+    box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.18);
+  }
+
+  .landing-kitchen-cabinet-left {
+    left: 1.35rem;
+    width: 6.3rem;
+  }
+
+  .landing-kitchen-cabinet-right {
+    right: 5.2rem;
+    width: 5.6rem;
+  }
+
+  .landing-kitchen-fridge {
+    top: 1.15rem;
+    right: 1.25rem;
+    width: 3.25rem;
+    height: 8.9rem;
+    border: 1px solid hsl(210 14% 82% / 0.74);
+    border-radius: 0.7rem 0.7rem 0.35rem 0.35rem;
+    background: linear-gradient(180deg, hsl(210 22% 88%), hsl(214 15% 72%));
+  }
+
+  .landing-kitchen-fridge::before {
+    content: '';
+    position: absolute;
+    top: 3.1rem;
+    right: 0;
+    left: 0;
+    border-top: 1px solid hsl(214 14% 60% / 0.52);
+  }
+
+  .landing-kitchen-counter {
+    right: 0.8rem;
+    bottom: 2.4rem;
+    left: 0.8rem;
+    height: 5.4rem;
+    border: 1px solid hsl(30 18% 50% / 0.36);
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, hsl(36 45% 80%), hsl(32 35% 66%));
+    box-shadow: 0 -0.55rem 0 hsl(34 44% 86% / 0.62);
+  }
+
+  .landing-kitchen-rice {
+    bottom: 5.2rem;
+    left: 2rem;
+    width: 3.8rem;
+    height: 3.6rem;
+    border: 1px solid hsl(31 32% 54% / 0.45);
+    border-radius: 0.6rem 0.6rem 1rem 1rem;
+    background:
+      radial-gradient(circle at 36% 34%, hsl(0 0% 100% / 0.9) 0 0.18rem, transparent 0.2rem),
+      radial-gradient(circle at 52% 46%, hsl(0 0% 100% / 0.88) 0 0.17rem, transparent 0.19rem),
+      radial-gradient(circle at 68% 32%, hsl(0 0% 100% / 0.82) 0 0.15rem, transparent 0.18rem),
+      linear-gradient(180deg, hsl(38 68% 92%), hsl(32 42% 72%));
+  }
+
+  .landing-kitchen-patty {
+    width: 2.35rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 30% 44%, hsl(31 42% 44%), transparent 0.55rem),
+      hsl(20 38% 28%);
+    box-shadow: inset 0 -0.16rem 0 hsl(16 34% 18% / 0.42);
+  }
+
+  .landing-kitchen-patty-one {
+    bottom: 5rem;
+    left: 7rem;
+    transform: rotate(-8deg);
+  }
+
+  .landing-kitchen-patty-two {
+    bottom: 5.72rem;
+    left: 7.48rem;
+    transform: rotate(5deg);
+  }
+
+  .landing-kitchen-bbq {
+    right: 4.5rem;
+    bottom: 4.86rem;
+    width: 1.35rem;
+    height: 4.4rem;
+    border: 1px solid hsl(0 52% 24% / 0.32);
+    border-radius: 0.45rem 0.45rem 0.65rem 0.65rem;
+    background:
+      linear-gradient(180deg, hsl(0 72% 68%) 0 24%, hsl(5 48% 34%) 24% 100%);
+  }
+
+  .landing-kitchen-bbq::before {
+    content: '';
+    position: absolute;
+    top: -0.42rem;
+    left: 0.25rem;
+    width: 0.8rem;
+    height: 0.55rem;
+    border-radius: 0.24rem 0.24rem 0 0;
+    background: hsl(12 22% 18%);
+  }
+
+  .landing-kitchen-egg {
+    width: 1.45rem;
+    height: 1.85rem;
+    border-radius: 55% 55% 48% 48%;
+    background: hsl(0 0% 96%);
+    box-shadow: inset -0.12rem -0.18rem 0 hsl(45 20% 82% / 0.72);
+  }
+
+  .landing-kitchen-egg-one {
+    right: 7.05rem;
+    bottom: 4.88rem;
+    transform: rotate(-12deg);
+  }
+
+  .landing-kitchen-egg-two {
+    right: 6.05rem;
+    bottom: 4.72rem;
+    transform: rotate(10deg);
+  }
+
+  .landing-kitchen-scan-icon {
+    position: absolute;
+    z-index: 5;
+    top: 50%;
+    left: 50%;
+    width: 4.3rem;
+    height: 4.3rem;
+    color: hsl(var(--accent));
+    filter: drop-shadow(0 0.55rem 0.9rem hsl(var(--setup-ink) / 0.3));
+    transform: translate(-50%, -50%);
+    animation: landing-scan-sweep 1.7s ease-out 2;
+  }
+
+  .landing-extracted-panel {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.9rem;
+  }
+
+  .landing-extracted-label {
+    color: hsl(var(--setup-coral-strong));
+    font-size: 0.78rem;
+    font-weight: 1000;
+  }
+
+  .landing-extracted-chips,
+  .landing-journey-dots {
     display: flex;
-    height: 2.75rem;
-    width: 2.75rem;
-    flex: 0 0 auto;
+    flex-wrap: wrap;
+  }
+
+  .landing-extracted-chips {
+    gap: 0.45rem;
+  }
+
+  .landing-extracted-chip {
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+    gap: 0.34rem;
+    border: 1px solid hsl(111 31% 43% / 0.22);
+    border-radius: 999px;
+    background: hsl(104 42% 88% / 0.82);
+    color: hsl(112 28% 24%);
+    font-size: 0.78rem;
+    font-weight: 900;
+    line-height: 1.05;
+    padding: 0.38rem 0.58rem;
+    white-space: nowrap;
+  }
+
+  .landing-recipe-demo-ticket {
+    min-height: 22.4rem;
+    justify-content: start;
+  }
+
+  .landing-recipe-demo-ticket .planning-ticket-title {
+    max-width: 20rem;
+  }
+
+  .landing-cooking-illustration {
+    position: relative;
+    min-height: 20.8rem;
+    overflow: hidden;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
+    border-radius: 1.25rem;
+    background:
+      radial-gradient(circle at 24% 18%, hsl(var(--setup-butter) / 0.34), transparent 6rem),
+      radial-gradient(circle at 80% 20%, hsl(var(--setup-teal) / 0.16), transparent 6rem),
+      linear-gradient(180deg, hsl(0 0% 100% / 0.72), hsl(var(--setup-coral-soft) / 0.34));
+    box-shadow: 0 0.85rem 1.7rem hsl(var(--setup-coral-strong) / 0.08);
+  }
+
+  .landing-stove,
+  .landing-pan,
+  .landing-pan-handle,
+  .landing-pan-rice,
+  .landing-pan-patty,
+  .landing-pan-egg,
+  .landing-pan-sauce,
+  .landing-guidance-path,
+  .landing-guidance-flame {
+    position: absolute;
+    display: block;
+  }
+
+  .landing-stove {
+    right: 2.15rem;
+    bottom: 2.2rem;
+    left: 2.15rem;
+    height: 7.7rem;
+    border: 1px solid hsl(var(--setup-ink) / 0.18);
+    border-radius: 1.05rem;
+    background:
+      radial-gradient(circle at 31% 47%, hsl(var(--setup-ink) / 0.08) 0 1.9rem, transparent 2rem),
+      radial-gradient(circle at 68% 47%, hsl(var(--setup-ink) / 0.08) 0 1.9rem, transparent 2rem),
+      linear-gradient(180deg, hsl(215 15% 92%), hsl(214 13% 72%));
+  }
+
+  .landing-stove-knob {
+    position: absolute;
+    bottom: 0.75rem;
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 999px;
+    background: hsl(var(--setup-ink) / 0.34);
+  }
+
+  .landing-stove-knob-one {
+    left: 40%;
+  }
+
+  .landing-stove-knob-two {
+    right: 40%;
+  }
+
+  .landing-pan {
+    top: 6.1rem;
+    left: 50%;
+    width: 10.8rem;
+    height: 6.1rem;
+    border: 0.42rem solid hsl(var(--setup-ink));
+    border-radius: 50%;
+    background:
+      radial-gradient(ellipse at 50% 58%, hsl(36 80% 88%), hsl(35 46% 70%) 66%, hsl(var(--setup-ink)) 68%);
+    box-shadow: 0 1rem 1.7rem hsl(var(--setup-ink) / 0.18);
+    transform: translateX(-50%) rotate(-5deg);
+  }
+
+  .landing-pan-handle {
+    top: 2.16rem;
+    right: -4.3rem;
+    width: 4.9rem;
+    height: 0.8rem;
+    border-radius: 999px;
+    background: hsl(var(--setup-ink));
+    transform: rotate(-4deg);
+  }
+
+  .landing-pan-rice {
+    right: 2.05rem;
+    bottom: 1.25rem;
+    left: 1.85rem;
+    height: 1.45rem;
+    border-radius: 50%;
+    background: hsl(0 0% 98% / 0.92);
+  }
+
+  .landing-pan-patty {
+    top: 1.85rem;
+    left: 3rem;
+    width: 3.2rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: hsl(21 38% 28%);
+    box-shadow: inset 0 -0.18rem 0 hsl(17 34% 18% / 0.38);
+  }
+
+  .landing-pan-egg {
+    top: 1.15rem;
+    right: 3.05rem;
+    width: 2.7rem;
+    height: 2rem;
+    border-radius: 58% 52% 55% 45%;
+    background:
+      radial-gradient(circle at 52% 48%, hsl(43 100% 61%) 0 0.48rem, transparent 0.5rem),
+      hsl(0 0% 100%);
+  }
+
+  .landing-pan-sauce {
+    top: 3.15rem;
+    right: 3.15rem;
+    width: 3.7rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: hsl(5 48% 34% / 0.76);
+    transform: rotate(-10deg);
+  }
+
+  .landing-guidance-path {
+    top: 1.1rem;
+    left: 1rem;
+    display: flex;
+    gap: 0.45rem;
+  }
+
+  .landing-guidance-path span {
+    display: flex;
+    width: 1.85rem;
+    height: 1.85rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.24);
+    border-radius: 999px;
+    background: hsl(0 0% 100% / 0.78);
+    color: hsl(var(--setup-coral-strong));
+    font-size: 0.84rem;
+    font-weight: 1000;
+  }
+
+  .landing-guidance-flame {
+    top: 1.1rem;
+    right: 1.1rem;
+    display: flex;
+    width: 3.2rem;
+    height: 3.2rem;
     align-items: center;
     justify-content: center;
     border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
-    border-radius: 0.95rem;
-    background: hsl(var(--setup-coral-soft) / 0.7);
+    border-radius: 1rem;
+    background: hsl(var(--setup-coral-soft) / 0.78);
     color: hsl(var(--setup-coral-strong));
   }
 
-  @keyframes landing-scan-pulse {
+  .landing-guidance-note {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: hsl(var(--setup-ink) / 0.72);
+    font-size: 0.88rem;
+    font-weight: 900;
+    line-height: 1.15;
+    padding: 0.85rem;
+  }
+
+  .landing-guidance-note svg {
+    flex: 0 0 auto;
+    color: hsl(var(--setup-coral-strong));
+  }
+
+  .landing-journey-dots {
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .landing-journey-dot {
+    width: 0.58rem;
+    height: 0.58rem;
+    border-radius: 999px;
+    background: hsl(var(--setup-coral-strong) / 0.26);
+    transition: width 0.18s ease, background 0.18s ease;
+  }
+
+  .landing-journey-dot[data-active='true'] {
+    width: 1.55rem;
+    background: hsl(var(--setup-coral-strong));
+  }
+
+  @keyframes landing-scan-sweep {
     0% {
-      box-shadow: 0 0 0 0 hsl(var(--accent) / 0.42);
-      transform: scale(1);
+      opacity: 0;
+      transform: translate(-66%, -50%) scale(0.92);
+    }
+
+    22% {
+      opacity: 1;
     }
 
     72% {
-      box-shadow: 0 0 0 1.1rem hsl(var(--accent) / 0);
-      transform: scale(1.025);
+      opacity: 1;
+      transform: translate(-34%, -50%) scale(1);
     }
 
     100% {
-      box-shadow: 0 0 0 0 hsl(var(--accent) / 0);
-      transform: scale(1);
+      opacity: 0.9;
+      transform: translate(-50%, -50%) scale(1);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .landing-scan-frame {
+    .landing-kitchen-scan-icon,
+    .landing-journey-dot {
       animation: none;
+      transition: none;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .landing-journey-slide {
+      min-height: 31rem;
+      padding: 0.85rem;
+    }
+
+    .landing-kitchen-viewfinder {
+      min-height: 14.8rem;
+    }
+
+    .landing-recipe-demo-ticket {
+      min-height: 23.4rem;
     }
   }
 
