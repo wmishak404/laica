@@ -214,6 +214,11 @@ export default function Landing() {
                     </span>
                   </span>
                 </div>
+
+                <div className="landing-recipe-source-note">
+                  <Check className="h-4 w-4" aria-hidden="true" />
+                  <span>Picked from 17 ingredients in your kitchen. Laica highlights the ones this recipe uses.</span>
+                </div>
               </article>
 
               <article className="landing-journey-slide landing-guidance-slide" data-journey-slide aria-label="Step 3 of 3: Get live guidance to cook it">

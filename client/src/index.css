@@ -396,6 +396,28 @@ html, body {
     margin: 0.95rem 0;
   }
 
+  .landing-recipe-source-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.58rem;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
+    border-radius: 1rem;
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.68), hsl(var(--setup-coral-soft) / 0.24)),
+      hsl(0 0% 100% / 0.44);
+    color: hsl(var(--setup-ink) / 0.72);
+    font-size: 0.84rem;
+    font-weight: 900;
+    line-height: 1.2;
+    padding: 0.78rem 0.82rem;
+  }
+
+  .landing-recipe-source-note svg {
+    flex: 0 0 auto;
+    color: hsl(var(--setup-teal));
+    margin-top: 0.06rem;
+  }
+
   .landing-guidance-demo {
     display: grid;
     gap: 0.78rem;
