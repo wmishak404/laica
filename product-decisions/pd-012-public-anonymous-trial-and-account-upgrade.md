@@ -7,7 +7,7 @@
 **Scope:** Public app entry, guest usage limits, account upgrade boundary, and authenticated persistence contract
 **Applies when:** Changing pre-auth entry, anonymous Firebase behavior, recipe-generation gating, durable-save rules, linked-account upgrade prompts, or Phase 5 returning-user memory behavior.
 **Volatility:** Active review needed
-**Review trigger:** Revisit when guest-to-link conversion, abuse/cost telemetry, or returning-user evidence shows the 5-generation cap or local-persistence contract should change.
+**Review trigger:** Revisit when guest-to-link conversion, abuse/cost telemetry, early-generation quality evidence, or returning-user behavior shows the 10-generation cap or local-persistence contract should change.
 **Related Initiatives:** [INIT-003 — Anonymous Trial and Account Upgrade](../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md), [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Related Efforts:** [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md)
 
@@ -28,6 +28,17 @@ The final decision therefore needs to balance three forces at once:
 
 Phase 5 of [INIT-001](../initiatives/INIT-001-mobile-refresh.md) is especially relevant because it owns durable history, pending cleanup, taste signal, and the returning-user memory loop. This decision therefore sets the guest boundary for those post-cook surfaces too.
 
+### 2026-05-24 cap revision
+
+Wilson revised the anonymous quota from 5 to 10 successful recipe generations. The reason is not only generosity; it is a cleaner first-use mental model and a better fit for an early product.
+
+The cap increased to 10 because:
+
+- New users should have enough room to get into a real cooking flow before account creation becomes the next step.
+- A recipe generation can miss because the user changes their mind, wants to iterate, or rejects the direction after seeing it.
+- A recipe generation can also miss because Laica is still young and may produce something that does not fit the user's taste, pantry, or expectations. Those misses are partly on the product, so the guest policy should leave room for them before asking for Google.
+- The cap should still protect cost and abuse, but the user-facing story should remain "start cooking now" rather than "you are in a small trial."
+
 ## Decision
 
 ### Public entry model
@@ -38,14 +49,14 @@ Phase 5 of [INIT-001](../initiatives/INIT-001-mobile-refresh.md) is especially r
 
 ### Guest recipe quota
 
-- Anonymous users receive **5 successful recipe generations** total in v1.
+- Anonymous users receive **10 successful recipe generations** total in v1.
 - The quota is shared across:
   - Chef It Up recipe generation
   - pantry recipe generation
   - Slop Bowl generation
 - Only successful generation responses count against the quota.
 - Validation errors, provider failures, canceled requests, and blocked requests do not count.
-- After the fifth successful generation, the next new generation attempt is blocked until the user links Google.
+- After the tenth successful generation, the next new generation attempt is blocked until the user links Google.
 
 ### Guest persistence contract
 
@@ -59,7 +70,7 @@ Phase 5 of [INIT-001](../initiatives/INIT-001-mobile-refresh.md) is especially r
 
 ### Upgrade boundary
 
-- Google linking is required for recipe generation **#6 and beyond**.
+- Google linking is required for recipe generation **#11 and beyond**.
 - Google linking is also required for any durable server-side save.
 - "Save gate" means the durable-write boundary, not the same-browser local guest experience.
 
@@ -72,8 +83,9 @@ Durable saves include:
 
 ### User-journey messaging
 
-- The landing screen may present guest mode as "Try 5 recipes free" with Google as the secondary path.
-- The guest quota should be **subtle first, stronger later**.
+- The landing screen should lead with immediate use, not trial accounting.
+- Guest mode should feel like "start cooking now"; the 10-generation cap is an internal product and abuse-control boundary, not the primary marketing message.
+- The guest quota should be **quiet first, stronger later**.
 - Remaining quota becomes more prominent as the guest approaches `2`, `1`, and `0` remaining generations.
 - The upgrade message depends on the trigger:
   - recipe-cap moment: **unlock more recipes**
@@ -105,7 +117,8 @@ Durable saves include:
 ## Rationale
 
 - A guest path helps new users discover value before trusting Laica with identity, which is especially important for a product asking people to share pantry and cooking context.
-- A **5-generation cap** preserves that trust-building window without making Google linking optional forever.
+- A **10-generation cap** preserves that trust-building window without making Google linking optional forever.
+- The larger cap gives new users room to regenerate, iterate, or recover from early recipe misses. Because Laica is still young, some rejected generations are product quality misses on Laica's side, not user indecision; the guest policy should leave enough room for that.
 - A same-browser persistence contract avoids the worst guest-mode annoyance: being forced to rescan pantry after every normal reopen.
 - A linked-only durable-memory boundary keeps Phase 5 coherent. Returning-user history, cleanup, and taste memory should belong to a real account, not to a fragile anonymous browser session.
 - Keeping the cap on recipe generation instead of on "full cooks" makes enforcement deterministic and easier to explain in the UI.
@@ -116,7 +129,8 @@ Durable saves include:
 | Alternative | Why not chosen |
 |---|---|
 | Unlimited guest generation until first save | Friendlier at first, but removes most of the incentive to link Google and leaves abuse/cost exposure higher for longer |
-| 3 successful generations instead of 5 | Stronger conversion pressure, but more likely to feel like a teaser rather than a real trial |
+| 5 successful generations instead of 10 | Simpler and cheaper, but too tight for iteration if early recipe quality, pantry fit, or taste alignment misses |
+| 3 successful generations instead of 10 | Stronger conversion pressure, but more likely to feel like a teaser rather than a real trial |
 | 1 full cook then link | Easier to market, harder to count cleanly, and riskier if the first generated recipe misses the user's taste |
 | Keep Google-only public entry | Simplest technically, but keeps the same first-use trust problem that motivated the change |
 | Durable anonymous accounts with server-backed history | Too close to a full account system without the commitment or recovery guarantees of a linked identity |
@@ -141,4 +155,4 @@ Durable saves include:
 - Land the Phase 0 docs baseline in [INIT-003](../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md) and then start runtime work from fresh `origin/main`.
 - Add Firebase App Check before enabling public anonymous auth in production.
 - File separate analytics work for guest-to-link and returning-user measurement rather than expanding this PD into a measurement plan.
-- Re-evaluate the 5-generation cap after real usage evidence, cost signals, and Phase 5 returning-user data exist.
+- Re-evaluate the 10-generation cap after real usage evidence, cost signals, early-generation quality evidence, and Phase 5 returning-user data exist.

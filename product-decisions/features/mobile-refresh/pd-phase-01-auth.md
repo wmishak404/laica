@@ -26,7 +26,7 @@ Make the first screen feel like a native mobile app instead of a desktop website
 ## 2026-05-15 Amendment
 
 - This phase record remains the accepted historical description of what Phase 1 shipped.
-- Public anonymous entry, the 5-generation guest trial, same-browser guest persistence, and the Google upgrade boundary are now governed by [PD-012](../../pd-012-public-anonymous-trial-and-account-upgrade.md) and [INIT-003](../../../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md).
+- Public anonymous entry, the 10-generation guest quota, same-browser guest persistence, and the Google upgrade boundary are now governed by [PD-012](../../pd-012-public-anonymous-trial-and-account-upgrade.md) and [INIT-003](../../../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md).
 - Future auth-entry work should treat the Google-only landing here as the original mobile-refresh baseline, not as the final public-entry policy.
 
 ## Acceptance Criteria
