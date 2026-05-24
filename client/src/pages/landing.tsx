@@ -217,7 +217,9 @@ export default function Landing() {
 
                 <div className="landing-recipe-source-note">
                   <Check className="h-4 w-4" aria-hidden="true" />
-                  <span>Picked from 17 ingredients in your kitchen. Laica highlights the ones this recipe uses.</span>
+                  <span>
+                    Picked from <strong>17 ingredients</strong> in your kitchen. Laica highlights the ones this recipe uses.
+                  </span>
                 </div>
               </article>
 

@@ -16,7 +16,7 @@ Wilson tightened the public pre-auth homepage carousel after seeing the first pa
   - Replaced the too-messy kitchen scan image with a cleaner packaged ingredient cluster where the items are unevenly placed but still homepage-appropriate.
 - `client/src/pages/landing.tsx`
   - Removed visible `1/3`, `2/3`, and `3/3` count labels from the slide headers; the progress dots remain.
-  - Added a short recipe-slide explainer: `Picked from 17 ingredients in your kitchen. Laica highlights the ones this recipe uses.`
+  - Added a short recipe-slide explainer: `Picked from 17 ingredients in your kitchen. Laica highlights the ones this recipe uses.` The `17 ingredients` phrase is highlighted in coral to match the planning-page emphasis pattern.
   - Replaced the guidance slide's numbered/flame overlay with app-rendered cooking-guide elements: current step, progress bar, checklist, and tip.
   - Fixed dot-click scrolling to compute the target from bounding boxes so smooth scroll lands on the intended slide across mobile and desktop.
 - `client/src/index.css`
