@@ -82,11 +82,11 @@ Out of scope for this launch path:
 
 Phase 3 adds selected slightly-cartoony consumer-packaged generated landing assets for the pre-auth proof carousel:
 
-- `attached_assets/landing-packaged-cartoon-kitchen-scan.jpg` — warm home-kitchen scan concept with labeled fictional grocery packaging and no raw meat
+- `attached_assets/landing-packaged-cartoon-kitchen-scan.jpg` — warm home-kitchen scan concept with labeled fictional grocery packaging, natural uneven ingredient placement, and no raw meat
 - `attached_assets/landing-packaged-cartoon-recipe-bowl.jpg` — appetizing home-cooked Loco Moco-style bowl from the labeled ingredients
 - `attached_assets/landing-packaged-cartoon-cooking-guidance.jpg` — warm stovetop/pan cooking scene with labeled ingredient packaging in the background
 
-PD-012 is the source of truth for the image-generation approach: public product-flow imagery should avoid raw meat, use fictional labeled packaging when labels clarify grocery ingredients, avoid real logos/trade dress/people, and keep interactive UI chrome in the app layer.
+PD-012 is the source of truth for the image-generation approach: public product-flow imagery should avoid raw meat, use fictional labeled packaging when labels clarify grocery ingredients, avoid real logos/trade dress/people, keep scan-image ingredient placement natural without making the scene chaotic, and keep interactive UI chrome in the app layer.
 
 ## Phase Progress
 
@@ -134,6 +134,7 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 - Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Start cooking now` as the guest CTA, keep Google as the linked-account path, use a 3-step proof carousel for scan/recipe/guidance, and avoid numeric quota language on the landing page.
 - Wilson accepted Plan B on 2026-05-22: ship the public homepage and narrow guest MVP before full INIT-001 Phase 4 or Phase 5, as long as production guest gates remain explicit and durable cooking memory stays linked-account only.
 - Wilson initially selected domestic-realistic generated imagery for the public carousel on 2026-05-23, then revised that decision on 2026-05-24 after seeing the raw beef on the front page with fresh eyes. The accepted direction is now slightly-cartoony consumer-packaged imagery: labeled fictional grocery packages, no raw meat hero signal, home-cooked recipe output, and app-rendered UI around the image.
+- Wilson tightened the carousel visual contract on 2026-05-24: the scan image should use natural ingredient placement rather than perfect alignment without turning the counter chaotic, the recipe demo may loosen landing-only meta spacing while preserving the production planning-ticket primitive, the guidance slide should communicate step/checklist/tip support instead of putting numbered markers on a food photo, and numeric `1/3` style labels are unnecessary when progress dots already show the carousel state.
 
 ## Validation State
 

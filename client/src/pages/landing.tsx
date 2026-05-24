@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Camera, ChefHat, Check, Clock, Flame, ScanLine } from "lucide-react";
+import { ArrowRight, Camera, ChefHat, Check, Clock, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Badge } from "@/components/ui/badge";
@@ -63,9 +63,12 @@ export default function Landing() {
     const slide = container?.querySelectorAll<HTMLElement>("[data-journey-slide]")[index];
     if (!slide) return;
 
+    const containerRect = container.getBoundingClientRect();
+    const slideRect = slide.getBoundingClientRect();
+
     setActiveJourneyStep(index);
     container.scrollTo({
-      left: slide.offsetLeft - container.offsetLeft,
+      left: container.scrollLeft + slideRect.left - containerRect.left,
       behavior: motionEnabled ? "smooth" : "auto",
     });
   };
@@ -146,7 +149,6 @@ export default function Landing() {
             >
               <article className="landing-journey-slide landing-scan-slide" data-journey-slide aria-label="Step 1 of 3: Scan your kitchen for ingredients">
                 <div className="landing-journey-header">
-                  <span className="landing-journey-count">1/3</span>
                   <h2>Scan your kitchen for ingredients</h2>
                 </div>
 
@@ -184,7 +186,6 @@ export default function Landing() {
 
               <article className="landing-journey-slide landing-recipe-slide" data-journey-slide aria-label="Step 2 of 3: Pick a recipe">
                 <div className="landing-journey-header">
-                  <span className="landing-journey-count">2/3</span>
                   <h2>Pick a recipe</h2>
                 </div>
 
@@ -217,25 +218,33 @@ export default function Landing() {
 
               <article className="landing-journey-slide landing-guidance-slide" data-journey-slide aria-label="Step 3 of 3: Get live guidance to cook it">
                 <div className="landing-journey-header">
-                  <span className="landing-journey-count">3/3</span>
                   <h2>Get live guidance to cook it</h2>
                 </div>
 
-                <div className="landing-cooking-illustration" aria-hidden="true">
-                  <img src={landingCookingGuidance} alt="" className="landing-cooking-photo" />
-                  <span className="landing-guidance-path">
-                    <span>1</span>
-                    <span>2</span>
-                    <span>3</span>
-                  </span>
-                  <span className="landing-guidance-flame">
-                    <Flame className="h-8 w-8" />
-                  </span>
-                </div>
+                <div className="landing-guidance-demo" aria-hidden="true">
+                  <div className="landing-guidance-image-panel">
+                    <img src={landingCookingGuidance} alt="" className="landing-guidance-photo" />
+                  </div>
 
-                <div className="landing-guidance-note">
-                  <ChefHat className="h-5 w-5" aria-hidden="true" />
-                  <span>Step-by-step help stays nearby while you cook.</span>
+                  <div className="landing-guidance-panel">
+                    <div className="landing-guidance-panel-top">
+                      <span>Now cooking</span>
+                      <span>Step 2</span>
+                    </div>
+                    <p className="landing-guidance-step">Brown the patty, then spoon the BBQ pan gravy over warm rice.</p>
+                    <span className="landing-guidance-progress" aria-hidden="true">
+                      <span className="landing-guidance-progress-fill" />
+                    </span>
+                    <div className="landing-guidance-checklist">
+                      <span><Check className="h-3.5 w-3.5" aria-hidden="true" /> Rice is warm</span>
+                      <span><Check className="h-3.5 w-3.5" aria-hidden="true" /> Sauce is glossy</span>
+                      <span><Clock className="h-3.5 w-3.5" aria-hidden="true" /> Egg goes on last</span>
+                    </div>
+                    <div className="landing-guidance-tip">
+                      <ChefHat className="h-4 w-4" aria-hidden="true" />
+                      <span>Tip: loosen the sauce with a splash of water if it gets sticky.</span>
+                    </div>
+                  </div>
                 </div>
               </article>
             </div>

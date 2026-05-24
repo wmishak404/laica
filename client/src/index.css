@@ -199,14 +199,7 @@ html, body {
 
   .landing-journey-header {
     display: grid;
-    gap: 0.35rem;
-  }
-
-  .landing-journey-count {
-    color: hsl(var(--setup-coral-strong));
-    font-size: 0.76rem;
-    font-weight: 1000;
-    letter-spacing: 0;
+    gap: 0.2rem;
   }
 
   .landing-journey-header h2 {
@@ -219,7 +212,7 @@ html, body {
 
   .landing-camera-card,
   .landing-extracted-panel,
-  .landing-guidance-note {
+  .landing-guidance-panel {
     border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
     border-radius: 1.15rem;
     background:
@@ -265,7 +258,7 @@ html, body {
   }
 
   .landing-kitchen-photo,
-  .landing-cooking-photo {
+  .landing-guidance-photo {
     position: absolute;
     inset: 0;
     display: block;
@@ -373,15 +366,44 @@ html, body {
   .landing-recipe-demo-ticket {
     min-height: 22.4rem;
     justify-content: start;
+    gap: 0;
   }
 
   .landing-recipe-demo-ticket .planning-ticket-title {
     max-width: 20rem;
   }
 
-  .landing-cooking-illustration {
+  .landing-recipe-demo-ticket .planning-recipe-image-slot {
+    margin-top: 1.05rem;
+  }
+
+  .landing-recipe-demo-ticket .planning-ticket-meta {
+    flex-direction: row;
+    gap: 0.85rem;
+    margin-top: 0.9rem;
+    font-size: 0.84rem;
+  }
+
+  .landing-recipe-demo-ticket .planning-ticket-meta > span {
+    min-height: 2rem;
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.34);
+    border-radius: 999px;
+    background: hsl(0 0% 100% / 0.54);
+    padding: 0.35rem 0.65rem;
+  }
+
+  .landing-recipe-demo-ticket .planning-ticket-divider {
+    margin: 0.95rem 0;
+  }
+
+  .landing-guidance-demo {
+    display: grid;
+    gap: 0.78rem;
+  }
+
+  .landing-guidance-image-panel {
     position: relative;
-    min-height: 20.8rem;
+    min-height: 13.8rem;
     overflow: hidden;
     border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
     border-radius: 1.25rem;
@@ -392,7 +414,7 @@ html, body {
     box-shadow: 0 0.85rem 1.7rem hsl(var(--setup-coral-strong) / 0.08);
   }
 
-  .landing-cooking-illustration::after {
+  .landing-guidance-image-panel::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -403,66 +425,108 @@ html, body {
     pointer-events: none;
   }
 
-  .landing-cooking-photo {
+  .landing-guidance-photo {
     filter: saturate(0.96) contrast(0.98);
   }
 
-  .landing-guidance-path,
-  .landing-guidance-flame {
-    position: absolute;
-    z-index: 2;
-    display: block;
-  }
-
-  .landing-guidance-path {
-    top: 1.1rem;
-    left: 1rem;
-    display: flex;
-    gap: 0.45rem;
-  }
-
-  .landing-guidance-path span {
-    display: flex;
-    width: 1.85rem;
-    height: 1.85rem;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid hsl(var(--setup-coral-strong) / 0.24);
-    border-radius: 999px;
-    background: hsl(0 0% 100% / 0.78);
-    color: hsl(var(--setup-coral-strong));
-    font-size: 0.84rem;
-    font-weight: 1000;
-  }
-
-  .landing-guidance-flame {
-    top: 1.1rem;
-    right: 1.1rem;
-    display: flex;
-    width: 3.2rem;
-    height: 3.2rem;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
-    border-radius: 1rem;
-    background: hsl(var(--setup-coral-soft) / 0.78);
-    color: hsl(var(--setup-coral-strong));
-  }
-
-  .landing-guidance-note {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    color: hsl(var(--setup-ink) / 0.72);
-    font-size: 0.88rem;
-    font-weight: 900;
-    line-height: 1.15;
+  .landing-guidance-panel {
+    display: grid;
+    gap: 0.7rem;
     padding: 0.85rem;
   }
 
-  .landing-guidance-note svg {
+  .landing-guidance-panel-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: hsl(var(--setup-coral-strong));
+    font-size: 0.76rem;
+    font-weight: 1000;
+  }
+
+  .landing-guidance-panel-top span:last-child {
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.2);
+    border-radius: 999px;
+    background: hsl(var(--setup-coral-soft) / 0.48);
+    padding: 0.28rem 0.52rem;
+  }
+
+  .landing-guidance-step {
+    color: hsl(var(--setup-ink));
+    font-size: 1rem;
+    font-weight: 1000;
+    line-height: 1.16;
+  }
+
+  .landing-guidance-progress {
+    display: block;
+    height: 0.45rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: hsl(var(--setup-ink) / 0.08);
+  }
+
+  .landing-guidance-progress-fill {
+    display: block;
+    width: 56%;
+    height: 100%;
+    border-radius: inherit;
+    background: hsl(var(--setup-coral-strong));
+  }
+
+  .landing-guidance-checklist {
+    display: grid;
+    gap: 0.42rem;
+  }
+
+  .landing-guidance-checklist span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    color: hsl(var(--setup-ink) / 0.72);
+    font-size: 0.82rem;
+    font-weight: 900;
+    line-height: 1.1;
+  }
+
+  .landing-guidance-checklist svg {
+    color: hsl(var(--setup-teal));
+    flex: 0 0 auto;
+  }
+
+  .landing-guidance-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.14);
+    border-radius: 0.9rem;
+    background: hsl(var(--setup-coral-soft) / 0.32);
+    color: hsl(var(--setup-ink) / 0.72);
+    font-size: 0.78rem;
+    font-weight: 900;
+    line-height: 1.18;
+    padding: 0.65rem;
+  }
+
+  .landing-guidance-tip svg {
     flex: 0 0 auto;
     color: hsl(var(--setup-coral-strong));
+  }
+
+  @media (min-width: 768px) {
+    .landing-guidance-demo {
+      grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.82fr);
+      align-items: stretch;
+    }
+
+    .landing-guidance-image-panel {
+      min-height: 18rem;
+    }
+
+    .landing-guidance-panel {
+      align-content: center;
+    }
   }
 
   .landing-journey-dots {
