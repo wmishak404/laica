@@ -14,6 +14,9 @@ Wilson tightened the public pre-auth homepage carousel after seeing the first pa
 
 - `attached_assets/landing-packaged-cartoon-kitchen-scan.jpg`
   - Replaced the too-messy kitchen scan image with a cleaner packaged ingredient cluster where the items are unevenly placed but still homepage-appropriate.
+  - Removed the image-embedded `RICE` and `EGGS` labels so the scan still finds obvious visible ingredients without relying on printed text, while preserving `BEEF PATTIES` and `BBQ SAUCE` package labels.
+- `attached_assets/landing-packaged-cartoon-cooking-guidance.jpg`
+  - Removed matching rice/eggs labels from the background ingredients and aligned the beef patties / BBQ sauce label style with the scan image.
 - `client/src/pages/landing.tsx`
   - Removed visible `1/3`, `2/3`, and `3/3` count labels from the slide headers; the progress dots remain.
   - Added a short recipe-slide explainer: `Picked from 17 ingredients in your kitchen. Laica highlights the ones this recipe uses.` The `17 ingredients` phrase is highlighted in coral to match the planning-page emphasis pattern.
@@ -40,6 +43,7 @@ Wilson tightened the public pre-auth homepage carousel after seeing the first pa
 - `npm run build`
 - Static visual smoke using `vite preview` plus headless Chrome screenshots at 390x844 and 1365x768. Because the static build needs Vite Firebase client config to render, the visual smoke used harmless dummy `VITE_FIREBASE_*` values only for screenshot generation; runtime/auth validation remains Replit-only.
 - Browser smoke at 1280x720 confirmed the new carousel arrows navigate scan -> recipe -> guidance -> recipe, with previous disabled on the first slide and next disabled on the final slide.
+- Standalone asset review confirmed the scan and guidance JPEGs no longer contain rice/eggs text labels, while `BEEF PATTIES` and `BBQ SAUCE` remain in a consistent all-caps packaged-label style.
 
 ## Open items
 
