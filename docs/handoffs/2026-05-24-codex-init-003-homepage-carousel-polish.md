@@ -17,6 +17,7 @@ Wilson tightened the public pre-auth homepage carousel after seeing the first pa
 - `client/src/pages/landing.tsx`
   - Removed visible `1/3`, `2/3`, and `3/3` count labels from the slide headers; the progress dots remain.
   - Added a short recipe-slide explainer: `Picked from 17 ingredients in your kitchen. Laica highlights the ones this recipe uses.` The `17 ingredients` phrase is highlighted in coral to match the planning-page emphasis pattern.
+  - Aligned the recipe slide `Uses` chips to the same bolder green checked-chip treatment as the scan slide `Found` chips.
   - Replaced the guidance slide's numbered/flame overlay with app-rendered cooking-guide elements: current step, progress bar, checklist, and tip.
   - Fixed dot-click scrolling to compute the target from bounding boxes so smooth scroll lands on the intended slide across mobile and desktop.
 - `client/src/index.css`
@@ -27,6 +28,8 @@ Wilson tightened the public pre-auth homepage carousel after seeing the first pa
   - Recorded the live-guidance proof guardrail: checklist/tip/progress panel beats numbered food-photo overlays until Phase 4 settles the real guide.
 - `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md`
   - Updated assets and decision history with the carousel refinement.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`
+  - Added a Phase 3.1 follow-up note that actual app ingredient-list chips should align to the bolder checked pantry-fact style across scan/review menus, Ticket Pass `Uses`, and related recipe surfaces when they represent known saved/detected ingredients.
 
 ## Verification
 

@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Camera, ChefHat, Check, Clock, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { Badge } from "@/components/ui/badge";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import landingCookingGuidance from "@assets/landing-packaged-cartoon-cooking-guidance.jpg";
 import landingKitchenScan from "@assets/landing-packaged-cartoon-kitchen-scan.jpg";
@@ -205,11 +204,12 @@ export default function Landing() {
                   <span className="planning-ticket-divider" />
                   <span className="planning-ticket-section">
                     <span className="planning-ticket-section-label">Uses</span>
-                    <span className="planning-ticket-chip-row">
+                    <span className="landing-extracted-chips">
                       {["rice", "beef patties", "BBQ sauce", "eggs"].map((ingredient) => (
-                        <Badge key={ingredient} variant="outline" className="planning-use-chip">
+                        <span key={ingredient} className="landing-extracted-chip">
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
                           {ingredient}
-                        </Badge>
+                        </span>
                       ))}
                     </span>
                   </span>
