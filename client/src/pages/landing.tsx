@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Camera, ChefHat, Check, Clock, ScanLine } from "lucide-react";
+import { ArrowRight, Camera, ChefHat, Check, ChevronLeft, ChevronRight, Clock, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
@@ -71,6 +71,17 @@ export default function Landing() {
       behavior: motionEnabled ? "smooth" : "auto",
     });
   };
+
+  const showPreviousJourneyStep = () => {
+    scrollToJourneyStep(Math.max(activeJourneyStep - 1, 0));
+  };
+
+  const showNextJourneyStep = () => {
+    scrollToJourneyStep(Math.min(activeJourneyStep + 1, journeySteps.length - 1));
+  };
+
+  const canGoToPreviousJourneyStep = activeJourneyStep > 0;
+  const canGoToNextJourneyStep = activeJourneyStep < journeySteps.length - 1;
 
   return (
     <main className="landing-ui min-h-screen overflow-hidden">
@@ -256,18 +267,40 @@ export default function Landing() {
               </article>
             </div>
 
-            <div className="landing-journey-dots" aria-label="Homepage proof steps">
-              {journeySteps.map((step, index) => (
-                <button
-                  key={step}
-                  type="button"
-                  className="landing-journey-dot"
-                  data-active={activeJourneyStep === index}
-                  aria-label={`Show step ${index + 1}: ${step}`}
-                  aria-current={activeJourneyStep === index ? "step" : undefined}
-                  onClick={() => scrollToJourneyStep(index)}
-                />
-              ))}
+            <div className="landing-journey-controls" aria-label="Homepage proof carousel controls">
+              <button
+                type="button"
+                className="landing-journey-arrow"
+                aria-label="Show previous proof step"
+                disabled={!canGoToPreviousJourneyStep}
+                onClick={showPreviousJourneyStep}
+              >
+                <ChevronLeft aria-hidden="true" />
+              </button>
+
+              <div className="landing-journey-dots" aria-label="Homepage proof steps">
+                {journeySteps.map((step, index) => (
+                  <button
+                    key={step}
+                    type="button"
+                    className="landing-journey-dot"
+                    data-active={activeJourneyStep === index}
+                    aria-label={`Show step ${index + 1}: ${step}`}
+                    aria-current={activeJourneyStep === index ? "step" : undefined}
+                    onClick={() => scrollToJourneyStep(index)}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="landing-journey-arrow"
+                aria-label="Show next proof step"
+                disabled={!canGoToNextJourneyStep}
+                onClick={showNextJourneyStep}
+              >
+                <ChevronRight aria-hidden="true" />
+              </button>
             </div>
           </motion.div>
         </motion.section>

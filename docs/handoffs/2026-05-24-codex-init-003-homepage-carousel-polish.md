@@ -20,9 +20,11 @@ Wilson tightened the public pre-auth homepage carousel after seeing the first pa
   - Aligned the recipe slide `Uses` chips to the same bolder green checked-chip treatment as the scan slide `Found` chips.
   - Replaced the guidance slide's numbered/flame overlay with app-rendered cooking-guide elements: current step, progress bar, checklist, and tip.
   - Fixed dot-click scrolling to compute the target from bounding boxes so smooth scroll lands on the intended slide across mobile and desktop.
+  - Added small previous/next arrow controls beside the progress dots so desktop users can navigate the proof carousel without touch swiping.
 - `client/src/index.css`
   - Added landing-specific recipe-ticket spacing so the `30 min` and `Medium` meta chips do not feel jammed in the compressed carousel context.
   - Added responsive guidance-panel styling: stacked on narrow mobile, side-by-side image plus panel on wider viewports.
+  - Styled the new carousel arrow controls as compact circular buttons with disabled end states.
 - `product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md`
   - Recorded the accepted scan-image guardrail: natural ingredient placement, clean background, app-rendered UI carries the organization story.
   - Recorded the live-guidance proof guardrail: checklist/tip/progress panel beats numbered food-photo overlays until Phase 4 settles the real guide.
@@ -37,6 +39,7 @@ Wilson tightened the public pre-auth homepage carousel after seeing the first pa
 - `npm run check`
 - `npm run build`
 - Static visual smoke using `vite preview` plus headless Chrome screenshots at 390x844 and 1365x768. Because the static build needs Vite Firebase client config to render, the visual smoke used harmless dummy `VITE_FIREBASE_*` values only for screenshot generation; runtime/auth validation remains Replit-only.
+- Browser smoke at 1280x720 confirmed the new carousel arrows navigate scan -> recipe -> guidance -> recipe, with previous disabled on the first slide and next disabled on the final slide.
 
 ## Open items
 

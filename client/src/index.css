@@ -557,8 +557,53 @@ html, body {
   }
 
   .landing-journey-dots {
+    align-items: center;
     justify-content: center;
     gap: 0.5rem;
+  }
+
+  .landing-journey-controls {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0 0.25rem;
+  }
+
+  .landing-journey-arrow {
+    display: inline-flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--setup-coral-strong) / 0.22);
+    border-radius: 999px;
+    background: hsl(0 0% 100% / 0.66);
+    color: hsl(var(--setup-coral-strong));
+    box-shadow: 0 0.45rem 1rem hsl(var(--setup-coral-strong) / 0.08);
+    transition: opacity 0.18s ease, transform 0.18s ease, background 0.18s ease;
+  }
+
+  .landing-journey-arrow:not(:disabled):hover {
+    background: hsl(var(--setup-coral-soft) / 0.66);
+    transform: translateY(-1px);
+  }
+
+  .landing-journey-arrow:focus-visible,
+  .landing-journey-dot:focus-visible {
+    outline: 3px solid hsl(var(--setup-coral-strong) / 0.34);
+    outline-offset: 3px;
+  }
+
+  .landing-journey-arrow:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+
+  .landing-journey-arrow svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    stroke-width: 3;
   }
 
   .landing-journey-dot {
@@ -597,6 +642,7 @@ html, body {
 
   @media (prefers-reduced-motion: reduce) {
     .landing-kitchen-scan-icon,
+    .landing-journey-arrow,
     .landing-journey-dot {
       animation: none;
       transition: none;
