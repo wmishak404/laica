@@ -18,7 +18,7 @@ The user-facing model stays simple: guests can start cooking immediately, and Go
   - Raised the accepted v1 guest quota from 5 to 10 successful recipe generations.
   - Moved the hard Google generation boundary from `#6+` to `#11+`.
   - Added the 2026-05-24 cap-revision rationale and clarified that user-facing copy should lead with immediate use, not trial accounting.
-  - Preserved PR 102's domestic-realistic landing-image and no-numeric-quota homepage guardrails.
+  - Preserved PR 102's landing-image and no-numeric-quota homepage guardrails. The landing image guardrail later moved from domestic-realistic imagery to slightly-cartoony consumer-packaged imagery so public entry assets avoid raw meat while still showing recognizable grocery ingredients.
 - `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md`
   - Updated current accepted direction, Phase 2 scope, change history, and chronology to use 10 generations and `#11+`.
   - Preserved PR 102's Plan B Phase 3 status and public-homepage launch path.

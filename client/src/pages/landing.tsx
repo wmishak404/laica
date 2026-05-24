@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Badge } from "@/components/ui/badge";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
-import landingCookingGuidance from "@assets/landing-domestic-cooking-guidance.jpg";
-import landingKitchenScan from "@assets/landing-domestic-kitchen-scan.jpg";
-import landingRecipeBowl from "@assets/landing-domestic-recipe-bowl.jpg";
+import landingCookingGuidance from "@assets/landing-packaged-cartoon-cooking-guidance.jpg";
+import landingKitchenScan from "@assets/landing-packaged-cartoon-kitchen-scan.jpg";
+import landingRecipeBowl from "@assets/landing-packaged-cartoon-recipe-bowl.jpg";
 import laicaLogo from "@assets/laica_logo_v1_cropped_1763444931884.png";
 
 const journeySteps = [

@@ -85,10 +85,12 @@ Durable saves include:
 
 - The landing screen should present guest mode as a simple action such as **"Start cooking now"** with Google as the linked-account path.
 - The landing proof area should stay grounded in product truth: scan and recipe-picking visuals may mirror existing setup/planning UI, while live-guidance visuals should remain illustrative until the final cooking guide UI exists.
-- Static or generated landing imagery should use **domestic realism** by default when it is explaining a real product flow. A pantry scan should look like a normal home kitchen with practical ingredient storage, such as egg cartons, rice containers, sauce bottles, and packaged or stacked patties, not food-magazine staging.
-- Recipe and cooking-guidance imagery should stay plausible as home cooking from those ingredients. Use appetizing but ordinary bowls, pans, counters, and kitchen lighting rather than restaurant plating, fantasy illustration, or unsupported cuisine-promise visuals.
-- Generated images should not contain text, labels, brand logos, people, or UI chrome. Product UI, captions, progress dots, scan frames, and recipe-card structure should be rendered by the app so copy and interaction stay inspectable and maintainable.
-- Cartoon or highly polished image styles may be explored as review candidates, but they need explicit product approval before replacing domestic-realistic assets on public entry surfaces.
+- Static or generated landing imagery should default to a **slightly cartoony consumer-packaged domestic style** when it is explaining a real product flow. The image should feel like a warm home kitchen, but front-page ingredients should be approachable grocery items, not raw meat or food-magazine staging.
+- Pantry-scan examples may include image-embedded generic labels when the label clarifies the ingredient, such as `Beef Patties`, `BBQ Sauce`, `Rice`, or `Eggs`. Labels should be short, readable, and generic.
+- Beef or similar proteins on public entry surfaces should appear as consumer packaging with an appetizing cooked-product illustration or generic package art, not bare raw meat and not raw meat under plastic wrap.
+- Generated images should avoid real brand logos, real trade dress, people, and exact trademarked packaging. Use fictional grocery packaging that gives the user the idea of products like boxed patties without copying Costco/Kirkland, Bubba, or another brand.
+- Product UI, progress dots, scan frames, and recipe-card structure should remain app-rendered whenever possible so interaction and layout stay inspectable and maintainable.
+- Recipe and cooking-guidance imagery should stay plausible as home cooking from those packaged ingredients. Use appetizing but ordinary bowls, pans, counters, and kitchen lighting rather than restaurant plating, fantasy illustration, or unsupported cuisine-promise visuals.
 - The landing screen should not advertise the numeric guest quota; first-touch copy should focus on what Laica helps people do.
 - The 10-generation cap is an internal product and abuse-control boundary, not the primary marketing message.
 - The guest quota should be **quiet first, stronger later**.
