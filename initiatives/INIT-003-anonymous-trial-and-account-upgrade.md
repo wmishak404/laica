@@ -23,10 +23,10 @@ The initiative exists because the accepted direction is no longer just a mobile-
 The current accepted direction is:
 
 - public anonymous Firebase entry is allowed
-- guests receive 5 successful recipe generations in v1
-- the quota is subtle in the UI and becomes stronger near exhaustion
+- guests receive 10 successful recipe generations in v1
+- the quota is quiet in the UI and becomes stronger near exhaustion
 - same-browser guest progress persists through normal reopen
-- Google linking is required for recipe generation `#6+`
+- Google linking is required for recipe generation `#11+`
 - Google linking is required for all durable server-side saves
 - durable Phase 5 history/cleanup/taste memory remains linked-only
 
@@ -94,7 +94,7 @@ PD-012 is the source of truth for the image-generation approach: product-flow im
 |---|---|---|---|
 | Phase 0 — docs baseline and prerequisites | Complete | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
 | Phase 1 — server auth and abuse-control foundations | Planned | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
-| Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 5-generation anonymous quota accounting |
+| Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 10-generation anonymous quota accounting |
 | Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Plan B public homepage + guest MVP launch path: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Start cooking now` CTA and no numeric quota copy |
 | Phase 4 — upgrade-to-save boundary and promotion | Planned | TBD | Typed `UPGRADE_REQUIRED` responses, Google link flow, and strict trial-state promotion |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
@@ -123,7 +123,8 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 - The work began as a planning-only auth-harness discussion from fresh `origin/main`, then shifted into a public product decision for anonymous guest entry.
 - The team explicitly rejected personal Chrome/session reuse and a generic backend auth-bypass as the main path.
 - The guest model temporarily moved to "unlimited until save," then changed back after product review because it left too little incentive to link Google.
-- The accepted v1 guest model is now **5 successful recipe generations**, not unlimited generation and not full-cook counting.
+- The accepted v1 guest model is now **10 successful recipe generations**, not unlimited generation and not full-cook counting.
+- Wilson raised the cap from 5 to 10 on 2026-05-24 so guest mode has more room for user flow, trust building, and iteration when early recipe generations miss the user's pantry, taste, or expectations.
 - "Save gate" was clarified to mean **durable server-side writes only**, not same-browser local guest persistence.
 - Same-browser guest persistence through normal reopen was accepted so users do not have to rescan pantry after ordinary browser restarts.
 - The upgrade message split was accepted:
@@ -157,9 +158,9 @@ Wilson asked for a secure alternative to repeated manual Google popup validation
 The accepted direction became:
 
 - public anonymous Firebase entry
-- 5 successful recipe generations in v1
+- 10 successful recipe generations in v1
 - same-browser guest persistence through normal reopen
-- Google required for recipe generation `#6+`
+- Google required for recipe generation `#11+`
 - Google required for all durable server-side saves
 - linked-only durable Phase 5 memory
 
