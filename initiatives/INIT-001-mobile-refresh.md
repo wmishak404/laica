@@ -230,6 +230,7 @@ Plan B sequencing note for the INIT-003 public homepage:
 - Phase 4 should still start later from fresh `origin/main` when cooking guidance becomes the next implementation focus.
 - Phase 5 remains after Phase 4 because it depends on Phase 4 completion semantics: history save, no pantry mutation on Finish, and pending cleanup state.
 - Guest-facing Phase 4/5 copy must distinguish local guest continuation from linked-account cooking history, cleanup, taste memory, and retention.
+- Replit validation of INIT-003 on 2026-05-26 exposed a Phase 4 acceptance item: if voice synthesis/playback has started, Back to Planning or any other cooking-guide exit must stop active/queued audio so speech cannot continue after leaving the cooking surface.
 
 ## Sequencing Semantics
 
