@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-05-12
+**Updated:** 2026-05-26
 
 ## One-line summary
 
@@ -100,3 +100,20 @@ Phase 5 introduces pending-cleanup and taste-signal persistence on cooking sessi
 ## 2026-05-12 — Weekly hygiene audit
 
 Reviewed against `docs/workflows/environment-parity-spec.md`, `efforts/effort-017-environment-parity-and-ci-confidence.md`, `docs/adr/0001-replit-primary-local-agents.md`, PD-008, and INIT-002's future DB phase. Keep this as an active standalone Effort: the parity spec is still draft, EFF-017 is deferred, and no durable ADR/PD has selected the local database model, `db:push` permission boundary, `.env.keys` provisioning path, or schema-health check required by this Effort's resolution criteria.
+
+## 2026-05-26 — INIT-003 local anonymous smoke exposed prompt/eval table drift
+
+Local smoke testing for INIT-003 PR #102 at `c952d13` successfully exercised the anonymous happy path from `Start cooking now` through guest setup, recipe suggestions, prep tray, and live cooking guide. The user-facing AI routes returned `200`, but the local server logged missing-table errors for `prompt_versions` and `ai_interactions` while loading optional active prompts and writing optional eval logs.
+
+This is new evidence for EFF-010, not an INIT-003 blocker:
+
+- The Replit validation gate remained authoritative for merge readiness.
+- Local route behavior degraded successfully because prompt lookup and eval logging are optional around the user-facing recipe/cooking responses.
+- The warnings still make local validation noisy and can distract agents from the actual feature under test.
+- Do not run `npm run db:push` from arbitrary local worktrees to fix this until EFF-010 resolves the local database ownership model.
+
+Follow-up requirements reinforced by this run:
+
+- A schema-health check should cover `prompt_versions` and `ai_interactions` in addition to feature-owned tables.
+- The local DB workflow must define whether a Codex worktree points at a dedicated Neon branch/database or a shared dev database before agents mutate schema.
+- Optional prompt/eval logging should either keep its current graceful degradation with clearer local-only diagnostics or gain an explicit startup/schema-health warning so stack traces do not look like product regressions.

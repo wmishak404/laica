@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-15
-**Current phase:** Phase 3 — public pre-auth homepage and client guest entry
+**Current phase:** Post-Phase 3 production gates — quota, abuse controls, App Check, and upgrade-to-save
 **Active PR:** None
-**Active branch:** `codex/init-003-preauth-homepage`
+**Active branch:** None
 
 ## Overview
 
@@ -32,9 +32,9 @@ The current accepted direction is:
 
 ## Current Status
 
-Phase 3 is the current runtime work: client guest entry, same-browser persistence, and the public pre-auth homepage. The accepted launch path is now **Plan B: public homepage + clean guest MVP**, not full anonymous-trial completion.
+Phase 3 shipped through [PR #102](https://github.com/wmishak404/laica/pull/102), merging the public pre-auth homepage, real Firebase anonymous entry, same-browser guest setup persistence, and linked-only durable-memory boundaries as the Plan B guest MVP slice. The accepted launch path remains **Plan B: public homepage + clean guest MVP**, not full anonymous-trial completion.
 
-Runtime implementation has started with a deliberately narrow Phase 3 slice after Wilson chose to place the richer public homepage inside INIT-003 rather than reopening INIT-001 Phase 1 auth polish.
+The next work is the remaining production-gate slice that makes public anonymous traffic safe to operate: quota enforcement, anonymous kill switch, anonymous rate-limit identity, App Check posture, and upgrade-to-save boundaries.
 
 **Sequencing classification:** this is a soft-sequence override with hard production gates. The public homepage and client anonymous entry can be implemented before the full quota/save-boundary stack, but production readiness still depends on the Phase 1/2 server foundations, quota accounting, App Check, and upgrade boundaries. The homepage CTA must start a real Firebase anonymous session; it must not fake guest mode.
 
@@ -52,14 +52,11 @@ Public production enablement is blocked until Firebase App Check is configured a
 
 Plan B prioritizes shipping the public pre-auth homepage before INIT-001 Phase 4 or Phase 5, while keeping the guest runtime honest about what is local/session-limited versus durable account memory.
 
-Before public launch, this branch still needs targeted Replit validation and the minimum guest-MVP gates:
+Before public launch, the remaining minimum guest-MVP gates are:
 
-- `Start cooking now` creates a real anonymous Firebase session in Replit.
-- Google sign-in still upserts and routes linked users correctly.
-- Same-browser guest setup persists through a normal reopen.
-- Guests can reach recipe ideas without creating durable server-side saves.
 - Anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, and Firebase App Check posture are confirmed before production enablement.
 - Guest quota/upgrade messaging appears inside usage moments, not on the landing page.
+- Upgrade-to-save boundaries clearly separate browser-local guest continuation from linked-account durable saves.
 
 Out of scope for this launch path:
 
@@ -95,7 +92,7 @@ PD-012 is the source of truth for the image-generation approach: public product-
 | Phase 0 — docs baseline and prerequisites | Complete | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
 | Phase 1 — server auth and abuse-control foundations | Planned | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
 | Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 10-generation anonymous quota accounting |
-| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Plan B public homepage + guest MVP launch path: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Start cooking now` CTA and no numeric quota copy |
+| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | Complete | [PR #102](https://github.com/wmishak404/laica/pull/102) / `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13`: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, A+C hybrid pre-auth homepage, and no landing-page quota pressure |
 | Phase 4 — upgrade-to-save boundary and promotion | Planned | TBD | Typed `UPGRADE_REQUIRED` responses, Google link flow, and strict trial-state promotion |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
 | Phase 6 — operations, cleanup, and launch | Planned | TBD | Account-mode operational logging, stale anonymous-account cleanup, and production enablement gates |
@@ -104,7 +101,7 @@ PD-012 is the source of truth for the image-generation approach: public product-
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
-| None yet | Runtime branch in progress | `codex/init-003-preauth-homepage` | Implements the public pre-auth homepage and first client guest-entry slice; Replit validation not yet performed |
+| [#102](https://github.com/wmishak404/laica/pull/102) | Merged | `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`; local unhappy-path probes covered no-auth API rejection, anonymous Google-upsert rejection, empty-pantry guest guard, and anonymous live-cooking durable-session guard |
 
 ## Efforts and Governance
 
@@ -140,17 +137,20 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 
 ## Validation State
 
-- Runtime validation has not yet been performed for `codex/init-003-preauth-homepage`.
-- Future runtime phases should keep Replit as the authoritative validation environment for linked-account, provider-backed, and deployment-bound behavior.
-- Production enablement is blocked until Firebase App Check is configured and anonymous auth can be verified under real rate-limit and kill-switch behavior.
+- PR #102 was Replit-validated at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824` before merge. The happy-path refresh confirmed anonymous Firebase entry, same-browser guest setup persistence, guest recipe suggestions, guest cooking-guide entry without durable cooking-session writes, Google linked sign-in/routing, linked profile writes, linked history behavior, and no landing-page quota pressure.
+- Local smoke at `c952d13` added unhappy-path confidence for no-auth API rejection, anonymous Google-upsert rejection, empty-pantry guest recovery, and anonymous live-cooking durable-session boundaries. Additional local browser clicks were interrupted by the Codex app/browser surface reset and should not replace Replit UI validation.
+- Local anonymous smoke exposed existing local database schema drift: `prompt_versions` and `ai_interactions` were absent from the local database, producing prompt/eval logging warnings while user-facing AI routes still returned `200`. This is now tracked in [EFF-010](../efforts/effort-010-local-db-schema-strategy.md), not treated as a PR #102 blocker.
+- Future runtime phases should keep Replit as the authoritative validation environment for linked-account, provider-backed, DB-backed, and deployment-bound behavior.
+- Production enablement is blocked until Firebase App Check is configured and anonymous auth can be verified under real quota, rate-limit, kill-switch, and upgrade-to-save behavior.
 
 ## Current Resume Point
 
-1. Finish and Replit-validate `codex/init-003-preauth-homepage` as the Plan B public homepage + guest MVP launch path.
-2. Keep the remaining server-auth slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, auth-session hardening, and quota enforcement.
+1. Start the remaining guest-MVP production gates from fresh `origin/main`: anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, Firebase App Check posture, and upgrade-to-save boundaries.
+2. Keep the server-auth slice narrow: server-derived auth mode, null-safe linked upsert, auth-session hardening, quota enforcement, and explicit linked-only durability.
 3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, anonymous abuse controls, and linked-save boundaries are implemented and validated.
 4. Coordinate Phase 4/5 guest-facing copy with INIT-001: landing promises cooking guidance, but durable cooking memory and Phase 5 retention remain linked-only in v1.
-5. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
+5. Keep anonymous Slop Bowl dry-run as follow-up scope unless Wilson explicitly pulls it into the next gate branch.
+6. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
 
 ## Chronology
 
@@ -174,3 +174,11 @@ Security review also locked several preconditions into the initiative baseline:
 - server kill switch for anonymous traffic
 - App Check before production enablement
 - no anonymous durable-user row creation on sign-in alone
+
+### 2026-05-26 — Phase 3 merged via PR #102
+
+[PR #102](https://github.com/wmishak404/laica/pull/102) merged as `515b7ec` after Wilson refreshed Replit happy-path validation at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`.
+
+The merged Plan B slice includes the public pre-auth homepage, `Start cooking now` anonymous Firebase entry, `/api/auth/session` linked-vs-anonymous metadata, browser-local guest profile persistence, guest access to Chef It Up recipe ideas and the cooking guide without durable cooking-session writes, linked-only Settings/History durability, and homepage carousel polish.
+
+Remaining work moves to the production gates: quota enforcement, anonymous kill switch, anonymous rate-limit identity, App Check posture, and upgrade-to-save boundaries. Local unhappy-path probes supported the merge, but Replit remains authoritative for provider-backed, DB-backed, and deployment-bound behavior.
