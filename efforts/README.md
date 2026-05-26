@@ -70,6 +70,7 @@ Deferred Efforts are intentionally not part of the default active read list:
 | ID | Title | Status | Owner | Created |
 |---|---|---|---|---|
 | [EFF-017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `Deferred` | Wilson / Codex / Claude | 2026-05-05 |
+| [EFF-023](effort-023-broad-dependency-modernization-strategy.md) | Broad dependency modernization strategy | `Deferred` | Wilson / Codex / Claude | 2026-05-26 |
 
 ## Resolved History
 
