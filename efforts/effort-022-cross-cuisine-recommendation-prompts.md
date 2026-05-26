@@ -1,0 +1,84 @@
+# EFF-022 - Cross-cuisine recommendation prompts
+
+**Status:** Open
+**Owner:** Wilson / Codex / Claude
+**Created:** 2026-05-23
+**Updated:** 2026-05-23
+
+## One-line summary
+
+Tune recipe recommendation prompts and evals so Laica can suggest pantry-grounded cross-cuisine dishes when selected cuisine preferences imply a useful intersection, without pretending unsupported cuisine picker options exist.
+
+## Context
+
+During INIT-003 pre-auth homepage mockup review, Wilson rejected a weaker breakfast-taco example and preferred a more specific pantry transformation: rice, beef patties, BBQ sauce, and eggs becoming a Loco Moco-style bowl. The caution is that the current product does not appear to expose Hawaiian as a cuisine picker option, so landing examples and prompt behavior should not imply a selectable cuisine that is not actually present.
+
+The useful follow-up is prompt quality, not homepage copy alone. If a user selects preferences such as American and Asian, and their pantry supports rice, beef patties, eggs, and a sauce, Laica should be able to consider a coherent cross-cuisine or inspired recommendation such as a pantry Loco Moco-style bowl. That recommendation should remain pantry-first, culturally careful, and honest about being inspired or adapted when the ingredient set is not classic.
+
+Existing prompt guidance in `server/openai.ts` already says cuisine preference is a flavor direction and exposes `isFusion`. This Effort tracks the later audit and tuning needed to make that behavior intentional, validated, and not dependent on ad hoc examples.
+
+## Scope
+
+### In scope
+
+- Audit the current cuisine picker options and how `client/src/components/cooking/meal-planning.tsx` packages selected cuisines into recipe-generation prompts.
+- Audit `DEFAULT_RECIPE_SUGGESTIONS_PROMPT`, any active database-backed recipe prompt versions, and recipe suggestion eval criteria.
+- Define prompt language for multi-cuisine selections: when selected cuisines may combine, when adjacent culinary traditions may be suggested, and when the model should stay literal.
+- Define recipe naming and labeling guardrails for inspired or adapted dishes, especially when the product does not expose the exact cuisine as a picker option.
+- Add prompt fixtures, unit tests, or eval cases for at least one pantry-supported cross-cuisine scenario, including rice + beef patties + eggs + BBQ sauce with American + Asian preferences.
+- Preserve the pantry-first boundary: optional extras stay optional, and a recipe must work from available pantry or confirmed-staple ingredients.
+
+### Out of scope
+
+- Adding new cuisine picker options such as Hawaiian without a separate product decision.
+- Changing the INIT-003 homepage to advertise unavailable cuisine categories.
+- Making recipe suggestions ignore dietary restrictions, user-selected cuisines, pantry evidence, or the three-suggestion planning contract.
+- Redesigning the live cooking guide or cooking-history flow.
+
+## Decisions made so far
+
+- Homepage examples may use a Loco Moco-style dish only as a pantry transformation example, not as evidence that Hawaiian is a current cuisine picker option.
+- Cross-cuisine recommendations are acceptable future prompt behavior when they emerge from selected preferences plus pantry evidence.
+- Adapted or non-classic recommendations should be labeled honestly, for example as `Loco Moco-style` or `pantry-inspired`, rather than overclaiming authenticity.
+- This is standalone prompt/recommendation-quality work, not part of the current INIT-003 anonymous-auth gate.
+
+## Open questions
+
+- Which current cuisine combinations should unlock adjacent or cross-cuisine suggestions, and which should remain literal?
+- Should the prompt explicitly tell the model that multiple selected cuisines can combine into one coherent dish, or should that live in a server-side normalization layer?
+- How should recipe cards display `isFusion` or inspired labels, if at all?
+- What eval wording should distinguish a useful inspired recommendation from a culturally sloppy or unsupported one?
+- Should public landing examples avoid naming exact cuisine traditions entirely until the recommendation prompt rules are validated?
+
+## Agent checklist
+
+Read EFF-022 before starting any of the following:
+
+- [ ] Changing recipe suggestion prompts or database-backed prompt versions.
+- [ ] Changing `MealPlanning` cuisine preference packaging.
+- [ ] Changing recipe suggestion eval criteria for cuisine alignment, pantry usage, or fusion behavior.
+- [ ] Adding or renaming cuisine picker options.
+- [ ] Adding homepage, onboarding, or marketing examples that name a cuisine tradition.
+- [ ] Testing pantry-first recommendations involving multiple selected cuisines.
+
+## Resolution criteria
+
+This Effort is `Resolved` when all of the following are true:
+
+1. The current cuisine picker options and prompt payload behavior have been audited.
+2. Recipe recommendation prompt guidance explicitly covers multi-cuisine selections and inspired/adapted dishes.
+3. At least one test, fixture, or eval case covers a pantry-supported cross-cuisine recommendation such as rice + beef patties + eggs + BBQ sauce with American + Asian preferences.
+4. Recipe naming or display guidance avoids implying unavailable cuisine picker options.
+5. Validation evidence is recorded in the implementation PR or handoff, including any Replit or eval-run results that matter.
+
+## Linked artifacts
+
+- `server/openai.ts`
+- `server/eval-criteria.ts`
+- `client/src/components/cooking/meal-planning.tsx`
+- `docs/handoffs/2026-05-22-codex-init-003-preauth-homepage.md`
+- PR #102, INIT-003 pre-auth homepage and Plan B guest MVP
+
+## 2026-05-23 - Created from INIT-003 homepage mockup review
+
+Wilson asked to preserve the stronger Loco Moco-style pantry example while noting that Hawaiian does not appear to be a current product cuisine option. Created this Effort so future prompt work can support recommendations beyond literal country-cuisine selections without turning the landing page into an unsupported feature promise.

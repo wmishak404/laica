@@ -12,6 +12,11 @@ import MobileApp, {
 } from '../../client/src/pages/app';
 
 const mocks = vi.hoisted(() => ({
+  authUser: { id: 'user-1', email: 'tester@example.com' } as {
+    id: string;
+    email: string | null;
+    isAnonymous?: boolean;
+  },
   toast: vi.fn(),
   updateProfile: vi.fn(),
   userProfileReturn: {
@@ -38,7 +43,8 @@ function makeProfile(overrides: Partial<{
 }
 
 vi.mock('@/hooks/useAuth', () => ({
-  useAuth: () => ({ user: { id: 'user-1', email: 'tester@example.com' } }),
+  isGuestUser: (user: { isAnonymous?: boolean } | null | undefined) => Boolean(user?.isAnonymous),
+  useAuth: () => ({ user: mocks.authUser }),
   useUserProfile: () => mocks.userProfileReturn,
   useUpdateUserProfile: () => ({ mutateAsync: mocks.updateProfile }),
 }));
@@ -92,8 +98,20 @@ async function renderPlanningChoice(profile = makeProfile()) {
   await screen.findByRole('heading', { name: /what are we cooking today/i });
 }
 
+async function renderGuestPlanningChoice(profile = makeProfile()) {
+  mocks.authUser = {
+    id: 'guest-test-1',
+    email: null,
+    isAnonymous: true,
+  };
+  window.localStorage.setItem('laica:guest-profile:guest-test-1', JSON.stringify(profile));
+  render(<MobileApp />);
+  await screen.findByRole('heading', { name: /what are we cooking today/i });
+}
+
 describe('MobileApp planning choice pantry status', () => {
   beforeEach(() => {
+    mocks.authUser = { id: 'user-1', email: 'tester@example.com' };
     mocks.userProfileReturn.data = { user: makeProfile() };
     mocks.userProfileReturn.isLoading = false;
   });
@@ -182,6 +200,28 @@ describe('MobileApp planning choice pantry status', () => {
     });
 
     expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: pantry');
+  });
+
+  it('keeps an empty-pantry guest in setup from the toast action', async () => {
+    await renderGuestPlanningChoice(makeProfile({ pantryIngredients: [] }));
+
+    fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
+
+    expect(screen.getByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
+    expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Your pantry is empty',
+      description: 'Add pantry items in setup before I can suggest recipes.',
+      variant: 'destructive',
+    }));
+
+    const toastCall = mocks.toast.mock.calls[mocks.toast.mock.calls.length - 1]?.[0];
+    expect(toastCall.action).toBeTruthy();
+
+    act(() => {
+      toastCall.action.props.onClick();
+    });
+
+    expect(await screen.findByTestId('user-profiling')).toBeTruthy();
   });
 
   it('lets users with pantry items enter Chef It Up', async () => {

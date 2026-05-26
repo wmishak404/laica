@@ -1,11 +1,11 @@
 # INIT-003 — Anonymous Trial and Account Upgrade
 
-**Status:** Planning
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-15
-**Current phase:** Phase 0 — docs baseline and external prerequisites
+**Current phase:** Phase 3 — public pre-auth homepage and client guest entry
 **Active PR:** None
-**Active branch:** `codex/init-003-anonymous-trial-docs`
+**Active branch:** `codex/init-003-preauth-homepage`
 
 ## Overview
 
@@ -23,20 +23,22 @@ The initiative exists because the accepted direction is no longer just a mobile-
 The current accepted direction is:
 
 - public anonymous Firebase entry is allowed
-- guests receive 5 successful recipe generations in v1
-- the quota is subtle in the UI and becomes stronger near exhaustion
+- guests receive 10 successful recipe generations in v1
+- the quota is quiet in the UI and becomes stronger near exhaustion
 - same-browser guest progress persists through normal reopen
-- Google linking is required for recipe generation `#6+`
+- Google linking is required for recipe generation `#11+`
 - Google linking is required for all durable server-side saves
 - durable Phase 5 history/cleanup/taste memory remains linked-only
 
 ## Current Status
 
-Phase 0 is the current work: documenting the accepted direction in a durable way before runtime changes begin.
+Phase 3 is the current runtime work: client guest entry, same-browser persistence, and the public pre-auth homepage. The accepted launch path is now **Plan B: public homepage + clean guest MVP**, not full anonymous-trial completion.
 
-No runtime implementation has started yet. The first runtime slice should begin only after this docs baseline is on `main`, so later branches can inherit the same accepted product and security contract instead of rebuilding it from chat.
+Runtime implementation has started with a deliberately narrow Phase 3 slice after Wilson chose to place the richer public homepage inside INIT-003 rather than reopening INIT-001 Phase 1 auth polish.
 
-The first runtime phase should stay narrow:
+**Sequencing classification:** this is a soft-sequence override with hard production gates. The public homepage and client anonymous entry can be implemented before the full quota/save-boundary stack, but production readiness still depends on the Phase 1/2 server foundations, quota accounting, App Check, and upgrade boundaries. The homepage CTA must start a real Firebase anonymous session; it must not fake guest mode.
+
+The remaining server-auth foundation should stay narrow:
 
 - provider-aware server auth session metadata
 - anonymous kill switch
@@ -45,6 +47,25 @@ The first runtime phase should stay narrow:
 - linked-only compatibility guard on the existing `/api/auth/google` path
 
 Public production enablement is blocked until Firebase App Check is configured and enforced.
+
+## Plan B Guest MVP Launch Path
+
+Plan B prioritizes shipping the public pre-auth homepage before INIT-001 Phase 4 or Phase 5, while keeping the guest runtime honest about what is local/session-limited versus durable account memory.
+
+Before public launch, this branch still needs targeted Replit validation and the minimum guest-MVP gates:
+
+- `Start cooking now` creates a real anonymous Firebase session in Replit.
+- Google sign-in still upserts and routes linked users correctly.
+- Same-browser guest setup persists through a normal reopen.
+- Guests can reach recipe ideas without creating durable server-side saves.
+- Anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, and Firebase App Check posture are confirmed before production enablement.
+- Guest quota/upgrade messaging appears inside usage moments, not on the landing page.
+
+Out of scope for this launch path:
+
+- Full INIT-001 Phase 4 cooking guidance.
+- INIT-001 Phase 5 post-cook cleanup, taste memory, next-meal retention, and durable History behavior for guests.
+- Retro-importing anonymous completion state into durable linked-account history after Google linking.
 
 ## Source Docs
 
@@ -59,16 +80,22 @@ Public production enablement is blocked until Firebase App Check is configured a
 
 ## Assets
 
-No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refresh auth/landing and post-cook references once runtime implementation begins.
+Phase 3 adds selected slightly-cartoony consumer-packaged generated landing assets for the pre-auth proof carousel:
+
+- `attached_assets/landing-packaged-cartoon-kitchen-scan.jpg` — warm home-kitchen scan concept with labeled fictional beef patties / BBQ sauce packaging, unlabeled visible rice and eggs, natural uneven ingredient placement, and no raw meat
+- `attached_assets/landing-packaged-cartoon-recipe-bowl.jpg` — appetizing home-cooked Loco Moco-style bowl from the labeled ingredients
+- `attached_assets/landing-packaged-cartoon-cooking-guidance.jpg` — warm stovetop/pan cooking scene with matching beef patties / BBQ sauce labels in the background and unlabeled visible rice and eggs
+
+PD-012 is the source of truth for the image-generation approach: public product-flow imagery should avoid raw meat, use fictional labeled packaging when labels clarify packaged grocery ingredients, leave obvious loose or transparent-container ingredients visually identifiable but unlabeled when possible, avoid real logos/trade dress/people, keep scan-image ingredient placement natural without making the scene chaotic, and keep interactive UI chrome in the app layer.
 
 ## Phase Progress
 
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
-| Phase 0 — docs baseline and prerequisites | In progress | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
+| Phase 0 — docs baseline and prerequisites | Complete | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
 | Phase 1 — server auth and abuse-control foundations | Planned | TBD | Add server-derived `authMode`, anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate limits, and null-safe linked upsert behavior |
-| Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 5-generation anonymous quota accounting |
-| Phase 3 — client guest entry and same-browser persistence | Planned | TBD | Anonymous sign-in, `/api/auth/session` adoption, and local guest-state namespacing/cleanup |
+| Phase 2 — guest quota state and auth session contract | Planned | TBD | Canonical auth-session route plus 10-generation anonymous quota accounting |
+| Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | In progress | `codex/init-003-preauth-homepage` | Plan B public homepage + guest MVP launch path: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, and A+C hybrid pre-auth homepage with `Start cooking now` CTA and no numeric quota copy |
 | Phase 4 — upgrade-to-save boundary and promotion | Planned | TBD | Typed `UPGRADE_REQUIRED` responses, Google link flow, and strict trial-state promotion |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
 | Phase 6 — operations, cleanup, and launch | Planned | TBD | Account-mode operational logging, stale anonymous-account cleanup, and production enablement gates |
@@ -77,7 +104,7 @@ No new dedicated assets yet. Future UI work may reuse or extend the Mobile Refre
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
-| None yet | Planning/docs in progress | `codex/init-003-anonymous-trial-docs` | Docs-only branch; runtime validation has not started |
+| None yet | Runtime branch in progress | `codex/init-003-preauth-homepage` | Implements the public pre-auth homepage and first client guest-entry slice; Replit validation not yet performed |
 
 ## Efforts and Governance
 
@@ -96,27 +123,34 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 - The work began as a planning-only auth-harness discussion from fresh `origin/main`, then shifted into a public product decision for anonymous guest entry.
 - The team explicitly rejected personal Chrome/session reuse and a generic backend auth-bypass as the main path.
 - The guest model temporarily moved to "unlimited until save," then changed back after product review because it left too little incentive to link Google.
-- The accepted v1 guest model is now **5 successful recipe generations**, not unlimited generation and not full-cook counting.
+- The accepted v1 guest model is now **10 successful recipe generations**, not unlimited generation and not full-cook counting.
+- Wilson raised the cap from 5 to 10 on 2026-05-24 so guest mode has more room for user flow, trust building, and iteration when early recipe generations miss the user's pantry, taste, or expectations.
 - "Save gate" was clarified to mean **durable server-side writes only**, not same-browser local guest persistence.
 - Same-browser guest persistence through normal reopen was accepted so users do not have to rescan pantry after ordinary browser restarts.
 - The upgrade message split was accepted:
   - cap moment: unlock more recipes
   - save moment: save your kitchen
 - Product analytics was intentionally separated from INIT-003 runtime scope so guest auth, quota, persistence, and Phase 5 boundaries can land without also inventing a new analytics foundation.
+- Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Start cooking now` as the guest CTA, keep Google as the linked-account path, use a 3-step proof carousel for scan/recipe/guidance, and avoid numeric quota language on the landing page.
+- Wilson accepted Plan B on 2026-05-22: ship the public homepage and narrow guest MVP before full INIT-001 Phase 4 or Phase 5, as long as production guest gates remain explicit and durable cooking memory stays linked-account only.
+- Wilson initially selected domestic-realistic generated imagery for the public carousel on 2026-05-23, then revised that decision on 2026-05-24 after seeing the raw beef on the front page with fresh eyes. The accepted direction is now slightly-cartoony consumer-packaged imagery: labeled fictional grocery packages, no raw meat hero signal, home-cooked recipe output, and app-rendered UI around the image.
+- Wilson tightened the carousel visual contract on 2026-05-24: the scan image should use natural ingredient placement rather than perfect alignment without turning the counter chaotic, the recipe demo may loosen landing-only meta spacing while preserving the production planning-ticket primitive, the guidance slide should communicate step/checklist/tip support instead of putting numbered markers on a food photo, and numeric `1/3` style labels are unnecessary when progress dots already show the carousel state.
+- Wilson tightened the generated-image label contract on 2026-05-24: keep fictional labels where they clarify packaged products, but leave obvious rice/eggs visually identifiable without printed labels so the scan story signals recognition beyond text reading. Matching packaged labels should use the same style across the scan and guidance slides.
+- Wilson confirmed on 2026-05-26 that the anonymous guest path has a practical automation benefit: agents can exercise the guest setup/recipe/cooking-guide happy path through real Firebase anonymous auth without a third-party Google popup. This improves browser-smoke confidence for guest flows, but does not replace Replit validation of Google sign-in, linked-user upsert/routing, history, or durable cooking persistence.
 
 ## Validation State
 
-- Docs-only branch so far. No runtime validation has been performed.
+- Runtime validation has not yet been performed for `codex/init-003-preauth-homepage`.
 - Future runtime phases should keep Replit as the authoritative validation environment for linked-account, provider-backed, and deployment-bound behavior.
 - Production enablement is blocked until Firebase App Check is configured and anonymous auth can be verified under real rate-limit and kill-switch behavior.
 
 ## Current Resume Point
 
-1. Merge this docs baseline so `INIT-003` and `PD-012` are visible on `main`.
-2. Start Phase 1 runtime work from fresh `origin/main` on a new branch, not on this docs branch.
-3. Keep the first runtime slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, and auth-session groundwork.
-4. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, and linked-save boundaries are implemented and validated.
-5. If measurement work becomes urgent, file a separate analytics effort rather than overloading the Phase 1 runtime branch.
+1. Finish and Replit-validate `codex/init-003-preauth-homepage` as the Plan B public homepage + guest MVP launch path.
+2. Keep the remaining server-auth slice narrow: server auth mode, kill switch, anonymous rate-limit identity, null-safe linked upsert, auth-session hardening, and quota enforcement.
+3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, anonymous abuse controls, and linked-save boundaries are implemented and validated.
+4. Coordinate Phase 4/5 guest-facing copy with INIT-001: landing promises cooking guidance, but durable cooking memory and Phase 5 retention remain linked-only in v1.
+5. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
 
 ## Chronology
 
@@ -127,9 +161,9 @@ Wilson asked for a secure alternative to repeated manual Google popup validation
 The accepted direction became:
 
 - public anonymous Firebase entry
-- 5 successful recipe generations in v1
+- 10 successful recipe generations in v1
 - same-browser guest persistence through normal reopen
-- Google required for recipe generation `#6+`
+- Google required for recipe generation `#11+`
 - Google required for all durable server-side saves
 - linked-only durable Phase 5 memory
 

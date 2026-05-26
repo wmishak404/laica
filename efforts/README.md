@@ -61,6 +61,7 @@ Read these before starting work in their governed domains:
 | ID | Title | Status | Owner | Created |
 |---|---|---|---|---|
 | [EFF-010](effort-010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
+| [EFF-022](effort-022-cross-cuisine-recommendation-prompts.md) | Cross-cuisine recommendation prompts | `Open` | Wilson / Codex / Claude | 2026-05-23 |
 
 ## Deferred Efforts
 

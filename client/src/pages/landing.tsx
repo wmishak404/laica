@@ -1,25 +1,18 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Camera, ChefHat, Check, ChevronLeft, ChevronRight, Clock, ScanLine } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { ChefHat, ScanLine, UserRound } from "lucide-react";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import landingCookingGuidance from "@assets/landing-packaged-cartoon-cooking-guidance.jpg";
+import landingKitchenScan from "@assets/landing-packaged-cartoon-kitchen-scan.jpg";
+import landingRecipeBowl from "@assets/landing-packaged-cartoon-recipe-bowl.jpg";
 import laicaLogo from "@assets/laica_logo_v1_cropped_1763444931884.png";
 
-const helpItems = [
-  {
-    icon: UserRound,
-    title: "Personalized Profiles",
-    description: "Tell Laica how you cook so suggestions fit your skill, diet, and kitchen.",
-  },
-  {
-    icon: ScanLine,
-    title: "Smart Pantry Recognition",
-    description: "Scan pantry or fridge photos and turn visible ingredients into an editable list.",
-  },
-  {
-    icon: ChefHat,
-    title: "Live Cooking Guidance",
-    description: "Cook step by step with cues, timers, and answers while dinner is happening.",
-  },
+const journeySteps = [
+  "Scan your kitchen for ingredients",
+  "Pick a recipe",
+  "Get live guidance to cook it",
 ];
 
 function GoogleIcon() {
@@ -34,57 +27,283 @@ function GoogleIcon() {
 }
 
 export default function Landing() {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const { signInAsGuest, isLoading } = useFirebaseAuth();
+  const prefersReducedMotion = useReducedMotion();
+  const motionEnabled = !prefersReducedMotion;
+  const journeyRef = useRef<HTMLDivElement>(null);
+  const [activeJourneyStep, setActiveJourneyStep] = useState(0);
+
+  const reveal = {
+    hidden: { opacity: 0, y: motionEnabled ? 16 : 0 },
+    show: { opacity: 1, y: 0 },
+  };
+
+  const updateActiveJourneyStep = () => {
+    const container = journeyRef.current;
+    if (!container) return;
+
+    const slides = Array.from(container.querySelectorAll<HTMLElement>("[data-journey-slide]"));
+    if (slides.length === 0) return;
+
+    const containerLeft = container.getBoundingClientRect().left;
+    const closestIndex = slides.reduce(
+      (closest, slide, index) => {
+        const distance = Math.abs(slide.getBoundingClientRect().left - containerLeft);
+        return distance < closest.distance ? { index, distance } : closest;
+      },
+      { index: 0, distance: Number.POSITIVE_INFINITY },
+    ).index;
+
+    setActiveJourneyStep(closestIndex);
+  };
+
+  const scrollToJourneyStep = (index: number) => {
+    const container = journeyRef.current;
+    const slide = container?.querySelectorAll<HTMLElement>("[data-journey-slide]")[index];
+    if (!slide) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const slideRect = slide.getBoundingClientRect();
+
+    setActiveJourneyStep(index);
+    container.scrollTo({
+      left: container.scrollLeft + slideRect.left - containerRect.left,
+      behavior: motionEnabled ? "smooth" : "auto",
+    });
+  };
+
+  const showPreviousJourneyStep = () => {
+    scrollToJourneyStep(Math.max(activeJourneyStep - 1, 0));
+  };
+
+  const showNextJourneyStep = () => {
+    scrollToJourneyStep(Math.min(activeJourneyStep + 1, journeySteps.length - 1));
+  };
+
+  const canGoToPreviousJourneyStep = activeJourneyStep > 0;
+  const canGoToNextJourneyStep = activeJourneyStep < journeySteps.length - 1;
 
   return (
-    <main className="min-h-screen bg-sidebar text-sidebar-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-7 pb-8 pt-12">
-        <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <img src={laicaLogo} alt="Laica" className="mb-7 h-20 object-contain" />
-          <h1 className="max-w-xs text-4xl font-semibold leading-tight">
-            Welcome to Laica
-          </h1>
-          <p className="mt-3 text-lg text-sidebar-foreground/75">
-            Your live cooking assistant
-          </p>
-        </div>
+    <main className="landing-ui min-h-screen overflow-hidden">
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 pb-7 pt-8 md:max-w-5xl md:px-8">
+        <motion.section
+          className="flex flex-1 flex-col justify-center gap-8 py-4 md:grid md:grid-cols-[0.95fr_1.05fr] md:items-center md:gap-10"
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: {
+              transition: {
+                staggerChildren: motionEnabled ? 0.08 : 0,
+              },
+            },
+          }}
+        >
+          <div className="space-y-6">
+            <motion.img
+              src={laicaLogo}
+              alt="Laica"
+              className="h-12 w-auto object-contain md:h-14"
+              variants={reveal}
+              transition={{ duration: 0.36, ease: "easeOut" }}
+            />
 
-        <div className="space-y-5">
-          <GoogleSignInButton className="h-14 w-full rounded-lg bg-accent text-lg font-semibold text-accent-foreground hover:bg-accent/90">
-            <GoogleIcon />
-            <span>Continue with Google</span>
-          </GoogleSignInButton>
+            <motion.div className="space-y-4" variants={reveal} transition={{ duration: 0.36, ease: "easeOut" }}>
+              <h1 className="setup-display text-[3rem] font-extrabold leading-[0.96] tracking-normal text-[hsl(var(--setup-ink))] md:text-[4.5rem]">
+                Cook from what you already have.
+              </h1>
+              <p className="max-w-sm text-base font-bold leading-relaxed text-[hsl(var(--setup-ink)/0.68)] md:text-lg">
+                Show Laica your pantry, get dinner ideas that fit your real kitchen, then cook with cues when you need them.
+              </p>
+            </motion.div>
 
-          <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
-            <DialogTrigger asChild>
-              <button className="mx-auto block text-sm text-sidebar-foreground/70 underline underline-offset-4">
-                What can you help me do?
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm rounded-lg">
-              <DialogHeader>
-                <DialogTitle>Laica helps with dinner</DialogTitle>
-                <DialogDescription>
-                  A quick look at what the app can do once you sign in.
-                </DialogDescription>
-              </DialogHeader>
+            <motion.div className="max-w-md space-y-3" variants={reveal} transition={{ duration: 0.34, ease: "easeOut" }}>
+              <div className="grid grid-cols-1 gap-3">
+                <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={signInAsGuest}
+                    disabled={isLoading}
+                    className="h-14 w-full rounded-full text-base font-extrabold shadow-lg shadow-primary/20"
+                  >
+                    <ChefHat className="h-5 w-5" aria-hidden="true" />
+                    {isLoading ? "Starting..." : "Start cooking now"}
+                    <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                  </Button>
+                </motion.div>
 
-              <div className="space-y-3 pt-2">
-                {helpItems.map((item) => (
-                  <div key={item.title} className="flex items-start gap-3 rounded-lg border bg-card p-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <item.icon className="h-5 w-5" />
+                <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
+                  <GoogleSignInButton
+                    variant="outline"
+                    className="h-14 w-full rounded-full border-2 px-5 text-base font-extrabold"
+                  >
+                    <GoogleIcon />
+                    <span className="min-w-0 whitespace-nowrap">Continue with Google</span>
+                  </GoogleSignInButton>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+
+          <motion.div
+            className="landing-journey-object"
+            variants={reveal}
+            transition={{ duration: 0.42, ease: "easeOut" }}
+          >
+            <div
+              ref={journeyRef}
+              className="landing-journey-scroll"
+              onScroll={updateActiveJourneyStep}
+              aria-label="How Laica turns pantry photos into cooking help"
+            >
+              <article className="landing-journey-slide landing-scan-slide" data-journey-slide aria-label="Step 1 of 3: Scan your kitchen for ingredients">
+                <div className="landing-journey-header">
+                  <h2>Scan your kitchen for ingredients</h2>
+                </div>
+
+                <div className="landing-camera-card">
+                  <div className="landing-camera-topbar">
+                    <span>
+                      <Camera className="h-4 w-4" aria-hidden="true" />
+                      Pantry camera
+                    </span>
+                    <span>Live preview</span>
+                  </div>
+
+                  <div className="landing-kitchen-viewfinder" aria-hidden="true">
+                    <img src={landingKitchenScan} alt="" className="landing-kitchen-photo" />
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-tl" />
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-tr" />
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-bl" />
+                    <span className="landing-viewfinder-corner landing-viewfinder-corner-br" />
+                    <ScanLine className="landing-kitchen-scan-icon" />
+                  </div>
+                </div>
+
+                <div className="landing-extracted-panel">
+                  <span className="landing-extracted-label">Found</span>
+                  <div className="landing-extracted-chips" aria-label="Detected ingredients">
+                    {["rice", "beef patties", "BBQ sauce", "eggs"].map((ingredient) => (
+                      <span key={ingredient} className="landing-extracted-chip">
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        {ingredient}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </article>
+
+              <article className="landing-journey-slide landing-recipe-slide" data-journey-slide aria-label="Step 2 of 3: Pick a recipe">
+                <div className="landing-journey-header">
+                  <h2>Pick a recipe</h2>
+                </div>
+
+                <div className="planning-ticket planning-ticket-large landing-recipe-demo-ticket" data-selected="true">
+                  <span className="planning-ticket-rip" aria-hidden="true" />
+                  <span className="planning-ticket-title">
+                    <span className="planning-ticket-title-main">Pantry Loco Moco-style bowl</span>
+                    <span className="planning-ticket-title-detail">Rice, beef patty, egg, and BBQ pan gravy.</span>
+                  </span>
+                  <span className="planning-recipe-image-slot" data-has-image="true" aria-hidden="true">
+                    <img src={landingRecipeBowl} alt="" className="planning-recipe-image" />
+                  </span>
+                  <span className="planning-ticket-meta">
+                    <span><Clock className="h-4 w-4" aria-hidden="true" /> 30 min</span>
+                    <span>Medium</span>
+                  </span>
+                  <span className="planning-ticket-divider" />
+                  <span className="planning-ticket-section">
+                    <span className="planning-ticket-section-label">Uses</span>
+                    <span className="landing-extracted-chips">
+                      {["rice", "beef patties", "BBQ sauce", "eggs"].map((ingredient) => (
+                        <span key={ingredient} className="landing-extracted-chip">
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                          {ingredient}
+                        </span>
+                      ))}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="landing-recipe-source-note">
+                  <Check className="h-4 w-4" aria-hidden="true" />
+                  <span>
+                    Picked from <strong>17 ingredients</strong> in your kitchen. Laica highlights the ones this recipe uses.
+                  </span>
+                </div>
+              </article>
+
+              <article className="landing-journey-slide landing-guidance-slide" data-journey-slide aria-label="Step 3 of 3: Get live guidance to cook it">
+                <div className="landing-journey-header">
+                  <h2>Get live guidance to cook it</h2>
+                </div>
+
+                <div className="landing-guidance-demo" aria-hidden="true">
+                  <div className="landing-guidance-image-panel">
+                    <img src={landingCookingGuidance} alt="" className="landing-guidance-photo" />
+                  </div>
+
+                  <div className="landing-guidance-panel">
+                    <div className="landing-guidance-panel-top">
+                      <span>Now cooking</span>
+                      <span>Step 2</span>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-card-foreground">{item.title}</p>
-                      <p className="mt-1 text-sm leading-snug text-muted-foreground">{item.description}</p>
+                    <p className="landing-guidance-step">Brown the patty, then spoon the BBQ pan gravy over warm rice.</p>
+                    <span className="landing-guidance-progress" aria-hidden="true">
+                      <span className="landing-guidance-progress-fill" />
+                    </span>
+                    <div className="landing-guidance-checklist">
+                      <span><Check className="h-3.5 w-3.5" aria-hidden="true" /> Rice is warm</span>
+                      <span><Check className="h-3.5 w-3.5" aria-hidden="true" /> Sauce is glossy</span>
+                      <span><Clock className="h-3.5 w-3.5" aria-hidden="true" /> Egg goes on last</span>
+                    </div>
+                    <div className="landing-guidance-tip">
+                      <ChefHat className="h-4 w-4" aria-hidden="true" />
+                      <span>Tip: loosen the sauce with a splash of water if it gets sticky.</span>
                     </div>
                   </div>
+                </div>
+              </article>
+            </div>
+
+            <div className="landing-journey-controls" aria-label="Homepage proof carousel controls">
+              <button
+                type="button"
+                className="landing-journey-arrow"
+                aria-label="Show previous proof step"
+                disabled={!canGoToPreviousJourneyStep}
+                onClick={showPreviousJourneyStep}
+              >
+                <ChevronLeft aria-hidden="true" />
+              </button>
+
+              <div className="landing-journey-dots" aria-label="Homepage proof steps">
+                {journeySteps.map((step, index) => (
+                  <button
+                    key={step}
+                    type="button"
+                    className="landing-journey-dot"
+                    data-active={activeJourneyStep === index}
+                    aria-label={`Show step ${index + 1}: ${step}`}
+                    aria-current={activeJourneyStep === index ? "step" : undefined}
+                    onClick={() => scrollToJourneyStep(index)}
+                  />
                 ))}
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+
+              <button
+                type="button"
+                className="landing-journey-arrow"
+                aria-label="Show next proof step"
+                disabled={!canGoToNextJourneyStep}
+                onClick={showNextJourneyStep}
+              >
+                <ChevronRight aria-hidden="true" />
+              </button>
+            </div>
+          </motion.div>
+        </motion.section>
       </div>
     </main>
   );

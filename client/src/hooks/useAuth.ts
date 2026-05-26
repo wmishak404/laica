@@ -2,8 +2,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, AuthUser, UserSettings, CookingSession, UpdateUserProfile } from "@shared/schema";
 
-// Union type for authenticated users (local or external)
-export type AuthenticatedUser = User | AuthUser;
+export interface GuestUser {
+  id: string;
+  email: null;
+  firstName: null;
+  lastName: null;
+  profileImageUrl: null;
+  authProvider: "anonymous";
+  firebaseUid: string;
+  isAnonymous: true;
+}
+
+// Union type for authenticated users (local, linked external, or anonymous guest)
+export type AuthenticatedUser = User | AuthUser | GuestUser;
+
+export function isGuestUser(user: AuthenticatedUser | null | undefined): user is GuestUser {
+  return Boolean(user && "isAnonymous" in user && user.isAnonymous);
+}
 
 interface UserProfile {
   user: AuthUser;
@@ -13,7 +28,7 @@ interface UserProfile {
 
 export function useAuth() {
   const { data: user, isLoading, error } = useQuery<AuthenticatedUser | null>({
-    queryKey: ["/api/auth/user"],
+    queryKey: ["/api/auth/session"],
     retry: false,
     staleTime: 1000 * 60 * 5, // 5 minutes - token is still valid
     refetchOnMount: true,
@@ -28,7 +43,7 @@ export function useAuth() {
           return null;
         }
 
-        const res = await fetch('/api/auth/user', {
+        const res = await fetch('/api/auth/session', {
           headers: {
             'Authorization': `Bearer ${idToken}`,
           },
@@ -44,7 +59,8 @@ export function useAuth() {
           throw new Error(`${res.status}: ${await res.text()}`);
         }
 
-        return await res.json();
+        const session = await res.json();
+        return session.user ?? session;
       } catch (error) {
         console.error('Auth check failed:', error);
         return null;
@@ -60,11 +76,11 @@ export function useAuth() {
 }
 
 export function useUserProfile() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   
   return useQuery<UserProfile>({
     queryKey: ["/api/user/profile"],
-    enabled: isAuthenticated, // Only fetch if authenticated
+    enabled: isAuthenticated && !isGuestUser(user), // Guest profiles are browser-local
   });
 }
 
@@ -78,6 +94,7 @@ export function useUpdateUserProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/session"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
   });
@@ -107,6 +124,7 @@ export function useResetPantry() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/session"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
   });

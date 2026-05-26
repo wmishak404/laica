@@ -61,6 +61,18 @@ suggestedTimer?: {
 - Do not save a hidden default 5-star rating.
 - Phase 5 owns pantry cleanup.
 
+### INIT-003 public homepage overlap
+
+- The new pre-auth homepage promises cooking guidance to prospective users; Phase 4 remains the implementation home for fulfilling that promise in the linked-account cooking flow.
+- Guest cooking must not silently create durable cooking history or Phase 5 cleanup state. If a guest reaches a cooking completion moment before durable guest promotion exists, the UI must require Google linking or show a clear local-only boundary.
+- Finish copy may need linked-vs-guest variants. Linked users can see durable-history language; guests should not see copy that implies saved history, cleanup memory, taste memory, or retention.
+
+### Audio lifecycle
+
+- Leaving the cooking guide must stop any active speech playback, queued speech synthesis, recording, or hands-busy audio work.
+- Back-to-planning, Finish, sign-out, route changes, and component unmounts must share the same cleanup path so audio cannot continue after the cooking surface exits.
+- This cleanup applies to linked and anonymous cooking sessions. Guest mode makes the flow easier to automate, but it should not get a weaker audio lifecycle than linked-account cooking.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
@@ -71,6 +83,7 @@ suggestedTimer?: {
 - Suggested timers appear only on timer-worthy steps and never auto-start.
 - Active timer can be minimized without hiding the step.
 - Finish creates or updates cooking history but does not change pantry inventory.
+- Guest Finish never creates durable cooking history unless the user has linked Google first.
 - Completion sends no hidden `5` rating when the user has not rated.
 - Cooking assistance route is authenticated, rate-limited, and prompt-injection guarded.
 - Cooking-step generation failure has an inline retry/recovery state.
@@ -78,12 +91,14 @@ suggestedTimer?: {
 - Persistent live-cooking failures offer inline Feedback access.
 - No live-cooking failure hides the pinned current step or leaves the cook without a next action.
 - Live-cooking errors follow EFF-018 status classification and copy principles.
+- Pressing Back to Planning, Finish, sign-out, browser back, or otherwise leaving the cooking guide stops active voice playback, cancels queued synthesis/recording work, and prevents audio from continuing after the cooking UI has exited.
 
 ## Effort Interactions
 
 - PD-005 / `design_guidelines.md`: Establishes the Warm Focus cooking surface and avoids generic AI-chat styling.
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Requires Replit smoke for cooking-session persistence and speech routes.
 - EFF-018: Provides shared authenticated AI error classification and non-demo copy; Phase 4 owns live-cooking presentation, retry, and Feedback placement.
+- INIT-003 Plan B: Public guest entry may ship before full Phase 4, so Phase 4 must preserve the linked-vs-guest memory boundary introduced by the homepage.
 
 ## Backend Notes
 

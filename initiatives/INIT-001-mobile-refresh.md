@@ -224,12 +224,21 @@ Next implementation / validation focus:
 5. Pantry spell correction is resolved through EFF-013 / PR #62. Setup/Settings scan-review chip states are resolved through EFF-014 / PR #75. Future pantry spelling/canonicalization or scan-review work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. Phase 5 post-cook rescan labels remain in the Phase 5 record.
 6. Coordinate any future guest-auth, upgrade, or Phase 5 returning-user memory changes with [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Do not reopen Phase 1 or Phase 5 assumptions in isolation.
 
+Plan B sequencing note for the INIT-003 public homepage:
+
+- The public homepage + guest MVP can ship before INIT-001 Phase 4 as long as INIT-003 production gates are met and the page does not imply durable guest memory.
+- Phase 4 should still start later from fresh `origin/main` when cooking guidance becomes the next implementation focus.
+- Phase 5 remains after Phase 4 because it depends on Phase 4 completion semantics: history save, no pantry mutation on Finish, and pending cleanup state.
+- Guest-facing Phase 4/5 copy must distinguish local guest continuation from linked-account cooking history, cleanup, taste memory, and retention.
+- Replit validation of INIT-003 on 2026-05-26 exposed a Phase 4 acceptance item: if voice synthesis/playback has started, Back to Planning or any other cooking-guide exit must stop active/queued audio so speech cannot continue after leaving the cooking surface.
+
 ## Sequencing Semantics
 
 INIT order is the default resume path, not automatically a hard dependency graph.
 
 | Work relationship | Classification | Notes |
 |---|---|---|
+| INIT-003 Plan B homepage before Phase 4 | Parallel-safe with production gates | The public homepage + guest MVP may ship first if anonymous auth, quota, App Check, kill-switch/rate-limit posture, and linked-save boundaries are validated. |
 | Phase 3.1 before Phase 4 | Soft sequence | Phase 3.1 is the default next design pass, but Phase 4 is not blocked by it. Phase 4 may start first if cooking guidance is the higher priority. |
 | Phase 3.1 alongside Phase 4 | Parallel-safe with guardrails | Avoid shared file ownership conflicts. If Phase 4 creates or exposes visual consistency debt, record it back to Phase 3.1 or the relevant phase record. |
 | Phase 4 before Phase 5 | Hard dependency | Phase 5 depends on Phase 4 completion semantics: cooking history save, no pantry mutation, and pending cleanup state. |

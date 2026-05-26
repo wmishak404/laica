@@ -1,0 +1,137 @@
+# INIT-003 pre-auth homepage and guest-entry slice
+
+**Agent:** Codex  
+**Date:** 2026-05-22  
+**Branch:** `codex/init-003-preauth-homepage`  
+**Base SHA:** `3394057926b400364d7a221e73a1b5bbe4eaac0c` (`origin/main` at branch creation)  
+**Initiative:** [INIT-003 — Anonymous Trial and Account Upgrade](../../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md)  
+**INIT updated:** Yes  
+**Last Replit-validated at:** not yet validated
+
+## Summary
+
+Implemented the Phase 3 public guest-entry slice for INIT-003: the pre-auth page now explains Laica before asking for Google identity, the public CTA is `Start cooking now`, and that CTA is wired to Firebase anonymous sign-in rather than a fake demo path. This is intentionally still a narrow client/session slice; production guest launch remains blocked on quota accounting, App Check, kill-switch/rate-limit hardening, and upgrade/save boundaries.
+
+Wilson accepted **Plan B** after this implementation: use the pre-auth homepage as the public entry point and ship a clean guest MVP before full INIT-001 Phase 4 or Phase 5. Plan B does not change the linked-account boundary for durable cooking memory, History, cleanup, taste signals, or retention.
+
+## Product / UX Changes
+
+- Replaced the minimal signed-out landing screen with the A+C hybrid homepage direction:
+  - hero: `Cook from what you already have.`
+  - primary CTA: `Start cooking now`
+  - secondary CTA: `Continue with Google`
+  - horizontal 3-step proof carousel for pantry scan, recipe picking, and cooking guidance
+- Added restrained motion with existing `framer-motion` and CSS only:
+  - first-load reveal
+  - pantry chip pop-in
+  - finite scan-frame pulse
+  - proof-card entrance
+  - tactile button press states
+  - `prefers-reduced-motion` disables the scan pulse
+- Removed the stale authenticated `/website` route and deleted the orphaned old homepage component tree so there is only one public landing path.
+- Kept numeric quota copy off the landing page; PD-012 now explicitly says quota language belongs later in usage moments.
+
+## Runtime Changes
+
+- Added `FirebaseAuthService.signInAsGuest()` via Firebase anonymous auth.
+- Added anonymous-aware session handling:
+  - client `useAuth()` now reads `/api/auth/session`
+  - server `GET /api/auth/session` returns linked or anonymous session metadata
+  - anonymous sessions do not create durable user rows
+  - `/api/auth/google` rejects anonymous/emailless Firebase tokens
+- Added browser-local guest profile persistence keyed by anonymous Firebase UID.
+- Kept linked-only surfaces guarded for this slice:
+  - guest Settings and History menu buttons are disabled
+  - guest Slop It Up is blocked with an upgrade/save-memory toast
+  - guest empty-pantry recovery returns to setup instead of linked-account settings
+- Replit validation follow-up found that guest users could continue from recipe ideas into the cooking guide, where the shared live-cooking component attempted to create durable cooking-session memory. This branch now skips durable cooking-session start/update/complete writes for anonymous users while preserving linked-user session writes.
+- Replit landscape visual smoke found the Google CTA overflowing when the landing buttons switched into two columns. The CTA group now stays stacked with bounded width so `Continue with Google` gets its own row across mobile, landscape, and desktop widths.
+- Product review removed the `Pantry-first cooking help` kicker above the hero because the logo, headline, supporting copy, and proof carousel already establish the pantry-first positioning without a marketing-style badge.
+- Product review aligned the homepage sample ticket's `30 min` treatment with the real product recipe-card pattern: compact inline clock icon plus `30 min`, not a stacked number/unit widget.
+- Product review changed the guest CTA to `Start cooking now` and removed the supporting helper sentence below the auth buttons to keep the landing page simpler and less wordy.
+- Product review identified a stronger carousel example around rice, beef patties, BBQ sauce, and eggs becoming a Loco Moco-style bowl, but also noted that Hawaiian does not appear to be a current cuisine picker option. Created [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) so later prompt work can support pantry-grounded cross-cuisine recommendations without implying unavailable picker options.
+- Product review replaced the right-side stacked proof cards with a 3-step horizontal carousel: scan uses a setup-camera-like kitchen photo illustration plus extracted ingredient chips, pick-a-recipe uses the production planning ticket style, and live guidance stays illustrative because today's live-cooking UI is not the final target.
+- Product review selected a slightly-cartoony consumer-packaged image direction for that carousel after comparing polished-realistic, domestic-realistic, and cartoony concepts. The earlier domestic-realistic set made raw beef too prominent for a public entry surface, so the selected assets now use labeled fictional grocery packaging (`Beef Patties`, `BBQ Sauce`, `Rice`, `Eggs`), no raw meat, home-cooked output, and app-rendered interactive UI chrome.
+
+## Docs Updated
+
+- [INIT-003](../../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md)
+  - status/current phase moved to Phase 3 public pre-auth homepage and client guest entry
+  - recorded the soft-sequence override with hard production gates
+  - added Plan B public homepage + clean guest MVP launch path, Replit validation gates, and explicit non-goals
+  - recorded branch and validation status
+- [INIT-001](../../initiatives/INIT-001-mobile-refresh.md)
+  - added Plan B sequencing: public homepage/guest MVP can ship before Phase 4, while Phase 5 remains after Phase 4
+- [Mobile Refresh Phase 4](../../product-decisions/features/mobile-refresh/pd-phase-04-cooking.md)
+  - recorded that landing-page cooking-guidance promises are fulfilled later by Phase 4 and that guest Finish must not silently create durable history
+- [Mobile Refresh Phase 5](../../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md)
+  - recorded that Plan B does not pull cleanup/retention forward and anonymous completion state is not retro-imported into durable history in v1
+- [Mobile Refresh phase README](../../product-decisions/features/mobile-refresh/README.md)
+  - added Plan B to the default sequence and preserved Phase 4-before-Phase 5 as the hard dependency
+- [Initiative registry](../../initiatives/registry.md)
+  - INIT-003 now points at this runtime branch, Phase 3 work, and Plan B guest-MVP signal
+- [PD-012](../../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md)
+  - landing copy guidance now avoids numeric guest quota language and uses simple guest-entry framing
+  - records the future image-generation approach for public product-flow explanations: avoid raw meat on entry surfaces, use fictional labeled grocery packaging when it clarifies ingredients, avoid real logos/trade dress/people, and keep interactive UI in app-rendered components
+- [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md)
+  - new prompt-quality follow-up for cross-cuisine recommendations beyond literal country-cuisine selections
+
+## PR Summary Notes
+
+- Pre-auth homepage change: A+C hybrid homepage, `Start cooking now` anonymous entry, Google as linked-account path, 3-step proof carousel, no landing-page numeric quota language, and removed stale `/website`/old homepage path.
+- Deferred INIT-003 gates: Replit auth smoke, anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, Firebase App Check posture, and full upgrade-to-save boundary.
+- Deferred recommendation-quality follow-up: [EFF-022](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) tracks prompt/eval work so combinations such as American + Asian can produce pantry-grounded inspired recipes without adding unsupported cuisine picker promises.
+- Landing image approach: slightly-cartoony consumer-packaged generated assets are selected for the public carousel, with static image content inside app-controlled UI frames and PD-012 carrying the reusable generation guardrails.
+- Phase 4 follow-up: linked users get durable cooking guidance/history; guests must see a local-only or link-Google boundary before any completion path that would imply saved history.
+- Phase 5 follow-up: cleanup, taste memory, next-meal seed, History retention, share/cook-again memory, and anonymous-to-linked retro-import remain out of guest MVP v1.
+
+## Validation
+
+- `npm ci`
+- `git diff --check`
+- `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/planning-choice.test.tsx`
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx`
+- `npm run check`
+- `npm run build`
+- `VITE_FIREBASE_API_KEY=AIzaSyDummyDummyDummyDummyDummyDummyDummy VITE_FIREBASE_PROJECT_ID=laica-preview VITE_FIREBASE_APP_ID=1:123456789:web:preview npm run build`
+- Headless Chrome visual check against local Vite preview on `http://127.0.0.1:4173/`:
+  - desktop 1280x720, mobile 390x844, and landscape 844x390 all rendered 4 loaded images, 3 carousel dots, and no page/body horizontal overflow
+  - mobile dot navigation aligned all three carousel slides after smooth scroll completion
+  - latest packaged-cartoon asset pass rechecked desktop and landscape after the entrance animation settled; scan labels were readable and no raw meat appeared in the landing imagery
+- Replit browser smoke by Wilson at `87f02c7` before the landing CTA layout patch:
+  - anonymous setup survived reload in the same browser
+  - anonymous cooking guide did not call `POST /api/cooking/session/start`
+  - anonymous profile path did not call `PUT /api/user/profile`
+  - Google linked sign-in upserted/routed
+  - returning linked-user History worked and first-time linked-user empty History was expected
+  - landing had no quota/upgrade pressure
+- In-app browser visual checks against local `http://127.0.0.1:3000/`:
+  - desktop 1280x720: no horizontal overflow, headline and both CTAs visible/enabled
+  - mobile 390x844: no horizontal overflow, CTAs stacked/enabled, scan caption no longer overlaps pantry chips
+- Plan B docs follow-up: `git diff --check`
+
+Known build warnings only:
+
+- Browserslist data is stale.
+- Existing Firebase dynamic/static import chunk warning.
+- Existing bundle-size warning above 500 kB.
+
+## Not Yet Validated
+
+- Replit auth smoke is still required before merge/deploy:
+  - `Start cooking now` starts real anonymous Firebase entry in the Replit runtime
+  - Google sign-in still upserts/routes correctly
+  - guest setup persists across same-browser reopen
+  - guests reach recipe ideas without durable server saves
+  - guests can enter the cooking guide without creating durable cooking-session rows
+  - linked-user cooking/history flows still work
+- Quota enforcement, App Check, anonymous kill switch, anonymous rate-limit identity, and full upgrade-to-save boundary are still future INIT-003 gates before public guest enablement.
+- Because the CTA layout patch changed the branch after Wilson's Replit smoke, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+- Because the hero kicker removal changed the branch after the CTA validation, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+- Because the sample-ticket time UI changed after the hero-kicker removal, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+- Because the CTA copy and helper sentence changed after the sample-ticket time UI, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+- Because the packaged-cartoon carousel assets changed the landing visual surface after the domestic-realistic set, refresh Replit visual/auth validation at the new head before merge and record that SHA in the PR body.
+
+## Resume Point
+
+Open a PR for `codex/init-003-preauth-homepage`, then run targeted Replit validation for the landing/auth entry surfaces and guest recipe-idea path. Do not treat this branch as production-ready guest launch until the Plan B gates above are implemented or explicitly confirmed.

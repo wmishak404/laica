@@ -37,6 +37,8 @@ Help users come back for a second cook by keeping pantry inventory accurate with
 - Anonymous users do not create durable post-cook history, `pending_cleanup`, `taste_signal`, or next-meal retention state.
 - Phase 5 remains a linked-account memory surface until a later decision says otherwise.
 - Anonymous cooks may continue locally on the same browser/device, but completed anonymous post-cook state is not retro-imported into durable history in v1.
+- The INIT-003 Plan B homepage may ship before Phase 5. That does not pull Phase 5 forward or make cleanup/retention part of the guest MVP.
+- If a guest links Google after cooking anonymously, v1 does not backfill anonymous cleanup, taste, next-meal seed, or History retention unless a future product decision explicitly changes the promotion contract.
 
 ### Cleanup review
 
@@ -122,6 +124,7 @@ flowchart TD
 - History detail supports the Phase 5 memory intent: share and cook-again direction, without turning History back into Settings.
 - Pantry/session mutations require explicit user confirmation and session ownership.
 - In v1, only linked users create durable Phase 5 history, cleanup, and taste-memory records.
+- Public homepage guest traffic must not create Phase 5 durable memory side effects before Google linking.
 
 ## Effort Interactions
 
