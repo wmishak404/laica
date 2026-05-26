@@ -123,6 +123,8 @@ Durable saves include:
 
 - Product analytics for guest-to-link conversion, cap friction, and returning-user behavior is intentionally separate from this decision and should be tracked in its own follow-up work.
 - Environment-parity and browser-smoke automation remain under [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md). Guest auth can reduce browser-auth friction later, but it does not replace linked-account validation in Replit.
+- Anonymous entry creates a first-party browser automation path for the guest happy path: agents can start from `Start cooking now`, receive a real Firebase anonymous session, and exercise setup/recipe/cooking-guide flows without depending on a Google provider popup. This is a validation and developer-productivity benefit of the product direction, not a separate auth harness.
+- This automation benefit must not be overread. Google sign-in, linked-user profile upsert, linked-user history/cooking persistence, and upgrade-to-save behavior still require explicit linked-account validation in Replit.
 
 ## Rationale
 
@@ -133,6 +135,7 @@ Durable saves include:
 - A linked-only durable-memory boundary keeps Phase 5 coherent. Returning-user history, cleanup, and taste memory should belong to a real account, not to a fragile anonymous browser session.
 - Keeping the cap on recipe generation instead of on "full cooks" makes enforcement deterministic and easier to explain in the UI.
 - Splitting the upgrade copy between "unlock more recipes" and "save your kitchen" creates clearer user moments than using one generic account-upsell everywhere.
+- The same guest path that improves first-use trust also improves automation confidence: it lets browser tests exercise more of the real product surface without fragile third-party auth popups, while still keeping linked-account behavior on the real Google/Firebase validation path.
 
 ## Alternatives considered
 
