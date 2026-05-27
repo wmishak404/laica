@@ -118,3 +118,15 @@ This strengthens the EFF-022 signal: under constrained pantry conditions, Chef I
 - ask for missing cuisine anchors or pantry staples before generation,
 - return fewer cuisine-specific options plus an explicit pantry-flexible fallback explanation, or
 - show a clear "your pantry does not strongly support this cuisine" story before offering broader ideas.
+
+## 2026-05-27 - Thai request shows Korean broth anchoring
+
+Wilson captured the same repeated pattern when selecting Thai. The returned suggestions were:
+
+- `Hearty Korean-Style Sausage & Leek Stew`, using Korean beef bone soup broth, raw sausages, leeks, fresh sage, and butter
+- `Herbed Sausage Stir-Fry with Yogurt-Hot Sauce Drizzle`
+- `Thai-Style Leek & Sausage Broth Bowl`
+
+This adds a more specific hypothesis for the future prompt/eval pass: the model may be over-anchoring on the strongest pantry identity marker, especially `korean beef bone soup broth`, then allowing the selected cuisine to become a weak style modifier on only one card. The issue is not only "make cuisine preference stronger"; it may also need ranking or prompt guidance for ingredient provenance. A Korean-labeled ingredient should not silently override an explicit Thai, Indian, or Chinese request unless the product clearly presents that as a pantry-constrained fallback.
+
+Future fixtures should include pantry sets with a strongly labeled cross-cuisine ingredient to test whether selected cuisine remains primary, whether the model asks for missing staples, or whether the UI explains why a pantry-flexible fallback is being offered.
