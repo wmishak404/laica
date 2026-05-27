@@ -115,7 +115,7 @@ PD-012 is the source of truth for the image-generation approach: public product-
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
 | [#102](https://github.com/wmishak404/laica/pull/102) | Merged | `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`; local unhappy-path probes covered no-auth API rejection, anonymous Google-upsert rejection, empty-pantry guest guard, and anonymous live-cooking durable-session guard |
-| [#107](https://github.com/wmishak404/laica/pull/107) | Draft | `codex/init-003-production-gates` | Based on `origin/main` at `c1d084f`; local `npm ci`, focused Vitest suite, `npm run check`, and `npm run build` passed on 2026-05-27; Replit validation not yet run |
+| [#107](https://github.com/wmishak404/laica/pull/107) | Draft | `codex/init-003-production-gates` | Rebases onto `origin/main` at `fc55772` after PR #108; local `npm ci`, focused Vitest, full Vitest suite, `npm run check`, `npm run build`, and `git diff --check` passed on 2026-05-27; existing Playwright e2e is stale/failing and not app-wide evidence; Replit validation not yet run |
 
 ## Efforts and Governance
 
@@ -159,8 +159,11 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 - 2026-05-27 local checks for `codex/init-003-production-gates` passed:
   - `npm ci`
   - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/security-hardening.test.ts tests/unit/live-cooking-guest-session.test.tsx tests/unit/slop-bowl-route.test.ts tests/unit/phase0-security-routes.test.ts`
+  - `npx vitest run` — 25 files / 149 tests
   - `npm run check`
   - `npm run build`
+  - `git diff --check`
+- 2026-05-27 Playwright probe after PR #108 rebase found 30 e2e cases in `tests/e2e/cooking-workflow.test.ts`, but the Chromium slice failed all 6 cases on stale selectors/test assumptions (`Sign in with Google`, `recipe-list`, `Ask for Help`, `audio-toggle`). This is recorded as stale e2e coverage, not product validation evidence for INIT-003.
 - Replit validation has not yet run for `codex/init-003-production-gates`. It must include schema availability for `anonymous_recipe_usage`, real anonymous quota exhaustion, real Google sign-in/upsert, kill-switch behavior, App Check configured/enforced behavior, durable-save rejection for guests, and linked-user profile/history/cooking persistence sanity checks.
 
 ## Current Resume Point
@@ -215,3 +218,5 @@ Remaining work moves to the production gates: quota enforcement, anonymous kill 
 - Firebase App Check client token attachment and server enforcement path
 
 The branch intentionally does not begin the later Google promotion/import flow or anonymous Slop Bowl dry-run. Local compile/build/unit validation passed, and Replit remains the final gate for schema, auth, DB-backed, AI, App Check, and speech-adjacent runtime behavior.
+
+After docs-only [PR #108](https://github.com/wmishak404/laica/pull/108) merged as `fc55772`, the branch rebased onto fresh `origin/main` and reran the local validation matrix. Full Vitest passed, compile/build checks passed, and the stale Playwright e2e suite was recorded as a separate testing-coverage gap rather than a blocker for the local route/middleware evidence.

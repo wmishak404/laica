@@ -46,6 +46,10 @@ Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an 
 - `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md`, `initiatives/registry.md`, `efforts/effort-010-local-db-schema-strategy.md`, `efforts/registry.md`
   - Records the branch state, local validation, Replit validation requirements, and EFF-010 schema-workflow signal.
 
+## Testing discipline
+
+The reusable testing workflow update was split into docs-only [PR #108](https://github.com/wmishak404/laica/pull/108), which merged as `fc55772`. This branch was then rebased onto that fresh `origin/main`, and the validation notes below follow the new local/Replit/human/confidence-gap classification.
+
 ## Impact on other agents
 
 Do not run local `npm run db:push` to apply `anonymous_recipe_usage`; EFF-010 still owns the local DB mutation policy. Replit must apply/validate this schema through the project-authoritative path before branch merge readiness.
@@ -67,10 +71,35 @@ Local checks passed on 2026-05-27:
 
 - `npm ci`
 - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/security-hardening.test.ts tests/unit/live-cooking-guest-session.test.tsx tests/unit/slop-bowl-route.test.ts tests/unit/phase0-security-routes.test.ts`
+- `npx vitest run` — 25 files / 149 tests passed after rebasing onto `origin/main` at `fc55772`
 - `npm run check`
 - `npm run build`
+- `git diff --check`
 
 `npm run build` emitted existing-style Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and a chunk larger than 500 kB; the build completed successfully.
+
+`npm ci` completed with 3 moderate audit findings, which are not introduced by this branch and remain dependency-maintenance scope.
+
+Playwright e2e status:
+
+- `npx playwright test --list` found 30 cases in `tests/e2e/cooking-workflow.test.ts`.
+- `npx playwright test --project=chromium` ran the 6 Chromium cases and all 6 failed on stale selectors/test assumptions (`Sign in with Google`, `recipe-list`, `Ask for Help`, `audio-toggle`). Treat this as stale e2e-suite coverage, not passing app-wide browser evidence and not an INIT-003 product failure.
+
+## Coverage classification
+
+| Case | Local automated? | Replit automated? | Needs Replit human? | Confidence / provenance |
+|---|---|---|---|---|
+| Anonymous guest server session and quota metadata | Partial | No script yet | Yes | `tests/unit/auth-session-route.test.ts` and `tests/unit/anonymous-production-gates-route.test.ts` cover route/session seams with mocked Firebase/storage/OpenAI; Replit must prove real Firebase anonymous auth, DB schema, and provider calls. |
+| Anonymous quota success and metadata | Yes | No script yet | Yes | `tests/unit/anonymous-production-gates-route.test.ts` proves reserve/metadata behavior locally; Replit must prove `anonymous_recipe_usage` exists and provider-backed quota writes/reads work. |
+| Attempt `#11` block | Yes | No script yet | Yes | Local test asserts `LINKED_ACCOUNT_REQUIRED`, `linkedAccountReason: recipe_limit`, quota `0`, and no OpenAI call; Replit should exhaust the same anonymous UID or use a test-safe seeded quota row. |
+| Provider failure refund | Yes | No script yet | Maybe | Local test forces provider failure and asserts refund; Replit can only prove this if logs or a safe forced-failure path make it observable. |
+| Guest durable-save boundaries | Yes | No script yet | Yes | Local route/component tests cover guest blocking and linked-user cooking-session preservation; Replit must prove real Google linked persistence still works. |
+| Anonymous kill switch | Yes | No script yet | Yes | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification; Replit requires env change/restart and human confirmation before public enablement. |
+| Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation and typed payloads; Replit should watch proxy/client-IP behavior in the long-running runtime. |
+| App Check posture | Yes | No script yet | Yes | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
+| Vision and ElevenLabs sanity | No direct local provider test in this branch | No script yet | Yes | Auth/App Check header changes can break protected provider routes; real secrets/network/audio behavior must be checked on Replit. |
+| Existing app-wide browser e2e | Listed, but stale/failing | No script yet | Yes for service-backed functions | `npx playwright test --project=chromium` fails on stale selectors in `tests/e2e/cooking-workflow.test.ts`; repair/replace this suite before treating it as app-wide browser evidence. |
+| Deferred Phase 4/5 scope | No | No | Not for this branch | Google promotion/import, anonymous Slop Bowl dry-run, durable guest memory, and Phase 5 memory remain out of scope per INIT-003. |
 
 ## Replit validation request
 
@@ -80,6 +109,8 @@ Validated locally:
 - [x] `npm run check`
 - [x] `npm run build`
 - [x] focused Vitest suite listed above
+- [x] full Vitest suite: 25 files / 149 tests
+- [x] Playwright e2e probe attempted; current Chromium suite is stale/failing, so it is not app-wide evidence
 - [ ] manual localhost smoke
 
 Replit validation target:
@@ -115,6 +146,6 @@ Last Replit-validated at: not yet validated.
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `c1d084fad0d94d6204a687051a6103111ada6426`
+- Current base: `origin/main` at `fc55772f3055aea631ba162d4da60d901b02d772`
 - Last Replit-validated at: not yet validated for this branch
-- Notes: `codex/init-003-production-gates` was reset from old Phase 3 base `515b7ec` onto fresh `origin/main` after PR #105 and PR #106. PR #102 was previously Replit-validated at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`, but this production-gates branch needs fresh Replit validation.
+- Notes: `codex/init-003-production-gates` was reset from old Phase 3 base `515b7ec` onto fresh `origin/main` after PR #105 and PR #106, then rebased again after docs-only PR #108 merged. PR #102 was previously Replit-validated at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`, but this production-gates branch needs fresh Replit validation.
