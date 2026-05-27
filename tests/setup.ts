@@ -48,6 +48,12 @@ vi.mock('firebase/app', () => ({
   initializeApp: vi.fn(() => ({}))
 }));
 
+vi.mock('firebase/app-check', () => ({
+  initializeAppCheck: vi.fn(() => ({})),
+  ReCaptchaV3Provider: vi.fn(),
+  getToken: vi.fn().mockResolvedValue({ token: 'mock-app-check-token' }),
+}));
+
 // jsdom does not implement MediaStream (used by voice-recording unit tests)
 if (typeof (globalThis as any).MediaStream === "undefined") {
   (globalThis as any).MediaStream = class MediaStream {};

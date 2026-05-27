@@ -5,7 +5,7 @@ const productionContentSecurityPolicy: NonNullable<HelmetOptions["contentSecurit
   useDefaults: true,
   directives: {
     "default-src": ["'self'"],
-    "script-src": ["'self'", "https://replit.com"],
+    "script-src": ["'self'", "https://replit.com", "https://www.google.com", "https://www.gstatic.com"],
     "script-src-attr": ["'none'"],
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
@@ -18,7 +18,7 @@ const productionContentSecurityPolicy: NonNullable<HelmetOptions["contentSecurit
       "https://*.firebaseio.com",
       "https://*.firebasestorage.app",
     ],
-    "frame-src": ["'self'", "https://accounts.google.com", "https://*.firebaseapp.com"],
+    "frame-src": ["'self'", "https://accounts.google.com", "https://*.firebaseapp.com", "https://www.google.com"],
     "frame-ancestors": ["'none'"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],

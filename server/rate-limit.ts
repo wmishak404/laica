@@ -56,7 +56,12 @@ export function getClientIp(req: Request): string {
 }
 
 export function getUserRateLimitKey(req: Request): string {
-  return (req as any).firebaseUser?.uid || getClientIp(req);
+  const firebaseUser = (req as any).firebaseUser;
+  if (firebaseUser?.isAnonymous) {
+    return getClientIp(req);
+  }
+
+  return firebaseUser?.uid || getClientIp(req);
 }
 
 function getVisionScanContext(req: Request): string {

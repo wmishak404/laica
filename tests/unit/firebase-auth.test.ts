@@ -7,6 +7,7 @@ const firebaseAdminMocks = vi.hoisted(() => ({
   getApps: vi.fn(() => []),
   initializeApp: vi.fn(),
   verifyIdToken: vi.fn(),
+  verifyAppCheckToken: vi.fn(),
 }));
 
 vi.mock("firebase-admin/app", () => ({
@@ -19,6 +20,12 @@ vi.mock("firebase-admin/app", () => ({
 vi.mock("firebase-admin/auth", () => ({
   getAuth: vi.fn(() => ({
     verifyIdToken: firebaseAdminMocks.verifyIdToken,
+  })),
+}));
+
+vi.mock("firebase-admin/app-check", () => ({
+  getAppCheck: vi.fn(() => ({
+    verifyToken: firebaseAdminMocks.verifyAppCheckToken,
   })),
 }));
 
@@ -35,6 +42,8 @@ describe("verifyFirebaseToken", () => {
     vi.clearAllMocks();
     delete process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
     delete process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+    delete process.env.FIREBASE_APP_CHECK_ENFORCED;
+    delete process.env.ANONYMOUS_AUTH_DISABLED;
   });
 
   it("rejects forged JWT payloads when Firebase Admin verification fails", async () => {
@@ -116,5 +125,83 @@ describe("verifyFirebaseToken", () => {
       authProvider: "anonymous",
       isAnonymous: true,
     });
+  });
+
+  it("rejects missing App Check tokens when enforcement is enabled", async () => {
+    process.env.FIREBASE_APP_CHECK_ENFORCED = "true";
+    const { verifyFirebaseToken } = await import("../../server/firebaseAuth");
+    const req = {
+      headers: {
+        authorization: "Bearer verified-token",
+      },
+    } as Request;
+    const res = createResponse();
+    const next = vi.fn();
+
+    await verifyFirebaseToken(req, res, next);
+
+    expect(firebaseAdminMocks.verifyIdToken).not.toHaveBeenCalled();
+    expect(firebaseAdminMocks.verifyAppCheckToken).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      code: "APP_CHECK_REQUIRED",
+      message: "Firebase App Check token is required",
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("verifies App Check before accepting Firebase tokens when enforcement is enabled", async () => {
+    process.env.FIREBASE_APP_CHECK_ENFORCED = "true";
+    firebaseAdminMocks.verifyAppCheckToken.mockResolvedValueOnce({ appId: "app-1" });
+    firebaseAdminMocks.verifyIdToken.mockResolvedValueOnce({
+      uid: "user-123",
+      email: "cook@example.com",
+      firebase: {
+        sign_in_provider: "google.com",
+      },
+    });
+    const { verifyFirebaseToken } = await import("../../server/firebaseAuth");
+    const req = {
+      headers: {
+        authorization: "Bearer verified-token",
+        "x-firebase-appcheck": "app-check-token",
+      },
+    } as Request;
+    const res = createResponse();
+    const next = vi.fn();
+
+    await verifyFirebaseToken(req, res, next);
+
+    expect(firebaseAdminMocks.verifyAppCheckToken).toHaveBeenCalledWith("app-check-token");
+    expect(firebaseAdminMocks.verifyIdToken).toHaveBeenCalledWith("verified-token");
+    expect(next).toHaveBeenCalledOnce();
+    expect((req as any).firebaseUser.isAnonymous).toBe(false);
+  });
+
+  it("honors the anonymous auth kill switch after token verification", async () => {
+    process.env.ANONYMOUS_AUTH_DISABLED = "true";
+    firebaseAdminMocks.verifyIdToken.mockResolvedValueOnce({
+      uid: "guest-123",
+      firebase: {
+        sign_in_provider: "anonymous",
+      },
+    });
+    const { verifyFirebaseToken } = await import("../../server/firebaseAuth");
+    const req = {
+      headers: {
+        authorization: "Bearer anonymous-token",
+      },
+    } as Request;
+    const res = createResponse();
+    const next = vi.fn();
+
+    await verifyFirebaseToken(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      code: "ANONYMOUS_ACCESS_DISABLED",
+      message: "Guest cooking is temporarily unavailable. Continue with Google to keep cooking.",
+    });
+    expect(next).not.toHaveBeenCalled();
   });
 });

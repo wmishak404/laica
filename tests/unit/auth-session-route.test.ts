@@ -24,6 +24,7 @@ const mocks = vi.hoisted(() => ({
   storage: {
     getUser: vi.fn(),
     upsertUser: vi.fn(),
+    getAnonymousRecipeQuota: vi.fn(),
   },
 }));
 
@@ -114,6 +115,11 @@ describe('auth session routes', () => {
       email: 'linked@example.com',
       authProvider: 'google',
     });
+    mocks.storage.getAnonymousRecipeQuota.mockResolvedValue({
+      limit: 10,
+      used: 0,
+      remaining: 10,
+    });
   });
 
   afterEach(() => {
@@ -163,6 +169,11 @@ describe('auth session routes', () => {
       expect(response.status).toBe(200);
       await expect(response.json()).resolves.toEqual({
         authMode: 'anonymous',
+        anonymousRecipeQuota: {
+          limit: 10,
+          used: 0,
+          remaining: 10,
+        },
         user: {
           id: 'anonymous-user-id',
           email: null,
@@ -175,6 +186,7 @@ describe('auth session routes', () => {
         },
       });
       expect(mocks.storage.getUser).not.toHaveBeenCalled();
+      expect(mocks.storage.getAnonymousRecipeQuota).toHaveBeenCalledWith('anonymous-user-id', 10);
       expect(mocks.storage.upsertUser).not.toHaveBeenCalled();
     } finally {
       await closeServer(server);

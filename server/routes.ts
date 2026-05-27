@@ -1,7 +1,7 @@
 import express, { type Express, type RequestHandler, type Response } from "express";
 import { createServer, type Server } from "http";
 import { registerAdminRoutes } from "./admin-routes";
-import { storage } from "./storage";
+import { storage, type AnonymousRecipeQuota, type AnonymousRecipeQuotaReservation } from "./storage";
 import { getFirebaseUserFromRequest, verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage, getSlopBowlRecipe } from "./openai";
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
@@ -85,6 +85,102 @@ function aiServiceErrorResponse(res: Response, message: string) {
     code: "AI_SERVICE_ERROR",
     message,
   });
+}
+
+function getPositiveIntegerEnv(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] || "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function getAnonymousRecipeGenerationLimit(): number {
+  return getPositiveIntegerEnv("ANONYMOUS_RECIPE_GENERATION_LIMIT", 10);
+}
+
+function upgradeRequiredResponse(
+  res: Response,
+  upgradeReason: "recipe_quota" | "durable_save",
+  message: string,
+  quota?: AnonymousRecipeQuota,
+) {
+  return res.status(403).json({
+    code: "UPGRADE_REQUIRED",
+    upgradeReason,
+    message,
+    ...(quota ? { anonymousRecipeQuota: quota } : {}),
+  });
+}
+
+const requireLinkedAccount: RequestHandler = (req: any, res, next) => {
+  const firebaseUser: FirebaseUser | undefined = req.firebaseUser;
+
+  if (firebaseUser?.isAnonymous) {
+    return upgradeRequiredResponse(
+      res,
+      "durable_save",
+      "Link Google to save your kitchen.",
+    );
+  }
+
+  next();
+};
+
+async function reserveAnonymousRecipeQuota(
+  firebaseUser: FirebaseUser,
+  res: Response,
+): Promise<AnonymousRecipeQuotaReservation | null> {
+  if (!firebaseUser.isAnonymous) {
+    return null;
+  }
+
+  const reservation = await storage.reserveAnonymousRecipeGeneration(
+    firebaseUser.uid,
+    getAnonymousRecipeGenerationLimit(),
+  );
+
+  if (!reservation.allowed) {
+    upgradeRequiredResponse(
+      res,
+      "recipe_quota",
+      "Link Google to unlock more recipes.",
+      reservation.quota,
+    );
+    return null;
+  }
+
+  return reservation;
+}
+
+async function refundAnonymousRecipeQuota(
+  firebaseUser: FirebaseUser,
+  reservation: AnonymousRecipeQuotaReservation | null,
+  context: string,
+) {
+  if (!firebaseUser.isAnonymous || !reservation?.allowed) {
+    return;
+  }
+
+  try {
+    await storage.refundAnonymousRecipeGeneration(
+      firebaseUser.uid,
+      getAnonymousRecipeGenerationLimit(),
+    );
+  } catch (error) {
+    console.warn(
+      `[${context}] Failed to refund anonymous recipe quota after generation failure:`,
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
+
+function withAnonymousQuota<T>(payload: T, reservation: AnonymousRecipeQuotaReservation | null): T {
+  if (!reservation?.allowed || !payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    anonymousRecipeQuota: reservation.quota,
+  } as T;
 }
 
 function parseSessionId(value: string): number | null {
@@ -186,8 +282,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const firebaseUser: FirebaseUser = req.firebaseUser;
 
       if (firebaseUser.isAnonymous) {
+        const anonymousRecipeQuota = await storage.getAnonymousRecipeQuota(
+          firebaseUser.uid,
+          getAnonymousRecipeGenerationLimit(),
+        );
+
         return res.json({
           authMode: 'anonymous',
+          anonymousRecipeQuota,
           user: {
             id: firebaseUser.uid,
             email: null,
@@ -249,7 +351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Auth user route (Google only)
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const user = await storage.getUser(firebaseUser.uid);
@@ -264,7 +366,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Recipe suggestions endpoint
-  app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req, res) => {
+  app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req: any, res) => {
+    let quotaReservation: AnonymousRecipeQuotaReservation | null = null;
+    const firebaseUser: FirebaseUser = req.firebaseUser;
+
     try {
       const schema = z.object({
         preferences: z.string().trim().min(1).max(RECIPE_PREFERENCES_MAX_LENGTH),
@@ -272,9 +377,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const { preferences, ingredients } = schema.parse(req.body);
+
+      quotaReservation = await reserveAnonymousRecipeQuota(firebaseUser, res);
+      if (firebaseUser.isAnonymous && !quotaReservation) {
+        return;
+      }
+
       const suggestions = await getRecipeSuggestions(preferences, ingredients);
-      res.json(suggestions);
+      res.json(withAnonymousQuota(suggestions, quotaReservation));
     } catch (error) {
+      await refundAnonymousRecipeQuota(firebaseUser, quotaReservation, "recipe-suggestions");
       console.error('Error in recipe suggestions:', error);
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid recipe suggestions request');
@@ -284,7 +396,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Pantry-based recipe suggestions endpoint
-  app.post('/api/recipes/pantry', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req, res) => {
+  app.post('/api/recipes/pantry', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req: any, res) => {
+    let quotaReservation: AnonymousRecipeQuotaReservation | null = null;
+    const firebaseUser: FirebaseUser = req.firebaseUser;
+
     try {
       const schema = z.object({
         ingredients: z.array(pantryItemSchema),
@@ -307,10 +422,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enhancedPreferences = preferences 
         ? (timeAvailable ? `${preferences}, ready in ${timeAvailable}` : preferences)
         : (timeAvailable ? `Ready in ${timeAvailable}` : '');
+
+      quotaReservation = await reserveAnonymousRecipeQuota(firebaseUser, res);
+      if (firebaseUser.isAnonymous && !quotaReservation) {
+        return;
+      }
         
       const suggestions = await getRecipeSuggestions(enhancedPreferences, ingredients);
-      res.json(suggestions);
+      res.json(withAnonymousQuota(suggestions, quotaReservation));
     } catch (error) {
+      await refundAnonymousRecipeQuota(firebaseUser, quotaReservation, "pantry-recipes");
       console.error('Error in pantry recipe suggestions:', error);
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid pantry recipe request');
@@ -319,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/recipes/slop-bowl', isAuthenticated, slopBowlIpHourLimit, slopBowlUserHourLimit, slopBowlUserDayLimit, async (req: any, res) => {
+  app.post('/api/recipes/slop-bowl', isAuthenticated, requireLinkedAccount, slopBowlIpHourLimit, slopBowlUserHourLimit, slopBowlUserDayLimit, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -618,7 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Profile Management Routes
   
   // Get user profile with settings and cooking history
-  app.get('/api/user/profile', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/profile', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -647,7 +768,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user profile (pantry, equipment, preferences)
-  app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/user/profile', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -670,7 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user settings (voice, camera, etc.)
-  app.put('/api/user/settings', isAuthenticated, async (req: any, res) => {
+  app.put('/api/user/settings', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -690,7 +811,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Cooking Session Management Routes
   
   // Start a new cooking session
-  app.post('/api/cooking/session/start', isAuthenticated, async (req: any, res) => {
+  app.post('/api/cooking/session/start', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -755,7 +876,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update cooking session progress
-  app.put('/api/cooking/session/:id', isAuthenticated, requireCookingSessionOwnership, async (req: any, res) => {
+  app.put('/api/cooking/session/:id', isAuthenticated, requireLinkedAccount, requireCookingSessionOwnership, async (req: any, res) => {
     try {
       const sessionId = parseInt(req.params.id);
       const schema = z.object({
@@ -781,7 +902,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Complete cooking session and update pantry
-  app.post('/api/cooking/session/:id/complete', isAuthenticated, requireCookingSessionOwnership, async (req: any, res) => {
+  app.post('/api/cooking/session/:id/complete', isAuthenticated, requireLinkedAccount, requireCookingSessionOwnership, async (req: any, res) => {
     try {
       const sessionId = parseInt(req.params.id);
       
@@ -812,7 +933,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's cooking session history
-  app.get('/api/cooking/sessions', isAuthenticated, async (req: any, res) => {
+  app.get('/api/cooking/sessions', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -827,7 +948,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get active cooking session (if any)
-  app.get('/api/cooking/session/active', isAuthenticated, async (req: any, res) => {
+  app.get('/api/cooking/session/active', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -840,7 +961,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a single cooking session (ownership-verified)
-  app.delete('/api/cooking/session/:id', isAuthenticated, requireCookingSessionOwnership, async (req: any, res) => {
+  app.delete('/api/cooking/session/:id', isAuthenticated, requireLinkedAccount, requireCookingSessionOwnership, async (req: any, res) => {
     try {
       const sessionId = parseInt(req.params.id);
       const firebaseUser: FirebaseUser = req.firebaseUser;
@@ -858,7 +979,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete all cooking sessions for the authenticated user
-  app.delete('/api/cooking/sessions/all', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/cooking/sessions/all', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -872,7 +993,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Clear/reset user pantry (for pantry rescan)
-  app.post('/api/user/pantry/reset', isAuthenticated, async (req: any, res) => {
+  app.post('/api/user/pantry/reset', isAuthenticated, requireLinkedAccount, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;

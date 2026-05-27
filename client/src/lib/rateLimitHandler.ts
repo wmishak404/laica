@@ -108,6 +108,46 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
   }
 
   if (status === 401 || status === 403) {
+    if (code === 'UPGRADE_REQUIRED') {
+      const upgradeReason = error instanceof ApiRequestError ? error.body?.upgradeReason : undefined;
+      const isDurableSave = upgradeReason === 'durable_save';
+
+      return {
+        kind: 'product-precondition',
+        title: isDurableSave ? 'Link Google to save your kitchen' : 'Link Google to unlock more recipes',
+        description: error instanceof ApiRequestError
+          ? error.body?.message || (isDurableSave ? 'Link Google before saving.' : 'Link Google before making more recipes.')
+          : (isDurableSave ? 'Link Google before saving.' : 'Link Google before making more recipes.'),
+        status,
+        code,
+        includeFeedbackLink: false,
+      };
+    }
+
+    if (code === 'ANONYMOUS_ACCESS_DISABLED') {
+      return {
+        kind: 'auth',
+        title: 'Guest cooking is paused',
+        description: error instanceof ApiRequestError
+          ? error.body?.message || 'Continue with Google to keep cooking.'
+          : 'Continue with Google to keep cooking.',
+        status,
+        code,
+        includeFeedbackLink: false,
+      };
+    }
+
+    if (code === 'APP_CHECK_REQUIRED' || code === 'APP_CHECK_INVALID') {
+      return {
+        kind: 'auth',
+        title: 'Refresh and try again',
+        description: 'I could not verify this app session. Refresh the page, then try again.',
+        status,
+        code,
+        includeFeedbackLink: false,
+      };
+    }
+
     return {
       kind: 'auth',
       title: 'Sign in again',

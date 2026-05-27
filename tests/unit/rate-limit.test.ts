@@ -8,6 +8,7 @@ import {
   getConfiguredRateLimit,
   getRateLimitBucketCountForTest,
   getRateLimitEnvKey,
+  getUserRateLimitKey,
   getVisionIpRateLimitKey,
   getVisionUserRateLimitKey,
   resetRateLimitBucketsForTest,
@@ -103,6 +104,13 @@ describe('vision rate-limit keys', () => {
   it('separates Pantry and Kitchen scan meters for signed-in users', () => {
     expect(getVisionUserRateLimitKey(makeRequest('pantry'))).toBe('user-1:pantry');
     expect(getVisionUserRateLimitKey(makeRequest('kitchen'))).toBe('user-1:kitchen');
+  });
+
+  it('keys anonymous user-scoped limits by IP instead of Firebase UID', () => {
+    expect(getUserRateLimitKey(makeRequest({
+      ip: '203.0.113.44',
+      firebaseUser: { uid: 'anonymous-uid', isAnonymous: true } as any,
+    }))).toBe('203.0.113.44');
   });
 
   it('falls back to a generic scan meter for missing or unexpected contexts', () => {

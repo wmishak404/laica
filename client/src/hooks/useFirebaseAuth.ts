@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { FirebaseAuthService, type FirebaseAuthUser } from '@/lib/firebase';
+import { ApiRequestError, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 function createGuestUser(firebaseUser: FirebaseAuthUser) {
@@ -66,31 +67,13 @@ export function useFirebaseAuth() {
 
   const syncWithBackend = async (firebaseUser: FirebaseAuthUser) => {
     try {
-      const idToken = await FirebaseAuthService.getIdToken();
-      if (!idToken) {
-        console.log('No ID token available');
-        return;
-      }
-
       console.log('Syncing with backend for user:', firebaseUser.email);
 
-      const response = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        console.log('Backend sync successful:', userData);
-        queryClient.setQueryData(["/api/auth/session"], userData);
-        queryClient.setQueryData(["/api/auth/user"], userData);
-      } else {
-        const errorData = await response.text();
-        console.error('Backend sync failed:', response.status, errorData);
-      }
+      const response = await apiRequest('POST', '/api/auth/google');
+      const userData = await response.json();
+      console.log('Backend sync successful:', userData);
+      queryClient.setQueryData(["/api/auth/session"], userData);
+      queryClient.setQueryData(["/api/auth/user"], userData);
     } catch (error) {
       console.error('Error syncing with backend:', error);
     }
@@ -151,16 +134,24 @@ export function useFirebaseAuth() {
 
       const result = await FirebaseAuthService.signInAsGuest();
       if (result) {
-        const guestUser = createGuestUser(result);
+        const sessionResponse = await apiRequest('GET', '/api/auth/session');
+        const session = await sessionResponse.json();
+        const guestUser = session.user ?? createGuestUser(result);
         queryClient.setQueryData(["/api/auth/session"], guestUser);
         queryClient.setQueryData(["/api/auth/user"], null);
       }
     } catch (error: any) {
       console.error('Guest sign-in error:', error);
 
+      await FirebaseAuthService.signOut().catch(() => undefined);
+
+      const errorDescription = error instanceof ApiRequestError
+        ? error.body?.message || "I couldn't start guest cooking. Try again."
+        : error.message || "I couldn't start guest cooking. Try again.";
+
       toast({
         title: "Guest cooking did not start",
-        description: error.message || "I couldn't start guest cooking. Try again.",
+        description: errorDescription,
         variant: "destructive",
       });
     } finally {

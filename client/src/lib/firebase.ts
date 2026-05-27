@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
 import {
+  getToken as getFirebaseAppCheckToken,
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  type AppCheck,
+} from "firebase/app-check";
+import {
   getAuth,
   signInWithRedirect,
   signInWithPopup,
@@ -23,6 +29,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+let appCheckInstance: AppCheck | null | undefined;
 
 // Set persistence to LOCAL to work better with Safari
 setPersistence(auth, browserLocalPersistence).catch(console.error);
@@ -37,6 +44,30 @@ googleProvider.addScope('profile');
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
+
+function getConfiguredAppCheck(): AppCheck | null {
+  if (appCheckInstance !== undefined) {
+    return appCheckInstance;
+  }
+
+  const siteKey = import.meta.env.VITE_FIREBASE_APP_CHECK_SITE_KEY;
+  if (!siteKey) {
+    appCheckInstance = null;
+    return appCheckInstance;
+  }
+
+  const debugToken = import.meta.env.VITE_FIREBASE_APP_CHECK_DEBUG_TOKEN;
+  if (import.meta.env.DEV && debugToken && typeof self !== "undefined") {
+    (self as typeof self & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
+  }
+
+  appCheckInstance = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider(siteKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+
+  return appCheckInstance;
+}
 
 export interface FirebaseAuthUser {
   uid: string;
@@ -184,6 +215,19 @@ export class FirebaseAuthService {
       return await user.getIdToken(forceRefresh);
     } catch (error) {
       console.error('Error getting ID token:', error);
+      return null;
+    }
+  }
+
+  static async getAppCheckToken(forceRefresh: boolean = false): Promise<string | null> {
+    const appCheck = getConfiguredAppCheck();
+    if (!appCheck) return null;
+
+    try {
+      const result = await getFirebaseAppCheckToken(appCheck, forceRefresh);
+      return result.token;
+    } catch (error) {
+      console.error('Error getting App Check token:', error);
       return null;
     }
   }

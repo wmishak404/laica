@@ -87,6 +87,19 @@ export async function apiFetch(url: string, init: RequestInit = {}): Promise<Res
     }
   }
 
+  async function attachAppCheck(forceRefresh = false) {
+    try {
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      const appCheckToken = await FirebaseAuthService.getAppCheckToken(forceRefresh);
+      if (appCheckToken) {
+        headers.set('X-Firebase-AppCheck', appCheckToken);
+      }
+    } catch {
+      // App Check is optional outside configured production surfaces.
+    }
+  }
+
+  await attachAppCheck(false);
   await attachToken(false);
 
   const requestInit: RequestInit = {
@@ -97,6 +110,7 @@ export async function apiFetch(url: string, init: RequestInit = {}): Promise<Res
 
   let res = await fetch(url, requestInit);
   if (res.status === 401) {
+    await attachAppCheck(true);
     await attachToken(true);
     res = await fetch(url, {
       ...requestInit,

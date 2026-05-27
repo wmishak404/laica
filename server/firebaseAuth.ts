@@ -1,5 +1,6 @@
 import type { Request, RequestHandler } from "express";
-import { applicationDefault, cert, getApps, initializeApp, type ServiceAccount } from "firebase-admin/app";
+import { applicationDefault, cert, getApps, initializeApp, type App, type ServiceAccount } from "firebase-admin/app";
+import { getAppCheck } from "firebase-admin/app-check";
 import { getAuth, type DecodedIdToken } from "firebase-admin/auth";
 
 export interface FirebaseUser {
@@ -17,6 +18,30 @@ class FirebaseAuthConfigError extends Error {
     super(message);
     this.name = "FirebaseAuthConfigError";
   }
+}
+
+class FirebaseAppCheckError extends Error {
+  status: number;
+  code: string;
+
+  constructor(message: string, status = 401, code = "APP_CHECK_REQUIRED") {
+    super(message);
+    this.name = "FirebaseAppCheckError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
+function isEnabledFlag(value: string | undefined): boolean {
+  return value === "1" || value?.toLowerCase() === "true" || value?.toLowerCase() === "yes";
+}
+
+export function isAnonymousAuthDisabled(): boolean {
+  return isEnabledFlag(process.env.ANONYMOUS_AUTH_DISABLED);
+}
+
+export function isFirebaseAppCheckEnforced(): boolean {
+  return isEnabledFlag(process.env.FIREBASE_APP_CHECK_ENFORCED);
 }
 
 function parseServiceAccount(): ServiceAccount | null {
@@ -45,18 +70,31 @@ function parseServiceAccount(): ServiceAccount | null {
   }
 }
 
-function getAdminAuth() {
+function getAdminApp(): App {
   if (getApps().length === 0) {
     const serviceAccount = parseServiceAccount();
     const projectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || serviceAccount?.projectId;
 
-    initializeApp({
+    return initializeApp({
       credential: serviceAccount ? cert(serviceAccount) : applicationDefault(),
       ...(projectId ? { projectId } : {}),
     });
   }
 
-  return getAuth();
+  const existingApp = getApps()[0];
+  if (!existingApp) {
+    throw new FirebaseAuthConfigError("Firebase Admin app is not initialized");
+  }
+
+  return existingApp;
+}
+
+function getAdminAuth() {
+  return getAuth(getAdminApp());
+}
+
+function getAdminAppCheck() {
+  return getAppCheck(getAdminApp());
 }
 
 function firebaseUserFromDecodedToken(decodedToken: DecodedIdToken): FirebaseUser {
@@ -81,6 +119,29 @@ function getBearerToken(req: Request): string | null {
   return authHeader.substring("Bearer ".length).trim();
 }
 
+function getAppCheckToken(req: Request): string | null {
+  const header = req.headers["x-firebase-appcheck"];
+  const token = Array.isArray(header) ? header[0] : header;
+  return typeof token === "string" && token.trim().length > 0 ? token.trim() : null;
+}
+
+async function verifyFirebaseAppCheckFromRequest(req: Request): Promise<void> {
+  if (!isFirebaseAppCheckEnforced()) {
+    return;
+  }
+
+  const appCheckToken = getAppCheckToken(req);
+  if (!appCheckToken) {
+    throw new FirebaseAppCheckError("Firebase App Check token is required");
+  }
+
+  try {
+    await getAdminAppCheck().verifyToken(appCheckToken);
+  } catch {
+    throw new FirebaseAppCheckError("Invalid Firebase App Check token", 401, "APP_CHECK_INVALID");
+  }
+}
+
 export async function getFirebaseUserFromRequest(req: Request): Promise<FirebaseUser | null> {
   const idToken = getBearerToken(req);
   if (!idToken) {
@@ -93,9 +154,18 @@ export async function getFirebaseUserFromRequest(req: Request): Promise<Firebase
 
 export const verifyFirebaseToken: RequestHandler = async (req, res, next) => {
   try {
+    await verifyFirebaseAppCheckFromRequest(req);
+
     const firebaseUser = await getFirebaseUserFromRequest(req);
     if (!firebaseUser) {
       return res.status(401).json({ message: "No Firebase token provided" });
+    }
+
+    if (firebaseUser.isAnonymous && isAnonymousAuthDisabled()) {
+      return res.status(403).json({
+        code: "ANONYMOUS_ACCESS_DISABLED",
+        message: "Guest cooking is temporarily unavailable. Continue with Google to keep cooking.",
+      });
     }
 
     (req as any).firebaseUser = firebaseUser;
@@ -104,6 +174,13 @@ export const verifyFirebaseToken: RequestHandler = async (req, res, next) => {
     if (error instanceof FirebaseAuthConfigError) {
       console.error("Firebase Admin configuration error:", error.message);
       return res.status(500).json({ message: "Firebase authentication is not configured" });
+    }
+
+    if (error instanceof FirebaseAppCheckError) {
+      return res.status(error.status).json({
+        code: error.code,
+        message: error.message,
+      });
     }
 
     console.warn("Firebase token verification failed");

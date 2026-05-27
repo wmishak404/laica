@@ -1,9 +1,11 @@
 import {
+  anonymousRecipeUsage,
   authUsers,
   users,
   cookingSessions,
   userSettings,
   type AuthUser,
+  type AnonymousRecipeUsage,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -14,7 +16,18 @@ import {
   type UpdateUserProfile,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, lt, sql } from "drizzle-orm";
+
+export interface AnonymousRecipeQuota {
+  limit: number;
+  used: number;
+  remaining: number;
+}
+
+export interface AnonymousRecipeQuotaReservation {
+  allowed: boolean;
+  quota: AnonymousRecipeQuota;
+}
 
 // Interface for storage operations
 export interface IStorage {
@@ -22,6 +35,9 @@ export interface IStorage {
   getUser(id: string): Promise<AuthUser | undefined>;
   upsertUser(user: UpsertUser): Promise<AuthUser>;
   updateUserProfile(id: string, profile: UpdateUserProfile): Promise<AuthUser>;
+  getAnonymousRecipeQuota(firebaseUid: string, limit: number): Promise<AnonymousRecipeQuota>;
+  reserveAnonymousRecipeGeneration(firebaseUid: string, limit: number): Promise<AnonymousRecipeQuotaReservation>;
+  refundAnonymousRecipeGeneration(firebaseUid: string, limit: number): Promise<AnonymousRecipeQuota>;
   
   // User settings operations
   getUserSettings(userId: string): Promise<UserSettings | undefined>;
@@ -85,6 +101,77 @@ export class DatabaseStorage implements IStorage {
       .where(eq(authUsers.id, id))
       .returning();
     return user;
+  }
+
+  private anonymousQuotaFromUsage(
+    usage: Pick<AnonymousRecipeUsage, "successfulGenerations"> | undefined,
+    limit: number,
+  ): AnonymousRecipeQuota {
+    const used = Math.max(0, usage?.successfulGenerations ?? 0);
+    return {
+      limit,
+      used,
+      remaining: Math.max(0, limit - used),
+    };
+  }
+
+  async getAnonymousRecipeQuota(firebaseUid: string, limit: number): Promise<AnonymousRecipeQuota> {
+    const [usage] = await db
+      .select()
+      .from(anonymousRecipeUsage)
+      .where(eq(anonymousRecipeUsage.firebaseUid, firebaseUid))
+      .limit(1);
+
+    return this.anonymousQuotaFromUsage(usage, limit);
+  }
+
+  async reserveAnonymousRecipeGeneration(
+    firebaseUid: string,
+    limit: number,
+  ): Promise<AnonymousRecipeQuotaReservation> {
+    const now = new Date();
+    const [usage] = await db
+      .insert(anonymousRecipeUsage)
+      .values({
+        firebaseUid,
+        successfulGenerations: 1,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: anonymousRecipeUsage.firebaseUid,
+        set: {
+          successfulGenerations: sql`${anonymousRecipeUsage.successfulGenerations} + 1`,
+          updatedAt: now,
+        },
+        where: lt(anonymousRecipeUsage.successfulGenerations, limit),
+      })
+      .returning();
+
+    if (!usage) {
+      return {
+        allowed: false,
+        quota: await this.getAnonymousRecipeQuota(firebaseUid, limit),
+      };
+    }
+
+    return {
+      allowed: true,
+      quota: this.anonymousQuotaFromUsage(usage, limit),
+    };
+  }
+
+  async refundAnonymousRecipeGeneration(firebaseUid: string, limit: number): Promise<AnonymousRecipeQuota> {
+    const [usage] = await db
+      .update(anonymousRecipeUsage)
+      .set({
+        successfulGenerations: sql`greatest(${anonymousRecipeUsage.successfulGenerations} - 1, 0)`,
+        updatedAt: new Date(),
+      })
+      .where(eq(anonymousRecipeUsage.firebaseUid, firebaseUid))
+      .returning();
+
+    return this.anonymousQuotaFromUsage(usage, limit);
   }
 
   // User settings operations

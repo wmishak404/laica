@@ -117,3 +117,13 @@ Follow-up requirements reinforced by this run:
 - A schema-health check should cover `prompt_versions` and `ai_interactions` in addition to feature-owned tables.
 - The local DB workflow must define whether a Codex worktree points at a dedicated Neon branch/database or a shared dev database before agents mutate schema.
 - Optional prompt/eval logging should either keep its current graceful degradation with clearer local-only diagnostics or gain an explicit startup/schema-health warning so stack traces do not look like product regressions.
+
+## 2026-05-27 — INIT-003 production gates add anonymous quota schema
+
+`codex/init-003-production-gates` adds a new Drizzle table, `anonymous_recipe_usage`, for public guest recipe quota accounting. This is feature-required schema, not a local schema-strategy resolution: the branch deliberately did not run `npm run db:push` locally, and Replit remains the authoritative place to apply/validate the schema before merge.
+
+New EFF-010 signal:
+
+- The eventual schema-health check should include `anonymous_recipe_usage` alongside `prompt_versions`, `ai_interactions`, and other feature-owned persistence tables.
+- Replit validation for INIT-003 must confirm the table exists before testing anonymous quota exhaustion; a missing table would be environment/schema drift, not evidence that the quota route logic is optional.
+- The local DB workflow still needs an ownership model before agents mutate schemas from arbitrary worktrees.

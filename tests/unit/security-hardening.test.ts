@@ -37,6 +37,16 @@ describe('security hardening', () => {
           'https://accounts.google.com',
           'https://*.firebaseapp.com',
         ]),
+        'script-src': expect.arrayContaining([
+          "'self'",
+          'https://www.google.com',
+          'https://www.gstatic.com',
+        ]),
+        'frame-src': expect.arrayContaining([
+          "'self'",
+          'https://accounts.google.com',
+          'https://www.google.com',
+        ]),
       },
     });
   });
