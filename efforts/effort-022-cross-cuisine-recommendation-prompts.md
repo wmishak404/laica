@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-05-23
+**Updated:** 2026-05-27
 
 ## One-line summary
 
@@ -82,3 +82,24 @@ This Effort is `Resolved` when all of the following are true:
 ## 2026-05-23 - Created from INIT-003 homepage mockup review
 
 Wilson asked to preserve the stronger Loco Moco-style pantry example while noting that Hawaiian does not appear to be a current product cuisine option. Created this Effort so future prompt work can support recommendations beyond literal country-cuisine selections without turning the landing page into an unsupported feature promise.
+
+## 2026-05-27 - Bad Chinese-request example from anonymous guest validation
+
+Wilson captured a guest Chef It Up session where the user requested Chinese and had an intermediate / gluten-free profile. The pantry included Korean beef bone soup broth, raw sausages, leeks, fresh sage, Daiya plain yogurt, sesame hummus, prepared soup/stew, fish sauce, hot sauce, mustard, rice vinegar, butter, and ketchup.
+
+The returned suggestions were:
+
+- `Hearty Sausage & Leek Rice Soup`, using Korean beef bone soup broth, raw sausages, leeks, butter, and hot sauce
+- `Pan-Seared Sausage Coins with Hummus-Leek Relish`
+- `Chinese-Style Sage & Leek Stir Sauté`
+
+This is a useful negative fixture for future prompt/eval work, with one important nuance: the pantry may have been genuinely challenging for a convincing Chinese set. Only one option even labels itself Chinese, and the set does not strongly satisfy the selected cuisine preference. The first option leans Korean/general pantry soup, the second reads hummus/Mediterranean-adjacent, and the third is the only weakly aligned Chinese-style suggestion.
+
+Future work should explore the right product story when pantry constraints fight the selected cuisine:
+
+- Generate all or most options as visibly Chinese when enough pantry anchors exist.
+- Ask for or suggest a small number of Chinese pantry staples before generation when the set is too weak.
+- Present a transparent fallback such as pantry-flexible options with clear copy that the current pantry does not strongly support Chinese.
+- Avoid silently mixing off-cuisine suggestions into a cuisine-requested result set without explaining the constraint.
+
+Future evaluation should check not only pantry fit but also whether returned options visibly honor an explicitly selected cuisine, or clearly explain when pantry constraints force a broader pantry-flexible fallback.
