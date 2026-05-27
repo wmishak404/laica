@@ -12,8 +12,8 @@ import {
   aiIpHourLimit,
   feedbackIpLimit,
   recipeIpHourLimit,
+  recipeUserBurstLimit,
   recipeUserDayLimit,
-  recipeUserHourLimit,
   slopBowlIpHourLimit,
   slopBowlUserDayLimit,
   slopBowlUserHourLimit,
@@ -366,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Recipe suggestions endpoint
-  app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req: any, res) => {
+  app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserBurstLimit, recipeUserDayLimit, async (req: any, res) => {
     let quotaReservation: AnonymousRecipeQuotaReservation | null = null;
     const firebaseUser: FirebaseUser = req.firebaseUser;
 
@@ -396,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Pantry-based recipe suggestions endpoint
-  app.post('/api/recipes/pantry', isAuthenticated, recipeIpHourLimit, recipeUserHourLimit, recipeUserDayLimit, async (req: any, res) => {
+  app.post('/api/recipes/pantry', isAuthenticated, recipeIpHourLimit, recipeUserBurstLimit, recipeUserDayLimit, async (req: any, res) => {
     let quotaReservation: AnonymousRecipeQuotaReservation | null = null;
     const firebaseUser: FirebaseUser = req.firebaseUser;
 

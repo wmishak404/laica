@@ -41,7 +41,7 @@ As of 2026-05-27, `codex/init-003-production-gates` implements the local code sl
 - `anonymous_recipe_usage` tracks anonymous recipe-generation quota without creating `auth_users` rows for anonymous sign-in alone.
 - Chef It Up generation routes reserve one anonymous quota slot before provider work and refund it on provider failure; recipe attempt `#11+` returns typed `LINKED_ACCOUNT_REQUIRED`.
 - Anonymous Firebase traffic can be stopped with `ANONYMOUS_AUTH_DISABLED`.
-- User-scoped rate-limit keys collapse anonymous users to the client IP instead of the anonymous Firebase UID.
+- User-scoped rate-limit keys collapse anonymous users to the client IP instead of the anonymous Firebase UID. Chef It Up recipe generation now defaults to a 20-request / 30-minute user burst limit so the abuse backstop does not normally interrupt validation of the 10-successful-generation guest quota.
 - Firebase App Check verification is available behind `FIREBASE_APP_CHECK_ENFORCED`; the client sends `X-Firebase-AppCheck` when `VITE_FIREBASE_APP_CHECK_SITE_KEY` is configured.
 - Durable profile/settings/pantry/cooking-session/history routes reject anonymous tokens with typed `LINKED_ACCOUNT_REQUIRED` so server-side saves remain linked-account only.
 - Guest Settings for Pantry, Kitchen, and Cooking Profile remain available as same-browser session edits; they update the browser-local guest profile and do not call durable profile/settings APIs.
@@ -226,3 +226,5 @@ The branch intentionally does not begin the later Google promotion/import flow o
 After docs-only [PR #108](https://github.com/wmishak404/laica/pull/108) merged as `fc55772`, the branch rebased onto fresh `origin/main` and reran the local validation matrix. Full Vitest passed, compile/build checks passed, and the stale Playwright e2e suite was recorded as a separate testing-coverage gap rather than a blocker for the local route/middleware evidence.
 
 Wilson's Replit walkthrough then exposed a guest UX gap: after first setup/cook, anonymous users could not revisit Pantry/Kitchen/Profile Settings even though those same-browser profile fields are the data Chef It Up uses for later attempts. The branch was adjusted so Settings is available to guests in session-only mode, with local tests proving the menu path, empty-pantry recovery path, pantry add/delete, kitchen edits, and cooking-profile edits do not call durable linked-account APIs.
+
+Wilson's Replit quota walkthrough also showed the old 10-request / 1-hour recipe rate limit firing as `429 RATE_LIMITED` before the intended `#11` guest quota boundary could be observed. The branch now uses a 20-request / 30-minute Chef It Up user burst limit and rate-limit copy based on the server `Retry-After` header. A `429` remains abuse-control behavior; the `#11` quota acceptance check is still the separate `403 LINKED_ACCOUNT_REQUIRED` path.

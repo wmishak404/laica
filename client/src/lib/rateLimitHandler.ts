@@ -77,6 +77,33 @@ function feedbackDescription(text: string, includeFeedbackLink: boolean): ReactN
   return createElement(Fragment, null, before, feedbackButton, after);
 }
 
+function rateLimitDescription(error: unknown): string {
+  const retryAfterSeconds = error instanceof ApiRequestError ? error.retryAfter : undefined;
+
+  if (!retryAfterSeconds) {
+    return 'I need to pause cooking requests briefly. Try again shortly.';
+  }
+
+  const minutes = Math.ceil(retryAfterSeconds / 60);
+
+  if (minutes <= 1) {
+    return 'I need to pause cooking requests briefly. Try again in about a minute.';
+  }
+
+  if (minutes <= 5) {
+    return 'I need to pause cooking requests briefly. Try again in a few minutes.';
+  }
+
+  if (minutes < 60) {
+    const roundedMinutes = Math.ceil(minutes / 5) * 5;
+    return `I need to pause cooking requests briefly. Try again in about ${roundedMinutes} minutes.`;
+  }
+
+  const hours = Math.max(1, Math.round(minutes / 60));
+  const hourLabel = hours === 1 ? 'an hour' : `${hours} hours`;
+  return `I need to pause cooking requests briefly. Try again in about ${hourLabel}.`;
+}
+
 export function classifyAiRequestError(error: unknown, options: AiErrorHandlingOptions = {}): AiErrorFeedback {
   const status = statusFor(error);
   const code = error instanceof ApiRequestError ? error.code : undefined;
@@ -200,7 +227,7 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
     return {
       kind: 'rate-limit',
       title: 'Cooking requests paused',
-      description: 'I need to pause cooking requests for a bit. Try again in a few minutes.',
+      description: rateLimitDescription(error),
       status,
       code,
       includeFeedbackLink: false,

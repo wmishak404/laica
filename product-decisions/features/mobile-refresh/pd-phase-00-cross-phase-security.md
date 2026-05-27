@@ -56,7 +56,7 @@ Use env-configurable defaults with both route-class and per-uid limits:
 | Route class | Default limit |
 |-------------|---------------|
 | Vision | 12 calls / 15 min, 40 / day per uid |
-| Chef It Up recipe generation | 10 / hour, 30 / day per uid |
+| Chef It Up recipe generation | 20 / 30 min, 30 / day per uid |
 | Slop Bowl recipe generation | 8 / hour, 25 / day per uid |
 | Cooking voice help | 20 questions / session, daily cap configurable |
 | Speech audio minutes | per-session and daily caps configurable |

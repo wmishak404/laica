@@ -48,7 +48,7 @@ describe('authenticated AI error handling', () => {
     [403, 'auth', 'I need you to sign in again before I can proceed.'],
     [404, 'not-found', "I couldn't find that. It may have been removed. Refresh and try again."],
     [413, 'payload-too-large', 'That photo is too large. Choose a smaller photo or retake it, then try again.'],
-    [429, 'rate-limit', 'I need to pause cooking requests for a bit. Try again in a few minutes.'],
+    [429, 'rate-limit', 'I need to pause cooking requests briefly. Try again shortly.'],
     [500, 'service', "I couldn't finish that request right now. Try again shortly. Send us Feedback if this issue keeps persisting."],
     [503, 'service', "I couldn't finish that request right now. Try again shortly. Send us Feedback if this issue keeps persisting."],
   ])('classifies HTTP %i as %s with plain-English copy', (status, kind, description) => {
@@ -66,6 +66,15 @@ describe('authenticated AI error handling', () => {
 
     expect(feedback.kind).toBe('product-precondition');
     expect(feedback.description).toBe('Add at least 3 ingredients before generating a Slop Bowl.');
+  });
+
+  it('uses Retry-After to give rate-limit waits a matching time horizon', () => {
+    const feedback = classifyAiRequestError(apiError(429, {
+      code: 'RATE_LIMITED',
+      retryAfter: 1_780,
+    }));
+
+    expect(feedback.description).toBe('I need to pause cooking requests briefly. Try again in about 30 minutes.');
   });
 
   it('classifies network failures without Feedback copy', () => {

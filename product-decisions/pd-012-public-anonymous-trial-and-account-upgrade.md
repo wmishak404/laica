@@ -112,7 +112,9 @@ Durable saves include:
 - Anonymous auth must be guarded by:
   - a server-side kill switch
   - anonymous traffic keyed by IP for user-scoped rate limits
+  - a Chef It Up recipe-generation burst limit that defaults to 20 requests per 30 minutes, plus the existing day cap
   - the existing protected-route bearer-token verification contract
+- The recipe burst limit should not interrupt normal validation of the 10-successful-generation guest quota; if it fires, user copy should follow the server `Retry-After` horizon rather than saying "a few minutes" for a long wait.
 - Anonymous sign-in alone must not create a durable `auth_users` row.
 - Placeholder empty-string email values must not be used as a substitute for missing identity data.
 

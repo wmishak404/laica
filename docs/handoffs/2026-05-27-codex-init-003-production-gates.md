@@ -13,6 +13,8 @@ This branch turns the public anonymous guest MVP from "usable in the happy path"
 
 Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an early public-MVP friction reducer even though it is not durable human identity. The quota is per Firebase anonymous UID: same-browser normal reopen should preserve it, but sign-out, cleared site data, another browser/device, or incognito can create a fresh anonymous UID. App Check, IP-keyed rate limits, and the kill switch are the current abuse backstops; stronger identity or abuse controls are deferred until usage/cost signals require them. Wilson also asked to reserve "upgrade" language for future paid-tier work, so the runtime API now uses `LINKED_ACCOUNT_REQUIRED` for this boundary.
 
+Wilson's Replit walkthrough showed the old 10-request / 1-hour recipe rate limit could fire as `429 RATE_LIMITED` before the intended `#11` guest quota boundary. This branch now defaults Chef It Up recipe generation to 20 requests per 30 minutes and uses `Retry-After` to keep rate-limit copy aligned with the actual wait. A `429` is still the abuse-control limiter; the guest quota acceptance criterion remains the separate `403 LINKED_ACCOUNT_REQUIRED` response after 10 successful generations.
+
 ## Changes
 
 - `shared/schema.ts`
@@ -32,6 +34,7 @@ Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an 
   - Allows the Google reCAPTCHA script/frame sources needed by Firebase App Check under production CSP.
 - `server/rate-limit.ts`
   - Keys anonymous user-scoped rate limits by client IP instead of anonymous Firebase UID.
+  - Tunes the Chef It Up user burst limiter from 10 requests / 1 hour to 20 requests / 30 minutes.
 - `client/src/lib/firebase.ts`, `client/src/lib/queryClient.ts`, `client/src/hooks/useFirebaseAuth.ts`
   - Initializes Firebase App Check when `VITE_FIREBASE_APP_CHECK_SITE_KEY` is configured.
   - Sends `X-Firebase-AppCheck` on API requests.
@@ -43,6 +46,7 @@ Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an 
   - Keeps History and Slop Bowl linked-account only.
 - `client/src/lib/rateLimitHandler.ts`
   - Adds user-facing classification for `LINKED_ACCOUNT_REQUIRED`, anonymous-disabled, and App Check errors.
+  - Uses `Retry-After` for rate-limit wait copy instead of hardcoding "a few minutes."
 - `.env.example`
   - Documents the new public-gate env vars.
 - `tests/unit/*`, `tests/setup.ts`
@@ -78,7 +82,8 @@ Local checks passed on 2026-05-27:
 - `npm ci`
 - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/security-hardening.test.ts tests/unit/live-cooking-guest-session.test.tsx tests/unit/slop-bowl-route.test.ts tests/unit/phase0-security-routes.test.ts`
 - `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/live-cooking-guest-session.test.tsx`
-- `npx vitest run` — 25 files / 153 tests passed after rebasing onto `origin/main` at `fc55772`
+- `npx vitest run tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/ai-error-handling.test.tsx`
+- `npx vitest run` — 25 files / 155 tests passed after rate-limit tuning
 - `npm run check`
 - `npm run build`
 - `git diff --check`
@@ -103,7 +108,7 @@ Playwright e2e status:
 | Guest durable-save boundaries | Yes | No script yet | Yes | Local route/component tests cover guest blocking and linked-user cooking-session preservation; Replit must prove real Google linked persistence still works. |
 | Guest Settings session-local edits | Yes | No script yet | Yes | `tests/unit/planning-choice.test.tsx` covers menu and empty-pantry entry into session Settings; `tests/unit/user-settings-scan-policy.test.tsx` covers pantry add/delete, kitchen edits, and cooking-profile edits without durable API calls. Replit must prove this with real anonymous auth, setup scans, and later Chef It Up use. |
 | Anonymous kill switch | Yes | No script yet | Yes | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification; Replit requires env change/restart and human confirmation before public enablement. |
-| Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation and typed payloads; Replit should watch proxy/client-IP behavior in the long-running runtime. |
+| Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation, typed payloads, and the 20-request / 30-minute Chef It Up burst default; Replit should watch proxy/client-IP behavior in the long-running runtime. |
 | App Check posture | Yes | No script yet | Yes | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
 | Vision and ElevenLabs sanity | No direct local provider test in this branch | No script yet | Yes | Auth/App Check header changes can break protected provider routes; real secrets/network/audio behavior must be checked on Replit. |
 | Existing app-wide browser e2e | Listed, but stale/failing | No script yet | Yes for service-backed functions | `npx playwright test --project=chromium` fails on stale selectors in `tests/e2e/cooking-workflow.test.ts`; repair/replace this suite before treating it as app-wide browser evidence. |
@@ -117,7 +122,7 @@ Validated locally:
 - [x] `npm run check`
 - [x] `npm run build`
 - [x] focused Vitest suite listed above
-- [x] full Vitest suite: 25 files / 153 tests
+- [x] full Vitest suite: 25 files / 155 tests
 - [x] Playwright e2e probe attempted; current Chromium suite is stale/failing, so it is not app-wide evidence
 - [ ] manual localhost smoke
 
@@ -143,7 +148,7 @@ Steps to run on Replit:
 2. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY`; keep `FIREBASE_APP_CHECK_ENFORCED` off for the first baseline smoke.
 3. From the public landing page, start anonymous guest mode and complete setup with pantry/equipment/profile data.
 4. Generate Chef It Up recipes successfully as a guest and confirm quota metadata/logs progress.
-5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `LINKED_ACCOUNT_REQUIRED` with "unlock more recipes" copy and does not call the provider.
+5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `LINKED_ACCOUNT_REQUIRED` with "unlock more recipes" copy and does not call the provider. If a `429 RATE_LIMITED` appears instead, treat it as rate-limit behavior rather than quota acceptance evidence; the current default should allow 20 recipe requests per 30 minutes.
 6. Confirm guest profile/setup persistence remains same-browser local, including Settings Pantry/Kitchen/Cooking Profile edits after setup/cooking, while direct guest calls to durable profile/settings/cooking-session/history endpoints return `LINKED_ACCOUNT_REQUIRED` with "save your kitchen" copy.
 7. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous protected API calls return `ANONYMOUS_ACCESS_DISABLED`; unset it before continuing.
 8. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.

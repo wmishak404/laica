@@ -4,7 +4,7 @@
 **Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-06
-**Updated:** 2026-05-07
+**Updated:** 2026-05-27
 
 ## One-line summary
 
@@ -66,7 +66,11 @@ Historical answers from resolution:
 
 1. Replit validation confirmed the 1000-character preference cap path at `860bd68`; Wilson reviewed the post-validation cleanup diff and carried the pass forward to `14ac1c4`.
 2. No separate validator needed an EFF-018 code change after the fresh branch/rebase validation.
-3. `Retry-After` remains on `ApiRequestError` for classification/timing, but 429 user copy intentionally says "a few minutes" rather than exact seconds.
+3. `Retry-After` remains on `ApiRequestError` for classification/timing. The resolved EFF-018 branch intentionally avoided exact retry seconds; INIT-003 later superseded the fixed "a few minutes" copy with rounded `Retry-After`-aware timing so long waits are not mislabeled.
+
+## 2026-05-27 — INIT-003 rate-limit copy amendment
+
+PR #107 Replit validation for the anonymous guest quota showed recipe `429 RATE_LIMITED` copy saying "a few minutes" even when the limiter could require a much longer wait. The INIT-003 production-gates branch keeps the EFF-018 no-redirect/no-exact-seconds behavior, but changes 429 copy to use rounded `Retry-After` timing such as "about 30 minutes" for longer pauses.
 
 ## Agent checklist
 
