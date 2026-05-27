@@ -63,6 +63,7 @@ Read these before starting work in their governed domains:
 | [EFF-010](effort-010-local-db-schema-strategy.md) | Local database schema strategy | `Open` | Wilson / Codex / Claude | 2026-04-27 |
 | [EFF-022](effort-022-cross-cuisine-recommendation-prompts.md) | Cross-cuisine recommendation prompts | `Open` | Wilson / Codex / Claude | 2026-05-23 |
 | [EFF-024](effort-024-guest-privacy-trust-messaging.md) | Guest privacy trust messaging | `Open` | Wilson / Codex / Claude | 2026-05-27 |
+| [EFF-025](effort-025-settings-unsaved-inventory-reminder.md) | Settings unsaved inventory reminder | `Open` | Wilson / Codex / Claude | 2026-05-27 |
 
 ## Deferred Efforts
 
