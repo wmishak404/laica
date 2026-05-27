@@ -72,6 +72,8 @@ Historical answers from resolution:
 
 PR #107 Replit validation for the anonymous guest quota showed recipe `429 RATE_LIMITED` copy saying "a few minutes" even when the limiter could require a much longer wait. The INIT-003 production-gates branch keeps the EFF-018 no-redirect/no-exact-seconds behavior, but changes 429 copy to use rounded `Retry-After` timing such as "about 30 minutes" for longer pauses.
 
+The same validation pass later surfaced OpenAI `insufficient_quota` after API prepaid credits ran out. INIT-003 now classifies that path separately as `AI_PROVIDER_QUOTA_EXHAUSTED` so provider-capacity failures are not presented as app rate limits or guest quota exhaustion. The user-facing copy says the issue is on Laica's AI capacity side and not the guest limit.
+
 ## Agent checklist
 
 Read this Effort before:

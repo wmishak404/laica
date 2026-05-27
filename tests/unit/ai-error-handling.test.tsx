@@ -77,6 +77,18 @@ describe('authenticated AI error handling', () => {
     expect(feedback.description).toBe('I need to pause cooking requests briefly. Try again in about 30 minutes.');
   });
 
+  it('keeps provider quota failures separate from app rate limits and guest quota', () => {
+    const feedback = classifyAiRequestError(apiError(503, {
+      code: 'AI_PROVIDER_QUOTA_EXHAUSTED',
+      message: 'AI requests are paused on our side while provider quota is restored. This is not your guest recipe limit.',
+    }));
+
+    expect(feedback.kind).toBe('service');
+    expect(feedback.title).toBe('Recipe generation is paused');
+    expect(feedback.description).toBe('Laica needs more AI capacity before I can make recipes. This is on our side, not your guest limit.');
+    expect(feedback.includeFeedbackLink).toBe(false);
+  });
+
   it('classifies network failures without Feedback copy', () => {
     const feedback = classifyAiRequestError(new TypeError('Failed to fetch'));
 

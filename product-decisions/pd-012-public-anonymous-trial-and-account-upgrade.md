@@ -115,6 +115,7 @@ Durable saves include:
   - a Chef It Up recipe-generation burst limit that defaults to 20 requests per 30 minutes, plus the existing day cap
   - the existing protected-route bearer-token verification contract
 - The recipe burst limit should not interrupt normal validation of the 10-successful-generation guest quota; if it fires, user copy should follow the server `Retry-After` horizon rather than saying "a few minutes" for a long wait.
+- Provider-capacity failures such as OpenAI `insufficient_quota` are not guest quota exhaustion. They should be typed separately, refund any reserved anonymous recipe slot, and use copy that points to Laica-side AI capacity rather than asking the guest to link Google.
 - Anonymous sign-in alone must not create a durable `auth_users` row.
 - Placeholder empty-string email values must not be used as a substitute for missing identity data.
 

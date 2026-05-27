@@ -40,6 +40,7 @@ import multer from "multer";
 import fs from "fs/promises";
 import fsSync from "fs";
 import OpenAI from "openai";
+import { AI_PROVIDER_QUOTA_EXHAUSTED, AIProviderQuotaError } from "./ai-errors";
 
 // OpenAI client for transcription
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -80,7 +81,14 @@ function invalidRequestResponse(res: Response, error: z.ZodError, message: strin
   });
 }
 
-function aiServiceErrorResponse(res: Response, message: string) {
+function aiServiceErrorResponse(res: Response, message: string, error?: unknown) {
+  if (error instanceof AIProviderQuotaError) {
+    return res.status(503).json({
+      code: AI_PROVIDER_QUOTA_EXHAUSTED,
+      message: "AI requests are paused on our side while provider quota is restored. This is not your guest recipe limit.",
+    });
+  }
+
   return res.status(500).json({
     code: "AI_SERVICE_ERROR",
     message,
@@ -391,7 +399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid recipe suggestions request');
       }
-      aiServiceErrorResponse(res, 'Failed to get recipe suggestions');
+      aiServiceErrorResponse(res, 'Failed to get recipe suggestions', error);
     }
   });
   
@@ -436,7 +444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid pantry recipe request');
       }
-      aiServiceErrorResponse(res, 'Failed to get pantry-based recipe suggestions');
+      aiServiceErrorResponse(res, 'Failed to get pantry-based recipe suggestions', error);
     }
   });
 
@@ -501,7 +509,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return invalidRequestResponse(res, error, "Invalid Slop Bowl request");
       }
       console.error("Error generating Slop Bowl recipe:", error);
-      aiServiceErrorResponse(res, "Failed to generate Slop Bowl recipe");
+      aiServiceErrorResponse(res, "Failed to generate Slop Bowl recipe", error);
     }
   });
 
@@ -523,7 +531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid cooking steps request');
       }
-      aiServiceErrorResponse(res, 'Failed to get cooking steps');
+      aiServiceErrorResponse(res, 'Failed to get cooking steps', error);
     }
   });
 
@@ -561,7 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid ingredient alternatives request');
       }
-      aiServiceErrorResponse(res, 'Failed to get ingredient alternatives');
+      aiServiceErrorResponse(res, 'Failed to get ingredient alternatives', error);
     }
   });
 
@@ -581,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid cooking assistance request');
       }
-      aiServiceErrorResponse(res, 'Failed to get cooking assistance');
+      aiServiceErrorResponse(res, 'Failed to get cooking assistance', error);
     }
   });
 
@@ -635,6 +643,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error in image analysis:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid image analysis request' });
+      }
+      if (error instanceof AIProviderQuotaError) {
+        return aiServiceErrorResponse(res, 'Failed to analyze image', error);
       }
       res.status(500).json({ error: 'Failed to analyze image' });
     }

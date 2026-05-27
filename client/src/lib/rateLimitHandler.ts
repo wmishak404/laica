@@ -223,6 +223,17 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
     };
   }
 
+  if (code === 'AI_PROVIDER_QUOTA_EXHAUSTED') {
+    return {
+      kind: 'service',
+      title: 'Recipe generation is paused',
+      description: 'Laica needs more AI capacity before I can make recipes. This is on our side, not your guest limit.',
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
   if (status === 429 || code === 'RATE_LIMITED' || /rate limit|quota|too many requests/i.test(messageFor(error))) {
     return {
       kind: 'rate-limit',

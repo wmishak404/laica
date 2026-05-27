@@ -15,6 +15,8 @@ Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an 
 
 Wilson's Replit walkthrough showed the old 10-request / 1-hour recipe rate limit could fire as `429 RATE_LIMITED` before the intended `#11` guest quota boundary. This branch now defaults Chef It Up recipe generation to 20 requests per 30 minutes and uses `Retry-After` to keep rate-limit copy aligned with the actual wait. A `429` is still the abuse-control limiter; the guest quota acceptance criterion remains the separate `403 LINKED_ACCOUNT_REQUIRED` response after 10 successful generations.
 
+Wilson later refilled OpenAI API credits after Replit surfaced OpenAI `insufficient_quota`. The route was already refunding the anonymous quota reservation on provider failure, but the failure was too easy to confuse with the app limiter or guest quota. This branch now preserves OpenAI quota exhaustion as typed `503 AI_PROVIDER_QUOTA_EXHAUSTED`, with client copy that says the issue is on Laica's AI capacity side and not the user's guest limit.
+
 ## Changes
 
 - `shared/schema.ts`
@@ -25,8 +27,11 @@ Wilson's Replit walkthrough showed the old 10-request / 1-hour recipe rate limit
   - Adds typed `LINKED_ACCOUNT_REQUIRED` responses for recipe-cap and durable-save boundaries.
   - Enforces the anonymous 10-generation Chef It Up quota on `/api/recipes/suggestions` and `/api/recipes/pantry`.
   - Returns anonymous quota metadata from `/api/auth/session` and successful anonymous recipe responses.
+  - Returns typed `AI_PROVIDER_QUOTA_EXHAUSTED` for OpenAI prepaid-credit/quota exhaustion while refunding anonymous quota reservations.
   - Blocks anonymous durable profile/settings/pantry/cooking-session/history routes.
   - Keeps Slop Bowl linked-only until a later explicit anonymous dry-run phase.
+- `server/ai-errors.ts`, `server/openai.ts`
+  - Detects OpenAI `insufficient_quota` and preserves it as a typed provider-capacity error instead of collapsing it to generic `AI_SERVICE_ERROR`.
 - `server/firebaseAuth.ts`
   - Adds `ANONYMOUS_AUTH_DISABLED` kill switch handling.
   - Adds optional Firebase App Check verification behind `FIREBASE_APP_CHECK_ENFORCED`.
@@ -47,6 +52,7 @@ Wilson's Replit walkthrough showed the old 10-request / 1-hour recipe rate limit
 - `client/src/lib/rateLimitHandler.ts`
   - Adds user-facing classification for `LINKED_ACCOUNT_REQUIRED`, anonymous-disabled, and App Check errors.
   - Uses `Retry-After` for rate-limit wait copy instead of hardcoding "a few minutes."
+  - Separates provider quota exhaustion from app-side `429 RATE_LIMITED` and guest quota copy.
 - `.env.example`
   - Documents the new public-gate env vars.
 - `tests/unit/*`, `tests/setup.ts`
@@ -83,7 +89,8 @@ Local checks passed on 2026-05-27:
 - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/security-hardening.test.ts tests/unit/live-cooking-guest-session.test.tsx tests/unit/slop-bowl-route.test.ts tests/unit/phase0-security-routes.test.ts`
 - `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/live-cooking-guest-session.test.tsx`
 - `npx vitest run tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/ai-error-handling.test.tsx`
-- `npx vitest run` — 25 files / 155 tests passed after rate-limit tuning
+- `npx vitest run tests/unit/ai-provider-errors.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-error-handling.test.tsx`
+- `npx vitest run` — 26 files / 159 tests passed after provider-quota classification
 - `npm run check`
 - `npm run build`
 - `git diff --check`
@@ -105,6 +112,7 @@ Playwright e2e status:
 | Anonymous quota success and metadata | Yes | No script yet | Yes | `tests/unit/anonymous-production-gates-route.test.ts` proves reserve/metadata behavior locally; Replit must prove `anonymous_recipe_usage` exists and provider-backed quota writes/reads work. |
 | Attempt `#11` block | Yes | No script yet | Yes | Local test asserts `LINKED_ACCOUNT_REQUIRED`, `linkedAccountReason: recipe_limit`, quota `0`, and no OpenAI call; Replit should exhaust the same anonymous UID or use a test-safe seeded quota row. |
 | Provider failure refund | Yes | No script yet | Maybe | Local test forces provider failure and asserts refund; Replit can only prove this if logs or a safe forced-failure path make it observable. |
+| OpenAI provider quota exhaustion | Yes | No script yet | Replit confidence gap | `tests/unit/ai-provider-errors.test.ts`, `tests/unit/anonymous-production-gates-route.test.ts`, and `tests/unit/ai-error-handling.test.tsx` prove OpenAI `insufficient_quota` becomes typed `503 AI_PROVIDER_QUOTA_EXHAUSTED`, refunds anonymous quota, and is not presented as app rate limit or guest quota. Replit should confirm after API credits are refilled. |
 | Guest durable-save boundaries | Yes | No script yet | Yes | Local route/component tests cover guest blocking and linked-user cooking-session preservation; Replit must prove real Google linked persistence still works. |
 | Guest Settings session-local edits | Yes | No script yet | Yes | `tests/unit/planning-choice.test.tsx` covers menu and empty-pantry entry into session Settings; `tests/unit/user-settings-scan-policy.test.tsx` covers pantry add/delete, kitchen edits, and cooking-profile edits without durable API calls. Replit must prove this with real anonymous auth, setup scans, and later Chef It Up use. |
 | Anonymous kill switch | Yes | No script yet | Yes | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification; Replit requires env change/restart and human confirmation before public enablement. |
@@ -122,7 +130,7 @@ Validated locally:
 - [x] `npm run check`
 - [x] `npm run build`
 - [x] focused Vitest suite listed above
-- [x] full Vitest suite: 25 files / 155 tests
+- [x] full Vitest suite: 26 files / 159 tests
 - [x] Playwright e2e probe attempted; current Chromium suite is stale/failing, so it is not app-wide evidence
 - [ ] manual localhost smoke
 
@@ -148,7 +156,7 @@ Steps to run on Replit:
 2. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY`; keep `FIREBASE_APP_CHECK_ENFORCED` off for the first baseline smoke.
 3. From the public landing page, start anonymous guest mode and complete setup with pantry/equipment/profile data.
 4. Generate Chef It Up recipes successfully as a guest and confirm quota metadata/logs progress.
-5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `LINKED_ACCOUNT_REQUIRED` with "unlock more recipes" copy and does not call the provider. If a `429 RATE_LIMITED` appears instead, treat it as rate-limit behavior rather than quota acceptance evidence; the current default should allow 20 recipe requests per 30 minutes.
+5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `LINKED_ACCOUNT_REQUIRED` with "unlock more recipes" copy and does not call the provider. If a `429 RATE_LIMITED` appears instead, treat it as rate-limit behavior rather than quota acceptance evidence; the current default should allow 20 recipe requests per 30 minutes. If `503 AI_PROVIDER_QUOTA_EXHAUSTED` appears, treat it as provider billing/credit capacity and not as quota acceptance evidence.
 6. Confirm guest profile/setup persistence remains same-browser local, including Settings Pantry/Kitchen/Cooking Profile edits after setup/cooking, while direct guest calls to durable profile/settings/cooking-session/history endpoints return `LINKED_ACCOUNT_REQUIRED` with "save your kitchen" copy.
 7. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous protected API calls return `ANONYMOUS_ACCESS_DISABLED`; unset it before continuing.
 8. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.

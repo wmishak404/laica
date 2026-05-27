@@ -3,6 +3,7 @@ import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
 import express from 'express';
 import { resetRateLimitBucketsForTest } from '../../server/rate-limit';
+import { AIProviderQuotaError } from '../../server/ai-errors';
 
 const mocks = vi.hoisted(() => ({
   firebaseUser: {
@@ -212,6 +213,35 @@ describe('anonymous production gates', () => {
       });
 
       expect(response.status).toBe(500);
+      expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
+      expect(mocks.storage.refundAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it('returns a typed provider-quota response and refunds the anonymous reservation', async () => {
+    mocks.getRecipeSuggestions.mockRejectedValueOnce(new AIProviderQuotaError('OpenAI'));
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/recipes/pantry`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-token',
+        },
+        body: JSON.stringify({
+          ingredients: ['rice', 'eggs'],
+          preferences: 'quick dinner',
+        }),
+      });
+
+      expect(response.status).toBe(503);
+      await expect(response.json()).resolves.toEqual({
+        code: 'AI_PROVIDER_QUOTA_EXHAUSTED',
+        message: 'AI requests are paused on our side while provider quota is restored. This is not your guest recipe limit.',
+      });
       expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
       expect(mocks.storage.refundAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
     } finally {

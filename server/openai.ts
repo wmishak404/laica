@@ -19,6 +19,7 @@ import {
 } from "@shared/planning";
 import { lt } from "drizzle-orm";
 import { redactAiOutput, redactForAiLog, sanitizePromptInput } from "./ai-privacy";
+import { throwOpenAIProviderError } from "./ai-errors";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 const MODEL_COMPLEX = "gpt-4.1";
@@ -294,7 +295,7 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
     return result;
   } catch (error) {
     console.error("Error getting Slop Bowl recipe:", error);
-    throw new Error("Failed to get Slop Bowl recipe");
+    throwOpenAIProviderError(error, "Failed to get Slop Bowl recipe");
   }
 }
 
@@ -328,7 +329,7 @@ export async function getRecipeSuggestions(preferences: string, ingredients?: st
     return result;
   } catch (error) {
     console.error("Error getting recipe suggestions:", error);
-    throw new Error("Failed to get recipe suggestions");
+    throwOpenAIProviderError(error, "Failed to get recipe suggestions");
   }
 }
 
@@ -379,7 +380,7 @@ export async function getCookingSteps(
     return result;
   } catch (error) {
     console.error("Error getting cooking steps:", error);
-    throw new Error("Failed to get cooking steps");
+    throwOpenAIProviderError(error, "Failed to get cooking steps");
   }
 }
 
@@ -435,7 +436,7 @@ export async function getGroceryList(recipes: string[], pantryItems?: string[]) 
     return JSON.parse(response.choices[0].message.content || "{}");
   } catch (error) {
     console.error("Error generating grocery list:", error);
-    throw new Error("Failed to generate grocery list");
+    throwOpenAIProviderError(error, "Failed to generate grocery list");
   }
 }
 
@@ -461,7 +462,7 @@ export async function getIngredientAlternatives(ingredient: string, reason: stri
     return JSON.parse(response.choices[0].message.content || "{}");
   } catch (error) {
     console.error("Error getting ingredient alternatives:", error);
-    throw new Error("Failed to get ingredient alternatives");
+    throwOpenAIProviderError(error, "Failed to get ingredient alternatives");
   }
 }
 
@@ -488,7 +489,7 @@ export async function getCookingAssistance(step: string, question?: string) {
     return result;
   } catch (error) {
     console.error("Error getting cooking assistance:", error);
-    throw new Error("Failed to get cooking assistance");
+    throwOpenAIProviderError(error, "Failed to get cooking assistance");
   }
 }
 
@@ -551,6 +552,6 @@ export async function analyzeIngredientImage(base64Image: string) {
     return result;
   } catch (error) {
     console.error("Error analyzing ingredient image:", error);
-    throw new Error("Failed to analyze ingredient image");
+    throwOpenAIProviderError(error, "Failed to analyze ingredient image");
   }
 }
