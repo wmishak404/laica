@@ -103,3 +103,18 @@ Future work should explore the right product story when pantry constraints fight
 - Avoid silently mixing off-cuisine suggestions into a cuisine-requested result set without explaining the constraint.
 
 Future evaluation should check not only pantry fit but also whether returned options visibly honor an explicitly selected cuisine, or clearly explain when pantry constraints force a broader pantry-flexible fallback.
+
+## 2026-05-27 - Repeated cuisine-fit miss with Indian request
+
+Wilson captured another guest Chef It Up session with the same pantry family where the user requested Indian. The returned suggestions were:
+
+- `Sausage & Leek Soup with Beef Bone Broth`, using raw sausages, leeks, fresh sage, Korean beef bone soup broth, and ginger
+- `Sheet Pan Roasted Sausages with Leeks, Sage & Mustard Yogurt`
+- `Indian-ish Leek & Sausage Yogurt Curry`
+
+This strengthens the EFF-022 signal: under constrained pantry conditions, Chef It Up appears to preserve pantry fit but treats the explicit cuisine preference as optional, with only the third result weakly acknowledging the selected cuisine. The future prompt/eval pass should include multiple requested-cuisine fixtures, not only the Chinese example, and should decide whether the product should:
+
+- require all three suggestions to visibly align with the selected cuisine when a cuisine is chosen,
+- ask for missing cuisine anchors or pantry staples before generation,
+- return fewer cuisine-specific options plus an explicit pantry-flexible fallback explanation, or
+- show a clear "your pantry does not strongly support this cuisine" story before offering broader ideas.
