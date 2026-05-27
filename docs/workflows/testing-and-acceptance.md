@@ -10,6 +10,26 @@ This workflow defines how agents decide whether a Laica change is ready to merge
 
 Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether Replit validation is still required.
 
+## Validation Breadth Discipline
+
+For every implementation change, test the happy path and then deliberately look for corner cases across the surfaces touched by the change. Do not stop at "works locally" when the acceptance criteria depend on auth, persistence, AI, speech, uploads, provider secrets, deployment domains, or Replit-only configuration.
+
+Start from documented specs. The acceptance criteria, INIT, PD, feature phase record, route schema, or component contract should tell the agent what "working" means. If the behavior has no durable spec, either update the smallest relevant source of truth first or mark the missing spec as a coverage gap; do not silently invent acceptance criteria from memory.
+
+Before closeout, classify the meaningful test cases:
+
+- **Local automated**: covered by Vitest, Playwright, static checks, or deterministic scripts in the local worktree. Cite the command and the specific test file, assertion, route, component, or schema that proves it.
+- **Replit automated**: can be run by a script or Playwright/API smoke against the Replit workspace/deployment using real secrets and services. Cite the script or write the exact command if it exists; otherwise mark the automation as proposed, not completed.
+- **Replit human validation**: needs a real Replit workspace/deployment plus a human action or judgment, such as Firebase Console/App Check configuration, Google provider popup completion, Replit Secrets/deployment UI changes, production-domain checks, visual judgement, or product acceptance.
+- **Replit confidence gap**: locally covered but not trusted until Replit proves the environment seam, such as DB schema availability, Firebase authorized domains, App Check token behavior, provider network access, ElevenLabs audio, Linux/native upload behavior, or dev-vs-prod database separation.
+- **Not covered / deferred**: intentionally out of scope. State why, where the deferral lives, and the smallest future test that would close the gap.
+
+Use visible reasoning and provenance. A good validation note says: "This case is local-only because the provider is mocked in `tests/unit/...`; Replit still needs to prove the real provider call and secret." A weak note says only: "covered by tests."
+
+When asked for an app-wide test pass, separate "all existing automated tests" from "all app functions mapped to documented specs." The first is a command; the second is a coverage audit. A true app-wide coverage audit should enumerate the documented product functions, cite their source docs, map each function to local/Replit/human checks, and identify missing specs or stale tests.
+
+If a case is important enough to list and can be automated safely in the current branch, add the test. If it cannot be automated safely, mark the human/Replit dependency explicitly instead of implying confidence.
+
 ## Source of Truth
 
 | Need | Durable home |
@@ -55,6 +75,7 @@ The scan upload policy review that produced [`PD-011`](../../product-decisions/p
 Every implementation handoff and PR description should include:
 
 - Commands run and whether they passed.
+- A coverage classification that separates happy paths, corner cases, local automation, Replit automation, Replit human validation, confidence gaps, and explicitly deferred scope.
 - Manual checks performed.
 - Replit validation status, including `Last Replit-validated at: <sha>` or `not yet validated` for deployment-bound work.
 - What was intentionally not tested.
