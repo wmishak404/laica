@@ -9,7 +9,7 @@
 
 ## Summary
 
-This branch turns the public anonymous guest MVP from "usable in the happy path" into a locally verified production-gate slice. It adds quota accounting, a server kill switch, anonymous abuse-control keying, Firebase App Check posture, and linked-only durable-save boundaries while intentionally leaving the fuller Phase 4 Google promotion/import flow and anonymous Slop Bowl dry-run for later phases.
+This branch turns the public anonymous guest MVP from "usable in the happy path" into a locally verified production-gate slice. It adds quota accounting, a server kill switch, anonymous abuse-control keying, Firebase App Check posture, linked-only durable-save boundaries, and session-local guest Settings access while intentionally leaving the fuller Phase 4 Google promotion/import flow and anonymous Slop Bowl dry-run for later phases.
 
 Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an early public-MVP friction reducer even though it is not durable human identity. The quota is per Firebase anonymous UID: same-browser normal reopen should preserve it, but sign-out, cleared site data, another browser/device, or incognito can create a fresh anonymous UID. App Check, IP-keyed rate limits, and the kill switch are the current abuse backstops; stronger identity or abuse controls are deferred until usage/cost signals require them. Wilson also asked to reserve "upgrade" language for future paid-tier work, so the runtime API now uses `LINKED_ACCOUNT_REQUIRED` for this boundary.
 
@@ -37,12 +37,16 @@ Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an 
   - Sends `X-Firebase-AppCheck` on API requests.
   - Verifies guest sign-in against `/api/auth/session` so the server kill switch is honored before entering the app.
   - Routes Google backend sync through the shared API client so App Check is included.
+- `client/src/pages/app.tsx`, `client/src/components/cooking/user-settings.tsx`
+  - Allows anonymous guests to open Settings for Pantry, Kitchen, and Cooking Profile after setup.
+  - Saves guest Settings edits through the same browser-local guest profile used by setup and planning, without calling durable profile/settings APIs.
+  - Keeps History and Slop Bowl linked-account only.
 - `client/src/lib/rateLimitHandler.ts`
   - Adds user-facing classification for `LINKED_ACCOUNT_REQUIRED`, anonymous-disabled, and App Check errors.
 - `.env.example`
   - Documents the new public-gate env vars.
 - `tests/unit/*`, `tests/setup.ts`
-  - Adds coverage for App Check, kill switch, quota enforcement/refund, linked-only durable saves, Slop Bowl linked-only guard, and anonymous IP-keyed rate limits.
+  - Adds coverage for App Check, kill switch, quota enforcement/refund, linked-only durable saves, Slop Bowl linked-only guard, anonymous IP-keyed rate limits, and session-only guest Settings edits.
 - `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md`, `initiatives/registry.md`, `efforts/effort-010-local-db-schema-strategy.md`, `efforts/registry.md`
   - Records the branch state, local validation, Replit validation requirements, and EFF-010 schema-workflow signal.
 
@@ -58,6 +62,8 @@ Do not run local `npm run db:push` to apply `anonymous_recipe_usage`; EFF-010 st
 
 Anonymous Slop Bowl remains explicitly linked-only in this branch. That is intentional and follows the INIT's "anonymous Slop Bowl dry-run later" boundary.
 
+Guest Settings are available in this branch, but only as local guest-profile edits. Replit validation should confirm a guest can revisit Settings after setup/cooking, add/delete pantry items, update kitchen tools/profile, return to Chef It Up, and still receive `LINKED_ACCOUNT_REQUIRED` for direct durable profile/settings/history/cooking-session API writes.
+
 ## Open items
 
 - Replit validation is still required for auth, schema, DB-backed persistence, AI routes, App Check, and deployment-bound behavior.
@@ -71,7 +77,8 @@ Local checks passed on 2026-05-27:
 
 - `npm ci`
 - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/security-hardening.test.ts tests/unit/live-cooking-guest-session.test.tsx tests/unit/slop-bowl-route.test.ts tests/unit/phase0-security-routes.test.ts`
-- `npx vitest run` — 25 files / 149 tests passed after rebasing onto `origin/main` at `fc55772`
+- `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/live-cooking-guest-session.test.tsx`
+- `npx vitest run` — 25 files / 153 tests passed after rebasing onto `origin/main` at `fc55772`
 - `npm run check`
 - `npm run build`
 - `git diff --check`
@@ -94,6 +101,7 @@ Playwright e2e status:
 | Attempt `#11` block | Yes | No script yet | Yes | Local test asserts `LINKED_ACCOUNT_REQUIRED`, `linkedAccountReason: recipe_limit`, quota `0`, and no OpenAI call; Replit should exhaust the same anonymous UID or use a test-safe seeded quota row. |
 | Provider failure refund | Yes | No script yet | Maybe | Local test forces provider failure and asserts refund; Replit can only prove this if logs or a safe forced-failure path make it observable. |
 | Guest durable-save boundaries | Yes | No script yet | Yes | Local route/component tests cover guest blocking and linked-user cooking-session preservation; Replit must prove real Google linked persistence still works. |
+| Guest Settings session-local edits | Yes | No script yet | Yes | `tests/unit/planning-choice.test.tsx` covers menu and empty-pantry entry into session Settings; `tests/unit/user-settings-scan-policy.test.tsx` covers pantry add/delete, kitchen edits, and cooking-profile edits without durable API calls. Replit must prove this with real anonymous auth, setup scans, and later Chef It Up use. |
 | Anonymous kill switch | Yes | No script yet | Yes | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification; Replit requires env change/restart and human confirmation before public enablement. |
 | Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation and typed payloads; Replit should watch proxy/client-IP behavior in the long-running runtime. |
 | App Check posture | Yes | No script yet | Yes | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
@@ -109,7 +117,7 @@ Validated locally:
 - [x] `npm run check`
 - [x] `npm run build`
 - [x] focused Vitest suite listed above
-- [x] full Vitest suite: 25 files / 149 tests
+- [x] full Vitest suite: 25 files / 153 tests
 - [x] Playwright e2e probe attempted; current Chromium suite is stale/failing, so it is not app-wide evidence
 - [ ] manual localhost smoke
 
@@ -136,7 +144,7 @@ Steps to run on Replit:
 3. From the public landing page, start anonymous guest mode and complete setup with pantry/equipment/profile data.
 4. Generate Chef It Up recipes successfully as a guest and confirm quota metadata/logs progress.
 5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `LINKED_ACCOUNT_REQUIRED` with "unlock more recipes" copy and does not call the provider.
-6. Confirm guest profile/setup persistence remains same-browser local, while direct guest calls to durable profile/settings/cooking-session/history endpoints return `LINKED_ACCOUNT_REQUIRED` with "save your kitchen" copy.
+6. Confirm guest profile/setup persistence remains same-browser local, including Settings Pantry/Kitchen/Cooking Profile edits after setup/cooking, while direct guest calls to durable profile/settings/cooking-session/history endpoints return `LINKED_ACCOUNT_REQUIRED` with "save your kitchen" copy.
 7. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous protected API calls return `ANONYMOUS_ACCESS_DISABLED`; unset it before continuing.
 8. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
 9. Confirm linked Google sign-in/upsert, linked profile writes, linked History, and linked cooking-session persistence still work.

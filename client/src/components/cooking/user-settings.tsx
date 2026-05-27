@@ -60,6 +60,7 @@ interface UserSettingsProps {
   onProfileUpdate: (profile: UserProfile) => void;
   onBackToPlanning: () => void;
   initialSection?: SettingsSection;
+  persistenceMode?: 'linked' | 'session';
 }
 
 export type SettingsSection = 'hub' | 'pantry' | 'kitchen' | 'profile';
@@ -74,9 +75,16 @@ function isAbortError(error: unknown) {
   return /abort|cancelled|canceled/i.test(message);
 }
 
-export default function UserSettings({ userProfile, onProfileUpdate: _onProfileUpdate, onBackToPlanning, initialSection = 'hub' }: UserSettingsProps) {
+export default function UserSettings({
+  userProfile,
+  onProfileUpdate,
+  onBackToPlanning,
+  initialSection = 'hub',
+  persistenceMode = 'linked',
+}: UserSettingsProps) {
   const [profile, setProfile] = useState<UserProfile>(userProfile);
   const [activeSection, setActiveSection] = useState<SettingsSection>(initialSection);
+  const isSessionOnly = persistenceMode === 'session';
   
   // Sync local state with prop changes (e.g., after profile reset)
   useEffect(() => {
@@ -298,6 +306,16 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const resetPantryMutation = useResetPantry();
   const updateProfileMutation = useUpdateUserProfile();
 
+  const saveSessionProfile = (
+    updatedProfile: UserProfile,
+    title: string,
+    description: string,
+  ) => {
+    setProfile(updatedProfile);
+    onProfileUpdate(updatedProfile);
+    toast({ title, description });
+  };
+
   const handleResetPantry = async () => {
     if (hasActiveScan) {
       showScanBlockedToast('resetting inventory');
@@ -305,6 +323,17 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     }
 
     if (window.confirm('Are you sure you want to completely reset your pantry? This will remove all current ingredients and cannot be undone.')) {
+      if (isSessionOnly) {
+        const updatedProfile = { ...profile, pantryIngredients: [] };
+        saveSessionProfile(
+          updatedProfile,
+          "Pantry cleared",
+          "Your guest pantry has been cleared for this session.",
+        );
+        clearReviewEntries('pantry');
+        return;
+      }
+
       try {
         await resetPantryMutation.mutateAsync();
         updateInventoryItems('pantry', []);
@@ -330,6 +359,17 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
     }
 
     if (window.confirm('Are you sure you want to reset your equipment list? This will remove all current equipment.')) {
+      if (isSessionOnly) {
+        const updatedProfile = { ...profile, kitchenEquipment: [] };
+        saveSessionProfile(
+          updatedProfile,
+          "Equipment cleared",
+          "Your guest kitchen list has been cleared for this session.",
+        );
+        clearReviewEntries('kitchen');
+        return;
+      }
+
       try {
         await updateProfileMutation.mutateAsync({ 
           kitchenEquipment: [] 
@@ -353,6 +393,16 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   const handleSavePantry = async () => {
     if (hasActiveScan) {
       showScanBlockedToast('saving inventory changes');
+      return;
+    }
+
+    if (isSessionOnly) {
+      saveSessionProfile(
+        profile,
+        "Pantry updated",
+        "Your pantry is updated for this guest session.",
+      );
+      clearReviewEntries('pantry');
       return;
     }
 
@@ -381,6 +431,16 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
       return;
     }
 
+    if (isSessionOnly) {
+      saveSessionProfile(
+        profile,
+        "Kitchen updated",
+        "Your kitchen tools are updated for this guest session.",
+      );
+      clearReviewEntries('kitchen');
+      return;
+    }
+
     try {
       // Save only kitchen equipment without navigating away
       await updateProfileMutation.mutateAsync({ 
@@ -401,6 +461,15 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
   };
 
   const handleSaveProfile = async () => {
+    if (isSessionOnly) {
+      saveSessionProfile(
+        profile,
+        "Profile updated",
+        "Your cooking profile is updated for this guest session.",
+      );
+      return;
+    }
+
     try {
       // Save only profile settings without navigating away
       await updateProfileMutation.mutateAsync({ 
@@ -936,7 +1005,9 @@ export default function UserSettings({ userProfile, onProfileUpdate: _onProfileU
         <p className="returning-kicker">Settings</p>
         <h1 className="returning-display text-[2.45rem] font-extrabold leading-none">Keep Laica matched to your kitchen.</h1>
         <p className="returning-copy mt-3 max-w-sm text-sm leading-relaxed">
-          Update the pantry, tools, and cooking profile Laica uses for Planning and Slop Bowl.
+          {isSessionOnly
+            ? 'Update the pantry, tools, and cooking profile Laica uses for this guest session.'
+            : 'Update the pantry, tools, and cooking profile Laica uses for Planning and Slop Bowl.'}
         </p>
       </div>
 

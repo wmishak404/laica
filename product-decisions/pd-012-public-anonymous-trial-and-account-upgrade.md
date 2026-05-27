@@ -62,6 +62,8 @@ The cap increased to 10 because:
 ### Guest persistence contract
 
 - Guest progress persists on the same browser and device through normal reopen.
+- Guest Pantry, Kitchen, and Cooking Profile Settings remain editable during the guest session so a returning guest can inspect, add, and remove the local setup data Laica is using for later Chef It Up attempts.
+- Guest Settings writes are browser-local session/profile updates only; they must not call durable profile/settings APIs while the Firebase user is anonymous.
 - Guest progress is intentionally fragile, not durable. It is lost on:
   - explicit sign-out
   - cleared site data or storage
@@ -78,7 +80,7 @@ The cap increased to 10 because:
 
 Durable saves include:
 
-- pantry, profile, and settings persistence
+- server-side pantry, profile, and settings persistence
 - durable cooking sessions and history
 - Phase 5 post-cook memory such as `pending_cleanup`, `taste_signal`, and related returning-user state
 - future explicit "save this recipe/history" features unless a later decision says otherwise

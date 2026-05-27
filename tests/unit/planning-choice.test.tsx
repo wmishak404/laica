@@ -70,8 +70,8 @@ vi.mock('@/components/cooking/live-cooking', () => ({
 }));
 
 vi.mock('@/components/cooking/user-settings', () => ({
-  default: ({ initialSection }: { initialSection?: string }) => (
-    <div data-testid="user-settings">Settings section: {initialSection}</div>
+  default: ({ initialSection, persistenceMode }: { initialSection?: string; persistenceMode?: string }) => (
+    <div data-testid="user-settings">Settings section: {initialSection}; mode: {persistenceMode}</div>
   ),
 }));
 
@@ -199,10 +199,10 @@ describe('MobileApp planning choice pantry status', () => {
       toastCall.action.props.onClick();
     });
 
-    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: pantry');
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: pantry; mode: linked');
   });
 
-  it('keeps an empty-pantry guest in setup from the toast action', async () => {
+  it('opens session-only Pantry settings for an empty-pantry guest from the toast action', async () => {
     await renderGuestPlanningChoice(makeProfile({ pantryIngredients: [] }));
 
     fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
@@ -210,7 +210,7 @@ describe('MobileApp planning choice pantry status', () => {
     expect(screen.getByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
     expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Your pantry is empty',
-      description: 'Add pantry items in setup before I can suggest recipes.',
+      description: 'Add or scan pantry items in Settings for this guest session.',
       variant: 'destructive',
     }));
 
@@ -221,7 +221,25 @@ describe('MobileApp planning choice pantry status', () => {
       toastCall.action.props.onClick();
     });
 
-    expect(await screen.findByTestId('user-profiling')).toBeTruthy();
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: pantry; mode: session');
+  });
+
+  it('allows guest Settings from the menu while keeping History linked-account only', async () => {
+    await renderGuestPlanningChoice(makeProfile());
+
+    const settingsButton = screen.getByRole('button', {
+      name: /settings guest pantry, kitchen, and cooking profile/i,
+    });
+    const historyButton = screen.getByRole('button', {
+      name: /history meals you cooked/i,
+    });
+
+    expect(settingsButton).not.toBeDisabled();
+    expect(historyButton).toBeDisabled();
+
+    fireEvent.click(settingsButton);
+
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: hub; mode: session');
   });
 
   it('lets users with pantry items enter Chef It Up', async () => {

@@ -352,6 +352,11 @@ export default function MobileApp() {
     }
   };
 
+  const handleSettingsProfileUpdate = useCallback((updatedProfile: UserProfile) => {
+    setUserProfile(updatedProfile);
+    saveProfile(updatedProfile);
+  }, [saveProfile]);
+
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile);
     saveProfile(updatedProfile);
@@ -439,23 +444,11 @@ export default function MobileApp() {
   };
 
   const showEmptyPantryToast = () => {
-    if (isGuest) {
-      toast({
-        title: 'Your pantry is empty',
-        description: 'Add pantry items in setup before I can suggest recipes.',
-        action: (
-          <ToastAction altText="Update guest pantry" onClick={() => setCurrentPhase('profiling')}>
-            Add pantry
-          </ToastAction>
-        ),
-        variant: 'destructive',
-      });
-      return;
-    }
-
     toast({
       title: 'Your pantry is empty',
-      description: EMPTY_PANTRY_RECIPE_COPY,
+      description: isGuest
+        ? 'Add or scan pantry items in Settings for this guest session.'
+        : EMPTY_PANTRY_RECIPE_COPY,
       action: (
         <ToastAction altText="Open Pantry Settings" onClick={() => openSettings('pantry')}>
           Add pantry
@@ -489,7 +482,7 @@ export default function MobileApp() {
     options: { allowSettings?: boolean; allowHistory?: boolean } = {},
   ) => {
     const { allowSettings = true, allowHistory = allowSettings } = options;
-    const canUseSettings = allowSettings && !isGuest;
+    const canUseSettings = allowSettings;
     const canUseHistory = allowHistory && !isGuest;
 
     return (
@@ -517,7 +510,9 @@ export default function MobileApp() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-extrabold">Settings</span>
-                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Pantry, kitchen, and cooking profile</span>
+                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
+                  {isGuest ? 'Guest pantry, kitchen, and cooking profile' : 'Pantry, kitchen, and cooking profile'}
+                </span>
               </span>
             </button>
 
@@ -779,9 +774,10 @@ export default function MobileApp() {
           <div className="pb-20">
             <UserSettings
               userProfile={userProfile}
-              onProfileUpdate={handleProfileUpdate}
+              onProfileUpdate={handleSettingsProfileUpdate}
               onBackToPlanning={handleBackToPlanning}
               initialSection={settingsSection}
+              persistenceMode={isGuest ? 'session' : 'linked'}
             />
           </div>
         );
