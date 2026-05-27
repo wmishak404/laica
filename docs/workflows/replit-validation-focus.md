@@ -112,6 +112,15 @@ Focus areas (only select what applies):
 - [ ] ElevenLabs speech routes
 - [ ] Vision / uploads / image processing
 
+Coverage classification:
+
+| Case | Local automated? | Replit automated? | Needs Replit human? | Confidence / provenance |
+|---|---|---|---|---|
+| Happy path:  |  |  |  |  |
+| Corner case:  |  |  |  |  |
+| Boundary/regression:  |  |  |  |  |
+| Not covered/deferred:  |  |  |  |  |
+
 Steps to run on Replit (numbered, specific):
 1.
 2.
