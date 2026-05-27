@@ -96,15 +96,15 @@ function getAnonymousRecipeGenerationLimit(): number {
   return getPositiveIntegerEnv("ANONYMOUS_RECIPE_GENERATION_LIMIT", 10);
 }
 
-function upgradeRequiredResponse(
+function linkedAccountRequiredResponse(
   res: Response,
-  upgradeReason: "recipe_quota" | "durable_save",
+  linkedAccountReason: "recipe_limit" | "durable_save",
   message: string,
   quota?: AnonymousRecipeQuota,
 ) {
   return res.status(403).json({
-    code: "UPGRADE_REQUIRED",
-    upgradeReason,
+    code: "LINKED_ACCOUNT_REQUIRED",
+    linkedAccountReason,
     message,
     ...(quota ? { anonymousRecipeQuota: quota } : {}),
   });
@@ -114,7 +114,7 @@ const requireLinkedAccount: RequestHandler = (req: any, res, next) => {
   const firebaseUser: FirebaseUser | undefined = req.firebaseUser;
 
   if (firebaseUser?.isAnonymous) {
-    return upgradeRequiredResponse(
+    return linkedAccountRequiredResponse(
       res,
       "durable_save",
       "Link Google to save your kitchen.",
@@ -138,9 +138,9 @@ async function reserveAnonymousRecipeQuota(
   );
 
   if (!reservation.allowed) {
-    upgradeRequiredResponse(
+    linkedAccountRequiredResponse(
       res,
-      "recipe_quota",
+      "recipe_limit",
       "Link Google to unlock more recipes.",
       reservation.quota,
     );

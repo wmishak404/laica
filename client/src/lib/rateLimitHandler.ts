@@ -108,9 +108,9 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
   }
 
   if (status === 401 || status === 403) {
-    if (code === 'UPGRADE_REQUIRED') {
-      const upgradeReason = error instanceof ApiRequestError ? error.body?.upgradeReason : undefined;
-      const isDurableSave = upgradeReason === 'durable_save';
+    if (code === 'LINKED_ACCOUNT_REQUIRED') {
+      const linkedAccountReason = error instanceof ApiRequestError ? error.body?.linkedAccountReason : undefined;
+      const isDurableSave = linkedAccountReason === 'durable_save';
 
       return {
         kind: 'product-precondition',

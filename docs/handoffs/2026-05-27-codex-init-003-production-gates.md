@@ -2,6 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/init-003-production-gates`
+**PR:** [#107](https://github.com/wmishak404/laica/pull/107)
 **Date:** 2026-05-27
 **Initiative:** INIT-003
 **INIT updated:** yes
@@ -10,6 +11,8 @@
 
 This branch turns the public anonymous guest MVP from "usable in the happy path" into a locally verified production-gate slice. It adds quota accounting, a server kill switch, anonymous abuse-control keying, Firebase App Check posture, and linked-only durable-save boundaries while intentionally leaving the fuller Phase 4 Google promotion/import flow and anonymous Slop Bowl dry-run for later phases.
 
+Wilson clarified on 2026-05-27 that the 10-generation quota is acceptable as an early public-MVP friction reducer even though it is not durable human identity. The quota is per Firebase anonymous UID: same-browser normal reopen should preserve it, but sign-out, cleared site data, another browser/device, or incognito can create a fresh anonymous UID. App Check, IP-keyed rate limits, and the kill switch are the current abuse backstops; stronger identity or abuse controls are deferred until usage/cost signals require them. Wilson also asked to reserve "upgrade" language for future paid-tier work, so the runtime API now uses `LINKED_ACCOUNT_REQUIRED` for this boundary.
+
 ## Changes
 
 - `shared/schema.ts`
@@ -17,7 +20,7 @@ This branch turns the public anonymous guest MVP from "usable in the happy path"
 - `server/storage.ts`
   - Adds quota read/reserve/refund methods. Reservation is atomic and refunded on provider failure so validation errors and failed generations do not consume the intended successful-generation quota.
 - `server/routes.ts`
-  - Adds typed `UPGRADE_REQUIRED` responses for recipe-cap and durable-save boundaries.
+  - Adds typed `LINKED_ACCOUNT_REQUIRED` responses for recipe-cap and durable-save boundaries.
   - Enforces the anonymous 10-generation Chef It Up quota on `/api/recipes/suggestions` and `/api/recipes/pantry`.
   - Returns anonymous quota metadata from `/api/auth/session` and successful anonymous recipe responses.
   - Blocks anonymous durable profile/settings/pantry/cooking-session/history routes.
@@ -35,7 +38,7 @@ This branch turns the public anonymous guest MVP from "usable in the happy path"
   - Verifies guest sign-in against `/api/auth/session` so the server kill switch is honored before entering the app.
   - Routes Google backend sync through the shared API client so App Check is included.
 - `client/src/lib/rateLimitHandler.ts`
-  - Adds user-facing classification for `UPGRADE_REQUIRED`, anonymous-disabled, and App Check errors.
+  - Adds user-facing classification for `LINKED_ACCOUNT_REQUIRED`, anonymous-disabled, and App Check errors.
 - `.env.example`
   - Documents the new public-gate env vars.
 - `tests/unit/*`, `tests/setup.ts`
@@ -54,7 +57,7 @@ Anonymous Slop Bowl remains explicitly linked-only in this branch. That is inten
 ## Open items
 
 - Replit validation is still required for auth, schema, DB-backed persistence, AI routes, App Check, and deployment-bound behavior.
-- Open a PR from `codex/init-003-production-gates` after pushing.
+- PR #107 remains draft until Replit validation is complete.
 - Phase 4 Google link/promotion/import remains follow-up scope.
 - Phase 5 / anonymous Slop Bowl dry-run remains follow-up scope unless Wilson explicitly pulls it forward.
 
@@ -101,8 +104,8 @@ Steps to run on Replit:
 2. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY`; keep `FIREBASE_APP_CHECK_ENFORCED` off for the first baseline smoke.
 3. From the public landing page, start anonymous guest mode and complete setup with pantry/equipment/profile data.
 4. Generate Chef It Up recipes successfully as a guest and confirm quota metadata/logs progress.
-5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `UPGRADE_REQUIRED` with "unlock more recipes" copy and does not call the provider.
-6. Confirm guest profile/setup persistence remains same-browser local, while direct guest calls to durable profile/settings/cooking-session/history endpoints return `UPGRADE_REQUIRED` with "save your kitchen" copy.
+5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `LINKED_ACCOUNT_REQUIRED` with "unlock more recipes" copy and does not call the provider.
+6. Confirm guest profile/setup persistence remains same-browser local, while direct guest calls to durable profile/settings/cooking-session/history endpoints return `LINKED_ACCOUNT_REQUIRED` with "save your kitchen" copy.
 7. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous protected API calls return `ANONYMOUS_ACCESS_DISABLED`; unset it before continuing.
 8. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
 9. Confirm linked Google sign-in/upsert, linked profile writes, linked History, and linked cooking-session persistence still work.

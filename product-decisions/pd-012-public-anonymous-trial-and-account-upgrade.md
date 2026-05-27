@@ -4,8 +4,8 @@
 **Status:** Accepted
 **Decision maker:** Wilson
 **Type:** Product / UX / Security / Architecture
-**Scope:** Public app entry, guest usage limits, account upgrade boundary, and authenticated persistence contract
-**Applies when:** Changing pre-auth entry, anonymous Firebase behavior, recipe-generation gating, durable-save rules, linked-account upgrade prompts, or Phase 5 returning-user memory behavior.
+**Scope:** Public app entry, guest usage limits, linked-account boundary, and authenticated persistence contract
+**Applies when:** Changing pre-auth entry, anonymous Firebase behavior, recipe-generation gating, durable-save rules, linked-account prompts, or Phase 5 returning-user memory behavior.
 **Volatility:** Active review needed
 **Review trigger:** Revisit when guest-to-link conversion, abuse/cost telemetry, early-generation quality evidence, or returning-user behavior shows the 10-generation cap or local-persistence contract should change.
 **Related Initiatives:** [INIT-003 — Anonymous Trial and Account Upgrade](../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md), [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
@@ -44,7 +44,7 @@ The cap increased to 10 because:
 ### Public entry model
 
 - Laica allows Firebase anonymous auth as the public guest entry path.
-- Google sign-in remains the upgrade path to a durable account.
+- Google sign-in remains the path to a durable linked account.
 - The real Firebase auth contract remains intact. This is not a backend auth bypass and not a reuse of personal browser sessions or cookies.
 
 ### Guest recipe quota
@@ -57,6 +57,7 @@ The cap increased to 10 because:
 - Only successful generation responses count against the quota.
 - Validation errors, provider failures, canceled requests, and blocked requests do not count.
 - After the tenth successful generation, the next new generation attempt is blocked until the user links Google.
+- The v1 quota is counted per Firebase anonymous identity, not per durable human identity. Same-browser normal reopen should preserve the same anonymous UID and quota state, but explicit sign-out, cleared site data, another browser/device, or incognito can create a fresh anonymous UID. This is acceptable for the early public MVP because the quota is a low-friction product/conversion gate, while App Check, IP-keyed rate limits, and the kill switch are the abuse backstops. Revisit stronger identity or abuse controls only if usage/cost signals require it.
 
 ### Guest persistence contract
 
@@ -68,11 +69,12 @@ The cap increased to 10 because:
   - device change
 - This local persistence is a convenience contract, not an account-memory contract.
 
-### Upgrade boundary
+### Linked-account boundary
 
 - Google linking is required for recipe generation **#11 and beyond**.
 - Google linking is also required for any durable server-side save.
 - "Save gate" means the durable-write boundary, not the same-browser local guest experience.
+- Runtime/API terminology should use `LINKED_ACCOUNT_REQUIRED`, not `UPGRADE_REQUIRED`, for this boundary. Reserve "upgrade" language for future paid-tier work.
 
 Durable saves include:
 
@@ -97,7 +99,7 @@ Durable saves include:
 - The 10-generation cap is an internal product and abuse-control boundary, not the primary marketing message.
 - The guest quota should be **quiet first, stronger later**.
 - Remaining quota becomes more prominent as the guest approaches `2`, `1`, and `0` remaining generations.
-- The upgrade message depends on the trigger:
+- The linked-account prompt depends on the trigger:
   - recipe-cap moment: **unlock more recipes**
   - durable-save moment: **save your kitchen**
 
@@ -124,7 +126,7 @@ Durable saves include:
 - Product analytics for guest-to-link conversion, cap friction, and returning-user behavior is intentionally separate from this decision and should be tracked in its own follow-up work.
 - Environment-parity and browser-smoke automation remain under [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md). Guest auth can reduce browser-auth friction later, but it does not replace linked-account validation in Replit.
 - Anonymous entry creates a first-party browser automation path for the guest happy path: agents can start from `Start cooking now`, receive a real Firebase anonymous session, and exercise setup/recipe/cooking-guide flows without depending on a Google provider popup. This is a validation and developer-productivity benefit of the product direction, not a separate auth harness.
-- This automation benefit must not be overread. Google sign-in, linked-user profile upsert, linked-user history/cooking persistence, and upgrade-to-save behavior still require explicit linked-account validation in Replit.
+- This automation benefit must not be overread. Google sign-in, linked-user profile upsert, linked-user history/cooking persistence, and linked-save behavior still require explicit linked-account validation in Replit.
 
 ## Rationale
 
@@ -134,7 +136,7 @@ Durable saves include:
 - A same-browser persistence contract avoids the worst guest-mode annoyance: being forced to rescan pantry after every normal reopen.
 - A linked-only durable-memory boundary keeps Phase 5 coherent. Returning-user history, cleanup, and taste memory should belong to a real account, not to a fragile anonymous browser session.
 - Keeping the cap on recipe generation instead of on "full cooks" makes enforcement deterministic and easier to explain in the UI.
-- Splitting the upgrade copy between "unlock more recipes" and "save your kitchen" creates clearer user moments than using one generic account-upsell everywhere.
+- Splitting the linked-account copy between "unlock more recipes" and "save your kitchen" creates clearer user moments than using one generic account prompt everywhere.
 - The same guest path that improves first-use trust also improves automation confidence: it lets browser tests exercise more of the real product surface without fragile third-party auth popups, while still keeping linked-account behavior on the real Google/Firebase validation path.
 
 ## Alternatives considered
@@ -152,7 +154,7 @@ Durable saves include:
 ## Consequences
 
 - A new cross-cutting initiative, [INIT-003](../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md), is the active implementation home for this work.
-- Guest mode now has two explicit upgrade triggers:
+- Guest mode now has two explicit linked-account triggers:
   - generation cap
   - durable-save boundary
 - Phase 1 auth assumptions from [INIT-001](../initiatives/INIT-001-mobile-refresh.md) become historical baseline, not the final public-entry policy.
@@ -161,7 +163,7 @@ Durable saves include:
   - a provider-aware auth session contract
   - anonymous-safe quota accounting
   - local guest-state namespacing and cleanup
-  - typed upgrade-required responses for durable-write routes
+  - typed linked-account-required responses for durable-write routes
 
 ## Open follow-ups
 

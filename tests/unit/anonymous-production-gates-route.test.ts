@@ -180,8 +180,8 @@ describe('anonymous production gates', () => {
 
       expect(response.status).toBe(403);
       await expect(response.json()).resolves.toEqual({
-        code: 'UPGRADE_REQUIRED',
-        upgradeReason: 'recipe_quota',
+        code: 'LINKED_ACCOUNT_REQUIRED',
+        linkedAccountReason: 'recipe_limit',
         message: 'Link Google to unlock more recipes.',
         anonymousRecipeQuota: {
           limit: 10,
@@ -237,8 +237,8 @@ describe('anonymous production gates', () => {
 
       expect(response.status).toBe(403);
       await expect(response.json()).resolves.toEqual({
-        code: 'UPGRADE_REQUIRED',
-        upgradeReason: 'durable_save',
+        code: 'LINKED_ACCOUNT_REQUIRED',
+        linkedAccountReason: 'durable_save',
         message: 'Link Google to save your kitchen.',
       });
       expect(mocks.storage.updateUserProfile).not.toHaveBeenCalled();
@@ -264,8 +264,8 @@ describe('anonymous production gates', () => {
 
       expect(response.status).toBe(403);
       await expect(response.json()).resolves.toEqual({
-        code: 'UPGRADE_REQUIRED',
-        upgradeReason: 'durable_save',
+        code: 'LINKED_ACCOUNT_REQUIRED',
+        linkedAccountReason: 'durable_save',
         message: 'Link Google to save your kitchen.',
       });
       expect(mocks.storage.getUser).not.toHaveBeenCalled();
