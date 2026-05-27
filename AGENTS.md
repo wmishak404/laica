@@ -144,6 +144,7 @@ Current active INITs:
 
 - `efforts/effort-010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md` — read before changing recipe suggestion prompts, cuisine preference packaging, recipe eval criteria, cuisine picker options, or homepage/onboarding examples that name a cuisine tradition
+- `efforts/effort-024-guest-privacy-trust-messaging.md` — read before changing guest privacy/trust copy, public anonymous-entry privacy messaging, guest Settings privacy language, or linked-account prompts that contrast guest/local with linked/durable behavior
 
 If work belongs to an active/future INIT phase, update the INIT or feature phase record instead of creating a new Effort. If work is governance/process, update a workflow doc, ADR, or PD instead of creating a new Effort.
 
