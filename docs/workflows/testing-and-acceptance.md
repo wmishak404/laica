@@ -30,6 +30,16 @@ When asked for an app-wide test pass, separate "all existing automated tests" fr
 
 If a case is important enough to list and can be automated safely in the current branch, add the test. If it cannot be automated safely, mark the human/Replit dependency explicitly instead of implying confidence.
 
+## Auth-Scoped Client State
+
+When a change touches browser-local state, client caches, or persisted in-progress UI state for an auth-gated flow, treat identity switching as part of the acceptance criteria.
+
+- `localStorage`, `sessionStorage`, IndexedDB, in-memory stores, and TanStack Query keys that can affect profile, pantry, planning, history, cooking, billing, quota, or settings behavior must be scoped by the real auth identity and mode when the same browser can hold guest and linked users.
+- A cache key that is only the route path, such as `/api/user/profile`, is not enough when the value is user-specific and the query cache can outlive an auth switch.
+- Browser-local guest state may persist across normal reopen, but it must not be restored into a later linked account or another linked account on the same browser.
+- Legacy unscoped keys should be removed or explicitly migrated with a documented owner and validation plan; do not silently keep reading old cross-user state.
+- Tests should include a same-browser identity switch when practical: guest to linked, linked account A to linked account B, and stale legacy key to current scoped key. If this requires Replit because Firebase/Google is involved, list it as Replit human validation instead of treating local unit coverage as complete.
+
 ## Source of Truth
 
 | Need | Durable home |
@@ -63,6 +73,7 @@ Before locking direction for a feature enhancement, review the adjacent system s
 - User-facing copy and error-message taxonomy.
 - Parser/body limits, upload limits, request size limits, and rate limits.
 - Auth, ownership, persistence, and valid empty states.
+- Auth-scoped browser state and client cache isolation across guest, linked, sign-out, and account-switch transitions.
 - In-flight async work, Back/cancel behavior, stale-result handling, and navigation away from the surface.
 - Related INITs, active Efforts, PDs, workflow docs, and phase records.
 - Telemetry/privacy rules, especially [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md) for AI error logging.
