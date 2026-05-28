@@ -269,7 +269,7 @@ describe('anonymous production gates', () => {
       await expect(response.json()).resolves.toEqual({
         code: 'LINKED_ACCOUNT_REQUIRED',
         linkedAccountReason: 'durable_save',
-        message: 'Link Google to save your kitchen.',
+        message: 'Sign in or create an account to save your ingredients and profile.',
       });
       expect(mocks.storage.updateUserProfile).not.toHaveBeenCalled();
     } finally {
@@ -296,7 +296,7 @@ describe('anonymous production gates', () => {
       await expect(response.json()).resolves.toEqual({
         code: 'LINKED_ACCOUNT_REQUIRED',
         linkedAccountReason: 'durable_save',
-        message: 'Link Google to save your kitchen.',
+        message: 'Sign in or create an account to save your ingredients and profile.',
       });
       expect(mocks.storage.getUser).not.toHaveBeenCalled();
       expect(mocks.getSlopBowlRecipe).not.toHaveBeenCalled();

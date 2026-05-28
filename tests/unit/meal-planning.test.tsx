@@ -85,6 +85,7 @@ const recipeResponse = {
 
 interface RenderMealPlanningOptions {
   savePantryIngredients?: boolean;
+  sessionScopeKey?: string;
   initialProfile?: {
     cookingSkill: string;
     dietaryRestrictions: string[];
@@ -95,7 +96,12 @@ interface RenderMealPlanningOptions {
   onEditPantry?: () => void;
 }
 
-function renderMealPlanning({ savePantryIngredients = true, initialProfile, onEditPantry }: RenderMealPlanningOptions = {}) {
+function renderMealPlanning({
+  savePantryIngredients = true,
+  sessionScopeKey = 'linked:user-1',
+  initialProfile,
+  onEditPantry,
+}: RenderMealPlanningOptions = {}) {
   const onMealSelected = vi.fn();
   const onPantryIngredientsAdded = vi.fn(async (ingredients: string[]) => true);
 
@@ -122,6 +128,7 @@ function renderMealPlanning({ savePantryIngredients = true, initialProfile, onEd
     return (
       <MealPlanning
         userProfile={profile}
+        sessionScopeKey={sessionScopeKey}
         initialTimeAvailable="30"
         onPlanningTimeChange={vi.fn()}
         onPantryIngredientsAdded={onPantryIngredientsAdded}
@@ -163,6 +170,74 @@ afterEach(() => {
 });
 
 describe('MealPlanning recipe generation locking', () => {
+  it('restores in-progress planning only from the current auth scope', async () => {
+    const savedAt = Date.now();
+    window.localStorage.setItem('laica_meal_planning_session_v2', JSON.stringify({
+      currentStep: 'cuisine',
+      mealPrefs: {
+        timeAvailable: '90',
+        cuisinePreference: ['Thai'],
+      },
+      selectedStaples: [],
+      seenStapleCandidates: [],
+      recommendations: [],
+      selectedMeal: null,
+      savedAt,
+    }));
+    window.localStorage.setItem('laica_meal_planning_session_v2:guest:old-user', JSON.stringify({
+      currentStep: 'cuisine',
+      mealPrefs: {
+        timeAvailable: '60',
+        cuisinePreference: ['Korean'],
+      },
+      selectedStaples: [],
+      seenStapleCandidates: [],
+      recommendations: [],
+      selectedMeal: null,
+      savedAt,
+    }));
+    window.localStorage.setItem('laica_meal_planning_session_v2:linked:user-1', JSON.stringify({
+      currentStep: 'cuisine',
+      mealPrefs: {
+        timeAvailable: '45',
+        cuisinePreference: ['Japanese'],
+      },
+      selectedStaples: [],
+      seenStapleCandidates: [],
+      recommendations: [],
+      selectedMeal: null,
+      savedAt,
+    }));
+
+    renderMealPlanning({ sessionScopeKey: 'linked:user-1' });
+
+    expect(await screen.findByRole('heading', { name: /what sounds good/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /japanese/i }).dataset.selected).toBe('true');
+    expect(screen.getByRole('button', { name: /thai/i }).dataset.selected).toBe('false');
+    expect(screen.getByRole('button', { name: /korean/i }).dataset.selected).toBe('false');
+    expect(window.localStorage.getItem('laica_meal_planning_session_v2')).toBeNull();
+  });
+
+  it('starts fresh when only another auth scope has in-progress planning', () => {
+    window.localStorage.setItem('laica_meal_planning_session_v2:guest:old-user', JSON.stringify({
+      currentStep: 'cuisine',
+      mealPrefs: {
+        timeAvailable: '60',
+        cuisinePreference: ['Korean'],
+      },
+      selectedStaples: [],
+      seenStapleCandidates: [],
+      recommendations: [],
+      selectedMeal: null,
+      savedAt: Date.now(),
+    }));
+
+    renderMealPlanning({ sessionScopeKey: 'linked:new-user' });
+
+    expect(screen.getByRole('heading', { name: /how much time do you have today/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /korean/i })).toBeNull();
+  });
+
   it('blocks pantry-based recipes when a returning profile has an empty pantry', () => {
     const onEditPantry = vi.fn();
     renderMealPlanning({

@@ -125,7 +125,7 @@ const requireLinkedAccount: RequestHandler = (req: any, res, next) => {
     return linkedAccountRequiredResponse(
       res,
       "durable_save",
-      "Link Google to save your kitchen.",
+      "Sign in or create an account to save your ingredients and profile.",
     );
   }
 

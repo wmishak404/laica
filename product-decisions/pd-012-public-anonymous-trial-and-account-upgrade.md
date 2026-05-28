@@ -103,7 +103,7 @@ Durable saves include:
 - Remaining quota becomes more prominent as the guest approaches `2`, `1`, and `0` remaining generations.
 - The linked-account prompt depends on the trigger:
   - recipe-cap moment: **unlock more recipes**
-  - durable-save moment: **save your kitchen**
+  - durable-save moment: **sign in or create an account to save your ingredients and profile**
 
 ### Security contract
 
@@ -141,7 +141,7 @@ Durable saves include:
 - A same-browser persistence contract avoids the worst guest-mode annoyance: being forced to rescan pantry after every normal reopen.
 - A linked-only durable-memory boundary keeps Phase 5 coherent. Returning-user history, cleanup, and taste memory should belong to a real account, not to a fragile anonymous browser session.
 - Keeping the cap on recipe generation instead of on "full cooks" makes enforcement deterministic and easier to explain in the UI.
-- Splitting the linked-account copy between "unlock more recipes" and "save your kitchen" creates clearer user moments than using one generic account prompt everywhere.
+- Splitting the linked-account copy between "unlock more recipes" and "sign in or create an account to save your ingredients and profile" creates clearer user moments than using one generic account prompt everywhere, while reserving "upgrade" language for later paid-tier work.
 - The same guest path that improves first-use trust also improves automation confidence: it lets browser tests exercise more of the real product surface without fragile third-party auth popups, while still keeping linked-account behavior on the real Google/Firebase validation path.
 
 ## Alternatives considered

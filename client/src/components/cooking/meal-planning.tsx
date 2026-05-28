@@ -75,6 +75,7 @@ interface RecipeTransformContext {
 
 interface MealPlanningProps {
   userProfile: UserProfile;
+  sessionScopeKey: string;
   initialTimeAvailable: PlanningTimeValue;
   onPlanningTimeChange: (value: PlanningTimeValue) => void;
   onPantryIngredientsAdded: (ingredients: string[]) => Promise<boolean>;
@@ -153,6 +154,7 @@ const splitRecipeName = (recipeName: string): { main: string; detail?: string } 
 
 export default function MealPlanning({
   userProfile,
+  sessionScopeKey,
   initialTimeAvailable,
   onPlanningTimeChange,
   onPantryIngredientsAdded,
@@ -176,6 +178,10 @@ export default function MealPlanning({
   const generationRunIdRef = useRef(0);
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const { toast } = useToast();
+  const mealPlanningStorageKey = useMemo(
+    () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
+    [sessionScopeKey],
+  );
 
   const validateSession = (data: any): SavedMealPlanningSession | null => {
     try {
@@ -215,12 +221,14 @@ export default function MealPlanning({
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(MEAL_PLANNING_STORAGE_KEY);
+      localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+
+      const saved = localStorage.getItem(mealPlanningStorageKey);
       if (!saved) return;
 
       const session = validateSession(JSON.parse(saved));
       if (!session) {
-        localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+        localStorage.removeItem(mealPlanningStorageKey);
         return;
       }
 
@@ -237,13 +245,13 @@ export default function MealPlanning({
         setSessionRestored(true);
         onPlanningTimeChange(session.mealPrefs.timeAvailable);
       } else {
-        localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+        localStorage.removeItem(mealPlanningStorageKey);
       }
     } catch (error) {
       console.error('Error loading saved planning session:', error);
-      localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+      localStorage.removeItem(mealPlanningStorageKey);
     }
-  }, [onPlanningTimeChange]);
+  }, [mealPlanningStorageKey, onPlanningTimeChange]);
 
   useEffect(() => {
     if (sessionRestored) {
@@ -264,8 +272,17 @@ export default function MealPlanning({
       savedAt: Date.now(),
     };
 
-    localStorage.setItem(MEAL_PLANNING_STORAGE_KEY, JSON.stringify(session));
-  }, [currentStep, mealPrefs, selectedStaples, seenStapleCandidates, recommendations, selectedMeal, sessionRestored]);
+    localStorage.setItem(mealPlanningStorageKey, JSON.stringify(session));
+  }, [
+    currentStep,
+    mealPrefs,
+    selectedStaples,
+    seenStapleCandidates,
+    recommendations,
+    selectedMeal,
+    sessionRestored,
+    mealPlanningStorageKey,
+  ]);
 
   useEffect(() => {
     if (currentStep !== 'tickets' && currentStep !== 'prep-tray') return;
@@ -618,7 +635,7 @@ export default function MealPlanning({
   };
 
   const handleMealSelected = (meal: RecipeRecommendation) => {
-    localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+    localStorage.removeItem(mealPlanningStorageKey);
     onMealSelected(meal, 'now');
   };
 

@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,7 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
-import { useDeleteAllCookingSessions, useDeleteCookingSession } from '@/hooks/useCookingSession';
+import { useCookingSessions, useDeleteAllCookingSessions, useDeleteCookingSession } from '@/hooks/useCookingSession';
 import type { RecipeSnapshotData } from '@/hooks/useCookingSession';
 import type { CookingSession } from '@shared/schema';
 import { ChefHat, Clock, History, MoreVertical, Trash2, Utensils } from 'lucide-react';
@@ -41,9 +40,7 @@ function getNextHistoryHeadline() {
 
 export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps) {
   const { toast } = useToast();
-  const { data: sessions, isLoading } = useQuery<CookingSession[]>({
-    queryKey: ['/api/cooking/sessions'],
-  });
+  const { data: sessions, isLoading } = useCookingSessions();
   const deleteSessionMutation = useDeleteCookingSession();
   const deleteAllMutation = useDeleteAllCookingSessions();
 

@@ -36,7 +36,7 @@ Phase 3 shipped through [PR #102](https://github.com/wmishak404/laica/pull/102),
 
 The next work is the remaining production-gate slice that makes public anonymous traffic safe to operate: quota enforcement, anonymous kill switch, anonymous rate-limit identity, App Check posture, and linked-account save boundaries.
 
-As of 2026-05-27, `codex/init-003-production-gates` implements the local code slice for those gates and awaits Replit-side schema/secrets/runtime validation before merge readiness:
+As of 2026-05-28, `codex/init-003-production-gates` implements the local code slice for those gates and is partway through Replit-side schema/secrets/runtime validation before merge readiness:
 
 - `anonymous_recipe_usage` tracks anonymous recipe-generation quota without creating `auth_users` rows for anonymous sign-in alone.
 - Chef It Up generation routes reserve one anonymous quota slot before provider work and refund it on provider failure; recipe attempt `#11+` returns typed `LINKED_ACCOUNT_REQUIRED`.
@@ -45,6 +45,7 @@ As of 2026-05-27, `codex/init-003-production-gates` implements the local code sl
 - Firebase App Check verification is available behind `FIREBASE_APP_CHECK_ENFORCED`; the client sends `X-Firebase-AppCheck` when `VITE_FIREBASE_APP_CHECK_SITE_KEY` is configured.
 - Durable profile/settings/pantry/cooking-session/history routes reject anonymous tokens with typed `LINKED_ACCOUNT_REQUIRED` so server-side saves remain linked-account only.
 - Guest Settings for Pantry, Kitchen, and Cooking Profile remain available as same-browser session edits; they update the browser-local guest profile and do not call durable profile/settings APIs.
+- Chef It Up planning state, planning time, local cooking resume state, linked profile queries, and linked cooking-session/history queries are scoped by guest/linked user identity so same-browser anonymous trials do not cross-pollinate into later Google accounts.
 
 The 10-generation quota is intentionally a low-friction v1 product gate, not a durable human-identity guarantee. Same-browser normal reopen should preserve the same anonymous Firebase UID and quota state, but explicit sign-out, cleared site data, another browser/device, or incognito can create a fresh anonymous UID. Wilson accepted this tradeoff on 2026-05-27 for the early public MVP; App Check, IP-keyed rate limits, and the anonymous kill switch are the current abuse backstops. Stronger identity or abuse controls are deferred until usage/cost signals justify crossing that bridge.
 
@@ -116,7 +117,7 @@ PD-012 is the source of truth for the image-generation approach: public product-
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
 | [#102](https://github.com/wmishak404/laica/pull/102) | Merged | `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`; local unhappy-path probes covered no-auth API rejection, anonymous Google-upsert rejection, empty-pantry guest guard, and anonymous live-cooking durable-session guard |
-| [#107](https://github.com/wmishak404/laica/pull/107) | Draft | `codex/init-003-production-gates` | Rebases onto `origin/main` at `fc55772` after PR #108; local `npm ci`, focused Vitest, full Vitest suite, `npm run check`, `npm run build`, and `git diff --check` passed on 2026-05-27; existing Playwright e2e is stale/failing and not app-wide evidence; Replit validation not yet run |
+| [#107](https://github.com/wmishak404/laica/pull/107) | Draft | `codex/init-003-production-gates` | Rebases onto `origin/main` at `fc55772` after PR #108; local `npm ci`, focused Vitest, full Vitest suite, `npm run check`, `npm run build`, and `git diff --check` passed; existing Playwright e2e is stale/failing and not app-wide evidence; Wilson's Replit walkthrough has partially passed guest Settings, provider sanity, schema, quota, durable-save, Google sign-in, and History checks, but linked profile/settings cache isolation was fixed after that walkthrough and still needs re-smoke; kill switch and App Check enforcement remain unvalidated |
 
 ## Efforts and Governance
 
@@ -141,7 +142,7 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 - Same-browser guest persistence through normal reopen was accepted so users do not have to rescan pantry after ordinary browser restarts.
 - The linked-account prompt split was accepted:
   - cap moment: unlock more recipes
-  - save moment: save your kitchen
+  - save moment: sign in or create an account to save your ingredients and profile
 - Product analytics was intentionally separated from INIT-003 runtime scope so guest auth, quota, persistence, and Phase 5 boundaries can land without also inventing a new analytics foundation.
 - Wilson placed the richer pre-auth homepage in INIT-003 Phase 3 because it is the public guest-entry surface, not only historical mobile-refresh auth polish. The accepted landing direction is the A+C hybrid: lead with `Cook from what you already have.`, use `Start cooking now` as the guest CTA, keep Google as the linked-account path, use a 3-step proof carousel for scan/recipe/guidance, and avoid numeric quota language on the landing page.
 - Wilson accepted Plan B on 2026-05-22: ship the public homepage and narrow guest MVP before full INIT-001 Phase 4 or Phase 5, as long as production guest gates remain explicit and durable cooking memory stays linked-account only.
@@ -167,12 +168,19 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - `git diff --check`
 - 2026-05-27 Playwright probe after PR #108 rebase found 30 e2e cases in `tests/e2e/cooking-workflow.test.ts`, but the Chromium slice failed all 6 cases on stale selectors/test assumptions (`Sign in with Google`, `recipe-list`, `Ask for Help`, `audio-toggle`). This is recorded as stale e2e coverage, not product validation evidence for INIT-003.
 - 2026-05-27 guest Settings adjustment added local coverage that anonymous users can open Settings from the menu or empty-pantry recovery and save Pantry add/delete, Kitchen edits, and Cooking Profile edits through the session callback without durable API calls.
-- Replit validation has not yet run for `codex/init-003-production-gates`. It must include schema availability for `anonymous_recipe_usage`, real anonymous quota exhaustion, real Google sign-in/upsert, kill-switch behavior, App Check configured/enforced behavior, durable-save rejection for guests, and linked-user profile/history/cooking persistence sanity checks.
+- 2026-05-28 local checks after the Replit cache-isolation finding passed:
+  - `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/meal-planning.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/live-cooking-guest-session.test.tsx` — 30 tests
+  - `npm run check`
+  - `npx vitest run` — 26 files / 162 tests
+  - `npm run build`
+  - `git diff --check`
+- 2026-05-28 Replit validation has partially run for `codex/init-003-production-gates`: Wilson confirmed guest Settings session-local edits, Chef It Up using edited guest data, History and Slop Bowl linked-only boundaries, Google sign-in, linked History loads/writes, durable-save rejection for guests, provider sanity for vision/recipes/cooking steps/speech, `anonymous_recipe_usage` schema availability after a manual Replit DB helper, and the `#11` guest quota block returning `403 LINKED_ACCOUNT_REQUIRED`. Wilson found a same-browser cache cross-pollination fault where anonymous/older linked Chef It Up planning preferences could appear after signing in with Google; this branch now scopes that local and query cache by auth identity and needs Replit re-smoke at the new head.
+- Kill-switch validation and App Check enforced validation have not yet run. Production-public enablement remains blocked until both are checked at the branch SHA that will merge.
 
 ## Current Resume Point
 
-1. Have Replit fetch `codex/init-003-production-gates` from `origin` after the `anonymous_recipe_usage` schema is applied through the Replit-authoritative path.
-2. Validate on Replit before merge: anonymous session startup, guest Settings Pantry/Kitchen/Profile edits staying session-local, 10 successful Chef It Up generations and `#11` `LINKED_ACCOUNT_REQUIRED` block, provider-failure no-count/refund behavior if observable in logs, anonymous kill switch, anonymous IP-keyed rate-limit posture, Firebase App Check configured/enforced behavior, Google linked sign-in/upsert, and linked profile/history/cooking persistence.
+1. Have Replit fetch the latest `codex/init-003-production-gates` head after the cache-isolation fix.
+2. Re-smoke on Replit before merge: linked profile/settings save from a browser that previously used anonymous guest mode, no stale cuisine/time selections from a prior guest or linked account, guest durable-save copy, linked cooking-session persistence, anonymous kill switch, anonymous IP-keyed rate-limit posture, and Firebase App Check configured/enforced behavior.
 3. Keep `FIREBASE_APP_CHECK_ENFORCED` off in production until `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console App Check settings are configured for the public domain and Replit validation confirms protected API calls still succeed.
 4. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, anonymous abuse controls, and linked-save boundaries are validated at the branch SHA that will merge.
 5. Keep Phase 4 Google link/promotion and Phase 5/anonymous Slop Bowl dry-run as follow-up scope unless Wilson explicitly pulls them into this gate branch.
@@ -230,3 +238,19 @@ Wilson's Replit walkthrough then exposed a guest UX gap: after first setup/cook,
 Wilson's Replit quota walkthrough also showed the old 10-request / 1-hour recipe rate limit firing as `429 RATE_LIMITED` before the intended `#11` guest quota boundary could be observed. The branch now uses a 20-request / 30-minute Chef It Up user burst limit and rate-limit copy based on the server `Retry-After` header. A `429` remains abuse-control behavior; the `#11` quota acceptance check is still the separate `403 LINKED_ACCOUNT_REQUIRED` path.
 
 The same walkthrough then exposed an OpenAI prepaid-credit exhaustion path: OpenAI returned `insufficient_quota`, the route refunded the anonymous quota reservation, but the user-facing failure was too easy to confuse with Laica's guest cap or app rate limiter. The branch now preserves OpenAI `insufficient_quota` as typed `503 AI_PROVIDER_QUOTA_EXHAUSTED` with copy that says the issue is on Laica's AI capacity side, not the guest recipe limit. A provider-quota failure still does not count as a successful anonymous recipe generation.
+
+### 2026-05-28 — Replit validation findings and cache isolation fix
+
+Wilson's Replit validation covered the real anonymous/linked runtime more deeply:
+
+- guest Settings after setup now works for Pantry, Kitchen, and Cooking Profile as session-local browser data
+- Chef It Up used the edited guest local profile data on a later generation
+- History and Slop Bowl remained linked-account only
+- Google sign-in and linked History loaded/wrote successfully
+- direct guest durable-save attempts returned `LINKED_ACCOUNT_REQUIRED`
+- vision scan, recipe generation, cooking steps, and speech synthesis worked after OpenAI credits were refilled
+- `anonymous_recipe_usage` existed after Replit-side schema setup, and the guest `#11` recipe-generation attempt returned the intended `403 LINKED_ACCOUNT_REQUIRED`
+
+The walkthrough also found a cache-isolation bug: same-browser Chef It Up planning preferences and last time selection could carry from anonymous or prior linked sessions into a later Google account. The branch now scopes Chef It Up planning session storage, planning-time storage, local live-cooking resume storage, linked profile query cache, and linked cooking-session/history query cache by guest/linked user identity. Legacy unscoped browser keys are removed instead of restored.
+
+Remaining Replit gates before merge readiness are kill switch, App Check enforced mode, linked profile/settings save re-smoke after the cache fix, linked cooking-session persistence, and the final provider sanity pass at the exact merge SHA.

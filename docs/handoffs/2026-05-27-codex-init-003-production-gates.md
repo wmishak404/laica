@@ -17,6 +17,8 @@ Wilson's Replit walkthrough showed the old 10-request / 1-hour recipe rate limit
 
 Wilson later refilled OpenAI API credits after Replit surfaced OpenAI `insufficient_quota`. The route was already refunding the anonymous quota reservation on provider failure, but the failure was too easy to confuse with the app limiter or guest quota. This branch now preserves OpenAI quota exhaustion as typed `503 AI_PROVIDER_QUOTA_EXHAUSTED`, with client copy that says the issue is on Laica's AI capacity side and not the user's guest limit.
 
+Wilson's 2026-05-28 Replit pass also exposed a same-browser cache-isolation fault: anonymous or older linked Chef It Up planning preferences could appear after signing in with a different Google account. This branch now scopes Chef It Up planning state, planning time, local live-cooking resume state, linked profile query cache, and linked cooking-session/history query cache by guest/linked user identity, and it drops legacy unscoped browser keys instead of restoring them.
+
 ## Changes
 
 - `shared/schema.ts`
@@ -25,6 +27,7 @@ Wilson later refilled OpenAI API credits after Replit surfaced OpenAI `insuffici
   - Adds quota read/reserve/refund methods. Reservation is atomic and refunded on provider failure so validation errors and failed generations do not consume the intended successful-generation quota.
 - `server/routes.ts`
   - Adds typed `LINKED_ACCOUNT_REQUIRED` responses for recipe-cap and durable-save boundaries.
+  - Uses "Sign in or create an account to save your ingredients and profile" copy for durable-save boundaries.
   - Enforces the anonymous 10-generation Chef It Up quota on `/api/recipes/suggestions` and `/api/recipes/pantry`.
   - Returns anonymous quota metadata from `/api/auth/session` and successful anonymous recipe responses.
   - Returns typed `AI_PROVIDER_QUOTA_EXHAUSTED` for OpenAI prepaid-credit/quota exhaustion while refunding anonymous quota reservations.
@@ -49,6 +52,11 @@ Wilson later refilled OpenAI API credits after Replit surfaced OpenAI `insuffici
   - Allows anonymous guests to open Settings for Pantry, Kitchen, and Cooking Profile after setup.
   - Saves guest Settings edits through the same browser-local guest profile used by setup and planning, without calling durable profile/settings APIs.
   - Keeps History and Slop Bowl linked-account only.
+- `client/src/pages/app.tsx`, `client/src/pages/cooking-new.tsx`, `client/src/components/cooking/meal-planning.tsx`, `client/src/components/cooking/live-cooking.tsx`
+  - Scopes browser-local planning time, Chef It Up planning session restore, and live-cooking local resume state by guest/linked user identity.
+  - Removes legacy unscoped local-storage keys so stale anonymous or prior-account state is not restored into a later account.
+- `client/src/hooks/useAuth.ts`, `client/src/hooks/useCookingSession.ts`, `client/src/components/cooking/cooking-history.tsx`
+  - Scopes linked profile, active cooking-session, and cooking-history query keys by auth user id so TanStack Query's infinite stale time cannot reuse another account's cached data.
 - `client/src/lib/rateLimitHandler.ts`
   - Adds user-facing classification for `LINKED_ACCOUNT_REQUIRED`, anonymous-disabled, and App Check errors.
   - Uses `Retry-After` for rate-limit wait copy instead of hardcoding "a few minutes."
@@ -74,23 +82,26 @@ Anonymous Slop Bowl remains explicitly linked-only in this branch. That is inten
 
 Guest Settings are available in this branch, but only as local guest-profile edits. Replit validation should confirm a guest can revisit Settings after setup/cooking, add/delete pantry items, update kitchen tools/profile, return to Chef It Up, and still receive `LINKED_ACCOUNT_REQUIRED` for direct durable profile/settings/history/cooking-session API writes.
 
+Any Replit validation done before the cache-isolation fix is stale for linked profile/settings save and linked cooking-session/history cache behavior. Re-smoke with a browser that previously used anonymous guest mode before considering the linked regression resolved.
+
 ## Open items
 
-- Replit validation is still required for auth, schema, DB-backed persistence, AI routes, App Check, and deployment-bound behavior.
+- Replit validation is still required for the latest head's linked cache isolation, kill switch, App Check enforcement, linked cooking-session persistence, and final deployment-bound behavior.
 - PR #107 remains draft until Replit validation is complete.
 - Phase 4 Google link/promotion/import remains follow-up scope.
 - Phase 5 / anonymous Slop Bowl dry-run remains follow-up scope unless Wilson explicitly pulls it forward.
 
 ## Verification
 
-Local checks passed on 2026-05-27:
+Local checks passed on 2026-05-27 and 2026-05-28:
 
 - `npm ci`
 - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/security-hardening.test.ts tests/unit/live-cooking-guest-session.test.tsx tests/unit/slop-bowl-route.test.ts tests/unit/phase0-security-routes.test.ts`
 - `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/live-cooking-guest-session.test.tsx`
 - `npx vitest run tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/ai-error-handling.test.tsx`
 - `npx vitest run tests/unit/ai-provider-errors.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-error-handling.test.tsx`
-- `npx vitest run` — 26 files / 159 tests passed after provider-quota classification
+- `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/meal-planning.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/live-cooking-guest-session.test.tsx` — 30 tests passed after cache-isolation fix
+- `npx vitest run` — 26 files / 162 tests passed after cache-isolation fix
 - `npm run check`
 - `npm run build`
 - `git diff --check`
@@ -108,17 +119,18 @@ Playwright e2e status:
 
 | Case | Local automated? | Replit automated? | Needs Replit human? | Confidence / provenance |
 |---|---|---|---|---|
-| Anonymous guest server session and quota metadata | Partial | No script yet | Yes | `tests/unit/auth-session-route.test.ts` and `tests/unit/anonymous-production-gates-route.test.ts` cover route/session seams with mocked Firebase/storage/OpenAI; Replit must prove real Firebase anonymous auth, DB schema, and provider calls. |
-| Anonymous quota success and metadata | Yes | No script yet | Yes | `tests/unit/anonymous-production-gates-route.test.ts` proves reserve/metadata behavior locally; Replit must prove `anonymous_recipe_usage` exists and provider-backed quota writes/reads work. |
-| Attempt `#11` block | Yes | No script yet | Yes | Local test asserts `LINKED_ACCOUNT_REQUIRED`, `linkedAccountReason: recipe_limit`, quota `0`, and no OpenAI call; Replit should exhaust the same anonymous UID or use a test-safe seeded quota row. |
+| Anonymous guest server session and quota metadata | Partial | No script yet | Replit partially passed | `tests/unit/auth-session-route.test.ts` and `tests/unit/anonymous-production-gates-route.test.ts` cover route/session seams with mocked Firebase/storage/OpenAI. Wilson validated real anonymous runtime enough to continue, but final pass should still happen at the merge SHA. |
+| Anonymous quota success and metadata | Yes | No script yet | Replit partially passed | `tests/unit/anonymous-production-gates-route.test.ts` proves reserve/metadata behavior locally. Replit initially lacked `anonymous_recipe_usage`; after manual schema setup, Wilson confirmed the table was ready and continued quota validation. |
+| Attempt `#11` block | Yes | No script yet | Replit passed before latest cache fix | Local test asserts `LINKED_ACCOUNT_REQUIRED`, `linkedAccountReason: recipe_limit`, quota `0`, and no OpenAI call. Wilson observed the intended `403 LINKED_ACCOUNT_REQUIRED` after exhausting the guest quota; final merge readiness should re-check only if quota code changes again. |
 | Provider failure refund | Yes | No script yet | Maybe | Local test forces provider failure and asserts refund; Replit can only prove this if logs or a safe forced-failure path make it observable. |
-| OpenAI provider quota exhaustion | Yes | No script yet | Replit confidence gap | `tests/unit/ai-provider-errors.test.ts`, `tests/unit/anonymous-production-gates-route.test.ts`, and `tests/unit/ai-error-handling.test.tsx` prove OpenAI `insufficient_quota` becomes typed `503 AI_PROVIDER_QUOTA_EXHAUSTED`, refunds anonymous quota, and is not presented as app rate limit or guest quota. Replit should confirm after API credits are refilled. |
-| Guest durable-save boundaries | Yes | No script yet | Yes | Local route/component tests cover guest blocking and linked-user cooking-session preservation; Replit must prove real Google linked persistence still works. |
-| Guest Settings session-local edits | Yes | No script yet | Yes | `tests/unit/planning-choice.test.tsx` covers menu and empty-pantry entry into session Settings; `tests/unit/user-settings-scan-policy.test.tsx` covers pantry add/delete, kitchen edits, and cooking-profile edits without durable API calls. Replit must prove this with real anonymous auth, setup scans, and later Chef It Up use. |
-| Anonymous kill switch | Yes | No script yet | Yes | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification; Replit requires env change/restart and human confirmation before public enablement. |
+| OpenAI provider quota exhaustion | Yes | No script yet | Replit partially passed | `tests/unit/ai-provider-errors.test.ts`, `tests/unit/anonymous-production-gates-route.test.ts`, and `tests/unit/ai-error-handling.test.tsx` prove OpenAI `insufficient_quota` becomes typed `503 AI_PROVIDER_QUOTA_EXHAUSTED`, refunds anonymous quota, and is not presented as app rate limit or guest quota. Wilson confirmed the OpenAI credit issue was provider billing capacity, then refilled credits and resumed validation. |
+| Guest durable-save boundaries | Yes | No script yet | Replit partially passed | Local route/component tests cover guest blocking and linked-user cooking-session preservation. Wilson confirmed guest durable saves are blocked, but copy changed afterward and should be re-smoked. |
+| Guest Settings session-local edits | Yes | No script yet | Replit passed before latest cache fix | `tests/unit/planning-choice.test.tsx` covers menu and empty-pantry entry into session Settings; `tests/unit/user-settings-scan-policy.test.tsx` covers pantry add/delete, kitchen edits, and cooking-profile edits without durable API calls. Wilson confirmed guest Settings, Chef It Up using edited data, and linked-only History/Slop Bowl on Replit. |
+| Linked account cache isolation | Yes | No script yet | Needs Replit re-smoke | `tests/unit/planning-choice.test.tsx` and `tests/unit/meal-planning.test.tsx` prove planning-time and in-progress Chef It Up state are scoped by auth identity. Code now also scopes linked profile/history/cooking query keys and live-cooking local resume state. Wilson's failing Replit linked profile/settings save check was caused by this cache bleed and must be re-run at the new head. |
+| Anonymous kill switch | Yes | No script yet | Yes, not yet run | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification; Replit requires env change/restart and human confirmation before public enablement. |
 | Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation, typed payloads, and the 20-request / 30-minute Chef It Up burst default; Replit should watch proxy/client-IP behavior in the long-running runtime. |
-| App Check posture | Yes | No script yet | Yes | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
-| Vision and ElevenLabs sanity | No direct local provider test in this branch | No script yet | Yes | Auth/App Check header changes can break protected provider routes; real secrets/network/audio behavior must be checked on Replit. |
+| App Check posture | Yes | No script yet | Yes, not yet run | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
+| Vision and ElevenLabs sanity | No direct local provider test in this branch | No script yet | Replit passed baseline | Auth/App Check header changes can break protected provider routes; Wilson confirmed vision scan, recipe generation, cooking steps, and speech synthesis in the Replit baseline. Repeat after App Check enforcement is enabled. |
 | Existing app-wide browser e2e | Listed, but stale/failing | No script yet | Yes for service-backed functions | `npx playwright test --project=chromium` fails on stale selectors in `tests/e2e/cooking-workflow.test.ts`; repair/replace this suite before treating it as app-wide browser evidence. |
 | Deferred Phase 4/5 scope | No | No | Not for this branch | Google promotion/import, anonymous Slop Bowl dry-run, durable guest memory, and Phase 5 memory remain out of scope per INIT-003. |
 
@@ -130,7 +142,7 @@ Validated locally:
 - [x] `npm run check`
 - [x] `npm run build`
 - [x] focused Vitest suite listed above
-- [x] full Vitest suite: 26 files / 159 tests
+- [x] full Vitest suite: 26 files / 162 tests
 - [x] Playwright e2e probe attempted; current Chromium suite is stale/failing, so it is not app-wide evidence
 - [ ] manual localhost smoke
 
@@ -146,27 +158,30 @@ Focus areas:
 - [x] Firebase Admin token verification
 - [x] DB writes/reads + schema
 - [x] AI routes
-- [x] Firebase App Check
+- [ ] Firebase App Check enforced mode
 - [x] Vision / uploads enough to confirm App Check/auth headers do not break setup scans
 - [x] ElevenLabs speech sanity enough to confirm auth middleware changes did not regress protected speech routes
 
-Steps to run on Replit:
+Steps already run or partially run on Replit:
 
-1. Apply/confirm `anonymous_recipe_usage` exists through the Replit-authoritative schema path.
-2. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY`; keep `FIREBASE_APP_CHECK_ENFORCED` off for the first baseline smoke.
-3. From the public landing page, start anonymous guest mode and complete setup with pantry/equipment/profile data.
-4. Generate Chef It Up recipes successfully as a guest and confirm quota metadata/logs progress.
-5. Drive the same anonymous UID to 10 successful recipe generations, then confirm attempt `#11` returns `LINKED_ACCOUNT_REQUIRED` with "unlock more recipes" copy and does not call the provider. If a `429 RATE_LIMITED` appears instead, treat it as rate-limit behavior rather than quota acceptance evidence; the current default should allow 20 recipe requests per 30 minutes. If `503 AI_PROVIDER_QUOTA_EXHAUSTED` appears, treat it as provider billing/credit capacity and not as quota acceptance evidence.
-6. Confirm guest profile/setup persistence remains same-browser local, including Settings Pantry/Kitchen/Cooking Profile edits after setup/cooking, while direct guest calls to durable profile/settings/cooking-session/history endpoints return `LINKED_ACCOUNT_REQUIRED` with "save your kitchen" copy.
-7. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous protected API calls return `ANONYMOUS_ACCESS_DISABLED`; unset it before continuing.
-8. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
-9. Confirm linked Google sign-in/upsert, linked profile writes, linked History, and linked cooking-session persistence still work.
+1. `anonymous_recipe_usage` was missing at first, then Wilson applied the Replit-side helper and confirmed `anonymous_recipe_usage ready: { rows: 0 }`.
+2. Guest setup, guest Settings Pantry/Kitchen/Cooking Profile edits, returning to Chef It Up with edited guest data, linked-only History/Slop Bowl boundaries, Google sign-in, linked History, durable-save guest rejection, vision scan, recipe generation, cooking steps, and speech synthesis were baseline-passed by Wilson.
+3. The guest `#11` quota block was observed as `403 LINKED_ACCOUNT_REQUIRED`. Earlier `429` results were app abuse-rate-limit behavior, and one `insufficient_quota` result was OpenAI prepaid-credit capacity, not guest quota.
 
-Last Replit-validated at: not yet validated.
+Remaining Replit steps before merge readiness:
+
+1. Fetch the latest branch head that includes cache isolation and durable-save copy changes.
+2. Re-test linked profile/settings save in the same browser after anonymous guest use and after an older linked session. Expected: no stale cuisine/time selections or prior profile data from another auth identity.
+3. Re-test direct guest durable-save rejection copy. Expected: "Sign in or create an account to save your ingredients and profile."
+4. Test linked cooking-session persistence: sign in with Google, enter live cooking from a generated recipe, wait for steps/session start, advance at least one step, refresh or navigate away/back, and confirm the linked session/history resumes or writes for that same Google account only.
+5. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous protected API/session calls return `ANONYMOUS_ACCESS_DISABLED`; unset it before continuing.
+6. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console/domain settings if not already configured. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
+
+Last Replit-validated at: partial manual validation before the cache-isolation fix; latest head not yet validated.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `fc55772f3055aea631ba162d4da60d901b02d772`
-- Last Replit-validated at: not yet validated for this branch
+- Last Replit-validated at: partial manual validation before the cache-isolation fix; latest head not yet validated
 - Notes: `codex/init-003-production-gates` was reset from old Phase 3 base `515b7ec` onto fresh `origin/main` after PR #105 and PR #106, then rebased again after docs-only PR #108 merged. PR #102 was previously Replit-validated at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`, but this production-gates branch needs fresh Replit validation.

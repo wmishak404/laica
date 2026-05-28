@@ -58,7 +58,21 @@ vi.mock('@/components/cooking/user-profiling', () => ({
 }));
 
 vi.mock('@/components/cooking/meal-planning', () => ({
-  default: () => <div data-testid="meal-planning">Chef It Up flow</div>,
+  default: ({
+    sessionScopeKey,
+    initialTimeAvailable,
+  }: {
+    sessionScopeKey?: string;
+    initialTimeAvailable?: string;
+  }) => (
+    <div
+      data-testid="meal-planning"
+      data-scope={sessionScopeKey}
+      data-time={initialTimeAvailable}
+    >
+      Chef It Up flow
+    </div>
+  ),
 }));
 
 vi.mock('@/components/cooking/slop-bowl', () => ({
@@ -250,5 +264,32 @@ describe('MobileApp planning choice pantry status', () => {
     await waitFor(() => {
       expect(screen.getByTestId('meal-planning')).toBeTruthy();
     });
+  });
+
+  it('scopes Chef It Up planning time by guest or linked account identity', async () => {
+    window.localStorage.setItem('laica_last_planning_time', '90');
+    window.localStorage.setItem('laica_last_planning_time:guest:guest-test-1', '60');
+
+    await renderGuestPlanningChoice(makeProfile({ pantryIngredients: ['rice', 'eggs'] }));
+
+    fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
+
+    const guestPlanning = await screen.findByTestId('meal-planning');
+    expect(guestPlanning.dataset.scope).toBe('guest:guest-test-1');
+    expect(guestPlanning.dataset.time).toBe('60');
+    expect(window.localStorage.getItem('laica_last_planning_time')).toBeNull();
+
+    cleanup();
+
+    mocks.authUser = { id: 'user-1', email: 'tester@example.com' };
+    mocks.userProfileReturn.data = { user: makeProfile({ pantryIngredients: ['rice', 'eggs'] }) };
+
+    render(<MobileApp />);
+    await screen.findByRole('heading', { name: /what are we cooking today/i });
+    fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
+
+    const linkedPlanning = await screen.findByTestId('meal-planning');
+    expect(linkedPlanning.dataset.scope).toBe('linked:user-1');
+    expect(linkedPlanning.dataset.time).toBe('30');
   });
 });

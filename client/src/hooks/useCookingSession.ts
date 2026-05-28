@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { isGuestUser, useAuth } from "@/hooks/useAuth";
 import type { CookingSession } from "@shared/schema";
 
 interface RecipeIngredient {
@@ -55,15 +56,21 @@ interface CompleteSessionData {
 }
 
 export function useActiveCookingSession() {
+  const { user } = useAuth();
+
   return useQuery<CookingSession | null>({
-    queryKey: ["/api/cooking/session/active"],
+    queryKey: ["/api/cooking/session/active", user?.id ?? "signed-out"],
+    enabled: Boolean(user && !isGuestUser(user)),
     refetchInterval: 30000,
   });
 }
 
 export function useCookingSessions(limit = 200) {
+  const { user } = useAuth();
+
   return useQuery<CookingSession[]>({
-    queryKey: ["/api/cooking/sessions", limit],
+    queryKey: ["/api/cooking/sessions", user?.id ?? "signed-out", limit],
+    enabled: Boolean(user && !isGuestUser(user)),
   });
 }
 

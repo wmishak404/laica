@@ -67,6 +67,13 @@ function writeGuestProfile(userId: string, profile: UserProfile) {
   window.localStorage.setItem(guestProfileStorageKey(userId), JSON.stringify(profile));
 }
 
+function readPlanningTime(storageKey: string): PlanningTimeValue {
+  if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
+
+  window.localStorage.removeItem(PLANNING_TIME_STORAGE_KEY);
+  return normalizePlanningTimeValue(window.localStorage.getItem(storageKey));
+}
+
 interface RecipeRecommendation {
   id: string;
   recipeName: string;
@@ -137,10 +144,14 @@ export default function MobileApp() {
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [slopItUpPlanningCopy] = useState(() => getRandomSlopItUpPlanningCopy());
-  const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() => {
-    if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
-    return normalizePlanningTimeValue(window.localStorage.getItem(PLANNING_TIME_STORAGE_KEY));
-  });
+  const planningStateScopeKey = useMemo(
+    () => user?.id ? `${isGuest ? 'guest' : 'linked'}:${user.id}` : 'signed-out',
+    [isGuest, user?.id],
+  );
+  const planningTimeStorageKey = `${PLANNING_TIME_STORAGE_KEY}:${planningStateScopeKey}`;
+  const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() =>
+    readPlanningTime(planningTimeStorageKey)
+  );
 
   // Picks a fresh random chef emoji (man or woman, yellow tone) each time
   // the planning-choice screen is shown.
@@ -165,6 +176,22 @@ export default function MobileApp() {
     window.addEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
     return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
   }, []);
+
+  useEffect(() => {
+    setLastPlanningTime(readPlanningTime(planningTimeStorageKey));
+  }, [planningTimeStorageKey]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    setHasLoadedFromDb(false);
+    setIsLoadingProfile(true);
+    setUserProfile(createEmptyUserProfile());
+    setSelectedMeal(null);
+    setScheduledTime('');
+    setShowPlanningChoice(true);
+    setCurrentPhase('profiling');
+  }, [planningStateScopeKey, user?.id]);
 
   // Load profile from database - database is the single source of truth
   useEffect(() => {
@@ -304,9 +331,9 @@ export default function MobileApp() {
   const handlePlanningTimeChange = useCallback((value: PlanningTimeValue) => {
     setLastPlanningTime(value);
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(PLANNING_TIME_STORAGE_KEY, value);
+      window.localStorage.setItem(planningTimeStorageKey, value);
     }
-  }, []);
+  }, [planningTimeStorageKey]);
 
   const handlePlanningPantryIngredientsAdded = useCallback(async (ingredients: string[]) => {
     if (ingredients.length === 0) return true;
@@ -437,8 +464,8 @@ export default function MobileApp() {
 
   const showLinkedAccountToast = (surface: string) => {
     toast({
-      title: 'Link Google to save your kitchen',
-      description: `${surface} uses your saved kitchen memory. Continue with Chef It Up for this guest session.`,
+      title: 'Sign in or create an account to save your ingredients and profile',
+      description: `${surface} uses saved ingredients and profile. Continue with Chef It Up for this guest session.`,
       variant: 'destructive',
     });
   };
@@ -728,7 +755,9 @@ export default function MobileApp() {
               renderPlanningChoice()
             ) : (
               <MealPlanning
+                key={planningStateScopeKey}
                 userProfile={userProfile}
+                sessionScopeKey={planningStateScopeKey}
                 onMealSelected={handleMealSelected}
                 initialTimeAvailable={lastPlanningTime}
                 onPlanningTimeChange={handlePlanningTimeChange}

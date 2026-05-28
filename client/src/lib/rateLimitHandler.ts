@@ -141,10 +141,16 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
 
       return {
         kind: 'product-precondition',
-        title: isDurableSave ? 'Link Google to save your kitchen' : 'Link Google to unlock more recipes',
+        title: isDurableSave
+          ? 'Sign in or create an account to save your ingredients and profile'
+          : 'Link Google to unlock more recipes',
         description: error instanceof ApiRequestError
-          ? error.body?.message || (isDurableSave ? 'Link Google before saving.' : 'Link Google before making more recipes.')
-          : (isDurableSave ? 'Link Google before saving.' : 'Link Google before making more recipes.'),
+          ? error.body?.message || (isDurableSave
+              ? 'Sign in or create an account before saving your ingredients and profile.'
+              : 'Link Google before making more recipes.')
+          : (isDurableSave
+              ? 'Sign in or create an account before saving your ingredients and profile.'
+              : 'Link Google before making more recipes.'),
         status,
         code,
         includeFeedbackLink: false,
