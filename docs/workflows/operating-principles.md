@@ -19,6 +19,7 @@ Work from evidence, show the context needed to trust the result, keep the active
 7. **Explicit over implicit; no tribal knowledge.** If future agents need to know why something works this way, record it in the durable source of truth.
 8. **Capture decisions as they happen.** Record product, UX, architecture, validation, workflow, and implementation decisions during or after the work in the right home.
 9. **When blocked, produce a blocking report.** Stop guessing. State the exact blocker, missing input or permission, what was already tried, smallest next actions, owner if known, and resume point.
+10. **Turn bugs into durable learning.** When validation or user testing exposes a bug, treat it as evidence about the system, not only as a patch. Capture the cause, regression test or validation gap, durable rule or spec update, and remaining re-test requirement in the smallest appropriate source of truth.
 
 ## Decision Homes
 
@@ -45,6 +46,18 @@ When giving implementation, design, product, or process feedback, include:
 - at least one positive example and one negative example when the feedback is teaching a reusable standard
 
 Do not frame preference as fact. Label recommendations, tradeoffs, assumptions, and unresolved questions.
+
+## Bug and Regression Learning
+
+When a bug, regression, or surprising validation failure is found:
+
+- State the observed behavior, expected behavior, environment, branch/SHA, and evidence that proves the bug.
+- Identify the root cause or clearly label the current explanation as an inference.
+- Add or update automated coverage when the bug can be reproduced locally or deterministically. If it cannot, record the Replit/human validation gap and the smallest re-test.
+- Update the durable source of truth when the bug reveals a missing product rule, architecture rule, validation requirement, workflow discipline, or acceptance criterion.
+- Record point-in-time details in the handoff and PR description so reviewers know which previous validation is stale and which SHA needs re-testing.
+
+Do not leave the learning only in chat. Do not create a new Effort just to say a bug happened; create or update an Effort only when the remaining follow-up is standalone and not already owned by an INIT, phase record, PD, ADR, or workflow.
 
 ## Blocking Report Shape
 
@@ -121,3 +134,9 @@ Negative example: An agent writes "blocked on Replit" in chat only, without the 
 Positive discovery example: Before starting a related task, an agent checks `docs/handoffs/*-blocked.md`, reads the matching blocker, unblocks what it can, and records the resolution in its handoff/PR.
 
 Negative discovery example: A human has to ask every agent whether blockers exist because the blocker was only left in chat or no agent checked blocked handoffs before resuming.
+
+### Bug closeout
+
+Positive example: Replit validation exposes a client/server auth race. The fix adds a regression test, updates the owning INIT and PD with the durable server-authoritative rule, refreshes the testing workflow so future auth-gated changes include that boundary, and marks the old Replit validation stale until the fixed SHA is re-tested.
+
+Negative example: The code is patched and chat says "fixed," but no regression coverage, PR note, handoff update, or durable rule explains why the bug happened or how future work avoids it.

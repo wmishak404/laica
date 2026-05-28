@@ -30,6 +30,18 @@ When asked for an app-wide test pass, separate "all existing automated tests" fr
 
 If a case is important enough to list and can be automated safely in the current branch, add the test. If it cannot be automated safely, mark the human/Replit dependency explicitly instead of implying confidence.
 
+## Bug and Regression Closeout
+
+When testing or user validation finds a bug, close the loop before merge readiness:
+
+- Reproduce or document the exact evidence: observed behavior, expected behavior, environment, branch/SHA, and affected user flow.
+- Classify the bug as product behavior, implementation defect, environment/schema drift, stale test coverage, missing acceptance criteria, or workflow/process gap.
+- Add a regression test when the bug is locally deterministic. If it depends on Replit-only services, secrets, provider state, Firebase Console settings, speech/audio, or human judgement, record the exact Replit re-test instead.
+- Mark stale validation explicitly. If the bug was found after a previous Replit pass, the old pass is no longer merge evidence for the affected surface until the fixed SHA is re-tested.
+- Update the smallest durable doc that future agents need: PD or phase record for product/security policy, INIT for initiative status and validation state, workflow doc for repeatable testing discipline, Effort only for standalone follow-up, and handoff/PR for point-in-time evidence.
+
+A bug fix is not done when only the code changes. It is done when the fix, coverage or validation gap, stale-validation status, and reusable lesson are discoverable from the repo and PR without replaying chat.
+
 ## Auth-Scoped Client State
 
 When a change touches browser-local state, client caches, or persisted in-progress UI state for an auth-gated flow, treat identity switching as part of the acceptance criteria.
