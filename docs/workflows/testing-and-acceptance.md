@@ -38,6 +38,7 @@ When a change touches browser-local state, client caches, or persisted in-progre
 - A cache key that is only the route path, such as `/api/user/profile`, is not enough when the value is user-specific and the query cache can outlive an auth switch.
 - Browser-local guest state may persist across normal reopen, but it must not be restored into a later linked account or another linked account on the same browser.
 - Legacy unscoped keys should be removed or explicitly migrated with a documented owner and validation plan; do not silently keep reading old cross-user state.
+- Provider auth state alone is not enough when the server owns product gates. If Firebase anonymous auth, App Check, quota, or kill-switch policy is involved, the client must verify the authoritative backend session before routing the user into protected app state.
 - Tests should include a same-browser identity switch when practical: guest to linked, linked account A to linked account B, and stale legacy key to current scoped key. If this requires Replit because Firebase/Google is involved, list it as Replit human validation instead of treating local unit coverage as complete.
 
 ## Source of Truth

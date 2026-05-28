@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { FirebaseAuthService, type FirebaseAuthUser } from '@/lib/firebase';
 import { ApiRequestError, apiRequest } from '@/lib/queryClient';
@@ -23,26 +23,79 @@ export function useFirebaseAuth() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  const clearAuthCache = useCallback(() => {
+    queryClient.setQueryData(["/api/auth/session"], null);
+    queryClient.setQueryData(["/api/auth/user"], null);
+  }, [queryClient]);
+
+  const syncAnonymousWithBackend = useCallback(async (firebaseUser: FirebaseAuthUser) => {
+    const sessionResponse = await apiRequest('GET', '/api/auth/session');
+    const session = await sessionResponse.json();
+    return session.user ?? createGuestUser(firebaseUser);
+  }, []);
+
+  const syncWithBackend = useCallback(async (firebaseUser: FirebaseAuthUser) => {
+    try {
+      console.log('Syncing with backend for user:', firebaseUser.email);
+
+      const response = await apiRequest('POST', '/api/auth/google');
+      const userData = await response.json();
+      console.log('Backend sync successful:', userData);
+      queryClient.setQueryData(["/api/auth/session"], userData);
+      queryClient.setQueryData(["/api/auth/user"], userData);
+    } catch (error) {
+      console.error('Error syncing with backend:', error);
+    }
+  }, [queryClient]);
+
   useEffect(() => {
+    let isMounted = true;
+    let authStateVersion = 0;
+
     const unsubscribe = FirebaseAuthService.onAuthStateChanged((firebaseUser) => {
+      authStateVersion += 1;
+      const currentVersion = authStateVersion;
+
+      if (!firebaseUser) {
+        setUser(null);
+        setIsLoading(false);
+        clearAuthCache();
+        return;
+      }
+
+      if (firebaseUser.isAnonymous) {
+        setIsLoading(true);
+
+        syncAnonymousWithBackend(firebaseUser)
+          .then((guestUser) => {
+            if (!isMounted || currentVersion !== authStateVersion) {
+              return;
+            }
+
+            setUser(firebaseUser);
+            setIsLoading(false);
+            queryClient.setQueryData(["/api/auth/session"], guestUser);
+            queryClient.setQueryData(["/api/auth/user"], null);
+          })
+          .catch(async (error) => {
+            console.error('Anonymous session rejected by backend:', error);
+            await FirebaseAuthService.signOut().catch(() => undefined);
+
+            if (!isMounted || currentVersion !== authStateVersion) {
+              return;
+            }
+
+            setUser(null);
+            setIsLoading(false);
+            clearAuthCache();
+          });
+        return;
+      }
+
       setUser(firebaseUser);
       setIsLoading(false);
-      
-      // Update React Query cache when auth state changes
-      if (firebaseUser) {
-        if (firebaseUser.isAnonymous) {
-          const guestUser = createGuestUser(firebaseUser);
-          queryClient.setQueryData(["/api/auth/session"], guestUser);
-          queryClient.setQueryData(["/api/auth/user"], null);
-        } else {
-          // Linked users sync with the backend so durable account data exists.
-          syncWithBackend(firebaseUser);
-        }
-      } else {
-        // User signed out - clear cache
-        queryClient.setQueryData(["/api/auth/session"], null);
-        queryClient.setQueryData(["/api/auth/user"], null);
-      }
+      // Linked users sync with the backend so durable account data exists.
+      syncWithBackend(firebaseUser);
     });
 
     // Check for redirect result on page load
@@ -62,22 +115,11 @@ export function useFirebaseAuth() {
         console.error('Redirect result error:', error);
       });
 
-    return () => unsubscribe();
-  }, [queryClient, toast]);
-
-  const syncWithBackend = async (firebaseUser: FirebaseAuthUser) => {
-    try {
-      console.log('Syncing with backend for user:', firebaseUser.email);
-
-      const response = await apiRequest('POST', '/api/auth/google');
-      const userData = await response.json();
-      console.log('Backend sync successful:', userData);
-      queryClient.setQueryData(["/api/auth/session"], userData);
-      queryClient.setQueryData(["/api/auth/user"], userData);
-    } catch (error) {
-      console.error('Error syncing with backend:', error);
-    }
-  };
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [clearAuthCache, queryClient, syncAnonymousWithBackend, syncWithBackend, toast]);
 
   const signInWithGoogle = async () => {
     try {
@@ -137,6 +179,7 @@ export function useFirebaseAuth() {
         const sessionResponse = await apiRequest('GET', '/api/auth/session');
         const session = await sessionResponse.json();
         const guestUser = session.user ?? createGuestUser(result);
+        setUser(result);
         queryClient.setQueryData(["/api/auth/session"], guestUser);
         queryClient.setQueryData(["/api/auth/user"], null);
       }
@@ -144,6 +187,8 @@ export function useFirebaseAuth() {
       console.error('Guest sign-in error:', error);
 
       await FirebaseAuthService.signOut().catch(() => undefined);
+      setUser(null);
+      clearAuthCache();
 
       const errorDescription = error instanceof ApiRequestError
         ? error.body?.message || "I couldn't start guest cooking. Try again."

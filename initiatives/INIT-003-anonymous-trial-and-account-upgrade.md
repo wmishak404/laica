@@ -41,6 +41,7 @@ As of 2026-05-28, `codex/init-003-production-gates` implements the local code sl
 - `anonymous_recipe_usage` tracks anonymous recipe-generation quota without creating `auth_users` rows for anonymous sign-in alone.
 - Chef It Up generation routes reserve one anonymous quota slot before provider work and refund it on provider failure; recipe attempt `#11+` returns typed `LINKED_ACCOUNT_REQUIRED`.
 - Anonymous Firebase traffic can be stopped with `ANONYMOUS_AUTH_DISABLED`.
+- Anonymous client entry now waits for `/api/auth/session` before marking a Firebase anonymous user as accepted, so the server-side kill switch remains authoritative before the app shell opens.
 - User-scoped rate-limit keys collapse anonymous users to the client IP instead of the anonymous Firebase UID. Chef It Up recipe generation now defaults to a 20-request / 30-minute user burst limit so the abuse backstop does not normally interrupt validation of the 10-successful-generation guest quota.
 - Firebase App Check verification is available behind `FIREBASE_APP_CHECK_ENFORCED`; the client sends `X-Firebase-AppCheck` when `VITE_FIREBASE_APP_CHECK_SITE_KEY` is configured.
 - Durable profile/settings/pantry/cooking-session/history routes reject anonymous tokens with typed `LINKED_ACCOUNT_REQUIRED` so server-side saves remain linked-account only.
@@ -117,7 +118,7 @@ PD-012 is the source of truth for the image-generation approach: public product-
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
 | [#102](https://github.com/wmishak404/laica/pull/102) | Merged | `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`; local unhappy-path probes covered no-auth API rejection, anonymous Google-upsert rejection, empty-pantry guest guard, and anonymous live-cooking durable-session guard |
-| [#107](https://github.com/wmishak404/laica/pull/107) | Draft | `codex/init-003-production-gates` | Rebases onto `origin/main` at `fc55772` after PR #108; local `npm ci`, focused Vitest, full Vitest suite, `npm run check`, `npm run build`, and `git diff --check` passed; existing Playwright e2e is stale/failing and not app-wide evidence; Wilson's Replit walkthrough has passed guest Settings, provider sanity baseline, schema, quota, durable-save copy, Google sign-in, linked cache isolation, linked History, and linked cooking-session persistence at `e19098e`; kill switch and App Check enforcement remain unvalidated |
+| [#107](https://github.com/wmishak404/laica/pull/107) | Draft | `codex/init-003-production-gates` | Rebases onto `origin/main` at `fc55772` after PR #108; local `npm ci`, focused Vitest, full Vitest suite, `npm run check`, `npm run build`, and `git diff --check` passed before the kill-switch client race fix, with a focused auth/client suite, `npm run check`, and `npm run build` passing after it; existing Playwright e2e is stale/failing and not app-wide evidence; Wilson's Replit walkthrough has passed guest Settings, provider sanity baseline, schema, quota, durable-save copy, Google sign-in, linked cache isolation, linked History, and linked cooking-session persistence at `e19098e`; kill switch needs re-test at the latest head and App Check enforcement remains unvalidated |
 
 ## Efforts and Governance
 
@@ -179,7 +180,7 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 
 ## Current Resume Point
 
-1. Validate the anonymous kill switch on Replit: set `ANONYMOUS_AUTH_DISABLED=true`, restart, confirm guest API/session calls are blocked with `ANONYMOUS_ACCESS_DISABLED`, then unset/restart.
+1. Re-test the anonymous kill switch on Replit at the latest PR head: set `ANONYMOUS_AUTH_DISABLED=true`, restart, confirm guest API/session calls are blocked with `ANONYMOUS_ACCESS_DISABLED` and the app does not enter guest mode, then unset/restart.
 2. Validate App Check enforced mode on Replit: configure `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console/domain settings if needed, set `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and smoke anonymous recipe, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech.
 3. Keep `FIREBASE_APP_CHECK_ENFORCED` off in production until `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console App Check settings are configured for the public domain and Replit validation confirms protected API calls still succeed.
 4. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, anonymous abuse controls, and linked-save boundaries are validated at the branch SHA that will merge.
@@ -255,4 +256,10 @@ The walkthrough also found a cache-isolation bug: same-browser Chef It Up planni
 
 Wilson then re-tested the latest head `e19098e`: linked profile/settings after anonymous guest use no longer showed stale cuisine/time/profile data; guest durable-save copy passed with `POST /api/recipes/pantry 403`; logout/login and Replit page refresh did not leak state; anonymous quota persisted across normal page refresh; and linked cooking-session persistence passed after Google sign-in, live cooking, step advance, refresh/navigate, and history/session resume/write.
 
-Remaining Replit gates before merge readiness are kill switch, App Check enforced mode, and the provider sanity repeat after App Check.
+### 2026-05-28 — Kill-switch client gate fix
+
+Wilson's first Replit kill-switch attempt produced the expected user-facing error but still let the anonymous Firebase session route into the app. The server gate was working, but the client accepted `onAuthStateChanged` anonymous state before `/api/auth/session` rejected it.
+
+The branch now verifies anonymous Firebase state through `/api/auth/session` before setting the authenticated app user or auth query cache. If the backend rejects the anonymous session, the client signs out Firebase, clears the auth cache, and stays signed out. Local regression coverage in `tests/unit/firebase-auth-client.test.tsx` proves both the accepted anonymous session path and the kill-switch rejection path.
+
+Remaining Replit gates before merge readiness are a kill-switch re-test at the latest head, App Check enforced mode, and the provider sanity repeat after App Check.

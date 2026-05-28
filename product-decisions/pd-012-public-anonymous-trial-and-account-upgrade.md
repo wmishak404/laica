@@ -109,6 +109,7 @@ Durable saves include:
 ### Security contract
 
 - The server derives guest-vs-linked mode from verified Firebase token claims, never from client-declared state.
+- The client must not treat Firebase anonymous auth state as sufficient to enter the protected app. Anonymous entry is accepted only after the backend `/api/auth/session` gate confirms the session, so kill-switch, App Check, and quota/session policy stay server-authoritative.
 - Public anonymous auth requires Firebase App Check before production enablement.
 - Anonymous auth must be guarded by:
   - a server-side kill switch

@@ -19,6 +19,8 @@ Wilson later refilled OpenAI API credits after Replit surfaced OpenAI `insuffici
 
 Wilson's 2026-05-28 Replit pass also exposed a same-browser cache-isolation fault: anonymous or older linked Chef It Up planning preferences could appear after signing in with a different Google account. This branch now scopes Chef It Up planning state, planning time, local live-cooking resume state, linked profile query cache, and linked cooking-session/history query cache by guest/linked user identity, and it drops legacy unscoped browser keys instead of restoring them.
 
+Wilson's first Replit kill-switch attempt then showed the server-side `ANONYMOUS_ACCESS_DISABLED` error but still let the anonymous Firebase session enter the app. The client now treats `/api/auth/session` as the authoritative anonymous acceptance gate: anonymous Firebase auth state does not set the app user or auth cache until the backend confirms the session, and a backend rejection signs out Firebase and clears auth state.
+
 ## Changes
 
 - `shared/schema.ts`
@@ -47,6 +49,7 @@ Wilson's 2026-05-28 Replit pass also exposed a same-browser cache-isolation faul
   - Initializes Firebase App Check when `VITE_FIREBASE_APP_CHECK_SITE_KEY` is configured.
   - Sends `X-Firebase-AppCheck` on API requests.
   - Verifies guest sign-in against `/api/auth/session` so the server kill switch is honored before entering the app.
+  - Verifies `onAuthStateChanged` anonymous Firebase state against `/api/auth/session` before setting the app's authenticated user/cache.
   - Routes Google backend sync through the shared API client so App Check is included.
 - `client/src/pages/app.tsx`, `client/src/components/cooking/user-settings.tsx`
   - Allows anonymous guests to open Settings for Pantry, Kitchen, and Cooking Profile after setup.
@@ -84,9 +87,11 @@ Guest Settings are available in this branch, but only as local guest-profile edi
 
 Any Replit validation done before the cache-isolation fix is stale for linked profile/settings save and linked cooking-session/history cache behavior. Re-smoke with a browser that previously used anonymous guest mode before considering the linked regression resolved.
 
+Any Replit kill-switch validation done before the anonymous client gate fix is stale. Re-test with `ANONYMOUS_AUTH_DISABLED=true` at the latest PR head before considering the kill switch passed.
+
 ## Open items
 
-- Replit validation is still required for the latest head's linked cache isolation, kill switch, App Check enforcement, linked cooking-session persistence, and final deployment-bound behavior.
+- Replit validation is still required for the latest head's kill switch, App Check enforcement, and final deployment-bound behavior.
 - PR #107 remains draft until Replit validation is complete.
 - Phase 4 Google link/promotion/import remains follow-up scope.
 - Phase 5 / anonymous Slop Bowl dry-run remains follow-up scope unless Wilson explicitly pulls it forward.
@@ -101,6 +106,7 @@ Local checks passed on 2026-05-27 and 2026-05-28:
 - `npx vitest run tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/ai-error-handling.test.tsx`
 - `npx vitest run tests/unit/ai-provider-errors.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-error-handling.test.tsx`
 - `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/meal-planning.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/live-cooking-guest-session.test.tsx` — 30 tests passed after cache-isolation fix
+- `npx vitest run tests/unit/firebase-auth-client.test.tsx tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts` — 11 tests passed after kill-switch client gate fix
 - `npx vitest run` — 26 files / 162 tests passed after cache-isolation fix
 - `npm run check`
 - `npm run build`
@@ -127,7 +133,7 @@ Playwright e2e status:
 | Guest durable-save boundaries | Yes | No script yet | Replit passed at `e19098e` | Local route/component tests cover guest blocking and linked-user cooking-session preservation. Wilson confirmed the updated durable-save copy and `POST /api/recipes/pantry 403` behavior on Replit. |
 | Guest Settings session-local edits | Yes | No script yet | Replit passed before latest cache fix | `tests/unit/planning-choice.test.tsx` covers menu and empty-pantry entry into session Settings; `tests/unit/user-settings-scan-policy.test.tsx` covers pantry add/delete, kitchen edits, and cooking-profile edits without durable API calls. Wilson confirmed guest Settings, Chef It Up using edited data, and linked-only History/Slop Bowl on Replit. |
 | Linked account cache isolation | Yes | No script yet | Replit passed at `e19098e` | `tests/unit/planning-choice.test.tsx` and `tests/unit/meal-planning.test.tsx` prove planning-time and in-progress Chef It Up state are scoped by auth identity. Code now also scopes linked profile/history/cooking query keys and live-cooking local resume state. Wilson re-tested linked profile/settings after anonymous guest use in the same browser and did not see stale cuisine/time/profile data. |
-| Anonymous kill switch | Yes | No script yet | Yes, not yet run | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification; Replit requires env change/restart and human confirmation before public enablement. |
+| Anonymous kill switch | Yes | No script yet | Yes, needs re-test | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification, and `tests/unit/firebase-auth-client.test.tsx` proves anonymous Firebase client state is not accepted when `/api/auth/session` rejects it. Wilson's first Replit attempt exposed the client race, so the latest head needs an env-change/restart re-test before public enablement. |
 | Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation, typed payloads, and the 20-request / 30-minute Chef It Up burst default; Replit should watch proxy/client-IP behavior in the long-running runtime. |
 | App Check posture | Yes | No script yet | Yes, not yet run | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
 | Linked cooking-session persistence | Partial | No script yet | Replit passed at `e19098e` | `tests/unit/live-cooking-guest-session.test.tsx` proves guests do not create durable sessions and linked users do. Wilson confirmed a linked Google user could start live cooking, advance, refresh/navigate, and resume/write the same linked account's session/history on Replit. |
@@ -171,10 +177,11 @@ Steps already run or partially run on Replit:
 4. At `e19098e`, Wilson re-tested linked profile/settings after anonymous guest use in the same browser; no stale cuisine/time/profile data appeared.
 5. At `e19098e`, Wilson re-tested guest durable-save copy and saw the expected `POST /api/recipes/pantry 403`; logout/login and Replit page refresh did not leak stale state, and the anonymous quota count persisted across normal page refresh.
 6. At `e19098e`, Wilson confirmed linked cooking-session persistence after Google sign-in, live cooking, step advance, refresh/navigate, and history/session resume/write.
+7. Wilson's first kill-switch attempt showed an error but still routed into the app; that validation failed and prompted the latest client gate fix.
 
 Remaining Replit steps before merge readiness:
 
-1. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous protected API/session calls return `ANONYMOUS_ACCESS_DISABLED`; unset it before continuing.
+1. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous sign-in stays blocked with `ANONYMOUS_ACCESS_DISABLED` and does not enter the app; unset it before continuing.
 2. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console/domain settings if not already configured. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
 3. Repeat provider sanity after App Check enforcement: vision scan, recipe generation, cooking steps, and speech synthesis.
 
