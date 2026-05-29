@@ -219,6 +219,107 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByText('blender').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
   });
 
+  it('saves guest pantry add and delete edits through the session callback without durable API calls', async () => {
+    const onProfileUpdate = vi.fn();
+    render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={onProfileUpdate}
+        onBackToPlanning={vi.fn()}
+        initialSection="pantry"
+        persistenceMode="session"
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText(/remove rice/i));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'miso' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+
+    expect(screen.queryByText('rice')).toBeNull();
+    expect(screen.getByText('miso').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
+
+    fireEvent.click(screen.getByRole('button', { name: /save pantry/i }));
+
+    await waitFor(() => {
+      expect(onProfileUpdate).toHaveBeenCalledWith(expect.objectContaining({
+        pantryIngredients: expect.arrayContaining(['miso']),
+      }));
+    });
+
+    const savedProfile = onProfileUpdate.mock.calls.at(-1)?.[0];
+    expect(savedProfile.pantryIngredients).not.toContain('rice');
+    expect(updateProfileMock).not.toHaveBeenCalled();
+    expect(resetPantryMock).not.toHaveBeenCalled();
+    expect(screen.getByText('miso').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Pantry updated',
+      description: 'Your pantry is updated for this guest session.',
+    }));
+  });
+
+  it('saves guest kitchen edits through the session callback without durable API calls', async () => {
+    const onProfileUpdate = vi.fn();
+    render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={onProfileUpdate}
+        onBackToPlanning={vi.fn()}
+        initialSection="kitchen"
+        persistenceMode="session"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+      target: { value: 'blender' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save kitchen/i }));
+
+    await waitFor(() => {
+      expect(onProfileUpdate).toHaveBeenCalledWith(expect.objectContaining({
+        kitchenEquipment: expect.arrayContaining(['blender']),
+      }));
+    });
+
+    expect(updateProfileMock).not.toHaveBeenCalled();
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Kitchen updated',
+      description: 'Your kitchen tools are updated for this guest session.',
+    }));
+  });
+
+  it('saves guest cooking profile edits through the session callback without durable API calls', async () => {
+    const onProfileUpdate = vi.fn();
+    render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={onProfileUpdate}
+        onBackToPlanning={vi.fn()}
+        initialSection="profile"
+        persistenceMode="session"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('radio', { name: /expert/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save profile/i }));
+
+    await waitFor(() => {
+      expect(onProfileUpdate).toHaveBeenCalledWith(expect.objectContaining({
+        cookingSkill: 'expert',
+      }));
+    });
+
+    expect(updateProfileMock).not.toHaveBeenCalled();
+    expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Profile updated',
+      description: 'Your cooking profile is updated for this guest session.',
+    }));
+  });
+
   it('marks repeated Settings scan matches as found again without adding duplicate chips', async () => {
     vi.mocked(analyzeImage).mockResolvedValue({ ingredients: ['Rice'] });
     const { container } = render(

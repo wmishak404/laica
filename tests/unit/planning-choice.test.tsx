@@ -58,7 +58,21 @@ vi.mock('@/components/cooking/user-profiling', () => ({
 }));
 
 vi.mock('@/components/cooking/meal-planning', () => ({
-  default: () => <div data-testid="meal-planning">Chef It Up flow</div>,
+  default: ({
+    sessionScopeKey,
+    initialTimeAvailable,
+  }: {
+    sessionScopeKey?: string;
+    initialTimeAvailable?: string;
+  }) => (
+    <div
+      data-testid="meal-planning"
+      data-scope={sessionScopeKey}
+      data-time={initialTimeAvailable}
+    >
+      Chef It Up flow
+    </div>
+  ),
 }));
 
 vi.mock('@/components/cooking/slop-bowl', () => ({
@@ -70,8 +84,8 @@ vi.mock('@/components/cooking/live-cooking', () => ({
 }));
 
 vi.mock('@/components/cooking/user-settings', () => ({
-  default: ({ initialSection }: { initialSection?: string }) => (
-    <div data-testid="user-settings">Settings section: {initialSection}</div>
+  default: ({ initialSection, persistenceMode }: { initialSection?: string; persistenceMode?: string }) => (
+    <div data-testid="user-settings">Settings section: {initialSection}; mode: {persistenceMode}</div>
   ),
 }));
 
@@ -199,10 +213,10 @@ describe('MobileApp planning choice pantry status', () => {
       toastCall.action.props.onClick();
     });
 
-    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: pantry');
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: pantry; mode: linked');
   });
 
-  it('keeps an empty-pantry guest in setup from the toast action', async () => {
+  it('opens session-only Pantry settings for an empty-pantry guest from the toast action', async () => {
     await renderGuestPlanningChoice(makeProfile({ pantryIngredients: [] }));
 
     fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
@@ -210,7 +224,7 @@ describe('MobileApp planning choice pantry status', () => {
     expect(screen.getByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
     expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Your pantry is empty',
-      description: 'Add pantry items in setup before I can suggest recipes.',
+      description: 'Add or scan pantry items in Settings for this guest session.',
       variant: 'destructive',
     }));
 
@@ -221,7 +235,25 @@ describe('MobileApp planning choice pantry status', () => {
       toastCall.action.props.onClick();
     });
 
-    expect(await screen.findByTestId('user-profiling')).toBeTruthy();
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: pantry; mode: session');
+  });
+
+  it('allows guest Settings from the menu while keeping History linked-account only', async () => {
+    await renderGuestPlanningChoice(makeProfile());
+
+    const settingsButton = screen.getByRole('button', {
+      name: /settings guest pantry, kitchen, and cooking profile/i,
+    });
+    const historyButton = screen.getByRole('button', {
+      name: /history meals you cooked/i,
+    });
+
+    expect(settingsButton).not.toBeDisabled();
+    expect(historyButton).toBeDisabled();
+
+    fireEvent.click(settingsButton);
+
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: hub; mode: session');
   });
 
   it('lets users with pantry items enter Chef It Up', async () => {
@@ -232,5 +264,32 @@ describe('MobileApp planning choice pantry status', () => {
     await waitFor(() => {
       expect(screen.getByTestId('meal-planning')).toBeTruthy();
     });
+  });
+
+  it('scopes Chef It Up planning time by guest or linked account identity', async () => {
+    window.localStorage.setItem('laica_last_planning_time', '90');
+    window.localStorage.setItem('laica_last_planning_time:guest:guest-test-1', '60');
+
+    await renderGuestPlanningChoice(makeProfile({ pantryIngredients: ['rice', 'eggs'] }));
+
+    fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
+
+    const guestPlanning = await screen.findByTestId('meal-planning');
+    expect(guestPlanning.dataset.scope).toBe('guest:guest-test-1');
+    expect(guestPlanning.dataset.time).toBe('60');
+    expect(window.localStorage.getItem('laica_last_planning_time')).toBeNull();
+
+    cleanup();
+
+    mocks.authUser = { id: 'user-1', email: 'tester@example.com' };
+    mocks.userProfileReturn.data = { user: makeProfile({ pantryIngredients: ['rice', 'eggs'] }) };
+
+    render(<MobileApp />);
+    await screen.findByRole('heading', { name: /what are we cooking today/i });
+    fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
+
+    const linkedPlanning = await screen.findByTestId('meal-planning');
+    expect(linkedPlanning.dataset.scope).toBe('linked:user-1');
+    expect(linkedPlanning.dataset.time).toBe('30');
   });
 });

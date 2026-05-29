@@ -66,6 +66,7 @@ Closed phase records may receive a historical note or link when needed, but they
 | Visual standard | `design_guidelines.md` with PD-005 for governance | The change affects palette, typography, surface posture, mockup conformance, or visual acceptance |
 | Service-backed validation focus | `docs/workflows/replit-validation-focus.md` | A change affects which Replit checks prove readiness |
 | Local-vs-Replit authority or environment boundaries | ADR-0001 and relevant workflow docs | The change affects where runtime truth, secrets, DB access, or deployment validation live |
+| Bug or regression learning | Owning INIT, phase record, PD, ADR, or workflow doc; handoff/PR for point-in-time evidence | A bug reveals a missing rule, spec, acceptance criterion, validation gap, or stale workflow assumption |
 | Blocking report or resume checkpoint | Current agent response plus `docs/handoffs/YYYY-MM-DD-<agent>-*-blocked.md`; mirror in PR description when a PR exists | Work stops on missing input, permissions, secrets, Replit action, external dependency, or human decision |
 | Point-in-time command output, branch status, review notes, or transfer context | `docs/handoffs/YYYY-MM-DD-<agent>-*.md` and PR description | Evidence or coordination is useful, but should not become long-lived policy |
 
@@ -80,8 +81,9 @@ Before closing a branch or PR, run this short loop:
 5. If the change adds or revises a repeatable workflow, update the workflow doc and link it from `AGENTS.md` / `CLAUDE.md` only when it changes global agent behavior.
 6. If the change depends on volatile external facts, mark the owning PD with volatility metadata and verify those facts before implementation or merge.
 7. Record validation, deferrals, blockers, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
-8. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
-9. Open the final response, handoff, and PR summary with a concise overall summary when useful, then keep the concrete changelog and validation details.
+8. If a bug was found, make the learning durable: update the owning source doc or workflow when the bug changes future expectations, add regression coverage or an explicit validation gap, and mark any previous validation stale for the affected surface.
+9. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
+10. Open the final response, handoff, and PR summary with a concise overall summary when useful, then keep the concrete changelog and validation details.
 
 ## New Workflow Documents
 

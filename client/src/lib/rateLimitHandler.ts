@@ -77,6 +77,33 @@ function feedbackDescription(text: string, includeFeedbackLink: boolean): ReactN
   return createElement(Fragment, null, before, feedbackButton, after);
 }
 
+function rateLimitDescription(error: unknown): string {
+  const retryAfterSeconds = error instanceof ApiRequestError ? error.retryAfter : undefined;
+
+  if (!retryAfterSeconds) {
+    return 'I need to pause cooking requests briefly. Try again shortly.';
+  }
+
+  const minutes = Math.ceil(retryAfterSeconds / 60);
+
+  if (minutes <= 1) {
+    return 'I need to pause cooking requests briefly. Try again in about a minute.';
+  }
+
+  if (minutes <= 5) {
+    return 'I need to pause cooking requests briefly. Try again in a few minutes.';
+  }
+
+  if (minutes < 60) {
+    const roundedMinutes = Math.ceil(minutes / 5) * 5;
+    return `I need to pause cooking requests briefly. Try again in about ${roundedMinutes} minutes.`;
+  }
+
+  const hours = Math.max(1, Math.round(minutes / 60));
+  const hourLabel = hours === 1 ? 'an hour' : `${hours} hours`;
+  return `I need to pause cooking requests briefly. Try again in about ${hourLabel}.`;
+}
+
 export function classifyAiRequestError(error: unknown, options: AiErrorHandlingOptions = {}): AiErrorFeedback {
   const status = statusFor(error);
   const code = error instanceof ApiRequestError ? error.code : undefined;
@@ -108,6 +135,52 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
   }
 
   if (status === 401 || status === 403) {
+    if (code === 'LINKED_ACCOUNT_REQUIRED') {
+      const linkedAccountReason = error instanceof ApiRequestError ? error.body?.linkedAccountReason : undefined;
+      const isDurableSave = linkedAccountReason === 'durable_save';
+
+      return {
+        kind: 'product-precondition',
+        title: isDurableSave
+          ? 'Sign in or create an account to save your ingredients and profile'
+          : 'Link Google to unlock more recipes',
+        description: error instanceof ApiRequestError
+          ? error.body?.message || (isDurableSave
+              ? 'Sign in or create an account before saving your ingredients and profile.'
+              : 'Link Google before making more recipes.')
+          : (isDurableSave
+              ? 'Sign in or create an account before saving your ingredients and profile.'
+              : 'Link Google before making more recipes.'),
+        status,
+        code,
+        includeFeedbackLink: false,
+      };
+    }
+
+    if (code === 'ANONYMOUS_ACCESS_DISABLED') {
+      return {
+        kind: 'auth',
+        title: 'Guest cooking is paused',
+        description: error instanceof ApiRequestError
+          ? error.body?.message || 'Continue with Google to keep cooking.'
+          : 'Continue with Google to keep cooking.',
+        status,
+        code,
+        includeFeedbackLink: false,
+      };
+    }
+
+    if (code === 'APP_CHECK_REQUIRED' || code === 'APP_CHECK_INVALID') {
+      return {
+        kind: 'auth',
+        title: 'Refresh and try again',
+        description: 'I could not verify this app session. Refresh the page, then try again.',
+        status,
+        code,
+        includeFeedbackLink: false,
+      };
+    }
+
     return {
       kind: 'auth',
       title: 'Sign in again',
@@ -156,11 +229,22 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
     };
   }
 
+  if (code === 'AI_PROVIDER_QUOTA_EXHAUSTED') {
+    return {
+      kind: 'service',
+      title: 'Recipe generation is paused',
+      description: 'Laica needs more AI capacity before I can make recipes. This is on our side, not your guest limit.',
+      status,
+      code,
+      includeFeedbackLink: false,
+    };
+  }
+
   if (status === 429 || code === 'RATE_LIMITED' || /rate limit|quota|too many requests/i.test(messageFor(error))) {
     return {
       kind: 'rate-limit',
       title: 'Cooking requests paused',
-      description: 'I need to pause cooking requests for a bit. Try again in a few minutes.',
+      description: rateLimitDescription(error),
       status,
       code,
       includeFeedbackLink: false,

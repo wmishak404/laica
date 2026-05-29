@@ -12,7 +12,7 @@ type RateLimitKey =
   | "voice"
   | "speech"
   | "feedback";
-type RateLimitWindow = "short" | "hour" | "day";
+type RateLimitWindow = "short" | "burst" | "hour" | "day";
 
 interface RateLimitOptions {
   name: string;
@@ -56,7 +56,12 @@ export function getClientIp(req: Request): string {
 }
 
 export function getUserRateLimitKey(req: Request): string {
-  return (req as any).firebaseUser?.uid || getClientIp(req);
+  const firebaseUser = (req as any).firebaseUser;
+  if (firebaseUser?.isAnonymous) {
+    return getClientIp(req);
+  }
+
+  return firebaseUser?.uid || getClientIp(req);
 }
 
 function getVisionScanContext(req: Request): string {
@@ -167,6 +172,7 @@ export function createRateLimit(options: RateLimitOptions): RequestHandler {
 }
 
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
+const THIRTY_MINUTES = 30 * 60 * 1000;
 const ONE_HOUR = 60 * 60 * 1000;
 const ONE_DAY = 24 * ONE_HOUR;
 
@@ -233,10 +239,10 @@ export function consumeVisionImageRateLimits(req: Request, res: Response, imageC
   );
 }
 
-export const recipeUserHourLimit = createRateLimit({
-  name: "recipe:user:hour",
-  windowMs: ONE_HOUR,
-  max: getConfiguredRateLimit("recipe", "hour", 10),
+export const recipeUserBurstLimit = createRateLimit({
+  name: "recipe:user:30m",
+  windowMs: THIRTY_MINUTES,
+  max: getConfiguredRateLimit("recipe", "burst", 20),
   keyGenerator: getUserRateLimitKey,
 });
 

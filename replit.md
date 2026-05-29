@@ -57,7 +57,7 @@ Secrets are managed with `dotenvx` for cross-environment portability, decrypting
 -   `SESSION_SECRET` — Express session signing.
 -   `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` — Firebase client config.
 -   `FIREBASE_SERVICE_ACCOUNT_JSON` — Firebase Admin service account JSON for server-side ID token verification (required for any authenticated API). `FIREBASE_SERVICE_ACCOUNT_BASE64` is accepted as an alternative; `FIREBASE_PROJECT_ID` may be set explicitly to override the project ID derived from the service account.
--   `RATE_LIMIT_*` — Optional overrides for per-user rate-limit thresholds (e.g. `RATE_LIMIT_RECIPE_HOUR`, `RATE_LIMIT_VISION_DAY`). See `server/rate-limit.ts` for the full list and defaults.
+-   `RATE_LIMIT_*` — Optional overrides for per-user rate-limit thresholds (e.g. `RATE_LIMIT_RECIPE_BURST`, `RATE_LIMIT_VISION_DAY`). See `server/rate-limit.ts` for the full list and defaults.
 -   `DOTENV_PRIVATE_KEY` — dotenvx decryption key. Replit Secret in production; lives in `.env.keys` (gitignored) locally.
 -   `PORT` — Server port (defaults to 5000; local macOS uses 3000 because AirPlay holds 5000).
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,6 +65,11 @@ interface LiveCookingProps {
 export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning }: LiveCookingProps) {
   const { user } = useAuth();
   const isGuest = isGuestUser(user);
+  const cookingSessionScopeKey = useMemo(
+    () => user?.id ? `${isGuest ? 'guest' : 'linked'}:${user.id}` : 'signed-out',
+    [isGuest, user?.id],
+  );
+  const cookingSessionStorageKey = `${COOKING_SESSION_STORAGE_KEY}:${cookingSessionScopeKey}`;
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
@@ -139,14 +144,16 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   // Restore cooking session on mount if recipe matches
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(COOKING_SESSION_STORAGE_KEY);
+      localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+
+      const saved = localStorage.getItem(cookingSessionStorageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
         const session = validateCookingSession(parsed);
         
         if (!session) {
           // Only clear if truly invalid (malformed data)
-          localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+          localStorage.removeItem(cookingSessionStorageKey);
           return;
         }
         
@@ -162,16 +169,16 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         } else if (!isRecent) {
           // Only clear if session is stale (expired), not if it's a different recipe
           // This preserves sessions for other recipes the user might return to
-          localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+          localStorage.removeItem(cookingSessionStorageKey);
         }
         // If it's a different recipe but still recent, leave it intact
         // It will be overwritten when user starts cooking this new recipe
       }
     } catch (error) {
       console.error('Error loading saved cooking session:', error);
-      localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+      localStorage.removeItem(cookingSessionStorageKey);
     }
-  }, [selectedMeal.recipeName, selectedMeal.id]);
+  }, [cookingSessionStorageKey, selectedMeal.recipeName, selectedMeal.id]);
 
   // Save cooking session whenever state changes
   useEffect(() => {
@@ -199,12 +206,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       isTimerRunning,
       savedAt: Date.now()
     };
-    localStorage.setItem(COOKING_SESSION_STORAGE_KEY, JSON.stringify(session));
-  }, [currentStepIndex, timer, isTimerRunning, selectedMeal.recipeName, selectedMeal.id]);
+    localStorage.setItem(cookingSessionStorageKey, JSON.stringify(session));
+  }, [currentStepIndex, timer, isTimerRunning, selectedMeal.recipeName, selectedMeal.id, cookingSessionStorageKey]);
 
   // Clear cooking session when navigating back or completing
   const clearCookingSession = () => {
-    localStorage.removeItem(COOKING_SESSION_STORAGE_KEY);
+    localStorage.removeItem(cookingSessionStorageKey);
   };
 
   // Handle back to planning - clear session first

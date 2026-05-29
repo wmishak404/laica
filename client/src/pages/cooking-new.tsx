@@ -1,7 +1,7 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { useUpdateUserProfile } from '@/hooks/useAuth';
+import { isGuestUser, useAuth, useUpdateUserProfile } from '@/hooks/useAuth';
 import Footer from '@/components/layout/footer';
 import UserProfiling from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
@@ -44,7 +44,16 @@ interface RecipeRecommendation {
 
 type WorkflowPhase = 'welcome' | 'profiling' | 'planning' | 'cooking' | 'settings';
 
+function readPlanningTime(storageKey: string): PlanningTimeValue {
+  if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
+
+  window.localStorage.removeItem(PLANNING_TIME_STORAGE_KEY);
+  return normalizePlanningTimeValue(window.localStorage.getItem(storageKey));
+}
+
 export default function Cooking() {
+  const { user } = useAuth();
+  const isGuest = isGuestUser(user);
   const [location] = useLocation();
   const [currentPhase, setCurrentPhase] = useState<WorkflowPhase>('welcome');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -52,15 +61,20 @@ export default function Cooking() {
   const [scheduledTime, setScheduledTime] = useState<string>('');
   const [isReturningUser, setIsReturningUser] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() => {
-    if (typeof window === 'undefined') return DEFAULT_PLANNING_TIME_VALUE;
-    return normalizePlanningTimeValue(window.localStorage.getItem(PLANNING_TIME_STORAGE_KEY));
-  });
+  const planningStateScopeKey = useMemo(
+    () => user?.id ? `${isGuest ? 'guest' : 'linked'}:${user.id}` : 'signed-out',
+    [isGuest, user?.id],
+  );
+  const planningTimeStorageKey = `${PLANNING_TIME_STORAGE_KEY}:${planningStateScopeKey}`;
+  const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() =>
+    readPlanningTime(planningTimeStorageKey)
+  );
   const { toast } = useToast();
 
   // Fetch user profile from database
   const { data: dbProfile, isLoading: isLoadingProfile } = useQuery<any>({
-    queryKey: ['/api/user/profile'],
+    queryKey: ['/api/user/profile', user?.id ?? 'signed-out'],
+    enabled: Boolean(user && !isGuest),
     retry: false,
   });
 
@@ -71,6 +85,10 @@ export default function Cooking() {
     window.addEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
     return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, openFeedback);
   }, []);
+
+  useEffect(() => {
+    setLastPlanningTime(readPlanningTime(planningTimeStorageKey));
+  }, [planningTimeStorageKey]);
 
   // Initialize user state based on database profile
   useEffect(() => {
@@ -132,9 +150,9 @@ export default function Cooking() {
   const handlePlanningTimeChange = useCallback((value: PlanningTimeValue) => {
     setLastPlanningTime(value);
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(PLANNING_TIME_STORAGE_KEY, value);
+      window.localStorage.setItem(planningTimeStorageKey, value);
     }
-  }, []);
+  }, [planningTimeStorageKey]);
 
   const handlePlanningPantryIngredientsAdded = useCallback(async (ingredients: string[]) => {
     if (!userProfile || ingredients.length === 0) return true;
@@ -269,6 +287,7 @@ export default function Cooking() {
           <div className="planning-ui">
             <MealPlanning
               userProfile={userProfile}
+              sessionScopeKey={planningStateScopeKey}
               onMealSelected={handleMealSelected}
               initialTimeAvailable={lastPlanningTime}
               onPlanningTimeChange={handlePlanningTimeChange}

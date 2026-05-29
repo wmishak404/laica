@@ -79,7 +79,7 @@ export function useUserProfile() {
   const { isAuthenticated, user } = useAuth();
   
   return useQuery<UserProfile>({
-    queryKey: ["/api/user/profile"],
+    queryKey: ["/api/user/profile", user?.id ?? "signed-out"],
     enabled: isAuthenticated && !isGuestUser(user), // Guest profiles are browser-local
   });
 }

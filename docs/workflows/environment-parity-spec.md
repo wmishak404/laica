@@ -594,7 +594,7 @@ RATE_LIMIT_<KEY>_<WINDOW>
 
 `<KEY>` and `<WINDOW>` are upper-snake-case segments derived independently from the application key and window. Examples:
 
-- `RATE_LIMIT_RECIPE_HOUR`
+- `RATE_LIMIT_RECIPE_BURST`
 - `RATE_LIMIT_SLOP_BOWL_HOUR`
 - `RATE_LIMIT_APP_SHORT`
 

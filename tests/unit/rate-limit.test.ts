@@ -8,8 +8,10 @@ import {
   getConfiguredRateLimit,
   getRateLimitBucketCountForTest,
   getRateLimitEnvKey,
+  getUserRateLimitKey,
   getVisionIpRateLimitKey,
   getVisionUserRateLimitKey,
+  recipeUserBurstLimit,
   resetRateLimitBucketsForTest,
 } from '../../server/rate-limit';
 
@@ -64,7 +66,7 @@ describe('vision rate-limit keys', () => {
   });
 
   afterEach(() => {
-    delete process.env.RATE_LIMIT_RECIPE_HOUR;
+    delete process.env.RATE_LIMIT_RECIPE_BURST;
     vi.useRealTimers();
     resetRateLimitBucketsForTest();
   });
@@ -87,22 +89,29 @@ describe('vision rate-limit keys', () => {
   });
 
   it('maps rate-limit override names to RATE_LIMIT_<KEY>_<WINDOW>', () => {
-    expect(getRateLimitEnvKey('recipe', 'hour')).toBe('RATE_LIMIT_RECIPE_HOUR');
+    expect(getRateLimitEnvKey('recipe', 'burst')).toBe('RATE_LIMIT_RECIPE_BURST');
     expect(getRateLimitEnvKey('slopBowl', 'hour')).toBe('RATE_LIMIT_SLOP_BOWL_HOUR');
     expect(getRateLimitEnvKey('app', 'short')).toBe('RATE_LIMIT_APP_SHORT');
   });
 
   it('reads positive integer rate-limit overrides and ignores invalid values', () => {
-    process.env.RATE_LIMIT_RECIPE_HOUR = '7';
-    expect(getConfiguredRateLimit('recipe', 'hour', 10)).toBe(7);
+    process.env.RATE_LIMIT_RECIPE_BURST = '7';
+    expect(getConfiguredRateLimit('recipe', 'burst', 20)).toBe(7);
 
-    process.env.RATE_LIMIT_RECIPE_HOUR = '0';
-    expect(getConfiguredRateLimit('recipe', 'hour', 10)).toBe(10);
+    process.env.RATE_LIMIT_RECIPE_BURST = '0';
+    expect(getConfiguredRateLimit('recipe', 'burst', 20)).toBe(20);
   });
 
   it('separates Pantry and Kitchen scan meters for signed-in users', () => {
     expect(getVisionUserRateLimitKey(makeRequest('pantry'))).toBe('user-1:pantry');
     expect(getVisionUserRateLimitKey(makeRequest('kitchen'))).toBe('user-1:kitchen');
+  });
+
+  it('keys anonymous user-scoped limits by IP instead of Firebase UID', () => {
+    expect(getUserRateLimitKey(makeRequest({
+      ip: '203.0.113.44',
+      firebaseUser: { uid: 'anonymous-uid', isAnonymous: true } as any,
+    }))).toBe('203.0.113.44');
   });
 
   it('falls back to a generic scan meter for missing or unexpected contexts', () => {
@@ -113,6 +122,33 @@ describe('vision rate-limit keys', () => {
   it('separates IP keys with the same scan context', () => {
     expect(getVisionIpRateLimitKey(makeRequest('pantry'))).toBe('127.0.0.1:pantry');
     expect(getVisionIpRateLimitKey(makeRequest('kitchen'))).toBe('127.0.0.1:kitchen');
+  });
+
+  it('allows 20 recipe requests per 30-minute user burst before returning 429', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+    const next = vi.fn();
+    const { res, status } = makeResponse();
+    const anonymousReq = makeRequest({
+      ip: '203.0.113.44',
+      firebaseUser: { uid: 'anonymous-uid', isAnonymous: true } as any,
+    });
+
+    for (let index = 0; index < 20; index += 1) {
+      recipeUserBurstLimit(anonymousReq, res as any, next);
+    }
+
+    recipeUserBurstLimit(anonymousReq, res as any, next);
+
+    expect(next).toHaveBeenCalledTimes(20);
+    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Limit', '20');
+    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Reset', '1800');
+    expect(status).toHaveBeenCalledWith(429);
+
+    vi.setSystemTime(1_800_000);
+    recipeUserBurstLimit(anonymousReq, res as any, next);
+
+    expect(next).toHaveBeenCalledTimes(21);
   });
 
   it('returns a typed RATE_LIMITED payload with Retry-After when a bucket is exhausted', () => {

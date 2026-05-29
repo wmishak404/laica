@@ -46,6 +46,13 @@ export const authUsers = pgTable("auth_users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const anonymousRecipeUsage = pgTable("anonymous_recipe_usage", {
+  firebaseUid: varchar("firebase_uid").primaryKey().notNull(),
+  successfulGenerations: integer("successful_generations").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const recipes = pgTable("recipes", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -311,6 +318,7 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type AuthUser = typeof authUsers.$inferSelect;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
+export type AnonymousRecipeUsage = typeof anonymousRecipeUsage.$inferSelect;
 
 export type Recipe = typeof recipes.$inferSelect;
 export type InsertRecipe = z.infer<typeof insertRecipeSchema>;

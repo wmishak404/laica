@@ -218,11 +218,12 @@ Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8
 Next implementation / validation focus:
 
 1. Continue Phase 3.1 from fresh `origin/main` for a narrower Ticket Pass retry before resuming broader imagery work. Start from the stable `main` baseline, preserve the already-shipped Phase 3.1 slices, and keep these guardrails: no fake bowl/noodle/skillet illustration placeholders, no compact-ticket strip experiment that harms readability, no change to stable generated order or in-place expansion, and no change to the display-only recipe-name split contract. Focus first on outer Ticket Pass hierarchy/object language while keeping the current image-slot and compact-row skeleton readable; only do light Prep Tray shell alignment after Ticket Pass is visually accepted. Async/cached generated imagery remains a later separate slice into the existing `imageUrl` slots.
-2. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFF-018 intentionally deferred.
-3. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
-4. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
-5. Pantry spell correction is resolved through EFF-013 / PR #62. Setup/Settings scan-review chip states are resolved through EFF-014 / PR #75. Future pantry spelling/canonicalization or scan-review work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. Phase 5 post-cook rescan labels remain in the Phase 5 record.
-6. Coordinate any future guest-auth, upgrade, or Phase 5 returning-user memory changes with [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Do not reopen Phase 1 or Phase 5 assumptions in isolation.
+2. When Phase 3.1 revisits Planning entry polish, remove the post-setup toast supporting line `I'll remember this on this browser while you try Laica.` and make Planning-entry success/error/status messages auto-dismiss or otherwise avoid staying pinned over the Chef It Up / Slop It Up cards unless user action is required.
+3. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFF-018 intentionally deferred.
+4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
+5. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
+6. Pantry spell correction is resolved through EFF-013 / PR #62. Setup/Settings scan-review chip states are resolved through EFF-014 / PR #75. Future pantry spelling/canonicalization or scan-review work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. Phase 5 post-cook rescan labels remain in the Phase 5 record.
+7. Coordinate any future guest-auth, upgrade, or Phase 5 returning-user memory changes with [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Do not reopen Phase 1 or Phase 5 assumptions in isolation.
 
 Plan B sequencing note for the INIT-003 public homepage:
 
@@ -332,3 +333,7 @@ PR #78 attempted the remaining Ticket Pass / Prep Tray polish from fresh `origin
 ### 2026-05-16 - PR #81 merged the abandonment plan
 
 PR #81 merged the docs-only abandonment follow-up as `7630d97`. The rejected PR #78 branch is now historical only, and the durable baseline on `main` is explicit: the next Ticket Pass runtime attempt should start from fresh `origin/main`, preserve the current placeholder slot and compact-row readability as the minimum floor, and pursue a narrower layout-only hierarchy pass before any new imagery experiment.
+
+### 2026-05-29 - Planning setup toast follow-up added to Phase 3.1
+
+INIT-003 public guest validation exposed a Planning-entry polish issue that belongs to Phase 3.1 rather than the production-gates branch: after setup, the `Your kitchen is ready` toast includes the supporting line `I'll remember this on this browser while you try Laica.` and remains visible over the Chef It Up / Slop It Up cards. Phase 3.1 should remove that supporting line and review toast/banner persistence so transient success, error, and status messages do not cover the primary Planning choices unless action is required.
