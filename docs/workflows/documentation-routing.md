@@ -85,6 +85,18 @@ Before closing a branch or PR, run this short loop:
 9. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
 10. Open the final response, handoff, and PR summary with a concise overall summary when useful, then keep the concrete changelog and validation details.
 
+## Post-Merge Closeout Trigger
+
+Post-merge closeout is an automatic continuation of merging, not a separate task that waits for Wilson to request it. If you merge or confirm the merge of a PR that changes runtime behavior, product decisions, INIT state, phase scope, validation status, Effort signal, or workflow rules:
+
+1. Fetch fresh `origin/main` immediately after the merge.
+2. Start a docs-only closeout branch from the updated `origin/main`.
+3. Update the durable source of truth and only the indexes/read lists whose status changed.
+4. Add a merge-closeout handoff with the PR number, merge commit SHA, validation SHA, validation summary, deferrals, and next resume point.
+5. Push the closeout branch and open a PR, or write an explicit deferral naming the owner, branch, PR, merge SHA, and smallest remaining closeout action.
+
+Do this before starting the next feature task. A final merge response should either link the closeout PR or name the documented deferral.
+
 ## New Workflow Documents
 
 Every new `docs/workflows/*.md` file must include an `## Operating Principles` reminder immediately after its title, linking to [`operating-principles.md`](operating-principles.md). Keep the top reminder concise; put workflow-specific mechanics, examples, and source-of-truth details in the body of the new workflow.

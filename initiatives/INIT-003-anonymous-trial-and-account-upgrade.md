@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-15
-**Current phase:** Production gates implementation — quota, abuse controls, App Check, and linked-account save boundary
-**Active PR:** [PR #107](https://github.com/wmishak404/laica/pull/107)
-**Active branch:** `codex/init-003-production-gates`
+**Current phase:** Production gates merged; Phase 4/5 follow-up planning
+**Active PR:** None
+**Active branch:** None
 
 ## Overview
 
@@ -34,43 +34,35 @@ The current accepted direction is:
 
 Phase 3 shipped through [PR #102](https://github.com/wmishak404/laica/pull/102), merging the public pre-auth homepage, real Firebase anonymous entry, same-browser guest setup persistence, and linked-only durable-memory boundaries as the Plan B guest MVP slice. The accepted launch path remains **Plan B: public homepage + clean guest MVP**, not full anonymous-trial completion.
 
-The next work is the remaining production-gate slice that makes public anonymous traffic safe to operate: quota enforcement, anonymous kill switch, anonymous rate-limit identity, App Check posture, and linked-account save boundaries.
+PR #107 merged the remaining production-gate slice that makes public anonymous traffic safer to operate: quota enforcement, anonymous kill switch, anonymous rate-limit identity, App Check posture, linked-account save boundaries, session-local guest Settings, and guest/linked cache isolation.
 
-As of 2026-05-28, `codex/init-003-production-gates` implements the local code slice for those gates and is partway through Replit-side schema/secrets/runtime validation before merge readiness:
+As of 2026-05-29, `main` includes the production gates through merge commit `a0efc430450aa4f0e582dd7d96ebcdc187633098`:
 
 - `anonymous_recipe_usage` tracks anonymous recipe-generation quota without creating `auth_users` rows for anonymous sign-in alone.
 - Chef It Up generation routes reserve one anonymous quota slot before provider work and refund it on provider failure; recipe attempt `#11+` returns typed `LINKED_ACCOUNT_REQUIRED`.
 - Anonymous Firebase traffic can be stopped with `ANONYMOUS_AUTH_DISABLED`.
 - Anonymous client entry now waits for `/api/auth/session` before marking a Firebase anonymous user as accepted, so the server-side kill switch remains authoritative before the app shell opens.
 - User-scoped rate-limit keys collapse anonymous users to the client IP instead of the anonymous Firebase UID. Chef It Up recipe generation now defaults to a 20-request / 30-minute user burst limit so the abuse backstop does not normally interrupt validation of the 10-successful-generation guest quota.
-- Firebase App Check verification is available behind `FIREBASE_APP_CHECK_ENFORCED`; the client sends `X-Firebase-AppCheck` when `VITE_FIREBASE_APP_CHECK_SITE_KEY` is configured.
+- Firebase App Check verification is available behind `FIREBASE_APP_CHECK_ENFORCED`; the client sends `X-Firebase-AppCheck` when `VITE_FIREBASE_APP_CHECK_SITE_KEY` is configured. Wilson validated enforced App Check at PR head `72ef2f7` before merge.
 - Durable profile/settings/pantry/cooking-session/history routes reject anonymous tokens with typed `LINKED_ACCOUNT_REQUIRED` so server-side saves remain linked-account only.
 - Guest Settings for Pantry, Kitchen, and Cooking Profile remain available as same-browser session edits; they update the browser-local guest profile and do not call durable profile/settings APIs.
 - Chef It Up planning state, planning time, local cooking resume state, linked profile queries, and linked cooking-session/history queries are scoped by guest/linked user identity so same-browser anonymous trials do not cross-pollinate into later Google accounts.
 
 The 10-generation quota is intentionally a low-friction v1 product gate, not a durable human-identity guarantee. Same-browser normal reopen should preserve the same anonymous Firebase UID and quota state, but explicit sign-out, cleared site data, another browser/device, or incognito can create a fresh anonymous UID. Wilson accepted this tradeoff on 2026-05-27 for the early public MVP; App Check, IP-keyed rate limits, and the anonymous kill switch are the current abuse backstops. Stronger identity or abuse controls are deferred until usage/cost signals justify crossing that bridge.
 
-This branch does not start the fuller Phase 4 promotion/linking flow and does not add anonymous Slop Bowl dry-run behavior. Slop Bowl remains linked-only until a later explicit phase changes that boundary.
+The merged production-gates slice does not start the fuller Phase 4 promotion/linking flow and does not add anonymous Slop Bowl dry-run behavior. Slop Bowl remains linked-only until a later explicit phase changes that boundary.
 
-**Sequencing classification:** this is a soft-sequence override with hard production gates. The public homepage and client anonymous entry can be implemented before the full quota/save-boundary stack, but production readiness still depends on the Phase 1/2 server foundations, quota accounting, App Check, and upgrade boundaries. The homepage CTA must start a real Firebase anonymous session; it must not fake guest mode.
+**Sequencing classification:** this remains a soft-sequence override with hard production gates. The public homepage and client anonymous entry shipped before the full quota/save-boundary stack, but production readiness depended on the Phase 1/2 server foundations, quota accounting, App Check, and linked-account boundaries that PR #107 has now merged. The homepage CTA must continue to start a real Firebase anonymous session; it must not fake guest mode.
 
-The remaining server-auth foundation should stay narrow:
-
-- provider-aware server auth session metadata
-- anonymous kill switch
-- anonymous IP-keyed rate-limit identity
-- null-safe linked-user upsert behavior
-- linked-only compatibility guard on the existing `/api/auth/google` path
-
-Public production enablement is blocked until Firebase App Check is configured and enforced.
+Target-runtime public enablement should keep App Check configured and enforced for the public domain, leave `ANONYMOUS_AUTH_DISABLED` unset only when guest access should be open, and ensure the `anonymous_recipe_usage` table is present before quota testing.
 
 ## Plan B Guest MVP Launch Path
 
 Plan B prioritizes shipping the public pre-auth homepage before INIT-001 Phase 4 or Phase 5, while keeping the guest runtime honest about what is local/session-limited versus durable account memory.
 
-Before public launch, the remaining minimum guest-MVP gates are:
+Before public launch, the minimum guest-MVP gates are:
 
-- Anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, and Firebase App Check posture are confirmed before production enablement.
+- Anonymous quota enforcement, anonymous kill switch, anonymous rate-limit identity, and Firebase App Check posture are confirmed before production enablement. These passed in Replit for PR #107 at `72ef2f7` before merge.
 - Guest quota/linked-account messaging appears inside usage moments, not on the landing page.
 - Linked-account save boundaries clearly separate browser-local guest continuation from linked-account durable saves.
 
@@ -106,19 +98,19 @@ PD-012 is the source of truth for the image-generation approach: public product-
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
 | Phase 0 — docs baseline and prerequisites | Complete | `codex/init-003-anonymous-trial-docs` | INIT-003 and PD-012 capture the accepted guest model, security gates, and revisit triggers before runtime work starts |
-| Phase 1 — server auth and abuse-control foundations | In review | `codex/init-003-production-gates` | Adds anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate-limit identity, and linked-only durable-route guardrails; Replit kill switch passed at `33872fd`, App Check enforcement pending |
-| Phase 2 — guest quota state and auth session contract | In review | `codex/init-003-production-gates` | Adds `anonymous_recipe_usage`, anonymous session quota metadata, and 10-generation quota reservation/refund enforcement for Chef It Up generation routes; Replit schema/runtime validation pending |
+| Phase 1 — server auth and abuse-control foundations | Complete | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | Merged as `a0efc43`; adds anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate-limit identity, backend-session client gate, and linked-only durable-route guardrails; Replit kill switch passed at `33872fd`, App Check enforced smoke passed at `72ef2f7` |
+| Phase 2 — guest quota state and auth session contract | Complete | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | Merged as `a0efc43`; adds `anonymous_recipe_usage`, anonymous session quota metadata, and 10-generation quota reservation/refund enforcement for Chef It Up generation routes; Replit schema/runtime quota validation passed, including `#11` `LINKED_ACCOUNT_REQUIRED` |
 | Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | Complete | [PR #102](https://github.com/wmishak404/laica/pull/102) / `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13`: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, A+C hybrid pre-auth homepage, and no landing-page quota pressure |
-| Phase 4 — linked-account save boundary and promotion | Boundary-only in review | `codex/init-003-production-gates` | Typed `LINKED_ACCOUNT_REQUIRED` responses now protect durable server-side saves, while guest Pantry/Kitchen/Profile Settings remain session-local; Google link flow and strict trial-state promotion remain planned |
+| Phase 4 — linked-account save boundary and promotion | Boundary-only complete; promotion planned | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | Typed `LINKED_ACCOUNT_REQUIRED` responses now protect durable server-side saves, while guest Pantry/Kitchen/Profile Settings remain session-local; Google link flow and strict trial-state promotion remain planned |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
-| Phase 6 — operations, cleanup, and launch | Partially in review | `codex/init-003-production-gates` | App Check posture and kill-switch env contract are in code; Replit kill switch passed at `33872fd`; production enablement still needs App Check configuration/validation plus later cleanup/ops work |
+| Phase 6 — operations, cleanup, and launch | Production-gate slice complete; later cleanup/ops planned | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | App Check posture and kill-switch env contract are merged; Replit final gate passed at `72ef2f7` with `FIREBASE_APP_CHECK_ENFORCED=true`; later cleanup/ops work remains separate |
 
 ## PRs and Branches
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
 | [#102](https://github.com/wmishak404/laica/pull/102) | Merged | `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`; local unhappy-path probes covered no-auth API rejection, anonymous Google-upsert rejection, empty-pantry guest guard, and anonymous live-cooking durable-session guard |
-| [#107](https://github.com/wmishak404/laica/pull/107) | Draft | `codex/init-003-production-gates` | Rebases onto `origin/main` at `fc55772` after PR #108; local `npm ci`, focused Vitest, full Vitest suite, `npm run check`, `npm run build`, and `git diff --check` passed before the kill-switch client race fix, with a focused auth/client suite, `npm run check`, and `npm run build` passing after it; existing Playwright e2e is stale/failing and not app-wide evidence; Wilson's Replit walkthrough has passed guest Settings, provider sanity baseline, schema, quota, durable-save copy, Google sign-in, linked cache isolation, linked History, linked cooking-session persistence at `e19098e`, and kill-switch behavior at `33872fd`; App Check enforcement remains unvalidated |
+| [#107](https://github.com/wmishak404/laica/pull/107) | Merged | `codex/init-003-production-gates` | Merged as `a0efc430450aa4f0e582dd7d96ebcdc187633098` after Replit validation at `72ef2f7`; local `npm ci`, focused Vitest, full Vitest suite, `npm run check`, `npm run build`, and `git diff --check` passed; existing Playwright e2e is stale/failing and not app-wide evidence; Wilson's Replit walkthrough passed guest Settings, provider sanity baseline, schema, quota, durable-save copy, Google sign-in, linked cache isolation, linked History, linked cooking-session persistence, kill-switch behavior, and App Check enforced mode |
 
 ## Efforts and Governance
 
@@ -158,7 +150,7 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 - Local smoke at `c952d13` added unhappy-path confidence for no-auth API rejection, anonymous Google-upsert rejection, empty-pantry guest recovery, and anonymous live-cooking durable-session boundaries. Additional local browser clicks were interrupted by the Codex app/browser surface reset and should not replace Replit UI validation.
 - Local anonymous smoke exposed existing local database schema drift: `prompt_versions` and `ai_interactions` were absent from the local database, producing prompt/eval logging warnings while user-facing AI routes still returned `200`. This is now tracked in [EFF-010](../efforts/effort-010-local-db-schema-strategy.md), not treated as a PR #102 blocker.
 - Future runtime phases should keep Replit as the authoritative validation environment for linked-account, provider-backed, DB-backed, and deployment-bound behavior.
-- Production enablement is blocked until Firebase App Check is configured and anonymous auth can be verified under real quota, rate-limit, kill-switch, and linked-account save behavior.
+- PR #107 satisfied the production-gate validation requirement before merge: Firebase App Check was configured in Replit, anonymous auth was verified under real quota, rate-limit, kill-switch, and linked-account save behavior, and the final App Check enforced smoke passed at `72ef2f7`.
 - 2026-05-27 local checks for `codex/init-003-production-gates` passed:
   - `npm ci`
   - `npx vitest run tests/unit/firebase-auth.test.ts tests/unit/auth-session-route.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/rate-limit.test.ts tests/unit/security-hardening.test.ts tests/unit/live-cooking-guest-session.test.tsx tests/unit/slop-bowl-route.test.ts tests/unit/phase0-security-routes.test.ts`
@@ -176,15 +168,16 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - `npm run build`
   - `git diff --check`
 - 2026-05-28 Replit validation has partially run for `codex/init-003-production-gates`: Wilson confirmed guest Settings session-local edits, Chef It Up using edited guest data, History and Slop Bowl linked-only boundaries, Google sign-in, linked History loads/writes, durable-save rejection and copy for guests, provider sanity baseline for vision/recipes/cooking steps/speech, `anonymous_recipe_usage` schema availability after a manual Replit DB helper, the `#11` guest quota block returning `403 LINKED_ACCOUNT_REQUIRED`, linked profile/settings cache isolation after anonymous guest use, anonymous quota persistence across normal Replit page refresh, and linked cooking-session persistence.
-- Kill-switch validation passed at `33872fd`: guest start stayed on the landing page, displayed the guest-unavailable toast, and Replit logged `/api/auth/session 403`; after Wilson removed the secret and restarted, guest sign-in worked again. App Check pre-enforcement validation has now confirmed the Replit client sends `X-Firebase-AppCheck` on `/api/auth/session` while enforcement is off. App Check enforced validation and the provider sanity repeat after App Check have not yet run. Production-public enablement remains blocked until App Check enforcement is checked at the branch SHA that will merge.
+- Kill-switch validation passed at `33872fd`: guest start stayed on the landing page, displayed the guest-unavailable toast, and Replit logged `/api/auth/session 403`; after Wilson removed the secret and restarted, guest sign-in worked again. App Check pre-enforcement validation confirmed the Replit client sends `X-Firebase-AppCheck` on `/api/auth/session` while enforcement is off. Wilson then loaded the current PR head `72ef2f7`, set `FIREBASE_APP_CHECK_ENFORCED=true`, and passed the final smoke: guest start, recipe generation, Google sign-in, linked profile/settings save, vision scan, cooking steps, and speech all worked with no `APP_CHECK_REQUIRED` or `APP_CHECK_INVALID`.
 
 ## Current Resume Point
 
-1. Validate App Check enforced mode on Replit: set `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and smoke anonymous recipe, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech.
-2. Keep `FIREBASE_APP_CHECK_ENFORCED` off in production until `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console App Check settings are configured for the public domain and Replit validation confirms protected API calls still succeed.
-3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, anonymous abuse controls, and linked-save boundaries are validated at the branch SHA that will merge.
-4. Keep Phase 4 Google link/promotion and Phase 5/anonymous Slop Bowl dry-run as follow-up scope unless Wilson explicitly pulls them into this gate branch.
-5. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
+1. Treat the public guest production-gate code as merged on `main` through PR #107 (`a0efc43`) and Replit-validated at `72ef2f7`.
+2. When enabling or revalidating a public runtime, confirm the target environment has `VITE_FIREBASE_APP_CHECK_SITE_KEY`, Firebase Console App Check registration for the target domain, `FIREBASE_APP_CHECK_ENFORCED=true`, `ANONYMOUS_AUTH_DISABLED` unset unless guest access should be paused, and the `anonymous_recipe_usage` table present.
+3. Keep Phase 4 Google link/promotion/import and Phase 5/anonymous Slop Bowl dry-run as follow-up scope unless Wilson explicitly pulls them forward.
+4. Keep durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary.
+5. Use the new follow-up Efforts as the durable homes for post-validation learnings: [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for cuisine-fit prompt/eval work, [EFF-024](../efforts/effort-024-guest-privacy-trust-messaging.md) for guest privacy/trust messaging, and [EFF-025](../efforts/effort-025-settings-unsaved-inventory-reminder.md) for unsaved Settings reminders.
+6. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
 
 ## Chronology
 
@@ -267,4 +260,8 @@ Wilson re-tested the anonymous kill switch on Replit at PR head `33872fd`. With 
 
 Wilson also registered the Firebase Web App for App Check with reCAPTCHA v3 and added `VITE_FIREBASE_APP_CHECK_SITE_KEY` to Replit. With enforcement still off, Replit DevTools confirmed `/api/auth/session` carried `X-Firebase-AppCheck` on `200 OK` and `304` responses. This validates the client-token attachment and removes the earlier environment assumption that App Check might not be configured.
 
-Remaining Replit gates before merge readiness are App Check enforced mode and the provider sanity repeat after App Check.
+Wilson then loaded the current PR head `72ef2f7` in Replit, set `FIREBASE_APP_CHECK_ENFORCED=true`, and reran the final smoke: guest start, recipe generation, Google sign-in, linked profile/settings save, vision scan, cooking steps, and speech all passed with no `APP_CHECK_REQUIRED` or `APP_CHECK_INVALID`. PR #107 merged as squash commit `a0efc430450aa4f0e582dd7d96ebcdc187633098`.
+
+The merged production-gates slice makes the Plan B public guest MVP operationally safer to open: guest entry remains real Firebase anonymous auth; quota enforcement is server-backed; abuse controls include App Check, IP-keyed anonymous rate limits, and a kill switch; durable saves remain linked-account only; guest Pantry/Kitchen/Profile Settings stay same-browser local; and durable History, cleanup memory, taste memory, next-meal retention, and durable cooking sessions remain linked-account only.
+
+Post-merge follow-up scope remains explicit: Phase 4 owns fuller Google promotion/link/import behavior, Phase 5 owns linked returning-user memory and any future anonymous Slop Bowl dry-run decision, EFF-022 owns cuisine-fit prompt/eval improvements, EFF-024 owns guest privacy/trust messaging, EFF-025 owns unsaved Settings reminders, and analytics should be filed separately if needed.
