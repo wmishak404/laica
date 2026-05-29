@@ -176,11 +176,11 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - `npm run build`
   - `git diff --check`
 - 2026-05-28 Replit validation has partially run for `codex/init-003-production-gates`: Wilson confirmed guest Settings session-local edits, Chef It Up using edited guest data, History and Slop Bowl linked-only boundaries, Google sign-in, linked History loads/writes, durable-save rejection and copy for guests, provider sanity baseline for vision/recipes/cooking steps/speech, `anonymous_recipe_usage` schema availability after a manual Replit DB helper, the `#11` guest quota block returning `403 LINKED_ACCOUNT_REQUIRED`, linked profile/settings cache isolation after anonymous guest use, anonymous quota persistence across normal Replit page refresh, and linked cooking-session persistence.
-- Kill-switch validation passed at `33872fd`: guest start stayed on the landing page, displayed the guest-unavailable toast, and Replit logged `/api/auth/session 403`; after Wilson removed the secret and restarted, guest sign-in worked again. App Check enforced validation and the provider sanity repeat after App Check have not yet run. Production-public enablement remains blocked until App Check is checked at the branch SHA that will merge.
+- Kill-switch validation passed at `33872fd`: guest start stayed on the landing page, displayed the guest-unavailable toast, and Replit logged `/api/auth/session 403`; after Wilson removed the secret and restarted, guest sign-in worked again. App Check pre-enforcement validation has now confirmed the Replit client sends `X-Firebase-AppCheck` on `/api/auth/session` while enforcement is off. App Check enforced validation and the provider sanity repeat after App Check have not yet run. Production-public enablement remains blocked until App Check enforcement is checked at the branch SHA that will merge.
 
 ## Current Resume Point
 
-1. Validate App Check enforced mode on Replit: configure `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console/domain settings if needed, set `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and smoke anonymous recipe, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech.
+1. Validate App Check enforced mode on Replit: set `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and smoke anonymous recipe, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech.
 2. Keep `FIREBASE_APP_CHECK_ENFORCED` off in production until `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console App Check settings are configured for the public domain and Replit validation confirms protected API calls still succeed.
 3. Do not enable public anonymous auth in production until App Check, anonymous quota enforcement, anonymous abuse controls, and linked-save boundaries are validated at the branch SHA that will merge.
 4. Keep Phase 4 Google link/promotion and Phase 5/anonymous Slop Bowl dry-run as follow-up scope unless Wilson explicitly pulls them into this gate branch.
@@ -264,5 +264,7 @@ The branch now verifies anonymous Firebase state through `/api/auth/session` bef
 ### 2026-05-29 — Kill-switch re-test passed
 
 Wilson re-tested the anonymous kill switch on Replit at PR head `33872fd`. With `ANONYMOUS_AUTH_DISABLED=true`, clicking `Start cooking now` stayed on the landing page, displayed the `Guest cooking did not start` toast with the guest-unavailable copy, and the Replit console showed repeated `/api/auth/session 403` responses. After Wilson removed the secret and restarted, guest sign-in worked again. This validates the server kill switch, client-side anonymous session gate, and rollback path together.
+
+Wilson also registered the Firebase Web App for App Check with reCAPTCHA v3 and added `VITE_FIREBASE_APP_CHECK_SITE_KEY` to Replit. With enforcement still off, Replit DevTools confirmed `/api/auth/session` carried `X-Firebase-AppCheck` on `200 OK` and `304` responses. This validates the client-token attachment and removes the earlier environment assumption that App Check might not be configured.
 
 Remaining Replit gates before merge readiness are App Check enforced mode and the provider sanity repeat after App Check.

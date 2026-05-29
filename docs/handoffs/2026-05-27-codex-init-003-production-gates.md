@@ -23,6 +23,8 @@ Wilson's first Replit kill-switch attempt then showed the server-side `ANONYMOUS
 
 Wilson re-tested the kill switch at PR head `33872fd` after the client gate fix. With `ANONYMOUS_AUTH_DISABLED=true`, `Start cooking now` stayed on the landing page, showed the `Guest cooking did not start` toast with guest-unavailable copy, and Replit logged `/api/auth/session 403`. After Wilson removed the secret and restarted, guest sign-in worked again. Kill-switch validation is now passed.
 
+Wilson then registered the Firebase Web App for App Check with reCAPTCHA v3 and added `VITE_FIREBASE_APP_CHECK_SITE_KEY` to Replit. With `FIREBASE_APP_CHECK_ENFORCED` still unset/off, Replit DevTools confirmed `/api/auth/session` carried `X-Firebase-AppCheck` on the `200 OK` request and subsequent `304` requests. App Check client-token attachment is now validated; server-enforced App Check is still pending.
+
 ## Changes
 
 - `shared/schema.ts`
@@ -137,7 +139,7 @@ Playwright e2e status:
 | Linked account cache isolation | Yes | No script yet | Replit passed at `e19098e` | `tests/unit/planning-choice.test.tsx` and `tests/unit/meal-planning.test.tsx` prove planning-time and in-progress Chef It Up state are scoped by auth identity. Code now also scopes linked profile/history/cooking query keys and live-cooking local resume state. Wilson re-tested linked profile/settings after anonymous guest use in the same browser and did not see stale cuisine/time/profile data. |
 | Anonymous kill switch | Yes | No script yet | Replit passed at `33872fd` | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification, and `tests/unit/firebase-auth-client.test.tsx` proves anonymous Firebase client state is not accepted when `/api/auth/session` rejects it. Wilson re-tested on Replit at `33872fd`: guest start stayed on landing, showed guest-unavailable toast, logged `/api/auth/session 403`, and guest sign-in worked again after removing the secret/restart. |
 | Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation, typed payloads, and the 20-request / 30-minute Chef It Up burst default; Replit should watch proxy/client-IP behavior in the long-running runtime. |
-| App Check posture | Yes | No script yet | Yes, not yet run | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
+| App Check posture | Partial | No script yet | Enforcement still pending | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks. Wilson registered App Check for the Firebase Web App, added `VITE_FIREBASE_APP_CHECK_SITE_KEY` to Replit, and confirmed `/api/auth/session` sends `X-Firebase-AppCheck` with enforcement off. Server-enforced App Check still needs Replit validation with `FIREBASE_APP_CHECK_ENFORCED=true`. |
 | Linked cooking-session persistence | Partial | No script yet | Replit passed at `e19098e` | `tests/unit/live-cooking-guest-session.test.tsx` proves guests do not create durable sessions and linked users do. Wilson confirmed a linked Google user could start live cooking, advance, refresh/navigate, and resume/write the same linked account's session/history on Replit. |
 | Vision and ElevenLabs sanity | No direct local provider test in this branch | No script yet | Replit passed baseline | Auth/App Check header changes can break protected provider routes; Wilson confirmed vision scan, recipe generation, cooking steps, and speech synthesis in the Replit baseline. Repeat after App Check enforcement is enabled. |
 | Existing app-wide browser e2e | Listed, but stale/failing | No script yet | Yes for service-backed functions | `npx playwright test --project=chromium` fails on stale selectors in `tests/e2e/cooking-workflow.test.ts`; repair/replace this suite before treating it as app-wide browser evidence. |
@@ -184,14 +186,14 @@ Steps already run or partially run on Replit:
 
 Remaining Replit steps before merge readiness:
 
-1. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console/domain settings if not already configured. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
+1. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
 2. Repeat provider sanity after App Check enforcement: vision scan, recipe generation, cooking steps, and speech synthesis.
 
-Last Replit-validated at: partial manual runtime validation at `e19098e`, plus kill-switch validation at `33872fd`; App Check enforced mode not yet validated.
+Last Replit-validated at: partial manual runtime validation at `e19098e`, kill-switch validation at `33872fd`, and App Check client-token attachment after Replit site-key setup; App Check enforced mode not yet validated.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `fc55772f3055aea631ba162d4da60d901b02d772`
-- Last Replit-validated at: partial manual runtime validation at `e19098e`, plus kill-switch validation at `33872fd`; App Check enforced mode not yet validated
+- Last Replit-validated at: partial manual runtime validation at `e19098e`, kill-switch validation at `33872fd`, and App Check client-token attachment after Replit site-key setup; App Check enforced mode not yet validated
 - Notes: `codex/init-003-production-gates` was reset from old Phase 3 base `515b7ec` onto fresh `origin/main` after PR #105 and PR #106, then rebased again after docs-only PR #108 merged. PR #102 was previously Replit-validated at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`, but this production-gates branch needs fresh Replit validation.
