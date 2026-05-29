@@ -30,6 +30,17 @@ When asked for an app-wide test pass, separate "all existing automated tests" fr
 
 If a case is important enough to list and can be automated safely in the current branch, add the test. If it cannot be automated safely, mark the human/Replit dependency explicitly instead of implying confidence.
 
+## Standard Local Automation Commands
+
+Use the repo scripts instead of ad hoc `npx` commands so validation evidence stays consistent across handoffs and CI:
+
+- `npm run test:unit` — Vitest unit suite.
+- `npm run test:e2e` — Playwright E2E (Chromium) against the local dev server.
+- `npm run test` — runs unit + E2E.
+- `npm run db:health` — database schema preflight check for known drift vectors (required before DB-backed E2E).
+
+E2E note: browser automation depends on service-backed env (at minimum a `DATABASE_URL` that points to a non-production test database). Keep E2E flows privacy-forward by using synthetic data and by avoiding production/Replit databases.
+
 ## Bug and Regression Closeout
 
 When testing or user validation finds a bug, close the loop before merge readiness:

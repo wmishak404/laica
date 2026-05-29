@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AddressInfo } from "node:net";
-import type { Server } from "node:http";
 import express from "express";
+import { requestHttp } from "./http-test-client";
 
 const mocks = vi.hoisted(() => ({
   storage: {
@@ -61,28 +60,7 @@ async function startTestServer() {
   app.use(express.json());
 
   const server = await registerRoutes(app);
-
-  await new Promise<void>((resolve) => {
-    server.listen(0, "127.0.0.1", resolve);
-  });
-
-  const address = server.address() as AddressInfo;
-  return {
-    server,
-    url: `http://127.0.0.1:${address.port}`,
-  };
-}
-
-function closeServer(server: Server) {
-  return new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
+  return server;
 }
 
 describe("Phase 0 protected routes", () => {
@@ -91,172 +69,151 @@ describe("Phase 0 protected routes", () => {
   });
 
   it("requires auth before recipe suggestion generation", async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/suggestions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ preferences: "quick dinner" }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/recipes/suggestions",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferences: "quick dinner" }),
+    });
 
-      expect(response.status).toBe(401);
-      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(401);
+    expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
   });
 
   it("accepts longer recipe suggestion preferences after staple context is added", async () => {
     mocks.getRecipeSuggestions.mockResolvedValueOnce({ recipes: [] });
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/suggestions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({
-          preferences: "x".repeat(750),
-          ingredients: ["rice", "eggs"],
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/recipes/suggestions",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({
+        preferences: "x".repeat(750),
+        ingredients: ["rice", "eggs"],
+      }),
+    });
 
-      expect(response.status).toBe(200);
-      expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"]);
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(200);
+    expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"]);
   });
 
   it("accepts longer pantry recipe preferences after staple context is added", async () => {
     mocks.getRecipeSuggestions.mockResolvedValueOnce({ recipes: [] });
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/pantry`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({
-          preferences: "x".repeat(750),
-          ingredients: ["rice", "eggs"],
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/recipes/pantry",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({
+        preferences: "x".repeat(750),
+        ingredients: ["rice", "eggs"],
+      }),
+    });
 
-      expect(response.status).toBe(200);
-      expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"]);
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(200);
+    expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"]);
   });
 
   it("blocks pantry recipe generation when the pantry ingredient list is empty", async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/pantry`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({
-          preferences: "quick dinner",
-          ingredients: [],
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/recipes/pantry",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({
+        preferences: "quick dinner",
+        ingredients: [],
+      }),
+    });
 
-      expect(response.status).toBe(422);
-      await expect(response.json()).resolves.toEqual({
-        code: "EMPTY_PANTRY",
-        message: "Your pantry is empty. Add or scan pantry items before I can suggest recipes.",
-      });
-      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({
+      code: "EMPTY_PANTRY",
+      message: "Your pantry is empty. Add or scan pantry items before I can suggest recipes.",
+    });
+    expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
   });
 
   it("returns a typed 400 when recipe suggestion preferences exceed the route contract", async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/suggestions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({
-          preferences: "x".repeat(1001),
-          ingredients: ["rice", "eggs"],
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/recipes/suggestions",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({
+        preferences: "x".repeat(1001),
+        ingredients: ["rice", "eggs"],
+      }),
+    });
 
-      expect(response.status).toBe(400);
-      await expect(response.json()).resolves.toEqual({
-        code: "PREFERENCES_TOO_LONG",
-        message: "Invalid recipe suggestions request",
-      });
-      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      code: "PREFERENCES_TOO_LONG",
+      message: "Invalid recipe suggestions request",
+    });
+    expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
   });
 
   it("returns a typed 400 when pantry recipe preferences exceed the route contract", async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/pantry`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({
-          preferences: "x".repeat(1001),
-          ingredients: ["rice", "eggs"],
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/recipes/pantry",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({
+        preferences: "x".repeat(1001),
+        ingredients: ["rice", "eggs"],
+      }),
+    });
 
-      expect(response.status).toBe(400);
-      await expect(response.json()).resolves.toEqual({
-        code: "PREFERENCES_TOO_LONG",
-        message: "Invalid pantry recipe request",
-      });
-      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      code: "PREFERENCES_TOO_LONG",
+      message: "Invalid pantry recipe request",
+    });
+    expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
   });
 
   it("returns a typed 400 for invalid cooking step requests", async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/cooking/steps`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({ recipeName: "" }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/cooking/steps",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({ recipeName: "" }),
+    });
 
-      expect(response.status).toBe(400);
-      await expect(response.json()).resolves.toEqual({
-        code: "INVALID_REQUEST",
-        message: "Invalid cooking steps request",
-      });
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      code: "INVALID_REQUEST",
+      message: "Invalid cooking steps request",
+    });
   });
 
   it("ignores request-body authUserId when updating user settings", async () => {
@@ -316,22 +273,19 @@ describe("Phase 0 protected routes", () => {
       id: 42,
       authUserId: "other-user",
     });
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/cooking/session/42`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({ completedSteps: 1 }),
-      });
+    const response = await requestHttp(server, {
+      method: "PUT",
+      path: "/api/cooking/session/42",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({ completedSteps: 1 }),
+    });
 
-      expect(response.status).toBe(403);
-      expect(mocks.storage.updateCookingSession).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(403);
+    expect(mocks.storage.updateCookingSession).not.toHaveBeenCalled();
   });
 });

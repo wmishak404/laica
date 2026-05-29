@@ -12,7 +12,11 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc && npm run lint:ui",
     "lint:ui": "eslint \"client/src/**/*.{ts,tsx}\"",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:health": "tsx scripts/db-schema-health.ts",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test --project=chromium",
+    "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
