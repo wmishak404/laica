@@ -21,6 +21,8 @@ Wilson's 2026-05-28 Replit pass also exposed a same-browser cache-isolation faul
 
 Wilson's first Replit kill-switch attempt then showed the server-side `ANONYMOUS_ACCESS_DISABLED` error but still let the anonymous Firebase session enter the app. The client now treats `/api/auth/session` as the authoritative anonymous acceptance gate: anonymous Firebase auth state does not set the app user or auth cache until the backend confirms the session, and a backend rejection signs out Firebase and clears auth state.
 
+Wilson re-tested the kill switch at PR head `33872fd` after the client gate fix. With `ANONYMOUS_AUTH_DISABLED=true`, `Start cooking now` stayed on the landing page, showed the `Guest cooking did not start` toast with guest-unavailable copy, and Replit logged `/api/auth/session 403`. After Wilson removed the secret and restarted, guest sign-in worked again. Kill-switch validation is now passed.
+
 ## Changes
 
 - `shared/schema.ts`
@@ -87,11 +89,11 @@ Guest Settings are available in this branch, but only as local guest-profile edi
 
 Any Replit validation done before the cache-isolation fix is stale for linked profile/settings save and linked cooking-session/history cache behavior. Re-smoke with a browser that previously used anonymous guest mode before considering the linked regression resolved.
 
-Any Replit kill-switch validation done before the anonymous client gate fix is stale. Re-test with `ANONYMOUS_AUTH_DISABLED=true` at the latest PR head before considering the kill switch passed.
+Kill-switch validation passed at PR head `33872fd`, including rollback after removing the secret.
 
 ## Open items
 
-- Replit validation is still required for the latest head's kill switch, App Check enforcement, and final deployment-bound behavior.
+- Replit validation is still required for App Check enforcement and final deployment-bound behavior.
 - PR #107 remains draft until Replit validation is complete.
 - Phase 4 Google link/promotion/import remains follow-up scope.
 - Phase 5 / anonymous Slop Bowl dry-run remains follow-up scope unless Wilson explicitly pulls it forward.
@@ -133,7 +135,7 @@ Playwright e2e status:
 | Guest durable-save boundaries | Yes | No script yet | Replit passed at `e19098e` | Local route/component tests cover guest blocking and linked-user cooking-session preservation. Wilson confirmed the updated durable-save copy and `POST /api/recipes/pantry 403` behavior on Replit. |
 | Guest Settings session-local edits | Yes | No script yet | Replit passed before latest cache fix | `tests/unit/planning-choice.test.tsx` covers menu and empty-pantry entry into session Settings; `tests/unit/user-settings-scan-policy.test.tsx` covers pantry add/delete, kitchen edits, and cooking-profile edits without durable API calls. Wilson confirmed guest Settings, Chef It Up using edited data, and linked-only History/Slop Bowl on Replit. |
 | Linked account cache isolation | Yes | No script yet | Replit passed at `e19098e` | `tests/unit/planning-choice.test.tsx` and `tests/unit/meal-planning.test.tsx` prove planning-time and in-progress Chef It Up state are scoped by auth identity. Code now also scopes linked profile/history/cooking query keys and live-cooking local resume state. Wilson re-tested linked profile/settings after anonymous guest use in the same browser and did not see stale cuisine/time/profile data. |
-| Anonymous kill switch | Yes | No script yet | Yes, needs re-test | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification, and `tests/unit/firebase-auth-client.test.tsx` proves anonymous Firebase client state is not accepted when `/api/auth/session` rejects it. Wilson's first Replit attempt exposed the client race, so the latest head needs an env-change/restart re-test before public enablement. |
+| Anonymous kill switch | Yes | No script yet | Replit passed at `33872fd` | `tests/unit/firebase-auth.test.ts` proves middleware rejection after token verification, and `tests/unit/firebase-auth-client.test.tsx` proves anonymous Firebase client state is not accepted when `/api/auth/session` rejects it. Wilson re-tested on Replit at `33872fd`: guest start stayed on landing, showed guest-unavailable toast, logged `/api/auth/session 403`, and guest sign-in worked again after removing the secret/restart. |
 | Anonymous IP-keyed rate limit | Yes | No script yet | Replit confidence gap | `tests/unit/rate-limit.test.ts` proves key derivation, typed payloads, and the 20-request / 30-minute Chef It Up burst default; Replit should watch proxy/client-IP behavior in the long-running runtime. |
 | App Check posture | Yes | No script yet | Yes, not yet run | Local Firebase-auth tests cover missing/invalid/valid middleware branches with mocks; Firebase Console/site-key/debug-token/enforcement behavior needs Replit/human setup. |
 | Linked cooking-session persistence | Partial | No script yet | Replit passed at `e19098e` | `tests/unit/live-cooking-guest-session.test.tsx` proves guests do not create durable sessions and linked users do. Wilson confirmed a linked Google user could start live cooking, advance, refresh/navigate, and resume/write the same linked account's session/history on Replit. |
@@ -177,19 +179,19 @@ Steps already run or partially run on Replit:
 4. At `e19098e`, Wilson re-tested linked profile/settings after anonymous guest use in the same browser; no stale cuisine/time/profile data appeared.
 5. At `e19098e`, Wilson re-tested guest durable-save copy and saw the expected `POST /api/recipes/pantry 403`; logout/login and Replit page refresh did not leak stale state, and the anonymous quota count persisted across normal page refresh.
 6. At `e19098e`, Wilson confirmed linked cooking-session persistence after Google sign-in, live cooking, step advance, refresh/navigate, and history/session resume/write.
-7. Wilson's first kill-switch attempt showed an error but still routed into the app; that validation failed and prompted the latest client gate fix.
+7. Wilson's first kill-switch attempt showed an error but still routed into the app; that validation failed and prompted the client gate fix.
+8. At PR head `33872fd`, Wilson re-tested the kill switch. Guest start stayed on the landing page, displayed `Guest cooking did not start`, and Replit logged `/api/auth/session 403`; after the secret was removed/restarted, guest sign-in worked again. Kill switch passed.
 
 Remaining Replit steps before merge readiness:
 
-1. Set `ANONYMOUS_AUTH_DISABLED=true`, restart, and confirm anonymous sign-in stays blocked with `ANONYMOUS_ACCESS_DISABLED` and does not enter the app; unset it before continuing.
-2. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console/domain settings if not already configured. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
-3. Repeat provider sanity after App Check enforcement: vision scan, recipe generation, cooking steps, and speech synthesis.
+1. Configure `VITE_FIREBASE_APP_CHECK_SITE_KEY` and Firebase Console/domain settings if not already configured. Enable `FIREBASE_APP_CHECK_ENFORCED=true`, restart, and confirm anonymous setup/recipe flow, Google sign-in/upsert, profile writes, vision scan, cooking steps, and speech routes still work with App Check tokens.
+2. Repeat provider sanity after App Check enforcement: vision scan, recipe generation, cooking steps, and speech synthesis.
 
-Last Replit-validated at: partial manual validation at `e19098e`; kill switch and App Check enforced mode not yet validated.
+Last Replit-validated at: partial manual runtime validation at `e19098e`, plus kill-switch validation at `33872fd`; App Check enforced mode not yet validated.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `fc55772f3055aea631ba162d4da60d901b02d772`
-- Last Replit-validated at: partial manual validation at `e19098e`; kill switch and App Check enforced mode not yet validated
+- Last Replit-validated at: partial manual runtime validation at `e19098e`, plus kill-switch validation at `33872fd`; App Check enforced mode not yet validated
 - Notes: `codex/init-003-production-gates` was reset from old Phase 3 base `515b7ec` onto fresh `origin/main` after PR #105 and PR #106, then rebased again after docs-only PR #108 merged. PR #102 was previously Replit-validated at `c952d13c9918356de2c5aaf31cb0dbde6f2d1824`, but this production-gates branch needs fresh Replit validation.
