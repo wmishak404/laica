@@ -127,3 +127,9 @@ New EFF-010 signal:
 - The eventual schema-health check should include `anonymous_recipe_usage` alongside `prompt_versions`, `ai_interactions`, and other feature-owned persistence tables.
 - Replit validation for INIT-003 must confirm the table exists before testing anonymous quota exhaustion; a missing table would be environment/schema drift, not evidence that the quota route logic is optional.
 - The local DB workflow still needs an ownership model before agents mutate schemas from arbitrary worktrees.
+
+## 2026-05-29 — INIT-003 quota schema validated in Replit before merge
+
+PR #107 merged as `a0efc43` after Wilson confirmed `anonymous_recipe_usage` existed in Replit and validated the real anonymous quota path, including the `#11` `LINKED_ACCOUNT_REQUIRED` response. This resolves the INIT-003 merge gate, but it does not resolve EFF-010: the Replit-side helper was a project-authoritative runtime action, not a general local schema workflow for arbitrary Codex/Claude worktrees.
+
+EFF-010 should still include `anonymous_recipe_usage` in the future schema-health check and still define when local agents may mutate a database. Until then, do not use the successful Replit validation from PR #107 as permission to run local `npm run db:push` from unrelated worktrees.

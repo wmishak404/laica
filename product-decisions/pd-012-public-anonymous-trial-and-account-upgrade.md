@@ -39,6 +39,14 @@ The cap increased to 10 because:
 - A recipe generation can also miss because Laica is still young and may produce something that does not fit the user's taste, pantry, or expectations. Those misses are partly on the product, so the guest policy should leave room for them before asking for Google.
 - The cap should still protect cost and abuse, but the user-facing story should remain "start cooking now" rather than "you are in a small trial."
 
+### 2026-05-29 implementation status
+
+PR #102 shipped the public pre-auth homepage and Firebase anonymous guest entry. PR #107 then merged the production-gate slice as `a0efc430450aa4f0e582dd7d96ebcdc187633098` after Wilson validated Replit at current PR head `72ef2f7`, including App Check enforced mode with `FIREBASE_APP_CHECK_ENFORCED=true`.
+
+The implemented v1 gate now includes server-backed anonymous quota accounting, typed `LINKED_ACCOUNT_REQUIRED` boundaries, provider-failure quota refunds, an anonymous kill switch, IP-keyed anonymous rate limits, App Check token attachment/enforcement, session-local guest Pantry/Kitchen/Profile Settings, and auth-scoped browser/query caches so guest or prior-account state does not leak into later linked accounts.
+
+The decision remains active because Phase 4 promotion/linking and Phase 5 returning-user memory work are still future scope, and the 10-generation cap should be revisited after real usage, abuse/cost, and recipe-quality evidence.
+
 ## Decision
 
 ### Public entry model
@@ -166,15 +174,13 @@ Durable saves include:
   - durable-save boundary
 - Phase 1 auth assumptions from [INIT-001](../initiatives/INIT-001-mobile-refresh.md) become historical baseline, not the final public-entry policy.
 - Phase 5 implementation must respect the linked-only durable-memory boundary from day one.
-- Runtime implementation will need:
-  - a provider-aware auth session contract
-  - anonymous-safe quota accounting
-  - local guest-state namespacing and cleanup
-  - typed linked-account-required responses for durable-write routes
+- Runtime implementation now has the core production gates from PR #107: provider-aware auth session metadata, anonymous-safe quota accounting, local guest-state namespacing, typed linked-account-required responses for durable-write routes, App Check posture, and anonymous kill switch/rate-limit controls.
+- Public runtime configuration still matters. App Check must stay registered for the target public domain, `VITE_FIREBASE_APP_CHECK_SITE_KEY` must be present client-side, `FIREBASE_APP_CHECK_ENFORCED=true` must be set when anonymous public access is enabled, and `anonymous_recipe_usage` must exist in the target database.
 
 ## Open follow-ups
 
-- Land the Phase 0 docs baseline in [INIT-003](../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md) and then start runtime work from fresh `origin/main`.
-- Add Firebase App Check before enabling public anonymous auth in production.
+- Keep target-runtime App Check configured/enforced for public anonymous access and revalidate if the public domain, Firebase App Check app, or Replit/deployment secret setup changes.
+- Implement the fuller Phase 4 Google promotion/link/import flow when that phase starts.
+- Keep Phase 5 durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary.
 - File separate analytics work for guest-to-link and returning-user measurement rather than expanding this PD into a measurement plan.
 - Re-evaluate the 10-generation cap after real usage evidence, cost signals, early-generation quality evidence, and Phase 5 returning-user data exist.
