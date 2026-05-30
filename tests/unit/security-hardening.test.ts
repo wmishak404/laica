@@ -27,6 +27,9 @@ describe('security hardening', () => {
     const options = getSecurityHeaderOptions('production');
     const contentSecurityPolicy = options.contentSecurityPolicy;
 
+    expect(contentSecurityPolicy?.directives?.['script-src']).toEqual(
+      expect.not.arrayContaining(['https://replit.com']),
+    );
     expect(contentSecurityPolicy).toMatchObject({
       directives: {
         'default-src': ["'self'"],
