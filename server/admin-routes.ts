@@ -212,6 +212,8 @@ export function registerAdminRoutes(app: Express): void {
         improvedPromptLength: improvedPrompt.length,
         improvedPrompt,
         basedOnInteractionIds: selected.map(r => r.id),
+        securityNotice:
+          "AI interaction logs are untrusted user-generated content and may contain prompt-injection attempts. Review the generated prompt before saving or activating it; do not follow any instructions found inside the logs.",
       });
     } catch (err: any) {
       console.error('[admin] Error generating improved prompt:', err);

@@ -1,6 +1,7 @@
 import type { Request, RequestHandler, Response } from "express";
 import { rateLimit } from "express-rate-limit";
 import { SCAN_IMAGES_PER_DAY } from "@shared/scan-policy";
+import { lt, sql } from "drizzle-orm";
 
 type RateLimitKey =
   | "app"
@@ -28,9 +29,111 @@ interface Bucket {
 
 export const RATE_LIMIT_BUCKET_CAP = 10_000;
 const RATE_LIMIT_BUCKET_PRUNE_INTERVAL_MS = 60_000;
+const DISTRIBUTED_RATE_LIMIT_PRUNE_INTERVAL_MS = 60 * 60 * 1000;
+const DISTRIBUTED_RATE_LIMIT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
 const buckets = new Map<string, Bucket>();
 let lastBucketPruneAt = 0;
+let lastDistributedPruneAt = 0;
+
+type RateLimitDbDeps = {
+  db: typeof import("./db").db;
+  rateLimitBuckets: typeof import("@shared/schema").rateLimitBuckets;
+};
+
+let rateLimitDbDepsPromise: Promise<RateLimitDbDeps> | null = null;
+
+function isDistributedRateLimitEnabled(nodeEnv = process.env.NODE_ENV): boolean {
+  return nodeEnv === "production" && process.env.RATE_LIMIT_DISTRIBUTED !== "false";
+}
+
+async function loadRateLimitDbDeps(): Promise<RateLimitDbDeps> {
+  if (!rateLimitDbDepsPromise) {
+    rateLimitDbDepsPromise = Promise.all([import("./db"), import("@shared/schema")]).then(
+      ([dbModule, schemaModule]) => ({
+        db: dbModule.db,
+        rateLimitBuckets: schemaModule.rateLimitBuckets,
+      }),
+    );
+  }
+  return rateLimitDbDepsPromise;
+}
+
+async function pruneDistributedBucketsIfNeeded(now: number): Promise<void> {
+  if (now - lastDistributedPruneAt < DISTRIBUTED_RATE_LIMIT_PRUNE_INTERVAL_MS) {
+    return;
+  }
+
+  lastDistributedPruneAt = now;
+  const cutoff = new Date(now - DISTRIBUTED_RATE_LIMIT_RETENTION_MS);
+  try {
+    const { db, rateLimitBuckets } = await loadRateLimitDbDeps();
+    await db.delete(rateLimitBuckets).where(lt(rateLimitBuckets.windowStart, cutoff));
+  } catch (error) {
+    console.warn("[rate-limit] Failed to prune distributed buckets:", error);
+  }
+}
+
+async function consumeRateLimitDistributed(
+  { name, windowMs, max, keyGenerator }: RateLimitOptions,
+  req: Request,
+  res: Response,
+  count = 1,
+): Promise<boolean> {
+  const safeCount = Number.isInteger(count) && count > 0 ? count : 1;
+  const now = Date.now();
+  await pruneDistributedBucketsIfNeeded(now);
+
+  const windowStartMs = now - (now % windowMs);
+  const windowStart = new Date(windowStartMs);
+  const resetAtMs = windowStartMs + windowMs;
+
+  const bucketKey = `${name}:${keyGenerator(req)}`;
+
+  try {
+    const { db, rateLimitBuckets } = await loadRateLimitDbDeps();
+    const timestamp = new Date();
+    const [bucket] = await db
+      .insert(rateLimitBuckets)
+      .values({
+        bucketKey,
+        windowStart,
+        windowMs,
+        count: safeCount,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      })
+      .onConflictDoUpdate({
+        target: [rateLimitBuckets.bucketKey, rateLimitBuckets.windowStart, rateLimitBuckets.windowMs],
+        set: {
+          count: sql`${rateLimitBuckets.count} + ${safeCount}`,
+          updatedAt: timestamp,
+        },
+      })
+      .returning({ count: rateLimitBuckets.count });
+
+    const used = bucket?.count ?? safeCount;
+    const remaining = Math.max(0, max - used);
+    res.setHeader("X-RateLimit-Limit", String(max));
+    res.setHeader("X-RateLimit-Remaining", String(remaining));
+    res.setHeader("X-RateLimit-Reset", String(Math.ceil(resetAtMs / 1000)));
+
+    if (used > max) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((resetAtMs - now) / 1000));
+      res.setHeader("Retry-After", String(retryAfterSeconds));
+      res.status(429).json({
+        code: "RATE_LIMITED",
+        message: "Too many requests. Try again later.",
+      });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.warn("[rate-limit] Distributed limiter failed; falling back to in-memory limiter:", error);
+    return consumeRateLimit({ name, windowMs, max, keyGenerator }, req, res, safeCount);
+  }
+}
 
 function toRateLimitEnvSegment(value: string): string {
   return value
@@ -163,6 +266,14 @@ export function getRateLimitBucketCountForTest(): number {
 }
 
 export function createRateLimit(options: RateLimitOptions): RequestHandler {
+  if (isDistributedRateLimitEnabled()) {
+    return async (req, res, next) => {
+      if (!(await consumeRateLimitDistributed(options, req, res))) {
+        return;
+      }
+      next();
+    };
+  }
   return (req, res, next) => {
     if (!consumeRateLimit(options, req, res)) {
       return;
@@ -231,7 +342,19 @@ const visionUserDayOptions = {
 
 export const visionUserDayLimit = createRateLimit(visionUserDayOptions);
 
-export function consumeVisionImageRateLimits(req: Request, res: Response, imageCount = 1): boolean {
+export async function consumeVisionImageRateLimits(
+  req: Request,
+  res: Response,
+  imageCount = 1,
+): Promise<boolean> {
+  if (isDistributedRateLimitEnabled()) {
+    return (
+      (await consumeRateLimitDistributed(visionIpShortOptions, req, res, imageCount)) &&
+      (await consumeRateLimitDistributed(visionUserShortOptions, req, res, imageCount)) &&
+      (await consumeRateLimitDistributed(visionUserDayOptions, req, res, imageCount))
+    );
+  }
+
   return (
     consumeRateLimit(visionIpShortOptions, req, res, imageCount) &&
     consumeRateLimit(visionUserShortOptions, req, res, imageCount) &&
