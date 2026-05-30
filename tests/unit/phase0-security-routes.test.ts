@@ -7,8 +7,10 @@ const mocks = vi.hoisted(() => ({
   storage: {
     getCookingSession: vi.fn(),
     updateCookingSession: vi.fn(),
+    upsertUserSettings: vi.fn(),
   },
   getRecipeSuggestions: vi.fn(),
+  synthesizeSpeech: vi.fn(),
 }));
 
 vi.mock("../../server/firebaseAuth", () => ({
@@ -44,7 +46,7 @@ vi.mock("../../server/admin-routes", () => ({
 }));
 
 vi.mock("../../server/elevenlabs", () => ({
-  synthesizeSpeech: vi.fn(),
+  synthesizeSpeech: mocks.synthesizeSpeech,
   getAvailableVoices: vi.fn(),
   COOKING_VOICES: [],
 }));
@@ -252,6 +254,58 @@ describe("Phase 0 protected routes", () => {
         code: "INVALID_REQUEST",
         message: "Invalid cooking steps request",
       });
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("ignores request-body authUserId when updating user settings", async () => {
+    mocks.storage.upsertUserSettings.mockResolvedValueOnce({ authUserId: "owner-user" });
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/user/settings`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({
+          authUserId: "victim-user",
+          voiceEnabled: false,
+        }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(mocks.storage.upsertUserSettings).toHaveBeenCalledTimes(1);
+
+      const [calledUserId, calledSettings] = mocks.storage.upsertUserSettings.mock.calls[0]!;
+      expect(calledUserId).toBe("owner-user");
+      expect(calledSettings).toEqual({ voiceEnabled: false });
+      expect(calledSettings).not.toHaveProperty("authUserId");
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("does not mark authenticated speech synthesis responses as publicly cacheable", async () => {
+    mocks.synthesizeSpeech.mockResolvedValueOnce(Buffer.from("audio"));
+    const { server, url } = await startTestServer();
+
+    try {
+      const response = await fetch(`${url}/api/speech/synthesize`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer test-token",
+        },
+        body: JSON.stringify({ text: "hello from test" }),
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
+      expect(response.headers.get("pragma")).toBe("no-cache");
+      expect(response.headers.get("vary")).toContain("Authorization");
     } finally {
       await closeServer(server);
     }

@@ -29,6 +29,8 @@ export interface AnonymousRecipeQuotaReservation {
   quota: AnonymousRecipeQuota;
 }
 
+export type UpsertUserSettingsInput = Partial<Omit<InsertUserSettings, "authUserId">>;
+
 // Interface for storage operations
 export interface IStorage {
   // User operations for Replit Auth
@@ -41,7 +43,7 @@ export interface IStorage {
   
   // User settings operations
   getUserSettings(userId: string): Promise<UserSettings | undefined>;
-  upsertUserSettings(settings: InsertUserSettings): Promise<UserSettings>;
+  upsertUserSettings(userId: string, settings: UpsertUserSettingsInput): Promise<UserSettings>;
   updateUserSettings(userId: string, settings: Partial<UserSettings>): Promise<UserSettings>;
   
   // Cooking session operations
@@ -180,10 +182,10 @@ export class DatabaseStorage implements IStorage {
     return settings;
   }
 
-  async upsertUserSettings(settingsData: InsertUserSettings): Promise<UserSettings> {
+  async upsertUserSettings(userId: string, settingsData: UpsertUserSettingsInput): Promise<UserSettings> {
     const [settings] = await db
       .insert(userSettings)
-      .values(settingsData)
+      .values({ authUserId: userId, ...settingsData })
       .onConflictDoUpdate({
         target: userSettings.authUserId,
         set: {

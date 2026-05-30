@@ -676,7 +676,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.set({
         'Content-Type': 'audio/mpeg',
         'Content-Length': audioBuffer.length.toString(),
-        'Cache-Control': 'public, max-age=31536000',
+        'Cache-Control': 'private, no-store, max-age=0',
+        Pragma: 'no-cache',
+        Vary: 'Authorization',
       });
       
       res.send(audioBuffer);
@@ -806,12 +808,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
-      const settingsData = insertUserSettingsSchema.partial().parse(req.body);
+      const settingsData = insertUserSettingsSchema.omit({ authUserId: true }).partial().parse(req.body);
       
-      const updatedSettings = await storage.upsertUserSettings({
-        authUserId: userId,
-        ...settingsData
-      });
+      const updatedSettings = await storage.upsertUserSettings(userId, settingsData);
       res.json(updatedSettings);
     } catch (error) {
       console.error("Error updating user settings:", error);
