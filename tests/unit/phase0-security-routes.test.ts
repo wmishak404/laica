@@ -218,54 +218,48 @@ describe("Phase 0 protected routes", () => {
 
   it("ignores request-body authUserId when updating user settings", async () => {
     mocks.storage.upsertUserSettings.mockResolvedValueOnce({ authUserId: "owner-user" });
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/user/settings`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({
-          authUserId: "victim-user",
-          voiceEnabled: false,
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: "PUT",
+      path: "/api/user/settings",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({
+        authUserId: "victim-user",
+        voiceEnabled: false,
+      }),
+    });
 
-      expect(response.status).toBe(200);
-      expect(mocks.storage.upsertUserSettings).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(200);
+    expect(mocks.storage.upsertUserSettings).toHaveBeenCalledTimes(1);
 
-      const [calledUserId, calledSettings] = mocks.storage.upsertUserSettings.mock.calls[0]!;
-      expect(calledUserId).toBe("owner-user");
-      expect(calledSettings).toEqual({ voiceEnabled: false });
-      expect(calledSettings).not.toHaveProperty("authUserId");
-    } finally {
-      await closeServer(server);
-    }
+    const [calledUserId, calledSettings] = mocks.storage.upsertUserSettings.mock.calls[0]!;
+    expect(calledUserId).toBe("owner-user");
+    expect(calledSettings).toEqual({ voiceEnabled: false });
+    expect(calledSettings).not.toHaveProperty("authUserId");
   });
 
   it("does not mark authenticated speech synthesis responses as publicly cacheable", async () => {
     mocks.synthesizeSpeech.mockResolvedValueOnce(Buffer.from("audio"));
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/speech/synthesize`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer test-token",
-        },
-        body: JSON.stringify({ text: "hello from test" }),
-      });
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/speech/synthesize",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token",
+      },
+      body: JSON.stringify({ text: "hello from test" }),
+    });
 
-      expect(response.status).toBe(200);
-      expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
-      expect(response.headers.get("pragma")).toBe("no-cache");
-      expect(response.headers.get("vary")).toContain("Authorization");
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(200);
+    expect(response.headers["cache-control"]).toBe("private, no-store, max-age=0");
+    expect(response.headers["pragma"]).toBe("no-cache");
+    expect(response.headers["vary"]).toContain("Authorization");
   });
 
   it("rejects cross-user cooking-session mutation", async () => {
