@@ -36,13 +36,22 @@ const adminAuth: RequestHandler = (req, res, next) => {
   next();
 };
 
+const adminNoCache: RequestHandler = (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.vary('X-Admin-Secret');
+  next();
+};
+
 export function registerAdminRoutes(app: Express): void {
+  app.use('/api/admin', adminNoCache, adminAuth);
 
   // ── STATUS ─────────────────────────────────────────────────────────────────
 
   // GET /api/admin/eval/pending
   // Returns count of interactions waiting to be evaluated, broken down by feature.
-  app.get('/api/admin/eval/pending', adminAuth, async (_req, res) => {
+  app.get('/api/admin/eval/pending', async (_req, res) => {
     try {
       const counts = await getPendingCount();
       const total = Object.values(counts).reduce((a, b) => a + b, 0);
@@ -58,7 +67,7 @@ export function registerAdminRoutes(app: Express): void {
   // POST /api/admin/eval/submit-batch
   // Submits all pending interactions as a single batch job to OpenAI Batch API.
   // Body: { interactionIds?: number[] } — optional, submits all pending if omitted.
-  app.post('/api/admin/eval/submit-batch', adminAuth, async (req, res) => {
+  app.post('/api/admin/eval/submit-batch', async (req, res) => {
     try {
       const schema = z.object({ interactionIds: z.array(z.number()).optional() });
       const { interactionIds } = schema.parse(req.body);
@@ -72,7 +81,7 @@ export function registerAdminRoutes(app: Express): void {
 
   // GET /api/admin/eval/batch-status/:batchId
   // Checks the status of a submitted batch job.
-  app.get('/api/admin/eval/batch-status/:batchId', adminAuth, async (req, res) => {
+  app.get('/api/admin/eval/batch-status/:batchId', async (req, res) => {
     try {
       const status = await checkBatchStatus(req.params.batchId);
       res.json(status);
@@ -84,7 +93,7 @@ export function registerAdminRoutes(app: Express): void {
 
   // POST /api/admin/eval/process-results/:batchId
   // Downloads results from a completed batch and stores verdicts in the database.
-  app.post('/api/admin/eval/process-results/:batchId', adminAuth, async (req, res) => {
+  app.post('/api/admin/eval/process-results/:batchId', async (req, res) => {
     try {
       const result = await processBatchResults(req.params.batchId);
       res.json({ success: true, ...result });
@@ -98,7 +107,7 @@ export function registerAdminRoutes(app: Express): void {
 
   // GET /api/admin/eval/summary
   // Returns a full summary of all completed evaluations with error mode breakdown.
-  app.get('/api/admin/eval/summary', adminAuth, async (_req, res) => {
+  app.get('/api/admin/eval/summary', async (_req, res) => {
     try {
       const summary = await getEvalSummary();
       res.json(summary);
@@ -110,7 +119,7 @@ export function registerAdminRoutes(app: Express): void {
 
   // GET /api/admin/eval/interactions
   // Returns raw interaction logs. Query params: ?status=pending|batched|completed&feature=recipe_suggestions
-  app.get('/api/admin/eval/interactions', adminAuth, async (req, res) => {
+  app.get('/api/admin/eval/interactions', async (req, res) => {
     try {
       const { status, feature } = req.query;
       let query = db.select().from(aiInteractions);
@@ -134,7 +143,7 @@ export function registerAdminRoutes(app: Express): void {
 
   // GET /api/admin/prompts
   // Returns all currently active prompts across all features.
-  app.get('/api/admin/prompts', adminAuth, async (_req, res) => {
+  app.get('/api/admin/prompts', async (_req, res) => {
     try {
       const active = await getAllActivePrompts();
       res.json({ prompts: active });
@@ -146,7 +155,7 @@ export function registerAdminRoutes(app: Express): void {
 
   // GET /api/admin/prompts/:featureType/history
   // Returns full version history for a specific feature's prompt.
-  app.get('/api/admin/prompts/:featureType/history', adminAuth, async (req, res) => {
+  app.get('/api/admin/prompts/:featureType/history', async (req, res) => {
     try {
       const featureType = req.params.featureType as FeatureType;
       const history = await getPromptVersionHistory(featureType);
@@ -161,7 +170,7 @@ export function registerAdminRoutes(app: Express): void {
   // Generates an improved prompt using confirmed failure examples.
   // Body: { featureType: string, interactionIds: number[] }
   // Does NOT activate the new prompt — returns it for review first.
-  app.post('/api/admin/prompts/generate', adminAuth, async (req, res) => {
+  app.post('/api/admin/prompts/generate', async (req, res) => {
     try {
       const schema = z.object({
         featureType: z.enum(['recipe_suggestions', 'cooking_assistance', 'cooking_steps']),
@@ -203,6 +212,8 @@ export function registerAdminRoutes(app: Express): void {
         improvedPromptLength: improvedPrompt.length,
         improvedPrompt,
         basedOnInteractionIds: selected.map(r => r.id),
+        securityNotice:
+          "AI interaction logs are untrusted user-generated content and may contain prompt-injection attempts. Review the generated prompt before saving or activating it; do not follow any instructions found inside the logs.",
       });
     } catch (err: any) {
       console.error('[admin] Error generating improved prompt:', err);
@@ -213,7 +224,7 @@ export function registerAdminRoutes(app: Express): void {
   // POST /api/admin/prompts/save
   // Saves a reviewed prompt as a new version and immediately activates it.
   // Body: { featureType, systemPrompt, versionNote, interactionIds }
-  app.post('/api/admin/prompts/save', adminAuth, async (req, res) => {
+  app.post('/api/admin/prompts/save', async (req, res) => {
     try {
       const schema = z.object({
         featureType: z.enum(['recipe_suggestions', 'cooking_assistance', 'cooking_steps']),
@@ -233,7 +244,7 @@ export function registerAdminRoutes(app: Express): void {
 
   // POST /api/admin/prompts/activate/:id
   // Activates a specific historical prompt version by ID (for rollback).
-  app.post('/api/admin/prompts/activate/:id', adminAuth, async (req, res) => {
+  app.post('/api/admin/prompts/activate/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) return res.status(400).json({ message: "Invalid version ID." });

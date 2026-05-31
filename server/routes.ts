@@ -614,7 +614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return tooLargeImageResponse(res);
       }
 
-      if (!consumeVisionImageRateLimits(req, res, 1)) {
+      if (!(await consumeVisionImageRateLimits(req, res, 1))) {
         return;
       }
       

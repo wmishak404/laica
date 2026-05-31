@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
@@ -52,6 +52,23 @@ export const anonymousRecipeUsage = pgTable("anonymous_recipe_usage", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const rateLimitBuckets = pgTable(
+  "rate_limit_buckets",
+  {
+    id: serial("id").primaryKey(),
+    bucketKey: varchar("bucket_key").notNull(),
+    windowStart: timestamp("window_start").notNull(),
+    windowMs: integer("window_ms").notNull(),
+    count: integer("count").notNull().default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("UQ_rate_limit_bucket").on(table.bucketKey, table.windowStart, table.windowMs),
+    index("IDX_rate_limit_window_start").on(table.windowStart),
+  ],
+);
 
 export const recipes = pgTable("recipes", {
   id: serial("id").primaryKey(),
