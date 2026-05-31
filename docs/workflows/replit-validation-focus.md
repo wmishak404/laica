@@ -83,6 +83,7 @@ Use this as a checklist picker. If you didn’t touch a category, you generally 
 | AI provider routes (OpenAI/Claude), rate limits | Real provider calls succeed using Replit secrets; ensure rate-limit behavior is sane in a long-running server process; watch for provider/network errors that local mocks wouldn’t catch. |
 | ElevenLabs speech routes | Speech endpoints return audio on Replit; latency acceptable; no missing key or network egress issues. |
 | File uploads / vision / image processing | Upload/scan flows work in Replit; no reliance on local filesystem persistence; any system package assumptions (image conversion) behave on Linux. |
+| Security-sensitive headers, production HTML, admin routes, or provider abuse controls | Confirm served HTML/header behavior from the running Replit server, admin responses are not cacheable, and DB-backed security controls have their schema applied. Reuse focused checks from [`security-due-diligence.md`](security-due-diligence.md). |
 | Performance / boot-time changes | Deploy health check passes (homepage responds quickly); app doesn’t crash-loop; logs clean. |
 
 ## Replit Validation Request Template (Copy/Paste)
@@ -111,6 +112,7 @@ Focus areas (only select what applies):
 - [ ] AI routes (OpenAI/Claude)
 - [ ] ElevenLabs speech routes
 - [ ] Vision / uploads / image processing
+- [ ] Security headers / caching / external scripts / abuse limits
 
 Coverage classification:
 
