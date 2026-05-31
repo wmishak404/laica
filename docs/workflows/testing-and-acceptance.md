@@ -62,6 +62,7 @@ When a change touches browser-local state, client caches, or persisted in-progre
 | Stable cross-feature testing rule or workflow | `docs/workflows/` or a top-level PD |
 | Point-in-time command output, manual checks, and branch status | PR description and `docs/handoffs/` |
 | Replit validation focus by drift vector | [`docs/workflows/replit-validation-focus.md`](replit-validation-focus.md) |
+| Focused security checks from recent scan learnings | [`docs/workflows/security-due-diligence.md`](security-due-diligence.md) |
 | Local-vs-Replit authority | [`docs/adr/0001-replit-primary-local-agents.md`](../adr/0001-replit-primary-local-agents.md), `AGENTS.md`, and `CLAUDE.md` |
 | Cross-doc routing and closeout | [`docs/workflows/documentation-routing.md`](documentation-routing.md) |
 | Docs-only workflow PR auto-merge authority | [`docs/workflows/agent-merge-authority.md`](agent-merge-authority.md) |
@@ -89,6 +90,7 @@ Before locking direction for a feature enhancement, review the adjacent system s
 - Auth-scoped browser state and client cache isolation across guest, linked, sign-out, and account-switch transitions.
 - In-flight async work, Back/cancel behavior, stale-result handling, and navigation away from the surface.
 - Related INITs, active Efforts, PDs, workflow docs, and phase records.
+- Security due diligence for auth ownership, private caching, admin data, external scripts, provider abuse limits, and prompt-input boundaries; use [`security-due-diligence.md`](security-due-diligence.md) for the focused checklist.
 - Telemetry/privacy rules, especially [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md) for AI error logging.
 - Settings/setup parity, post-cook or future rescan implications, and any sibling surfaces that share the same component or API.
 

@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-05-26
+**Updated:** 2026-05-31
 
 ## One-line summary
 
@@ -38,7 +38,7 @@ That scope is too broad to merge as routine dependency hygiene while active init
 
 ## Decisions made so far
 
-- PR #103 is the current dependency priority because it addresses the narrow `qs`/Express 4 security path.
+- PR #103 is the current dependency priority because it addresses a narrow runtime dependency security path.
 - PR #104 should be parked rather than merged as-is.
 - Broad modernization should be handled as intentionally scoped branches, not a single 85-package update.
 
@@ -73,7 +73,7 @@ This Effort is `Resolved` when all of the following are true:
 ## Linked artifacts
 
 - PR #104 — `chore(deps): bump the npm-version-updates group with 85 updates`
-- PR #103 — narrow `qs` / Express 4 security update
+- PR #103 — narrow runtime dependency security update
 - `package.json`
 - `package-lock.json`
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
@@ -86,3 +86,9 @@ This Effort is `Resolved` when all of the following are true:
 Open PR triage after PR #105 merged found three active PRs: docs hygiene PR #101, narrow security dependency PR #103, and broad version-update PR #104. The recommendation was to repair/replace #101, prioritize #103 after a fresh base update and checks, and park #104 because it spans too many runtime and UI foundations for the current initiative load.
 
 This Effort records the parked state so future agents can deliberately split or close #104 instead of rediscovering the same risk from the PR list.
+
+## 2026-05-31 - Current moderate dependency alert parked
+
+After PR #113 merged, GitHub still reported one moderate default-branch dependency alert. Because this repository is public, do not publish the exact advisory details, package path, or reproduction notes in public docs; use the GitHub Security/Dependabot alert UI and local `npm audit --omit=dev` output when an authorized maintainer needs the specifics.
+
+This is accepted as deferred dependency hygiene, not an urgent security blocker, because there are no high/critical findings. If someone picks this up later, prefer a narrow dependency PR with `npm ci`, `npm run check`, `npm run build`, `npm audit --omit=dev`, and Replit smoke only if runtime middleware behavior changes.
