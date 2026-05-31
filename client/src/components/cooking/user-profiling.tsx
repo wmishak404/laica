@@ -717,7 +717,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     const title = isPantry ? 'Start with pantry staples.' : 'Tell me what tools you use.';
     const description = isPantry
       ? 'Point at shelves, fridge, or freezer. Labels are welcome when the food is physically visible.'
-      : "Add the tools and appliances you actually cook with. Skip anything you don't want tracked.";
+      : 'Optional: add the tools and appliances you actually cook with. Or skip for now.';
     const manualPlaceholder = isPantry ? pantryPlaceholder : 'oven, blender, sheet pan';
     const progress = scanProgress[type];
 
