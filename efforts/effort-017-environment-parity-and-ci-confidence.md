@@ -4,7 +4,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-05-29
+**Updated:** 2026-06-01
 
 ## One-line summary
 
@@ -180,3 +180,13 @@ The immediate parity learning reinforced by this slice:
 
 - DB instances can differ per environment, but schema parity must be enforced (EFF-010).
 - Auth automation needs a deterministic lane (guest auth is the first practical one; dev-only custom-token lane remains the stronger future direction per `pd-dev-test-harness.md`).
+
+## 2026-06-01 — Harness foundation merge-ready; E2E activation pending repo config
+
+PR #109 (`codex/ci-automation-harness`) was brought to merge-ready state on a `main`-rebased head with green GitHub checks.
+
+Important limitation to record explicitly:
+
+- The `e2e_guest_smoke` job is intentionally gated on repo `vars` / `secrets` (Neon + Firebase + ElevenLabs). Until those are configured in GitHub, the guest-lane E2E smoke and `db:health` path will be skipped in CI, so the confidence lift is limited to typecheck/build/unit.
+
+This is an expected setup dependency, not a change in the Replit-authoritative validation policy.

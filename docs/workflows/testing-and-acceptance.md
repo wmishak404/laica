@@ -39,6 +39,9 @@ Use the repo scripts instead of ad hoc `npx` commands so validation evidence sta
 - `npm run test` — runs unit + E2E.
 - `npm run db:health` — database schema preflight check for known drift vectors (required before DB-backed E2E).
 
+CI note (automation harness foundation):
+- The GitHub Actions guest-lane E2E job is intentionally gated on repo `vars` / `secrets` for Neon + Firebase + ElevenLabs. Until those are configured, CI will report green for typecheck/build/unit while the guest smoke + `db:health` path is skipped. This is a setup dependency, not a change in the Replit-authoritative validation policy.
+
 E2E note: browser automation depends on service-backed env (at minimum a `DATABASE_URL` that points to a non-production test database). Keep E2E flows privacy-forward by using synthetic data and by avoiding production/Replit databases.
 
 ## Bug and Regression Closeout
