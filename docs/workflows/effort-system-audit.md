@@ -23,6 +23,7 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
 | Failure to auto-close after merge | Agents updated implementation docs but did not do the post-merge Effort closeout | After merge, flip status, add final note, update README/registry, and push a handoff |
 | Confusing technical summaries | File titles and one-line summaries required too much context to understand | Keep `effort-###` filenames and plain-English one-line summaries |
 | Active-list bloat | Resolved, governance, and initiative-owned items stayed in the active read list | Keep `efforts/README.md` limited to active standalone Efforts; put history in `registry.md` |
+| Agent mirror drift | `AGENTS.md` or `CLAUDE.md` missed an active Effort that was added to `efforts/README.md` | Compare the active Effort mirrors directly any time an Effort is created, resolved, or audited |
 
 ## Audit Steps
 
@@ -33,7 +34,12 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
    - Replace cross-doc status claims with links to the authoritative home (Effort header or INIT resume point), or time-qualify the statement if it is truly historical chronology.
    - Suggested command (tune the phrase list as needed when new drift patterns are discovered):
      - `rg -n "remains open|still active|active Effort|current active|active Effort read list|keep EFF-|keeps EFF-" initiatives product-decisions docs/workflows efforts`
-4. For each active Effort, ask:
+4. Compare **agent read-list mirrors** directly.
+   - `efforts/README.md` is authoritative for the active Effort read list, but `AGENTS.md` and `CLAUDE.md` mirror it for first-contact agent instructions.
+   - When an Effort is created, resolved, deferred, or audited, verify every active Effort ID in `efforts/README.md` appears in both `AGENTS.md` and `CLAUDE.md` with an accurate read-before-work trigger.
+   - Also verify removed/resolved Effort IDs are not still listed as active in either agent file.
+   - Do not rely only on broad `rg` hits. A missing mirror entry can be hidden when the Effort appears correctly in INITs, registry rows, or handoffs.
+5. For each active Effort, ask:
    - Has merged work already satisfied it?
    - Does it naturally belong to a specific unclosed phase inside an active INIT?
    - Has the work already been addressed in the past, either fully or partially, and is that outcome already documented?
@@ -42,13 +48,13 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
    - Is it really a workflow/ADR/PD?
    - Does the one-line summary still explain the goal to a human?
    - Does the active read trigger still prevent useful mistakes?
-5. Close or repoint stale Efforts in the same branch.
+6. Close or repoint stale Efforts in the same branch.
    - If the work is already done, resolve it and document the accepted outcome in the appropriate closed INIT phase / chronology location.
    - If the work is not done but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch, then resolve the Effort into that phase-owned work.
    - If the work does not clearly belong to a specific unclosed INIT phase, keep it as an Effort even when it is adjacent to initiative work. Add cross-references instead of forcing it into the INIT.
-6. Update `AGENTS.md`, `CLAUDE.md`, `initiatives/registry.md`, relevant INITs, relevant PDs/workflow docs, the Efforts README, and the Effort registry if the source of truth changes.
-7. Write a handoff with what changed, why it changed, remaining active Efforts, and verification.
-8. Ask Claude for peer review through the PR/handoff path when the taxonomy or closeout rationale is non-trivial.
+7. Update `AGENTS.md`, `CLAUDE.md`, `initiatives/registry.md`, relevant INITs, relevant PDs/workflow docs, the Efforts README, and the Effort registry if the source of truth changes.
+8. Write a handoff with what changed, why it changed, remaining active Efforts, and verification.
+9. Ask Claude for peer review through the PR/handoff path when the taxonomy or closeout rationale is non-trivial.
 
 ## Cross-Reference Docs
 
