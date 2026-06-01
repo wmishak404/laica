@@ -87,7 +87,7 @@ Also read:
 
 ## Resolution criteria — what "done" looks like
 
-The full CI-confidence objective remains broader than PR #109. The current active slice is follow-through on the additive harness: configure the required GitHub repo variable/secrets so `e2e_guest_smoke` actually runs, then split future harness enhancements into separate PRs from `main`. Preserve the current Replit validation gate until a separate ADR/PD explicitly changes validation authority.
+The full CI-confidence objective remains broader than PR #109. The current active slice is follow-through on the additive harness: configure the required GitHub repo variable/secrets, prove `e2e_guest_smoke` runs instead of skipping, and fix startup-isolation issues that block the privacy-forward guest smoke from exercising auth/setup/DB/UI. Split future harness enhancements into separate PRs from `main`. Preserve the current Replit validation gate until a separate ADR/PD explicitly changes validation authority.
 
 This Effort can be `Resolved` when all of the following are true:
 
@@ -195,6 +195,22 @@ This is an expected setup dependency, not a change in the Replit-authoritative v
 
 PR #109 merged to `main` as `3720c26`, making the CI automation harness a shipped additive foundation rather than a parked plan. EFF-017 is now `In Progress` because work, decisions, and validation are partially complete.
 
-Do not create a new INIT for the immediate next step. The next concrete follow-up belongs here: configure `NEON_PROJECT_ID` plus the required Neon, Firebase, and ElevenLabs GitHub Actions secrets so `e2e_guest_smoke` stops being skipped and produces real guest-lane + `db:health` evidence.
+Do not create a new INIT for the immediate next step. The concrete follow-up belongs here: configure `NEON_PROJECT_ID` plus the required Neon, Firebase, and ElevenLabs GitHub Actions secrets so `e2e_guest_smoke` stops being skipped and produces real guest-lane + `db:health` evidence.
 
 Open separate PRs from `main` for later harness improvements such as stubbed AI mode, selector hardening, canary/live-provider workflows, prod OAuth-domain preflight, or a stronger dev-auth lane. A policy change from Replit-primary to CI-primary validation requires a separate explicit ADR/PD.
+
+## 2026-06-01 — First active E2E run proved config and exposed startup isolation bug
+
+Wilson configured the GitHub Actions Neon/Firebase/ElevenLabs inputs after PR #109 merged. Re-running the `main` CI workflow confirmed the `e2e_guest_smoke` job no longer skipped: preflight secrets passed, the workflow created a schema-only Neon branch, applied schema with Drizzle, passed `npm run db:health`, installed Chromium, and cleaned up the Neon branch.
+
+The run then failed while Playwright waited for the local web server because `server/routes.ts` eagerly constructed an OpenAI transcription client at module load. The guest smoke itself is intentionally neutral: it completes anonymous auth/setup and reaches the planning choice without calling paid AI providers. The correct follow-up is therefore a startup-isolation fix, not expanding the guest-smoke secret contract to require `OPENAI_API_KEY`.
+
+Process lesson: the guest-lane smoke should stay privacy-forward and provider-light by default. Live OpenAI or transcription validation belongs in an explicit live-provider smoke/canary once that scope is deliberately accepted.
+
+## 2026-06-01 — Automation evidence reports accepted as merge-gate discipline
+
+Wilson accepted the evidence shape from the PR #118 CI proof as the standard for automation-backed merge gates: automated tests are evidence that must be reasoned from, not a conclusion by themselves. Future CI, Playwright, `db:health`, local test, Replit automation, or eval-backed merge claims need to present the claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope before the branch is called correct or merge-ready.
+
+This matters for EFF-017 because increasing automation confidence can otherwise create a false sense of coverage. A passing harness should reduce manual bottlenecks only when reviewers can see what was actually exercised, which environment ran it, which branch/SHA it covered, how external resources were prepared and cleaned up, and which provider/Replit/human paths remain outside the automation.
+
+Future eval work should inherit the same standard: dataset or fixture identity, evaluator/prompt/model version where relevant, metric and threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. This complements INIT-002's telemetry/eval direction without changing the current Replit-primary validation policy.

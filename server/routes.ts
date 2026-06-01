@@ -42,8 +42,10 @@ import fsSync from "fs";
 import OpenAI from "openai";
 import { AI_PROVIDER_QUOTA_EXHAUSTED, AIProviderQuotaError } from "./ai-errors";
 
-// OpenAI client for transcription
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getTranscriptionClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  return apiKey ? new OpenAI({ apiKey }) : null;
+}
 
 // Multer for handling file uploads
 const upload = multer({ 
@@ -711,6 +713,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Audio file is required' });
       }
 
+      const transcriptionClient = getTranscriptionClient();
+      if (!transcriptionClient) {
+        return res.status(503).json({
+          error: 'Speech transcription is unavailable',
+          details: 'OPENAI_API_KEY is not configured',
+        });
+      }
+
       console.info('Received audio file for transcription:', {
         originalname: req.file.originalname,
         mimetype: req.file.mimetype,
@@ -723,7 +733,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Use OpenAI Whisper API for transcription
-        const transcription = await openai.audio.transcriptions.create({
+        const transcription = await transcriptionClient.audio.transcriptions.create({
           file: fsSync.createReadStream(tempFilePath) as any,
           model: "whisper-1",
           language: "en", // Can be made configurable

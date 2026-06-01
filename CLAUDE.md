@@ -46,6 +46,10 @@ npm run db:push # push Drizzle schema to database (needs DATABASE_URL)
 PORT=3000 npx @dotenvx/dotenvx run -- npm run dev
 ```
 
+## Automated test evidence gate
+
+When automated tests, CI, Playwright, `db:health`, or future eval runs are used as merge-readiness evidence, the PR or handoff must include the evidence report required by [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md): claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope. Do not conclude a code PR is correct from "tests passed" or "CI green" alone.
+
 ## Project structure
 
 ```

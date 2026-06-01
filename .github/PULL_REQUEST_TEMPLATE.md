@@ -22,6 +22,15 @@ Intentional UI deviations / notes:
 
 ## Validation
 
+Automation evidence used as a merge gate:
+
+- Claim:
+- Command/check provenance:
+- Source provenance:
+- Observed result:
+- Reasoning:
+- Negative scope:
+
 Local checks:
 
 - [ ] `npm ci`
