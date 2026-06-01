@@ -115,29 +115,36 @@ vi.mock('firebase/auth', () => ({
   signOut: vi.fn().mockResolvedValue(undefined)
 }));
 
-// Mock OpenAI for testing
-vi.mock('openai', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    chat: {
-      completions: {
-        create: vi.fn().mockResolvedValue({
-          choices: [{
-            message: {
-              content: 'Mock AI response for cooking assistance'
-            }
-          }]
-        })
+// Mock OpenAI for testing. Vitest 4 is stricter about constructor mocks,
+// so this needs to be a constructible function rather than an arrow return.
+vi.mock('openai', () => {
+  function MockOpenAI() {
+    return {
+      chat: {
+        completions: {
+          create: vi.fn().mockResolvedValue({
+            choices: [{
+              message: {
+                content: 'Mock AI response for cooking assistance'
+              }
+            }]
+          })
+        }
+      },
+      audio: {
+        transcriptions: {
+          create: vi.fn().mockResolvedValue({
+            text: 'Mock transcription result'
+          })
+        }
       }
-    },
-    audio: {
-      transcriptions: {
-        create: vi.fn().mockResolvedValue({
-          text: 'Mock transcription result'
-        })
-      }
-    }
-  }))
-}));
+    };
+  }
+
+  return {
+    default: vi.fn(MockOpenAI),
+  };
+});
 
 // Mock ElevenLabs for testing
 vi.mock('@/lib/elevenlabs', () => ({
