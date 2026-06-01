@@ -563,7 +563,7 @@ This section defines the canonical environment contract. Every environment (Repl
 #### Optional / feature-gated
 
 - `OPENAI_API_KEY`
-  - Provenance: `server/openai.ts` accepts empty string for non-critical paths, but many AI features will fail if unset.
+  - Provenance: `server/openai.ts` accepts empty string for non-critical paths and `/api/speech/transcribe` lazy-creates its transcription client; AI generation, transcription, and any live-provider smoke will fail if unset.
 - `ADMIN_SECRET`
   - Provenance: `server/admin-routes.ts` requires for admin endpoints.
 - `SESSION_SECRET`, `REPLIT_DOMAINS`, `ISSUER_URL`
@@ -791,7 +791,7 @@ This section is intentionally procedural. It is the “no shortcuts” checklist
 3. In Replit Secrets, set every required variable from §5.1 for Dev:
    - `DATABASE_URL`
    - `ELEVENLABS_API_KEY`
-   - `OPENAI_API_KEY` (recommended for full parity; optional in code, but many flows depend on it)
+   - `OPENAI_API_KEY` (recommended for full parity; optional for basic boot/guest smoke, but AI generation, transcription, and live-provider validation depend on it)
    - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`
    - `FIREBASE_SERVICE_ACCOUNT_BASE64` (preferred) or `FIREBASE_SERVICE_ACCOUNT_JSON`
    - `FIREBASE_PROJECT_ID` (optional override)

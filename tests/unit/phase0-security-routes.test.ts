@@ -262,6 +262,47 @@ describe("Phase 0 protected routes", () => {
     expect(response.headers["vary"]).toContain("Authorization");
   });
 
+  it("keeps transcription unavailable instead of blocking server startup when OPENAI_API_KEY is missing", async () => {
+    const originalOpenAIKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+
+    try {
+      const server = await startTestServer();
+      const boundary = "laica-test-boundary";
+      const body = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="audio"; filename="audio.wav"',
+        "Content-Type: audio/wav",
+        "",
+        "fake audio bytes",
+        `--${boundary}--`,
+        "",
+      ].join("\r\n");
+
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${boundary}`,
+          Authorization: "Bearer test-token",
+        },
+        body,
+      });
+
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({
+        error: "Speech transcription is unavailable",
+        details: "OPENAI_API_KEY is not configured",
+      });
+    } finally {
+      if (typeof originalOpenAIKey === "string") {
+        process.env.OPENAI_API_KEY = originalOpenAIKey;
+      } else {
+        delete process.env.OPENAI_API_KEY;
+      }
+    }
+  });
+
   it("rejects cross-user cooking-session mutation", async () => {
     mocks.storage.getCookingSession.mockResolvedValueOnce({
       id: 42,
