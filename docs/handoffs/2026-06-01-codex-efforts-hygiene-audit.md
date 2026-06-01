@@ -26,6 +26,18 @@ The weekly hygiene pass found the Effort system mostly healthy after the INIT-00
 - EFF-017 remains `Deferred`; the accepted Phase 4 harness pilot has not started.
 - EFF-023 remains `Deferred`; the broad modernization strategy is still parked, with exact security-alert details intentionally kept out of public docs.
 
+## Why This Was Missed
+
+EFF-024 and EFF-025 were created during the large INIT-003 production-gates runtime branch. That branch updated `AGENTS.md`, `efforts/README.md`, `efforts/registry.md`, and the Effort files, but not `CLAUDE.md`.
+
+The later INIT-003 merge-closeout branch touched both `AGENTS.md` and `CLAUDE.md`, but only for the automatic post-merge-closeout rule. It did not compare `CLAUDE.md` against the authoritative active Effort list after PR #107 had added EFF-024 and EFF-025.
+
+The system gap was in the weekly audit workflow: it asked agents to scan for status-shaped drift and update mirrors when source-of-truth changes, but it did not require a direct parity check between `efforts/README.md`, `AGENTS.md`, and `CLAUDE.md`. Because EFF-024 and EFF-025 appeared correctly in the Effort README, registry, INIT-003, and AGENTS, broad reference searches looked healthy while the Claude mirror was still stale.
+
+## System Improvement
+
+`docs/workflows/effort-system-audit.md` now adds an explicit agent read-list mirror check: every active Effort in `efforts/README.md` must appear in both `AGENTS.md` and `CLAUDE.md` with an accurate read-before-work trigger, and resolved/deferred Efforts must not remain active in either agent file.
+
 ## Impact on other agents
 
 Use `efforts/README.md` as the authoritative active read list. `AGENTS.md` and `CLAUDE.md` now mirror that list for EFF-010, EFF-022, EFF-024, and EFF-025.
