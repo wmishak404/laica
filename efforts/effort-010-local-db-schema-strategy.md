@@ -157,3 +157,14 @@ Checks to cover the drift bases this Effort exists for:
 
 - A preflight check that the DB schema contains the required baseline tables and columns (at minimum `cooking_sessions.recipe_snapshot`, `ai_interactions`, and `prompt_versions` since these have already drifted in local validation).
 - A startup failure must remain loud when `DATABASE_URL` is missing (required dependency), but optional-context table misses should remain clearly classified per PD-008 (warn + degrade, not "mystery failures").
+
+## 2026-06-01 — PR #109 merged schema-health tooling for CI
+
+PR #109 merged the first automated DB-drift guardrail: `npm run db:health` plus a GitHub Actions path that creates a schema-only Neon branch, applies `drizzle-kit push`, and runs the health check before the guest E2E smoke.
+
+This partially satisfies the schema-health portion of this Effort, but it does not resolve the local DB strategy:
+
+- The GitHub E2E path still requires repo configuration (`NEON_PROJECT_ID` and required secrets) before it runs.
+- The dedicated automation database remains separate from Replit's app-scoped DB and must use synthetic data only.
+- Agents still do not have general permission to run `npm run db:push` against arbitrary local/shared databases.
+- The broader ownership model for Codex worktree `DATABASE_URL`, `.env.keys` provisioning, and local service-backed validation remains open.
