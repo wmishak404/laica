@@ -214,3 +214,17 @@ Wilson accepted the evidence shape from the PR #118 CI proof as the standard for
 This matters for EFF-017 because increasing automation confidence can otherwise create a false sense of coverage. A passing harness should reduce manual bottlenecks only when reviewers can see what was actually exercised, which environment ran it, which branch/SHA it covered, how external resources were prepared and cleaned up, and which provider/Replit/human paths remain outside the automation.
 
 Future eval work should inherit the same standard: dataset or fixture identity, evaluator/prompt/model version where relevant, metric and threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. This complements INIT-002's telemetry/eval direction without changing the current Replit-primary validation policy.
+
+## 2026-06-01 — Guest planning workflow coverage branch started
+
+PR #118 merged as `1541988`, and the post-merge `main` CI run passed, including the now-active guest E2E job. That closed the startup-isolation blocker and proved the Neon/Firebase/ElevenLabs configuration can run from `main`.
+
+The next branch, `codex/e2e-user-workflow-coverage`, starts the first user-facing expansion beyond setup. It keeps the basic guest lane provider-light by stubbing only the browser request to `/api/recipes/pantry`, then exercises the visible Chef It Up planning path: guest setup, planning-time selection, cuisine selection, staple confirmation, request payload assertions, three recipe-ticket rendering, and prep-tray entry.
+
+Coverage intent:
+
+- Prove more of the actual user journey than "can reach planning choice."
+- Verify that pantry items, selected staples, time, cuisine, confirmed staples, and unconfirmed visible staples are what the UI would send into the AI-backed recipe route.
+- Keep OpenAI out of the routine merge gate. Live recipe quality, provider availability, model output, cooking-step generation, speech, vision, linked-account persistence, and Replit deployment behavior remain outside this branch's claim.
+
+This is still not enough to resolve EFF-017. It adds deterministic user-flow coverage while preserving the current Replit-primary policy until the remaining resolution criteria are deliberately implemented and accepted.
