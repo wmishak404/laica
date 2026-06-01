@@ -32,6 +32,9 @@ const RATE_LIMIT_BUCKET_PRUNE_INTERVAL_MS = 60_000;
 const DISTRIBUTED_RATE_LIMIT_PRUNE_INTERVAL_MS = 60 * 60 * 1000;
 const DISTRIBUTED_RATE_LIMIT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
+const isTestEnv = process.env.NODE_ENV === "test";
+const passthrough: RequestHandler = (_req, _res, next) => next();
+
 const buckets = new Map<string, Bucket>();
 let lastBucketPruneAt = 0;
 let lastDistributedPruneAt = 0;
@@ -292,21 +295,29 @@ const standardRateLimitResponse = {
   message: "Too many requests. Try again later.",
 };
 
-export const appRequestLimit = rateLimit({
-  windowMs: FIFTEEN_MINUTES,
-  limit: getConfiguredRateLimit("app", "short", 1000),
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-  message: standardRateLimitResponse,
-});
+// NOTE: `express-rate-limit` depends on real socket behavior; in unit tests we
+// run in-memory request harnesses that don't bind a TCP port. Disable these
+// two global middleware in tests, while keeping our custom in-process
+// rate-limit utilities testable via `tests/unit/rate-limit.test.ts`.
+export const appRequestLimit: RequestHandler = isTestEnv
+  ? passthrough
+  : rateLimit({
+      windowMs: FIFTEEN_MINUTES,
+      limit: getConfiguredRateLimit("app", "short", 1000),
+      standardHeaders: "draft-8",
+      legacyHeaders: false,
+      message: standardRateLimitResponse,
+    });
 
-export const apiRequestLimit = rateLimit({
-  windowMs: FIFTEEN_MINUTES,
-  limit: getConfiguredRateLimit("api", "short", 300),
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-  message: standardRateLimitResponse,
-});
+export const apiRequestLimit: RequestHandler = isTestEnv
+  ? passthrough
+  : rateLimit({
+      windowMs: FIFTEEN_MINUTES,
+      limit: getConfiguredRateLimit("api", "short", 300),
+      standardHeaders: "draft-8",
+      legacyHeaders: false,
+      message: standardRateLimitResponse,
+    });
 
 export const feedbackIpLimit = createRateLimit({
   name: "feedback:ip",

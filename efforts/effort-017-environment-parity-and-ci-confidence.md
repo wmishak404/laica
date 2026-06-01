@@ -4,7 +4,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-05-14
+**Updated:** 2026-06-01
 
 ## One-line summary
 
@@ -166,3 +166,27 @@ The first EFF-017 implementation branch should not claim that CI replaces Replit
 The Phase 3.1 Planning copy slice reinforced EFF-017's current status rather than reopening it. Codex could run unit/type/build checks locally and boot the dotenvx dev server, but the in-app browser only reached the signed-out landing screen, so the authenticated Planning card still needed Wilson's Replit validation. Wilson confirmed the `Slop It Up` copy/title treatment in Replit at runtime head `39e4a361fb16a22f63638759a801435a5b00715b`.
 
 Process implication: EFF-017 remains `Deferred` until the accepted Phase 4 harness pilot starts, and Replit/manual validation remains authoritative for auth-gated UI surfaces. The eventual harness should support lightweight authenticated visual-smoke assertions too, not only complex AI or persistence flows, because even a small Planning-card copy change cannot be fully observed locally without a reliable dev-auth lane.
+
+## 2026-05-29 - CI guest-lane E2E harness started (remote Neon, no Docker)
+
+Work began on a minimal CI harness that can run without Replit, using:
+
+- A dedicated **remote Neon** test project (schema-only branches per run, no production/Replit data).
+- A **guest-lane Playwright smoke** that avoids Google popup OAuth and instead signs in with Firebase anonymous auth.
+
+This does not yet remove the Replit validation gate for deployment-bound changes. It is an incremental step toward (a) making "passes in CI" meaningful for real UI flows, and (b) shrinking the set of checks that require a human to drive a browser.
+
+The immediate parity learning reinforced by this slice:
+
+- DB instances can differ per environment, but schema parity must be enforced (EFF-010).
+- Auth automation needs a deterministic lane (guest auth is the first practical one; dev-only custom-token lane remains the stronger future direction per `pd-dev-test-harness.md`).
+
+## 2026-06-01 — Harness foundation merge-ready; E2E activation pending repo config
+
+PR #109 (`codex/ci-automation-harness`) was brought to merge-ready state on a `main`-rebased head with green GitHub checks.
+
+Important limitation to record explicitly:
+
+- The `e2e_guest_smoke` job is intentionally gated on repo `vars` / `secrets` (Neon + Firebase + ElevenLabs). Until those are configured in GitHub, the guest-lane E2E smoke and `db:health` path will be skipped in CI, so the confidence lift is limited to typecheck/build/unit.
+
+This is an expected setup dependency, not a change in the Replit-authoritative validation policy.

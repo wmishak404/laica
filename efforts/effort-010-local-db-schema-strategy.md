@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-05-26
+**Updated:** 2026-05-29
 
 ## One-line summary
 
@@ -133,3 +133,27 @@ New EFF-010 signal:
 PR #107 merged as `a0efc43` after Wilson confirmed `anonymous_recipe_usage` existed in Replit and validated the real anonymous quota path, including the `#11` `LINKED_ACCOUNT_REQUIRED` response. This resolves the INIT-003 merge gate, but it does not resolve EFF-010: the Replit-side helper was a project-authoritative runtime action, not a general local schema workflow for arbitrary Codex/Claude worktrees.
 
 EFF-010 should still include `anonymous_recipe_usage` in the future schema-health check and still define when local agents may mutate a database. Until then, do not use the successful Replit validation from PR #107 as permission to run local `npm run db:push` from unrelated worktrees.
+
+## 2026-05-29 — Remote Neon test DB for automation (no Docker)
+
+To reduce manual Replit validation load without reusing Replit's internal DB, the automation direction is a **dedicated remote Neon test project** that CI and local agents can connect to via `DATABASE_URL`.
+
+This is intentionally **not identical** to Replit's database instance:
+
+- Replit databases are app-scoped and not externally connectable by design (see EFF-017 provenance links).
+- The automation DB is a separate instance with **no production data** and **no Replit user data**.
+
+Parity requirement:
+
+- **Schema parity must match** `shared/schema.ts` (same tables/columns/constraints that runtime expects).
+- Data parity is not required; test data should be synthetic and disposable.
+
+Operational model (privacy-forward):
+
+- Prefer **schema-only** Neon branches per CI run (clean, isolated, and no data copied).
+- Never point automation at Replit DB URLs or production DB URLs.
+
+Checks to cover the drift bases this Effort exists for:
+
+- A preflight check that the DB schema contains the required baseline tables and columns (at minimum `cooking_sessions.recipe_snapshot`, `ai_interactions`, and `prompt_versions` since these have already drifted in local validation).
+- A startup failure must remain loud when `DATABASE_URL` is missing (required dependency), but optional-context table misses should remain clearly classified per PD-008 (warn + degrade, not "mystery failures").

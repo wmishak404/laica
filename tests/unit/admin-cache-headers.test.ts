@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { AddressInfo } from 'node:net';
-import type { Server } from 'node:http';
 import express from 'express';
+import http from 'node:http';
+import { requestHttp } from './http-test-client';
 
 const mocks = vi.hoisted(() => ({
   getPendingCount: vi.fn(),
@@ -34,27 +34,8 @@ async function startAdminServer() {
   app.use(express.json());
   registerAdminRoutes(app);
 
-  const server = await new Promise<Server>((resolve) => {
-    const started = app.listen(0, '127.0.0.1', () => resolve(started));
-  });
-
-  const address = server.address() as AddressInfo;
-  return {
-    server,
-    url: `http://127.0.0.1:${address.port}`,
-  };
-}
-
-function closeServer(server: Server) {
-  return new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
+  // Avoid `app.listen()` because the local Codex sandbox blocks TCP binds (EPERM).
+  return http.createServer(app);
 }
 
 describe('Admin caching headers', () => {
@@ -69,23 +50,20 @@ describe('Admin caching headers', () => {
     process.env.ADMIN_SECRET = 'test-secret';
     mocks.getPendingCount.mockResolvedValueOnce({});
 
-    const { server, url } = await startAdminServer();
+    const server = await startAdminServer();
 
-    try {
-      const response = await fetch(`${url}/api/admin/eval/pending`, {
-        headers: {
-          'X-Admin-Secret': 'test-secret',
-        },
-      });
+    const response = await requestHttp(server, {
+      method: 'GET',
+      path: '/api/admin/eval/pending',
+      headers: {
+        'X-Admin-Secret': 'test-secret',
+      },
+    });
 
-      expect(response.status).toBe(200);
-      expect(response.headers.get('cache-control')).toBe('no-store, max-age=0');
-      expect(response.headers.get('pragma')).toBe('no-cache');
-      expect(response.headers.get('expires')).toBe('0');
-      expect(response.headers.get('vary')).toContain('X-Admin-Secret');
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(200);
+    expect(response.headers['cache-control']).toBe('no-store, max-age=0');
+    expect(response.headers['pragma']).toBe('no-cache');
+    expect(response.headers['expires']).toBe('0');
+    expect(response.headers['vary']).toContain('X-Admin-Secret');
   });
 });
-

@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AddressInfo } from 'node:net';
-import type { Server } from 'node:http';
 import express from 'express';
+import { requestHttp } from './http-test-client';
 import { resetRateLimitBucketsForTest } from '../../server/rate-limit';
 import { AIProviderQuotaError } from '../../server/ai-errors';
 
@@ -68,28 +67,7 @@ async function startTestServer() {
   app.use(express.json());
 
   const server = await registerRoutes(app);
-
-  await new Promise<void>((resolve) => {
-    server.listen(0, '127.0.0.1', resolve);
-  });
-
-  const address = server.address() as AddressInfo;
-  return {
-    server,
-    url: `http://127.0.0.1:${address.port}`,
-  };
-}
-
-function closeServer(server: Server) {
-  return new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
+  return server;
 }
 
 describe('anonymous production gates', () => {
@@ -128,36 +106,33 @@ describe('anonymous production gates', () => {
   });
 
   it('reserves anonymous quota and returns remaining quota after a successful pantry generation', async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/pantry`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token',
-        },
-        body: JSON.stringify({
-          ingredients: ['rice', 'eggs'],
-          preferences: 'quick dinner',
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: 'POST',
+      path: '/api/recipes/pantry',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify({
+        ingredients: ['rice', 'eggs'],
+        preferences: 'quick dinner',
+      }),
+    });
 
-      expect(response.status).toBe(200);
-      await expect(response.json()).resolves.toEqual({
-        recipes: [],
-        anonymousRecipeQuota: {
-          limit: 10,
-          used: 1,
-          remaining: 9,
-        },
-      });
-      expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
-      expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith('quick dinner', ['rice', 'eggs']);
-      expect(mocks.storage.refundAnonymousRecipeGeneration).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      recipes: [],
+      anonymousRecipeQuota: {
+        limit: 10,
+        used: 1,
+        remaining: 9,
+      },
+    });
+    expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
+    expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith('quick dinner', ['rice', 'eggs']);
+    expect(mocks.storage.refundAnonymousRecipeGeneration).not.toHaveBeenCalled();
   });
 
   it('blocks anonymous recipe generation after the quota is exhausted', async () => {
@@ -165,143 +140,128 @@ describe('anonymous production gates', () => {
       allowed: false,
       quota: { limit: 10, used: 10, remaining: 0 },
     });
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/suggestions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token',
-        },
-        body: JSON.stringify({
-          preferences: 'quick dinner',
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: 'POST',
+      path: '/api/recipes/suggestions',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify({
+        preferences: 'quick dinner',
+      }),
+    });
 
-      expect(response.status).toBe(403);
-      await expect(response.json()).resolves.toEqual({
-        code: 'LINKED_ACCOUNT_REQUIRED',
-        linkedAccountReason: 'recipe_limit',
-        message: 'Link Google to unlock more recipes.',
-        anonymousRecipeQuota: {
-          limit: 10,
-          used: 10,
-          remaining: 0,
-        },
-      });
-      expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({
+      code: 'LINKED_ACCOUNT_REQUIRED',
+      linkedAccountReason: 'recipe_limit',
+      message: 'Link Google to unlock more recipes.',
+      anonymousRecipeQuota: {
+        limit: 10,
+        used: 10,
+        remaining: 0,
+      },
+    });
+    expect(mocks.getRecipeSuggestions).not.toHaveBeenCalled();
   });
 
   it('refunds an anonymous quota reservation when generation fails', async () => {
     mocks.getRecipeSuggestions.mockRejectedValueOnce(new Error('provider down'));
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/suggestions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token',
-        },
-        body: JSON.stringify({
-          preferences: 'quick dinner',
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: 'POST',
+      path: '/api/recipes/suggestions',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify({
+        preferences: 'quick dinner',
+      }),
+    });
 
-      expect(response.status).toBe(500);
-      expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
-      expect(mocks.storage.refundAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(500);
+    expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
+    expect(mocks.storage.refundAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
   });
 
   it('returns a typed provider-quota response and refunds the anonymous reservation', async () => {
     mocks.getRecipeSuggestions.mockRejectedValueOnce(new AIProviderQuotaError('OpenAI'));
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/pantry`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token',
-        },
-        body: JSON.stringify({
-          ingredients: ['rice', 'eggs'],
-          preferences: 'quick dinner',
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: 'POST',
+      path: '/api/recipes/pantry',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify({
+        ingredients: ['rice', 'eggs'],
+        preferences: 'quick dinner',
+      }),
+    });
 
-      expect(response.status).toBe(503);
-      await expect(response.json()).resolves.toEqual({
-        code: 'AI_PROVIDER_QUOTA_EXHAUSTED',
-        message: 'AI requests are paused on our side while provider quota is restored. This is not your guest recipe limit.',
-      });
-      expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
-      expect(mocks.storage.refundAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      code: 'AI_PROVIDER_QUOTA_EXHAUSTED',
+      message: 'AI requests are paused on our side while provider quota is restored. This is not your guest recipe limit.',
+    });
+    expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
+    expect(mocks.storage.refundAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
   });
 
   it('keeps durable profile writes linked-account only', async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token',
-        },
-        body: JSON.stringify({
-          cookingSkill: 'beginner',
-          pantryIngredients: ['rice'],
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: 'PUT',
+      path: '/api/user/profile',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify({
+        cookingSkill: 'beginner',
+        pantryIngredients: ['rice'],
+      }),
+    });
 
-      expect(response.status).toBe(403);
-      await expect(response.json()).resolves.toEqual({
-        code: 'LINKED_ACCOUNT_REQUIRED',
-        linkedAccountReason: 'durable_save',
-        message: 'Sign in or create an account to save your ingredients and profile.',
-      });
-      expect(mocks.storage.updateUserProfile).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({
+      code: 'LINKED_ACCOUNT_REQUIRED',
+      linkedAccountReason: 'durable_save',
+      message: 'Sign in or create an account to save your ingredients and profile.',
+    });
+    expect(mocks.storage.updateUserProfile).not.toHaveBeenCalled();
   });
 
   it('keeps Slop Bowl generation linked-only until the anonymous dry-run phase exists', async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/recipes/slop-bowl`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer test-token',
-        },
-        body: JSON.stringify({
-          pantryOverride: ['rice', 'eggs', 'soy sauce'],
-        }),
-      });
+    const response = await requestHttp(server, {
+      method: 'POST',
+      path: '/api/recipes/slop-bowl',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify({
+        pantryOverride: ['rice', 'eggs', 'soy sauce'],
+      }),
+    });
 
-      expect(response.status).toBe(403);
-      await expect(response.json()).resolves.toEqual({
-        code: 'LINKED_ACCOUNT_REQUIRED',
-        linkedAccountReason: 'durable_save',
-        message: 'Sign in or create an account to save your ingredients and profile.',
-      });
-      expect(mocks.storage.getUser).not.toHaveBeenCalled();
-      expect(mocks.getSlopBowlRecipe).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({
+      code: 'LINKED_ACCOUNT_REQUIRED',
+      linkedAccountReason: 'durable_save',
+      message: 'Sign in or create an account to save your ingredients and profile.',
+    });
+    expect(mocks.storage.getUser).not.toHaveBeenCalled();
+    expect(mocks.getSlopBowlRecipe).not.toHaveBeenCalled();
   });
 });

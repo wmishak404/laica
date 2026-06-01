@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AddressInfo } from 'node:net';
-import type { Server } from 'node:http';
 import express from 'express';
+import { requestHttp } from './http-test-client';
 
 const mocks = vi.hoisted(() => ({
   firebaseUser: {
@@ -70,28 +69,7 @@ async function startTestServer() {
   app.use(express.json());
 
   const server = await registerRoutes(app);
-
-  await new Promise<void>((resolve) => {
-    server.listen(0, '127.0.0.1', resolve);
-  });
-
-  const address = server.address() as AddressInfo;
-  return {
-    server,
-    url: `http://127.0.0.1:${address.port}`,
-  };
-}
-
-function closeServer(server: Server) {
-  return new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
+  return server;
 }
 
 describe('auth session routes', () => {
@@ -127,26 +105,24 @@ describe('auth session routes', () => {
   });
 
   it('returns linked session metadata without anonymous flags', async () => {
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/auth/session`, {
-        headers: { Authorization: 'Bearer test-token' },
-      });
+    const response = await requestHttp(server, {
+      method: 'GET',
+      path: '/api/auth/session',
+      headers: { Authorization: 'Bearer test-token' },
+    });
 
-      expect(response.status).toBe(200);
-      await expect(response.json()).resolves.toEqual({
-        authMode: 'linked',
-        user: {
-          id: 'linked-user-id',
-          email: 'linked@example.com',
-          authProvider: 'google',
-        },
-      });
-      expect(mocks.storage.getUser).toHaveBeenCalledWith('linked-user-id');
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      authMode: 'linked',
+      user: {
+        id: 'linked-user-id',
+        email: 'linked@example.com',
+        authProvider: 'google',
+      },
+    });
+    expect(mocks.storage.getUser).toHaveBeenCalledWith('linked-user-id');
   });
 
   it('returns anonymous session metadata without creating a durable user row', async () => {
@@ -159,38 +135,36 @@ describe('auth session routes', () => {
       authProvider: 'anonymous',
       isAnonymous: true,
     };
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/auth/session`, {
-        headers: { Authorization: 'Bearer test-token' },
-      });
+    const response = await requestHttp(server, {
+      method: 'GET',
+      path: '/api/auth/session',
+      headers: { Authorization: 'Bearer test-token' },
+    });
 
-      expect(response.status).toBe(200);
-      await expect(response.json()).resolves.toEqual({
-        authMode: 'anonymous',
-        anonymousRecipeQuota: {
-          limit: 10,
-          used: 0,
-          remaining: 10,
-        },
-        user: {
-          id: 'anonymous-user-id',
-          email: null,
-          firstName: null,
-          lastName: null,
-          profileImageUrl: null,
-          authProvider: 'anonymous',
-          firebaseUid: 'anonymous-user-id',
-          isAnonymous: true,
-        },
-      });
-      expect(mocks.storage.getUser).not.toHaveBeenCalled();
-      expect(mocks.storage.getAnonymousRecipeQuota).toHaveBeenCalledWith('anonymous-user-id', 10);
-      expect(mocks.storage.upsertUser).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      authMode: 'anonymous',
+      anonymousRecipeQuota: {
+        limit: 10,
+        used: 0,
+        remaining: 10,
+      },
+      user: {
+        id: 'anonymous-user-id',
+        email: null,
+        firstName: null,
+        lastName: null,
+        profileImageUrl: null,
+        authProvider: 'anonymous',
+        firebaseUid: 'anonymous-user-id',
+        isAnonymous: true,
+      },
+    });
+    expect(mocks.storage.getUser).not.toHaveBeenCalled();
+    expect(mocks.storage.getAnonymousRecipeQuota).toHaveBeenCalledWith('anonymous-user-id', 10);
+    expect(mocks.storage.upsertUser).not.toHaveBeenCalled();
   });
 
   it('rejects anonymous tokens on the linked Google upsert route', async () => {
@@ -203,21 +177,18 @@ describe('auth session routes', () => {
       authProvider: 'anonymous',
       isAnonymous: true,
     };
-    const { server, url } = await startTestServer();
+    const server = await startTestServer();
 
-    try {
-      const response = await fetch(`${url}/api/auth/google`, {
-        method: 'POST',
-        headers: { Authorization: 'Bearer test-token' },
-      });
+    const response = await requestHttp(server, {
+      method: 'POST',
+      path: '/api/auth/google',
+      headers: { Authorization: 'Bearer test-token' },
+    });
 
-      expect(response.status).toBe(400);
-      await expect(response.json()).resolves.toEqual({
-        message: 'Google sign-in requires a linked account email',
-      });
-      expect(mocks.storage.upsertUser).not.toHaveBeenCalled();
-    } finally {
-      await closeServer(server);
-    }
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      message: 'Google sign-in requires a linked account email',
+    });
+    expect(mocks.storage.upsertUser).not.toHaveBeenCalled();
   });
 });
