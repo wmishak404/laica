@@ -10,6 +10,23 @@ This workflow defines how agents decide whether a Laica change is ready to merge
 
 Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether Replit validation is still required.
 
+## Automation Evidence Gate
+
+When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."
+
+Required evidence:
+
+- **Claim:** the exact behavior or risk the automation is meant to prove.
+- **Command/check provenance:** local command or GitHub workflow/job/step name, branch/head SHA, PR/check/run URLs when available, and the runtime environment (local macOS, GitHub Actions Ubuntu, Replit workspace/deploy, etc.).
+- **Source provenance:** test file, assertion, route/component/schema, fixture, selector, seed/reset script, or eval dataset that exercised the claim.
+- **Observed result:** pass/fail status, relevant log lines or artifact names, test counts, DB/schema-health output, screenshots/traces when useful, and external-resource cleanup when the test creates resources.
+- **Reasoning:** how the observed result connects to the claimed behavior, and what assumptions remain.
+- **Negative scope:** mocked providers, untested live-provider paths, skipped jobs, fork/draft/secret gates, Replit/human dependencies, stale validation, and deferred follow-up.
+
+Merge-readiness rule: if a PR relies on automated testing to replace or reduce a manual/Replit check, reviewers must be able to reconstruct the proof from the PR description, handoff, and linked logs/artifacts without replaying chat. If the evidence cannot be produced, the automation is not a merge gate yet.
+
+Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data.
+
 ## Validation Breadth Discipline
 
 For every implementation change, test the happy path and then deliberately look for corner cases across the surfaces touched by the change. Do not stop at "works locally" when the acceptance criteria depend on auth, persistence, AI, speech, uploads, provider secrets, deployment domains, or Replit-only configuration.
@@ -116,6 +133,7 @@ The scan upload policy review that produced [`PD-011`](../../product-decisions/p
 Every implementation handoff and PR description should include:
 
 - Commands run and whether they passed.
+- Automation evidence reports for any automated test used as a merge gate: claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope.
 - A coverage classification that separates happy paths, corner cases, local automation, Replit automation, Replit human validation, confidence gaps, and explicitly deferred scope.
 - Manual checks performed.
 - Replit validation status, including `Last Replit-validated at: <sha>` or `not yet validated` for deployment-bound work.

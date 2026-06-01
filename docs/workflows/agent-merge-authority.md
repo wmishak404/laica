@@ -8,7 +8,7 @@ This workflow defines when Codex may merge a PR without a fresh Wilson instructi
 
 ## Plain-English Rule
 
-Codex may auto-merge docs-only workflow PRs after the merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), Replit validation when applicable, and an explicit human merge instruction.
+Codex may auto-merge docs-only workflow PRs after the merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, Replit validation when applicable, and an explicit human merge instruction.
 
 ## Auto-Merge Authority
 
@@ -73,6 +73,8 @@ Always pass an expected head SHA when the tool supports it so a moved branch can
 Codex does not have standing auto-merge authority for code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs.
 
 Those PRs require the relevant local checks from [`testing-and-acceptance.md`](testing-and-acceptance.md), targeted tests, Replit validation when service-backed or deployment-bound, fresh validation at the final head SHA, and an explicit human merge instruction unless Wilson later grants a narrower authority in a workflow doc.
+
+When automated testing, CI, Playwright, `db:health`, Replit automation, or future eval runs are used as merge-readiness evidence, the PR or handoff must include the full evidence report required by [`testing-and-acceptance.md`](testing-and-acceptance.md). "Checks are green" is not sufficient reasoning for code merge readiness.
 
 ## Provenance From Past Merge Blocks
 

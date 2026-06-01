@@ -20,6 +20,7 @@ Work from evidence, show the context needed to trust the result, keep the active
 8. **Capture decisions as they happen.** Record product, UX, architecture, validation, workflow, and implementation decisions during or after the work in the right home.
 9. **When blocked, produce a blocking report.** Stop guessing. State the exact blocker, missing input or permission, what was already tried, smallest next actions, owner if known, and resume point.
 10. **Turn bugs into durable learning.** When validation or user testing exposes a bug, treat it as evidence about the system, not only as a patch. Capture the cause, regression test or validation gap, durable rule or spec update, and remaining re-test requirement in the smallest appropriate source of truth.
+11. **Treat automated tests as evidence, not conclusions.** Before using automated testing as a merge-readiness signal, present the evidence with full reasoning and provenance: exact command or check name, environment, branch/SHA, source test or assertion, log/artifact URL when available, observed result, what the result proves, what it does not prove, and any remaining Replit/manual/eval gap.
 
 ## Decision Homes
 
@@ -46,6 +47,22 @@ When giving implementation, design, product, or process feedback, include:
 - at least one positive example and one negative example when the feedback is teaching a reusable standard
 
 Do not frame preference as fact. Label recommendations, tradeoffs, assumptions, and unresolved questions.
+
+## Automated Test Evidence Standard
+
+Automation-backed merge gates require an evidence report before the work can be called correct or merge-ready. A passing check is an input to the conclusion, not the conclusion itself.
+
+The report must include:
+
+- **Scope being claimed:** the behavior, route, UI path, schema, provider seam, or workflow the automation is meant to prove.
+- **Provenance:** branch name, head SHA, PR/run/check URLs when available, workflow/job/step names, command names, and source files for the relevant tests or assertions.
+- **Observed evidence:** pass/fail state, important log lines, counts, screenshots/artifacts when relevant, DB/schema-health output when relevant, and cleanup/teardown confirmation for external resources.
+- **Reasoning:** why this evidence proves the claimed behavior, how it connects to the code path or product requirement, and which assumptions are facts versus inferences.
+- **Negative scope:** what was not covered, what remains mocked, what still needs Replit/human validation, and what follow-up would close the gap.
+
+For eval-backed gates, apply the same standard and also cite the fixture/dataset identity, evaluator version or prompt/model version when relevant, metrics, threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Do not store raw prompts, images, audio, tokens, secrets, or user-identifying payloads in evidence artifacts unless a durable privacy decision explicitly allows it.
+
+Do not merge code on the strength of "CI green" or "tests pass" alone when the PR uses automation as proof of behavior. The PR description or handoff must explain why the automated result is sufficient for the claimed merge gate.
 
 ## Bug and Regression Learning
 
@@ -140,3 +157,9 @@ Negative discovery example: A human has to ask every agent whether blockers exis
 Positive example: Replit validation exposes a client/server auth race. The fix adds a regression test, updates the owning INIT and PD with the durable server-authoritative rule, refreshes the testing workflow so future auth-gated changes include that boundary, and marks the old Replit validation stale until the fixed SHA is re-tested.
 
 Negative example: The code is patched and chat says "fixed," but no regression coverage, PR note, handoff update, or durable rule explains why the bug happened or how future work avoids it.
+
+### Automated test evidence
+
+Positive example: A CI E2E smoke is used as a merge gate only after the PR cites the head SHA, GitHub job URL, successful workflow steps, exact Playwright test file, observed `1 passed` result, DB branch/schema-health evidence, cleanup step, and the reasoning for why this proves the guest setup path while leaving live OpenAI/provider canaries out of scope.
+
+Negative example: A PR says "E2E passed" without naming the job, SHA, test file, log URL, environment, fixtures, or the flows and provider seams that stayed untested.
