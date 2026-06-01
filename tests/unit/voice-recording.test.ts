@@ -71,27 +71,29 @@ describe('Audio System Integration', () => {
   
   beforeEach(() => {
     // Mock Web Audio API
-    global.AudioContext = vi.fn().mockImplementation(() => ({
-      createBufferSource: vi.fn().mockReturnValue({
-        connect: vi.fn(),
-        start: vi.fn(),
-        onended: null
-      }),
-      createAnalyser: vi.fn().mockReturnValue({
-        connect: vi.fn(),
-        getByteTimeDomainData: vi.fn(),
-        fftSize: 2048,
-        frequencyBinCount: 1024
-      }),
-      createMediaStreamSource: vi.fn().mockReturnValue({
-        connect: vi.fn()
-      }),
-      decodeAudioData: vi.fn().mockResolvedValue({}),
-      destination: {},
-      close: vi.fn(),
-      resume: vi.fn().mockResolvedValue(undefined),
-      state: 'running'
-    }));
+    global.AudioContext = vi.fn().mockImplementation(function AudioContextMock() {
+      return {
+        createBufferSource: vi.fn().mockReturnValue({
+          connect: vi.fn(),
+          start: vi.fn(),
+          onended: null
+        }),
+        createAnalyser: vi.fn().mockReturnValue({
+          connect: vi.fn(),
+          getByteTimeDomainData: vi.fn(),
+          fftSize: 2048,
+          frequencyBinCount: 1024
+        }),
+        createMediaStreamSource: vi.fn().mockReturnValue({
+          connect: vi.fn()
+        }),
+        decodeAudioData: vi.fn().mockResolvedValue({}),
+        destination: {},
+        close: vi.fn(),
+        resume: vi.fn().mockResolvedValue(undefined),
+        state: 'running'
+      };
+    }) as any;
     
     // Mock MediaDevices
     global.navigator.mediaDevices = {
@@ -99,13 +101,15 @@ describe('Audio System Integration', () => {
     };
     
     // Mock MediaRecorder
-    global.MediaRecorder = vi.fn().mockImplementation(() => ({
-      start: vi.fn(),
-      stop: vi.fn(),
-      state: 'inactive',
-      ondataavailable: null,
-      onstop: null
-    }));
+    global.MediaRecorder = vi.fn().mockImplementation(function MediaRecorderMock() {
+      return {
+        start: vi.fn(),
+        stop: vi.fn(),
+        state: 'inactive',
+        ondataavailable: null,
+        onstop: null
+      };
+    }) as any;
   });
 
   it('should handle audio context initialization', () => {
