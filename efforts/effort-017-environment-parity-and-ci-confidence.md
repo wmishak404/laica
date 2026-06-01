@@ -1,7 +1,7 @@
 # EFF-017 — Environment parity + CI confidence (reduce manual Replit validation)
 
 **Former ID:** EPIC-017
-**Status:** Deferred
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
 **Updated:** 2026-06-01
@@ -14,7 +14,7 @@ Capture the decisions + open questions required to make local + CI validation tr
 
 Today, LAICA uses a manual “Replit validation gate” because local macOS runs and Replit runs can diverge (runtime, env vars, database, OAuth domains, etc.). This creates friction and correctness ambiguity: “it worked locally” does not reliably imply “it will work on Replit deploy.”
 
-This Effort exists to preserve the decision points and intended direction so we can resume after the current initiative work (INIT-001) without re-deriving this context from chat.
+This Effort exists to preserve the decision points and intended direction for the now-active CI harness path without re-deriving this context from chat. PR #109 merged the first additive CI foundation, but it does not replace Replit validation.
 
 Primary spec / drift-vector inventory:
 - `docs/workflows/environment-parity-spec.md`
@@ -45,9 +45,9 @@ Key external constraints (provenance):
 
 ### Out of scope (for now)
 
-- Implementing automated tests / CI gates (deferred until after INIT-001).
 - Changing `AGENTS.md` / ADR-0001 to remove the Replit validation gate (requires an explicit follow-up decision).
 - Automating full Google OAuth popup completion with a real user account. The preferred direction remains a deterministic dev-only auth lane plus a separate production-domain OAuth preflight.
+- Treating the PR #109 harness as proof that CI is already primary; it is additive until a separate ADR/PD changes validation authority.
 
 ## Decisions made so far
 
@@ -65,7 +65,7 @@ These are recorded from discussion; they are not yet implemented repo-wide.
 1. Which domain(s) are “production hostnames” for the OAuth-domain preflight gate?
    - Replit deployment domain(s) only vs custom domain only vs both
 2. Should the preflight gate run on every PR merge, only on release, or as a nightly canary?
-3. CI DB approach: Neon Local vs ephemeral Postgres vs other — and how schema health is enforced.
+3. What DB strategy beyond PR #109's schema-only Neon branches is needed for local agent validation and future smoke coverage?
 4. How should this Effort’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EFF-005 / EFF-010)?
 5. Which smoke journeys are the first automation targets?
    - Candidate from Phase 3.2: authenticated Chef It Up progressive staples, including staple queue UI, submit-time pantry write, duplicate prevention, loading Back/cancel, and Ticket Pass completion.
@@ -87,7 +87,7 @@ Also read:
 
 ## Resolution criteria — what "done" looks like
 
-The full CI-confidence objective remains `Deferred`, but Wilson accepted reopening EFF-017 as a narrow Phase 4 harness pilot before INIT-001 fully completes. Until that implementation branch starts, keep the Effort status `Deferred`; when it reopens, preserve the current Replit validation gate and scope the first slice to authenticated smoke assistance rather than CI replacing Replit.
+The full CI-confidence objective remains broader than PR #109. The current active slice is follow-through on the additive harness: configure the required GitHub repo variable/secrets so `e2e_guest_smoke` actually runs, then split future harness enhancements into separate PRs from `main`. Preserve the current Replit validation gate until a separate ADR/PD explicitly changes validation authority.
 
 This Effort can be `Resolved` when all of the following are true:
 
@@ -190,3 +190,11 @@ Important limitation to record explicitly:
 - The `e2e_guest_smoke` job is intentionally gated on repo `vars` / `secrets` (Neon + Firebase + ElevenLabs). Until those are configured in GitHub, the guest-lane E2E smoke and `db:health` path will be skipped in CI, so the confidence lift is limited to typecheck/build/unit.
 
 This is an expected setup dependency, not a change in the Replit-authoritative validation policy.
+
+## 2026-06-01 — PR #109 merged; EFF-017 reopened for harness follow-through
+
+PR #109 merged to `main` as `3720c26`, making the CI automation harness a shipped additive foundation rather than a parked plan. EFF-017 is now `In Progress` because work, decisions, and validation are partially complete.
+
+Do not create a new INIT for the immediate next step. The next concrete follow-up belongs here: configure `NEON_PROJECT_ID` plus the required Neon, Firebase, and ElevenLabs GitHub Actions secrets so `e2e_guest_smoke` stops being skipped and produces real guest-lane + `db:health` evidence.
+
+Open separate PRs from `main` for later harness improvements such as stubbed AI mode, selector hardening, canary/live-provider workflows, prod OAuth-domain preflight, or a stronger dev-auth lane. A policy change from Replit-primary to CI-primary validation requires a separate explicit ADR/PD.
