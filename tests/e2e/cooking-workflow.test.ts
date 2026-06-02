@@ -9,6 +9,144 @@ import { test, expect, type Page } from '@playwright/test';
  * - Lets us validate end-to-end UI state transitions without hitting paid providers by default.
  */
 
+const pantryRecipesResponse = {
+  recipes: [
+    {
+      recipeName: 'Soy Rice Breakfast Bowl',
+      description: 'A fast bowl built from rice, eggs, soy sauce, tortillas, and lime.',
+      cookTime: 25,
+      difficulty: 'Easy',
+      cuisine: 'Mexican-inspired',
+      pantryMatch: 95,
+      pantryIngredientsUsed: ['rice', 'eggs', 'soy sauce', 'tortillas', 'lime'],
+      additionalIngredientsNeeded: ['cilantro'],
+      overview: 'Pantry-first, bright, and weeknight-friendly.',
+    },
+    {
+      recipeName: 'Crispy Egg Tortilla Rice',
+      description: 'Crisped rice and eggs tucked into warm tortillas.',
+      cookTime: 30,
+      difficulty: 'Easy',
+      cuisine: 'Mexican-inspired',
+      pantryMatch: 88,
+      pantryIngredientsUsed: ['rice', 'eggs', 'tortillas'],
+      additionalIngredientsNeeded: ['hot sauce'],
+      overview: 'A low-lift second ticket with familiar staples.',
+    },
+    {
+      recipeName: 'Soy Lime Rice Skillet',
+      description: 'A skillet dinner that leans on soy sauce and lime.',
+      cookTime: 35,
+      difficulty: 'Medium',
+      cuisine: 'Pantry-first',
+      pantryMatch: 82,
+      pantryIngredientsUsed: ['rice', 'soy sauce', 'lime'],
+      additionalIngredientsNeeded: ['green onion'],
+      overview: 'Simple enough for a guest smoke, varied enough for UI proof.',
+    },
+  ],
+};
+
+const cookingStepsResponse = {
+  steps: [
+    {
+      instruction: 'Warm the rice in a skillet until steamy.',
+      duration: 120,
+      tips: 'Stir once so the grains loosen without drying out.',
+      visualCues: 'Steam rises and the rice separates easily.',
+      commonMistakes: 'Cranking the heat too high before the eggs are ready.',
+      safetyLevel: 'minor',
+    },
+    {
+      instruction: 'Scramble the eggs until soft curds form.',
+      duration: 180,
+      tips: 'Pull the pan from heat while the eggs still look glossy.',
+      visualCues: 'Curds are soft and slightly shiny.',
+      commonMistakes: 'Leaving the eggs on heat until they look dry.',
+      safetyLevel: 'important',
+    },
+    {
+      instruction: 'Fold rice and eggs into warm tortillas with lime.',
+      tips: 'Keep the filling centered so the tortillas close cleanly.',
+      visualCues: 'Tortillas are pliable and the filling is tucked in.',
+      commonMistakes: 'Overfilling before rolling.',
+      safetyLevel: 'minor',
+    },
+  ],
+  recipe: {
+    ingredients: [
+      { name: 'rice', quantity: '1 cup', forSteps: [1, 3] },
+      { name: 'eggs', quantity: '2', forSteps: [2, 3] },
+      { name: 'tortillas', quantity: '2', forSteps: [3] },
+      { name: 'lime', quantity: '1 wedge', forSteps: [3] },
+    ],
+  },
+};
+
+async function stubPantryRecipes(page: Page) {
+  let requestCount = 0;
+
+  await page.route('**/api/recipes/pantry', async (route) => {
+    requestCount += 1;
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(pantryRecipesResponse),
+    });
+  });
+
+  return {
+    getRequestCount: () => requestCount,
+  };
+}
+
+async function stubLiveCookingProviders(page: Page) {
+  let stepsRequestCount = 0;
+  let assistanceRequestCount = 0;
+
+  await page.route('**/api/cooking/steps', async (route) => {
+    stepsRequestCount += 1;
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(cookingStepsResponse),
+    });
+  });
+
+  await page.route('**/api/cooking/assistance', async (route) => {
+    assistanceRequestCount += 1;
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/plain',
+      body: 'Provider-light help response from the Playwright harness.',
+    });
+  });
+
+  await page.route('**/api/speech/synthesize', async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({ message: 'Speech synthesis stubbed in provider-light E2E smoke.' }),
+    });
+  });
+
+  await page.route('**/api/speech/transcribe', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true, transcription: 'How do I know when the rice is warm?' }),
+    });
+  });
+
+  return {
+    getStepsRequestCount: () => stepsRequestCount,
+    getAssistanceRequestCount: () => assistanceRequestCount,
+  };
+}
+
 async function completeGuestSetupToPlanning(page: Page) {
   await page.goto('/');
 
@@ -42,6 +180,53 @@ async function completeGuestSetupToPlanning(page: Page) {
   await expect(page.getByRole('heading', { name: 'What are we cooking today?' })).toBeVisible();
 }
 
+async function completeChefItUpToPrepTray(page: Page) {
+  await completeGuestSetupToPlanning(page);
+  await page.getByRole('button', { name: 'Chef It Up' }).click();
+
+  await expect(page.getByRole('heading', { name: 'How much time do you have today?' })).toBeVisible();
+  await page.getByRole('button', { name: '1hr' }).click();
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  await expect(page.getByRole('heading', { name: 'What sounds good?' })).toBeVisible();
+  await page.getByRole('button', { name: /Mexican/ }).click();
+  await page.getByRole('button', { name: 'View recipe suggestions' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Anything else around?' })).toBeVisible();
+  await page.getByRole('button', { name: 'tortillas' }).click();
+  await page.getByRole('button', { name: 'lime' }).click();
+
+  const pantryRequestPromise = page.waitForRequest('**/api/recipes/pantry');
+  await page.getByRole('button', { name: 'View recipe suggestions' }).click();
+  const pantryRequest = await pantryRequestPromise;
+  const pantryPayload = pantryRequest.postDataJSON() as {
+    ingredients: string[];
+    preferences: string;
+    timeAvailable: string;
+  };
+
+  expect(pantryPayload.ingredients).toEqual(['rice', 'eggs', 'soy sauce', 'tortillas', 'lime']);
+  expect(pantryPayload.preferences).toContain('Time available: 1 hour');
+  expect(pantryPayload.preferences).toContain('Preferred cuisines: Mexican');
+  expect(pantryPayload.preferences).toContain('Confirmed staples: tortillas, lime');
+  expect(pantryPayload.preferences).toContain('Unconfirmed staples: cilantro, cumin; do not assume');
+  expect(pantryPayload.timeAvailable).toBe('1 hour');
+
+  await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('button', { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Crispy Egg Tortilla Rice/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Soy Lime Rice Skillet/ })).toBeVisible();
+
+  await page.getByRole('button', { name: 'View prep tray' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Soy Rice Breakfast Bowl' })).toBeVisible();
+  await expect(page.getByText('Use these')).toBeVisible();
+  await expect(page.getByText('rice', { exact: true })).toBeVisible();
+  await expect(page.getByText('tortillas', { exact: true })).toBeVisible();
+  await expect(page.getByText('Optional if around')).toBeVisible();
+  await expect(page.getByText('cilantro', { exact: true })).toBeVisible();
+}
+
 test.describe('Laica Guest E2E Smoke', () => {
   test('Guest can complete setup via manual entry and reach planning choice', async ({ page }) => {
     await completeGuestSetupToPlanning(page);
@@ -50,98 +235,70 @@ test.describe('Laica Guest E2E Smoke', () => {
   });
 
   test('Guest can request Chef It Up suggestions and open the prep tray with a stubbed AI response', async ({ page }) => {
-    let pantryRequestCount = 0;
+    const pantryRoutes = await stubPantryRecipes(page);
 
-    await page.route('**/api/recipes/pantry', async (route) => {
-      pantryRequestCount += 1;
+    await completeChefItUpToPrepTray(page);
 
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          recipes: [
-            {
-              recipeName: 'Soy Rice Breakfast Bowl',
-              description: 'A fast bowl built from rice, eggs, soy sauce, tortillas, and lime.',
-              cookTime: 25,
-              difficulty: 'Easy',
-              cuisine: 'Mexican-inspired',
-              pantryMatch: 95,
-              pantryIngredientsUsed: ['rice', 'eggs', 'soy sauce', 'tortillas', 'lime'],
-              additionalIngredientsNeeded: ['cilantro'],
-              overview: 'Pantry-first, bright, and weeknight-friendly.',
-            },
-            {
-              recipeName: 'Crispy Egg Tortilla Rice',
-              description: 'Crisped rice and eggs tucked into warm tortillas.',
-              cookTime: 30,
-              difficulty: 'Easy',
-              cuisine: 'Mexican-inspired',
-              pantryMatch: 88,
-              pantryIngredientsUsed: ['rice', 'eggs', 'tortillas'],
-              additionalIngredientsNeeded: ['hot sauce'],
-              overview: 'A low-lift second ticket with familiar staples.',
-            },
-            {
-              recipeName: 'Soy Lime Rice Skillet',
-              description: 'A skillet dinner that leans on soy sauce and lime.',
-              cookTime: 35,
-              difficulty: 'Medium',
-              cuisine: 'Pantry-first',
-              pantryMatch: 82,
-              pantryIngredientsUsed: ['rice', 'soy sauce', 'lime'],
-              additionalIngredientsNeeded: ['green onion'],
-              overview: 'Simple enough for a guest smoke, varied enough for UI proof.',
-            },
-          ],
-        }),
+    expect(pantryRoutes.getRequestCount()).toBe(1);
+  });
+
+  test('Guest can enter live cooking with stubbed steps and use provider-light controls', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: {
+          getUserMedia: async () => {
+            throw new DOMException('Microphone permission stubbed in provider-light smoke.', 'NotAllowedError');
+          },
+        },
       });
     });
 
-    await completeGuestSetupToPlanning(page);
-    await page.getByRole('button', { name: 'Chef It Up' }).click();
+    const pantryRoutes = await stubPantryRecipes(page);
+    const liveCookingRoutes = await stubLiveCookingProviders(page);
 
-    await expect(page.getByRole('heading', { name: 'How much time do you have today?' })).toBeVisible();
-    await page.getByRole('button', { name: '1hr' }).click();
-    await page.getByRole('button', { name: 'Next' }).click();
+    await completeChefItUpToPrepTray(page);
 
-    await expect(page.getByRole('heading', { name: 'What sounds good?' })).toBeVisible();
-    await page.getByRole('button', { name: /Mexican/ }).click();
-    await page.getByRole('button', { name: 'View recipe suggestions' }).click();
-
-    await expect(page.getByRole('heading', { name: 'Anything else around?' })).toBeVisible();
-    await page.getByRole('button', { name: 'tortillas' }).click();
-    await page.getByRole('button', { name: 'lime' }).click();
-
-    const pantryRequestPromise = page.waitForRequest('**/api/recipes/pantry');
-    await page.getByRole('button', { name: 'View recipe suggestions' }).click();
-    const pantryRequest = await pantryRequestPromise;
-    const pantryPayload = pantryRequest.postDataJSON() as {
-      ingredients: string[];
-      preferences: string;
-      timeAvailable: string;
+    const cookingStepsRequestPromise = page.waitForRequest('**/api/cooking/steps');
+    await page.getByRole('button', { name: 'Cook this' }).click();
+    const cookingStepsRequest = await cookingStepsRequestPromise;
+    const cookingStepsPayload = cookingStepsRequest.postDataJSON() as {
+      recipeName: string;
+      ingredients?: string[];
+      description?: string;
     };
 
-    expect(pantryPayload.ingredients).toEqual(['rice', 'eggs', 'soy sauce', 'tortillas', 'lime']);
-    expect(pantryPayload.preferences).toContain('Time available: 1 hour');
-    expect(pantryPayload.preferences).toContain('Preferred cuisines: Mexican');
-    expect(pantryPayload.preferences).toContain('Confirmed staples: tortillas, lime');
-    expect(pantryPayload.preferences).toContain('Unconfirmed staples: cilantro, cumin; do not assume');
-    expect(pantryPayload.timeAvailable).toBe('1 hour');
+    expect(cookingStepsPayload.recipeName).toBe('Soy Rice Breakfast Bowl');
+    expect(cookingStepsPayload.ingredients).toEqual(['rice', 'eggs', 'soy sauce', 'tortillas', 'lime']);
+    expect(cookingStepsPayload.description).toBe('A fast bowl built from rice, eggs, soy sauce, tortillas, and lime.');
 
-    await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({ timeout: 30_000 });
-    expect(pantryRequestCount).toBe(1);
-    await expect(page.getByRole('button', { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Crispy Egg Tortilla Rice/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Soy Lime Rice Skillet/ })).toBeVisible();
+    await expect(page.getByText('Live Cooking Assistant')).toBeVisible();
+    await expect(page.getByText('Step 1 of 3')).toBeVisible();
+    await expect(page.getByText('Warm the rice in a skillet until steamy.', { exact: true })).toBeVisible();
+    await expect(page.getByText('Steam rises and the rice separates easily.')).toBeVisible();
+    await expect(page.getByText('Stir once so the grains loosen without drying out.')).toBeVisible();
 
-    await page.getByRole('button', { name: 'View prep tray' }).click();
+    await expect(page.getByRole('button', { name: 'Previous' })).toBeDisabled();
+    await page.getByRole('button', { name: 'Next' }).click();
+    await expect(page.getByText('Step 2 of 3')).toBeVisible();
+    await expect(page.getByText('Scramble the eggs until soft curds form.', { exact: true })).toBeVisible();
 
-    await expect(page.getByRole('heading', { name: 'Soy Rice Breakfast Bowl' })).toBeVisible();
-    await expect(page.getByText('Use these')).toBeVisible();
-    await expect(page.getByText('rice', { exact: true })).toBeVisible();
-    await expect(page.getByText('tortillas', { exact: true })).toBeVisible();
-    await expect(page.getByText('Optional if around')).toBeVisible();
-    await expect(page.getByText('cilantro', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Previous' }).click();
+    await expect(page.getByText('Step 1 of 3')).toBeVisible();
+    await expect(page.getByText('Warm the rice in a skillet until steamy.', { exact: true })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Start 2 min timer' }).click();
+    await expect(page.getByText(/Timer: (2:00|1:59)/)).toBeVisible();
+    await expect(page.getByText("Timer set for 2 minutes. I'll let you know when time is up!")).toBeVisible();
+    await page.getByRole('button', { name: 'Pause timer' }).click();
+    await expect(page.getByRole('button', { name: 'Resume timer' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Ask for Help' }).click();
+    await expect(page.getByText("I couldn't access your microphone. Please check your browser permissions and try again.")).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Ask for Help' })).toBeVisible();
+
+    expect(pantryRoutes.getRequestCount()).toBe(1);
+    expect(liveCookingRoutes.getStepsRequestCount()).toBe(1);
+    expect(liveCookingRoutes.getAssistanceRequestCount()).toBe(0);
   });
 });
