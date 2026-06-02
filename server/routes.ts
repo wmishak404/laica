@@ -47,6 +47,19 @@ function getTranscriptionClient(): OpenAI | null {
   return apiKey ? new OpenAI({ apiKey }) : null;
 }
 
+function setPrivateResponseHeaders(res: Response) {
+  res.set({
+    'Cache-Control': 'private, no-store, max-age=0',
+    Pragma: 'no-cache',
+  });
+  res.vary('Authorization');
+}
+
+const privateResponseHeaders: RequestHandler = (_req, res, next) => {
+  setPrivateResponseHeaders(res);
+  next();
+};
+
 // Multer for handling file uploads
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -55,6 +68,7 @@ const upload = multer({
 
 // Firebase/Google authentication middleware only
 const isAuthenticated: RequestHandler = async (req, res, next) => {
+  setPrivateResponseHeaders(res);
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     return verifyFirebaseToken(req, res, next);
@@ -287,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', apiRequestLimit);
 
   // Firebase authentication routes
-  app.get('/api/auth/session', verifyFirebaseToken, async (req: any, res) => {
+  app.get('/api/auth/session', verifyFirebaseToken, privateResponseHeaders, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
 
@@ -329,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Firebase/Google authentication routes
-  app.post('/api/auth/google', verifyFirebaseToken, async (req: any, res) => {
+  app.post('/api/auth/google', verifyFirebaseToken, privateResponseHeaders, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
 
@@ -717,7 +731,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!transcriptionClient) {
         return res.status(503).json({
           error: 'Speech transcription is unavailable',
-          details: 'OPENAI_API_KEY is not configured',
         });
       }
 
@@ -752,10 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error('Transcription error:', error);
-      res.status(500).json({ 
-        error: 'Failed to transcribe audio',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
+      res.status(500).json({ error: 'Failed to transcribe audio' });
     }
   });
 

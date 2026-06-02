@@ -4,12 +4,16 @@ import { requestHttp } from "./http-test-client";
 
 const mocks = vi.hoisted(() => ({
   storage: {
+    getUser: vi.fn(),
+    getUserSettings: vi.fn(),
+    getUserCookingSessions: vi.fn(),
     getCookingSession: vi.fn(),
     updateCookingSession: vi.fn(),
     upsertUserSettings: vi.fn(),
   },
   getRecipeSuggestions: vi.fn(),
   synthesizeSpeech: vi.fn(),
+  createTranscription: vi.fn(),
 }));
 
 vi.mock("../../server/firebaseAuth", () => ({
@@ -52,6 +56,16 @@ vi.mock("../../server/elevenlabs", () => ({
 
 vi.mock("../../server/db", () => ({
   db: {},
+}));
+
+vi.mock("openai", () => ({
+  default: vi.fn().mockImplementation(() => ({
+    audio: {
+      transcriptions: {
+        create: mocks.createTranscription,
+      },
+    },
+  })),
 }));
 
 async function startTestServer() {
@@ -234,12 +248,55 @@ describe("Phase 0 protected routes", () => {
     });
 
     expect(response.status).toBe(200);
+    expect(response.headers["cache-control"]).toBe("private, no-store, max-age=0");
+    expect(response.headers["pragma"]).toBe("no-cache");
+    expect(response.headers["vary"]).toContain("Authorization");
     expect(mocks.storage.upsertUserSettings).toHaveBeenCalledTimes(1);
 
     const [calledUserId, calledSettings] = mocks.storage.upsertUserSettings.mock.calls[0]!;
     expect(calledUserId).toBe("owner-user");
     expect(calledSettings).toEqual({ voiceEnabled: false });
     expect(calledSettings).not.toHaveProperty("authUserId");
+  });
+
+  it("sets private cache headers on authenticated profile responses", async () => {
+    mocks.storage.getUser.mockResolvedValueOnce({
+      id: "owner-user",
+      email: "owner@example.com",
+    });
+    mocks.storage.getUserSettings.mockResolvedValueOnce({
+      authUserId: "owner-user",
+      voiceEnabled: true,
+    });
+    mocks.storage.getUserCookingSessions.mockResolvedValueOnce([]);
+    const server = await startTestServer();
+
+    const response = await requestHttp(server, {
+      method: "GET",
+      path: "/api/user/profile",
+      headers: { Authorization: "Bearer test-token" },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers["cache-control"]).toBe("private, no-store, max-age=0");
+    expect(response.headers["pragma"]).toBe("no-cache");
+    expect(response.headers["vary"]).toContain("Authorization");
+  });
+
+  it("sets private cache headers on authenticated cooking-session history responses", async () => {
+    mocks.storage.getUserCookingSessions.mockResolvedValueOnce([]);
+    const server = await startTestServer();
+
+    const response = await requestHttp(server, {
+      method: "GET",
+      path: "/api/cooking/sessions?limit=5",
+      headers: { Authorization: "Bearer test-token" },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers["cache-control"]).toBe("private, no-store, max-age=0");
+    expect(response.headers["pragma"]).toBe("no-cache");
+    expect(response.headers["vary"]).toContain("Authorization");
   });
 
   it("does not mark authenticated speech synthesis responses as publicly cacheable", async () => {
@@ -292,8 +349,47 @@ describe("Phase 0 protected routes", () => {
       expect(response.status).toBe(503);
       expect(await response.json()).toEqual({
         error: "Speech transcription is unavailable",
-        details: "OPENAI_API_KEY is not configured",
       });
+    } finally {
+      if (typeof originalOpenAIKey === "string") {
+        process.env.OPENAI_API_KEY = originalOpenAIKey;
+      } else {
+        delete process.env.OPENAI_API_KEY;
+      }
+    }
+  });
+
+  it("does not expose raw transcription provider errors to clients", async () => {
+    const originalOpenAIKey = process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = "test-key";
+    mocks.createTranscription.mockRejectedValueOnce(new Error("sensitive provider detail"));
+
+    try {
+      const server = await startTestServer();
+      const boundary = "laica-test-boundary";
+      const body = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="audio"; filename="audio.wav"',
+        "Content-Type: audio/wav",
+        "",
+        "fake audio bytes",
+        `--${boundary}--`,
+        "",
+      ].join("\r\n");
+
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${boundary}`,
+          Authorization: "Bearer test-token",
+        },
+        body,
+      });
+
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({ error: "Failed to transcribe audio" });
+      expect(response.text).not.toContain("sensitive provider detail");
     } finally {
       if (typeof originalOpenAIKey === "string") {
         process.env.OPENAI_API_KEY = originalOpenAIKey;
