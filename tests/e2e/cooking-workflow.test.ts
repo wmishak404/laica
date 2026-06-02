@@ -139,9 +139,9 @@ test.describe('Laica Guest E2E Smoke', () => {
 
     await expect(page.getByRole('heading', { name: 'Soy Rice Breakfast Bowl' })).toBeVisible();
     await expect(page.getByText('Use these')).toBeVisible();
-    await expect(page.getByText('rice')).toBeVisible();
-    await expect(page.getByText('tortillas')).toBeVisible();
+    await expect(page.getByText('rice', { exact: true })).toBeVisible();
+    await expect(page.getByText('tortillas', { exact: true })).toBeVisible();
     await expect(page.getByText('Optional if around')).toBeVisible();
-    await expect(page.getByText('cilantro')).toBeVisible();
+    await expect(page.getByText('cilantro', { exact: true })).toBeVisible();
   });
 });
