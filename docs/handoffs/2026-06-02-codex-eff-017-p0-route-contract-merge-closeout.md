@@ -8,7 +8,7 @@
 
 ## Summary
 
-PR #120 merged the first accepted EFF-017 phased backlog item after PR #119: provider-light P0 route-contract coverage. This closeout updates the durable Effort state from branch evidence to merged evidence, records Wilson's Replit shell and happy-path smoke validation, and keeps the remaining EFF-017 backlog explicit.
+PR #120 merged the first accepted EFF-017 phased backlog item after PR #119: provider-light P0 route-contract coverage. This closeout updates the durable Effort state from branch evidence to merged evidence, records Wilson's Replit shell and happy-path smoke validation, and keeps the remaining EFF-017 backlog explicit. Wilson also approved a narrow policy adjustment so future fact-only post-merge evidence closeouts may auto-merge when they record already-observed facts without changing work meaning, ownership, validation authority, or active status.
 
 ## Changes
 
@@ -21,6 +21,8 @@ PR #120 merged the first accepted EFF-017 phased backlog item after PR #119: pro
   - Updates EFF-017's latest signal to the merged PR #120 state.
 - `docs/handoffs/2026-06-02-codex-eff-017-p0-route-contract-merge-closeout.md`
   - Adds this merge-closeout handoff.
+- `docs/workflows/agent-merge-authority.md`
+  - Adds the evidence-closeout auto-merge authority for fact-only post-merge closeouts touching active INIT/Effort files, with conflict checks and hard stops.
 
 ## Impact on other agents
 
@@ -38,6 +40,7 @@ Do not reopen the P0 route-contract item unless PR #120's tests regress or a rou
 Closeout verification:
 
 - `git diff --check` passed for this docs-only closeout branch.
+- Policy-reference search for `Evidence Closeout Auto-Merge Authority` passed.
 
 Merged PR #120 validation already recorded:
 

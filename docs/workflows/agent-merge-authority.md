@@ -8,7 +8,7 @@ This workflow defines when Codex may merge a PR without a fresh Wilson instructi
 
 ## Plain-English Rule
 
-Codex may auto-merge docs-only workflow PRs after the merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, Replit validation when applicable, and an explicit human merge instruction.
+Codex may auto-merge docs-only workflow PRs and fact-only post-merge evidence closeouts after the relevant merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, Replit validation when applicable, and an explicit human merge instruction.
 
 ## Auto-Merge Authority
 
@@ -25,13 +25,29 @@ Codex may merge a PR on its own only when all of these are true:
 
 If any condition is uncertain, stop and leave a blocking report instead of merging.
 
+## Evidence Closeout Auto-Merge Authority
+
+Codex may also auto-merge docs-only post-merge evidence closeout PRs that touch active INIT or Effort files when all of these are true:
+
+1. The PR records already-observed facts: merged PR number, merge SHA, branch/head SHA, checks, validation evidence, negative scope, deferrals, and next resume point already implied by the owning source doc.
+2. The PR does not change product direction, acceptance criteria, validation authority, ownership, phase order, current resume priority, or the meaning of the underlying work.
+3. The PR does not mark an INIT, phase, or Effort `Resolved`, `Deferred`, `Superseded`, remove it from active read lists, or create a new active Effort unless the existing source doc already makes that outcome mechanically true.
+4. The PR does not introduce new policy language or expand agent permissions, unless Wilson explicitly approved that policy change in the current thread.
+5. The branch is current with `origin/main`, has no merge conflicts, and has no unrelated worktree changes.
+6. The agent checked for conflicting active work before merge: open PRs or recent handoffs touching the same INIT/Effort/workflow, and matching `docs/handoffs/*-blocked.md` reports.
+7. Required checks are passing, or GitHub reports no required checks for the docs-only closeout PR.
+8. PR comments, review submissions, and review threads do not contain unresolved blockers, requested changes, or explicit peer-review-before-merge requests.
+9. The PR body and handoff include validation, remaining unvalidated scope, Replit status, and any explicit deferrals.
+
+If the closeout changes the meaning of work rather than preserving evidence about work that already happened, it needs human approval.
+
 ## Hard Stops
 
 Do not auto-merge when the PR:
 
 - touches `client/`, `server/`, `shared/`, `tests/`, package/dependency files, `.replit`, environment files, generated assets, migrations, database schema, or runtime config
 - changes product direction, UX/IA, design system rules, copy standards, privacy/security posture, AI/model policy, rate limits, auth, secrets, or deployment policy
-- updates active INIT or Effort state, closes/supersedes an Effort, changes phase acceptance, or changes current resume point
+- updates active INIT or Effort state outside the evidence-closeout authority above, closes/supersedes an Effort, changes phase acceptance, or changes current resume point
 - changes this merge-authority policy or expands agent permissions, unless Wilson explicitly approved that change in the current thread
 - is stacked on another unmerged PR or depends on a lower PR that has not merged
 - has stale validation, a stale base, merge conflicts, failing/pending required checks, unresolved requested changes, or an explicit peer-review request
