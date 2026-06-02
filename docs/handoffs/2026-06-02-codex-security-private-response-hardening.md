@@ -8,9 +8,11 @@
 
 ## Summary
 
-The 2026-06-02 security automation scan found no current npm advisories, and GitHub check-runs for current `main` show the dependency audit, CodeQL analyses, TruffleHog push scan, unit, and guest smoke checks passing. The remaining actionable security work was app hardening: make user-specific authenticated responses explicitly non-cacheable and keep speech transcription failure details out of client responses.
+The 2026-06-02 security automation scan found no current npm advisories, and GitHub check-runs for current `main` show the dependency audit, CodeQL analyses, TruffleHog push scan, unit, and guest smoke checks passing. This branch applies the low-churn app-hardening follow-up from the private scan record.
 
 This branch fixes those gaps with a shared private-response header path for authenticated API routes and focused route tests. It does not merge dependency updates and does not change public scan detail.
+
+Security disclosure note: detailed scan evidence stayed in the local/private automation report. Future security PRs and handoffs should follow [`docs/workflows/security-due-diligence.md`](../workflows/security-due-diligence.md): keep raw scanner output, vulnerable-route evidence, exploit notes, and package-path detail out of public GitHub text, while preserving that detail in private/local working artifacts.
 
 ## Changes
 
@@ -62,7 +64,7 @@ Automation evidence used as merge-readiness support:
   - `npm audit --audit-level=high` passed with `found 0 vulnerabilities`.
   - `git diff --check` passed.
   - GitHub check-run lookup for current `main` `979254935344309d80604701bc6554e557ca995b` showed `npm-audit`, CodeQL analyses, `trufflehog_push`, `unit`, and `e2e_guest_smoke` successful; `trufflehog_pr` skipped for the push context.
-- Reasoning: The change is centralized at the auth middleware boundary and directly tested through the real Express route registration, so representative authenticated JSON routes now prove the intended headers at response time. The transcription regression test simulates a provider failure and confirms the public response excludes raw error text.
+- Reasoning: The change is centralized at the auth middleware boundary and directly tested through the real Express route registration, so representative authenticated JSON routes now prove the intended headers at response time. The transcription regression test simulates a provider failure and confirms the public response stays stable and sanitized.
 - Negative scope: Replit runtime behavior, real Firebase browser sign-in, real database-backed profile/settings/session reads, and live speech transcription provider behavior were not validated locally.
 
 ## Stack / base status

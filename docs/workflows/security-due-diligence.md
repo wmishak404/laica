@@ -12,7 +12,7 @@ When a change touches auth, user-owned data, provider spend, admin data, AI prom
 
 Do not chase a zero-findings target. Block merge for critical/high production-reachable issues and for medium issues that expose user data, auth/session material, admin data, or paid-provider abuse at scale. Table low, speculative, dev-only, or stale findings unless they fit naturally into the current change.
 
-Because the repository is public, avoid publishing exact unresolved dependency advisory details, package paths, exploit notes, or reproduction steps for moderate/low findings in public docs, PR bodies, or handoffs. Keep those specifics in GitHub Security/Dependabot, private scan output, or the authorized local audit output; public docs may record the severity bucket, decision, owner, and future validation plan.
+Because the repository is public, do not publish exact unresolved dependency advisory details, package paths, exploit notes, reproduction steps, raw scanner output, or vulnerable-route evidence in public docs, PR bodies, or pushed handoffs. Keep that detail in private/local working artifacts such as `$CODEX_HOME/automations/security/report-YYYY-MM-DD.md`, `$CODEX_HOME/automations/security/last_scan.json`, local untracked notes, or GitHub Security/Dependabot. Public GitHub text should stay at the coordination level: severity bucket, sanitized remediation theme, decision, owner, validation status, and merge recommendation. If a public PR or handoff needs to mention security work, say what changed and how it was validated without teaching the unresolved weakness.
 
 ## Focus Areas
 
