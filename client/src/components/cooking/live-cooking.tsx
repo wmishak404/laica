@@ -1250,6 +1250,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
                         size="sm"
                         onClick={() => setIsTimerRunning(!isTimerRunning)}
                         variant={isTimerRunning ? "destructive" : "default"}
+                        aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
                       >
                         {isTimerRunning ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
                       </Button>

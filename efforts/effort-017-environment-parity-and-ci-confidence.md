@@ -279,3 +279,17 @@ Additional merge evidence:
 - Wilson also completed a scoped Replit happy-path smoke on the branch. Corner-case Replit checks were not run.
 
 This slice increases deterministic route confidence but does not resolve EFF-017 and does not change the Replit-primary validation policy. Remaining accepted backlog items are provider-light live-cooking smoke, mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails. Live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` integration, exhaustive corner-case Replit coverage, and Replit deployment behavior remain outside this branch's automated proof.
+
+## 2026-06-02 — Provider-light live-cooking smoke branch started
+
+Branch `codex/eff-017-live-cooking-smoke` started from current `origin/main` at `b66848881bc0d1c538258af8177892793aec521f` after PR #120 and PR #122 had merged. This branch implements the next accepted EFF-017 backlog item by extending the guest Playwright flow from prep tray into Live Cooking with `/api/cooking/steps` stubbed in the browser harness.
+
+Current branch signal:
+
+- The new smoke keeps `/api/recipes/pantry`, `/api/cooking/steps`, `/api/speech/synthesize`, `/api/speech/transcribe`, and `/api/cooking/assistance` provider-light through Playwright route stubs where relevant.
+- It asserts the cooking-steps request payload, first-step rendering, next/back navigation, timer start/pause/resume controls, and ask-for-help fallback behavior when microphone access is unavailable.
+- `client/src/components/cooking/live-cooking.tsx` gained an accessible timer play/pause label so the smoke can assert the actual user control instead of DOM structure.
+- Local `npm ci`, focused Vitest, full unit suite, `npm run check`, `npm run build`, and `git diff --check` passed.
+- Local DB-backed Playwright did not complete against the decrypted local `.env` database because `npm run db:health` reports missing `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, and `cooking_sessions.recipe_snapshot`. Per EFF-010, this branch does not run `db:push` against that unknown local database; the GitHub E2E job's schema-only Neon branch is the expected automation evidence for the browser smoke.
+
+This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, and exhaustive corner cases remain outside this branch.
