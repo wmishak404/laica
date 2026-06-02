@@ -114,6 +114,9 @@ describe('auth session routes', () => {
     });
 
     expect(response.status).toBe(200);
+    expect(response.headers['cache-control']).toBe('private, no-store, max-age=0');
+    expect(response.headers['pragma']).toBe('no-cache');
+    expect(response.headers['vary']).toContain('Authorization');
     expect(await response.json()).toEqual({
       authMode: 'linked',
       user: {
