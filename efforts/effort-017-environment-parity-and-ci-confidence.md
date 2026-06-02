@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-01
+**Updated:** 2026-06-02
 
 ## One-line summary
 
@@ -251,3 +251,25 @@ Wilson accepted the framing that this is not "full app regression coverage." Do 
    Add focused assertions for important tap targets, obvious accessibility regressions, and key-screen axe/a11y checks. Treat these as complements to the existing UI-governance lint/PR-template guardrails, not a replacement for product/design review.
 
 Open scope that remains outside the default merge gate until separately accepted: live OpenAI output quality, ElevenLabs audio quality, full Google linked-account login, production OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` data-access integration, and Replit deployment behavior. These should become separate EFF-017 slices or INIT/PD work when their acceptance criteria are clear.
+
+## 2026-06-02 — P0 route-contract coverage branch implemented
+
+The branch `codex/eff-017-route-contract-p0` started from `origin/main` at PR #119's merge commit `979254935344309d80604701bc6554e557ca995b` and implements the first accepted backlog item from the PR #119 audit.
+
+Coverage added:
+
+- Mocked HTTP route-contract tests for `POST /api/feedback`, `POST /api/cooking/assistance`, `POST /api/ingredients/alternatives`, cooking-session lifecycle routes (`start`, progress update, `complete`, history/list, `active`, delete one, delete all), `POST /api/user/pantry/reset`, and `GET /api/speech/voices`.
+- Explicit provider-light assertions that OpenAI/ElevenLabs helpers are mocked and not live-called in this routine unit gate.
+- Current disabled-route coverage for `POST /api/grocery/list`: the handler remains commented out in shipping code, so the test asserts `404` and verifies `getGroceryList` is not called. Reactivating the route is a separate product/behavior decision, not part of this coverage slice.
+- Replacement of `tests/unit/voice-recording.test.ts` with tests that import shipping voice-recording helpers from `client/src/lib/voiceRecording.ts`; this removes the copied in-test logic that had drifted from the component's actual silence thresholds.
+
+Local evidence before handoff:
+
+- `npm ci` installed dependencies successfully and reported `found 0 vulnerabilities`.
+- `npx vitest run tests/unit/voice-recording.test.ts tests/unit/p0-route-contracts.test.ts` passed: 2 files, 23 tests.
+- `npm run test:unit` passed: 30 files, 186 tests.
+- `npm run check` passed.
+- `npm run build` passed, with the pre-existing Browserslist age, dynamic/static Firebase import, and chunk-size warnings.
+- `git diff --check` passed.
+
+This slice increases deterministic route confidence but does not resolve EFF-017 and does not change the Replit-primary validation policy. Remaining accepted backlog items are provider-light live-cooking smoke, mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails. Live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` integration, and Replit deployment behavior remain outside this branch's automated proof.
