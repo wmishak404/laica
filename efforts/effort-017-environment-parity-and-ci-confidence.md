@@ -293,3 +293,28 @@ Current branch signal:
 - Local DB-backed Playwright did not complete against the decrypted local `.env` database because `npm run db:health` reports missing `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, and `cooking_sessions.recipe_snapshot`. Per EFF-010, this branch does not run `db:push` against that unknown local database; the GitHub E2E job's schema-only Neon branch is the expected automation evidence for the browser smoke.
 
 This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, and exhaustive corner cases remain outside this branch.
+
+## 2026-06-02 — PR #123 merged provider-light live-cooking smoke
+
+PR #123 merged as `d0869ca52b30e07017c9325ff9034b842d8a59df`, completing the accepted provider-light live-cooking smoke backlog item from the PR #119 audit.
+
+Merged coverage signal:
+
+- The existing guest Playwright smoke now continues from Chef It Up prep tray into Live Cooking.
+- The browser harness stubs `/api/cooking/steps` and provider-adjacent speech/help requests so the routine E2E gate does not call live OpenAI, ElevenLabs, transcription, or assistance providers.
+- The smoke asserts cooking-step rendering, cooking-step request payload shape, basic `Next` / `Previous` behavior, timer start/pause/resume controls, and ask-for-help fallback UI when microphone access is unavailable.
+- `client/src/components/cooking/live-cooking.tsx` exposes the timer play/pause control with an accessible label.
+
+Evidence:
+
+- GitHub checks passed at PR head `e4c915e9795e6c52ef1c191daff8f28a694d4215`, including the `e2e_guest_smoke` job on a disposable schema-only Neon branch.
+- Replit shell validation at the same head passed `npm ci`, `npm run db:health`, `npm run test:unit`, `npm run check`, and `npm run build`.
+- Replit shell Playwright remains unvalidated because Chromium cannot launch in the current workspace without the shared library `libglib-2.0.so.0`; `npx playwright install --with-deps chromium` cannot install apt-style system packages from the Replit shell. Treat this as a Replit workspace browser-dependency blocker, not as app-behavior evidence.
+
+Current EFF-017 implication:
+
+- The provider-light live-cooking smoke backlog item is complete.
+- Remaining accepted backlog items are mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails.
+- Replit remains primary for deployment-bound runtime validation until a separate ADR/PD changes validation authority. GitHub Actions is currently the reliable automated Playwright runner; Replit-shell Playwright should only become a dependency if the workspace's Chromium system dependencies are deliberately configured through Replit System Dependencies/Nix.
+
+Still unvalidated by this slice: live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit Playwright browser behavior in the current workspace, and exhaustive corner cases.
