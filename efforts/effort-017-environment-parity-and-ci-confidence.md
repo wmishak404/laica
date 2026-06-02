@@ -252,9 +252,9 @@ Wilson accepted the framing that this is not "full app regression coverage." Do 
 
 Open scope that remains outside the default merge gate until separately accepted: live OpenAI output quality, ElevenLabs audio quality, full Google linked-account login, production OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` data-access integration, and Replit deployment behavior. These should become separate EFF-017 slices or INIT/PD work when their acceptance criteria are clear.
 
-## 2026-06-02 — P0 route-contract coverage branch implemented
+## 2026-06-02 — PR #120 merged P0 route-contract coverage
 
-The branch `codex/eff-017-route-contract-p0` started from `origin/main` at PR #119's merge commit `979254935344309d80604701bc6554e557ca995b` and implements the first accepted backlog item from the PR #119 audit.
+PR #120 merged as `df4e2d563113cdc58c898dd871ccdaaeb0fd5409`, implementing the first accepted backlog item from the PR #119 audit. The branch `codex/eff-017-route-contract-p0` started from `origin/main` at PR #119's merge commit `979254935344309d80604701bc6554e557ca995b`.
 
 Coverage added:
 
@@ -272,4 +272,10 @@ Local evidence before handoff:
 - `npm run build` passed, with the pre-existing Browserslist age, dynamic/static Firebase import, and chunk-size warnings.
 - `git diff --check` passed.
 
-This slice increases deterministic route confidence but does not resolve EFF-017 and does not change the Replit-primary validation policy. Remaining accepted backlog items are provider-light live-cooking smoke, mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails. Live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` integration, and Replit deployment behavior remain outside this branch's automated proof.
+Additional merge evidence:
+
+- GitHub PR checks passed for head `e3f7d1029e301c69b04160fd83a106227b37bf9b`, including `unit`, `e2e_guest_smoke`, dependency audit, TruffleHog, and CodeQL checks.
+- Wilson checked out PR #120 in the Replit workspace and ran `npm ci && npm run test:unit && npm run check && npm run build`; the Replit shell pass matched local evidence with 30 unit files / 186 tests passing and build warnings limited to known non-blocking Vite/Browserslist/chunk notices.
+- Wilson also completed a scoped Replit happy-path smoke on the branch. Corner-case Replit checks were not run.
+
+This slice increases deterministic route confidence but does not resolve EFF-017 and does not change the Replit-primary validation policy. Remaining accepted backlog items are provider-light live-cooking smoke, mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails. Live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` integration, exhaustive corner-case Replit coverage, and Replit deployment behavior remain outside this branch's automated proof.
