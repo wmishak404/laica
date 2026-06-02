@@ -33,6 +33,7 @@ Security disclosure note: detailed scan evidence stayed in the local/private aut
 - Authenticated route handlers that use `isAuthenticated` now inherit private/no-store headers automatically.
 - New authenticated routes should continue to use `isAuthenticated` unless they intentionally need a different auth bootstrap path. Routes that call `verifyFirebaseToken` directly should add `privateResponseHeaders` when they return user-specific data.
 - Open Dependabot PR `#116` is a broad version-update batch, not a focused security PR. It has failing `unit` and `e2e_guest_smoke` checks and should not be treated as the next security merge candidate.
+- Rebased cleanly after PR #120 and PR #122 merged to `main`; runtime validation was refreshed on the rebased branch head `2dd1dfdd76f737f37ddeedb09472439010fa5705` before this handoff-only evidence update.
 
 ## Open items
 
@@ -53,23 +54,23 @@ Security disclosure note: detailed scan evidence stayed in the local/private aut
 Automation evidence used as merge-readiness support:
 
 - Claim: authenticated user-specific API responses now send explicit private/no-store headers, and speech transcription failures no longer expose raw internal details in JSON responses.
-- Command/check provenance: Local macOS/Codex worktree on `codex/security-private-response-hardening` at base `origin/main` `979254935344309d80604701bc6554e557ca995b`; commands run on 2026-06-02 PDT.
+- Command/check provenance: Local macOS/Codex worktree on `codex/security-private-response-hardening` after rebasing onto `origin/main` `c3e782a63a63304aa45ab62e53842263f5f9aa59`; runtime checks run on 2026-06-02 PDT at `2dd1dfdd76f737f37ddeedb09472439010fa5705`.
 - Source provenance: `server/routes.ts`, `tests/unit/phase0-security-routes.test.ts`, `tests/unit/auth-session-route.test.ts`.
 - Observed result:
   - `npm ci` passed and reported `found 0 vulnerabilities`.
   - `npx vitest run tests/unit/phase0-security-routes.test.ts tests/unit/auth-session-route.test.ts` passed: 2 files / 17 tests.
-  - `npm run test:unit` passed: 29 files / 172 tests.
+  - `npm run test:unit` passed: 30 files / 189 tests.
   - `npm run check` passed.
   - `npm run build` passed.
   - `npm audit --audit-level=high` passed with `found 0 vulnerabilities`.
   - `git diff --check` passed.
-  - GitHub check-run lookup for current `main` `979254935344309d80604701bc6554e557ca995b` showed `npm-audit`, CodeQL analyses, `trufflehog_push`, `unit`, and `e2e_guest_smoke` successful; `trufflehog_pr` skipped for the push context.
+  - GitHub check-run lookup for current `main` `c3e782a63a63304aa45ab62e53842263f5f9aa59` showed `npm-audit`, CodeQL analyses, `trufflehog_push`, `unit`, and `e2e_guest_smoke` successful; `trufflehog_pr` skipped for the push context.
 - Reasoning: The change is centralized at the auth middleware boundary and directly tested through the real Express route registration, so representative authenticated JSON routes now prove the intended headers at response time. The transcription regression test simulates a provider failure and confirms the public response stays stable and sanitized.
 - Negative scope: Replit runtime behavior, real Firebase browser sign-in, real database-backed profile/settings/session reads, and live speech transcription provider behavior were not validated locally.
 
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `979254935344309d80604701bc6554e557ca995b`
+- Current base: `origin/main` at `c3e782a63a63304aa45ab62e53842263f5f9aa59`
 - Last Replit-validated at: not yet validated
-- Notes: independent security hardening branch started from current `origin/main`; not stacked on PR `#120`.
+- Notes: independent security hardening branch; rebased cleanly after PR #120 and PR #122 merged.
