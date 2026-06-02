@@ -343,3 +343,17 @@ Near-term EFF-017 follow-ups from this retro:
 2. Add an OAuth-domain/config preflight that proves Google OAuth can start for the accepted production/Replit domain without completing real sign-in.
 3. Design a deterministic linked-account dev-auth lane so CI can cover linked-user flows without relying on Google popup automation.
 4. Keep live-provider canaries separate from default PR CI and record their evidence with the automation evidence report format.
+
+## 2026-06-02 — Provider-boundary happy-path coverage branch started
+
+Branch `codex/eff-017-provider-boundary-happy-paths` started from fresh `origin/main` at `ab6cc77378ddc8e35b50a7423c8266773b772862` after the PR #123 and PR #124 closeouts had merged.
+It was later rebased after PR #127 merged onto `origin/main` at `2aebd0f533e79fb8acbda76c7b0c4842512e5b08`, preserving the PR #127 CI gap-lane retro and keeping this provider-boundary slice scoped to mocked route coverage.
+It was rebased again after PR #128 merged onto `origin/main` at `f46798d82c1b8ede22daab1368168fe5863f3dd4`; PR #128 was an INIT-003 checkpoint, so this branch's provider-boundary claim and Replit-not-required lane remain unchanged.
+
+Current branch signal:
+
+- Adds mocked route-level provider-boundary tests for `POST /api/cooking/steps`, `POST /api/speech/synthesize`, `POST /api/speech/transcribe`, and `POST /api/vision/analyze` in `tests/unit/provider-boundary-happy-paths.test.ts`.
+- Keeps the routine gate provider-light by mocking `server/openai`, `server/elevenlabs`, and the direct OpenAI transcription constructor; the tests assert request validation, successful response shape, and provider payload/context without calling live OpenAI, ElevenLabs, transcription, or vision providers.
+- Local `npm ci`, focused Vitest, full unit suite, `npm run check`, `npm run build`, and `git diff --check` passed. Build still reports the known Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
+
+This does not change the Replit-primary validation policy. Replit validation is not yet run for this branch, and live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this provider-light proof.
