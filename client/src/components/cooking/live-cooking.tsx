@@ -15,6 +15,7 @@ import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 import { AudioProcessor } from '@/lib/audioUtils';
 import { UsageTracker } from '@/lib/usageTracker';
+import { calculateTimeDomainVolume, isOperationalMessage, VOICE_RECORDING_SILENCE_CONFIG } from '@/lib/voiceRecording';
 import { useStartCookingSession, useUpdateCookingSession, useCompleteCookingSession } from '@/hooks/useCookingSession';
 import { useToast } from '@/hooks/use-toast';
 import { isGuestUser, useAuth } from '@/hooks/useAuth';
@@ -524,19 +525,6 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     return audioContextRef.current;
   };
 
-  // Check if message is operational (system message) and should not be spoken
-  const isOperationalMessage = (text: string) => {
-    const operationalPhrases = [
-      'Processing your question',
-      'Recording cancelled',
-      'Recording stopped',
-      'Please try asking again',
-      'I couldn\'t access your microphone',
-      'Recording timed out'
-    ];
-    return operationalPhrases.some(phrase => text.includes(phrase));
-  };
-
   // Enhanced text-to-speech using ElevenLabs with proper AudioContext management
   const speakText = async (text: string, retryCount = 0) => {
     if (!isAudioEnabled || !text || isSpeaking || !voiceAvailable) return;
@@ -819,12 +807,15 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       let isCurrentlyListening = true;
       let initialDelayComplete = false;
       let recordingStartTime = Date.now();
-      const SILENCE_THRESHOLD = 3; // Based on real audio levels of 0.5-0.7 observed
-      const SILENCE_DURATION = 2000; // 2 seconds of silence
-      const INITIAL_DELAY = 1500; // 1.5 second delay before starting silence detection
-      const MAX_RECORDING_TIME = 15000; // Reduced to 15 seconds max recording
-      const MIN_RECORDING_TIME = 2000; // 2 second minimum for valid recording
-      const AUTO_STOP_TIME = 8000; // Auto-stop after 8 seconds if we detect any speech
+      const {
+        silenceThreshold,
+        silenceDurationMs,
+        initialDelayMs,
+        maxRecordingTimeMs,
+        minRecordingTimeMs,
+        autoStopTimeMs,
+        audioLevelPollMs,
+      } = VOICE_RECORDING_SILENCE_CONFIG;
       
       const checkAudioLevel = () => {
         if (!isCurrentlyListening) return;
@@ -832,8 +823,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         // Check if initial delay has passed
         const currentTime = Date.now();
         if (!initialDelayComplete) {
-          if (currentTime - recordingStartTime < INITIAL_DELAY) {
-            setTimeout(checkAudioLevel, 100);
+          if (currentTime - recordingStartTime < initialDelayMs) {
+            setTimeout(checkAudioLevel, audioLevelPollMs);
             return;
           }
           initialDelayComplete = true;
@@ -841,32 +832,25 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         }
         
         analyser.getByteTimeDomainData(dataArray);
-        
-        // Calculate volume using time domain data (more reliable for speech)
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-          const sample = (dataArray[i] - 128) / 128; // Convert to -1 to 1 range
-          sum += sample * sample;
-        }
-        const volume = Math.sqrt(sum / bufferLength) * 100;
+        const volume = calculateTimeDomainVolume(dataArray);
         const recordingTime = Date.now() - recordingStartTime;
         
-        console.log(`🎤 Audio level: ${volume.toFixed(2)} (threshold: ${SILENCE_THRESHOLD}), Recording time: ${(recordingTime/1000).toFixed(1)}s, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
+        console.log(`🎤 Audio level: ${volume.toFixed(2)} (threshold: ${silenceThreshold}), Recording time: ${(recordingTime/1000).toFixed(1)}s, Has detected sound: ${hasDetectedSound}, Initial delay complete: ${initialDelayComplete}`);
         
         // Extra debugging - track volume ranges
         if (initialDelayComplete) {
-          if (volume > SILENCE_THRESHOLD) {
-            console.log(`🔊 SOUND detected - Volume: ${volume.toFixed(2)} > ${SILENCE_THRESHOLD}`);
+          if (volume > silenceThreshold) {
+            console.log(`🔊 SOUND detected - Volume: ${volume.toFixed(2)} > ${silenceThreshold}`);
           } else {
-            console.log(`🔇 QUIET detected - Volume: ${volume.toFixed(2)} <= ${SILENCE_THRESHOLD}`);
+            console.log(`🔇 QUIET detected - Volume: ${volume.toFixed(2)} <= ${silenceThreshold}`);
           }
         }
         
         // Check for maximum recording time limit
-        if (recordingTime > MAX_RECORDING_TIME) {
+        if (recordingTime > maxRecordingTimeMs) {
           console.log('Auto-stopping due to maximum recording limit');
           isCurrentlyListening = false;
-          if (hasDetectedSound && recordingTime > MIN_RECORDING_TIME) {
+          if (hasDetectedSound && recordingTime > minRecordingTimeMs) {
             stopVoiceRecording();
           } else {
             cancelVoiceRecording();
@@ -875,14 +859,14 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         }
         
         // Auto-stop after reasonable time if we've detected speech (backup silence detection)
-        if (hasDetectedSound && initialDelayComplete && recordingTime > AUTO_STOP_TIME) {
+        if (hasDetectedSound && initialDelayComplete && recordingTime > autoStopTimeMs) {
           console.log('🕒 Auto-stopping after 8 seconds with detected speech');
           isCurrentlyListening = false;
           stopVoiceRecording();
           return;
         }
         
-        if (volume > SILENCE_THRESHOLD) {
+        if (volume > silenceThreshold) {
           // Sound detected
           if (!hasDetectedSound) {
             hasDetectedSound = true;
@@ -892,15 +876,15 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         } else if (hasDetectedSound && initialDelayComplete) {
           // Silence detected after sound was heard and initial delay passed
           const silenceDuration = Date.now() - silenceStart;
-          console.log(`🔇 SILENCE TRACKING - Duration: ${silenceDuration}ms / ${SILENCE_DURATION}ms needed, Volume: ${volume.toFixed(2)}`);
+          console.log(`🔇 SILENCE TRACKING - Duration: ${silenceDuration}ms / ${silenceDurationMs}ms needed, Volume: ${volume.toFixed(2)}`);
           
-          if (silenceDuration >= SILENCE_DURATION) {
+          if (silenceDuration >= silenceDurationMs) {
             console.log('Auto-processing due to silence detection');
             isCurrentlyListening = false;
             const totalRecordingTime = Date.now() - recordingStartTime;
-            console.log(`Total recording time: ${totalRecordingTime}ms, minimum: ${MIN_RECORDING_TIME}ms`);
+            console.log(`Total recording time: ${totalRecordingTime}ms, minimum: ${minRecordingTimeMs}ms`);
             
-            if (totalRecordingTime >= MIN_RECORDING_TIME) {
+            if (totalRecordingTime >= minRecordingTimeMs) {
               // Don't set assistant response to avoid audio feedback
               stopVoiceRecording();
             } else {
@@ -913,7 +897,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         }
         
         // Continue checking
-        setTimeout(checkAudioLevel, 100); // Check every 100ms for better responsiveness
+        setTimeout(checkAudioLevel, audioLevelPollMs);
       };
       
       const chunks: BlobPart[] = [];
