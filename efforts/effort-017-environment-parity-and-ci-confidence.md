@@ -228,3 +228,26 @@ Coverage intent:
 - Keep OpenAI out of the routine merge gate. Live recipe quality, provider availability, model output, cooking-step generation, speech, vision, linked-account persistence, and Replit deployment behavior remain outside this branch's claim.
 
 This is still not enough to resolve EFF-017. It adds deterministic user-flow coverage while preserving the current Replit-primary policy until the remaining resolution criteria are deliberately implemented and accepted.
+
+## 2026-06-01 — PR #119 coverage audit accepted as phased backlog
+
+Claude cross-checked PR #119's CI run and test inventory against the app's actual user-facing surface area. The audit confirmed that the current gate is worth using as a regression floor: `npm run check`, `npm run build`, the full unit suite, and the guest-lane Playwright job now protect auth, request validation, anonymous quota, security/rate-limit behavior, and the guest setup-to-planning-to-prep-tray path.
+
+Wilson accepted the framing that this is not "full app regression coverage." Do not describe PR #119 or the current harness as covering all aspects of LAICA. The next EFF-017 work should close the highest-value user-facing gaps in phases:
+
+1. **P0 route-contract coverage.**
+   Add mocked route tests for shipped user-facing and service-writing routes that currently have little or no direct coverage: `POST /api/feedback`, `POST /api/cooking/assistance`, `POST /api/grocery/list`, `POST /api/ingredients/alternatives`, cooking-session lifecycle routes (`start`, `active`, `complete`, history/list, delete one, delete all), `POST /api/user/pantry/reset`, and `GET /api/speech/voices`. Fix or replace `tests/unit/voice-recording.test.ts` so it imports real shipping logic instead of re-declaring copied behavior inside the test.
+
+2. **Provider-light live-cooking smoke.**
+   Extend Playwright coverage from the prep tray into live cooking with `/api/cooking/steps` stubbed. Prove step rendering, basic next/back behavior, timer controls, and the ask-for-help UI without making OpenAI or ElevenLabs part of the routine merge gate.
+
+3. **Mocked provider-boundary happy paths.**
+   Add route-level happy-path coverage for `POST /api/cooking/steps`, `POST /api/speech/synthesize`, `POST /api/speech/transcribe`, and `POST /api/vision/analyze` using mocked providers. Keep live provider availability and model quality in explicit canary/eval work, not the default PR gate.
+
+4. **Coverage visibility and ratcheting.**
+   Turn on coverage reporting first as a visible, non-blocking artifact. Add thresholds only after P0 holes are closed, starting at the measured baseline and ratcheting upward so coverage cannot silently erode.
+
+5. **UI and accessibility guardrails.**
+   Add focused assertions for important tap targets, obvious accessibility regressions, and key-screen axe/a11y checks. Treat these as complements to the existing UI-governance lint/PR-template guardrails, not a replacement for product/design review.
+
+Open scope that remains outside the default merge gate until separately accepted: live OpenAI output quality, ElevenLabs audio quality, full Google linked-account login, production OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` data-access integration, and Replit deployment behavior. These should become separate EFF-017 slices or INIT/PD work when their acceptance criteria are clear.
