@@ -175,9 +175,10 @@ Analytics work is intentionally separate. If measurement implementation begins, 
 1. Treat the public guest production-gate code as merged on `main` through PR #107 (`a0efc43`) and Replit-validated at `72ef2f7`.
 2. When enabling or revalidating a public runtime, confirm the target environment has `VITE_FIREBASE_APP_CHECK_SITE_KEY`, Firebase Console App Check registration for the target domain, `FIREBASE_APP_CHECK_ENFORCED=true`, `ANONYMOUS_AUTH_DISABLED` unset unless guest access should be paused, and the `anonymous_recipe_usage` table present.
 3. Keep Phase 4 Google link/promotion/import and Phase 5/anonymous Slop Bowl dry-run as follow-up scope unless Wilson explicitly pulls them forward.
-4. Keep durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary.
-5. Use the new follow-up Efforts as the durable homes for post-validation learnings: [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for cuisine-fit prompt/eval work, [EFF-024](../efforts/effort-024-guest-privacy-trust-messaging.md) for guest privacy/trust messaging, and [EFF-025](../efforts/effort-025-settings-unsaved-inventory-reminder.md) for unsaved Settings reminders.
-6. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
+4. Use conversion-gated durability for guest promotion: first preserve Pantry, Kitchen, and Cooking Profile when the user links Google and consents; do not bulk- or background-import every completed anonymous cook into durable History in the first promotion slice.
+5. Keep durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary. A future Phase 5/promotion path may explicitly save a current guest cook after conversion, but that must be user-consented and designed with cleanup/taste semantics instead of automatic retro-import.
+6. Use the new follow-up Efforts as the durable homes for post-validation learnings: [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for cuisine-fit prompt/eval work, [EFF-024](../efforts/effort-024-guest-privacy-trust-messaging.md) for guest privacy/trust messaging, and [EFF-025](../efforts/effort-025-settings-unsaved-inventory-reminder.md) for unsaved Settings reminders.
+7. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
 
 ## Chronology
 
@@ -265,3 +266,9 @@ Wilson then loaded the current PR head `72ef2f7` in Replit, set `FIREBASE_APP_CH
 The merged production-gates slice makes the Plan B public guest MVP operationally safer to open: guest entry remains real Firebase anonymous auth; quota enforcement is server-backed; abuse controls include App Check, IP-keyed anonymous rate limits, and a kill switch; durable saves remain linked-account only; guest Pantry/Kitchen/Profile Settings stay same-browser local; and durable History, cleanup memory, taste memory, next-meal retention, and durable cooking sessions remain linked-account only.
 
 Post-merge follow-up scope remains explicit: Phase 4 owns fuller Google promotion/link/import behavior, Phase 5 owns linked returning-user memory and any future anonymous Slop Bowl dry-run decision, EFF-022 owns cuisine-fit prompt/eval improvements, EFF-024 owns guest privacy/trust messaging, EFF-025 owns unsaved Settings reminders, and analytics should be filed separately if needed.
+
+### 2026-06-03 — Conversion-gated guest History decision
+
+Wilson clarified the next account-promotion mental model: the public guest path is not an anonymous account the user should manage, and the first durable promise is that signing up with Google preserves the setup work they choose to keep, especially Pantry, Kitchen, and Cooking Profile. Completed anonymous cooks should not be bulk- or background-imported into durable History in the first promotion slice.
+
+The accepted near-term implementation direction is conversion-gated durability. Guest cooks may remain local before conversion. At or after a Google conversion moment, Laica may save a current guest cook or selected cook state only through an explicit user-consented promotion/import path. Richer completed-cook import remains Phase 5/promotion design scope because cleanup, taste signal, next-meal retention, and History semantics need to be coherent before guest cook state becomes durable memory.
