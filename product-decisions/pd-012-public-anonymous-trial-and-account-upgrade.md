@@ -47,6 +47,10 @@ The implemented v1 gate now includes server-backed anonymous quota accounting, t
 
 The decision remains active because Phase 4 promotion/linking and Phase 5 returning-user memory work are still future scope, and the 10-generation cap should be revisited after real usage, abuse/cost, and recipe-quality evidence.
 
+### 2026-06-03 conversion-history clarification
+
+Wilson clarified that anonymous cooking history should become durable only when the user converts, not through background retro-import of every completed guest cook. The near-term account-promotion promise is therefore: sign up with Google so Laica keeps the setup and cooking work the user chooses to carry forward. Pantry, Kitchen, and Cooking Profile import are the first conversion targets; completed cook History import remains a later deliberate Phase 5/promotion design unless the user converts at an explicit save-history moment.
+
 ## Decision
 
 ### Public entry model
@@ -133,8 +137,9 @@ Durable saves include:
 
 - Anonymous users do **not** create durable post-cook history, pending cleanup, taste memory, or next-meal retention state in v1.
 - Phase 5 remains a linked-account memory surface.
-- Anonymous cooking may continue locally on the same browser/device, but it does not become durable returning-user state until the user links Google.
-- Completed anonymous post-cook history is not retro-imported into durable history in v1.
+- Anonymous cooking may continue locally on the same browser/device, but it does not become durable returning-user state until the user links Google and chooses what to carry forward.
+- Completed anonymous post-cook history is not bulk- or background-retro-imported into durable history in v1.
+- A future conversion moment may let the user explicitly save the current guest cook, or a small selected set of guest cook state, into durable History after Google linking. That path must be designed as user-consented promotion/import work, not an automatic side effect of anonymous sign-in or normal Google sign-in.
 
 ### Measurement and automation boundary
 
@@ -150,6 +155,7 @@ Durable saves include:
 - The larger cap gives new users room to regenerate, iterate, or recover from early recipe misses. Because Laica is still young, some rejected generations are product quality misses on Laica's side, not user indecision; the guest policy should leave enough room for that.
 - A same-browser persistence contract avoids the worst guest-mode annoyance: being forced to rescan pantry after every normal reopen.
 - A linked-only durable-memory boundary keeps Phase 5 coherent. Returning-user history, cleanup, and taste memory should belong to a real account, not to a fragile anonymous browser session.
+- Conversion-gated durability protects the user's effort without turning every anonymous cook into a long-lived migration obligation. The product should nudge users to create an account before or at a durable save moment, then save only the setup/cook state they choose to carry forward.
 - Keeping the cap on recipe generation instead of on "full cooks" makes enforcement deterministic and easier to explain in the UI.
 - Splitting the linked-account copy between "unlock more recipes" and "sign in or create an account to save your ingredients and profile" creates clearer user moments than using one generic account prompt everywhere, while reserving "upgrade" language for later paid-tier work.
 - The same guest path that improves first-use trust also improves automation confidence: it lets browser tests exercise more of the real product surface without fragile third-party auth popups, while still keeping linked-account behavior on the real Google/Firebase validation path.
@@ -181,6 +187,6 @@ Durable saves include:
 
 - Keep target-runtime App Check configured/enforced for public anonymous access and revalidate if the public domain, Firebase App Check app, or Replit/deployment secret setup changes.
 - Implement the fuller Phase 4 Google promotion/link/import flow when that phase starts.
-- Keep Phase 5 durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary.
+- Keep Phase 5 durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary. Do not add automatic bulk guest-History import as part of the first Google promotion slice.
 - File separate analytics work for guest-to-link and returning-user measurement rather than expanding this PD into a measurement plan.
 - Re-evaluate the 10-generation cap after real usage evidence, cost signals, early-generation quality evidence, and Phase 5 returning-user data exist.
