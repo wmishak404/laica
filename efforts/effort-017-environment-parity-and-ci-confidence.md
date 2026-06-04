@@ -372,3 +372,23 @@ Current branch signal:
 - Local `npm run check`, `npm run build`, `git diff --check`, and Playwright test discovery passed. Local focused Playwright execution did not reach app behavior: sandboxed `tsx` IPC failed with `EPERM`, and the unsandboxed isolated-port retry then failed at server startup because `DATABASE_URL` is not present in the local shell. GitHub Actions passed on the PR head, including the configured `e2e_guest_smoke` lane with disposable Neon schema-health setup and cleanup.
 
 This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this forced-response proof.
+
+## 2026-06-04 — OAuth-start preflight branch started
+
+Branch `codex/eff-017-oauth-start-preflight` started from fresh `origin/main` at `040df3912d6b8f1463ff48f8bc5fc97c9e76b493` after the guest quota-copy closeout merged. This branch implements the next near-term lane from the PR #126 retro: prove Google OAuth can start for configured production/Replit continue URIs without automating full Google sign-in.
+
+Current branch signal:
+
+- Adds `scripts/oauth-start-preflight.ts`, which calls Identity Toolkit `accounts:createAuthUri` with `providerId: "google.com"` for each configured HTTPS continue URI and verifies that the response contains a Google authorization URI.
+- Adds `npm run check:oauth` plus mocked unit coverage for skip/fail behavior, continue-URI validation, request payload shape, successful provider response shape, and sanitized provider error reporting.
+- Adds a separate `OAuth Start Preflight` GitHub Actions workflow with `workflow_dispatch` and a scheduled run. It is intentionally separate from the routine PR CI gate and only runs the live preflight when `OAUTH_PREFLIGHT_CONTINUE_URIS` is supplied by manual input or repo variable and `VITE_FIREBASE_API_KEY` is available as a secret.
+- Extends `.env.example` with the OAuth preflight env contract.
+
+Parallel-safe next lanes:
+
+- Deterministic linked-account dev-auth design is parallel-safe with this branch, but should read INIT-003 and the mobile-refresh dev-test-harness note before proposing how linked-user flows enter CI without Google popup automation.
+- Live-provider canary planning is parallel-safe, but must remain outside default PR CI and should name exactly which OpenAI, Vision, ElevenLabs, and storage/provider seams it proves.
+- Coverage reporting/ratcheting is parallel-safe conceptually, but may touch `package.json` or workflow files; coordinate branch order if this OAuth preflight PR is still open.
+- UI/accessibility guardrails are parallel-safe conceptually, but should avoid editing the same Playwright helper surfaces if another EFF-017 browser-smoke branch is active.
+
+This does not change the Replit-primary validation policy. It does not complete a Google login, link an account, prove Firebase Console domain state until the repo variable/secret are configured and the workflow runs, prove provider/audio/model quality, or validate Replit deployment behavior.
