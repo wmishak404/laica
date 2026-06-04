@@ -25,6 +25,7 @@ The favicon/PWA icon family now uses the spatula mark from the `i` in the canoni
   - Updates the existing static description tag instead of appending a second conflicting description tag after React starts.
 - `server/vite.ts`
   - Rewrites `og:url`, `og:image`, `og:image:secure_url`, and `twitter:image` to the current request origin in development.
+  - Preserves the request path/query for non-production `og:url`, and appends the request query to the dev `og:image` URL so cache-busted Replit links also produce cache-busted preview image URLs.
   - Keeps production/custom-domain requests canonicalized to `https://cookwithlaica.com`, while allowing Replit dev links to point preview crawlers at the Replit-served PNG before production deploy.
 - `client/public/og/laica-preview.png`
   - Adds a 1200x630 RGB PNG for Open Graph consumers.
@@ -69,6 +70,7 @@ Automation is evidence for the static metadata/image/icon claim, not proof that 
 - Development preview-origin smoke passed:
   - `PORT=3000 LAICA_DEV_ALLOWED_HOSTS=preview.example.test npx @dotenvx/dotenvx run -- npm run dev` served the app.
   - `curl -H 'Host: preview.example.test' -H 'X-Forwarded-Proto: https' http://127.0.0.1:3000/` returned `og:url`, `og:image`, `og:image:secure_url`, and `twitter:image` with the `https://preview.example.test` origin.
+  - `curl -H 'Host: preview.example.test' -H 'X-Forwarded-Proto: https' 'http://127.0.0.1:3000/?preview=72569bd'` returned `og:url=https://preview.example.test/?preview=72569bd` and `og:image=https://preview.example.test/og/laica-preview.png?preview=72569bd`.
 - Built asset inspection passed:
   - `dist/public/og/laica-preview.png: PNG image data, 1200 x 630, 8-bit/color RGB, non-interlaced`.
   - `client/public/favicon.ico: MS Windows icon resource - 2 icons, 16x16 and 32x32 PNG image data`.

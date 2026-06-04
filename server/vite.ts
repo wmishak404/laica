@@ -54,8 +54,15 @@ function replaceMetaName(template: string, name: string, content: string) {
 
 function applyPreviewOrigin(template: string, req: Request) {
   const origin = getRequestOrigin(req);
-  const pageUrl = `${origin}/`;
-  const imageUrl = `${origin}/og/laica-preview.png`;
+  const isProductionOrigin = origin === PRODUCTION_ORIGIN;
+  const requestUrl = req.originalUrl.startsWith("/") ? req.originalUrl : "/";
+  const requestSearch = requestUrl.includes("?")
+    ? requestUrl.slice(requestUrl.indexOf("?"))
+    : "";
+  const pageUrl = isProductionOrigin ? `${PRODUCTION_ORIGIN}/` : `${origin}${requestUrl}`;
+  const imageUrl = isProductionOrigin
+    ? `${PRODUCTION_ORIGIN}/og/laica-preview.png`
+    : `${origin}/og/laica-preview.png${requestSearch}`;
 
   let updatedTemplate = replaceMetaProperty(template, "og:url", pageUrl);
   updatedTemplate = replaceMetaProperty(updatedTemplate, "og:image", imageUrl);
