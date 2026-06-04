@@ -10,6 +10,8 @@
 
 This branch starts the next EFF-017 lane after the provider-boundary and guest quota-copy slices: a deterministic Google OAuth-start/config preflight. The new path uses Identity Toolkit's `accounts:createAuthUri` start step for `providerId: "google.com"` so CI or a scheduled/manual workflow can catch provider-disabled or unauthorized-domain drift without completing a real Google popup login.
 
+PR #132 merged as `26985d3a46a40857525a9ccb6992010d2c6c3b13`.
+
 The branch also records the remaining EFF-017 adjacencies as parallel-safe lanes rather than folding them into this PR.
 
 ## Changes
@@ -42,7 +44,7 @@ The branch also records the remaining EFF-017 adjacencies as parallel-safe lanes
 
 ## Security note
 
-The first pushed PR head `bf5ca12905909299e3ee37432a3d83d94caa8b43` triggered a GitHub Advanced Security CodeQL alert for clear-text logging of `OAUTH_PREFLIGHT_CONTINUE_URIS` through the generic validation-error path. The amended head removes raw continue URIs from validation errors and success/failure logs, labels checked URIs by ordinal instead, and adds unit assertions that raw continue URIs and API keys are not logged.
+The first pushed PR head `bf5ca12905909299e3ee37432a3d83d94caa8b43` triggered a GitHub Advanced Security CodeQL alert for clear-text logging of `OAUTH_PREFLIGHT_CONTINUE_URIS` through the generic validation-error path. The merged head `0ed15b4c1c3539616b7c5aa20381ba53f54a75b8` removes raw continue URIs from validation errors and success/failure logs, labels checked URIs by ordinal instead, adds unit assertions that raw continue URIs and API keys are not logged, and passed the GitHub Advanced Security CodeQL check.
 
 ## Verification
 
@@ -60,7 +62,12 @@ Automation is evidence for the stated preflight-script claim, not a conclusion a
 - `npm run build` passed, with the known Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 - `npm run test:unit` passed after the CodeQL remediation: 32 files, 211 tests.
 - `git diff --check` passed.
-- GitHub Actions: pending after PR opens.
+- GitHub Actions on PR head `0ed15b4c1c3539616b7c5aa20381ba53f54a75b8` passed:
+  - Dependency Audit (High/Critical), job `npm-audit`, run `26969668111`.
+  - Secret Scan (TruffleHog), job `trufflehog_pr`, run `26969668118`; `trufflehog_push` skipped because this was a PR event.
+  - CI (Typecheck, Unit, E2E), jobs `unit` and `e2e_guest_smoke`, run `26969668164`.
+  - CodeQL, jobs `Analyze (actions)` and `Analyze (javascript-typescript)`, run `26969665185`.
+  - GitHub Advanced Security `CodeQL` check run `79581419355` passed after the logging remediation.
 
 **Source provenance:**
 
@@ -71,9 +78,9 @@ Automation is evidence for the stated preflight-script claim, not a conclusion a
 
 **Observed result:**
 
-- Focused mocked unit coverage passed.
+- Focused mocked unit coverage passed, including no-raw-continue-URI/API-key logging assertions.
 - The direct local script path runs and skips cleanly without configured target domains.
-- Static/type/lint checks, production build, full unit suite, and whitespace checks passed.
+- Static/type/lint checks, production build, full unit suite, whitespace checks, dependency audit, TruffleHog PR scan, GitHub CI unit/e2e guest smoke, CodeQL analysis, and GitHub Advanced Security CodeQL passed.
 - Live Google OAuth-start behavior is not yet observed because no continue URI/API key pair was configured for this local run.
 
 **Reasoning:**
