@@ -21,6 +21,7 @@ Laica's public link preview now presents the product as an intentional early pre
   - Adds a 1200x630 RGB PNG for Open Graph consumers.
   - Uses only safe public/repo visual material: the canonical Laica logo and packaged kitchen/meal imagery from `attached_assets`.
   - Avoids the existing recipe-suggestions screenshot because it includes a personal avatar.
+  - Does not include an `Early preview` label in the thumbnail; that positioning remains in the description metadata only.
   - Uses the app's existing public-surface typography: `Fraunces` for display copy and `Nunito` for UI/body copy. The render step confirmed `Font status: Fraunces=true Nunito=true`.
 
 ## Impact on other agents
