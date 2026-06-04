@@ -56,7 +56,7 @@ The merged production-gates slice does not start the fuller Phase 4 promotion/li
 
 Target-runtime public enablement should keep App Check configured and enforced for the public domain, leave `ANONYMOUS_AUTH_DISABLED` unset only when guest access should be open, and ensure the `anonymous_recipe_usage` table is present before quota testing.
 
-As of 2026-06-03, `codex/anonymous-google-promotion` is the active Phase 4 promotion implementation branch. This slice keeps the product mental model that a guest is not holding a durable account: anonymous users see sign-up/save-progress CTAs instead of logout/account framing, and Google conversion preserves the same-browser Pantry, Kitchen, and Cooking Profile setup. It intentionally does not bulk-import completed anonymous cooks into durable History.
+As of 2026-06-03, `codex/anonymous-google-promotion` is the active Phase 4 promotion implementation branch. This slice keeps the product mental model that a guest is not holding a durable account: anonymous users see sign-up/save-progress CTAs for preservation plus a separate start-over escape hatch, and Google conversion preserves the same-browser Pantry, Kitchen, and Cooking Profile setup. It intentionally does not bulk-import completed anonymous cooks into durable History.
 
 ## Plan B Guest MVP Launch Path
 
@@ -277,4 +277,4 @@ The accepted near-term implementation direction is conversion-gated durability. 
 
 ### 2026-06-03 — Phase 4 promotion branch started
 
-`codex/anonymous-google-promotion` started the first Google promotion slice from the accepted conversion-gated decision. The branch changes guest copy from account/logout framing to sign-up/save-progress framing, adds a visible but non-blocking save-progress CTA, links an anonymous Firebase user to Google when possible, and asks before importing browser-local setup into an already existing Google account. The import scope remains Pantry, Kitchen, and Cooking Profile only; durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory stay linked-only and are not retro-filled from completed anonymous cooks.
+`codex/anonymous-google-promotion` started the first Google promotion slice from the accepted conversion-gated decision. The branch changes guest copy away from anonymous-account framing, adds visible but non-blocking save-progress CTAs, keeps a separate guest start-over action, links an anonymous Firebase user to Google when possible, and asks before importing browser-local setup into an already existing Google sign-in. The import scope remains Pantry, Kitchen, and Cooking Profile only; durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory stay linked-only and are not retro-filled from completed anonymous cooks.

@@ -272,7 +272,7 @@ describe('MobileApp planning choice pantry status', () => {
     expect(screen.getByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
     expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Your pantry is empty',
-      description: 'Add or scan pantry items in Settings for this browser.',
+      description: 'Add or scan pantry items in Settings.',
       variant: 'destructive',
     }));
 
@@ -290,7 +290,7 @@ describe('MobileApp planning choice pantry status', () => {
     await renderGuestPlanningChoice(makeProfile());
 
     const settingsButton = screen.getByRole('button', {
-      name: /settings this browser pantry, kitchen, and cooking profile/i,
+      name: /settings pantry, kitchen, and cooking profile/i,
     });
     const historyButton = screen.getByRole('button', {
       name: /history meals you cooked/i,
@@ -304,11 +304,12 @@ describe('MobileApp planning choice pantry status', () => {
     expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: hub; mode: session');
   });
 
-  it('shows guest sign-up as the account action instead of sign out', async () => {
+  it('shows guest sign-up separately from the start-over action', async () => {
     await renderGuestPlanningChoice(makeProfile());
 
     expect(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /sign up save your pantry and profile/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /start over clear this setup and return home/i })).toBeTruthy();
     expect(screen.queryByText('Guest session')).toBeNull();
     expect(screen.queryByText('Sign out')).toBeNull();
   });
@@ -352,7 +353,8 @@ describe('MobileApp planning choice pantry status', () => {
     fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
 
     expect(await screen.findByRole('heading', { name: /add this browser's setup/i })).toBeTruthy();
-    expect(screen.getByText(/without overwriting what is already saved/i)).toBeTruthy();
+    expect(screen.getByText(/that google sign-in already exists/i)).toBeTruthy();
+    expect(screen.getByText(/without overwriting saved details/i)).toBeTruthy();
     expect(mocks.updateProfile).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: /add setup/i }));
@@ -367,6 +369,21 @@ describe('MobileApp planning choice pantry status', () => {
     }));
     expect(mocks.apiRequest).toHaveBeenCalledWith('POST', '/api/auth/google');
     expect(mocks.apiRequest).toHaveBeenCalledWith('GET', '/api/user/profile');
+  });
+
+  it('treats a canceled Google popup as a cancel instead of a failed sign-up', async () => {
+    mocks.linkCurrentGuestWithGooglePopup.mockRejectedValueOnce({ code: 'auth/popup-closed-by-user' });
+
+    await renderGuestPlanningChoice(makeProfile());
+
+    fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
+
+    await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Sign-up canceled',
+      description: 'Nothing changed. Your pantry is still here when you are ready.',
+    })));
+    expect(mocks.updateProfile).not.toHaveBeenCalled();
+    expect(mocks.apiRequest).not.toHaveBeenCalledWith('POST', '/api/auth/google');
   });
 
   it('lets users with pantry items enter Chef It Up', async () => {

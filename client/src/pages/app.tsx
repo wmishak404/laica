@@ -166,6 +166,25 @@ interface PendingExistingGoogleImport {
   guestProfile: UserProfile;
 }
 
+type GuestPromotionStatus = 'idle' | 'opening' | 'waiting' | 'saving';
+
+function isPopupCancellationError(error: any) {
+  return error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request';
+}
+
+function getGuestPromotionLabel(status: GuestPromotionStatus) {
+  switch (status) {
+    case 'opening':
+      return 'Opening Google sign-in...';
+    case 'waiting':
+      return 'Waiting for Google...';
+    case 'saving':
+      return 'Saving progress...';
+    default:
+      return 'Keep your pantry and recipes for next time. Sign up when ready.';
+  }
+}
+
 // Chef emoji roster — man and woman cook at the default yellow tone
 // (race-neutral). A fresh one is picked each time the planning-choice
 // screen is shown so the card alternates representation.
@@ -214,7 +233,7 @@ export default function MobileApp() {
   const [showPlanningChoice, setShowPlanningChoice] = useState(true);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isPromotingGuest, setIsPromotingGuest] = useState(false);
+  const [guestPromotionStatus, setGuestPromotionStatus] = useState<GuestPromotionStatus>('idle');
   const [pendingExistingGoogleImport, setPendingExistingGoogleImport] = useState<PendingExistingGoogleImport | null>(null);
   const [slopItUpPlanningCopy] = useState(() => getRandomSlopItUpPlanningCopy());
   const planningStateScopeKey = useMemo(
@@ -233,6 +252,8 @@ export default function MobileApp() {
     [showPlanningChoice]
   );
   const hasExistingProfile = hasAnySavedProfileSignal(userProfile);
+  const isPromotingGuest = guestPromotionStatus !== 'idle';
+  const guestPromotionLabel = getGuestPromotionLabel(guestPromotionStatus);
   const pantryItemCount = userProfile.pantryIngredients.length;
   const hasPantryItems = pantryItemCount > 0;
   const planningPantryCountLabel = getPlanningPantryCountLabel(pantryItemCount);
@@ -408,11 +429,17 @@ export default function MobileApp() {
 
     const guestUserId = user.id;
     const guestProfile = userProfile;
+    let waitingTimer: number | undefined;
 
     try {
-      setIsPromotingGuest(true);
+      setGuestPromotionStatus('opening');
+      waitingTimer = window.setTimeout(() => {
+        setGuestPromotionStatus((currentStatus) => currentStatus === 'opening' ? 'waiting' : currentStatus);
+      }, 800);
+
       const { FirebaseAuthService } = await import('@/lib/firebase');
       await FirebaseAuthService.linkCurrentGuestWithGooglePopup();
+      setGuestPromotionStatus('saving');
       await finishGuestPromotion(guestProfile, guestUserId);
     } catch (error: any) {
       const { FirebaseAuthService } = await import('@/lib/firebase');
@@ -425,6 +452,15 @@ export default function MobileApp() {
         return;
       }
 
+      if (isPopupCancellationError(error)) {
+        toast({
+          title: 'Sign-up canceled',
+          description: 'Nothing changed. Your pantry is still here when you are ready.',
+          duration: 2500,
+        });
+        return;
+      }
+
       console.error('Guest sign-up failed:', error);
       toast({
         title: 'Sign-up did not work',
@@ -432,7 +468,10 @@ export default function MobileApp() {
         variant: 'destructive',
       });
     } finally {
-      setIsPromotingGuest(false);
+      if (waitingTimer !== undefined) {
+        window.clearTimeout(waitingTimer);
+      }
+      setGuestPromotionStatus('idle');
     }
   }, [finishGuestPromotion, isGuest, isPromotingGuest, toast, user?.id, userProfile]);
 
@@ -440,7 +479,7 @@ export default function MobileApp() {
     if (!pendingExistingGoogleImport || isPromotingGuest) return;
 
     try {
-      setIsPromotingGuest(true);
+      setGuestPromotionStatus('saving');
       const { FirebaseAuthService } = await import('@/lib/firebase');
       await FirebaseAuthService.signInWithGoogleCredential(pendingExistingGoogleImport.credential);
       await finishGuestPromotion(
@@ -456,7 +495,7 @@ export default function MobileApp() {
         variant: 'destructive',
       });
     } finally {
-      setIsPromotingGuest(false);
+      setGuestPromotionStatus('idle');
     }
   }, [finishGuestPromotion, isPromotingGuest, pendingExistingGoogleImport, toast]);
 
@@ -467,7 +506,7 @@ export default function MobileApp() {
     if (isGuest) {
       toast({
         title: "Your kitchen is ready",
-        description: "I'll remember this on this browser while you try Laica.",
+        description: "I'll remember this while you try Laica.",
         duration: 5000,
       });
     } else {
@@ -568,7 +607,7 @@ export default function MobileApp() {
       if (isGuest) {
         toast({
           title: "Your kitchen is ready",
-          description: "I'll remember this on this browser while you try Laica.",
+          description: "I'll remember this while you try Laica.",
           duration: 5000,
         });
       } else {
@@ -624,6 +663,15 @@ export default function MobileApp() {
     }
   };
 
+  const handleGuestStartOver = async () => {
+    if (isGuest && user?.id) {
+      clearGuestProfile(user.id);
+      window.localStorage.removeItem(planningTimeStorageKey);
+    }
+
+    await handleLogout();
+  };
+
   const openSettings = (section: SettingsSection = 'hub') => {
     setSettingsSection(section);
     setCurrentPhase('settings');
@@ -638,7 +686,7 @@ export default function MobileApp() {
   const showLinkedAccountToast = (surface: string) => {
     toast({
       title: 'Sign in or create an account to save your ingredients and profile',
-      description: `${surface} uses saved ingredients and profile. You can keep cooking from this browser with Chef It Up.`,
+      description: `${surface} uses saved ingredients and profile. You can keep cooking with Chef It Up.`,
       variant: 'destructive',
     });
   };
@@ -647,7 +695,7 @@ export default function MobileApp() {
     toast({
       title: 'Your pantry is empty',
       description: isGuest
-        ? 'Add or scan pantry items in Settings for this browser.'
+        ? 'Add or scan pantry items in Settings.'
         : EMPTY_PANTRY_RECIPE_COPY,
       action: (
         <ToastAction altText="Open Pantry Settings" onClick={() => openSettings('pantry')}>
@@ -711,7 +759,7 @@ export default function MobileApp() {
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-extrabold">Settings</span>
                 <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
-                  {isGuest ? 'This browser pantry, kitchen, and cooking profile' : 'Pantry, kitchen, and cooking profile'}
+                  Pantry, kitchen, and cooking profile
                 </span>
               </span>
             </button>
@@ -750,27 +798,60 @@ export default function MobileApp() {
               </span>
             </button>
 
-            <button
-              type="button"
-              className="menu-destination"
-              disabled={isPromotingGuest}
-              onClick={isGuest ? handleGuestSignUp : handleLogout}
-            >
-              <span className="menu-destination-icon">
-                {isGuest ? <UserPlus className="h-5 w-5" /> : <UserCircle className="h-5 w-5" />}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-extrabold">{isGuest ? 'Sign up' : 'Account'}</span>
-                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
-                  {isGuest ? 'Save your pantry and profile' : 'Sign out'}
+            {isGuest ? (
+              <>
+                <button
+                  type="button"
+                  className="menu-destination"
+                  disabled={isPromotingGuest}
+                  onClick={handleGuestSignUp}
+                >
+                  <span className="menu-destination-icon">
+                    <UserPlus className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-extrabold">Sign up</span>
+                    <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
+                      {isPromotingGuest ? guestPromotionLabel : 'Save your pantry and profile'}
+                    </span>
+                  </span>
+                  <UserPlus className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
+                </button>
+
+                <button
+                  type="button"
+                  className="menu-destination"
+                  disabled={isPromotingGuest}
+                  onClick={handleGuestStartOver}
+                >
+                  <span className="menu-destination-icon">
+                    <LogOut className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-extrabold">Start over</span>
+                    <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
+                      Clear this setup and return home
+                    </span>
+                  </span>
+                  <LogOut className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="menu-destination"
+                onClick={handleLogout}
+              >
+                <span className="menu-destination-icon">
+                  <UserCircle className="h-5 w-5" />
                 </span>
-              </span>
-              {isGuest ? (
-                <UserPlus className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
-              ) : (
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-extrabold">Account</span>
+                  <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Sign out</span>
+                </span>
                 <LogOut className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
-              )}
-            </button>
+              </button>
+            )}
           </div>
         </DrawerContent>
       </Drawer>
@@ -819,7 +900,7 @@ export default function MobileApp() {
               disabled={isPromotingGuest}
             >
               <UserPlus className="h-4 w-4 shrink-0 text-primary" />
-              <span>{isPromotingGuest ? 'Saving progress...' : 'Keep your pantry and recipes for next time. Sign up when ready.'}</span>
+              <span>{guestPromotionLabel}</span>
             </button>
           )}
         </div>
@@ -905,7 +986,7 @@ export default function MobileApp() {
               className="app-bottom-button"
               disabled={isPromotingGuest}
               aria-label="Save progress"
-              title="Save progress"
+              title={isPromotingGuest ? guestPromotionLabel : 'Save progress'}
             >
               <UserPlus className="h-6 w-6" aria-hidden="true" />
             </Button>
@@ -1055,8 +1136,8 @@ export default function MobileApp() {
           <AlertDialogHeader>
             <AlertDialogTitle>Add this browser's setup?</AlertDialogTitle>
             <AlertDialogDescription>
-              That Google account already has a Laica kitchen. Sign in and add this browser&apos;s pantry,
-              tools, and cooking profile without overwriting what is already saved.
+              That Google sign-in already exists. Sign in and add this browser&apos;s pantry, tools,
+              and cooking profile without overwriting saved details.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
