@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { type Express, type Request } from "express";
 import fs from "fs";
 import path from "path";
 import { createServer as createViteServer, createLogger } from "vite";
@@ -9,6 +9,7 @@ import { appRequestLimit } from "./rate-limit";
 import { getViteAllowedHosts } from "./vite-hosts";
 
 const viteLogger = createLogger();
+const PRODUCTION_ORIGIN = "https://cookwithlaica.com";
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -19,6 +20,48 @@ export function log(message: string, source = "express") {
   });
 
   console.log(`${formattedTime} [${source}] ${message}`);
+}
+
+function getRequestOrigin(req: Request) {
+  const host = req.get("host");
+  if (!host) {
+    return PRODUCTION_ORIGIN;
+  }
+
+  const hostname = host.split(":")[0]?.toLowerCase();
+  if (hostname === "cookwithlaica.com" || hostname === "www.cookwithlaica.com") {
+    return PRODUCTION_ORIGIN;
+  }
+
+  const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const protocol = forwardedProto || req.protocol || "http";
+  return `${protocol}://${host}`;
+}
+
+function replaceMetaProperty(template: string, property: string, content: string) {
+  return template.replace(
+    new RegExp(`(<meta\\s+property="${property}"\\s+content=")[^"]*(")`, "g"),
+    `$1${content}$2`,
+  );
+}
+
+function replaceMetaName(template: string, name: string, content: string) {
+  return template.replace(
+    new RegExp(`(<meta\\s+name="${name}"\\s+content=")[^"]*(")`, "g"),
+    `$1${content}$2`,
+  );
+}
+
+function applyPreviewOrigin(template: string, req: Request) {
+  const origin = getRequestOrigin(req);
+  const pageUrl = `${origin}/`;
+  const imageUrl = `${origin}/og/laica-preview.png`;
+
+  let updatedTemplate = replaceMetaProperty(template, "og:url", pageUrl);
+  updatedTemplate = replaceMetaProperty(updatedTemplate, "og:image", imageUrl);
+  updatedTemplate = replaceMetaProperty(updatedTemplate, "og:image:secure_url", imageUrl);
+  updatedTemplate = replaceMetaName(updatedTemplate, "twitter:image", imageUrl);
+  return updatedTemplate;
 }
 
 export async function setupVite(app: Express, server: Server) {
@@ -61,6 +104,7 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
+      template = applyPreviewOrigin(template, req);
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {

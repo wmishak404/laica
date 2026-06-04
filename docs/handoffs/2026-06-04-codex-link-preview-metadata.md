@@ -23,6 +23,9 @@ The favicon/PWA icon family now uses the spatula mark from the `i` in the canoni
 - `client/src/main.tsx`
   - Aligns the runtime browser title and meta description with the static app-shell metadata.
   - Updates the existing static description tag instead of appending a second conflicting description tag after React starts.
+- `server/vite.ts`
+  - Rewrites `og:url`, `og:image`, `og:image:secure_url`, and `twitter:image` to the current request origin in development.
+  - Keeps production/custom-domain requests canonicalized to `https://cookwithlaica.com`, while allowing Replit dev links to point preview crawlers at the Replit-served PNG before production deploy.
 - `client/public/og/laica-preview.png`
   - Adds a 1200x630 RGB PNG for Open Graph consumers.
   - Uses only safe public/repo visual material: the canonical Laica logo and packaged kitchen/meal imagery from `attached_assets`.
@@ -49,7 +52,7 @@ The favicon/PWA icon family now uses the spatula mark from the `i` in the canoni
 ## Open items
 
 - After merge and deployment, verify cache behavior in LinkedIn Post Inspector.
-- After merge and deployment, verify WhatsApp and iMessage previews, using a cache-busting URL if either client shows a stale preview. Pre-merge Replit URLs can show the metadata text but are not a reliable proof of the OG thumbnail while `og:image` points to the production `cookwithlaica.com` asset that has not deployed yet.
+- After merge and deployment, verify WhatsApp and iMessage previews, using a cache-busting URL if either client shows a stale preview. Replit dev URLs now rewrite `og:image` to the Replit origin, but LinkedIn/WhatsApp may still apply their own cache or crawler policy; production remains the final source of truth.
 - Replit validation is not required for this static metadata/image-only change.
 
 ## Verification
@@ -63,6 +66,9 @@ Automation is evidence for the static metadata/image/icon claim, not proof that 
 - Built HTML inspection passed:
   - `dist/public/index.html` contains `og:image` and `twitter:image` with `https://cookwithlaica.com/og/laica-preview.png`.
   - `dist/public/index.html` contains the requested title and description.
+- Development preview-origin smoke passed:
+  - `PORT=3000 LAICA_DEV_ALLOWED_HOSTS=preview.example.test npx @dotenvx/dotenvx run -- npm run dev` served the app.
+  - `curl -H 'Host: preview.example.test' -H 'X-Forwarded-Proto: https' http://127.0.0.1:3000/` returned `og:url`, `og:image`, `og:image:secure_url`, and `twitter:image` with the `https://preview.example.test` origin.
 - Built asset inspection passed:
   - `dist/public/og/laica-preview.png: PNG image data, 1200 x 630, 8-bit/color RGB, non-interlaced`.
   - `client/public/favicon.ico: MS Windows icon resource - 2 icons, 16x16 and 32x32 PNG image data`.
