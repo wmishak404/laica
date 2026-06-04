@@ -373,16 +373,18 @@ Current branch signal:
 
 This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this forced-response proof.
 
-## 2026-06-04 — OAuth-start preflight branch started
+## 2026-06-04 — PR #132 merged OAuth-start preflight lane
 
-Branch `codex/eff-017-oauth-start-preflight` started from fresh `origin/main` at `040df3912d6b8f1463ff48f8bc5fc97c9e76b493` after the guest quota-copy closeout merged. This branch implements the next near-term lane from the PR #126 retro: prove Google OAuth can start for configured production/Replit continue URIs without automating full Google sign-in.
+PR #132 (`codex/eff-017-oauth-start-preflight`) merged as `26985d3a46a40857525a9ccb6992010d2c6c3b13` after starting from fresh `origin/main` at `040df3912d6b8f1463ff48f8bc5fc97c9e76b493`. This implements the next near-term lane from the PR #126 retro: prove Google OAuth can start for configured production/Replit continue URIs without automating full Google sign-in.
 
-Current branch signal:
+Merged signal:
 
 - Adds `scripts/oauth-start-preflight.ts`, which calls Identity Toolkit `accounts:createAuthUri` with `providerId: "google.com"` for each configured HTTPS continue URI and verifies that the response contains a Google authorization URI.
-- Adds `npm run check:oauth` plus mocked unit coverage for skip/fail behavior, continue-URI validation, request payload shape, successful provider response shape, and sanitized provider error reporting.
+- Adds `npm run check:oauth` plus mocked unit coverage for skip/fail behavior, continue-URI validation, request payload shape, successful provider response shape, sanitized provider error reporting, and no raw continue-URI/API-key logging.
 - Adds a separate `OAuth Start Preflight` GitHub Actions workflow with `workflow_dispatch` and a scheduled run. It is intentionally separate from the routine PR CI gate and only runs the live preflight when `OAUTH_PREFLIGHT_CONTINUE_URIS` is supplied by manual input or repo variable and `VITE_FIREBASE_API_KEY` is available as a secret.
 - Extends `.env.example` with the OAuth preflight env contract.
+- GitHub checks passed on PR head `0ed15b4c1c3539616b7c5aa20381ba53f54a75b8`: Dependency Audit (`npm-audit`), TruffleHog PR scan, CI `unit`, CI `e2e_guest_smoke`, CodeQL `Analyze (actions)`, CodeQL `Analyze (javascript-typescript)`, and GitHub Advanced Security `CodeQL`.
+- The first pushed PR head triggered GitHub Advanced Security alert #26 for clear-text logging of `OAUTH_PREFLIGHT_CONTINUE_URIS`; the merged head sanitized validation and success/failure logs, added regression assertions that raw continue URIs/API keys are not logged, and passed the CodeQL check.
 
 Parallel-safe next lanes:
 
