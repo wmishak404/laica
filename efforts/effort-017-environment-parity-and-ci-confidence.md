@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-02
+**Updated:** 2026-06-04
 
 ## One-line summary
 
@@ -318,3 +318,28 @@ Current EFF-017 implication:
 - Replit remains primary for deployment-bound runtime validation until a separate ADR/PD changes validation authority. GitHub Actions is currently the reliable automated Playwright runner; Replit-shell Playwright should only become a dependency if the workspace's Chromium system dependencies are deliberately configured through Replit System Dependencies/Nix.
 
 Still unvalidated by this slice: live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit Playwright browser behavior in the current workspace, and exhaustive corner cases.
+
+## 2026-06-04 — Anonymous promotion CI retro: assign every gap to a lane
+
+PR #126 (`codex/anonymous-google-promotion`) merged after the routine GitHub Actions gate passed: Dependency Audit, Secret Scan, typecheck/build/unit, and the guest E2E smoke on a disposable schema-only Neon branch. The same PR also needed Replit/manual evidence for Google promotion behavior, because the current CI lane intentionally avoids real Google OAuth and live provider identity.
+
+The retro lesson is not "make CI cover everything." The stronger rule is: every important uncovered behavior should belong to a named validation lane with a clear reason and future automation path. Default PR CI should stay deterministic, provider-light, and privacy-forward; Replit/manual validation should shrink to the places where real environment, provider, identity, or human judgment still matters.
+
+Useful lane assignments from PR #126:
+
+| Gap | Preferred lane |
+|---|---|
+| Full Google popup/linking and existing-Google credential import | Replit human validation for now; do not make routine PR CI depend on real Google credentials or popup completion |
+| Firebase/OAuth authorized-domain drift | Automated production-domain OAuth-start preflight, not full login completion |
+| Existing-Google consent and merge policy | Unit/component coverage using mocked `credential-already-in-use` errors and local merge assertions |
+| Guest recipe `#11` exact toast copy | Cheap Playwright forced-403 test that stubs `/api/recipes/pantry` with `LINKED_ACCOUNT_REQUIRED`; do not spend 10 real generations to reach the boundary |
+| Replit/Firebase real runtime behavior | Targeted Replit validation when auth/provider/deployment behavior changes, until a later ADR/PD changes validation authority |
+| Live OpenAI, Vision, and ElevenLabs quality | Separate live-provider canary or manual release smoke; keep the default PR gate provider-light |
+| History non-import after conversion | Unit/route assertions for anonymous durable-write boundaries plus Replit/manual conversion validation until a deterministic linked dev-auth lane exists |
+
+Near-term EFF-017 follow-ups from this retro:
+
+1. Add a guest quota-copy Playwright test that forces the `403 LINKED_ACCOUNT_REQUIRED` response and asserts `Sign up before making more recipes.`
+2. Add an OAuth-domain/config preflight that proves Google OAuth can start for the accepted production/Replit domain without completing real sign-in.
+3. Design a deterministic linked-account dev-auth lane so CI can cover linked-user flows without relying on Google popup automation.
+4. Keep live-provider canaries separate from default PR CI and record their evidence with the automation evidence report format.

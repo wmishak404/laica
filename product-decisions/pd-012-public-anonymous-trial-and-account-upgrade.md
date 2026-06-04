@@ -45,7 +45,7 @@ PR #102 shipped the public pre-auth homepage and Firebase anonymous guest entry.
 
 The implemented v1 gate now includes server-backed anonymous quota accounting, typed `LINKED_ACCOUNT_REQUIRED` boundaries, provider-failure quota refunds, an anonymous kill switch, IP-keyed anonymous rate limits, App Check token attachment/enforcement, session-local guest Pantry/Kitchen/Profile Settings, and auth-scoped browser/query caches so guest or prior-account state does not leak into later linked accounts.
 
-The decision remains active because Phase 4 promotion/linking and Phase 5 returning-user memory work are still future scope, and the 10-generation cap should be revisited after real usage, abuse/cost, and recipe-quality evidence.
+The decision remains active because PR #126 merged only the first Phase 4 promotion/linking slice, Phase 5 returning-user memory work is still future scope, and the 10-generation cap should be revisited after real usage, abuse/cost, and recipe-quality evidence.
 
 ### 2026-06-03 conversion-history clarification
 
@@ -62,6 +62,10 @@ Wilson validated the first Google promotion slice in Replit and accepted the pro
 - the single menu-header cue `Saved on this browser` is enough for this slice
 - the Google-import consent dialog should stay neutral and user-friendly; it should not say the Google account already exists in Laica or already has a Laica kitchen
 - after successful linking, the planning header should confirm `Account successfully connected and signed in. Your kitchen is saved.` and keep that confirmation visible until the user moves to the next page/flow
+
+### 2026-06-04 Phase 4 first promotion slice merged
+
+PR #126 merged the first Google promotion slice as `8282d5193f6eeef50eeecdff9f91bd029bbcd561`. The merged implementation preserves Pantry, Kitchen, Cooking Profile, and favorite chefs through Google conversion, asks before importing browser-local setup into an existing Google credential path, keeps Sign up separate from Start over, and leaves completed guest cooks out of durable History. GitHub Actions passed Dependency Audit, Secret Scan, typecheck/build/unit, and guest E2E smoke at PR head `f2eb44d`; Wilson's Replit validation reached runtime code head `2a4ae75`.
 
 ## Decision
 
@@ -214,12 +218,13 @@ Future validation of the first anonymous-to-Google promotion slice should prove:
 - Phase 1 auth assumptions from [INIT-001](../initiatives/INIT-001-mobile-refresh.md) become historical baseline, not the final public-entry policy.
 - Phase 5 implementation must respect the linked-only durable-memory boundary from day one.
 - Runtime implementation now has the core production gates from PR #107: provider-aware auth session metadata, anonymous-safe quota accounting, local guest-state namespacing, typed linked-account-required responses for durable-write routes, App Check posture, and anonymous kill switch/rate-limit controls.
+- Runtime implementation now has the first Google promotion slice from PR #126: guest setup preservation through Google conversion, neutral consent before importing into an existing Google credential path, separate Sign up and Start over actions, and no automatic completed-cook History import.
 - Public runtime configuration still matters. App Check must stay registered for the target public domain, `VITE_FIREBASE_APP_CHECK_SITE_KEY` must be present client-side, `FIREBASE_APP_CHECK_ENFORCED=true` must be set when anonymous public access is enabled, and `anonymous_recipe_usage` must exist in the target database.
 
 ## Open follow-ups
 
 - Keep target-runtime App Check configured/enforced for public anonymous access and revalidate if the public domain, Firebase App Check app, or Replit/deployment secret setup changes.
-- Implement the fuller Phase 4 Google promotion/link/import flow when that phase starts.
+- Keep future promotion expansion explicit and user-consented, especially any current-cook or selected-cook History import after Google linking.
 - Keep Phase 5 durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary. Do not add automatic bulk guest-History import as part of the first Google promotion slice.
 - File separate analytics work for guest-to-link and returning-user measurement rather than expanding this PD into a measurement plan.
 - Re-evaluate the 10-generation cap after real usage evidence, cost signals, early-generation quality evidence, and Phase 5 returning-user data exist.

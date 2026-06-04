@@ -1,9 +1,9 @@
 # EFF-024 - Guest privacy trust messaging
 
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-06-03
+**Updated:** 2026-06-04
 
 ## One-line summary
 
@@ -82,6 +82,12 @@ Wilson recognized that browser-local guest Pantry/Kitchen/Profile settings can b
 
 ## 2026-06-03 - First restrained browser-local copy pass in account promotion
 
-`codex/anonymous-google-promotion` adds a narrow copy pass that supports the Effort without resolving it: the menu header carries the single "Saved on this browser" cue, while Settings menu/screen/toast copy stays concise (`Pantry, kitchen, and cooking profile`) after Wilson's Replit review found repeated "this browser" language too forward. The branch also adds sign-up/save-progress CTAs around preserving setup work and a separate Start over action for guests who want to abandon the trial setup. It does not claim provider requests stay local, does not add public privacy-policy language, and still needs Replit/mobile visual validation before this Effort can be resolved.
+`codex/anonymous-google-promotion` added a narrow copy pass that supported the Effort before merge: the menu header carries the single "Saved on this browser" cue, while Settings menu/screen/toast copy stays concise (`Pantry, kitchen, and cooking profile`) after Wilson's Replit review found repeated "this browser" language too forward. The branch also added sign-up/save-progress CTAs around preserving setup work and a separate Start over action for guests who want to abandon the trial setup. It does not claim provider requests stay local and does not add public privacy-policy language.
 
 Wilson's Replit follow-up accepted the restrained wording at runtime head `e2231be`: the menu-level `Saved on this browser` cue plus concise Settings copy felt better than repeating browser-local language throughout the app. Keep this signal for merge closeout; do not resolve the Effort before the branch merges and final validation is refreshed on the branch head.
+
+## 2026-06-04 - Resolved by PR #126 merge
+
+PR #126 merged as `8282d5193f6eeef50eeecdff9f91bd029bbcd561` and resolves this Effort. The chosen surface is the guest menu header, where `Your kitchen · Saved on this browser` provides one restrained browser-local cue without repeating privacy language throughout Settings. Settings menu/screen/toast copy stays concise, and sign-up prompts focus on preserving pantry/profile work rather than implying the guest has a durable account.
+
+Wilson Replit-validated the copy direction through runtime code head `2a4ae75`: the menu-level browser-local cue plus concise Settings copy felt better and did not add friction. Local tests cover the guest menu/settings rendering and copy expectations in the PR's focused suites. Future privacy/legal language, analytics, or broader public-landing messaging should use PD-012 or a new scoped follow-up rather than reopening this Effort.
