@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { registerAdminRoutes } from "./admin-routes";
 import { storage, type AnonymousRecipeQuota, type AnonymousRecipeQuotaReservation } from "./storage";
 import { getFirebaseUserFromRequest, verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
+import { handleLinkedDevAuthTokenRequest } from "./devAuth";
 import { getRecipeSuggestions, getCookingSteps, getGroceryList, getIngredientAlternatives, getCookingAssistance, analyzeIngredientImage, getSlopBowlRecipe } from "./openai";
 import { synthesizeSpeech, getAvailableVoices, COOKING_VOICES } from "./elevenlabs";
 import {
@@ -299,6 +300,8 @@ async function getRecentCookingSessionsOrEmpty(userId: string, limit: number, co
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', apiRequestLimit);
+
+  app.post('/api/dev/auth/linked-token', handleLinkedDevAuthTokenRequest);
 
   // Firebase authentication routes
   app.get('/api/auth/session', verifyFirebaseToken, privateResponseHeaders, async (req: any, res) => {

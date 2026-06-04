@@ -61,9 +61,12 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          LAICA_DEV_AUTH_ENABLED: "true"
+          LAICA_DEV_AUTH_SECRET: gha-${{ github.run_id }}-${{ github.run_attempt }}
+          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci
         run: |
           missing=()
-          for var in NEON_API_KEY FIREBASE_SERVICE_ACCOUNT_BASE64 VITE_FIREBASE_API_KEY VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_APP_ID ELEVENLABS_API_KEY; do
+          for var in NEON_API_KEY FIREBASE_SERVICE_ACCOUNT_BASE64 VITE_FIREBASE_API_KEY VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_APP_ID ELEVENLABS_API_KEY LAICA_DEV_AUTH_ENABLED LAICA_DEV_AUTH_SECRET LAICA_DEV_AUTH_ALLOWED_USERS; do
             if [ -z "${!var:-}" ]; then
               missing+=("$var")
             fi
@@ -100,7 +103,7 @@ jobs:
       - name: Install Playwright Browsers (Chromium)
         run: npx playwright install --with-deps chromium
 
-      - name: E2E (guest smoke)
+      - name: E2E (guest + linked dev-auth smoke)
         env:
           DATABASE_URL: ${{ steps.neon.outputs.db_url }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
@@ -108,6 +111,9 @@ jobs:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          LAICA_DEV_AUTH_ENABLED: "true"
+          LAICA_DEV_AUTH_SECRET: gha-${{ github.run_id }}-${{ github.run_attempt }}
+          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci
         run: npm run test:e2e
 
       - name: Delete Neon Branch

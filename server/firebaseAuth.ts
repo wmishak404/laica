@@ -97,6 +97,10 @@ function getAdminAppCheck() {
   return getAppCheck(getAdminApp());
 }
 
+export async function createFirebaseCustomToken(uid: string, developerClaims?: Record<string, unknown>): Promise<string> {
+  return getAdminAuth().createCustomToken(uid, developerClaims);
+}
+
 function firebaseUserFromDecodedToken(decodedToken: DecodedIdToken): FirebaseUser {
   const authProvider = decodedToken.firebase?.sign_in_provider || null;
 

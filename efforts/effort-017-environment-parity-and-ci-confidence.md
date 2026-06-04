@@ -394,3 +394,19 @@ Parallel-safe next lanes:
 - UI/accessibility guardrails are parallel-safe conceptually, but should avoid editing the same Playwright helper surfaces if another EFF-017 browser-smoke branch is active.
 
 This does not change the Replit-primary validation policy. It does not complete a Google login, link an account, prove Firebase Console domain state until the repo variable/secret are configured and the workflow runs, prove provider/audio/model quality, or validate Replit deployment behavior.
+
+## 2026-06-04 — Linked dev-auth CI lane branch
+
+Branch `codex/eff-017-linked-dev-auth` started from fresh `origin/main` at `559a7c10e483b2b77dd9766bf7db7286c3ce75b9` for the deterministic linked-account dev-auth lane from the PR #126 retro.
+
+Current branch signal:
+
+- Adds `/api/dev/auth/linked-token`, a dev-only endpoint that mints Firebase custom tokens for allowlisted `dev-test-*` users only when `LAICA_DEV_AUTH_ENABLED` is set, the runtime is non-production, `REPLIT_DEPLOYMENT` is not enabled, and the guarded `X-Laica-Dev-Auth` header matches `LAICA_DEV_AUTH_SECRET`.
+- Seeds the deterministic linked test user through `storage.upsertUser` and returns a Firebase custom token with private no-store headers; it does not add a backend auth-bypass header to protected routes.
+- Adds unit coverage for disabled, production/Replit deployment, missing secret header, malformed UID/email, unallowlisted UID, and successful seed/token behavior.
+- Adds a Playwright API smoke that mints a custom token, exchanges it through Firebase Identity Toolkit, and calls `/api/auth/session` plus `/api/auth/user` with the resulting Firebase ID token.
+- Extends the existing conditional GitHub E2E job to opt into `LAICA_DEV_AUTH_*` only inside the provider-light Neon/Firebase smoke lane; routine unit/typecheck/build CI and paid provider boundaries remain unchanged.
+
+Local evidence on the branch: focused Vitest for the new route/helper passed, full `npm run test:unit` passed, `npm run check` passed, `npm run build` passed, `git diff --check` passed, and Playwright test discovery found the new Chromium smoke. Local service-backed Playwright execution remains deferred to GitHub Actions because the meaningful run needs the existing disposable Neon branch plus Firebase service-account/API-key environment.
+
+This does not change the Replit-primary validation policy. It does not complete Google popup sign-in, prove anonymous-to-Google linking UX, prove production authorized-domain state, validate live OpenAI quality, validate ElevenLabs audio quality, validate Replit deployment behavior, or replace Replit/human validation for third-party identity UI and full linked-account promotion flows.
