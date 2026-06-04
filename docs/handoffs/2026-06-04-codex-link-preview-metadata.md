@@ -16,9 +16,13 @@ The favicon/PWA icon family now uses the spatula mark from the `i` in the canoni
 
 - `client/index.html`
   - Updates `<title>` and standard meta description.
-  - Adds `og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `og:image:width`, `og:image:height`, and `og:image:alt`.
+  - Adds `og:type`, `og:url`, `og:title`, `og:description`, `og:image`, `og:image:secure_url`, `og:image:type`, `og:image:width`, `og:image:height`, and `og:image:alt`.
   - Adds Twitter `summary_large_image` tags for title, description, image, and image alt text.
   - Uses the absolute image URL `https://cookwithlaica.com/og/laica-preview.png`.
+  - Uses cache-busted favicon and manifest URLs so browsers are less likely to retain the previous tab icon.
+- `client/src/main.tsx`
+  - Aligns the runtime browser title and meta description with the static app-shell metadata.
+  - Updates the existing static description tag instead of appending a second conflicting description tag after React starts.
 - `client/public/og/laica-preview.png`
   - Adds a 1200x630 RGB PNG for Open Graph consumers.
   - Uses only safe public/repo visual material: the canonical Laica logo and packaged kitchen/meal imagery from `attached_assets`.
@@ -27,6 +31,11 @@ The favicon/PWA icon family now uses the spatula mark from the `i` in the canoni
   - Uses the app's existing public-surface typography: `Fraunces` for display copy and `Nunito` for UI/body copy. The render step confirmed `Font status: Fraunces=true Nunito=true`.
 - `client/public/icon-192x192.png`, `client/public/icon-512x512.png`
   - Replace the dark neon-whisk app icons with square icons based on the spatula mark from the canonical Laica wordmark `i`.
+- `client/public/favicon.ico`, `client/public/favicon-16x16.png`, `client/public/favicon-32x32.png`, `client/public/apple-touch-icon.png`
+  - Add conventional browser and touch-icon sizes derived from the same spatula mark so Chrome and other consumers do not have to infer a tab favicon from PWA-sized icons.
+- `client/public/manifest.json`
+  - Aligns the public manifest name/description with the app-shell metadata instead of the older generic AI assistant label.
+  - Adds 16px/32px manifest icons and cache-busts the icon source URLs.
 - `design_guidelines.md`
   - Records the durable favicon/app-icon rule: use the wordmark `i` spatula mark and do not substitute unrelated cooking-tool or chef-hat marks without a future accepted brand decision.
 
@@ -40,7 +49,7 @@ The favicon/PWA icon family now uses the spatula mark from the `i` in the canoni
 ## Open items
 
 - After merge and deployment, verify cache behavior in LinkedIn Post Inspector.
-- After merge and deployment, verify WhatsApp and iMessage previews, using a cache-busting URL if either client shows a stale preview.
+- After merge and deployment, verify WhatsApp and iMessage previews, using a cache-busting URL if either client shows a stale preview. Pre-merge Replit URLs can show the metadata text but are not a reliable proof of the OG thumbnail while `og:image` points to the production `cookwithlaica.com` asset that has not deployed yet.
 - Replit validation is not required for this static metadata/image-only change.
 
 ## Verification
@@ -56,6 +65,10 @@ Automation is evidence for the static metadata/image/icon claim, not proof that 
   - `dist/public/index.html` contains the requested title and description.
 - Built asset inspection passed:
   - `dist/public/og/laica-preview.png: PNG image data, 1200 x 630, 8-bit/color RGB, non-interlaced`.
+  - `client/public/favicon.ico: MS Windows icon resource - 2 icons, 16x16 and 32x32 PNG image data`.
+  - `client/public/favicon-16x16.png: PNG image data, 16 x 16, 8-bit/color RGBA, non-interlaced`.
+  - `client/public/favicon-32x32.png: PNG image data, 32 x 32, 8-bit/color RGBA, non-interlaced`.
+  - `client/public/apple-touch-icon.png: PNG image data, 180 x 180, 8-bit/color RGBA, non-interlaced`.
   - `client/public/icon-192x192.png: PNG image data, 192 x 192, 8-bit/color RGBA, non-interlaced`.
   - `client/public/icon-512x512.png: PNG image data, 512 x 512, 8-bit/color RGBA, non-interlaced`.
 - Local dev smoke passed after sandbox escalation:
