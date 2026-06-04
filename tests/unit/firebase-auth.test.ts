@@ -7,6 +7,7 @@ const firebaseAdminMocks = vi.hoisted(() => ({
   getApps: vi.fn(() => []),
   initializeApp: vi.fn(),
   verifyIdToken: vi.fn(),
+  createCustomToken: vi.fn(),
   verifyAppCheckToken: vi.fn(),
 }));
 
@@ -20,6 +21,7 @@ vi.mock("firebase-admin/app", () => ({
 vi.mock("firebase-admin/auth", () => ({
   getAuth: vi.fn(() => ({
     verifyIdToken: firebaseAdminMocks.verifyIdToken,
+    createCustomToken: firebaseAdminMocks.createCustomToken,
   })),
 }));
 
@@ -203,5 +205,18 @@ describe("verifyFirebaseToken", () => {
       message: "Guest cooking is temporarily unavailable. Continue with Google to keep cooking.",
     });
     expect(next).not.toHaveBeenCalled();
+  });
+
+  it("delegates custom token creation to Firebase Admin", async () => {
+    firebaseAdminMocks.createCustomToken.mockResolvedValueOnce("custom-token");
+    const { createFirebaseCustomToken } = await import("../../server/firebaseAuth");
+
+    await expect(
+      createFirebaseCustomToken("dev-test-linked-ci", { laicaDevAuth: true }),
+    ).resolves.toBe("custom-token");
+
+    expect(firebaseAdminMocks.createCustomToken).toHaveBeenCalledWith("dev-test-linked-ci", {
+      laicaDevAuth: true,
+    });
   });
 });

@@ -1,6 +1,6 @@
 # Mobile Refresh Dev-Test Harness
 
-**Status:** Planned
+**Status:** Partially Implemented
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-04-29
@@ -75,6 +75,16 @@ When implemented in a separate branch, the harness should include:
 - seed/reset support for fresh, incomplete, and complete profile states
 - smoke coverage for authenticated routing, setup, settings, Chef It Up progressive staples, Slop Bowl quick-add, and protected API access
 - a separate explicit live-service smoke path for camera/vision, recipe generation, speech, and persistence
+
+## 2026-06-04 — First Linked Dev-Auth Lane
+
+EFF-017 branch `codex/eff-017-linked-dev-auth` implements the first narrow slice of this harness:
+
+- Adds a dev-only `/api/dev/auth/linked-token` endpoint that mints Firebase custom tokens only when the runtime is non-production, not a Replit deployment, `LAICA_DEV_AUTH_ENABLED` is set, the guarded `X-Laica-Dev-Auth` header matches `LAICA_DEV_AUTH_SECRET`, and the requested UID is an allowlisted `dev-test-*` user.
+- Seeds the deterministic linked test user through the normal storage layer, then returns the Firebase custom token with private no-store response headers.
+- Adds Playwright API smoke coverage that exchanges the custom token through Firebase Identity Toolkit and calls linked-only app routes with the resulting Firebase ID token.
+
+This is not a backend auth bypass and does not complete Google popup sign-in or anonymous-to-Google linking. The remaining harness work is still browser-level `signInWithCustomToken` tooling, deterministic seed/reset states, and broader linked-user flow coverage for setup, Settings, Chef It Up, Slop Bowl, and protected API access.
 
 ## Effort Interactions
 
