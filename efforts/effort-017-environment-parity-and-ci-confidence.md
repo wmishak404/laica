@@ -397,9 +397,9 @@ This does not change the Replit-primary validation policy. It does not complete 
 
 ## 2026-06-04 — Linked dev-auth CI lane branch
 
-Branch `codex/eff-017-linked-dev-auth` started from fresh `origin/main` at `559a7c10e483b2b77dd9766bf7db7286c3ce75b9` for the deterministic linked-account dev-auth lane from the PR #126 retro.
+Branch `codex/eff-017-linked-dev-auth` started from fresh `origin/main` at `559a7c10e483b2b77dd9766bf7db7286c3ce75b9` for the deterministic linked-account dev-auth lane from the PR #126 retro. PR #135 merged as `545c00fa2dc695b9f0cadb6eb15d952c661fd2f4`.
 
-Current branch signal:
+Merged signal:
 
 - Adds `/api/dev/auth/linked-token`, a dev-only endpoint that mints Firebase custom tokens for allowlisted `dev-test-*` users only when `LAICA_DEV_AUTH_ENABLED` is set, the runtime is non-production, `REPLIT_DEPLOYMENT` is not enabled, and the guarded `X-Laica-Dev-Auth` header matches `LAICA_DEV_AUTH_SECRET`.
 - Seeds the deterministic linked test user through `storage.upsertUser` and returns a Firebase custom token with private no-store headers; it does not add a backend auth-bypass header to protected routes.
@@ -407,6 +407,6 @@ Current branch signal:
 - Adds a Playwright API smoke that mints a custom token, exchanges it through Firebase Identity Toolkit, and calls `/api/auth/session` plus `/api/auth/user` with the resulting Firebase ID token.
 - Extends the existing conditional GitHub E2E job to opt into `LAICA_DEV_AUTH_*` only inside the provider-light Neon/Firebase smoke lane; routine unit/typecheck/build CI and paid provider boundaries remain unchanged.
 
-Local evidence on the branch: focused Vitest for the new route/helper passed, full `npm run test:unit` passed, `npm run check` passed, `npm run build` passed, `git diff --check` passed, and Playwright test discovery found the new Chromium smoke. Local service-backed Playwright execution remains deferred to GitHub Actions because the meaningful run needs the existing disposable Neon branch plus Firebase service-account/API-key environment.
+Local evidence on the branch: focused Vitest for the new route/helper passed, full `npm run test:unit` passed, `npm run check` passed, `npm run build` passed, `git diff --check` passed, and Playwright test discovery found the new Chromium smoke. GitHub checks passed on head `73f2e7aa981afb5782e32d2afccd9408d16be50b`: Dependency Audit, Secret Scan, CI `unit`, CI `e2e_guest_smoke` with 5 Playwright tests, CodeQL `Analyze (actions)`, CodeQL `Analyze (javascript-typescript)`, and GitHub Advanced Security `CodeQL`.
 
 This does not change the Replit-primary validation policy. It does not complete Google popup sign-in, prove anonymous-to-Google linking UX, prove production authorized-domain state, validate live OpenAI quality, validate ElevenLabs audio quality, validate Replit deployment behavior, or replace Replit/human validation for third-party identity UI and full linked-account promotion flows.
