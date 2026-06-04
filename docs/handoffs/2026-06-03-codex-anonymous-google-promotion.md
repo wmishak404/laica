@@ -12,11 +12,11 @@ This branch implements the first Phase 4 account-promotion slice for INIT-003: g
 
 ## Changes
 
-- `client/src/pages/app.tsx` adds the guest sign-up/save-progress CTA, separate guest Start over action, Google link flow, neutral Google-import confirmation dialog, popup-cancel handling, and guest-to-linked profile import for Pantry, Kitchen, Cooking Profile, and favorite chefs.
+- `client/src/pages/app.tsx` adds the guest sign-up/save-progress CTA, separate guest Start over action, Google link flow, neutral Google-import confirmation dialog, popup-cancel handling, guest-to-linked profile import for Pantry/Kitchen/Cooking Profile/favorite chefs, and an inline post-link confirmation in the planning header.
 - `client/src/lib/firebase.ts` adds Firebase helpers for linking an anonymous user with Google, extracting the existing-account Google credential from Firebase errors, and signing in with that credential after consent.
 - `client/src/components/cooking/user-settings.tsx`, `client/src/components/cooking/live-cooking.tsx`, `client/src/lib/rateLimitHandler.ts`, and `server/routes.ts` update guest-facing copy away from anonymous-account framing while keeping Settings copy concise and avoiding repeated "this browser" reminders.
 - `tests/setup.ts` extends the Firebase auth mock for link/sign-in credential flows.
-- `tests/unit/planning-choice.test.tsx`, `tests/unit/user-settings-scan-policy.test.tsx`, `tests/unit/live-cooking-guest-session.test.tsx`, `tests/unit/anonymous-production-gates-route.test.ts`, and `tests/unit/ai-error-handling.test.tsx` cover the new copy, direct guest promotion/import path, credential-in-use consent path, popup-cancel path, and no-silent-overwrite merge helper.
+- `tests/unit/planning-choice.test.tsx`, `tests/unit/user-settings-scan-policy.test.tsx`, `tests/unit/live-cooking-guest-session.test.tsx`, `tests/unit/anonymous-production-gates-route.test.ts`, and `tests/unit/ai-error-handling.test.tsx` cover the new copy, direct guest promotion/import path, inline post-link confirmation, credential-in-use consent path, popup-cancel path, and no-silent-overwrite merge helper.
 - `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md` now points the current Phase 4 resume state at this branch and records the active implementation scope.
 - `efforts/effort-024-guest-privacy-trust-messaging.md` records the first restrained browser-local copy pass and Wilson's Replit copy feedback without resolving the Effort.
 
@@ -30,7 +30,7 @@ Firebase Auth state is separate from the Laica `auth_users` table. If a Replit r
 
 ## Open items
 
-- Replit validation should continue from the latest pushed commit. Wilson already confirmed guest mental-model surfaces and same-browser setup persistence before the follow-up copy/menu fixes; recheck the guest menu split, popup-cancel feel, real Firebase Google popup linking, existing-account credential handling, linked profile writes, and account-session adoption.
+- Replit validation should continue from the latest pushed commit. Wilson already confirmed guest mental-model surfaces and same-browser setup persistence before the follow-up copy/menu fixes; recheck the guest menu split, popup-cancel feel, inline post-link confirmation, real Firebase Google popup linking, existing-account credential handling, linked profile writes, and account-session adoption.
 - Browser smoke was not completed locally. The dev server reported `serving on port 3000`, but localhost refused connections, and the Playwright attempt was blocked by the local sandbox when its configured web server tried to create a `tsx` IPC pipe. Treat local browser evidence as unavailable for this branch.
 - Durable History import for completed anonymous cooks remains explicitly deferred.
 - Email/password account creation remains out of scope; this branch keeps Google as the durable account path.

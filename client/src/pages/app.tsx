@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ToastAction } from '@/components/ui/toast';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
-import { ArrowRight, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle, UserPlus } from 'lucide-react';
+import { ArrowRight, CheckCircle, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle, UserPlus } from 'lucide-react';
 import {
   DEFAULT_PLANNING_TIME_VALUE,
   PLANNING_TIME_STORAGE_KEY,
@@ -234,6 +234,7 @@ export default function MobileApp() {
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [guestPromotionStatus, setGuestPromotionStatus] = useState<GuestPromotionStatus>('idle');
+  const [guestPromotionConfirmation, setGuestPromotionConfirmation] = useState<string | null>(null);
   const [pendingExistingGoogleImport, setPendingExistingGoogleImport] = useState<PendingExistingGoogleImport | null>(null);
   const [slopItUpPlanningCopy] = useState(() => getRandomSlopItUpPlanningCopy());
   const planningStateScopeKey = useMemo(
@@ -415,6 +416,7 @@ export default function MobileApp() {
     setIsMenuOpen(false);
     setShowPlanningChoice(true);
     setCurrentPhase(hasCompletedCookingProfile(profileToUse) ? 'planning' : 'profiling');
+    setGuestPromotionConfirmation('Google is connected. Your kitchen is saved.');
 
     toast({
       title: importedProfile ? 'Progress saved' : 'Account ready',
@@ -902,6 +904,12 @@ export default function MobileApp() {
               <UserPlus className="h-4 w-4 shrink-0 text-primary" />
               <span>{guestPromotionLabel}</span>
             </button>
+          )}
+          {!isGuest && guestPromotionConfirmation && (
+            <div className="mt-4 inline-flex max-w-sm items-center gap-2 rounded-full border-2 border-primary/20 bg-white/90 px-4 py-2 text-left text-xs font-extrabold text-[hsl(var(--returning-ink))] shadow-sm">
+              <CheckCircle className="h-4 w-4 shrink-0 text-primary" />
+              <span>{guestPromotionConfirmation}</span>
+            </div>
           )}
         </div>
       </div>

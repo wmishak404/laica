@@ -154,7 +154,9 @@ describe('MobileApp planning choice pantry status', () => {
     mocks.apiRequest.mockImplementation(async (method: string, url: string) => ({
       json: async () => {
         if (method === 'POST' && url === '/api/auth/google') {
-          return { id: 'guest-test-1', email: 'tester@example.com', authProvider: 'google' };
+          const linkedUser = { id: 'linked-test-1', email: 'tester@example.com', authProvider: 'google' };
+          mocks.authUser = linkedUser;
+          return linkedUser;
         }
 
         if (method === 'GET' && url === '/api/user/profile') {
@@ -334,6 +336,7 @@ describe('MobileApp planning choice pantry status', () => {
     expect(mocks.apiRequest).toHaveBeenCalledWith('POST', '/api/auth/google');
     expect(mocks.apiRequest).toHaveBeenCalledWith('GET', '/api/user/profile');
     expect(window.localStorage.getItem('laica:guest-profile:guest-test-1')).toBeNull();
+    await waitFor(() => expect(screen.getByText('Google is connected. Your kitchen is saved.')).toBeTruthy());
     expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Progress saved',
     }));
