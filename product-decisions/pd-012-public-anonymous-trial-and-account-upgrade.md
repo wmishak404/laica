@@ -173,7 +173,7 @@ Future validation of the first anonymous-to-Google promotion slice should prove:
 - Guest menu/header copy reinforces browser-local progress without implying a durable anonymous account.
 - Settings menu/screen/toast copy stays concise; do not repeat `this browser` on every Settings surface.
 - Guest users have both a preservation action (`Sign up` / save progress) and an abandon action (`Start over`).
-- Canceling or closing the Google popup unwinds the busy state quickly and uses calm cancel copy rather than a failure tone.
+- Canceling or closing the Google popup uses calm cancel copy rather than a failure tone and must not leave the UI stuck in a busy state. Firebase may take a few seconds to report popup closure; avoid brittle window-focus heuristics unless the delay becomes a blocker.
 - New Google sign-up preserves Pantry, Kitchen, Cooking Profile, and favorite chefs after refresh.
 - Existing Google credential/import flow asks before importing the browser setup.
 - Import merge behavior does not silently overwrite existing linked setup: keep existing cooking skill when present, merge list fields, and merge dietary restrictions without letting guest `No restrictions` erase specific linked restrictions.

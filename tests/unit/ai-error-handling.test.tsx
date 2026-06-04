@@ -71,6 +71,7 @@ describe('authenticated AI error handling', () => {
   it('uses sign-up language for anonymous recipe-limit boundaries', () => {
     const feedback = classifyAiRequestError(apiError(403, {
       code: 'LINKED_ACCOUNT_REQUIRED',
+      message: 'Link Google to unlock more recipes.',
     }));
 
     expect(feedback.kind).toBe('product-precondition');
