@@ -416,7 +416,7 @@ export default function MobileApp() {
     setIsMenuOpen(false);
     setShowPlanningChoice(true);
     setCurrentPhase(hasCompletedCookingProfile(profileToUse) ? 'planning' : 'profiling');
-    setGuestPromotionConfirmation('Google is connected. Your kitchen is saved.');
+    setGuestPromotionConfirmation('Account successfully connected and signed in. Your kitchen is saved.');
 
     toast({
       title: importedProfile ? 'Progress saved' : 'Account ready',

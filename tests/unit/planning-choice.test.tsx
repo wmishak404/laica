@@ -336,7 +336,7 @@ describe('MobileApp planning choice pantry status', () => {
     expect(mocks.apiRequest).toHaveBeenCalledWith('POST', '/api/auth/google');
     expect(mocks.apiRequest).toHaveBeenCalledWith('GET', '/api/user/profile');
     expect(window.localStorage.getItem('laica:guest-profile:guest-test-1')).toBeNull();
-    await waitFor(() => expect(screen.getByText('Google is connected. Your kitchen is saved.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Account successfully connected and signed in. Your kitchen is saved.')).toBeTruthy());
     expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Progress saved',
     }));
