@@ -225,6 +225,7 @@ Future validation of the first anonymous-to-Google promotion slice should prove:
 
 - Keep target-runtime App Check configured/enforced for public anonymous access and revalidate if the public domain, Firebase App Check app, or Replit/deployment secret setup changes.
 - Keep future promotion expansion explicit and user-consented, especially any current-cook or selected-cook History import after Google linking.
+- After INIT-001 Phase 5 is implemented and validated, reopen INIT-003 Phase 5/later-promotion planning to decide whether the merged History/cleanup/taste/retention semantics justify an explicit guest current-cook or selected-cook import path.
 - Keep Phase 5 durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary. Do not add automatic bulk guest-History import as part of the first Google promotion slice.
 - File separate analytics work for guest-to-link and returning-user measurement rather than expanding this PD into a measurement plan.
 - Re-evaluate the 10-generation cap after real usage evidence, cost signals, early-generation quality evidence, and Phase 5 returning-user data exist.

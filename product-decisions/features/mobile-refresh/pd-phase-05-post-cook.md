@@ -40,6 +40,7 @@ Help users come back for a second cook by keeping pantry inventory accurate with
 - Guest cook state can become durable only at a user-consented Google conversion/save moment. The first promotion slice should focus on preserving Pantry, Kitchen, and Cooking Profile; any current-cook or selected-cook History import must be designed as explicit Phase 5/promotion scope with cleanup and taste semantics, not as an automatic anonymous-login side effect.
 - The INIT-003 Plan B homepage may ship before Phase 5. That does not pull Phase 5 forward or make cleanup/retention part of the guest MVP.
 - If a guest links Google after cooking anonymously, v1 does not backfill anonymous cleanup, taste, next-meal seed, or History retention unless a future product decision explicitly changes the promotion contract.
+- Checkpoint: when INIT-001 Phase 5 is implemented and validated, reopen INIT-003 Phase 5/later-promotion planning before adding any guest current-cook or selected-cook History import. The revisit should use the merged Phase 5 semantics for History, cleanup, taste signal, pending cleanup, and next-meal retention rather than guessing ahead of the feature.
 
 ### Cleanup review
 

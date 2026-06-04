@@ -223,7 +223,7 @@ Next implementation / validation focus:
 4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
 5. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
 6. Pantry spell correction is resolved through EFF-013 / PR #62. Setup/Settings scan-review chip states are resolved through EFF-014 / PR #75. Future pantry spelling/canonicalization or scan-review work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. Phase 5 post-cook rescan labels remain in the Phase 5 record.
-7. Coordinate any future guest-auth, upgrade, or Phase 5 returning-user memory changes with [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Do not reopen Phase 1 or Phase 5 assumptions in isolation.
+7. Coordinate any future guest-auth, upgrade, or Phase 5 returning-user memory changes with [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Do not reopen Phase 1 or Phase 5 assumptions in isolation. After Phase 5 is implemented and validated, trigger the INIT-003 checkpoint for whether any user-consented guest current-cook or selected-cook History import after Google linking should exist.
 
 Plan B sequencing note for the INIT-003 public homepage:
 
