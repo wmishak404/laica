@@ -10,6 +10,8 @@
 
 This branch implements the first near-term EFF-017 follow-up from the anonymous-promotion CI retro: prove the guest recipe-cap copy with a deterministic forced response instead of spending ten real recipe generations to reach guest attempt `#11`. The test keeps the routine browser gate provider-light and checks the actual user-facing title/body that should appear when `POST /api/recipes/pantry` returns `403 LINKED_ACCOUNT_REQUIRED`.
 
+PR #130 merged as `fc75ae0c50ab95b7de72195d4e146981055b81af`.
+
 ## Changes
 
 - `tests/e2e/cooking-workflow.test.ts`
@@ -36,6 +38,11 @@ Automation is evidence for the stated forced-response UI claim, not a conclusion
 - `npm run build` passed, with the known Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
 - `CI=1 npx playwright test tests/e2e/cooking-workflow.test.ts --project=chromium -g "Guest recipe quota block" --list` passed and discovered the new Chromium test.
+- GitHub Actions on head `de4e03e030a36d4fd6760a1f37516db7d817e1e1` passed:
+  - Dependency Audit (High/Critical) run #190, job `npm-audit`.
+  - Secret Scan (TruffleHog) run #190, job `trufflehog_pr`; `trufflehog_push` skipped because this was a PR event.
+  - CI (Typecheck, Unit, E2E) run #52, jobs `unit` and `e2e_guest_smoke`.
+  - CodeQL completed successfully.
 - Focused local Playwright execution did not produce app-behavior evidence:
   - `CI=1 npx @dotenvx/dotenvx run -- npx playwright ...` failed before startup because sandboxed DNS blocked fetching `@dotenvx/dotenvx`; escalation was rejected because downloading npm code while decrypting secrets is a secret-exfiltration risk.
   - `CI=1 npx playwright test ...` failed before startup in the sandbox because `tsx` could not create its IPC pipe (`EPERM`).
@@ -56,11 +63,13 @@ Automation is evidence for the stated forced-response UI claim, not a conclusion
 - Static/type/lint checks passed.
 - Production build passed.
 - Playwright discovered the new Chromium test without running it locally.
+- GitHub dependency audit, TruffleHog PR scan, typecheck/lint/build/unit, CodeQL, and guest E2E smoke passed on the PR head.
+- GitHub `e2e_guest_smoke` created and deleted its schema-only Neon branch successfully; `DB Schema Health` and `E2E (guest smoke)` both passed.
 - Local browser execution remains unvalidated because of local env/tooling constraints listed above.
 
 **Reasoning:**
 
-The test forces the same typed server response that represents the guest recipe-cap boundary and verifies the user-facing copy from the real browser UI. Because the route is stubbed, the test reaches the copy boundary directly and avoids paid provider calls, real quota consumption, and slow attempt counting. GitHub Actions should be the browser execution proof because its guest E2E lane already has the disposable Neon/schema-health harness and Chromium dependencies.
+The test forces the same typed server response that represents the guest recipe-cap boundary and verifies the user-facing copy from the real browser UI. Because the route is stubbed, the test reaches the copy boundary directly and avoids paid provider calls, real quota consumption, and slow attempt counting. GitHub Actions provided the browser execution proof through the guest E2E lane with disposable Neon schema-health setup and Chromium dependencies.
 
 **Negative scope:**
 
