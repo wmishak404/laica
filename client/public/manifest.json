@@ -1,7 +1,7 @@
 {
-  "name": "Laica - AI Cooking Assistant",
+  "name": "Laica - Cook with what you have",
   "short_name": "Laica",
-  "description": "Your AI-powered cooking companion for meal planning and interactive cooking guidance",
+  "description": "A cooking assistant that helps turn what's already in your kitchen into a meal idea.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
@@ -9,13 +9,25 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/favicon-16x16.png?v=20260604-spatula",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-32x32.png?v=20260604-spatula",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192x192.png?v=20260604-spatula",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icon-512x512.png?v=20260604-spatula",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

@@ -10,6 +10,8 @@ User-facing prose writes the brand as `Laica`, not all-caps `LAICA`, unless a lo
 
 Do not repeat the product mark inside ordinary in-app process screens such as setup, planning, selection, cooking, confirmation, or settings flows unless the surface is explicitly acting as a branded entry/sign-in/landing moment. When a surface does display the product mark as a brand object, use the canonical cropped logo asset (`@assets/laica_logo_v1_cropped_1763444931884.png`) rather than recreating a one-off text wordmark in CSS. Text-only `Laica` is acceptable in body copy, headings, metadata, or deliberately documented mockup deviations, but not as a silent replacement for the logo on branded app surfaces.
 
+Favicon, PWA, and app-icon assets use the spatula mark from the `i` in the canonical Laica wordmark as the small-size brand mark. Do not replace these icons with unrelated cooking-tool or chef-hat symbols unless a future accepted brand decision changes the mark.
+
 ### Six principles
 
 1. **Cooking companion, not control panel.** Setup, Planning, Cooking, and Post-cook should reduce the user's next decision to a clear action: scan, choose, start, cook, confirm, clean up. Reserve administrative density for Settings and management surfaces.
