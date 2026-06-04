@@ -47,6 +47,22 @@ The implemented v1 gate now includes server-backed anonymous quota accounting, t
 
 The decision remains active because Phase 4 promotion/linking and Phase 5 returning-user memory work are still future scope, and the 10-generation cap should be revisited after real usage, abuse/cost, and recipe-quality evidence.
 
+### 2026-06-03 conversion-history clarification
+
+Wilson clarified that anonymous cooking history should become durable only when the user converts, not through background retro-import of every completed guest cook. The near-term account-promotion promise is therefore: sign up with Google so Laica keeps the setup and cooking work the user chooses to carry forward. Pantry, Kitchen, and Cooking Profile import are the first conversion targets; completed cook History import remains a later deliberate Phase 5/promotion design unless the user converts at an explicit save-history moment.
+
+### 2026-06-03 Phase 4 promotion UX validation
+
+Wilson validated the first Google promotion slice in Replit and accepted the product shape for both new Google sign-up and existing-Google credential flows. The accepted mental model is:
+
+- a guest is still not presented as holding an account
+- sign-up is a preservation path for setup work
+- Start over remains available as a separate guest escape hatch
+- Settings should stay concise and should not repeatedly explain browser-local storage
+- the single menu-header cue `Saved on this browser` is enough for this slice
+- the Google-import consent dialog should stay neutral and user-friendly; it should not say the Google account already exists in Laica or already has a Laica kitchen
+- after successful linking, the planning header should confirm `Account successfully connected and signed in. Your kitchen is saved.` and keep that confirmation visible until the user moves to the next page/flow
+
 ## Decision
 
 ### Public entry model
@@ -113,6 +129,11 @@ Durable saves include:
 - The linked-account prompt depends on the trigger:
   - recipe-cap moment: **unlock more recipes**
   - durable-save moment: **sign in or create an account to save your ingredients and profile**
+- The promotion prompt should depend on the user's moment:
+  - regular guest menu/planning reminder: sign-up or save-progress copy that emphasizes preserving Pantry, Kitchen, and Cooking Profile
+  - guest reset/abandon moment: a separate **Start over** action, not hidden behind sign-up
+  - Google credential-in-use/import moment: neutral copy that asks to save the current setup to Google and promises no overwrite if anything is already saved
+  - successful conversion moment: inline confirmation in the planning header that persists until the user moves to the next page/flow, not only a transient toast
 
 ### Security contract
 
@@ -133,8 +154,9 @@ Durable saves include:
 
 - Anonymous users do **not** create durable post-cook history, pending cleanup, taste memory, or next-meal retention state in v1.
 - Phase 5 remains a linked-account memory surface.
-- Anonymous cooking may continue locally on the same browser/device, but it does not become durable returning-user state until the user links Google.
-- Completed anonymous post-cook history is not retro-imported into durable history in v1.
+- Anonymous cooking may continue locally on the same browser/device, but it does not become durable returning-user state until the user links Google and chooses what to carry forward.
+- Completed anonymous post-cook history is not bulk- or background-retro-imported into durable history in v1.
+- A future conversion moment may let the user explicitly save the current guest cook, or a small selected set of guest cook state, into durable History after Google linking. That path must be designed as user-consented promotion/import work, not an automatic side effect of anonymous sign-in or normal Google sign-in.
 
 ### Measurement and automation boundary
 
@@ -143,6 +165,22 @@ Durable saves include:
 - Anonymous entry creates a first-party browser automation path for the guest happy path: agents can start from `Start cooking now`, receive a real Firebase anonymous session, and exercise setup/recipe/cooking-guide flows without depending on a Google provider popup. This is a validation and developer-productivity benefit of the product direction, not a separate auth harness.
 - This automation benefit must not be overread. Google sign-in, linked-user profile upsert, linked-user history/cooking persistence, and linked-save behavior still require explicit linked-account validation in Replit.
 
+## Phase 4 Promotion Acceptance Criteria
+
+Future validation of the first anonymous-to-Google promotion slice should prove:
+
+- Guest setup remains editable and persistent on the same browser before conversion.
+- Guest menu/header copy reinforces browser-local progress without implying a durable anonymous account.
+- Settings menu/screen/toast copy stays concise; do not repeat `this browser` on every Settings surface.
+- Guest users have both a preservation action (`Sign up` / save progress) and an abandon action (`Start over`).
+- Canceling or closing the Google popup uses calm cancel copy rather than a failure tone and must not leave the UI stuck in a busy state. Firebase may take a few seconds to report popup closure; avoid brittle window-focus heuristics unless the delay becomes a blocker.
+- New Google sign-up preserves Pantry, Kitchen, Cooking Profile, and favorite chefs after refresh.
+- Existing Google credential/import flow asks before importing the browser setup.
+- Import merge behavior does not silently overwrite existing linked setup: keep existing cooking skill when present, merge list fields, and merge dietary restrictions without letting guest `No restrictions` erase specific linked restrictions.
+- After successful linking, the planning header shows `Account successfully connected and signed in. Your kitchen is saved.` and the message survives auth/profile refresh churn until the user leaves the planning choice.
+- Completed anonymous cooks do not automatically appear in durable History after conversion.
+- Firebase Auth deletion and Laica database deletion are tested as separate concepts when resetting Replit validation accounts; deleting `auth_users` rows alone does not guarantee Firebase will treat a Google credential as new.
+
 ## Rationale
 
 - A guest path helps new users discover value before trusting Laica with identity, which is especially important for a product asking people to share pantry and cooking context.
@@ -150,6 +188,7 @@ Durable saves include:
 - The larger cap gives new users room to regenerate, iterate, or recover from early recipe misses. Because Laica is still young, some rejected generations are product quality misses on Laica's side, not user indecision; the guest policy should leave enough room for that.
 - A same-browser persistence contract avoids the worst guest-mode annoyance: being forced to rescan pantry after every normal reopen.
 - A linked-only durable-memory boundary keeps Phase 5 coherent. Returning-user history, cleanup, and taste memory should belong to a real account, not to a fragile anonymous browser session.
+- Conversion-gated durability protects the user's effort without turning every anonymous cook into a long-lived migration obligation. The product should nudge users to create an account before or at a durable save moment, then save only the setup/cook state they choose to carry forward.
 - Keeping the cap on recipe generation instead of on "full cooks" makes enforcement deterministic and easier to explain in the UI.
 - Splitting the linked-account copy between "unlock more recipes" and "sign in or create an account to save your ingredients and profile" creates clearer user moments than using one generic account prompt everywhere, while reserving "upgrade" language for later paid-tier work.
 - The same guest path that improves first-use trust also improves automation confidence: it lets browser tests exercise more of the real product surface without fragile third-party auth popups, while still keeping linked-account behavior on the real Google/Firebase validation path.
@@ -181,6 +220,6 @@ Durable saves include:
 
 - Keep target-runtime App Check configured/enforced for public anonymous access and revalidate if the public domain, Firebase App Check app, or Replit/deployment secret setup changes.
 - Implement the fuller Phase 4 Google promotion/link/import flow when that phase starts.
-- Keep Phase 5 durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary.
+- Keep Phase 5 durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary. Do not add automatic bulk guest-History import as part of the first Google promotion slice.
 - File separate analytics work for guest-to-link and returning-user measurement rather than expanding this PD into a measurement plan.
 - Re-evaluate the 10-generation cap after real usage evidence, cost signals, early-generation quality evidence, and Phase 5 returning-user data exist.

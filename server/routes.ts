@@ -165,7 +165,7 @@ async function reserveAnonymousRecipeQuota(
     linkedAccountRequiredResponse(
       res,
       "recipe_limit",
-      "Link Google to unlock more recipes.",
+      "Sign up to unlock more recipes.",
       reservation.quota,
     );
     return null;

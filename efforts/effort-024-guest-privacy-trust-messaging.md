@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-05-27
+**Updated:** 2026-06-03
 
 ## One-line summary
 
@@ -79,3 +79,9 @@ This Effort is `Resolved` when all of the following are true:
 ## 2026-05-27 - Created from guest Settings privacy insight
 
 Wilson recognized that browser-local guest Pantry/Kitchen/Profile settings can be framed as a privacy benefit for new users hesitant to try the app. Created this Effort so a later UX/copy pass can surface that benefit deliberately while preserving the exact guest/local and linked/durable boundaries.
+
+## 2026-06-03 - First restrained browser-local copy pass in account promotion
+
+`codex/anonymous-google-promotion` adds a narrow copy pass that supports the Effort without resolving it: the menu header carries the single "Saved on this browser" cue, while Settings menu/screen/toast copy stays concise (`Pantry, kitchen, and cooking profile`) after Wilson's Replit review found repeated "this browser" language too forward. The branch also adds sign-up/save-progress CTAs around preserving setup work and a separate Start over action for guests who want to abandon the trial setup. It does not claim provider requests stay local, does not add public privacy-policy language, and still needs Replit/mobile visual validation before this Effort can be resolved.
+
+Wilson's Replit follow-up accepted the restrained wording at runtime head `e2231be`: the menu-level `Saved on this browser` cue plus concise Settings copy felt better than repeating browser-local language throughout the app. Keep this signal for merge closeout; do not resolve the Effort before the branch merges and final validation is refreshed on the branch head.

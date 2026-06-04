@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, type FirebaseError } from "firebase/app";
 import {
   getToken as getFirebaseAppCheckToken,
   initializeAppCheck,
@@ -7,8 +7,10 @@ import {
 } from "firebase/app-check";
 import {
   getAuth,
+  linkWithPopup,
   signInWithRedirect,
   signInWithPopup,
+  signInWithCredential,
   signInAnonymously,
   GoogleAuthProvider,
   getRedirectResult,
@@ -16,6 +18,7 @@ import {
   signOut,
   setPersistence,
   browserLocalPersistence,
+  type AuthCredential,
   type User,
 } from "firebase/auth";
 
@@ -109,6 +112,45 @@ export class FirebaseAuthService {
         throw new Error('Google sign-in is not enabled in Firebase Console.');
       }
       
+      throw error;
+    }
+  }
+
+  static async linkCurrentGuestWithGooglePopup(): Promise<FirebaseAuthUser | null> {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser?.isAnonymous) {
+      return this.signInWithGooglePopup();
+    }
+
+    try {
+      const result = await linkWithPopup(currentUser, googleProvider);
+      return this.formatUser(result.user);
+    } catch (error: any) {
+      console.error('Google account link failed:', error);
+
+      if (error.code === 'auth/popup-blocked') {
+        throw new Error('Popup was blocked. Please enable popups and try again.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        throw new Error('Authentication not authorized for this domain. Please check Firebase configuration.');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        throw new Error('Google sign-in is not enabled in Firebase Console.');
+      }
+
+      throw error;
+    }
+  }
+
+  static getGoogleCredentialFromError(error: unknown): AuthCredential | null {
+    return GoogleAuthProvider.credentialFromError(error as FirebaseError);
+  }
+
+  static async signInWithGoogleCredential(credential: AuthCredential): Promise<FirebaseAuthUser | null> {
+    try {
+      const result = await signInWithCredential(auth, credential);
+      return this.formatUser(result.user);
+    } catch (error) {
+      console.error('Google credential sign-in failed:', error);
       throw error;
     }
   }

@@ -405,7 +405,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
     if (isGuest) {
       toast({
         title: "Nice, dinner's ready.",
-        description: "This guest cook stayed on this browser. Link Google before saving cooking history.",
+        description: "Sign up before saving cooking history.",
       });
       return;
     }

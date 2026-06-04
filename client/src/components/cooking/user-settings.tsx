@@ -328,7 +328,7 @@ export default function UserSettings({
         saveSessionProfile(
           updatedProfile,
           "Pantry cleared",
-          "Your guest pantry has been cleared for this session.",
+          "Your pantry has been cleared.",
         );
         clearReviewEntries('pantry');
         return;
@@ -364,7 +364,7 @@ export default function UserSettings({
         saveSessionProfile(
           updatedProfile,
           "Equipment cleared",
-          "Your guest kitchen list has been cleared for this session.",
+          "Your kitchen list has been cleared.",
         );
         clearReviewEntries('kitchen');
         return;
@@ -400,7 +400,7 @@ export default function UserSettings({
       saveSessionProfile(
         profile,
         "Pantry updated",
-        "Your pantry is updated for this guest session.",
+        "Your pantry is updated.",
       );
       clearReviewEntries('pantry');
       return;
@@ -435,7 +435,7 @@ export default function UserSettings({
       saveSessionProfile(
         profile,
         "Kitchen updated",
-        "Your kitchen tools are updated for this guest session.",
+        "Your kitchen tools are updated.",
       );
       clearReviewEntries('kitchen');
       return;
@@ -465,7 +465,7 @@ export default function UserSettings({
       saveSessionProfile(
         profile,
         "Profile updated",
-        "Your cooking profile is updated for this guest session.",
+        "Your cooking profile is updated.",
       );
       return;
     }
@@ -1006,7 +1006,7 @@ export default function UserSettings({
         <h1 className="returning-display text-[2.45rem] font-extrabold leading-none">Keep Laica matched to your kitchen.</h1>
         <p className="returning-copy mt-3 max-w-sm text-sm leading-relaxed">
           {isSessionOnly
-            ? 'Update the pantry, tools, and cooking profile Laica uses for this guest session.'
+            ? 'Update the pantry, tools, and cooking profile Laica uses.'
             : 'Update the pantry, tools, and cooking profile Laica uses for Planning and Slop Bowl.'}
         </p>
       </div>

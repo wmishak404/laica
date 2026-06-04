@@ -88,7 +88,23 @@ vi.mock('firebase/auth', () => ({
     });
     return vi.fn();
   }),
+  linkWithPopup: vi.fn().mockResolvedValue({
+    user: {
+      uid: 'test-user-id',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      isAnonymous: false
+    }
+  }),
   signInWithPopup: vi.fn().mockResolvedValue({
+    user: {
+      uid: 'test-user-id',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      isAnonymous: false
+    }
+  }),
+  signInWithCredential: vi.fn().mockResolvedValue({
     user: {
       uid: 'test-user-id',
       email: 'test@example.com',
@@ -104,10 +120,15 @@ vi.mock('firebase/auth', () => ({
       isAnonymous: true
     }
   }),
-  GoogleAuthProvider: vi.fn(() => ({
-    addScope: vi.fn(),
-    setCustomParameters: vi.fn(),
-  })),
+  GoogleAuthProvider: Object.assign(
+    vi.fn(() => ({
+      addScope: vi.fn(),
+      setCustomParameters: vi.fn(),
+    })),
+    {
+      credentialFromError: vi.fn(() => null),
+    },
+  ),
   getRedirectResult: vi.fn().mockResolvedValue(null),
   signInWithRedirect: vi.fn().mockResolvedValue(undefined),
   setPersistence: vi.fn().mockResolvedValue(undefined),

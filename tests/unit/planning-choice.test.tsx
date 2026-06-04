@@ -9,6 +9,7 @@ import MobileApp, {
   SLOP_IT_UP_PLANNING_COPY_OPTIONS,
   getPlanningPantryCountLabel,
   getRandomSlopItUpPlanningCopy,
+  mergeProfilesForGuestPromotion,
 } from '../../client/src/pages/app';
 
 const mocks = vi.hoisted(() => ({
@@ -19,6 +20,11 @@ const mocks = vi.hoisted(() => ({
   },
   toast: vi.fn(),
   updateProfile: vi.fn(),
+  apiRequest: vi.fn(),
+  getGoogleCredentialFromError: vi.fn(),
+  linkCurrentGuestWithGooglePopup: vi.fn(),
+  signInWithGoogleCredential: vi.fn(),
+  signOut: vi.fn(),
   userProfileReturn: {
     data: null as { user: ReturnType<typeof makeProfile> } | null,
     isLoading: false,
@@ -52,6 +58,23 @@ vi.mock('@/hooks/useAuth', () => ({
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: mocks.toast }),
 }));
+
+vi.mock('@/lib/firebase', () => ({
+  FirebaseAuthService: {
+    getGoogleCredentialFromError: mocks.getGoogleCredentialFromError,
+    linkCurrentGuestWithGooglePopup: mocks.linkCurrentGuestWithGooglePopup,
+    signInWithGoogleCredential: mocks.signInWithGoogleCredential,
+    signOut: mocks.signOut,
+  },
+}));
+
+vi.mock('@/lib/queryClient', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/queryClient')>();
+  return {
+    ...actual,
+    apiRequest: mocks.apiRequest,
+  };
+});
 
 vi.mock('@/components/cooking/user-profiling', () => ({
   default: () => <div data-testid="user-profiling">User profiling</div>,
@@ -128,12 +151,40 @@ describe('MobileApp planning choice pantry status', () => {
     mocks.authUser = { id: 'user-1', email: 'tester@example.com' };
     mocks.userProfileReturn.data = { user: makeProfile() };
     mocks.userProfileReturn.isLoading = false;
+    mocks.apiRequest.mockImplementation(async (method: string, url: string) => ({
+      json: async () => {
+        if (method === 'POST' && url === '/api/auth/google') {
+          const linkedUser = { id: 'linked-test-1', email: 'tester@example.com', authProvider: 'google' };
+          mocks.authUser = linkedUser;
+          return linkedUser;
+        }
+
+        if (method === 'GET' && url === '/api/user/profile') {
+          return { user: makeProfile({ pantryIngredients: ['rice'], kitchenEquipment: ['skillet'] }) };
+        }
+
+        return {};
+      },
+    }));
+    mocks.linkCurrentGuestWithGooglePopup.mockResolvedValue({
+      uid: 'guest-test-1',
+      email: 'tester@example.com',
+      displayName: 'Test User',
+      isAnonymous: false,
+    });
+    mocks.signInWithGoogleCredential.mockResolvedValue({
+      uid: 'linked-existing',
+      email: 'tester@example.com',
+      displayName: 'Test User',
+      isAnonymous: false,
+    });
   });
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it('shows the empty-pantry status line on the planning choice screen', async () => {
@@ -224,7 +275,7 @@ describe('MobileApp planning choice pantry status', () => {
     expect(screen.getByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
     expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Your pantry is empty',
-      description: 'Add or scan pantry items in Settings for this guest session.',
+      description: 'Add or scan pantry items in Settings.',
       variant: 'destructive',
     }));
 
@@ -242,7 +293,7 @@ describe('MobileApp planning choice pantry status', () => {
     await renderGuestPlanningChoice(makeProfile());
 
     const settingsButton = screen.getByRole('button', {
-      name: /settings guest pantry, kitchen, and cooking profile/i,
+      name: /settings pantry, kitchen, and cooking profile/i,
     });
     const historyButton = screen.getByRole('button', {
       name: /history meals you cooked/i,
@@ -254,6 +305,115 @@ describe('MobileApp planning choice pantry status', () => {
     fireEvent.click(settingsButton);
 
     expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: hub; mode: session');
+  });
+
+  it('shows guest sign-up separately from the start-over action', async () => {
+    await renderGuestPlanningChoice(makeProfile());
+
+    expect(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /sign up save your pantry and profile/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /start over clear this setup and return home/i })).toBeTruthy();
+    expect(screen.queryByText('Guest session')).toBeNull();
+    expect(screen.queryByText('Sign out')).toBeNull();
+  });
+
+  it('imports this-browser guest setup into the linked Google account on sign-up', async () => {
+    await renderGuestPlanningChoice(makeProfile({
+      pantryIngredients: ['rice', 'eggs', 'beans'],
+      kitchenEquipment: ['skillet', 'pot'],
+      favoriteChefs: ['Samin Nosrat'],
+    }));
+
+    fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
+
+    await waitFor(() => expect(mocks.linkCurrentGuestWithGooglePopup).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledWith({
+      cookingSkill: 'intermediate',
+      dietaryRestrictions: ['No restrictions'],
+      pantryIngredients: ['rice', 'eggs', 'beans'],
+      kitchenEquipment: ['skillet', 'pot'],
+      favoriteChefs: ['Samin Nosrat'],
+    }));
+    expect(mocks.apiRequest).toHaveBeenCalledWith('POST', '/api/auth/google');
+    expect(mocks.apiRequest).toHaveBeenCalledWith('GET', '/api/user/profile');
+    expect(window.localStorage.getItem('laica:guest-profile:guest-test-1')).toBeNull();
+    await waitFor(() => expect(screen.getByText('Account successfully connected and signed in. Your kitchen is saved.')).toBeTruthy());
+    expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Progress saved',
+    }));
+  });
+
+  it('keeps the post-link confirmation until the user moves to the next page', async () => {
+    await renderGuestPlanningChoice(makeProfile({
+      pantryIngredients: ['rice', 'eggs'],
+      kitchenEquipment: ['skillet'],
+    }));
+
+    fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
+
+    const confirmation = 'Account successfully connected and signed in. Your kitchen is saved.';
+    await screen.findByText(confirmation);
+    expect(window.sessionStorage.getItem('laica:guest-promotion-confirmation')).toBe(confirmation);
+
+    cleanup();
+    mocks.authUser = { id: 'linked-test-1', email: 'tester@example.com' };
+    mocks.userProfileReturn.data = { user: makeProfile({ pantryIngredients: ['rice', 'eggs'] }) };
+    render(<MobileApp />);
+
+    expect(await screen.findByText(confirmation)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
+
+    await waitFor(() => expect(screen.getByTestId('meal-planning')).toBeTruthy());
+    expect(screen.queryByText(confirmation)).toBeNull();
+    expect(window.sessionStorage.getItem('laica:guest-promotion-confirmation')).toBeNull();
+  });
+
+  it('asks before adding guest setup to an existing Google account', async () => {
+    const credential = { providerId: 'google.com' };
+    mocks.linkCurrentGuestWithGooglePopup.mockRejectedValueOnce({ code: 'auth/credential-already-in-use' });
+    mocks.getGoogleCredentialFromError.mockReturnValueOnce(credential);
+
+    await renderGuestPlanningChoice(makeProfile({
+      pantryIngredients: ['rice', 'eggs'],
+      kitchenEquipment: ['skillet', 'wok'],
+      favoriteChefs: ['Samin Nosrat'],
+    }));
+
+    fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
+
+    expect(await screen.findByRole('heading', { name: /save this setup to google/i })).toBeTruthy();
+    expect(screen.getByText(/we'll sign in with google/i)).toBeTruthy();
+    expect(screen.getByText(/laica won't overwrite it/i)).toBeTruthy();
+    expect(mocks.updateProfile).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    await waitFor(() => expect(mocks.signInWithGoogleCredential).toHaveBeenCalledWith(credential));
+    await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledWith({
+      cookingSkill: 'intermediate',
+      dietaryRestrictions: ['No restrictions'],
+      pantryIngredients: ['rice', 'eggs'],
+      kitchenEquipment: ['skillet', 'wok'],
+      favoriteChefs: ['Samin Nosrat'],
+    }));
+    expect(mocks.apiRequest).toHaveBeenCalledWith('POST', '/api/auth/google');
+    expect(mocks.apiRequest).toHaveBeenCalledWith('GET', '/api/user/profile');
+  });
+
+  it('treats a canceled Google popup as a cancel instead of a failed sign-up', async () => {
+    mocks.linkCurrentGuestWithGooglePopup.mockRejectedValueOnce({ code: 'auth/popup-closed-by-user' });
+
+    await renderGuestPlanningChoice(makeProfile());
+
+    fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
+
+    await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Sign-up canceled',
+      description: 'Nothing changed. Your pantry is still here when you are ready.',
+    })));
+    expect(mocks.updateProfile).not.toHaveBeenCalled();
+    expect(mocks.apiRequest).not.toHaveBeenCalledWith('POST', '/api/auth/google');
   });
 
   it('lets users with pantry items enter Chef It Up', async () => {
@@ -291,5 +451,32 @@ describe('MobileApp planning choice pantry status', () => {
     const linkedPlanning = await screen.findByTestId('meal-planning');
     expect(linkedPlanning.dataset.scope).toBe('linked:user-1');
     expect(linkedPlanning.dataset.time).toBe('30');
+  });
+
+  it('merges guest promotion data without silently overwriting existing linked setup', () => {
+    const merged = mergeProfilesForGuestPromotion(
+      makeProfile({
+        cookingSkill: 'expert',
+        dietaryRestrictions: ['Vegetarian'],
+        pantryIngredients: ['rice'],
+        kitchenEquipment: ['skillet'],
+        favoriteChefs: ['Alice Waters'],
+      }),
+      makeProfile({
+        cookingSkill: 'beginner',
+        dietaryRestrictions: ['No restrictions', 'Dairy Free'],
+        pantryIngredients: ['rice', 'eggs'],
+        kitchenEquipment: ['skillet', 'wok'],
+        favoriteChefs: ['Samin Nosrat'],
+      }),
+    );
+
+    expect(merged).toEqual({
+      cookingSkill: 'expert',
+      dietaryRestrictions: ['Vegetarian', 'Dairy Free'],
+      pantryIngredients: ['rice', 'eggs'],
+      kitchenEquipment: ['skillet', 'wok'],
+      favoriteChefs: ['Alice Waters', 'Samin Nosrat'],
+    });
   });
 });

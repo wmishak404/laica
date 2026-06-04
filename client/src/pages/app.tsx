@@ -1,4 +1,5 @@
 import { type ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
+import type { AuthCredential } from 'firebase/auth';
 import { isGuestUser, useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import UserProfiling from '@/components/cooking/user-profiling';
@@ -10,9 +11,19 @@ import CookingHistory from '@/components/cooking/cooking-history';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ToastAction } from '@/components/ui/toast';
 import { FeedbackModal } from '@/components/feedback/feedback-modal';
-import { ArrowRight, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, ChefHat, History, LogOut, Menu, MessageCircle, Settings, UserCircle, UserPlus } from 'lucide-react';
 import {
   DEFAULT_PLANNING_TIME_VALUE,
   PLANNING_TIME_STORAGE_KEY,
@@ -21,6 +32,7 @@ import {
 } from '@shared/planning';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
 import { hasAnySavedProfileSignal, hasCompletedCookingProfile } from '@/lib/profileReadiness';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
 
 interface UserProfile {
@@ -40,6 +52,26 @@ const createEmptyUserProfile = (): UserProfile => ({
 });
 
 const guestProfileStorageKey = (userId: string) => `laica:guest-profile:${userId}`;
+const GUEST_PROMOTION_CONFIRMATION = 'Account successfully connected and signed in. Your kitchen is saved.';
+const GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY = 'laica:guest-promotion-confirmation';
+
+function readGuestPromotionConfirmation() {
+  if (typeof window === 'undefined') return null;
+
+  return window.sessionStorage.getItem(GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY);
+}
+
+function writeGuestPromotionConfirmation() {
+  if (typeof window === 'undefined') return;
+
+  window.sessionStorage.setItem(GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY, GUEST_PROMOTION_CONFIRMATION);
+}
+
+function clearStoredGuestPromotionConfirmation() {
+  if (typeof window === 'undefined') return;
+
+  window.sessionStorage.removeItem(GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY);
+}
 
 function readGuestProfile(userId: string): UserProfile {
   if (typeof window === 'undefined') return createEmptyUserProfile();
@@ -65,6 +97,12 @@ function writeGuestProfile(userId: string, profile: UserProfile) {
   if (typeof window === 'undefined') return;
 
   window.localStorage.setItem(guestProfileStorageKey(userId), JSON.stringify(profile));
+}
+
+function clearGuestProfile(userId: string) {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.removeItem(guestProfileStorageKey(userId));
 }
 
 function readPlanningTime(storageKey: string): PlanningTimeValue {
@@ -94,6 +132,78 @@ type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'histor
 
 const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined) =>
   (restrictions || []).map((restriction) => restriction === 'None' ? 'No restrictions' : restriction);
+
+function profileFromLinkedUser(user: Partial<UserProfile> | null | undefined): UserProfile {
+  return {
+    cookingSkill: user?.cookingSkill || '',
+    dietaryRestrictions: normalizeDietaryRestrictions(user?.dietaryRestrictions),
+    pantryIngredients: user?.pantryIngredients || [],
+    kitchenEquipment: user?.kitchenEquipment || [],
+    favoriteChefs: user?.favoriteChefs || [],
+  };
+}
+
+function profileUpdatePayload(profile: UserProfile) {
+  return {
+    cookingSkill: profile.cookingSkill || undefined,
+    dietaryRestrictions: profile.dietaryRestrictions,
+    pantryIngredients: profile.pantryIngredients,
+    kitchenEquipment: profile.kitchenEquipment,
+    favoriteChefs: profile.favoriteChefs,
+  };
+}
+
+function mergeDietaryRestrictionsForPromotion(existing: string[], guest: string[]) {
+  const normalizedExisting = normalizeDietaryRestrictions(existing);
+  const normalizedGuest = normalizeDietaryRestrictions(guest);
+  const guestHasSpecificRestriction = normalizedGuest.some((restriction) => restriction !== 'No restrictions');
+  const existingHasSpecificRestriction = normalizedExisting.some((restriction) => restriction !== 'No restrictions');
+
+  if (existingHasSpecificRestriction) {
+    return mergeUniqueEntries(normalizedExisting, normalizedGuest.filter((restriction) => restriction !== 'No restrictions'));
+  }
+
+  if (guestHasSpecificRestriction) {
+    return normalizedGuest.filter((restriction) => restriction !== 'No restrictions');
+  }
+
+  return mergeUniqueEntries(normalizedExisting, normalizedGuest);
+}
+
+export function mergeProfilesForGuestPromotion(existing: UserProfile, guest: UserProfile): UserProfile {
+  return {
+    cookingSkill: existing.cookingSkill || guest.cookingSkill,
+    dietaryRestrictions: mergeDietaryRestrictionsForPromotion(existing.dietaryRestrictions, guest.dietaryRestrictions),
+    pantryIngredients: mergeUniqueEntries(existing.pantryIngredients, guest.pantryIngredients),
+    kitchenEquipment: mergeUniqueEntries(existing.kitchenEquipment, guest.kitchenEquipment),
+    favoriteChefs: mergeUniqueEntries(existing.favoriteChefs, guest.favoriteChefs),
+  };
+}
+
+interface PendingExistingGoogleImport {
+  credential: AuthCredential;
+  guestUserId: string;
+  guestProfile: UserProfile;
+}
+
+type GuestPromotionStatus = 'idle' | 'opening' | 'waiting' | 'saving';
+
+function isPopupCancellationError(error: any) {
+  return error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request';
+}
+
+function getGuestPromotionLabel(status: GuestPromotionStatus) {
+  switch (status) {
+    case 'opening':
+      return 'Opening Google sign-in...';
+    case 'waiting':
+      return 'Waiting for Google...';
+    case 'saving':
+      return 'Saving progress...';
+    default:
+      return 'Keep your pantry and recipes for next time. Sign up when ready.';
+  }
+}
 
 // Chef emoji roster — man and woman cook at the default yellow tone
 // (race-neutral). A fresh one is picked each time the planning-choice
@@ -143,6 +253,11 @@ export default function MobileApp() {
   const [showPlanningChoice, setShowPlanningChoice] = useState(true);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [guestPromotionStatus, setGuestPromotionStatus] = useState<GuestPromotionStatus>('idle');
+  const [guestPromotionConfirmation, setGuestPromotionConfirmation] = useState<string | null>(() =>
+    readGuestPromotionConfirmation()
+  );
+  const [pendingExistingGoogleImport, setPendingExistingGoogleImport] = useState<PendingExistingGoogleImport | null>(null);
   const [slopItUpPlanningCopy] = useState(() => getRandomSlopItUpPlanningCopy());
   const planningStateScopeKey = useMemo(
     () => user?.id ? `${isGuest ? 'guest' : 'linked'}:${user.id}` : 'signed-out',
@@ -160,6 +275,8 @@ export default function MobileApp() {
     [showPlanningChoice]
   );
   const hasExistingProfile = hasAnySavedProfileSignal(userProfile);
+  const isPromotingGuest = guestPromotionStatus !== 'idle';
+  const guestPromotionLabel = getGuestPromotionLabel(guestPromotionStatus);
   const pantryItemCount = userProfile.pantryIngredients.length;
   const hasPantryItems = pantryItemCount > 0;
   const planningPantryCountLabel = getPlanningPantryCountLabel(pantryItemCount);
@@ -287,6 +404,126 @@ export default function MobileApp() {
     }
   }, [isGuest, user?.id, saveProfileToDb]);
 
+  const importGuestProfileToLinkedAccount = useCallback(async (
+    guestProfile: UserProfile,
+    guestUserId: string,
+  ) => {
+    const linkedProfileResponse = await apiRequest('GET', '/api/user/profile');
+    const linkedProfile = await linkedProfileResponse.json();
+    const existingProfile = profileFromLinkedUser(linkedProfile?.user);
+    const mergedProfile = mergeProfilesForGuestPromotion(existingProfile, guestProfile);
+
+    await updateProfileMutation.mutateAsync(profileUpdatePayload(mergedProfile));
+    clearGuestProfile(guestUserId);
+    setUserProfile(mergedProfile);
+    setHasLoadedFromDb(true);
+    queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/session"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+
+    return mergedProfile;
+  }, [updateProfileMutation]);
+
+  const finishGuestPromotion = useCallback(async (guestProfile: UserProfile, guestUserId: string) => {
+    const authResponse = await apiRequest('POST', '/api/auth/google');
+    const linkedUser = await authResponse.json();
+    queryClient.setQueryData(["/api/auth/session"], linkedUser);
+    queryClient.setQueryData(["/api/auth/user"], linkedUser);
+
+    const importedProfile = hasAnySavedProfileSignal(guestProfile)
+      ? await importGuestProfileToLinkedAccount(guestProfile, guestUserId)
+      : null;
+    const profileToUse = importedProfile ?? createEmptyUserProfile();
+
+    setIsMenuOpen(false);
+    setShowPlanningChoice(true);
+    setCurrentPhase(hasCompletedCookingProfile(profileToUse) ? 'planning' : 'profiling');
+    writeGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(GUEST_PROMOTION_CONFIRMATION);
+
+    toast({
+      title: importedProfile ? 'Progress saved' : 'Account ready',
+      description: importedProfile
+        ? 'Your pantry, tools, and cooking profile are saved to your Google account.'
+        : 'You are signed in with Google.',
+    });
+  }, [importGuestProfileToLinkedAccount, toast]);
+
+  const handleGuestSignUp = useCallback(async () => {
+    if (!isGuest || !user?.id || isPromotingGuest) return;
+
+    const guestUserId = user.id;
+    const guestProfile = userProfile;
+    let waitingTimer: number | undefined;
+
+    try {
+      setGuestPromotionStatus('opening');
+      waitingTimer = window.setTimeout(() => {
+        setGuestPromotionStatus((currentStatus) => currentStatus === 'opening' ? 'waiting' : currentStatus);
+      }, 800);
+
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      await FirebaseAuthService.linkCurrentGuestWithGooglePopup();
+      setGuestPromotionStatus('saving');
+      await finishGuestPromotion(guestProfile, guestUserId);
+    } catch (error: any) {
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      const credential = error?.code === 'auth/credential-already-in-use'
+        ? FirebaseAuthService.getGoogleCredentialFromError(error)
+        : null;
+
+      if (credential) {
+        setPendingExistingGoogleImport({ credential, guestUserId, guestProfile });
+        return;
+      }
+
+      if (isPopupCancellationError(error)) {
+        toast({
+          title: 'Sign-up canceled',
+          description: 'Nothing changed. Your pantry is still here when you are ready.',
+          duration: 2500,
+        });
+        return;
+      }
+
+      console.error('Guest sign-up failed:', error);
+      toast({
+        title: 'Sign-up did not work',
+        description: error?.message || "I couldn't create your account. Try again.",
+        variant: 'destructive',
+      });
+    } finally {
+      if (waitingTimer !== undefined) {
+        window.clearTimeout(waitingTimer);
+      }
+      setGuestPromotionStatus('idle');
+    }
+  }, [finishGuestPromotion, isGuest, isPromotingGuest, toast, user?.id, userProfile]);
+
+  const confirmExistingGoogleImport = useCallback(async () => {
+    if (!pendingExistingGoogleImport || isPromotingGuest) return;
+
+    try {
+      setGuestPromotionStatus('saving');
+      const { FirebaseAuthService } = await import('@/lib/firebase');
+      await FirebaseAuthService.signInWithGoogleCredential(pendingExistingGoogleImport.credential);
+      await finishGuestPromotion(
+        pendingExistingGoogleImport.guestProfile,
+        pendingExistingGoogleImport.guestUserId,
+      );
+      setPendingExistingGoogleImport(null);
+    } catch (error: any) {
+      console.error('Existing Google import failed:', error);
+      toast({
+        title: 'Import did not work',
+        description: "I couldn't add this browser's setup to that account. Try again.",
+        variant: 'destructive',
+      });
+    } finally {
+      setGuestPromotionStatus('idle');
+    }
+  }, [finishGuestPromotion, isPromotingGuest, pendingExistingGoogleImport, toast]);
+
   const handleProfileComplete = (profile: UserProfile) => {
     setUserProfile(profile);
     saveProfile(profile);
@@ -294,7 +531,7 @@ export default function MobileApp() {
     if (isGuest) {
       toast({
         title: "Your kitchen is ready",
-        description: "I'll remember this on this browser while you try Laica.",
+        description: "I'll remember this while you try Laica.",
         duration: 5000,
       });
     } else {
@@ -306,6 +543,8 @@ export default function MobileApp() {
             Your cooking profile has been saved. Ready to find your perfect meal?{' '}
             <button
               onClick={() => {
+                clearStoredGuestPromotionConfirmation();
+                setGuestPromotionConfirmation(null);
                 setSettingsSection('hub');
                 setCurrentPhase('settings');
               }}
@@ -323,6 +562,8 @@ export default function MobileApp() {
   };
 
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setSelectedMeal(meal);
     setScheduledTime(scheduledTime);
     setCurrentPhase('cooking');
@@ -395,7 +636,7 @@ export default function MobileApp() {
       if (isGuest) {
         toast({
           title: "Your kitchen is ready",
-          description: "I'll remember this on this browser while you try Laica.",
+          description: "I'll remember this while you try Laica.",
           duration: 5000,
         });
       } else {
@@ -407,6 +648,8 @@ export default function MobileApp() {
               Your cooking profile has been updated. Ready to find your perfect meal?{' '}
               <button
                 onClick={() => {
+                  clearStoredGuestPromotionConfirmation();
+                  setGuestPromotionConfirmation(null);
                   setSettingsSection('hub');
                   setCurrentPhase('settings');
                 }}
@@ -437,10 +680,13 @@ export default function MobileApp() {
       return user.username;
     }
 
-    return isGuest ? 'Guest kitchen' : user.email || 'Account';
+    return isGuest ? 'Your kitchen' : user.email || 'Account';
   };
 
   const handleLogout = async () => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
+
     try {
       const { FirebaseAuthService } = await import('@/lib/firebase');
       await FirebaseAuthService.signOut();
@@ -451,13 +697,26 @@ export default function MobileApp() {
     }
   };
 
+  const handleGuestStartOver = async () => {
+    if (isGuest && user?.id) {
+      clearGuestProfile(user.id);
+      window.localStorage.removeItem(planningTimeStorageKey);
+    }
+
+    await handleLogout();
+  };
+
   const openSettings = (section: SettingsSection = 'hub') => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setSettingsSection(section);
     setCurrentPhase('settings');
     setIsMenuOpen(false);
   };
 
   const openHistory = () => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setCurrentPhase('history');
     setIsMenuOpen(false);
   };
@@ -465,7 +724,7 @@ export default function MobileApp() {
   const showLinkedAccountToast = (surface: string) => {
     toast({
       title: 'Sign in or create an account to save your ingredients and profile',
-      description: `${surface} uses saved ingredients and profile. Continue with Chef It Up for this guest session.`,
+      description: `${surface} uses saved ingredients and profile. You can keep cooking with Chef It Up.`,
       variant: 'destructive',
     });
   };
@@ -474,7 +733,7 @@ export default function MobileApp() {
     toast({
       title: 'Your pantry is empty',
       description: isGuest
-        ? 'Add or scan pantry items in Settings for this guest session.'
+        ? 'Add or scan pantry items in Settings.'
         : EMPTY_PANTRY_RECIPE_COPY,
       action: (
         <ToastAction altText="Open Pantry Settings" onClick={() => openSettings('pantry')}>
@@ -491,6 +750,8 @@ export default function MobileApp() {
       return;
     }
 
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setShowPlanningChoice(false);
   };
 
@@ -500,6 +761,8 @@ export default function MobileApp() {
       return;
     }
 
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setShowPlanningChoice(false);
     setCurrentPhase('slop-bowl');
   };
@@ -519,7 +782,7 @@ export default function MobileApp() {
           <DrawerHeader className="px-0 text-left">
             <DrawerTitle className="menu-sheet-title text-3xl">Menu</DrawerTitle>
             <DrawerDescription className="text-sm font-bold text-[hsl(var(--returning-ink)/0.62)]">
-              {getUserDisplayName()} · {isGuest ? 'Guest session' : user?.email || 'Signed in'}
+              {getUserDisplayName()} · {isGuest ? 'Saved on this browser' : user?.email || 'Signed in'}
             </DrawerDescription>
           </DrawerHeader>
 
@@ -538,7 +801,7 @@ export default function MobileApp() {
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-extrabold">Settings</span>
                 <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
-                  {isGuest ? 'Guest pantry, kitchen, and cooking profile' : 'Pantry, kitchen, and cooking profile'}
+                  Pantry, kitchen, and cooking profile
                 </span>
               </span>
             </button>
@@ -577,20 +840,60 @@ export default function MobileApp() {
               </span>
             </button>
 
-            <button
-              type="button"
-              className="menu-destination"
-              onClick={handleLogout}
-            >
-              <span className="menu-destination-icon">
-                <UserCircle className="h-5 w-5" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-extrabold">Account</span>
-                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Sign out</span>
-              </span>
-              <LogOut className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
-            </button>
+            {isGuest ? (
+              <>
+                <button
+                  type="button"
+                  className="menu-destination"
+                  disabled={isPromotingGuest}
+                  onClick={handleGuestSignUp}
+                >
+                  <span className="menu-destination-icon">
+                    <UserPlus className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-extrabold">Sign up</span>
+                    <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
+                      {isPromotingGuest ? guestPromotionLabel : 'Save your pantry and profile'}
+                    </span>
+                  </span>
+                  <UserPlus className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
+                </button>
+
+                <button
+                  type="button"
+                  className="menu-destination"
+                  disabled={isPromotingGuest}
+                  onClick={handleGuestStartOver}
+                >
+                  <span className="menu-destination-icon">
+                    <LogOut className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-extrabold">Start over</span>
+                    <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
+                      Clear this setup and return home
+                    </span>
+                  </span>
+                  <LogOut className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="menu-destination"
+                onClick={handleLogout}
+              >
+                <span className="menu-destination-icon">
+                  <UserCircle className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-extrabold">Account</span>
+                  <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Sign out</span>
+                </span>
+                <LogOut className="h-4 w-4 text-[hsl(var(--returning-ink)/0.44)]" />
+              </button>
+            )}
           </div>
         </DrawerContent>
       </Drawer>
@@ -631,6 +934,23 @@ export default function MobileApp() {
               </>
             )}
           </p>
+          {isGuest && hasExistingProfile && (
+            <button
+              type="button"
+              className="mt-4 inline-flex max-w-sm items-center gap-2 rounded-full border-2 border-primary/20 bg-white/90 px-4 py-2 text-left text-xs font-extrabold text-[hsl(var(--returning-ink))] shadow-sm"
+              onClick={handleGuestSignUp}
+              disabled={isPromotingGuest}
+            >
+              <UserPlus className="h-4 w-4 shrink-0 text-primary" />
+              <span>{guestPromotionLabel}</span>
+            </button>
+          )}
+          {!isGuest && guestPromotionConfirmation && (
+            <div className="mt-4 inline-flex max-w-sm items-center gap-2 rounded-full border-2 border-primary/20 bg-white/90 px-4 py-2 text-left text-xs font-extrabold text-[hsl(var(--returning-ink))] shadow-sm">
+              <CheckCircle className="h-4 w-4 shrink-0 text-primary" />
+              <span>{guestPromotionConfirmation}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -705,6 +1025,20 @@ export default function MobileApp() {
           >
             <ChefHat className="h-6 w-6" aria-hidden="true" />
           </Button>
+
+          {isGuest && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleGuestSignUp}
+              className="app-bottom-button"
+              disabled={isPromotingGuest}
+              aria-label="Save progress"
+              title={isPromotingGuest ? guestPromotionLabel : 'Save progress'}
+            >
+              <UserPlus className="h-6 w-6" aria-hidden="true" />
+            </Button>
+          )}
 
           {renderAppMenu(
             <Button
@@ -838,6 +1172,36 @@ export default function MobileApp() {
         onClose={() => setIsFeedbackOpen(false)}
         currentPage={feedbackCurrentPage}
       />
+      <AlertDialog
+        open={Boolean(pendingExistingGoogleImport)}
+        onOpenChange={(open) => {
+          if (!open && !isPromotingGuest) {
+            setPendingExistingGoogleImport(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Save this setup to Google?</AlertDialogTitle>
+            <AlertDialogDescription>
+              We&apos;ll sign in with Google, then add this pantry, tools, and cooking profile.
+              If anything is already saved there, Laica won&apos;t overwrite it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPromotingGuest}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                confirmExistingGoogleImport();
+              }}
+              disabled={isPromotingGuest}
+            >
+              {isPromotingGuest ? 'Saving...' : 'Continue'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

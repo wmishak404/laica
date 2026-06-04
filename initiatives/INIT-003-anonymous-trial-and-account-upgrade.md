@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-15
-**Current phase:** Production gates merged; Phase 4/5 follow-up planning
+**Current phase:** Phase 4 promotion implementation in progress
 **Active PR:** None
-**Active branch:** None
+**Active branch:** `codex/anonymous-google-promotion`
 
 ## Overview
 
@@ -56,6 +56,8 @@ The merged production-gates slice does not start the fuller Phase 4 promotion/li
 
 Target-runtime public enablement should keep App Check configured and enforced for the public domain, leave `ANONYMOUS_AUTH_DISABLED` unset only when guest access should be open, and ensure the `anonymous_recipe_usage` table is present before quota testing.
 
+As of 2026-06-03, `codex/anonymous-google-promotion` is the active Phase 4 promotion implementation branch. This slice keeps the product mental model that a guest is not holding a durable account: anonymous users see sign-up/save-progress CTAs for preservation plus a separate start-over escape hatch, and Google conversion preserves the same-browser Pantry, Kitchen, and Cooking Profile setup. It intentionally does not bulk-import completed anonymous cooks into durable History.
+
 ## Plan B Guest MVP Launch Path
 
 Plan B prioritizes shipping the public pre-auth homepage before INIT-001 Phase 4 or Phase 5, while keeping the guest runtime honest about what is local/session-limited versus durable account memory.
@@ -101,7 +103,7 @@ PD-012 is the source of truth for the image-generation approach: public product-
 | Phase 1 — server auth and abuse-control foundations | Complete | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | Merged as `a0efc43`; adds anonymous kill switch, App Check enforcement path, IP-keyed anonymous rate-limit identity, backend-session client gate, and linked-only durable-route guardrails; Replit kill switch passed at `33872fd`, App Check enforced smoke passed at `72ef2f7` |
 | Phase 2 — guest quota state and auth session contract | Complete | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | Merged as `a0efc43`; adds `anonymous_recipe_usage`, anonymous session quota metadata, and 10-generation quota reservation/refund enforcement for Chef It Up generation routes; Replit schema/runtime quota validation passed, including `#11` `LINKED_ACCOUNT_REQUIRED` |
 | Phase 3 — client guest entry, same-browser persistence, and public pre-auth homepage | Complete | [PR #102](https://github.com/wmishak404/laica/pull/102) / `codex/init-003-preauth-homepage` | Merged as `515b7ec` after Replit validation at `c952d13`: anonymous sign-in, `/api/auth/session` adoption, local guest profile persistence, A+C hybrid pre-auth homepage, and no landing-page quota pressure |
-| Phase 4 — linked-account save boundary and promotion | Boundary-only complete; promotion planned | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | Typed `LINKED_ACCOUNT_REQUIRED` responses now protect durable server-side saves, while guest Pantry/Kitchen/Profile Settings remain session-local; Google link flow and strict trial-state promotion remain planned |
+| Phase 4 — linked-account save boundary and promotion | Promotion implementation in progress | `codex/anonymous-google-promotion` | First promotion slice preserves same-browser Pantry, Kitchen, and Cooking Profile through Google conversion, uses neutral import consent for credential-in-use flows, shows inline success confirmation, and keeps durable History import deferred; Wilson Replit-validated new/existing account flows at runtime head `e2231be` |
 | Phase 5 — anonymous cooking coverage and Phase 5 integration | Planned | TBD | Anonymous-safe Slop Bowl path plus linked-only durable cooking/history/cleanup memory |
 | Phase 6 — operations, cleanup, and launch | Production-gate slice complete; later cleanup/ops planned | [#107](https://github.com/wmishak404/laica/pull/107) / `codex/init-003-production-gates` | App Check posture and kill-switch env contract are merged; Replit final gate passed at `72ef2f7` with `FIREBASE_APP_CHECK_ENFORCED=true`; later cleanup/ops work remains separate |
 
@@ -169,15 +171,17 @@ Analytics work is intentionally separate. If measurement implementation begins, 
   - `git diff --check`
 - 2026-05-28 Replit validation has partially run for `codex/init-003-production-gates`: Wilson confirmed guest Settings session-local edits, Chef It Up using edited guest data, History and Slop Bowl linked-only boundaries, Google sign-in, linked History loads/writes, durable-save rejection and copy for guests, provider sanity baseline for vision/recipes/cooking steps/speech, `anonymous_recipe_usage` schema availability after a manual Replit DB helper, the `#11` guest quota block returning `403 LINKED_ACCOUNT_REQUIRED`, linked profile/settings cache isolation after anonymous guest use, anonymous quota persistence across normal Replit page refresh, and linked cooking-session persistence.
 - Kill-switch validation passed at `33872fd`: guest start stayed on the landing page, displayed the guest-unavailable toast, and Replit logged `/api/auth/session 403`; after Wilson removed the secret and restarted, guest sign-in worked again. App Check pre-enforcement validation confirmed the Replit client sends `X-Firebase-AppCheck` on `/api/auth/session` while enforcement is off. Wilson then loaded the current PR head `72ef2f7`, set `FIREBASE_APP_CHECK_ENFORCED=true`, and passed the final smoke: guest start, recipe generation, Google sign-in, linked profile/settings save, vision scan, cooking steps, and speech all worked with no `APP_CHECK_REQUIRED` or `APP_CHECK_INVALID`.
+- 2026-06-03 Replit validation for `codex/anonymous-google-promotion` confirmed guest mental-model surfaces, same-browser setup persistence, new Google account promotion, existing Google credential/import consent, restrained Settings copy, neutral Google-import wording, and the inline post-link confirmation copy at runtime head `e2231be`. Follow-up Replit validation confirmed completed guest cooks do not retro-import into durable History after conversion, and the guest recipe `#11` quota gate blocks as expected. The quota toast title was correct, but the body still surfaced old `Link Google` wording from the server response; the client now overrides recipe-cap body copy to `Sign up before making more recipes.` Wilson then loaded latest head `2a4ae75`, confirmed the app loads cleanly, confirmed the linked-account success message lingers until navigation, and confirmed signed-in accounts can pass recipe attempt `#11` as designed. Popup cancellation uses calm copy but still takes about three seconds because Firebase reports popup closure asynchronously. Guest `#11` blocking was manually confirmed shortly before the final copy-only fix, so the remaining guest-only `#11` body-copy check is optional; local unit coverage guards the copy override.
 
 ## Current Resume Point
 
 1. Treat the public guest production-gate code as merged on `main` through PR #107 (`a0efc43`) and Replit-validated at `72ef2f7`.
 2. When enabling or revalidating a public runtime, confirm the target environment has `VITE_FIREBASE_APP_CHECK_SITE_KEY`, Firebase Console App Check registration for the target domain, `FIREBASE_APP_CHECK_ENFORCED=true`, `ANONYMOUS_AUTH_DISABLED` unset unless guest access should be paused, and the `anonymous_recipe_usage` table present.
-3. Keep Phase 4 Google link/promotion/import and Phase 5/anonymous Slop Bowl dry-run as follow-up scope unless Wilson explicitly pulls them forward.
-4. Keep durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary.
-5. Use the new follow-up Efforts as the durable homes for post-validation learnings: [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for cuisine-fit prompt/eval work, [EFF-024](../efforts/effort-024-guest-privacy-trust-messaging.md) for guest privacy/trust messaging, and [EFF-025](../efforts/effort-025-settings-unsaved-inventory-reminder.md) for unsaved Settings reminders.
-6. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
+3. Continue Phase 4 Google promotion on `codex/anonymous-google-promotion`; Phase 5/anonymous Slop Bowl dry-run remains separate follow-up scope unless Wilson explicitly pulls it forward. Runtime UX validation has reached latest head `2a4ae75` for app-load and linked-account confirmation linger. Guest `#11` blocking was already manually confirmed shortly before the final copy-only fix; rechecking the guest-only `#11` quota body copy is optional because local unit coverage guards the override.
+4. Use conversion-gated durability for guest promotion: first preserve Pantry, Kitchen, and Cooking Profile when the user links Google and consents; do not bulk- or background-import every completed anonymous cook into durable History in the first promotion slice.
+5. Keep durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory linked-account only unless a later INIT-003 phase changes that boundary. A future Phase 5/promotion path may explicitly save a current guest cook after conversion, but that must be user-consented and designed with cleanup/taste semantics instead of automatic retro-import.
+6. Use the new follow-up Efforts as the durable homes for post-validation learnings: [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for cuisine-fit prompt/eval work, [EFF-024](../efforts/effort-024-guest-privacy-trust-messaging.md) for guest privacy/trust messaging, and [EFF-025](../efforts/effort-025-settings-unsaved-inventory-reminder.md) for unsaved Settings reminders.
+7. If measurement work becomes urgent, file a separate analytics effort rather than overloading the runtime auth branches.
 
 ## Chronology
 
@@ -265,3 +269,15 @@ Wilson then loaded the current PR head `72ef2f7` in Replit, set `FIREBASE_APP_CH
 The merged production-gates slice makes the Plan B public guest MVP operationally safer to open: guest entry remains real Firebase anonymous auth; quota enforcement is server-backed; abuse controls include App Check, IP-keyed anonymous rate limits, and a kill switch; durable saves remain linked-account only; guest Pantry/Kitchen/Profile Settings stay same-browser local; and durable History, cleanup memory, taste memory, next-meal retention, and durable cooking sessions remain linked-account only.
 
 Post-merge follow-up scope remains explicit: Phase 4 owns fuller Google promotion/link/import behavior, Phase 5 owns linked returning-user memory and any future anonymous Slop Bowl dry-run decision, EFF-022 owns cuisine-fit prompt/eval improvements, EFF-024 owns guest privacy/trust messaging, EFF-025 owns unsaved Settings reminders, and analytics should be filed separately if needed.
+
+### 2026-06-03 — Conversion-gated guest History decision
+
+Wilson clarified the next account-promotion mental model: the public guest path is not an anonymous account the user should manage, and the first durable promise is that signing up with Google preserves the setup work they choose to keep, especially Pantry, Kitchen, and Cooking Profile. Completed anonymous cooks should not be bulk- or background-imported into durable History in the first promotion slice.
+
+The accepted near-term implementation direction is conversion-gated durability. Guest cooks may remain local before conversion. At or after a Google conversion moment, Laica may save a current guest cook or selected cook state only through an explicit user-consented promotion/import path. Richer completed-cook import remains Phase 5/promotion design scope because cleanup, taste signal, next-meal retention, and History semantics need to be coherent before guest cook state becomes durable memory.
+
+### 2026-06-03 — Phase 4 promotion branch started
+
+`codex/anonymous-google-promotion` started the first Google promotion slice from the accepted conversion-gated decision. The branch changes guest copy away from anonymous-account framing, adds visible but non-blocking save-progress CTAs, keeps a separate guest start-over action, links an anonymous Firebase user to Google when possible, and asks before switching into Google and importing browser-local setup. The import scope remains Pantry, Kitchen, and Cooking Profile only; durable History, cleanup memory, taste memory, next-meal retention, and durable cooking-session memory stay linked-only and are not retro-filled from completed anonymous cooks.
+
+Wilson's Replit review accepted the refined UX at runtime head `e2231be`: new-account and existing-credential account-promotion flows both worked, Settings copy was better after removing repeated "this browser" reminders, the neutral Google-import dialog was friendly enough for a brand-new-feeling Google path, and the inline confirmation should read `Account successfully connected and signed in. Your kitchen is saved.` Follow-up implementation makes that inline confirmation session-backed so it should survive auth/profile refresh churn and remain visible until the user moves to the next page/flow; recheck that behavior on the latest branch head before merge.

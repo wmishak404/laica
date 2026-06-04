@@ -158,7 +158,7 @@ describe('anonymous production gates', () => {
     expect(await response.json()).toEqual({
       code: 'LINKED_ACCOUNT_REQUIRED',
       linkedAccountReason: 'recipe_limit',
-      message: 'Link Google to unlock more recipes.',
+      message: 'Sign up to unlock more recipes.',
       anonymousRecipeQuota: {
         limit: 10,
         used: 10,

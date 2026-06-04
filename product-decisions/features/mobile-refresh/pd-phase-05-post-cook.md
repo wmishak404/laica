@@ -36,7 +36,8 @@ Help users come back for a second cook by keeping pantry inventory accurate with
 - [PD-012](../../pd-012-public-anonymous-trial-and-account-upgrade.md) sets the guest boundary for v1.
 - Anonymous users do not create durable post-cook history, `pending_cleanup`, `taste_signal`, or next-meal retention state.
 - Phase 5 remains a linked-account memory surface until a later decision says otherwise.
-- Anonymous cooks may continue locally on the same browser/device, but completed anonymous post-cook state is not retro-imported into durable history in v1.
+- Anonymous cooks may continue locally on the same browser/device, but completed anonymous post-cook state is not bulk- or background-retro-imported into durable history in v1.
+- Guest cook state can become durable only at a user-consented Google conversion/save moment. The first promotion slice should focus on preserving Pantry, Kitchen, and Cooking Profile; any current-cook or selected-cook History import must be designed as explicit Phase 5/promotion scope with cleanup and taste semantics, not as an automatic anonymous-login side effect.
 - The INIT-003 Plan B homepage may ship before Phase 5. That does not pull Phase 5 forward or make cleanup/retention part of the guest MVP.
 - If a guest links Google after cooking anonymously, v1 does not backfill anonymous cleanup, taste, next-meal seed, or History retention unless a future product decision explicitly changes the promotion contract.
 
