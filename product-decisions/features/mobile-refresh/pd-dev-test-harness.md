@@ -78,7 +78,7 @@ When implemented in a separate branch, the harness should include:
 
 ## 2026-06-04 — First Linked Dev-Auth Lane
 
-EFF-017 branch `codex/eff-017-linked-dev-auth` implements the first narrow slice of this harness:
+EFF-017 PR #135 (`codex/eff-017-linked-dev-auth`) merged the first narrow slice of this harness as `545c00fa2dc695b9f0cadb6eb15d952c661fd2f4`:
 
 - Adds a dev-only `/api/dev/auth/linked-token` endpoint that mints Firebase custom tokens only when the runtime is non-production, not a Replit deployment, `LAICA_DEV_AUTH_ENABLED` is set, the guarded `X-Laica-Dev-Auth` header matches `LAICA_DEV_AUTH_SECRET`, and the requested UID is an allowlisted `dev-test-*` user.
 - Seeds the deterministic linked test user through the normal storage layer, then returns the Firebase custom token with private no-store response headers.
