@@ -256,7 +256,7 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByText('miso').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Pantry updated',
-      description: 'Your pantry is updated for this guest session.',
+      description: 'Your pantry is updated on this browser.',
     }));
   });
 
@@ -288,7 +288,7 @@ describe('UserSettings scan upload policy', () => {
     expect(updateProfileMock).not.toHaveBeenCalled();
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Kitchen updated',
-      description: 'Your kitchen tools are updated for this guest session.',
+      description: 'Your kitchen tools are updated on this browser.',
     }));
   });
 
@@ -316,7 +316,7 @@ describe('UserSettings scan upload policy', () => {
     expect(updateProfileMock).not.toHaveBeenCalled();
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Profile updated',
-      description: 'Your cooking profile is updated for this guest session.',
+      description: 'Your cooking profile is updated on this browser.',
     }));
   });
 

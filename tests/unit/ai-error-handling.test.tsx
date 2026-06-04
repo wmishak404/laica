@@ -68,6 +68,16 @@ describe('authenticated AI error handling', () => {
     expect(feedback.description).toBe('Add at least 3 ingredients before generating a Slop Bowl.');
   });
 
+  it('uses sign-up language for anonymous recipe-limit boundaries', () => {
+    const feedback = classifyAiRequestError(apiError(403, {
+      code: 'LINKED_ACCOUNT_REQUIRED',
+    }));
+
+    expect(feedback.kind).toBe('product-precondition');
+    expect(feedback.title).toBe('Sign up to unlock more recipes');
+    expect(feedback.description).toBe('Sign up before making more recipes.');
+  });
+
   it('uses Retry-After to give rate-limit waits a matching time horizon', () => {
     const feedback = classifyAiRequestError(apiError(429, {
       code: 'RATE_LIMITED',

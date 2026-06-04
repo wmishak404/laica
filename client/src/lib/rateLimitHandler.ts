@@ -143,14 +143,14 @@ export function classifyAiRequestError(error: unknown, options: AiErrorHandlingO
         kind: 'product-precondition',
         title: isDurableSave
           ? 'Sign in or create an account to save your ingredients and profile'
-          : 'Link Google to unlock more recipes',
+          : 'Sign up to unlock more recipes',
         description: error instanceof ApiRequestError
           ? error.body?.message || (isDurableSave
               ? 'Sign in or create an account before saving your ingredients and profile.'
-              : 'Link Google before making more recipes.')
+              : 'Sign up before making more recipes.')
           : (isDurableSave
               ? 'Sign in or create an account before saving your ingredients and profile.'
-              : 'Link Google before making more recipes.'),
+              : 'Sign up before making more recipes.'),
         status,
         code,
         includeFeedbackLink: false,

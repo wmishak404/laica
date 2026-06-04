@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-05-27
+**Updated:** 2026-06-03
 
 ## One-line summary
 
@@ -79,3 +79,7 @@ This Effort is `Resolved` when all of the following are true:
 ## 2026-05-27 - Created from guest Settings privacy insight
 
 Wilson recognized that browser-local guest Pantry/Kitchen/Profile settings can be framed as a privacy benefit for new users hesitant to try the app. Created this Effort so a later UX/copy pass can surface that benefit deliberately while preserving the exact guest/local and linked/durable boundaries.
+
+## 2026-06-03 - First browser-local copy pass in account promotion
+
+`codex/anonymous-google-promotion` adds a narrow copy pass that supports the Effort without resolving it: guest Settings/menu/toast language now frames Pantry, Kitchen, and Cooking Profile as saved on "this browser" instead of as a "guest session" or anonymous account. The branch also adds sign-up/save-progress CTAs around preserving setup work. It does not claim provider requests stay local, does not add public privacy-policy language, and still needs Replit/mobile visual validation before this Effort can be resolved.
