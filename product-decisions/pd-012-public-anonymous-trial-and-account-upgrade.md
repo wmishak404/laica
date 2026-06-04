@@ -51,6 +51,18 @@ The decision remains active because Phase 4 promotion/linking and Phase 5 return
 
 Wilson clarified that anonymous cooking history should become durable only when the user converts, not through background retro-import of every completed guest cook. The near-term account-promotion promise is therefore: sign up with Google so Laica keeps the setup and cooking work the user chooses to carry forward. Pantry, Kitchen, and Cooking Profile import are the first conversion targets; completed cook History import remains a later deliberate Phase 5/promotion design unless the user converts at an explicit save-history moment.
 
+### 2026-06-03 Phase 4 promotion UX validation
+
+Wilson validated the first Google promotion slice in Replit and accepted the product shape for both new Google sign-up and existing-Google credential flows. The accepted mental model is:
+
+- a guest is still not presented as holding an account
+- sign-up is a preservation path for setup work
+- Start over remains available as a separate guest escape hatch
+- Settings should stay concise and should not repeatedly explain browser-local storage
+- the single menu-header cue `Saved on this browser` is enough for this slice
+- the Google-import consent dialog should stay neutral and user-friendly; it should not say the Google account already exists in Laica or already has a Laica kitchen
+- after successful linking, the planning header should confirm: `Account successfully connected and signed in. Your kitchen is saved.`
+
 ## Decision
 
 ### Public entry model
@@ -117,6 +129,11 @@ Durable saves include:
 - The linked-account prompt depends on the trigger:
   - recipe-cap moment: **unlock more recipes**
   - durable-save moment: **sign in or create an account to save your ingredients and profile**
+- The promotion prompt should depend on the user's moment:
+  - regular guest menu/planning reminder: sign-up or save-progress copy that emphasizes preserving Pantry, Kitchen, and Cooking Profile
+  - guest reset/abandon moment: a separate **Start over** action, not hidden behind sign-up
+  - Google credential-in-use/import moment: neutral copy that asks to save the current setup to Google and promises no overwrite if anything is already saved
+  - successful conversion moment: inline confirmation in the planning header, not only a transient toast
 
 ### Security contract
 
@@ -147,6 +164,22 @@ Durable saves include:
 - Environment-parity and browser-smoke automation remain under [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md). Guest auth can reduce browser-auth friction later, but it does not replace linked-account validation in Replit.
 - Anonymous entry creates a first-party browser automation path for the guest happy path: agents can start from `Start cooking now`, receive a real Firebase anonymous session, and exercise setup/recipe/cooking-guide flows without depending on a Google provider popup. This is a validation and developer-productivity benefit of the product direction, not a separate auth harness.
 - This automation benefit must not be overread. Google sign-in, linked-user profile upsert, linked-user history/cooking persistence, and linked-save behavior still require explicit linked-account validation in Replit.
+
+## Phase 4 Promotion Acceptance Criteria
+
+Future validation of the first anonymous-to-Google promotion slice should prove:
+
+- Guest setup remains editable and persistent on the same browser before conversion.
+- Guest menu/header copy reinforces browser-local progress without implying a durable anonymous account.
+- Settings menu/screen/toast copy stays concise; do not repeat `this browser` on every Settings surface.
+- Guest users have both a preservation action (`Sign up` / save progress) and an abandon action (`Start over`).
+- Canceling or closing the Google popup unwinds the busy state quickly and uses calm cancel copy rather than a failure tone.
+- New Google sign-up preserves Pantry, Kitchen, Cooking Profile, and favorite chefs after refresh.
+- Existing Google credential/import flow asks before importing the browser setup.
+- Import merge behavior does not silently overwrite existing linked setup: keep existing cooking skill when present, merge list fields, and merge dietary restrictions without letting guest `No restrictions` erase specific linked restrictions.
+- After successful linking, the planning header shows `Account successfully connected and signed in. Your kitchen is saved.`
+- Completed anonymous cooks do not automatically appear in durable History after conversion.
+- Firebase Auth deletion and Laica database deletion are tested as separate concepts when resetting Replit validation accounts; deleting `auth_users` rows alone does not guarantee Firebase will treat a Google credential as new.
 
 ## Rationale
 

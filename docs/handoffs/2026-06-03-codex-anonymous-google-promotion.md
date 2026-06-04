@@ -28,9 +28,11 @@ Existing Google accounts are consent-gated. The current merge policy fills blank
 
 Firebase Auth state is separate from the Laica `auth_users` table. If a Replit reset deletes Postgres rows but leaves Firebase Authentication users in place, Firebase can still return `auth/credential-already-in-use`; the UI should not expose that distinction and now asks neutrally whether to save the setup to Google.
 
+Wilson's Replit validation accepted the current product shape at runtime head `e2231be`: new Google sign-up and existing Google credential/import flows both looked good, Settings copy worked after removing repeated "this browser" language, and the neutral Google-import dialog was friendly enough for a brand-new-feeling account path.
+
 ## Open items
 
-- Replit validation should continue from the latest pushed commit. Wilson already confirmed guest mental-model surfaces and same-browser setup persistence before the follow-up copy/menu fixes; recheck the guest menu split, popup-cancel feel, inline post-link confirmation, real Firebase Google popup linking, existing-account credential handling, linked profile writes, and account-session adoption.
+- Replit validation should continue from the latest pushed commit. Wilson confirmed guest mental-model surfaces, same-browser setup persistence, new-account promotion, existing-credential import consent, linked profile writes, and the accepted wording at runtime head `e2231be`; remaining checks are guest History non-import, quota `#11` copy, popup-cancel tactile feel if not already rechecked, and a final branch-head refresh after this docs update.
 - Browser smoke was not completed locally. The dev server reported `serving on port 3000`, but localhost refused connections, and the Playwright attempt was blocked by the local sandbox when its configured web server tried to create a `tsx` IPC pipe. Treat local browser evidence as unavailable for this branch.
 - Durable History import for completed anonymous cooks remains explicitly deferred.
 - Email/password account creation remains out of scope; this branch keeps Google as the durable account path.
@@ -46,5 +48,5 @@ Firebase Auth state is separate from the Laica `auth_users` table. If a Replit r
 
 - Base refreshed: yes
 - Current base: `origin/main` at `ab6cc77378ddc8e35b50a7423c8266773b772862`
-- Last Replit-validated at: not yet validated
-- Notes: branch was rebased onto current `origin/main` after PR #123/#124 landed. The earlier conversion-history docs decision is included in the stack as the lower commit on this branch.
+- Last Replit-validated at: `e2231be7bdcfe672d176d838f15ae04a5dd961ad` for the account-promotion runtime paths described above
+- Notes: branch was rebased onto current `origin/main` after PR #123/#124 landed. The earlier conversion-history docs decision is included in the stack as the lower commit on this branch. This handoff/docs update lands after the runtime validation SHA, so refresh Replit on the latest branch head before merge.
