@@ -10,6 +10,21 @@ This workflow defines when Codex may merge a PR without a fresh Wilson instructi
 
 Codex may auto-merge docs-only workflow PRs and fact-only post-merge evidence closeouts after the relevant merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, Replit validation when applicable, and an explicit human merge instruction.
 
+Codex may mark its own complete draft PRs ready for review and monitor CI without waiting for Wilson when the ready-for-review gates below pass. That authority only starts the shared CI/review loop; it does not grant merge authority.
+
+## Ready-For-Review And CI Start Authority
+
+Codex may mark an agent-owned draft PR ready for review, then watch and report CI, when all of these are true:
+
+1. The branch is pushed, clean, current with the intended base, and has no merge conflicts.
+2. The implementation scope is complete enough for review and is not marked WIP, blocked, superseded, or waiting on a product/security/Replit-side decision.
+3. The PR body and handoff describe the claim, validation lane, current evidence, and remaining negative scope. If GitHub CI is needed as part of the evidence, say it is pending and update the report after it completes.
+4. Required local checks for the change type have passed, or skipped checks are explicitly justified by [`testing-and-acceptance.md`](testing-and-acceptance.md).
+5. Replit validation is either completed at the final head SHA, explicitly not required with rationale, or still pending and therefore blocks merge even if the PR is ready for review.
+6. Existing PR comments, review comments, and handoffs do not contain unresolved blockers or explicit peer-review-before-ready requests.
+
+If any gate is uncertain, keep the PR draft and leave a blocking note with the smallest next action. If checks fail after the PR is marked ready, do not merge; either fix the branch or document the blocker. Ready-for-review automation must never be used to bypass the code/deployment merge rules below.
+
 ## Auto-Merge Authority
 
 Codex may merge a PR on its own only when all of these are true:
