@@ -184,6 +184,7 @@ describe('MobileApp planning choice pantry status', () => {
     cleanup();
     vi.clearAllMocks();
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it('shows the empty-pantry status line on the planning choice screen', async () => {
@@ -340,6 +341,32 @@ describe('MobileApp planning choice pantry status', () => {
     expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Progress saved',
     }));
+  });
+
+  it('keeps the post-link confirmation until the user moves to the next page', async () => {
+    await renderGuestPlanningChoice(makeProfile({
+      pantryIngredients: ['rice', 'eggs'],
+      kitchenEquipment: ['skillet'],
+    }));
+
+    fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
+
+    const confirmation = 'Account successfully connected and signed in. Your kitchen is saved.';
+    await screen.findByText(confirmation);
+    expect(window.sessionStorage.getItem('laica:guest-promotion-confirmation')).toBe(confirmation);
+
+    cleanup();
+    mocks.authUser = { id: 'linked-test-1', email: 'tester@example.com' };
+    mocks.userProfileReturn.data = { user: makeProfile({ pantryIngredients: ['rice', 'eggs'] }) };
+    render(<MobileApp />);
+
+    expect(await screen.findByText(confirmation)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
+
+    await waitFor(() => expect(screen.getByTestId('meal-planning')).toBeTruthy());
+    expect(screen.queryByText(confirmation)).toBeNull();
+    expect(window.sessionStorage.getItem('laica:guest-promotion-confirmation')).toBeNull();
   });
 
   it('asks before adding guest setup to an existing Google account', async () => {

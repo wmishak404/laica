@@ -52,6 +52,26 @@ const createEmptyUserProfile = (): UserProfile => ({
 });
 
 const guestProfileStorageKey = (userId: string) => `laica:guest-profile:${userId}`;
+const GUEST_PROMOTION_CONFIRMATION = 'Account successfully connected and signed in. Your kitchen is saved.';
+const GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY = 'laica:guest-promotion-confirmation';
+
+function readGuestPromotionConfirmation() {
+  if (typeof window === 'undefined') return null;
+
+  return window.sessionStorage.getItem(GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY);
+}
+
+function writeGuestPromotionConfirmation() {
+  if (typeof window === 'undefined') return;
+
+  window.sessionStorage.setItem(GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY, GUEST_PROMOTION_CONFIRMATION);
+}
+
+function clearStoredGuestPromotionConfirmation() {
+  if (typeof window === 'undefined') return;
+
+  window.sessionStorage.removeItem(GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY);
+}
 
 function readGuestProfile(userId: string): UserProfile {
   if (typeof window === 'undefined') return createEmptyUserProfile();
@@ -234,7 +254,9 @@ export default function MobileApp() {
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('hub');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [guestPromotionStatus, setGuestPromotionStatus] = useState<GuestPromotionStatus>('idle');
-  const [guestPromotionConfirmation, setGuestPromotionConfirmation] = useState<string | null>(null);
+  const [guestPromotionConfirmation, setGuestPromotionConfirmation] = useState<string | null>(() =>
+    readGuestPromotionConfirmation()
+  );
   const [pendingExistingGoogleImport, setPendingExistingGoogleImport] = useState<PendingExistingGoogleImport | null>(null);
   const [slopItUpPlanningCopy] = useState(() => getRandomSlopItUpPlanningCopy());
   const planningStateScopeKey = useMemo(
@@ -416,7 +438,8 @@ export default function MobileApp() {
     setIsMenuOpen(false);
     setShowPlanningChoice(true);
     setCurrentPhase(hasCompletedCookingProfile(profileToUse) ? 'planning' : 'profiling');
-    setGuestPromotionConfirmation('Account successfully connected and signed in. Your kitchen is saved.');
+    writeGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(GUEST_PROMOTION_CONFIRMATION);
 
     toast({
       title: importedProfile ? 'Progress saved' : 'Account ready',
@@ -520,6 +543,8 @@ export default function MobileApp() {
             Your cooking profile has been saved. Ready to find your perfect meal?{' '}
             <button
               onClick={() => {
+                clearStoredGuestPromotionConfirmation();
+                setGuestPromotionConfirmation(null);
                 setSettingsSection('hub');
                 setCurrentPhase('settings');
               }}
@@ -537,6 +562,8 @@ export default function MobileApp() {
   };
 
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setSelectedMeal(meal);
     setScheduledTime(scheduledTime);
     setCurrentPhase('cooking');
@@ -621,6 +648,8 @@ export default function MobileApp() {
               Your cooking profile has been updated. Ready to find your perfect meal?{' '}
               <button
                 onClick={() => {
+                  clearStoredGuestPromotionConfirmation();
+                  setGuestPromotionConfirmation(null);
                   setSettingsSection('hub');
                   setCurrentPhase('settings');
                 }}
@@ -655,6 +684,9 @@ export default function MobileApp() {
   };
 
   const handleLogout = async () => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
+
     try {
       const { FirebaseAuthService } = await import('@/lib/firebase');
       await FirebaseAuthService.signOut();
@@ -675,12 +707,16 @@ export default function MobileApp() {
   };
 
   const openSettings = (section: SettingsSection = 'hub') => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setSettingsSection(section);
     setCurrentPhase('settings');
     setIsMenuOpen(false);
   };
 
   const openHistory = () => {
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setCurrentPhase('history');
     setIsMenuOpen(false);
   };
@@ -714,6 +750,8 @@ export default function MobileApp() {
       return;
     }
 
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setShowPlanningChoice(false);
   };
 
@@ -723,6 +761,8 @@ export default function MobileApp() {
       return;
     }
 
+    clearStoredGuestPromotionConfirmation();
+    setGuestPromotionConfirmation(null);
     setShowPlanningChoice(false);
     setCurrentPhase('slop-bowl');
   };

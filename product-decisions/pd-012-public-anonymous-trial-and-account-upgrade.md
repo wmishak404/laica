@@ -61,7 +61,7 @@ Wilson validated the first Google promotion slice in Replit and accepted the pro
 - Settings should stay concise and should not repeatedly explain browser-local storage
 - the single menu-header cue `Saved on this browser` is enough for this slice
 - the Google-import consent dialog should stay neutral and user-friendly; it should not say the Google account already exists in Laica or already has a Laica kitchen
-- after successful linking, the planning header should confirm: `Account successfully connected and signed in. Your kitchen is saved.`
+- after successful linking, the planning header should confirm `Account successfully connected and signed in. Your kitchen is saved.` and keep that confirmation visible until the user moves to the next page/flow
 
 ## Decision
 
@@ -133,7 +133,7 @@ Durable saves include:
   - regular guest menu/planning reminder: sign-up or save-progress copy that emphasizes preserving Pantry, Kitchen, and Cooking Profile
   - guest reset/abandon moment: a separate **Start over** action, not hidden behind sign-up
   - Google credential-in-use/import moment: neutral copy that asks to save the current setup to Google and promises no overwrite if anything is already saved
-  - successful conversion moment: inline confirmation in the planning header, not only a transient toast
+  - successful conversion moment: inline confirmation in the planning header that persists until the user moves to the next page/flow, not only a transient toast
 
 ### Security contract
 
@@ -177,7 +177,7 @@ Future validation of the first anonymous-to-Google promotion slice should prove:
 - New Google sign-up preserves Pantry, Kitchen, Cooking Profile, and favorite chefs after refresh.
 - Existing Google credential/import flow asks before importing the browser setup.
 - Import merge behavior does not silently overwrite existing linked setup: keep existing cooking skill when present, merge list fields, and merge dietary restrictions without letting guest `No restrictions` erase specific linked restrictions.
-- After successful linking, the planning header shows `Account successfully connected and signed in. Your kitchen is saved.`
+- After successful linking, the planning header shows `Account successfully connected and signed in. Your kitchen is saved.` and the message survives auth/profile refresh churn until the user leaves the planning choice.
 - Completed anonymous cooks do not automatically appear in durable History after conversion.
 - Firebase Auth deletion and Laica database deletion are tested as separate concepts when resetting Replit validation accounts; deleting `auth_users` rows alone does not guarantee Firebase will treat a Google credential as new.
 

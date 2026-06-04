@@ -12,11 +12,11 @@ This branch implements the first Phase 4 account-promotion slice for INIT-003: g
 
 ## Changes
 
-- `client/src/pages/app.tsx` adds the guest sign-up/save-progress CTA, separate guest Start over action, Google link flow, neutral Google-import confirmation dialog, popup-cancel handling, guest-to-linked profile import for Pantry/Kitchen/Cooking Profile/favorite chefs, and an inline post-link confirmation in the planning header.
+- `client/src/pages/app.tsx` adds the guest sign-up/save-progress CTA, separate guest Start over action, Google link flow, neutral Google-import confirmation dialog, popup-cancel handling, guest-to-linked profile import for Pantry/Kitchen/Cooking Profile/favorite chefs, and a session-backed inline post-link confirmation in the planning header that clears when the user moves to the next page/flow.
 - `client/src/lib/firebase.ts` adds Firebase helpers for linking an anonymous user with Google, extracting the existing-account Google credential from Firebase errors, and signing in with that credential after consent.
 - `client/src/components/cooking/user-settings.tsx`, `client/src/components/cooking/live-cooking.tsx`, `client/src/lib/rateLimitHandler.ts`, and `server/routes.ts` update guest-facing copy away from anonymous-account framing while keeping Settings copy concise and avoiding repeated "this browser" reminders.
 - `tests/setup.ts` extends the Firebase auth mock for link/sign-in credential flows.
-- `tests/unit/planning-choice.test.tsx`, `tests/unit/user-settings-scan-policy.test.tsx`, `tests/unit/live-cooking-guest-session.test.tsx`, `tests/unit/anonymous-production-gates-route.test.ts`, and `tests/unit/ai-error-handling.test.tsx` cover the new copy, direct guest promotion/import path, inline post-link confirmation, credential-in-use consent path, popup-cancel path, and no-silent-overwrite merge helper.
+- `tests/unit/planning-choice.test.tsx`, `tests/unit/user-settings-scan-policy.test.tsx`, `tests/unit/live-cooking-guest-session.test.tsx`, `tests/unit/anonymous-production-gates-route.test.ts`, and `tests/unit/ai-error-handling.test.tsx` cover the new copy, direct guest promotion/import path, session-backed inline post-link confirmation, credential-in-use consent path, popup-cancel path, and no-silent-overwrite merge helper.
 - `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md` now points the current Phase 4 resume state at this branch and records the active implementation scope.
 - `efforts/effort-024-guest-privacy-trust-messaging.md` records the first restrained browser-local copy pass and Wilson's Replit copy feedback without resolving the Effort.
 
@@ -32,14 +32,14 @@ Wilson's Replit validation accepted the current product shape at runtime head `e
 
 ## Open items
 
-- Replit validation should continue from the latest pushed commit. Wilson confirmed guest mental-model surfaces, same-browser setup persistence, new-account promotion, existing-credential import consent, linked profile writes, and the accepted wording at runtime head `e2231be`; remaining checks are guest History non-import, quota `#11` copy, popup-cancel tactile feel if not already rechecked, and a final branch-head refresh after this docs update.
+- Replit validation should continue from the latest pushed commit. Wilson confirmed guest mental-model surfaces, same-browser setup persistence, new-account promotion, existing-credential import consent, linked profile writes, and the accepted wording at runtime head `e2231be`; remaining checks are the session-backed inline confirmation linger, guest History non-import, quota `#11` copy, popup-cancel tactile feel if not already rechecked, and a final branch-head refresh after subsequent commits.
 - Browser smoke was not completed locally. The dev server reported `serving on port 3000`, but localhost refused connections, and the Playwright attempt was blocked by the local sandbox when its configured web server tried to create a `tsx` IPC pipe. Treat local browser evidence as unavailable for this branch.
 - Durable History import for completed anonymous cooks remains explicitly deferred.
 - Email/password account creation remains out of scope; this branch keeps Google as the durable account path.
 
 ## Verification
 
-- `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/live-cooking-guest-session.test.tsx tests/unit/firebase-auth-client.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-error-handling.test.tsx` — passed, 6 files / 54 tests.
+- `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/live-cooking-guest-session.test.tsx tests/unit/firebase-auth-client.test.tsx tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-error-handling.test.tsx` — passed, 6 files / 55 tests.
 - `npm run check` — passed.
 - `npm run build` — passed. Existing warnings remained: stale Browserslist data, Firebase static/dynamic import chunk warning, and an oversized client chunk.
 - `git diff --check` — passed.
