@@ -101,6 +101,28 @@ async function stubPantryRecipes(page: Page) {
   };
 }
 
+async function stubPantryRecipeQuotaRequired(page: Page) {
+  let requestCount = 0;
+
+  await page.route('**/api/recipes/pantry', async (route) => {
+    requestCount += 1;
+
+    await route.fulfill({
+      status: 403,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        code: 'LINKED_ACCOUNT_REQUIRED',
+        message: 'Link Google to keep generating recipes.',
+        linkedAccountReason: 'recipe_quota',
+      }),
+    });
+  });
+
+  return {
+    getRequestCount: () => requestCount,
+  };
+}
+
 async function stubLiveCookingProviders(page: Page) {
   let stepsRequestCount = 0;
   let assistanceRequestCount = 0;
@@ -180,7 +202,7 @@ async function completeGuestSetupToPlanning(page: Page) {
   await expect(page.getByRole('heading', { name: 'What are we cooking today?' })).toBeVisible();
 }
 
-async function completeChefItUpToPrepTray(page: Page) {
+async function completeChefItUpToStapleSelection(page: Page) {
   await completeGuestSetupToPlanning(page);
   await page.getByRole('button', { name: 'Chef It Up' }).click();
 
@@ -195,6 +217,10 @@ async function completeChefItUpToPrepTray(page: Page) {
   await expect(page.getByRole('heading', { name: 'Anything else around?' })).toBeVisible();
   await page.getByRole('button', { name: 'tortillas' }).click();
   await page.getByRole('button', { name: 'lime' }).click();
+}
+
+async function completeChefItUpToPrepTray(page: Page) {
+  await completeChefItUpToStapleSelection(page);
 
   const pantryRequestPromise = page.waitForRequest('**/api/recipes/pantry');
   await page.getByRole('button', { name: 'View recipe suggestions' }).click();
@@ -239,6 +265,28 @@ test.describe('Laica Guest E2E Smoke', () => {
 
     await completeChefItUpToPrepTray(page);
 
+    expect(pantryRoutes.getRequestCount()).toBe(1);
+  });
+
+  test('Guest recipe quota block shows sign-up copy with a forced linked-account response', async ({ page }) => {
+    const pantryRoutes = await stubPantryRecipeQuotaRequired(page);
+
+    await completeChefItUpToStapleSelection(page);
+
+    const pantryResponsePromise = page.waitForResponse((response) =>
+      response.url().includes('/api/recipes/pantry') && response.status() === 403
+    );
+    await page.getByRole('button', { name: 'View recipe suggestions' }).click();
+    const pantryResponse = await pantryResponsePromise;
+
+    await expect(page.getByText('Sign up to unlock more recipes')).toBeVisible();
+    await expect(page.getByText('Sign up before making more recipes.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'View recipe suggestions' })).toBeVisible();
+
+    expect(await pantryResponse.json()).toEqual(expect.objectContaining({
+      code: 'LINKED_ACCOUNT_REQUIRED',
+      linkedAccountReason: 'recipe_quota',
+    }));
     expect(pantryRoutes.getRequestCount()).toBe(1);
   });
 

@@ -357,3 +357,18 @@ Current branch signal:
 - Local `npm ci`, focused Vitest, full unit suite, `npm run check`, `npm run build`, and `git diff --check` passed. Build still reports the known Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 
 This does not change the Replit-primary validation policy. Replit validation is not yet run for this branch, and live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this provider-light proof.
+
+## 2026-06-04 — Guest quota-copy forced-response branch started
+
+PR #125 merged as `82f49f782e69b08e57e091a72d3bbba10d7e5c65`, completing the mocked provider-boundary happy-path backlog item. PR #129 then merged as `9adc6d93c8445b4770713972607631a196b1d4c2`, documenting that Codex may mark its own complete draft PRs ready and monitor CI without expanding code merge authority.
+
+Branch `codex/eff-017-guest-quota-copy-smoke` started from fresh `origin/main` at `9adc6d93c8445b4770713972607631a196b1d4c2` for the first near-term follow-up from the PR #126 retro: guest recipe `#11` copy coverage without spending ten real generations.
+
+Current branch signal:
+
+- Adds a forced-response Playwright case to `tests/e2e/cooking-workflow.test.ts`.
+- Reuses the guest setup and Chef It Up planning path, stubs `POST /api/recipes/pantry` with `403 LINKED_ACCOUNT_REQUIRED`, and asserts the cap toast title/body: `Sign up to unlock more recipes` and `Sign up before making more recipes.`
+- Keeps the routine gate provider-light; the test does not call live OpenAI, ElevenLabs, Google OAuth, transcription, or vision providers.
+- Local `npm run check`, `npm run build`, `git diff --check`, and Playwright test discovery passed. Local focused Playwright execution did not reach app behavior: sandboxed `tsx` IPC failed with `EPERM`, and the unsandboxed isolated-port retry then failed at server startup because `DATABASE_URL` is not present in the local shell. GitHub Actions' configured guest E2E lane remains the intended browser evidence for this branch.
+
+This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this forced-response proof.
