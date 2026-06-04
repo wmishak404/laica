@@ -14,6 +14,7 @@
     "lint:ui": "eslint \"client/src/**/*.{ts,tsx}\"",
     "db:push": "drizzle-kit push",
     "db:health": "tsx scripts/db-schema-health.ts",
+    "check:oauth": "tsx scripts/oauth-start-preflight.ts",
     "test:unit": "vitest run",
     "test:e2e": "playwright test --project=chromium",
     "test": "npm run test:unit && npm run test:e2e"
