@@ -352,12 +352,12 @@ describe('MobileApp planning choice pantry status', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /keep your pantry and recipes for next time/i }));
 
-    expect(await screen.findByRole('heading', { name: /add this browser's setup/i })).toBeTruthy();
-    expect(screen.getByText(/that google sign-in already exists/i)).toBeTruthy();
-    expect(screen.getByText(/without overwriting saved details/i)).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /save this setup to google/i })).toBeTruthy();
+    expect(screen.getByText(/we'll sign in with google/i)).toBeTruthy();
+    expect(screen.getByText(/laica won't overwrite it/i)).toBeTruthy();
     expect(mocks.updateProfile).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /add setup/i }));
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => expect(mocks.signInWithGoogleCredential).toHaveBeenCalledWith(credential));
     await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledWith({

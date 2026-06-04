@@ -1134,10 +1134,10 @@ export default function MobileApp() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Add this browser's setup?</AlertDialogTitle>
+            <AlertDialogTitle>Save this setup to Google?</AlertDialogTitle>
             <AlertDialogDescription>
-              That Google sign-in already exists. Sign in and add this browser&apos;s pantry, tools,
-              and cooking profile without overwriting saved details.
+              We&apos;ll sign in with Google, then add this pantry, tools, and cooking profile.
+              If anything is already saved there, Laica won&apos;t overwrite it.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1149,7 +1149,7 @@ export default function MobileApp() {
               }}
               disabled={isPromotingGuest}
             >
-              {isPromotingGuest ? 'Saving...' : 'Add setup'}
+              {isPromotingGuest ? 'Saving...' : 'Continue'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
