@@ -8,7 +8,7 @@
 
 ## Summary
 
-Laica's public link preview now presents the product as an intentional early preview instead of a generic AI app shell. The static HTML metadata uses the requested title/description, Open Graph/Twitter tags point to an absolute production image URL, and the public image asset is a dedicated 1200x630 branded preview composed from safe repo assets with Laica's existing landing/setup font pairing.
+Laica's public link preview now presents the product intentionally instead of using a generic AI app shell. The static HTML metadata uses product-focused title/description copy, Open Graph/Twitter tags point to an absolute production image URL, and the public image asset is a dedicated 1200x630 branded preview composed from safe repo assets with Laica's existing landing/setup font pairing.
 
 ## Changes
 
@@ -21,7 +21,7 @@ Laica's public link preview now presents the product as an intentional early pre
   - Adds a 1200x630 RGB PNG for Open Graph consumers.
   - Uses only safe public/repo visual material: the canonical Laica logo and packaged kitchen/meal imagery from `attached_assets`.
   - Avoids the existing recipe-suggestions screenshot because it includes a personal avatar.
-  - Does not include an `Early preview` label in the thumbnail; that positioning remains in the description metadata only.
+  - Does not include launch-state wording in the thumbnail or metadata; that positioning is reserved for external post copy.
   - Uses the app's existing public-surface typography: `Fraunces` for display copy and `Nunito` for UI/body copy. The render step confirmed `Font status: Fraunces=true Nunito=true`.
 
 ## Impact on other agents
