@@ -315,7 +315,7 @@ export default function SlopBowl({
                   placeholder="Add rice, mayo, eggs..."
                   className="min-h-12 flex-1 rounded-xl"
                 />
-                <Button type="submit" variant="outline" disabled={!canAddIngredient} className="min-h-12 rounded-xl">
+                <Button type="submit" variant="outline" disabled={!canAddIngredient} className="min-h-12 rounded-xl font-extrabold">
                   Add
                 </Button>
               </div>
@@ -392,7 +392,7 @@ export default function SlopBowl({
   const renderGenerating = () => (
     <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
       <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-primary" />
-      <p className="text-lg text-gray-700 font-medium animate-pulse">
+      <p className="planning-copy text-lg font-bold animate-pulse">
         {LOADING_MESSAGES[loadingMessageIndex]}
       </p>
     </div>
@@ -405,8 +405,8 @@ export default function SlopBowl({
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">We made you a thing.</h2>
-          <p className="text-gray-500 text-sm">Look what your pantry had hiding in it</p>
+          <h2 className="planning-display text-2xl font-extrabold leading-tight text-gray-950 mb-1">We made you a thing.</h2>
+          <p className="planning-copy text-sm font-bold">Look what your pantry had hiding in it</p>
         </div>
 
         <Card className="overflow-hidden">
@@ -462,9 +462,9 @@ export default function SlopBowl({
 
         <Button
           onClick={handleAccept}
-          className="w-full py-3 text-lg"
+          className="h-12 w-full rounded-xl font-extrabold"
         >
-          <ChefHat className="h-5 w-5 mr-2" />
+          <ChefHat className="h-5 w-5" />
           Let's cook this!
         </Button>
 
@@ -473,13 +473,13 @@ export default function SlopBowl({
           <Button
             variant="outline"
             onClick={handleReject}
-            className="w-full py-3 text-lg"
+            className="h-12 w-full rounded-xl font-extrabold"
           >
             Try something else
           </Button>
           <Button
             onClick={onBackToPlanning}
-            className="w-full py-3 text-lg"
+            className="h-12 w-full rounded-xl font-extrabold"
           >
             Plan your own meal instead
           </Button>
@@ -492,8 +492,8 @@ export default function SlopBowl({
   const renderFeedback = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">What would you change?</h2>
-        <p className="text-gray-600 text-sm">
+        <h2 className="planning-display text-2xl font-extrabold leading-tight text-gray-950 mb-1">What would you change?</h2>
+        <p className="planning-copy text-sm font-bold">
           Optional — tell Laica what you'd prefer
         </p>
       </div>
@@ -511,7 +511,7 @@ export default function SlopBowl({
           <Button
             onClick={() => handleRegenerate(true)}
             disabled={isLoading}
-            className="w-full py-3 text-lg"
+            className="h-12 w-full rounded-xl font-extrabold"
           >
             Recommend another bowl
           </Button>
@@ -519,7 +519,7 @@ export default function SlopBowl({
           <Button
             onClick={() => handleRegenerate(false)}
             disabled={isLoading}
-            className="w-full py-3 text-lg"
+            className="h-12 w-full rounded-xl font-extrabold"
           >
             Skip and just surprise me
           </Button>
@@ -539,7 +539,7 @@ export default function SlopBowl({
 
   // ── Main render ───────────────────────────────────────────────────────────
   return (
-    <div className="w-full max-w-md mx-auto p-4">
+    <div className="planning-screen w-full max-w-md mx-auto p-4">
       {state === 'pantry-check' && renderPantryCheck()}
       {state === 'generating' && renderGenerating()}
       {state === 'approval' && renderApproval()}

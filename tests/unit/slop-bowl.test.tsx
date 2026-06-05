@@ -5,6 +5,7 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { fetchSlopBowlRecipe } from '@/lib/openai';
 import SlopBowl from '../../client/src/components/cooking/slop-bowl';
 
 vi.mock('@/lib/openai', () => ({
@@ -22,6 +23,20 @@ const baseProfile = {
   pantryIngredients: ['rice', 'eggs', 'beans'],
   kitchenEquipment: ['skillet'],
   favoriteChefs: [],
+};
+
+const generatedRecipe = {
+  recipeName: 'Savory Ground Lamb & Veggie Bowl',
+  description: 'Look what your pantry had hiding in it',
+  cookTime: 40,
+  difficulty: 'Medium',
+  cuisine: 'Middle Eastern-Inspired',
+  pantryIngredientsUsed: ['rice', 'eggs', 'beans'],
+  additionalIngredientsNeeded: ['lemon'],
+  overview: 'A warm pantry bowl',
+  instructions: ['Cook the rice', 'Top with everything else'],
+  isFusion: false,
+  pantryMatch: 90,
 };
 
 function renderSlopBowl() {
@@ -81,5 +96,33 @@ describe('SlopBowl pantry check visual grammar', () => {
     expect(mayoChip.querySelector('.slop-check-chip-remove-icon')).toBeTruthy();
     expect(screen.queryByText(/^added$/i)).toBeNull();
     expect(screen.getByText("Temporary additions won't change your saved pantry.")).toBeTruthy();
+  });
+
+  it('keeps generated suggestion action buttons on the planning button typography contract', async () => {
+    vi.mocked(fetchSlopBowlRecipe).mockResolvedValue({ recipe: generatedRecipe });
+    renderSlopBowl();
+
+    fireEvent.click(screen.getByRole('button', { name: /make my bowl/i }));
+
+    const acceptButton = await screen.findByRole('button', { name: /let's cook this/i });
+    const rejectButton = screen.getByRole('button', { name: /try something else/i });
+    const planInsteadButton = screen.getByRole('button', { name: /plan your own meal instead/i });
+
+    for (const button of [acceptButton, rejectButton, planInsteadButton]) {
+      expect(button.className).toContain('h-12');
+      expect(button.className).toContain('rounded-xl');
+      expect(button.className).toContain('font-extrabold');
+    }
+
+    fireEvent.click(rejectButton);
+
+    const recommendButton = screen.getByRole('button', { name: /recommend another bowl/i });
+    const surpriseButton = screen.getByRole('button', { name: /skip and just surprise me/i });
+
+    for (const button of [recommendButton, surpriseButton]) {
+      expect(button.className).toContain('h-12');
+      expect(button.className).toContain('rounded-xl');
+      expect(button.className).toContain('font-extrabold');
+    }
   });
 });
