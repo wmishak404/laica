@@ -172,6 +172,12 @@ html, body {
     padding-block: 0.2rem 0.4rem;
   }
 
+  .landing-journey-scroll:focus-visible {
+    outline: 3px solid hsl(var(--setup-coral-strong) / 0.42);
+    outline-offset: 4px;
+    border-radius: 1.5rem;
+  }
+
   .landing-journey-scroll::-webkit-scrollbar {
     display: none;
   }

@@ -17,4 +17,17 @@ if (!metaDescription.isConnected) {
   document.head.appendChild(metaDescription);
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+async function renderApp() {
+  if (import.meta.env.DEV && import.meta.env.VITE_LAICA_DEV_AUTH_BROWSER === "true") {
+    try {
+      const { consumeDevAuthCustomTokenForDev } = await import("./lib/firebase");
+      await consumeDevAuthCustomTokenForDev();
+    } catch (error) {
+      console.error("Dev auth browser bootstrap failed:", error);
+    }
+  }
+
+  createRoot(document.getElementById("root")!).render(<App />);
+}
+
+void renderApp();

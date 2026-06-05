@@ -120,6 +120,15 @@ vi.mock('firebase/auth', () => ({
       isAnonymous: true
     }
   }),
+  signInWithCustomToken: vi.fn().mockResolvedValue({
+    user: {
+      uid: 'dev-test-linked-ci',
+      email: 'dev-test-linked-ci@example.test',
+      displayName: 'Linked Dev Test User',
+      isAnonymous: false,
+      getIdToken: vi.fn().mockResolvedValue('mock-token')
+    }
+  }),
   GoogleAuthProvider: Object.assign(
     vi.fn(() => ({
       addScope: vi.fn(),

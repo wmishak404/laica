@@ -11,6 +11,7 @@ import {
   signInWithRedirect,
   signInWithPopup,
   signInWithCredential,
+  signInWithCustomToken as firebaseSignInWithCustomToken,
   signInAnonymously,
   GoogleAuthProvider,
   getRedirectResult,
@@ -33,6 +34,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 let appCheckInstance: AppCheck | null | undefined;
+const DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY = "__LAICA_DEV_AUTH_CUSTOM_TOKEN";
 
 // Set persistence to LOCAL to work better with Safari
 setPersistence(auth, browserLocalPersistence).catch(console.error);
@@ -196,6 +198,16 @@ export class FirebaseAuthService {
     }
   }
 
+  static async signInWithCustomTokenForDev(customToken: string): Promise<FirebaseAuthUser | null> {
+    if (!isDevCustomTokenSignInEnabled()) {
+      throw new Error("Dev custom-token sign-in is not enabled");
+    }
+
+    await setPersistence(auth, browserLocalPersistence);
+    const result = await firebaseSignInWithCustomToken(auth, customToken);
+    return this.formatUser(result.user);
+  }
+
   // Handle redirect result on page load with enhanced error handling
   static async handleRedirectResult(): Promise<FirebaseAuthUser | null> {
     try {
@@ -273,4 +285,22 @@ export class FirebaseAuthService {
       return null;
     }
   }
+}
+
+function isDevCustomTokenSignInEnabled() {
+  return import.meta.env.DEV && import.meta.env.VITE_LAICA_DEV_AUTH_BROWSER === "true";
+}
+
+export async function consumeDevAuthCustomTokenForDev(): Promise<FirebaseAuthUser | null> {
+  if (!isDevCustomTokenSignInEnabled() || typeof window === "undefined") {
+    return null;
+  }
+
+  const customToken = window.sessionStorage.getItem(DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY);
+  if (!customToken) {
+    return null;
+  }
+
+  window.sessionStorage.removeItem(DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY);
+  return FirebaseAuthService.signInWithCustomTokenForDev(customToken);
 }
