@@ -152,15 +152,6 @@ html, body {
     letter-spacing: 0;
   }
 
-  .landing-primary-cta {
-    background: hsl(var(--setup-ink));
-    color: hsl(var(--primary-foreground));
-  }
-
-  .landing-primary-cta:hover {
-    background: hsl(var(--setup-ink) / 0.92);
-  }
-
   .landing-journey-object {
     display: grid;
     min-width: 0;

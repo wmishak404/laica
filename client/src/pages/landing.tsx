@@ -123,10 +123,11 @@ export default function Landing() {
                   {/* design:tone-override — Landing CTA uses a dark token-backed fill so auth entry passes contrast. */}
                   <Button
                     type="button"
+                    variant="landingPrimary"
                     size="lg"
                     onClick={signInAsGuest}
                     disabled={isLoading}
-                    className="landing-primary-cta h-14 w-full rounded-full text-base font-extrabold shadow-lg shadow-primary/20"
+                    className="h-14 w-full rounded-full text-base font-extrabold shadow-lg shadow-primary/20"
                   >
                     <ChefHat className="h-5 w-5" aria-hidden="true" />
                     {isLoading ? "Starting..." : "Start cooking now"}

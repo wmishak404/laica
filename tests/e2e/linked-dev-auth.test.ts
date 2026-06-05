@@ -2,6 +2,7 @@ import { expect, test, type APIRequestContext, type Page } from "@playwright/tes
 
 const LINKED_DEV_AUTH_UID = "dev-test-linked-ci";
 const LINKED_DEV_AUTH_BROWSER_UID = "dev-test-linked-browser-ci";
+const DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY = "__LAICA_DEV_AUTH_CUSTOM_TOKEN";
 
 const pantryRecipesResponse = {
   recipes: [
@@ -195,20 +196,12 @@ async function stubPantryRecipes(page: Page) {
 }
 
 async function signBrowserInWithCustomToken(page: Page, customToken: string) {
-  await page.goto("/");
-  await page.waitForFunction(() => Boolean((window as any).__LAICA_DEV_AUTH__?.signInWithCustomToken));
-  const signedInUser = await page.evaluate(async (token) => {
-    const devAuth = (window as any).__LAICA_DEV_AUTH__;
-    if (!devAuth?.signInWithCustomToken) {
-      throw new Error("Linked dev-auth browser helper is not available");
-    }
-
-    return await devAuth.signInWithCustomToken(token);
-  }, customToken);
-  expect(signedInUser).toMatchObject({
-    uid: LINKED_DEV_AUTH_BROWSER_UID,
-    isAnonymous: false,
-  });
+  await page.addInitScript(
+    ({ key, token }) => {
+      window.sessionStorage.setItem(key, token);
+    },
+    { key: DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY, token: customToken },
+  );
 
   const sessionResponsePromise = page.waitForResponse((response) => response.url().includes("/api/auth/session"), {
     timeout: 30_000,
@@ -216,7 +209,7 @@ async function signBrowserInWithCustomToken(page: Page, customToken: string) {
   const profileResponsePromise = page.waitForResponse((response) => response.url().includes("/api/user/profile"), {
     timeout: 30_000,
   });
-  await page.reload();
+  await page.goto("/");
   const sessionResponse = await sessionResponsePromise;
   expect(sessionResponse.status()).toBe(200);
   expect(await sessionResponse.json()).toMatchObject({

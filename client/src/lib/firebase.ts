@@ -34,6 +34,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 let appCheckInstance: AppCheck | null | undefined;
+const DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY = "__LAICA_DEV_AUTH_CUSTOM_TOKEN";
 
 // Set persistence to LOCAL to work better with Safari
 setPersistence(auth, browserLocalPersistence).catch(console.error);
@@ -198,7 +199,7 @@ export class FirebaseAuthService {
   }
 
   static async signInWithCustomTokenForDev(customToken: string): Promise<FirebaseAuthUser | null> {
-    if (!import.meta.env.DEV || import.meta.env.VITE_LAICA_DEV_AUTH_BROWSER !== "true") {
+    if (!isDevCustomTokenSignInEnabled()) {
       throw new Error("Dev custom-token sign-in is not enabled");
     }
 
@@ -286,16 +287,20 @@ export class FirebaseAuthService {
   }
 }
 
-declare global {
-  interface Window {
-    __LAICA_DEV_AUTH__?: {
-      signInWithCustomToken(customToken: string): Promise<FirebaseAuthUser | null>;
-    };
-  }
+function isDevCustomTokenSignInEnabled() {
+  return import.meta.env.DEV && import.meta.env.VITE_LAICA_DEV_AUTH_BROWSER === "true";
 }
 
-if (import.meta.env.DEV && import.meta.env.VITE_LAICA_DEV_AUTH_BROWSER === "true" && typeof window !== "undefined") {
-  window.__LAICA_DEV_AUTH__ = {
-    signInWithCustomToken: (customToken: string) => FirebaseAuthService.signInWithCustomTokenForDev(customToken),
-  };
+export async function consumeDevAuthCustomTokenForDev(): Promise<FirebaseAuthUser | null> {
+  if (!isDevCustomTokenSignInEnabled() || typeof window === "undefined") {
+    return null;
+  }
+
+  const customToken = window.sessionStorage.getItem(DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY);
+  if (!customToken) {
+    return null;
+  }
+
+  window.sessionStorage.removeItem(DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY);
+  return FirebaseAuthService.signInWithCustomTokenForDev(customToken);
 }
