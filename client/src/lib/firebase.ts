@@ -202,6 +202,7 @@ export class FirebaseAuthService {
       throw new Error("Dev custom-token sign-in is not enabled");
     }
 
+    await setPersistence(auth, browserLocalPersistence);
     const result = await firebaseSignInWithCustomToken(auth, customToken);
     return this.formatUser(result.user);
   }

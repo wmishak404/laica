@@ -120,12 +120,13 @@ export default function Landing() {
             <motion.div className="max-w-md space-y-3" variants={reveal} transition={{ duration: 0.34, ease: "easeOut" }}>
               <div className="grid grid-cols-1 gap-3">
                 <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
+                  {/* design:tone-override — Landing CTA uses a dark token-backed fill so auth entry passes contrast. */}
                   <Button
                     type="button"
                     size="lg"
                     onClick={signInAsGuest}
                     disabled={isLoading}
-                    className="h-14 w-full rounded-full text-base font-extrabold shadow-lg shadow-primary/20"
+                    className="landing-primary-cta h-14 w-full rounded-full text-base font-extrabold shadow-lg shadow-primary/20"
                   >
                     <ChefHat className="h-5 w-5" aria-hidden="true" />
                     {isLoading ? "Starting..." : "Start cooking now"}
@@ -155,6 +156,8 @@ export default function Landing() {
               ref={journeyRef}
               className="landing-journey-scroll"
               onScroll={updateActiveJourneyStep}
+              role="region"
+              tabIndex={0}
               aria-label="How Laica turns pantry photos into cooking help"
             >
               <article className="landing-journey-slide landing-scan-slide" data-journey-slide aria-label="Step 1 of 3: Scan your kitchen for ingredients">

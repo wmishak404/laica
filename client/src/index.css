@@ -152,6 +152,15 @@ html, body {
     letter-spacing: 0;
   }
 
+  .landing-primary-cta {
+    background: hsl(var(--setup-ink));
+    color: hsl(var(--primary-foreground));
+  }
+
+  .landing-primary-cta:hover {
+    background: hsl(var(--setup-ink) / 0.92);
+  }
+
   .landing-journey-object {
     display: grid;
     min-width: 0;
@@ -170,6 +179,12 @@ html, body {
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     padding-block: 0.2rem 0.4rem;
+  }
+
+  .landing-journey-scroll:focus-visible {
+    outline: 3px solid hsl(var(--setup-coral-strong) / 0.42);
+    outline-offset: 4px;
+    border-radius: 1.5rem;
   }
 
   .landing-journey-scroll::-webkit-scrollbar {

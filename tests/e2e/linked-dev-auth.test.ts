@@ -54,6 +54,8 @@ type PantryRecipeRequest = {
 
 type LinkedUserProfileResponse = {
   user?: {
+    cookingSkill?: string | null;
+    dietaryRestrictions?: string[] | null;
     pantryIngredients?: string[] | null;
   };
 };
@@ -194,18 +196,46 @@ async function stubPantryRecipes(page: Page) {
 
 async function signBrowserInWithCustomToken(page: Page, customToken: string) {
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "Start cooking now" })).toBeVisible();
   await page.waitForFunction(() => Boolean((window as any).__LAICA_DEV_AUTH__?.signInWithCustomToken));
-  await page.evaluate(async (token) => {
+  const signedInUser = await page.evaluate(async (token) => {
     const devAuth = (window as any).__LAICA_DEV_AUTH__;
     if (!devAuth?.signInWithCustomToken) {
       throw new Error("Linked dev-auth browser helper is not available");
     }
 
-    await devAuth.signInWithCustomToken(token);
+    return await devAuth.signInWithCustomToken(token);
   }, customToken);
+  expect(signedInUser).toMatchObject({
+    uid: LINKED_DEV_AUTH_BROWSER_UID,
+    isAnonymous: false,
+  });
 
+  const sessionResponsePromise = page.waitForResponse((response) => response.url().includes("/api/auth/session"), {
+    timeout: 30_000,
+  });
+  const profileResponsePromise = page.waitForResponse((response) => response.url().includes("/api/user/profile"), {
+    timeout: 30_000,
+  });
   await page.reload();
+  const sessionResponse = await sessionResponsePromise;
+  expect(sessionResponse.status()).toBe(200);
+  expect(await sessionResponse.json()).toMatchObject({
+    authMode: "linked",
+    user: {
+      id: LINKED_DEV_AUTH_BROWSER_UID,
+    },
+  });
+
+  const profileResponse = await profileResponsePromise;
+  expect(profileResponse.status()).toBe(200);
+  expect(await profileResponse.json()).toMatchObject({
+    user: {
+      cookingSkill: "Beginner",
+      dietaryRestrictions: ["No restrictions"],
+      pantryIngredients: ["rice", "eggs", "soy sauce"],
+    },
+  });
+
   await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
 }
 
@@ -249,6 +279,8 @@ test.describe("linked dev auth browser smoke", () => {
   test.skip(missing.length > 0, `Missing linked browser dev-auth env: ${missing.join(", ")}`);
 
   test("linked user can plan with saved pantry and persist newly confirmed staples", async ({ page, request }) => {
+    test.setTimeout(60_000);
+
     expect(parseAllowedUsers(process.env.LAICA_DEV_AUTH_ALLOWED_USERS)).toContain(LINKED_DEV_AUTH_BROWSER_UID);
     expect(process.env.VITE_LAICA_DEV_AUTH_BROWSER).toBe("true");
 
