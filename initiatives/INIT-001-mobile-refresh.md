@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 3.1 / Phase 4 planning
-**Active PR:** none; [#81](https://github.com/wmishak404/laica/pull/81) merged the PR #78 abandonment plan on 2026-05-16, and no runtime PR is currently active
+**Active PR:** none; [#141](https://github.com/wmishak404/laica/pull/141) merged the Slop Bowl generated-result button typography alignment on 2026-06-05, and no runtime PR is currently active
 **Active branch:** none; the next Ticket Pass retry should start from fresh `origin/main` on a new runtime branch
 
 ## Overview
@@ -37,6 +37,7 @@ The latest Phase 3.1 consistency slices are merged:
 - PR #71 updated the Planning entry to label the Slop Bowl path as italicized **Slop It Up** with one approved supporting line selected per mount, and highlighted only the key pantry fact in the Planning status line (dynamic count phrase or the word `empty`) in Planning coral.
 - PR #73 aligned Slop Bowl pantry-check chips with the Chef It Up saved/pending grammar without changing Slop Bowl behavior.
 - PR #75 aligned first-time setup and returning Settings Pantry/Kitchen inventory review chips with that same saved/pending grammar, resolving EFF-014 for Setup/Settings. Wilson validated the Settings Pantry minimum path in Replit at head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1`.
+- PR #141 aligned Slop Bowl generated-result and feedback button typography with the adjacent Chef It Up recipe-suggestion controls. Wilson validated the Replit visual comparison at pre-rebase head `9d30177`; after a docs-only `main` rebase, local checks and GitHub CI passed at PR head `8f11990`, and the PR merged as `2145407`.
 
 Across these slices: saved Pantry/Kitchen items render as green checked chips; recently-added manual/scan items render as coral `+` chips with an `X`; found-again scan matches get quiet same-list emphasis plus scan copy; and state clears on setup Continue or successful Settings save. Phase 5 still owns future post-cook rescan labels.
 
@@ -103,7 +104,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
 | Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
-| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#75](https://github.com/wmishak404/laica/pull/75), [#81](https://github.com/wmishak404/laica/pull/81); [#78](https://github.com/wmishak404/laica/pull/78) closed unmerged | Kickoff/audit, Planning copy/count emphasis, Slop Bowl pantry-check chip alignment, Setup/Settings inventory review chip states, and the PR #78 abandonment/retry brief are merged. Remaining scope is a narrower Ticket Pass layout-only retry, light Prep Tray alignment after that, async imagery, and closeout visual review |
+| Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#75](https://github.com/wmishak404/laica/pull/75), [#81](https://github.com/wmishak404/laica/pull/81), [#141](https://github.com/wmishak404/laica/pull/141); [#78](https://github.com/wmishak404/laica/pull/78) closed unmerged | Kickoff/audit, Planning copy/count emphasis, Slop Bowl pantry-check chip alignment, Setup/Settings inventory review chip states, Slop Bowl generated-result button typography alignment, and the PR #78 abandonment/retry brief are merged. Remaining scope is a narrower Ticket Pass layout-only retry, light Prep Tray alignment after that, async imagery, and closeout visual review |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
 | Phase 4 | Planned | TBD | Cooking guidance and hands-busy mode |
 | Phase 5 | Planned | TBD | Post-cook cleanup and retention |
@@ -134,6 +135,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | #76 | Merged | `codex/mobile-refresh-inventory-chip-closeout` | Docs-only closeout after PR #75; merged as `f5f7d1d` |
 | #78 | Closed / abandoned | `codex/mobile-refresh-phase-3-1-ticket-prep-polish` | Ticket Pass / Prep Tray polish branch passed focused local checks and earlier behavioral smoke on `7e6c817`, but visual acceptance was withdrawn and later placeholder/layout experiments were rejected; branch rolled back to baseline and closed unmerged at `672f14e` |
 | #81 | Merged | `codex/mobile-refresh-phase-3-1-ticket-pass-plan` | Docs-only abandonment and retry-planning follow-up after PR #78; merged as `7630d97` and establishes the narrower layout-only Ticket Pass brief from fresh `origin/main` |
+| #141 | Merged | `codex/slop-bowl-button-fonts` | Slop Bowl generated-result and feedback buttons aligned with Chef It Up suggestion-button typography; Wilson Replit visual pass at `9d30177`, post-rebase local checks and GitHub CI at `8f11990`; merged as `2145407` |
 
 ## Efforts and Governance
 
@@ -182,6 +184,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 - EFF-015 resolved on 2026-05-13 after PR #64 shipped the PR-template reviewer gate and local ESLint hex-class guard. Future UI governance starts from PD-005, `design_guidelines.md`, `.github/PULL_REQUEST_TEMPLATE.md`, and `eslint.config.js`, not an active Effort.
 - Public guest entry is now governed by [PD-012](../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md) and [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Phase 1's Google-only landing remains the historical shipped baseline, while Phase 5 durable history/cleanup/taste memory is explicitly linked-only in the guest-trial v1 policy.
 - PR #78 proved the current Phase 3.1 Ticket Pass gap is about hierarchy and object language, not just placeholder art. The rejected overcorrection also established a negative constraint for future work: do not use fake bowl/noodle/skillet illustrations as a stand-in for the later async imagery slice, and do not trade away compact-ticket readability for a more theatrical ticket silhouette.
+- PR #141 fixed Slop Bowl generated-result button typography drift by putting the generated-result/feedback surfaces under the Planning typography wrapper and using the same `h-12`, `rounded-xl`, `font-extrabold` action-button contract as adjacent Chef It Up recipe-suggestion controls. Future Slop Bowl button work should compare computed styles against Chef It Up rather than trusting local class names.
 
 ## Validation State
 
@@ -209,6 +212,7 @@ Known validation facts:
 - Phase 3.1 Slop Bowl pantry-check alignment in PR #73 passed `npx vitest run tests/unit/slop-bowl.test.tsx tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check`; PR #73 merged as `e44c5b0`.
 - Phase 3.1 Setup/Settings inventory chip-state alignment in PR #75 passed `npx vitest run tests/unit/entry-parsing.test.ts tests/unit/user-settings-scan-policy.test.tsx tests/unit/user-profiling.test.tsx tests/unit/meal-planning.test.tsx tests/unit/slop-bowl.test.tsx`, `npm run check`, `npm run build`, `git diff --check`, and a dotenvx dev-server HTTP 200 smoke. Wilson confirmed Replit was on head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1` and validated the Settings Pantry minimum path; PR #75 merged as `c82433d9089ca4e9cc86b5d5e77322981333eba3`.
 - PR #78's early authenticated Replit/browser pass at `7e6c8174878e76b01807ee7b1f3b3479ddb3be66` still stands only for behavioral scope: suggestion reveal, stable in-place ticket expansion for tickets 1/2/3, Prep Tray open for the selected ticket, and placeholder stability when `imageUrl` is absent. That branch never achieved visual acceptance. A later same-day illustration/layout experiment was rejected and rolled back, and PR #78 closed unmerged at `672f14e17387f601fe4a18bc0106d58108660467`.
+- Phase 3.1 Slop Bowl generated-result button typography alignment in PR #141 passed `npx vitest run tests/unit/slop-bowl.test.tsx tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check` at rebased PR head `8f11990`; GitHub CI also passed at that head. Wilson visually confirmed the Slop Bowl generated-result buttons and Chef It Up recipe-suggestion buttons in Replit at pre-rebase head `9d30177` before the branch was rebased over docs-only `origin/main` commit `b040952`; PR #141 merged as `2145407`.
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
@@ -217,7 +221,7 @@ Phase 3 is functionally closed on `main` after PR #38 (`f1d17d8`) and PR #45 (`8
 
 Next implementation / validation focus:
 
-1. Continue Phase 3.1 from fresh `origin/main` for a narrower Ticket Pass retry before resuming broader imagery work. Start from the stable `main` baseline, preserve the already-shipped Phase 3.1 slices, and keep these guardrails: no fake bowl/noodle/skillet illustration placeholders, no compact-ticket strip experiment that harms readability, no change to stable generated order or in-place expansion, and no change to the display-only recipe-name split contract. Focus first on outer Ticket Pass hierarchy/object language while keeping the current image-slot and compact-row skeleton readable; only do light Prep Tray shell alignment after Ticket Pass is visually accepted. Async/cached generated imagery remains a later separate slice into the existing `imageUrl` slots.
+1. Continue Phase 3.1 from fresh `origin/main` for a narrower Ticket Pass retry before resuming broader imagery work. Start from the stable `main` baseline, preserve the already-shipped Phase 3.1 slices, and keep these guardrails: no fake bowl/noodle/skillet illustration placeholders, no compact-ticket strip experiment that harms readability, no change to stable generated order or in-place expansion, no change to the display-only recipe-name split contract, and no regression of the Slop Bowl generated-result button typography contract now aligned with Chef It Up. Focus first on outer Ticket Pass hierarchy/object language while keeping the current image-slot and compact-row skeleton readable; only do light Prep Tray shell alignment after Ticket Pass is visually accepted. Async/cached generated imagery remains a later separate slice into the existing `imageUrl` slots.
 2. When Phase 3.1 revisits Planning entry polish, remove the post-setup toast supporting line `I'll remember this on this browser while you try Laica.` and make Planning-entry success/error/status messages auto-dismiss or otherwise avoid staying pinned over the Chef It Up / Slop It Up cards unless user action is required.
 3. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFF-018 intentionally deferred.
 4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
@@ -337,3 +341,9 @@ PR #81 merged the docs-only abandonment follow-up as `7630d97`. The rejected PR 
 ### 2026-05-29 - Planning setup toast follow-up added to Phase 3.1
 
 INIT-003 public guest validation exposed a Planning-entry polish issue that belongs to Phase 3.1 rather than the production-gates branch: after setup, the `Your kitchen is ready` toast includes the supporting line `I'll remember this on this browser while you try Laica.` and remains visible over the Chef It Up / Slop It Up cards. Phase 3.1 should remove that supporting line and review toast/banner persistence so transient success, error, and status messages do not cover the primary Planning choices unless action is required.
+
+### 2026-06-05 - Slop Bowl generated-result button typography aligned
+
+PR #141 merged Slop Bowl generated-result and feedback button typography alignment as `2145407`. The root cause was local Slop Bowl button sizing/weight plus a missing Planning typography wrapper, which made the `Let's cook this!`, `Try something else`, and `Plan your own meal instead` controls feel like a different app family from adjacent Chef It Up recipe-suggestion buttons. The merged fix adds the Planning wrapper and matches the shared action-button contract while keeping Slop Bowl behavior unchanged.
+
+Wilson visually confirmed the Replit comparison at pre-rebase head `9d30177`; after the branch rebased over docs-only `main` closeout commit `b040952`, focused unit tests, `npm run check`, `npm run build`, `git diff --check`, and GitHub CI passed at PR head `8f11990`.
