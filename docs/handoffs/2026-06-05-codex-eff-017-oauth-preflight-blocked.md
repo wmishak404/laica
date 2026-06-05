@@ -10,10 +10,12 @@
 
 After PR #139 merged the deterministic wrap-up closeout, Codex tried to advance the remaining EFF-017 OAuth-start lane by running the existing manual workflow against the custom production domain. The lane is not ready to count as production OAuth-start evidence: the scheduled target variable is missing, and the manual run failed because the current GitHub Actions Firebase/API-key configuration did not find a Google identity-provider configuration.
 
+This branch also classifies the remaining EFF-017 items so future work does not mix policy decisions, provider canaries, coverage thresholds, and Replit package-firewall work into one ambiguous "continue EFF-017" task.
+
 ## Changes
 
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
-  Records the workflow dispatch, failed result, inference, and smallest next configuration actions.
+  Records the workflow dispatch, failed result, inference, smallest next configuration actions, and remaining-item classification.
 - `efforts/registry.md`
   Refreshes EFF-017's searchable last signal to the OAuth preflight blocker.
 - `docs/handoffs/2026-06-05-codex-eff-017-oauth-preflight-blocked.md`
@@ -44,6 +46,14 @@ The likely gap is configuration alignment: either the Actions `VITE_FIREBASE_API
 ## Impact on other agents
 
 Do not mark the OAuth-start preflight criterion complete yet. PR #132 shipped the lane, but the lane has now produced a blocking configuration signal. Future EFF-017 work should resolve the accepted target URI set and API-key/project alignment before changing validation authority or claiming production OAuth-start coverage.
+
+For the other remaining items:
+
+- CI-primary merge authority is a human validation-policy decision before `AGENTS.md`, ADR-0001, or `docs/workflows/testing-and-acceptance.md` should change.
+- Live-provider canaries need a scoped lane decision and should stay outside default PR CI unless explicitly accepted.
+- Coverage thresholds should wait until the non-blocking PR #138 baseline and ratchet rule are accepted.
+- Replit shell check/build evidence remains blocked until the `es5-ext@0.10.64` package-firewall issue is resolved or the install path changes.
+- Full Google popup/linking and deployment behavior remain Replit human/ops validation lanes for now.
 
 ## Open items
 

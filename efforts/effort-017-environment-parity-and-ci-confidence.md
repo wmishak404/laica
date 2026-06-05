@@ -483,3 +483,18 @@ Next smallest actions:
 2. Configure `OAUTH_PREFLIGHT_CONTINUE_URIS` as a repo variable once the target set is accepted.
 3. Ensure the workflow uses an API key for the Firebase project where Google sign-in is enabled, either by correcting `VITE_FIREBASE_API_KEY` for this lane or adding a dedicated `OAUTH_PREFLIGHT_FIREBASE_API_KEY` secret.
 4. Rerun `OAuth Start Preflight` and record the pass/fail evidence before treating production OAuth-start state as covered.
+
+## 2026-06-05 — Remaining EFF-017 items classified after deterministic wrap-up
+
+With PR #138 merged and PR #139 merged as its closeout, the remaining EFF-017 work is no longer a single automation backlog. It separates into decision/config blockers and future implementation lanes:
+
+| Remaining item | Current classification | Smallest next action |
+|---|---|---|
+| CI-primary merge authority | Human validation-policy decision | Do not edit `AGENTS.md`, ADR-0001, or `docs/workflows/testing-and-acceptance.md` to make CI primary until Wilson explicitly accepts the policy shift and its exceptions. |
+| OAuth-start preflight | Blocked by GitHub/Firebase configuration | Resolve accepted continue URIs and provider-enabled API key, then rerun `OAuth Start Preflight`. |
+| Live-provider canary | Product/ops lane decision | Decide which seams belong in canary evidence: OpenAI recipe contract, Vision route contract, ElevenLabs synth/audio reachability, transcription route, and any storage/provider correlation. Keep canaries outside default PR CI unless explicitly accepted. |
+| Coverage thresholds | Evidence-ratcheting decision | Use PR #138's non-blocking coverage as visibility first. Add thresholds only after the baseline and ratchet rule are accepted; do not turn the current 65.18% line baseline into a blocking gate by default. |
+| Replit shell install/check/build | Replit/package-firewall blocker | Allow `es5-ext@0.10.64` or change the install path before treating Replit shell `npm ci`, `npm run check`, or `npm run build` as available evidence again. |
+| Full Google popup/linking and Replit deployment behavior | Replit human/ops validation lane | Keep outside deterministic CI until a separate full-login automation or deployment preflight is accepted. |
+
+This classification does not close or split EFF-017 yet. It narrows the next useful work: either resolve the OAuth config blocker, write a canary-lane proposal/implementation branch, or ask Wilson for the validation-authority decision before touching policy docs.
