@@ -422,6 +422,11 @@ Current branch signal:
 - Adds non-blocking unit coverage visibility through `npm run test:coverage` plus a CI coverage-summary artifact. This intentionally starts with visibility, not thresholds; thresholds should be added only after the measured baseline is accepted and ratcheting rules are explicit.
 - Keeps routine CI provider-light. The branch does not add live OpenAI, ElevenLabs, transcription, vision, or Google popup completion to the default PR gate.
 
+PR CI iteration signal:
+
+- The first PR runs caught real guardrail value before merge: the new accessibility smoke flagged landing CTA contrast and keyboard focusability for the horizontal journey scroll region. The branch fixed those with a landing-specific button variant and visible focus treatment instead of weakening the guardrail.
+- The linked browser smoke then reached the Chef It Up provider-light planning path and exposed a test-timing issue around pantry request capture. The smoke now waits for the actual `POST /api/recipes/pantry` request and asserts its submitted JSON payload directly, keeping the same behavior claim while avoiding route-handler timing as evidence.
+
 Local evidence before PR:
 
 - `npm install --save-dev @vitest/coverage-v8@4.1.8 @axe-core/playwright` completed and reported `found 0 vulnerabilities`.
@@ -430,6 +435,7 @@ Local evidence before PR:
 - `npm run test:coverage` passed: 33 files, 218 tests, overall line coverage 65.18%.
 - `npm run build` passed with the existing Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 - `npm audit --audit-level=high` passed and reported `found 0 vulnerabilities`.
+- `git diff --check` passed.
 - Local secret-backed Playwright execution was not claimed as evidence: sandboxed `npx @dotenvx/dotenvx` could not resolve the registry, and the escalated rerun was rejected because fetching/executing dotenvx while holding decrypted secrets was too risky. The shell also did not already have the required service env. GitHub Actions remains the intended evidence lane for this browser smoke because the workflow has the configured Neon/Firebase secrets and disposable schema-only database setup.
 
 EFF-017 is closer to resolution after this branch because the remaining deterministic backlog items are represented: high-value linked browser flow, coverage visibility, and initial UI/accessibility guardrails. It should still remain `In Progress` until the policy criteria are resolved: Replit-primary authority is still documented, live-provider canaries remain separate from default CI, and `AGENTS.md` / ADR-0001 / related testing policy docs have not been changed to make CI the primary correctness gate.

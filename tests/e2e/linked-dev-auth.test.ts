@@ -178,21 +178,13 @@ async function readLinkedProfile(request: APIRequestContext, idToken: string): P
 }
 
 async function stubPantryRecipes(page: Page) {
-  const requestPayloads: PantryRecipeRequest[] = [];
-
   await page.route("**/api/recipes/pantry", async (route) => {
-    requestPayloads.push(route.request().postDataJSON() as PantryRecipeRequest);
-
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(pantryRecipesResponse),
     });
   });
-
-  return {
-    getRequestPayloads: () => requestPayloads,
-  };
 }
 
 async function signBrowserInWithCustomToken(page: Page, customToken: string) {
@@ -281,7 +273,7 @@ test.describe("linked dev auth browser smoke", () => {
     const idToken = await exchangeCustomTokenForIdToken(tokenPayload.customToken!);
     await seedLinkedProfile(request, idToken);
 
-    const pantryRoutes = await stubPantryRecipes(page);
+    await stubPantryRecipes(page);
     await signBrowserInWithCustomToken(page, tokenPayload.customToken!);
 
     await expect(page.getByText(/Right now I see/)).toContainText("3 pantry items");
@@ -299,16 +291,18 @@ test.describe("linked dev auth browser smoke", () => {
     await page.getByRole("button", { name: "tortillas" }).click();
     await page.getByRole("button", { name: "lime" }).click();
 
-    const pantryRequestPromise = page.waitForRequest("**/api/recipes/pantry");
+    const pantryRequestPromise = page.waitForRequest(
+      (request) => request.url().includes("/api/recipes/pantry") && request.method() === "POST",
+    );
     await page.getByRole("button", { name: "View recipe suggestions" }).click();
-    await pantryRequestPromise;
+    const pantryRequest = await pantryRequestPromise;
+    const pantryPayload = pantryRequest.postDataJSON() as PantryRecipeRequest;
 
-    expect(pantryRoutes.getRequestPayloads()).toHaveLength(1);
-    expect(pantryRoutes.getRequestPayloads()[0]).toMatchObject({
+    expect(pantryPayload).toMatchObject({
       ingredients: ["rice", "eggs", "soy sauce", "tortillas", "lime"],
       timeAvailable: "1 hour",
     });
-    expect(pantryRoutes.getRequestPayloads()[0].preferences).toContain("Confirmed staples: tortillas, lime");
+    expect(pantryPayload.preferences).toContain("Confirmed staples: tortillas, lime");
 
     await expect(page.getByRole("heading", { name: "Recipe suggestions from your pantry" })).toBeVisible({
       timeout: 30_000,

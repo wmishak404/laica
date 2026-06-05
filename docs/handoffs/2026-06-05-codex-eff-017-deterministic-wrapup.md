@@ -19,7 +19,7 @@ The change matters because EFF-017 now has deterministic coverage for the highes
 - `client/src/lib/firebase.ts`
   Adds a dev-only custom-token browser helper behind both `import.meta.env.DEV` and `VITE_LAICA_DEV_AUTH_BROWSER=true`. This uses Firebase Web SDK `signInWithCustomToken`; it does not add a production auth bypass.
 - `tests/e2e/linked-dev-auth.test.ts`
-  Keeps the API-level linked dev-auth smoke and adds a browser smoke that mints a custom token, exchanges it for a Firebase ID token, seeds a linked profile through `/api/user/profile`, signs the browser in, drives Chef It Up, stubs `/api/recipes/pantry`, asserts the request payload, verifies recipe suggestions render, reads the linked profile back, checks pantry additions are unique, reloads, and verifies the planning count persists.
+  Keeps the API-level linked dev-auth smoke and adds a browser smoke that mints a custom token, exchanges it for a Firebase ID token, seeds a linked profile through `/api/user/profile`, signs the browser in, drives Chef It Up, stubs `/api/recipes/pantry`, asserts the captured POST request payload, verifies recipe suggestions render, reads the linked profile back, checks pantry additions are unique, reloads, and verifies the planning count persists.
 - `tests/e2e/accessibility-guardrail.test.ts`
   Adds a scoped Playwright/axe guardrail for the landing auth controls: visible accessible names, 44 px tap targets, and no serious/critical WCAG A/AA violations on the landing `main` surface.
 - `package.json`, `package-lock.json`, `vitest.config.ts`, `.gitignore`, `.env.example`, `tests/setup.ts`
@@ -38,6 +38,7 @@ Command/check provenance:
 - `npm run test:coverage`
 - `npm run build`
 - `npm audit --audit-level=high`
+- `git diff --check`
 - Attempted targeted Playwright command under dotenvx:
   `LAICA_DEV_AUTH_ENABLED=true LAICA_DEV_AUTH_SECRET=local-dev-auth-smoke LAICA_DEV_AUTH_ALLOWED_USERS="dev-test-linked-ci dev-test-linked-browser-ci" VITE_LAICA_DEV_AUTH_BROWSER=true npx --yes @dotenvx/dotenvx run -- npx playwright test --project=chromium tests/e2e/accessibility-guardrail.test.ts tests/e2e/linked-dev-auth.test.ts`
 
@@ -57,7 +58,9 @@ Observed result:
 - `npm run test:coverage` passed: 33 test files, 218 tests; overall line coverage was 65.18%, with no threshold enforced.
 - `npm run build` passed with the existing non-blocking Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 - `npm audit --audit-level=high` passed and reported `found 0 vulnerabilities`.
+- `git diff --check` passed.
 - Local targeted Playwright did not reach app behavior. The sandboxed run could not resolve `registry.npmjs.org` for dotenvx. The escalated rerun was rejected because fetching/executing dotenvx while holding decrypted secrets was too risky. A secret-presence probe then confirmed the shell did not already have `DATABASE_URL`, `ELEVENLABS_API_KEY`, `VITE_FIREBASE_API_KEY`, and `FIREBASE_SERVICE_ACCOUNT_BASE64`.
+- Early PR CI iterations caught useful issues before merge: the a11y guardrail flagged landing CTA contrast plus horizontal-scroll focusability, and the linked browser smoke exposed a pantry-request assertion timing race. The branch fixed the product/accessibility issues and now asserts the linked smoke's provider-light pantry payload from the actual captured POST request.
 
 Reasoning:
 - The linked browser smoke uses the same Firebase custom-token path created by the prior dev-auth lane, then verifies protected API access with a real Firebase ID token and a browser sign-in through Firebase Web SDK. That is stronger than a backend auth-bypass header and still deterministic because it is limited to allowlisted `dev-test-*` users and a disposable CI database.
@@ -99,6 +102,7 @@ Local checks already run:
 - `npm run test:coverage`
 - `npm run build`
 - `npm audit --audit-level=high`
+- `git diff --check`
 
 Expected PR checks:
 - CI `unit`, including non-blocking coverage artifact upload.
