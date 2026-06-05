@@ -70,12 +70,14 @@ Reasoning:
 
 Negative scope:
 - This does not validate live OpenAI output quality.
+- This does not validate the live `/api/recipes/pantry` provider response contract; the browser smoke stubs recipe suggestions and asserts request/persistence behavior.
 - This does not validate ElevenLabs audio quality.
 - This does not complete full Google popup login or anonymous-to-Google linking.
 - This does not prove production authorized-domain state until the OAuth-start preflight workflow is configured and run.
 - This does not validate real storage integration beyond the disposable Neon/test-user harness.
 - This does not validate full Replit deployment behavior.
 - This does not validate Replit-shell Playwright until Chromium dependencies are configured.
+- This does not prove idempotency across repeated recipe submissions; it proves one submit persists selected staples uniquely.
 - This does not cover exhaustive corner cases.
 
 ## Impact on other agents
