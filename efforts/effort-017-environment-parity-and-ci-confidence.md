@@ -459,3 +459,27 @@ Wilson completed scoped Replit human smoke on the PR runtime content: Google sig
 Do not close or split EFF-017 yet. The remaining resolution work is policy and lane alignment: decide and document whether CI becomes the primary correctness gate with explicit exceptions, configure and run the OAuth-start preflight rather than only shipping the lane, decide live-provider canary scope, decide coverage threshold/ratchet posture, and reconcile `AGENTS.md`, ADR-0001, and testing-policy language.
 
 Still unvalidated or excluded: live provider response-contract drift, repeated-submit idempotency beyond the current single-submit unique-staples assertion, full Google popup login/linking, production OAuth authorized-domain state until preflight runs, full Replit deployment behavior, Replit-shell Playwright, and exhaustive corner cases.
+
+## 2026-06-05 — OAuth-start preflight run blocked by provider configuration
+
+After PR #139 merged the PR #138 closeout to `main` as `b040952b2bc9635c99e0bea9889c1c19fede441f`, Codex manually dispatched the existing `OAuth Start Preflight` workflow on `main` with `continue_uris=https://cookwithlaica.com/`. The run was `https://github.com/wmishak404/laica/actions/runs/27040110722`.
+
+Observed result:
+
+- GitHub Actions repo variables currently include `NEON_PROJECT_ID`; `OAUTH_PREFLIGHT_CONTINUE_URIS` is not configured, so the scheduled OAuth preflight still has no default target.
+- GitHub Actions secrets include `VITE_FIREBASE_API_KEY` by name; the secret value was not inspected.
+- The workflow installed dependencies successfully with `npm ci` and then failed in `npm run check:oauth`.
+- The sanitized Google error was `OPERATION_NOT_ALLOWED : The identity provider configuration is not found.`
+
+Reasoning and current inference:
+
+- Google Identity Platform documents `accounts:createAuthUri` as the API that creates an IdP authorization URI when a `providerId` such as `google.com` is supplied, and the API key identifies the Google Cloud project.
+- The failed run is therefore real negative evidence for the currently configured GitHub Actions preflight project/key, not proof that full Replit Google sign-in is broken. Wilson's PR #138 Replit smoke still observed Google sign-in green.
+- The likely configuration gap is that the Actions `VITE_FIREBASE_API_KEY` points at a project where the Google provider configuration is not found for this REST preflight, or the preflight needs a dedicated `OAUTH_PREFLIGHT_FIREBASE_API_KEY`/accepted-URI setup for the production/Replit Firebase project.
+
+Next smallest actions:
+
+1. Decide the accepted preflight target set: `https://cookwithlaica.com/` only, or custom production domain plus the concrete Replit deployment URL.
+2. Configure `OAUTH_PREFLIGHT_CONTINUE_URIS` as a repo variable once the target set is accepted.
+3. Ensure the workflow uses an API key for the Firebase project where Google sign-in is enabled, either by correcting `VITE_FIREBASE_API_KEY` for this lane or adding a dedicated `OAUTH_PREFLIGHT_FIREBASE_API_KEY` secret.
+4. Rerun `OAuth Start Preflight` and record the pass/fail evidence before treating production OAuth-start state as covered.
