@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-04
+**Updated:** 2026-06-05
 
 ## One-line summary
 
@@ -410,3 +410,28 @@ Merged signal:
 Local evidence on the branch: focused Vitest for the new route/helper passed, full `npm run test:unit` passed, `npm run check` passed, `npm run build` passed, `git diff --check` passed, and Playwright test discovery found the new Chromium smoke. GitHub checks passed on head `73f2e7aa981afb5782e32d2afccd9408d16be50b`: Dependency Audit, Secret Scan, CI `unit`, CI `e2e_guest_smoke` with 5 Playwright tests, CodeQL `Analyze (actions)`, CodeQL `Analyze (javascript-typescript)`, and GitHub Advanced Security `CodeQL`.
 
 This does not change the Replit-primary validation policy. It does not complete Google popup sign-in, prove anonymous-to-Google linking UX, prove production authorized-domain state, validate live OpenAI quality, validate ElevenLabs audio quality, validate Replit deployment behavior, or replace Replit/human validation for third-party identity UI and full linked-account promotion flows.
+
+## 2026-06-05 — Deterministic EFF-017 wrap-up branch started
+
+Branch `codex/eff-017-deterministic-wrapup` started from fresh `origin/main` at `a6292f3527c6e0b39b894c901f1af83233e4779a` after PR #135 and PR #136 merged the linked dev-auth lane and its docs closeout.
+
+Current branch signal:
+
+- Extends the linked dev-auth lane from API-only Playwright into a browser-level linked-user smoke. The smoke mints an allowlisted `dev-test-*` Firebase custom token, signs the browser in through the Firebase Web SDK behind a dev-only `VITE_LAICA_DEV_AUTH_BROWSER` flag, seeds a complete linked profile through protected APIs, drives Chef It Up, stubs `/api/recipes/pantry`, asserts the provider-light request payload, verifies recipe suggestions render, reads the linked profile back, and checks confirmed pantry staples persisted exactly once.
+- Adds the first UI/accessibility guardrail with Playwright + axe for the landing auth surface: accessible button names, minimum 44 px tap targets, and no serious/critical WCAG A/AA axe violations on the scoped surface.
+- Adds non-blocking unit coverage visibility through `npm run test:coverage` plus a CI coverage-summary artifact. This intentionally starts with visibility, not thresholds; thresholds should be added only after the measured baseline is accepted and ratcheting rules are explicit.
+- Keeps routine CI provider-light. The branch does not add live OpenAI, ElevenLabs, transcription, vision, or Google popup completion to the default PR gate.
+
+Local evidence before PR:
+
+- `npm install --save-dev @vitest/coverage-v8@4.1.8 @axe-core/playwright` completed and reported `found 0 vulnerabilities`.
+- `npm run check` passed.
+- `npm run test:unit` passed: 33 files, 218 tests.
+- `npm run test:coverage` passed: 33 files, 218 tests, overall line coverage 65.18%.
+- `npm run build` passed with the existing Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
+- `npm audit --audit-level=high` passed and reported `found 0 vulnerabilities`.
+- Local secret-backed Playwright execution was not claimed as evidence: sandboxed `npx @dotenvx/dotenvx` could not resolve the registry, and the escalated rerun was rejected because fetching/executing dotenvx while holding decrypted secrets was too risky. The shell also did not already have the required service env. GitHub Actions remains the intended evidence lane for this browser smoke because the workflow has the configured Neon/Firebase secrets and disposable schema-only database setup.
+
+EFF-017 is closer to resolution after this branch because the remaining deterministic backlog items are represented: high-value linked browser flow, coverage visibility, and initial UI/accessibility guardrails. It should still remain `In Progress` until the policy criteria are resolved: Replit-primary authority is still documented, live-provider canaries remain separate from default CI, and `AGENTS.md` / ADR-0001 / related testing policy docs have not been changed to make CI the primary correctness gate.
+
+Still unvalidated by this slice: live OpenAI output quality, ElevenLabs audio quality, full Google popup login/linking, production OAuth-domain state until the preflight workflow is configured and run, real storage integration beyond the disposable Neon/test-user harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases.

@@ -11,6 +11,7 @@ import {
   signInWithRedirect,
   signInWithPopup,
   signInWithCredential,
+  signInWithCustomToken as firebaseSignInWithCustomToken,
   signInAnonymously,
   GoogleAuthProvider,
   getRedirectResult,
@@ -196,6 +197,15 @@ export class FirebaseAuthService {
     }
   }
 
+  static async signInWithCustomTokenForDev(customToken: string): Promise<FirebaseAuthUser | null> {
+    if (!import.meta.env.DEV || import.meta.env.VITE_LAICA_DEV_AUTH_BROWSER !== "true") {
+      throw new Error("Dev custom-token sign-in is not enabled");
+    }
+
+    const result = await firebaseSignInWithCustomToken(auth, customToken);
+    return this.formatUser(result.user);
+  }
+
   // Handle redirect result on page load with enhanced error handling
   static async handleRedirectResult(): Promise<FirebaseAuthUser | null> {
     try {
@@ -273,4 +283,18 @@ export class FirebaseAuthService {
       return null;
     }
   }
+}
+
+declare global {
+  interface Window {
+    __LAICA_DEV_AUTH__?: {
+      signInWithCustomToken(customToken: string): Promise<FirebaseAuthUser | null>;
+    };
+  }
+}
+
+if (import.meta.env.DEV && import.meta.env.VITE_LAICA_DEV_AUTH_BROWSER === "true" && typeof window !== "undefined") {
+  window.__LAICA_DEV_AUTH__ = {
+    signInWithCustomToken: (customToken: string) => FirebaseAuthService.signInWithCustomTokenForDev(customToken),
+  };
 }

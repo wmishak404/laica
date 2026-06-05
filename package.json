@@ -16,6 +16,7 @@
     "db:health": "tsx scripts/db-schema-health.ts",
     "check:oauth": "tsx scripts/oauth-start-preflight.ts",
     "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --project=chromium",
     "test": "npm run test:unit && npm run test:e2e"
   },
@@ -106,6 +107,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@replit/vite-plugin-cartographer": "^0.2.0",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
@@ -121,6 +123,7 @@
     "@types/ws": "^8.5.13",
     "@typescript-eslint/parser": "^8.59.3",
     "@vitejs/plugin-react": "^4.3.2",
+    "@vitest/coverage-v8": "^4.1.8",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.10",
     "esbuild": "^0.26.0",

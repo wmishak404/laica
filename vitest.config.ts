@@ -16,7 +16,7 @@ export default defineConfig({
     dir: 'tests/unit',
     exclude: [...configDefaults.exclude, 'tests/e2e/**'],
     coverage: {
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'json-summary', 'html'],
       exclude: [
         'node_modules/',
         'tests/',

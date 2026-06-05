@@ -35,6 +35,18 @@ jobs:
       - name: Unit Tests
         run: npm run test:unit
 
+      - name: Unit Coverage Baseline
+        run: npm run test:coverage
+        continue-on-error: true
+
+      - name: Upload Unit Coverage Summary
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-coverage-summary
+          path: coverage/coverage-summary.json
+          if-no-files-found: ignore
+
   e2e_guest_smoke:
     # This job is intentionally conditional: it needs a dedicated test Firebase project and Neon project.
     if: >-
@@ -63,10 +75,11 @@ jobs:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           LAICA_DEV_AUTH_ENABLED: "true"
           LAICA_DEV_AUTH_SECRET: gha-${{ github.run_id }}-${{ github.run_attempt }}
-          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci
+          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci dev-test-linked-browser-ci
+          VITE_LAICA_DEV_AUTH_BROWSER: "true"
         run: |
           missing=()
-          for var in NEON_API_KEY FIREBASE_SERVICE_ACCOUNT_BASE64 VITE_FIREBASE_API_KEY VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_APP_ID ELEVENLABS_API_KEY LAICA_DEV_AUTH_ENABLED LAICA_DEV_AUTH_SECRET LAICA_DEV_AUTH_ALLOWED_USERS; do
+          for var in NEON_API_KEY FIREBASE_SERVICE_ACCOUNT_BASE64 VITE_FIREBASE_API_KEY VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_APP_ID ELEVENLABS_API_KEY LAICA_DEV_AUTH_ENABLED LAICA_DEV_AUTH_SECRET LAICA_DEV_AUTH_ALLOWED_USERS VITE_LAICA_DEV_AUTH_BROWSER; do
             if [ -z "${!var:-}" ]; then
               missing+=("$var")
             fi
@@ -113,7 +126,8 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           LAICA_DEV_AUTH_ENABLED: "true"
           LAICA_DEV_AUTH_SECRET: gha-${{ github.run_id }}-${{ github.run_attempt }}
-          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci
+          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci dev-test-linked-browser-ci
+          VITE_LAICA_DEV_AUTH_BROWSER: "true"
         run: npm run test:e2e
 
       - name: Delete Neon Branch

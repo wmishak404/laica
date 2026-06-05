@@ -1,14 +1,81 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
 const LINKED_DEV_AUTH_UID = "dev-test-linked-ci";
+const LINKED_DEV_AUTH_BROWSER_UID = "dev-test-linked-browser-ci";
 
-function missingEnvNames() {
+const pantryRecipesResponse = {
+  recipes: [
+    {
+      recipeName: "Soy Rice Breakfast Bowl",
+      description: "A fast bowl built from rice, eggs, soy sauce, tortillas, and lime.",
+      cookTime: 25,
+      difficulty: "Easy",
+      cuisine: "Mexican-inspired",
+      pantryMatch: 95,
+      pantryIngredientsUsed: ["rice", "eggs", "soy sauce", "tortillas", "lime"],
+      additionalIngredientsNeeded: ["cilantro"],
+      overview: "Pantry-first, bright, and weeknight-friendly.",
+    },
+    {
+      recipeName: "Crispy Egg Tortilla Rice",
+      description: "Crisped rice and eggs tucked into warm tortillas.",
+      cookTime: 30,
+      difficulty: "Easy",
+      cuisine: "Mexican-inspired",
+      pantryMatch: 88,
+      pantryIngredientsUsed: ["rice", "eggs", "tortillas"],
+      additionalIngredientsNeeded: ["hot sauce"],
+      overview: "A low-lift second ticket with familiar staples.",
+    },
+    {
+      recipeName: "Soy Lime Rice Skillet",
+      description: "A skillet dinner that leans on soy sauce and lime.",
+      cookTime: 35,
+      difficulty: "Medium",
+      cuisine: "Pantry-first",
+      pantryMatch: 82,
+      pantryIngredientsUsed: ["rice", "soy sauce", "lime"],
+      additionalIngredientsNeeded: ["green onion"],
+      overview: "Simple enough for a linked smoke, varied enough for UI proof.",
+    },
+  ],
+};
+
+type LinkedDevAuthPayload = {
+  customToken?: string;
+  user?: { id?: string; email?: string; authMode?: string };
+};
+
+type PantryRecipeRequest = {
+  ingredients?: string[];
+  preferences?: string;
+  timeAvailable?: string;
+};
+
+type LinkedUserProfileResponse = {
+  user?: {
+    pantryIngredients?: string[] | null;
+  };
+};
+
+function missingApiEnvNames() {
   return [
     "LAICA_DEV_AUTH_ENABLED",
     "LAICA_DEV_AUTH_SECRET",
     "LAICA_DEV_AUTH_ALLOWED_USERS",
     "VITE_FIREBASE_API_KEY",
   ].filter((name) => !process.env[name]);
+}
+
+function missingBrowserEnvNames() {
+  const required = new Set([
+    ...missingApiEnvNames(),
+    "VITE_FIREBASE_PROJECT_ID",
+    "VITE_FIREBASE_APP_ID",
+    "VITE_LAICA_DEV_AUTH_BROWSER",
+  ]);
+
+  return [...required].filter((name) => !process.env[name]);
 }
 
 function parseAllowedUsers(value: string | undefined): string[] {
@@ -43,37 +110,113 @@ async function exchangeCustomTokenForIdToken(customToken: string): Promise<strin
   return payload.idToken!;
 }
 
+async function createLinkedDevAuthToken(
+  request: APIRequestContext,
+  uid: string,
+  displayName: string,
+): Promise<LinkedDevAuthPayload> {
+  const tokenResponse = await request.post("/api/dev/auth/linked-token", {
+    headers: {
+      "X-Laica-Dev-Auth": process.env.LAICA_DEV_AUTH_SECRET!,
+    },
+    data: {
+      uid,
+      email: `${uid}@example.test`,
+      displayName,
+    },
+  });
+
+  expect(tokenResponse.status()).toBe(200);
+  const tokenPayload = (await tokenResponse.json()) as LinkedDevAuthPayload;
+  expect(tokenPayload).toEqual({
+    customToken: expect.any(String),
+    user: {
+      id: uid,
+      email: `${uid}@example.test`,
+      authMode: "linked",
+    },
+  });
+
+  return tokenPayload;
+}
+
+async function seedLinkedProfile(request: APIRequestContext, idToken: string) {
+  const profileResponse = await request.put("/api/user/profile", {
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+    data: {
+      cookingSkill: "Beginner",
+      dietaryRestrictions: ["No restrictions"],
+      pantryIngredients: ["rice", "eggs", "soy sauce"],
+      kitchenEquipment: ["skillet"],
+      favoriteChefs: [],
+    },
+  });
+
+  expect(profileResponse.status()).toBe(200);
+  expect(await profileResponse.json()).toMatchObject({
+    id: LINKED_DEV_AUTH_BROWSER_UID,
+    cookingSkill: "Beginner",
+    dietaryRestrictions: ["No restrictions"],
+    pantryIngredients: ["rice", "eggs", "soy sauce"],
+  });
+}
+
+async function readLinkedProfile(request: APIRequestContext, idToken: string): Promise<LinkedUserProfileResponse> {
+  const profileResponse = await request.get("/api/user/profile", {
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+
+  expect(profileResponse.status()).toBe(200);
+  return (await profileResponse.json()) as LinkedUserProfileResponse;
+}
+
+async function stubPantryRecipes(page: Page) {
+  const requestPayloads: PantryRecipeRequest[] = [];
+
+  await page.route("**/api/recipes/pantry", async (route) => {
+    requestPayloads.push(route.request().postDataJSON() as PantryRecipeRequest);
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(pantryRecipesResponse),
+    });
+  });
+
+  return {
+    getRequestPayloads: () => requestPayloads,
+  };
+}
+
+async function signBrowserInWithCustomToken(page: Page, customToken: string) {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Start cooking now" })).toBeVisible();
+  await page.waitForFunction(() => Boolean((window as any).__LAICA_DEV_AUTH__?.signInWithCustomToken));
+  await page.evaluate(async (token) => {
+    const devAuth = (window as any).__LAICA_DEV_AUTH__;
+    if (!devAuth?.signInWithCustomToken) {
+      throw new Error("Linked dev-auth browser helper is not available");
+    }
+
+    await devAuth.signInWithCustomToken(token);
+  }, customToken);
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
+}
+
 test.describe("linked dev auth smoke", () => {
-  const missing = missingEnvNames();
+  const missing = missingApiEnvNames();
   test.skip(missing.length > 0, `Missing linked dev-auth env: ${missing.join(", ")}`);
 
   test("exercises linked-only routes with a Firebase ID token", async ({ request }) => {
     expect(parseAllowedUsers(process.env.LAICA_DEV_AUTH_ALLOWED_USERS)).toContain(LINKED_DEV_AUTH_UID);
 
-    const tokenResponse = await request.post("/api/dev/auth/linked-token", {
-      headers: {
-        "X-Laica-Dev-Auth": process.env.LAICA_DEV_AUTH_SECRET!,
-      },
-      data: {
-        uid: LINKED_DEV_AUTH_UID,
-        email: `${LINKED_DEV_AUTH_UID}@example.test`,
-        displayName: "Linked Dev Test User",
-      },
-    });
-
-    expect(tokenResponse.status()).toBe(200);
-    const tokenPayload = (await tokenResponse.json()) as {
-      customToken?: string;
-      user?: { id?: string; email?: string; authMode?: string };
-    };
-    expect(tokenPayload).toEqual({
-      customToken: expect.any(String),
-      user: {
-        id: LINKED_DEV_AUTH_UID,
-        email: `${LINKED_DEV_AUTH_UID}@example.test`,
-        authMode: "linked",
-      },
-    });
+    const tokenPayload = await createLinkedDevAuthToken(request, LINKED_DEV_AUTH_UID, "Linked Dev Test User");
 
     const idToken = await exchangeCustomTokenForIdToken(tokenPayload.customToken!);
     const authHeaders = { Authorization: `Bearer ${idToken}` };
@@ -98,5 +241,64 @@ test.describe("linked dev auth smoke", () => {
       id: LINKED_DEV_AUTH_UID,
       email: `${LINKED_DEV_AUTH_UID}@example.test`,
     });
+  });
+});
+
+test.describe("linked dev auth browser smoke", () => {
+  const missing = missingBrowserEnvNames();
+  test.skip(missing.length > 0, `Missing linked browser dev-auth env: ${missing.join(", ")}`);
+
+  test("linked user can plan with saved pantry and persist newly confirmed staples", async ({ page, request }) => {
+    expect(parseAllowedUsers(process.env.LAICA_DEV_AUTH_ALLOWED_USERS)).toContain(LINKED_DEV_AUTH_BROWSER_UID);
+    expect(process.env.VITE_LAICA_DEV_AUTH_BROWSER).toBe("true");
+
+    const tokenPayload = await createLinkedDevAuthToken(request, LINKED_DEV_AUTH_BROWSER_UID, "Linked Browser Dev User");
+    const idToken = await exchangeCustomTokenForIdToken(tokenPayload.customToken!);
+    await seedLinkedProfile(request, idToken);
+
+    const pantryRoutes = await stubPantryRecipes(page);
+    await signBrowserInWithCustomToken(page, tokenPayload.customToken!);
+
+    await expect(page.getByText(/Right now I see/)).toContainText("3 pantry items");
+    await page.getByRole("button", { name: "Chef It Up" }).click();
+
+    await expect(page.getByRole("heading", { name: "How much time do you have today?" })).toBeVisible();
+    await page.getByRole("button", { name: "1hr" }).click();
+    await page.getByRole("button", { name: "Next" }).click();
+
+    await expect(page.getByRole("heading", { name: "What sounds good?" })).toBeVisible();
+    await page.getByRole("button", { name: /Mexican/ }).click();
+    await page.getByRole("button", { name: "View recipe suggestions" }).click();
+
+    await expect(page.getByRole("heading", { name: "Anything else around?" })).toBeVisible();
+    await page.getByRole("button", { name: "tortillas" }).click();
+    await page.getByRole("button", { name: "lime" }).click();
+
+    const pantryRequestPromise = page.waitForRequest("**/api/recipes/pantry");
+    await page.getByRole("button", { name: "View recipe suggestions" }).click();
+    await pantryRequestPromise;
+
+    expect(pantryRoutes.getRequestPayloads()).toHaveLength(1);
+    expect(pantryRoutes.getRequestPayloads()[0]).toMatchObject({
+      ingredients: ["rice", "eggs", "soy sauce", "tortillas", "lime"],
+      timeAvailable: "1 hour",
+    });
+    expect(pantryRoutes.getRequestPayloads()[0].preferences).toContain("Confirmed staples: tortillas, lime");
+
+    await expect(page.getByRole("heading", { name: "Recipe suggestions from your pantry" })).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
+
+    const profile = await readLinkedProfile(request, idToken);
+    const savedPantry = profile.user?.pantryIngredients ?? [];
+    expect(savedPantry).toEqual(["rice", "eggs", "soy sauce", "tortillas", "lime"]);
+    expect(new Set(savedPantry).size).toBe(savedPantry.length);
+    expect(savedPantry.filter((item) => item === "tortillas")).toHaveLength(1);
+    expect(savedPantry.filter((item) => item === "lime")).toHaveLength(1);
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText(/Right now I see/)).toContainText("5 pantry items");
   });
 });
