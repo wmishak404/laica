@@ -61,6 +61,7 @@ Observed result:
 - `git diff --check` passed.
 - Local targeted Playwright did not reach app behavior. The sandboxed run could not resolve `registry.npmjs.org` for dotenvx. The escalated rerun was rejected because fetching/executing dotenvx while holding decrypted secrets was too risky. A secret-presence probe then confirmed the shell did not already have `DATABASE_URL`, `ELEVENLABS_API_KEY`, `VITE_FIREBASE_API_KEY`, and `FIREBASE_SERVICE_ACCOUNT_BASE64`.
 - Early PR CI iterations caught useful issues before merge: the a11y guardrail flagged landing CTA contrast plus horizontal-scroll focusability, and the linked browser smoke exposed a pantry-request assertion timing race. The branch fixed the product/accessibility issues and now asserts the linked smoke's provider-light pantry payload from the actual captured POST request.
+- Wilson loaded the PR in Replit at `30d4d0f7c81c50a6c08fc3b73347c0ca0537f1c2`. Replit shell validation did not reach app behavior: `npm ci` was blocked by the Replit package firewall with `403 Forbidden` for `es5-ext@0.10.64`, and subsequent `npm run check` / `npm run build` failed because `tsc` and `vite` were not installed. The Replit env sanity check did pass for the dev-auth browser guard: `VITE_LAICA_DEV_AUTH_BROWSER set: false`.
 
 Reasoning:
 - The linked browser smoke uses the same Firebase custom-token path created by the prior dev-auth lane, then verifies protected API access with a real Firebase ID token and a browser sign-in through Firebase Web SDK. That is stronger than a backend auth-bypass header and still deterministic because it is limited to allowlisted `dev-test-*` users and a disposable CI database.
@@ -106,6 +107,12 @@ Local checks already run:
 - `npm audit --audit-level=high`
 - `git diff --check`
 
+Replit checks attempted:
+- `git fetch origin pull/138/head:codex/eff-017-deterministic-wrapup && git switch codex/eff-017-deterministic-wrapup && git rev-parse HEAD` confirmed `30d4d0f7c81c50a6c08fc3b73347c0ca0537f1c2`.
+- `npm ci && npm run check && npm run build` was blocked during install by Replit package firewall policy for `es5-ext@0.10.64`.
+- `npm run check` and `npm run build` then failed because dependencies were unavailable (`tsc` / `vite` not found).
+- `node -e "console.log('VITE_LAICA_DEV_AUTH_BROWSER set:', Boolean(process.env.VITE_LAICA_DEV_AUTH_BROWSER))"` printed `false`.
+
 Expected PR checks:
 - CI `unit`, including non-blocking coverage artifact upload.
 - CI `e2e_guest_smoke`, now including the guest lane, linked dev-auth API smoke, linked dev-auth browser smoke, and accessibility guardrail on a disposable schema-only Neon branch.
@@ -115,5 +122,5 @@ Expected PR checks:
 
 - Base refreshed: yes
 - Current base: `origin/main` at `a6292f3527c6e0b39b894c901f1af83233e4779a`
-- Last Replit-validated at: not yet validated
+- Last Replit-validated at: not yet validated; Replit shell attempted at `30d4d0f7c81c50a6c08fc3b73347c0ca0537f1c2` but blocked before app checks by package firewall policy
 - Notes: branch started after PR #135 and PR #136 merged; no lower-stack PR is pending for this branch.

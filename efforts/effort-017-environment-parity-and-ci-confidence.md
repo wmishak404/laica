@@ -438,6 +438,12 @@ Local evidence before PR:
 - `git diff --check` passed.
 - Local secret-backed Playwright execution was not claimed as evidence: sandboxed `npx @dotenvx/dotenvx` could not resolve the registry, and the escalated rerun was rejected because fetching/executing dotenvx while holding decrypted secrets was too risky. The shell also did not already have the required service env. GitHub Actions remains the intended evidence lane for this browser smoke because the workflow has the configured Neon/Firebase secrets and disposable schema-only database setup.
 
+Replit attempt before merge:
+
+- Wilson loaded PR #138 in Replit and confirmed the checked-out head was `30d4d0f7c81c50a6c08fc3b73347c0ca0537f1c2`.
+- Replit shell checks were blocked before app behavior: `npm ci` failed with Replit package firewall `403 Forbidden` for `es5-ext@0.10.64`; `npm run check` and `npm run build` then failed because `tsc` and `vite` were not installed.
+- The Replit env sanity check for the dev-auth browser guard passed: `VITE_LAICA_DEV_AUTH_BROWSER set: false`.
+
 EFF-017 is closer to resolution after this branch because the remaining deterministic backlog items are represented: high-value linked browser flow, coverage visibility, and initial UI/accessibility guardrails. It should still remain `In Progress` until the policy criteria are resolved: Replit-primary authority is still documented, live-provider canaries remain separate from default CI, and `AGENTS.md` / ADR-0001 / related testing policy docs have not been changed to make CI the primary correctness gate.
 
 Still unvalidated by this slice: live OpenAI output quality, live `/api/recipes/pantry` provider response-contract drift because the smoke stubs recipe suggestions, ElevenLabs audio quality, full Google popup login/linking, production OAuth-domain state until the preflight workflow is configured and run, real storage integration beyond the disposable Neon/test-user harness, idempotency across repeated recipe submissions beyond the single-submit unique-staples assertion, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases.
