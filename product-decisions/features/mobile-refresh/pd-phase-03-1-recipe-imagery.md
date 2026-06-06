@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 3.1 — Design Facelift and Recipe Imagery
 
-**Status:** In progress; merged consistency slices plus Ticket Pass retry planning
+**Status:** In progress; merged consistency slices, Slop Bowl button alignment, plus Ticket Pass retry planning
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-05
@@ -191,6 +191,14 @@ The same review found that the message stayed visible over the Chef It Up / Slop
 
 This is intentionally not part of INIT-003 production-gates behavior. INIT-003 still owns guest/linked data boundaries and public access controls; Phase 3.1 owns this copy and interaction polish.
 
+## 2026-06-05 - Slop Bowl Generated-Result Button Typography Aligned
+
+PR #141 aligned Slop Bowl generated-result and feedback action buttons with the adjacent Chef It Up recipe-suggestion controls. The root cause was two-part drift: Slop Bowl generated-result screens were not wrapped in `.planning-screen`, and their approval/feedback actions used local `py-3 text-lg` sizing without the Planning action-button `h-12`, `rounded-xl`, `font-extrabold` contract.
+
+The merged fix adds the Planning typography wrapper to Slop Bowl, updates approval and feedback buttons to the shared Planning control grammar, tightens the small pantry-check `Add` button weight, and adds focused regression coverage for the generated-result button classes. Wilson visually confirmed the Replit comparison at pre-rebase head `9d30177`; after rebasing over docs-only `main` commit `b040952`, focused local checks and GitHub CI passed at PR head `8f11990`, and PR #141 merged as `2145407`.
+
+Future Slop Bowl button work should compare rendered controls against adjacent Chef It Up Planning surfaces by computed style and screenshot review. Matching class names alone is not enough when a surface can miss the shared root wrapper or carry local utility overrides.
+
 ## Phase 3 Design Drift Inventory
 
 | Drift | Why it was drift | Context/system cause | Phase 3 status | Phase 3.1 recommendation |
@@ -207,6 +215,7 @@ This is intentionally not part of INIT-003 production-gates behavior. INIT-003 s
 | Cuisine-selected recipes overuse optional ingredients | Suggestions felt like they were completing a cuisine with missing staples instead of cooking from the pantry | Older recipe prompt language prioritized cuisine correction and allowed missing ingredients to complete a cuisine | Fixed with Phase 3 staple check, prompt balance, and optional cleanup; needs Replit validation | Decide whether the staple check needs richer UI, pantry confidence, or a pantry-staples profile in Phase 3.1 |
 | Staple check can feel capped at four | The first Phase 3 staple check shows only four missing-staple rows, so users cannot keep confirming useful staples after selecting one | Phase 3 optimized for narrow functional correctness and did not yet include a progressive selected shelf | Split to Phase 3.2 | Phase 3.1 should preserve or restyle the Phase 3.2 Added shelf / rolling queue rather than returning to the capped four-row behavior |
 | Slop Bowl pantry-check visuals may drift from Chef It Up staple-check visuals | Slop Bowl already has removable pantry chips/list context, while Chef It Up Phase 3.2 now has the preferred Added shelf / large row / visible remove-affordance direction | The related pantry-confirmation surfaces were built in different passes and should not silently diverge during the facelift | Fixed in the Slop Bowl pantry-check alignment slice | Keep the shared visual grammar: manual temporary additions are coral with `+` + `X`; saved Pantry ingredients are green check chips with no visible `Saved` text. Preserve Slop Bowl's behavior distinction: removing a saved Pantry ingredient only omits it from the current bowl and must not imply deletion from saved Pantry |
+| Slop Bowl generated-result buttons used a different font/weight than adjacent recipe-suggestion buttons | After Slop Bowl generated a bowl, its `Let's cook this!`, `Try something else`, and plan-your-own-meal controls looked less like the Chef It Up suggestion actions directly next to them in the product journey | The generated-result surface missed the shared Planning root wrapper and carried local button sizing/typography utilities, so matching nearby component names did not produce matching computed styles | Fixed in PR #141 | Keep Slop Bowl generated-result and feedback actions under the Planning wrapper and preserve the `h-12`, `rounded-xl`, `font-extrabold` button contract used by Chef It Up recipe suggestions. Validate with visual comparison and computed-style review, not class-name matching alone |
 | Ingredient chip style differs across pantry and recipe menus | Pantry scan/review chips use a bolder green checked pantry-fact style, while Ticket Pass `Uses` chips are lighter outline pills even though they represent the same known kitchen ingredients | Ingredient chips were implemented in separate components and phases instead of through one shared pantry-fact chip treatment | Deferred to Phase 3.1 | Align actual app ingredient-list chips across scan/review menus, Ticket Pass `Uses`, and related recipe surfaces to the bolder checked pantry-fact style when the chip means a known saved/detected ingredient. Preserve the existing coral `+` + `X` treatment for pending/removable additions |
 | Recipe imagery disappeared | No stable place existed for future generated images to land | "Generated recipe imagery deferred" was interpreted as "no image slot needed" | Fixed with placeholders | Phase 3.1 still owns real imagery, async hydration, caching, and failure fallback. Do not treat custom fake placeholder illustrations as a substitute for this later slice |
 | Planning entry card/whitespace grammar still feels off | The choice cards use too much framed-card language and not enough modern app whitespace | Phase 3 iterated individual concerns instead of stepping back into one coherent facelift | Deferred to Phase 3.1 | Rework Planning entry as a whole surface, with whitespace/card grammar reviewed before implementation |
