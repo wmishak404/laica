@@ -31,6 +31,8 @@ interface SavedCookingSession {
   savedAt: number;
   steps?: RecipeStep[];
   ingredients?: RecipeIngredient[];
+  cookingSessionId?: number;
+  cookingStartedAt?: string;
 }
 
 interface RecipeStep {
@@ -128,6 +130,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const currentAudioRef = useRef<AudioBufferSourceNode | null>(null);
   const sessionRestoredRef = useRef(false);
   const sessionStepsRestoredRef = useRef(false);
+  const restoredCookingSessionRef = useRef(false);
   const initialMountRef = useRef(true);
 
   // Validate and sanitize a saved cooking session
@@ -138,6 +141,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       if (typeof data.recipeId !== 'string') return null;
       if (typeof data.currentStepIndex !== 'number') return null;
       if (typeof data.savedAt !== 'number') return null;
+      const cookingSessionId = typeof data.cookingSessionId === 'number' && Number.isFinite(data.cookingSessionId)
+        ? data.cookingSessionId
+        : undefined;
+      const cookingStartedAt = typeof data.cookingStartedAt === 'string' && !Number.isNaN(Date.parse(data.cookingStartedAt))
+        ? data.cookingStartedAt
+        : undefined;
       const steps = Array.isArray(data.steps)
         ? data.steps.map((step: unknown, index: number): RecipeStep | null => {
           if (typeof step !== 'object' || step === null) return null;
@@ -187,6 +196,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         savedAt: data.savedAt,
         steps,
         ingredients,
+        cookingSessionId,
+        cookingStartedAt,
       };
     } catch {
       return null;
@@ -217,6 +228,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           setCurrentStepIndex(session.currentStepIndex);
           setTimer(session.timer);
           setIsTimerRunning(session.isTimerRunning);
+          setCookingSessionId(session.cookingSessionId ?? null);
+          setCookingStartTime(session.cookingStartedAt ? new Date(session.cookingStartedAt) : null);
+          restoredCookingSessionRef.current = true;
           if (session.steps && session.steps.length > 0) {
             setLoadedRecipeSteps(session.steps);
             setLoadedRecipeIngredients(session.ingredients || []);
@@ -265,9 +279,11 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       savedAt: Date.now(),
       steps: loadedRecipeSteps,
       ingredients: loadedRecipeIngredients,
+      cookingSessionId: cookingSessionId ?? undefined,
+      cookingStartedAt: cookingStartTime?.toISOString(),
     };
     localStorage.setItem(cookingSessionStorageKey, JSON.stringify(session));
-  }, [currentStepIndex, timer, isTimerRunning, loadedRecipeSteps, loadedRecipeIngredients, selectedMeal.recipeName, selectedMeal.id, cookingSessionStorageKey]);
+  }, [currentStepIndex, timer, isTimerRunning, loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId, cookingStartTime, selectedMeal.recipeName, selectedMeal.id, cookingSessionStorageKey]);
 
   // Clear cooking session when navigating back or completing
   const clearCookingSession = () => {
@@ -503,7 +519,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   // Start cooking session when steps are loaded
   useEffect(() => {
-    if (!isGuest && loadedRecipeSteps.length > 0 && !cookingSessionId) {
+    if (!isGuest && loadedRecipeSteps.length > 0 && !cookingSessionId && !restoredCookingSessionRef.current) {
       startCookingSession(loadedRecipeSteps.length, loadedRecipeSteps, loadedRecipeIngredients);
     }
   }, [isGuest, loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId]);

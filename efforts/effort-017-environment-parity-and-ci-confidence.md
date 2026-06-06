@@ -536,3 +536,11 @@ Wilson then targeted the restore path directly by hard-refreshing during Live Co
 Current inference: the scoped cooking-session cache preserved `currentStepIndex`, timer, and running state, but not the generated provider steps/ingredients. Restoring progress without restoring the step list can replay the provider setup and can briefly or permanently leave the UI without a valid current step when the saved index and loaded steps disagree.
 
 EFF-017 implication: remount/reconnect confidence needs component-level state restoration tests, not only parent-route tests. The PR #144 branch now persists generated steps/ingredients in the scoped cooking-session cache, restores them without re-calling `/api/cooking/steps`, clamps restored indexes to available steps, and adds a Live Cooking guest refresh regression.
+
+## 2026-06-05 — Replit idle/auth-resync signal caught duplicate durable session start
+
+Wilson later left the Replit app window open and observed Live Cooking activity resume several minutes after the original session. Replit logs showed `POST /api/auth/google`, `GET /api/user/profile`, speech synthesis, `POST /api/cooking/steps`, and `POST /api/cooking/session/start` at the later timestamp. The exact page state before the idle event was unknown, but the duplicate durable start signal was testable.
+
+Focused unit reproduction confirmed that a linked user restoring a saved Live Cooking tray still created another durable cooking session because `cookingSessionId` was only in React memory. The PR #144 branch now persists durable cooking session id/start time in the scoped cooking-session cache, restores them when present, and suppresses a new `session/start` call for restored linked sessions even when older saved cache lacks an id.
+
+EFF-017 implication: reconnect/idle confidence must cover provider route calls and durable write side effects separately. Preventing an empty UI or provider re-fetch is not sufficient if a remount can also create duplicate History-backed sessions.

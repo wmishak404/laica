@@ -16,6 +16,8 @@ Second, after the route fix was validated in Replit, a guest Chef It Up smoke en
 
 Third, Wilson's targeted Replit refresh check showed the active plan restored the recipe screen, but Live Cooking reinitialized the guide instead of restoring the already-generated step tray. Refreshing near the final step could produce controls and assistant copy without the step card because the saved state did not include the generated steps. The branch now persists and restores the generated step tray and clamps restored step indexes to the available steps.
 
+Fourth, Wilson observed an idle-window/auth-resync-looking case where logs showed `POST /api/auth/google`, profile reload, speech synthesis, cooking steps, and `POST /api/cooking/session/start` several minutes after the original Live Cooking start. A focused unit reproduction confirmed the durable-session part of that signal: a linked user restoring a saved Live Cooking tray would still create another `/api/cooking/session/start` because `cookingSessionId` was memory-only. The branch now persists the durable cooking session id/start time when available and treats restored cooking sessions as existing sessions rather than starting a new one.
+
 ## Changes
 
 - `server/routes.ts`
@@ -25,11 +27,11 @@ Third, Wilson's targeted Replit refresh check showed the active plan restored th
 - `client/src/pages/app.tsx`
   Persists the active cooking plan per guest/linked scope when a recipe is selected, restores it on profile load after a remount, and clears it on Back to Planning, logout/start-over, or cooking completion.
 - `client/src/components/cooking/live-cooking.tsx`
-  Adds an optional completion callback so the parent app can clear active-plan restore state when a cooking attempt finishes. Persists generated steps/ingredients in the scoped cooking-session cache, restores them without re-calling `/api/cooking/steps`, and clamps restored step indexes so refresh cannot render controls without a current step.
+  Adds an optional completion callback so the parent app can clear active-plan restore state when a cooking attempt finishes. Persists generated steps/ingredients plus durable session id/start time in the scoped cooking-session cache, restores them without re-calling `/api/cooking/steps`, clamps restored step indexes so refresh cannot render controls without a current step, and avoids creating another durable cooking session for a restored linked session.
 - `tests/unit/planning-choice.test.tsx`
   Adds a guest remount regression showing a complete guest profile with a recent active cooking plan returns to Live Cooking instead of the planning-choice menu.
 - `tests/unit/live-cooking-guest-session.test.tsx`
-  Adds a guest refresh regression showing saved generated steps restore without reinitializing the cooking-step provider path, including an out-of-range index clamp.
+  Adds guest/linked refresh regressions showing saved generated steps restore without reinitializing the cooking-step provider path, including an out-of-range index clamp and no duplicate durable session start for linked users.
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
   Records the Replit smoke gaps: provider-boundary route tests need realistic upstream model-shaped payloads, app-level tests need to cover remount/reconnect resilience for active guest cooking, and component-level tests need to cover generated-step tray restore.
 
@@ -54,12 +56,18 @@ Observed after the active-plan restore guard, before the step-tray restore guard
 - UI restored the recipe screen, but Live Cooking reinitialized as if starting fresh.
 - Refreshing near the final step could render the Live Cooking shell and controls without the step card because restored progress existed but generated steps were not restored with it.
 
+Observed after the step-tray restore guard, before the durable-session restore guard:
+
+- Trigger: idle/open app after prior Live Cooking activity, with Replit logs showing auth/profile refresh before Live Cooking activity.
+- Replit logs included `POST /api/auth/google`, `GET /api/user/profile`, speech synthesis, cooking steps, and `POST /api/cooking/session/start` several minutes after the original start.
+- Focused unit reproduction confirmed a restored linked Live Cooking tray still called the durable start mutation once.
+
 Local validation after latest fix:
 
 - `npx vitest run tests/unit/provider-boundary-happy-paths.test.ts` passed: 1 file, 9 tests.
-- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed: 1 file, 3 tests.
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed: 1 file, 4 tests.
 - `npx vitest run tests/unit/planning-choice.test.tsx` passed: 1 file, 16 tests.
-- `npm run test:unit` passed: 34 files, 223 tests.
+- `npm run test:unit` passed: 34 files, 224 tests.
 - `npm run check` passed.
 - `npm run build` passed with existing non-blocking Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 
@@ -70,6 +78,8 @@ Local validation after latest fix:
 Separately, Live Cooking already persisted step/timer progress, but the parent app did not persist the selected recipe. A Replit dev-server reconnect or equivalent remount could therefore reload a complete guest profile and choose the default planning phase because `selectedMeal` was gone. The active cooking plan is scoped by identity (`guest:<id>` or `linked:<id>`), expires after four hours, validates the saved recipe shape before restore, and clears on explicit navigation/completion.
 
 The follow-up refresh finding showed that preserving only the selected recipe is not enough. Live Cooking has to restore the generated steps themselves to keep refresh/reconnect from replaying the provider setup or showing shell controls with no current step. The scoped cooking-session cache now includes bounded step/ingredient data and clamps stale step indexes on restore.
+
+For linked users, preserving generated steps is also not enough if the durable cooking-session id is lost on remount. Without the id, the component treats restored steps as a fresh linked session and starts another database-backed cooking session. The cache now records the durable session id/start time when the start route succeeds, restores them on mount, and suppresses another start when a saved cooking session is being restored.
 
 ## Required Replit Re-test
 
@@ -85,6 +95,7 @@ Before production deploy, re-test on the Replit runtime branch/head:
 8. For guest smoke, confirm a transient dev-server reconnect or manual refresh during active Live Cooking restores the same recipe screen rather than silently returning to the planning-choice menu.
 9. Confirm refresh during Live Cooking restores the existing generated step tray at the current step without reinitializing the guide.
 10. Confirm refresh near the final step still shows a step card and does not render empty Live Cooking controls.
+11. For linked users, confirm an auth/profile refresh or hard refresh while Live Cooking is restored does not create an extra cooking-history session.
 
 ## Negative Scope
 
@@ -99,5 +110,5 @@ Before production deploy, re-test on the Replit runtime branch/head:
 
 - Base refreshed: yes
 - Current base: `origin/main` at `ad6840e4db89eb5da0595fd22156ab2b38b64566`
-- Last Replit-validated at: not yet validated after latest step-tray restore fix
+- Last Replit-validated at: not yet validated after latest durable-session restore fix
 - Notes: started from main after PR #143 merged.
