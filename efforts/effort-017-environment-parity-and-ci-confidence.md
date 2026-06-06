@@ -512,3 +512,11 @@ Observed Replit/browser signal:
 Current inference: saving planning-time staple additions invalidated `/api/auth/session`; with real Google auth in Replit, that auth-session churn could briefly unset/remount the app route while recipe generation was still in flight, aborting the request UI and returning to planning choice. The fix lane should keep ordinary profile/pantry mutations from invalidating auth session state; identity changes such as guest promotion remain separate.
 
 EFF-017 implication: deterministic linked dev-auth CI is valuable but still does not replace real Replit/Google smoke for auth-session lifecycle behavior before production deploys. Future browser smoke should consider an assertion that profile saves during active generation do not remount the planning surface.
+
+## 2026-06-05 — Replit smoke caught cooking-step context schema rejection
+
+After PR #143 merged, Wilson's Replit light smoke reached Live Cooking through Chef It Up and found a new Start Cooking error: the client showed an AI error popup while console logs reported `POST /api/cooking/steps 400` and `Invalid cooking steps request`. The UI fell back to basic steps, but the route-level rejection meant the live cooking-step provider path was not actually validated for that Chef It Up recipe.
+
+Current inference: the cooking-steps route reused the strict user pantry-item schema for generated recipe context. Chef It Up recipe outputs can pass richer ingredient/equipment strings into Live Cooking than hand-entered pantry values, so provider-boundary route coverage needs a fixture with descriptive generated context, not only short pantry item names.
+
+EFF-017 implication: mocked provider-boundary coverage should include realistic model-shaped payloads from upstream user flows. Passing route tests with short strings did not fully cover the Chef It Up → Live Cooking contract.
