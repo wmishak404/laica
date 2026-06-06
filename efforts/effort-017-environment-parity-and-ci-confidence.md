@@ -498,3 +498,17 @@ With PR #138 merged and PR #139 merged as its closeout, the remaining EFF-017 wo
 | Full Google popup/linking and Replit deployment behavior | Replit human/ops validation lane | Keep outside deterministic CI until a separate full-login automation or deployment preflight is accepted. |
 
 This classification does not close or split EFF-017 yet. It narrows the next useful work: either resolve the OAuth config blocker, write a canary-lane proposal/implementation branch, or ask Wilson for the validation-authority decision before touching policy docs.
+
+## 2026-06-05 — Replit smoke caught planning profile-save auth churn
+
+Wilson's short Replit smoke after PR #140 found a deployment-blocking Chef It Up edge case that routine CI did not catch: with a real Google-linked user, selecting a cuisine and adding new suggested staples before requesting recipes could return the UI to the "What are we cooking today?" planning-choice screen. The same flow proceeded when no new staples were added, and selecting cuisine alone also proceeded.
+
+Observed Replit/browser signal:
+
+- Replit shell `npm ci` and `npm run test:unit` passed on `main` after PR #140, so the prior `es5-ext@0.10.64` package-firewall blocker did not reproduce in this shell.
+- Browser/Replit logs showed `PUT /api/user/profile 200`, `POST /api/recipes/pantry 200`, intermittent `GET /api/auth/session 401`, and follow-up `POST /api/auth/google 200`.
+- Browser console reported `AbortError: signal is aborted without reason` from the meal-planning active-generation cancellation path.
+
+Current inference: saving planning-time staple additions invalidated `/api/auth/session`; with real Google auth in Replit, that auth-session churn could briefly unset/remount the app route while recipe generation was still in flight, aborting the request UI and returning to planning choice. The fix lane should keep ordinary profile/pantry mutations from invalidating auth session state; identity changes such as guest promotion remain separate.
+
+EFF-017 implication: deterministic linked dev-auth CI is valuable but still does not replace real Replit/Google smoke for auth-session lifecycle behavior before production deploys. Future browser smoke should consider an assertion that profile saves during active generation do not remount the planning surface.
