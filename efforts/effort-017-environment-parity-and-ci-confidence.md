@@ -459,3 +459,42 @@ Wilson completed scoped Replit human smoke on the PR runtime content: Google sig
 Do not close or split EFF-017 yet. The remaining resolution work is policy and lane alignment: decide and document whether CI becomes the primary correctness gate with explicit exceptions, configure and run the OAuth-start preflight rather than only shipping the lane, decide live-provider canary scope, decide coverage threshold/ratchet posture, and reconcile `AGENTS.md`, ADR-0001, and testing-policy language.
 
 Still unvalidated or excluded: live provider response-contract drift, repeated-submit idempotency beyond the current single-submit unique-staples assertion, full Google popup login/linking, production OAuth authorized-domain state until preflight runs, full Replit deployment behavior, Replit-shell Playwright, and exhaustive corner cases.
+
+## 2026-06-05 — OAuth-start preflight run blocked by provider configuration
+
+After PR #139 merged the PR #138 closeout to `main` as `b040952b2bc9635c99e0bea9889c1c19fede441f`, Codex manually dispatched the existing `OAuth Start Preflight` workflow on `main` with `continue_uris=https://cookwithlaica.com/`. The run was `https://github.com/wmishak404/laica/actions/runs/27040110722`.
+
+Observed result:
+
+- GitHub Actions repo variables currently include `NEON_PROJECT_ID`; `OAUTH_PREFLIGHT_CONTINUE_URIS` is not configured, so the scheduled OAuth preflight still has no default target.
+- GitHub Actions secrets include `VITE_FIREBASE_API_KEY` by name; the secret value was not inspected.
+- The workflow installed dependencies successfully with `npm ci` and then failed in `npm run check:oauth`.
+- The sanitized Google error was `OPERATION_NOT_ALLOWED : The identity provider configuration is not found.`
+
+Reasoning and current inference:
+
+- Google Identity Platform documents `accounts:createAuthUri` as the API that creates an IdP authorization URI when a `providerId` such as `google.com` is supplied, and the API key identifies the Google Cloud project.
+- The failed run is therefore real negative evidence for the currently configured GitHub Actions preflight project/key, not proof that full Replit Google sign-in is broken. Wilson's PR #138 Replit smoke still observed Google sign-in green.
+- The likely configuration gap is that the Actions `VITE_FIREBASE_API_KEY` points at a project where the Google provider configuration is not found for this REST preflight, or the preflight needs a dedicated `OAUTH_PREFLIGHT_FIREBASE_API_KEY`/accepted-URI setup for the production/Replit Firebase project.
+
+Next smallest actions:
+
+1. Decide the accepted preflight target set: `https://cookwithlaica.com/` only, or custom production domain plus the concrete Replit deployment URL.
+2. Configure `OAUTH_PREFLIGHT_CONTINUE_URIS` as a repo variable once the target set is accepted.
+3. Ensure the workflow uses an API key for the Firebase project where Google sign-in is enabled, either by correcting `VITE_FIREBASE_API_KEY` for this lane or adding a dedicated `OAUTH_PREFLIGHT_FIREBASE_API_KEY` secret.
+4. Rerun `OAuth Start Preflight` and record the pass/fail evidence before treating production OAuth-start state as covered.
+
+## 2026-06-05 — Remaining EFF-017 items classified after deterministic wrap-up
+
+With PR #138 merged and PR #139 merged as its closeout, the remaining EFF-017 work is no longer a single automation backlog. It separates into decision/config blockers and future implementation lanes:
+
+| Remaining item | Current classification | Smallest next action |
+|---|---|---|
+| CI-primary merge authority | Human validation-policy decision | Do not edit `AGENTS.md`, ADR-0001, or `docs/workflows/testing-and-acceptance.md` to make CI primary until Wilson explicitly accepts the policy shift and its exceptions. |
+| OAuth-start preflight | Blocked by GitHub/Firebase configuration | Resolve accepted continue URIs and provider-enabled API key, then rerun `OAuth Start Preflight`. |
+| Live-provider canary | Product/ops lane decision | Decide which seams belong in canary evidence: OpenAI recipe contract, Vision route contract, ElevenLabs synth/audio reachability, transcription route, and any storage/provider correlation. Keep canaries outside default PR CI unless explicitly accepted. |
+| Coverage thresholds | Evidence-ratcheting decision | Use PR #138's non-blocking coverage as visibility first. Add thresholds only after the baseline and ratchet rule are accepted; do not turn the current 65.18% line baseline into a blocking gate by default. |
+| Replit shell install/check/build | Replit/package-firewall blocker | Allow `es5-ext@0.10.64` or change the install path before treating Replit shell `npm ci`, `npm run check`, or `npm run build` as available evidence again. |
+| Full Google popup/linking and Replit deployment behavior | Replit human/ops validation lane | Keep outside deterministic CI until a separate full-login automation or deployment preflight is accepted. |
+
+This classification does not close or split EFF-017 yet. It narrows the next useful work: either resolve the OAuth config blocker, write a canary-lane proposal/implementation branch, or ask Wilson for the validation-authority decision before touching policy docs.
