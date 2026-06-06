@@ -42,6 +42,7 @@ describe('security hardening', () => {
         ]),
         'script-src': expect.arrayContaining([
           "'self'",
+          'https://apis.google.com',
           'https://www.google.com',
           'https://www.gstatic.com',
         ]),
