@@ -512,3 +512,35 @@ Observed Replit/browser signal:
 Current inference: saving planning-time staple additions invalidated `/api/auth/session`; with real Google auth in Replit, that auth-session churn could briefly unset/remount the app route while recipe generation was still in flight, aborting the request UI and returning to planning choice. The fix lane should keep ordinary profile/pantry mutations from invalidating auth session state; identity changes such as guest promotion remain separate.
 
 EFF-017 implication: deterministic linked dev-auth CI is valuable but still does not replace real Replit/Google smoke for auth-session lifecycle behavior before production deploys. Future browser smoke should consider an assertion that profile saves during active generation do not remount the planning surface.
+
+## 2026-06-05 — Replit smoke caught cooking-step context schema rejection
+
+After PR #143 merged, Wilson's Replit light smoke reached Live Cooking through Chef It Up and found a new Start Cooking error: the client showed an AI error popup while console logs reported `POST /api/cooking/steps 400` and `Invalid cooking steps request`. The UI fell back to basic steps, but the route-level rejection meant the live cooking-step provider path was not actually validated for that Chef It Up recipe.
+
+Current inference: the cooking-steps route reused the strict user pantry-item schema for generated recipe context. Chef It Up recipe outputs can pass richer ingredient/equipment strings into Live Cooking than hand-entered pantry values, so provider-boundary route coverage needs a fixture with descriptive generated context, not only short pantry item names.
+
+EFF-017 implication: mocked provider-boundary coverage should include realistic model-shaped payloads from upstream user flows. Passing route tests with short strings did not fully cover the Chef It Up → Live Cooking contract.
+
+## 2026-06-05 — Replit smoke caught active cooking remount state loss
+
+While retesting the cooking-steps fix on the PR #144 branch, Wilson found a guest Chef It Up flow that entered Live Cooking briefly and then returned to the "What are we cooking today?" planning-choice menu with no user-facing error. Browser console showed `[vite] server connection lost` and `TypeError: Failed to fetch`, not the earlier `/api/cooking/steps 400`.
+
+Current inference: the Replit dev server or client connection remounted while Live Cooking was loading. Live Cooking already persisted step/timer state, but the parent app held the selected recipe only in React memory. After a remount, the app could reload the complete guest profile and choose the default planning phase because there was no durable active cooking plan to restore.
+
+EFF-017 implication: runtime confidence needs app-level remount/reconnect assertions in addition to route-contract tests. The PR #144 branch now adds a scoped active-cooking-plan restore guard and a guest remount unit regression; it still does not prove production outage behavior or replace Replit smoke for deployment-bound runtime behavior.
+
+## 2026-06-05 — Replit refresh check caught Live Cooking step-tray reinitialization
+
+Wilson then targeted the restore path directly by hard-refreshing during Live Cooking. The parent-level active-plan restore kept the recipe screen, but Live Cooking reinitialized the guide instead of restoring the existing generated step tray. A refresh near the final step could render the Live Cooking shell and controls without a current step card.
+
+Current inference: the scoped cooking-session cache preserved `currentStepIndex`, timer, and running state, but not the generated provider steps/ingredients. Restoring progress without restoring the step list can replay the provider setup and can briefly or permanently leave the UI without a valid current step when the saved index and loaded steps disagree.
+
+EFF-017 implication: remount/reconnect confidence needs component-level state restoration tests, not only parent-route tests. The PR #144 branch now persists generated steps/ingredients in the scoped cooking-session cache, restores them without re-calling `/api/cooking/steps`, clamps restored indexes to available steps, and adds a Live Cooking guest refresh regression.
+
+## 2026-06-05 — Replit idle/auth-resync signal caught duplicate durable session start
+
+Wilson later left the Replit app window open and observed Live Cooking activity resume several minutes after the original session. Replit logs showed `POST /api/auth/google`, `GET /api/user/profile`, speech synthesis, `POST /api/cooking/steps`, and `POST /api/cooking/session/start` at the later timestamp. The exact page state before the idle event was unknown, but the duplicate durable start signal was testable.
+
+Focused unit reproduction confirmed that a linked user restoring a saved Live Cooking tray still created another durable cooking session because `cookingSessionId` was only in React memory. The PR #144 branch now persists durable cooking session id/start time in the scoped cooking-session cache, restores them when present, and suppresses a new `session/start` call for restored linked sessions even when older saved cache lacks an id.
+
+EFF-017 implication: reconnect/idle confidence must cover provider route calls and durable write side effects separately. Preventing an empty UI or provider re-fetch is not sufficient if a remount can also create duplicate History-backed sessions.

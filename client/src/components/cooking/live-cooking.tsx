@@ -29,6 +29,10 @@ interface SavedCookingSession {
   timer: number;
   isTimerRunning: boolean;
   savedAt: number;
+  steps?: RecipeStep[];
+  ingredients?: RecipeIngredient[];
+  cookingSessionId?: number;
+  cookingStartedAt?: string;
 }
 
 interface RecipeStep {
@@ -39,6 +43,12 @@ interface RecipeStep {
   visualCues: string;
   commonMistakes: string;
   safetyLevel: 'critical' | 'important' | 'minor';
+}
+
+interface RecipeIngredient {
+  name: string;
+  quantity?: string;
+  forSteps?: number[];
 }
 
 interface RecipeRecommendation {
@@ -61,9 +71,10 @@ interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
   onBackToPlanning: () => void;
+  onCookingComplete?: () => void;
 }
 
-export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning }: LiveCookingProps) {
+export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning, onCookingComplete }: LiveCookingProps) {
   const { user } = useAuth();
   const isGuest = isGuestUser(user);
   const cookingSessionScopeKey = useMemo(
@@ -118,6 +129,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const speechSynthesisRef = useRef<SpeechSynthesis | null>(null);
   const currentAudioRef = useRef<AudioBufferSourceNode | null>(null);
   const sessionRestoredRef = useRef(false);
+  const sessionStepsRestoredRef = useRef(false);
+  const restoredCookingSessionRef = useRef(false);
   const initialMountRef = useRef(true);
 
   // Validate and sanitize a saved cooking session
@@ -128,14 +141,63 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       if (typeof data.recipeId !== 'string') return null;
       if (typeof data.currentStepIndex !== 'number') return null;
       if (typeof data.savedAt !== 'number') return null;
+      const cookingSessionId = typeof data.cookingSessionId === 'number' && Number.isFinite(data.cookingSessionId)
+        ? data.cookingSessionId
+        : undefined;
+      const cookingStartedAt = typeof data.cookingStartedAt === 'string' && !Number.isNaN(Date.parse(data.cookingStartedAt))
+        ? data.cookingStartedAt
+        : undefined;
+      const steps = Array.isArray(data.steps)
+        ? data.steps.map((step: unknown, index: number): RecipeStep | null => {
+          if (typeof step !== 'object' || step === null) return null;
+          const candidate = step as Partial<RecipeStep>;
+          if (typeof candidate.instruction !== 'string' || candidate.instruction.trim().length === 0) return null;
+          const safetyLevel = candidate.safetyLevel === 'critical' ||
+            candidate.safetyLevel === 'important' ||
+            candidate.safetyLevel === 'minor'
+            ? candidate.safetyLevel
+            : 'minor';
+
+          return {
+            id: typeof candidate.id === 'number' ? candidate.id : index + 1,
+            instruction: candidate.instruction,
+            duration: typeof candidate.duration === 'number' ? candidate.duration : undefined,
+            tips: typeof candidate.tips === 'string' ? candidate.tips : '',
+            visualCues: typeof candidate.visualCues === 'string' ? candidate.visualCues : '',
+            commonMistakes: typeof candidate.commonMistakes === 'string' ? candidate.commonMistakes : '',
+            safetyLevel,
+          };
+        }).filter((step: RecipeStep | null): step is RecipeStep => step !== null)
+        : undefined;
+      const ingredients = Array.isArray(data.ingredients)
+        ? data.ingredients.map((ingredient: unknown): RecipeIngredient | null => {
+          if (typeof ingredient !== 'object' || ingredient === null) return null;
+          const candidate = ingredient as Partial<RecipeIngredient>;
+          if (typeof candidate.name !== 'string' || candidate.name.trim().length === 0) return null;
+
+          return {
+            name: candidate.name,
+            quantity: typeof candidate.quantity === 'string' ? candidate.quantity : undefined,
+            forSteps: Array.isArray(candidate.forSteps)
+              ? candidate.forSteps.filter((step: unknown): step is number => typeof step === 'number')
+              : undefined,
+          };
+        }).filter((ingredient: RecipeIngredient | null): ingredient is RecipeIngredient => ingredient !== null)
+        : undefined;
       
       return {
         recipeName: data.recipeName,
         recipeId: data.recipeId,
-        currentStepIndex: Math.max(0, data.currentStepIndex),
+        currentStepIndex: steps && steps.length > 0
+          ? Math.min(Math.max(0, data.currentStepIndex), steps.length - 1)
+          : Math.max(0, data.currentStepIndex),
         timer: typeof data.timer === 'number' ? Math.max(0, data.timer) : 0,
         isTimerRunning: typeof data.isTimerRunning === 'boolean' ? data.isTimerRunning : false,
-        savedAt: data.savedAt
+        savedAt: data.savedAt,
+        steps,
+        ingredients,
+        cookingSessionId,
+        cookingStartedAt,
       };
     } catch {
       return null;
@@ -166,6 +228,15 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
           setCurrentStepIndex(session.currentStepIndex);
           setTimer(session.timer);
           setIsTimerRunning(session.isTimerRunning);
+          setCookingSessionId(session.cookingSessionId ?? null);
+          setCookingStartTime(session.cookingStartedAt ? new Date(session.cookingStartedAt) : null);
+          restoredCookingSessionRef.current = true;
+          if (session.steps && session.steps.length > 0) {
+            setLoadedRecipeSteps(session.steps);
+            setLoadedRecipeIngredients(session.ingredients || []);
+            setIsLoadingSteps(false);
+            sessionStepsRestoredRef.current = true;
+          }
           sessionRestoredRef.current = true;
         } else if (!isRecent) {
           // Only clear if session is stale (expired), not if it's a different recipe
@@ -205,10 +276,14 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       currentStepIndex,
       timer,
       isTimerRunning,
-      savedAt: Date.now()
+      savedAt: Date.now(),
+      steps: loadedRecipeSteps,
+      ingredients: loadedRecipeIngredients,
+      cookingSessionId: cookingSessionId ?? undefined,
+      cookingStartedAt: cookingStartTime?.toISOString(),
     };
     localStorage.setItem(cookingSessionStorageKey, JSON.stringify(session));
-  }, [currentStepIndex, timer, isTimerRunning, selectedMeal.recipeName, selectedMeal.id, cookingSessionStorageKey]);
+  }, [currentStepIndex, timer, isTimerRunning, loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId, cookingStartTime, selectedMeal.recipeName, selectedMeal.id, cookingSessionStorageKey]);
 
   // Clear cooking session when navigating back or completing
   const clearCookingSession = () => {
@@ -242,6 +317,12 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   useEffect(() => {
     const loadRecipeSteps = async () => {
+      if (sessionStepsRestoredRef.current) {
+        sessionStepsRestoredRef.current = false;
+        setIsLoadingSteps(false);
+        return;
+      }
+
       setIsLoadingSteps(true);
       
       const stepsResult = await withAiErrorHandling(async () => {
@@ -401,6 +482,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const completeCookingSession = async (rating?: number, notes?: string) => {
     // Clear saved cooking session on completion
     clearCookingSession();
+    onCookingComplete?.();
 
     if (isGuest) {
       toast({
@@ -437,15 +519,24 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
 
   // Start cooking session when steps are loaded
   useEffect(() => {
-    if (!isGuest && loadedRecipeSteps.length > 0 && !cookingSessionId) {
+    if (!isGuest && loadedRecipeSteps.length > 0 && !cookingSessionId && !restoredCookingSessionRef.current) {
       startCookingSession(loadedRecipeSteps.length, loadedRecipeSteps, loadedRecipeIngredients);
     }
   }, [isGuest, loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId]);
 
   // Use loaded steps
   const currentRecipeSteps = loadedRecipeSteps;
-  const currentStep = currentRecipeSteps[currentStepIndex];
-  const progress = currentRecipeSteps.length > 0 ? ((currentStepIndex + 1) / currentRecipeSteps.length) * 100 : 0;
+  const displayedStepIndex = currentRecipeSteps.length > 0
+    ? Math.min(currentStepIndex, currentRecipeSteps.length - 1)
+    : currentStepIndex;
+  const currentStep = currentRecipeSteps[displayedStepIndex];
+  const progress = currentRecipeSteps.length > 0 ? ((displayedStepIndex + 1) / currentRecipeSteps.length) * 100 : 0;
+
+  useEffect(() => {
+    if (currentRecipeSteps.length > 0 && currentStepIndex >= currentRecipeSteps.length) {
+      setCurrentStepIndex(currentRecipeSteps.length - 1);
+    }
+  }, [currentRecipeSteps.length, currentStepIndex]);
 
   // Timer effect
   useEffect(() => {
@@ -1199,7 +1290,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-white text-lg">
-                    Step {currentStepIndex + 1} of {currentRecipeSteps.length}
+                    Step {displayedStepIndex + 1} of {currentRecipeSteps.length}
                   </CardTitle>
                   <Badge className={getSafetyColor(currentStep.safetyLevel)}>
                     {getSafetyIcon(currentStep.safetyLevel)}

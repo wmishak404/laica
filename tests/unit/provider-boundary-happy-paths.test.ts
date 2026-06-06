@@ -177,6 +177,28 @@ describe("provider-boundary route happy paths", () => {
     );
   });
 
+  it("accepts descriptive Chef It Up ingredient context for cooking steps", async () => {
+    const descriptiveIngredient =
+      "thinly sliced vegetable-and-tofu stir-fry filling with bell pepper, mushrooms, ginger, and soy";
+
+    const response = await postJson("/api/cooking/steps", {
+      recipeName: "Vegetable & Tofu Stir Fry Wraps",
+      ingredients: [descriptiveIngredient],
+      equipment: ["large nonstick skillet or wok"],
+      description:
+        "Wrap a savory tofu and vegetable stir fry in soft tortillas with a pantry-first sauce.",
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(sampleCookingStepsResponse);
+    expect(mocks.getCookingSteps).toHaveBeenCalledWith(
+      "Vegetable & Tofu Stir Fry Wraps",
+      [descriptiveIngredient],
+      ["large nonstick skillet or wok"],
+      "Wrap a savory tofu and vegetable stir fry in soft tortillas with a pantry-first sauce.",
+    );
+  });
+
   it("rejects invalid cooking-step requests before provider calls", async () => {
     const response = await postJson("/api/cooking/steps", {
       recipeName: "",

@@ -103,7 +103,9 @@ vi.mock('@/components/cooking/slop-bowl', () => ({
 }));
 
 vi.mock('@/components/cooking/live-cooking', () => ({
-  default: () => <div data-testid="live-cooking">Live cooking</div>,
+  default: ({ selectedMeal }: { selectedMeal: { recipeName: string } }) => (
+    <div data-testid="live-cooking">Live cooking: {selectedMeal.recipeName}</div>
+  ),
 }));
 
 vi.mock('@/components/cooking/user-settings', () => ({
@@ -424,6 +426,41 @@ describe('MobileApp planning choice pantry status', () => {
     await waitFor(() => {
       expect(screen.getByTestId('meal-planning')).toBeTruthy();
     });
+  });
+
+  it('restores an active guest cooking plan after a remount', async () => {
+    const selectedMeal = {
+      id: 'recipe-vegetable-tofu-stir-fry',
+      recipeName: 'Vegetable and Tofu Stir Fry',
+      description: 'Crisp vegetables and tofu in a quick sauce.',
+      cookTime: 25,
+      difficulty: 'Easy',
+      cuisine: 'Chinese',
+      pantryMatch: 92,
+      missingIngredients: [],
+      ingredients: ['extra-firm tofu, pressed and cubed', 'bell peppers, sliced'],
+      equipment: ['wok or large skillet'],
+    };
+
+    mocks.authUser = {
+      id: 'guest-test-1',
+      email: null,
+      isAnonymous: true,
+    };
+    window.localStorage.setItem('laica:guest-profile:guest-test-1', JSON.stringify(makeProfile({
+      pantryIngredients: ['tofu', 'bell peppers', 'soy sauce'],
+      kitchenEquipment: ['wok'],
+    })));
+    window.localStorage.setItem('laica_active_cooking_plan:guest:guest-test-1', JSON.stringify({
+      selectedMeal,
+      scheduledTime: '30',
+      savedAt: Date.now(),
+    }));
+
+    render(<MobileApp />);
+
+    expect(await screen.findByTestId('live-cooking')).toHaveTextContent('Live cooking: Vegetable and Tofu Stir Fry');
+    expect(screen.queryByRole('heading', { name: /what are we cooking today/i })).toBeNull();
   });
 
   it('scopes Chef It Up planning time by guest or linked account identity', async () => {

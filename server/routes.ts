@@ -81,6 +81,7 @@ const visionJsonParser = express.json({ limit: "6mb" });
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const RECIPE_PREFERENCES_MAX_LENGTH = 1000;
 const pantryItemSchema = z.string().trim().min(1).max(64);
+const cookingContextItemSchema = z.string().trim().min(1).max(200);
 const shortTextSchema = z.string().trim().min(1).max(280);
 
 function zodRequestCode(error: z.ZodError): string {
@@ -537,9 +538,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const schema = z.object({
         recipeName: z.string().trim().min(1).max(200),
-        ingredients: z.array(pantryItemSchema).optional(),
-        equipment: z.array(pantryItemSchema).optional(),
-        description: z.string().trim().max(1000).optional(),
+        ingredients: z.array(cookingContextItemSchema).optional(),
+        equipment: z.array(cookingContextItemSchema).optional(),
+        description: z.string().trim().max(2000).optional(),
       });
       
       const { recipeName, ingredients, equipment, description } = schema.parse(req.body);
