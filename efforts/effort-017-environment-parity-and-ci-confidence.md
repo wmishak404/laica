@@ -528,3 +528,11 @@ While retesting the cooking-steps fix on the PR #144 branch, Wilson found a gues
 Current inference: the Replit dev server or client connection remounted while Live Cooking was loading. Live Cooking already persisted step/timer state, but the parent app held the selected recipe only in React memory. After a remount, the app could reload the complete guest profile and choose the default planning phase because there was no durable active cooking plan to restore.
 
 EFF-017 implication: runtime confidence needs app-level remount/reconnect assertions in addition to route-contract tests. The PR #144 branch now adds a scoped active-cooking-plan restore guard and a guest remount unit regression; it still does not prove production outage behavior or replace Replit smoke for deployment-bound runtime behavior.
+
+## 2026-06-05 — Replit refresh check caught Live Cooking step-tray reinitialization
+
+Wilson then targeted the restore path directly by hard-refreshing during Live Cooking. The parent-level active-plan restore kept the recipe screen, but Live Cooking reinitialized the guide instead of restoring the existing generated step tray. A refresh near the final step could render the Live Cooking shell and controls without a current step card.
+
+Current inference: the scoped cooking-session cache preserved `currentStepIndex`, timer, and running state, but not the generated provider steps/ingredients. Restoring progress without restoring the step list can replay the provider setup and can briefly or permanently leave the UI without a valid current step when the saved index and loaded steps disagree.
+
+EFF-017 implication: remount/reconnect confidence needs component-level state restoration tests, not only parent-route tests. The PR #144 branch now persists generated steps/ingredients in the scoped cooking-session cache, restores them without re-calling `/api/cooking/steps`, clamps restored indexes to available steps, and adds a Live Cooking guest refresh regression.

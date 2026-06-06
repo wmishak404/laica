@@ -137,6 +137,49 @@ describe('LiveCooking guest session boundary', () => {
     expect(mocks.startCookingSession).not.toHaveBeenCalled();
   });
 
+  it('restores the saved guest step tray without reinitializing cooking steps', async () => {
+    window.localStorage.setItem('laica_cooking_session:guest:guest-user-id', JSON.stringify({
+      recipeName: 'Guest Rice Bowl',
+      recipeId: 'meal-1',
+      currentStepIndex: 99,
+      timer: 0,
+      isTimerRunning: false,
+      savedAt: Date.now(),
+      steps: [
+        {
+          id: 1,
+          instruction: 'Warm the rice and beans.',
+          tips: 'Stir gently.',
+          visualCues: 'Steam rises.',
+          commonMistakes: 'Do not scorch the rice.',
+          safetyLevel: 'minor',
+        },
+        {
+          id: 2,
+          instruction: 'Finish with lime.',
+          tips: 'Taste before serving.',
+          visualCues: 'Rice looks glossy.',
+          commonMistakes: 'Do not overmix.',
+          safetyLevel: 'minor',
+        },
+      ],
+      ingredients: [{ name: 'rice' }, { name: 'beans' }],
+    }));
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Finish with lime.')).toBeTruthy();
+    expect(screen.getByText('Step 2 of 2')).toBeTruthy();
+    expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
+    expect(mocks.startCookingSession).not.toHaveBeenCalled();
+  });
+
   it('keeps durable cooking sessions for linked users', async () => {
     mocks.authUser = {
       id: 'linked-user-id',

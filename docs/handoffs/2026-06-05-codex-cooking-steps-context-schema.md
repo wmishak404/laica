@@ -14,6 +14,8 @@ First, Start Cooking showed an error popup while browser console reported `POST 
 
 Second, after the route fix was validated in Replit, a guest Chef It Up smoke entered Live Cooking for about a second and then returned to the "What are we cooking today?" menu with no user-facing error. The browser console showed `[vite] server connection lost` plus `TypeError: Failed to fetch`, not a route `400`. The app now stores the active cooking plan per guest/linked scope and restores it after a remount if the profile is complete and the plan is recent.
 
+Third, Wilson's targeted Replit refresh check showed the active plan restored the recipe screen, but Live Cooking reinitialized the guide instead of restoring the already-generated step tray. Refreshing near the final step could produce controls and assistant copy without the step card because the saved state did not include the generated steps. The branch now persists and restores the generated step tray and clamps restored step indexes to the available steps.
+
 ## Changes
 
 - `server/routes.ts`
@@ -23,11 +25,13 @@ Second, after the route fix was validated in Replit, a guest Chef It Up smoke en
 - `client/src/pages/app.tsx`
   Persists the active cooking plan per guest/linked scope when a recipe is selected, restores it on profile load after a remount, and clears it on Back to Planning, logout/start-over, or cooking completion.
 - `client/src/components/cooking/live-cooking.tsx`
-  Adds an optional completion callback so the parent app can clear active-plan restore state when a cooking attempt finishes.
+  Adds an optional completion callback so the parent app can clear active-plan restore state when a cooking attempt finishes. Persists generated steps/ingredients in the scoped cooking-session cache, restores them without re-calling `/api/cooking/steps`, and clamps restored step indexes so refresh cannot render controls without a current step.
 - `tests/unit/planning-choice.test.tsx`
   Adds a guest remount regression showing a complete guest profile with a recent active cooking plan returns to Live Cooking instead of the planning-choice menu.
+- `tests/unit/live-cooking-guest-session.test.tsx`
+  Adds a guest refresh regression showing saved generated steps restore without reinitializing the cooking-step provider path, including an out-of-range index clamp.
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
-  Records the Replit smoke gaps: provider-boundary route tests need realistic upstream model-shaped payloads, and app-level tests need to cover remount/reconnect resilience for active guest cooking.
+  Records the Replit smoke gaps: provider-boundary route tests need realistic upstream model-shaped payloads, app-level tests need to cover remount/reconnect resilience for active guest cooking, and component-level tests need to cover generated-step tray restore.
 
 ## Evidence
 
@@ -44,11 +48,18 @@ Observed after the first route fix, before the active-plan restore guard:
 - Browser console: `[vite] server connection lost. Polling for restart...` and `AI request error in cooking steps: TypeError: Failed to fetch`.
 - UI returned to "What are we cooking today?" with no user-facing error because the parent app only held the selected recipe in React memory.
 
+Observed after the active-plan restore guard, before the step-tray restore guard:
+
+- Trigger: hard refresh while in Live Cooking.
+- UI restored the recipe screen, but Live Cooking reinitialized as if starting fresh.
+- Refreshing near the final step could render the Live Cooking shell and controls without the step card because restored progress existed but generated steps were not restored with it.
+
 Local validation after latest fix:
 
 - `npx vitest run tests/unit/provider-boundary-happy-paths.test.ts` passed: 1 file, 9 tests.
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed: 1 file, 3 tests.
 - `npx vitest run tests/unit/planning-choice.test.tsx` passed: 1 file, 16 tests.
-- `npm run test:unit` passed: 34 files, 222 tests.
+- `npm run test:unit` passed: 34 files, 223 tests.
 - `npm run check` passed.
 - `npm run build` passed with existing non-blocking Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 
@@ -57,6 +68,8 @@ Local validation after latest fix:
 `/api/cooking/steps` reused the strict `pantryItemSchema`, which caps user pantry entries at 64 characters. That is appropriate for hand-entered inventory, but too narrow for generated recipe context passed from Chef It Up into Live Cooking. The new schema is still bounded and trimmed, but avoids rejecting normal descriptive recipe context before the mocked or live provider boundary can run.
 
 Separately, Live Cooking already persisted step/timer progress, but the parent app did not persist the selected recipe. A Replit dev-server reconnect or equivalent remount could therefore reload a complete guest profile and choose the default planning phase because `selectedMeal` was gone. The active cooking plan is scoped by identity (`guest:<id>` or `linked:<id>`), expires after four hours, validates the saved recipe shape before restore, and clears on explicit navigation/completion.
+
+The follow-up refresh finding showed that preserving only the selected recipe is not enough. Live Cooking has to restore the generated steps themselves to keep refresh/reconnect from replaying the provider setup or showing shell controls with no current step. The scoped cooking-session cache now includes bounded step/ingredient data and clamps stale step indexes on restore.
 
 ## Required Replit Re-test
 
@@ -70,6 +83,8 @@ Before production deploy, re-test on the Replit runtime branch/head:
 6. Confirm Live Cooking shows generated provider steps rather than only the fallback two-step flow.
 7. Confirm no error popup appears.
 8. For guest smoke, confirm a transient dev-server reconnect or manual refresh during active Live Cooking restores the same recipe screen rather than silently returning to the planning-choice menu.
+9. Confirm refresh during Live Cooking restores the existing generated step tray at the current step without reinitializing the guide.
+10. Confirm refresh near the final step still shows a step card and does not render empty Live Cooking controls.
 
 ## Negative Scope
 
@@ -84,5 +99,5 @@ Before production deploy, re-test on the Replit runtime branch/head:
 
 - Base refreshed: yes
 - Current base: `origin/main` at `ad6840e4db89eb5da0595fd22156ab2b38b64566`
-- Last Replit-validated at: not yet validated after fix
+- Last Replit-validated at: not yet validated after latest step-tray restore fix
 - Notes: started from main after PR #143 merged.
