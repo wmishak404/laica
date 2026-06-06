@@ -71,6 +71,6 @@ Replit validation is not required for this branch because it records already-obs
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `b040952b2bc9635c99e0bea9889c1c19fede441f`
+- Current base: `origin/main` at `23c1299ba64103f21f4242abe6f0eee1997cb459`
 - Last Replit-validated at: not applicable for this docs-only blocker
 - Notes: started after PR #139 merged the PR #138 closeout.
