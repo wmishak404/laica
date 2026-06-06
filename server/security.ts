@@ -5,7 +5,12 @@ const productionContentSecurityPolicy: NonNullable<HelmetOptions["contentSecurit
   useDefaults: true,
   directives: {
     "default-src": ["'self'"],
-    "script-src": ["'self'", "https://www.google.com", "https://www.gstatic.com"],
+    "script-src": [
+      "'self'",
+      "https://apis.google.com",
+      "https://www.google.com",
+      "https://www.gstatic.com",
+    ],
     "script-src-attr": ["'none'"],
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
