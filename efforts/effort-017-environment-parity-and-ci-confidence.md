@@ -544,3 +544,16 @@ Wilson later left the Replit app window open and observed Live Cooking activity 
 Focused unit reproduction confirmed that a linked user restoring a saved Live Cooking tray still created another durable cooking session because `cookingSessionId` was only in React memory. The PR #144 branch now persists durable cooking session id/start time in the scoped cooking-session cache, restores them when present, and suppresses a new `session/start` call for restored linked sessions even when older saved cache lacks an id.
 
 EFF-017 implication: reconnect/idle confidence must cover provider route calls and durable write side effects separately. Preventing an empty UI or provider re-fetch is not sufficient if a remount can also create duplicate History-backed sessions.
+
+## 2026-06-06 — PR #144 merged Chef It Up Live Cooking reliability fixes
+
+PR #144 merged to `main` as `f9fb337e705626f8875dbd428a2e576119a905ea` after local tests, GitHub CI, and Wilson's Replit validation passed on head `5b5446248dab468082389436a0f01ca5cf5a519f`.
+
+Final evidence:
+
+- Focused unit slice passed: provider-boundary route, parent active-plan restore, Live Cooking step-tray restore, and no duplicate durable linked session start.
+- Full local `npm run test:unit`, `npm run check`, and `npm run build` passed.
+- GitHub CI passed: `unit`, `e2e_guest_smoke`, audit, secret scan, and CodeQL.
+- Replit validation covered guest Chef It Up into provider-backed Live Cooking, guest constraints, guest-to-existing-Google linking and profile merge, linked Chef It Up with added staples after cuisine selection, Live Cooking assistance, refresh restore at current/final steps, no duplicate `/api/cooking/session/start` or duplicate History entry, and completion/History behavior.
+
+EFF-017 remains `In Progress`. PR #144 improved runtime confidence and added useful regression coverage for provider-boundary payload shape and remount/restore side effects, but it does not resolve the remaining EFF-017 policy/config lanes: CI-primary policy alignment, OAuth-start preflight configuration/run, live-provider canary decisions, coverage threshold/ratchet posture, production OAuth authorized-domain proof, and broader provider quality/eval coverage.

@@ -71,6 +71,15 @@ Local validation after latest fix:
 - `npm run check` passed.
 - `npm run build` passed with existing non-blocking Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 
+GitHub CI on PR #144 head `5b5446248dab468082389436a0f01ca5cf5a519f` passed:
+
+- `unit`
+- `e2e_guest_smoke`
+- `npm-audit`
+- `trufflehog_pr`
+- CodeQL `Analyze (actions)`
+- CodeQL `Analyze (javascript-typescript)`
+
 ## Reasoning
 
 `/api/cooking/steps` reused the strict `pantryItemSchema`, which caps user pantry entries at 64 characters. That is appropriate for hand-entered inventory, but too narrow for generated recipe context passed from Chef It Up into Live Cooking. The new schema is still bounded and trimmed, but avoids rejecting normal descriptive recipe context before the mocked or live provider boundary can run.
@@ -81,21 +90,20 @@ The follow-up refresh finding showed that preserving only the selected recipe is
 
 For linked users, preserving generated steps is also not enough if the durable cooking-session id is lost on remount. Without the id, the component treats restored steps as a fresh linked session and starts another database-backed cooking session. The cache now records the durable session id/start time when the start route succeeds, restores them on mount, and suppresses another start when a saved cooking session is being restored.
 
-## Required Replit Re-test
+## Replit Validation
 
-Before production deploy, re-test on the Replit runtime branch/head:
+Wilson completed targeted Replit validation on head `5b5446248dab468082389436a0f01ca5cf5a519f` before merge:
 
-1. Confirm branch/SHA.
-2. Google sign in.
-3. Chef It Up to recipe suggestions.
-4. Pick a recipe and click Start Cooking / Cook this.
-5. Confirm `/api/cooking/steps` returns `200`.
-6. Confirm Live Cooking shows generated provider steps rather than only the fallback two-step flow.
-7. Confirm no error popup appears.
-8. For guest smoke, confirm a transient dev-server reconnect or manual refresh during active Live Cooking restores the same recipe screen rather than silently returning to the planning-choice menu.
-9. Confirm refresh during Live Cooking restores the existing generated step tray at the current step without reinitializing the guide.
-10. Confirm refresh near the final step still shows a step card and does not render empty Live Cooking controls.
-11. For linked users, confirm an auth/profile refresh or hard refresh while Live Cooking is restored does not create an extra cooking-history session.
+- Restarted the Replit app after loading the branch to clear stale runtime objects.
+- Guest Chef It Up generated provider-backed Live Cooking steps; `/api/cooking/steps` returned `200` and no cooking-step error popup appeared.
+- Completed a full guest cooking session and validated guest constraints.
+- Linked the guest session to Google with an existing account; pantry, kitchen equipment, and cooking profile merged correctly.
+- Started another Chef It Up flow after linking, selected cuisine, added staple ingredients, and recipe generation proceeded successfully.
+- Asked a Live Cooking question and received a correct reply.
+- Hard-refresh/restore behavior kept the same recipe and current generated step tray instead of reinitializing.
+- Near-final-step restore still rendered a valid step card instead of empty controls.
+- Linked restore/auth-refresh path did not create a duplicate `/api/cooking/session/start` or duplicate History entry in the targeted retest.
+- Completion/History behavior remained correct.
 
 ## Negative Scope
 
@@ -110,5 +118,6 @@ Before production deploy, re-test on the Replit runtime branch/head:
 
 - Base refreshed: yes
 - Current base: `origin/main` at `ad6840e4db89eb5da0595fd22156ab2b38b64566`
-- Last Replit-validated at: not yet validated after latest durable-session restore fix
-- Notes: started from main after PR #143 merged.
+- Last Replit-validated at: `5b5446248dab468082389436a0f01ca5cf5a519f`
+- Merged: PR #144 merged to `main` as `f9fb337e705626f8875dbd428a2e576119a905ea`
+- Notes: started from main after PR #143 merged; merged after local tests, GitHub CI, and targeted Replit validation.
