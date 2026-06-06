@@ -94,7 +94,6 @@ export function useUpdateUserProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/session"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
   });
@@ -124,7 +123,6 @@ export function useResetPantry() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/session"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
   });
