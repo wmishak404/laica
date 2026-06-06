@@ -1,4 +1,4 @@
-# Cooking Steps Context Schema Fix
+# Chef It Up Live Cooking Reliability Fixes
 
 **Agent:** codex
 **Branch:** codex/fix-cooking-steps-context-schema
@@ -8,9 +8,11 @@
 
 ## Summary
 
-Wilson's Replit light smoke after PR #143 merged reached Live Cooking through Chef It Up but surfaced an error popup at Start Cooking. Browser console reported `POST /api/cooking/steps 400` with `Invalid cooking steps request`.
+Wilson's Replit light smoke after PR #143 merged reached Live Cooking through Chef It Up but surfaced two separate reliability gaps before this branch was ready for production smoke.
 
-This branch keeps strict pantry/profile item validation unchanged, but gives the cooking-steps route its own bounded context schema for recipe-derived ingredients/equipment and a longer description. Chef It Up can pass richer generated recipe context into Live Cooking than a user-typed pantry item, and the route should accept that context before calling the provider.
+First, Start Cooking showed an error popup while browser console reported `POST /api/cooking/steps 400` with `Invalid cooking steps request`. This branch keeps strict pantry/profile item validation unchanged, but gives the cooking-steps route its own bounded context schema for recipe-derived ingredients/equipment and a longer description.
+
+Second, after the route fix was validated in Replit, a guest Chef It Up smoke entered Live Cooking for about a second and then returned to the "What are we cooking today?" menu with no user-facing error. The browser console showed `[vite] server connection lost` plus `TypeError: Failed to fetch`, not a route `400`. The app now stores the active cooking plan per guest/linked scope and restores it after a remount if the profile is complete and the plan is recent.
 
 ## Changes
 
@@ -18,8 +20,14 @@ This branch keeps strict pantry/profile item validation unchanged, but gives the
   Adds `cookingContextItemSchema` with a 200-character item cap and uses it only for `/api/cooking/steps` `ingredients`/`equipment`; raises cooking-step description cap to 2000.
 - `tests/unit/provider-boundary-happy-paths.test.ts`
   Adds a Chef It Up-style descriptive ingredient fixture for `/api/cooking/steps`.
+- `client/src/pages/app.tsx`
+  Persists the active cooking plan per guest/linked scope when a recipe is selected, restores it on profile load after a remount, and clears it on Back to Planning, logout/start-over, or cooking completion.
+- `client/src/components/cooking/live-cooking.tsx`
+  Adds an optional completion callback so the parent app can clear active-plan restore state when a cooking attempt finishes.
+- `tests/unit/planning-choice.test.tsx`
+  Adds a guest remount regression showing a complete guest profile with a recent active cooking plan returns to Live Cooking instead of the planning-choice menu.
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
-  Records the Replit smoke gap: provider-boundary route tests need realistic upstream model-shaped payloads, not only short strings.
+  Records the Replit smoke gaps: provider-boundary route tests need realistic upstream model-shaped payloads, and app-level tests need to cover remount/reconnect resilience for active guest cooking.
 
 ## Evidence
 
@@ -30,16 +38,25 @@ Observed before fix in Replit/browser smoke:
 - Network: `POST /api/cooking/steps 400`.
 - UI fell back to basic Live Cooking steps, so the visible screen was usable but the real cooking-step provider path failed validation.
 
-Local validation after fix:
+Observed after the first route fix, before the active-plan restore guard:
+
+- Trigger: signed in as guest, scanned ingredients, completed profile, chose a Chef It Up recipe, entered Live Cooking.
+- Browser console: `[vite] server connection lost. Polling for restart...` and `AI request error in cooking steps: TypeError: Failed to fetch`.
+- UI returned to "What are we cooking today?" with no user-facing error because the parent app only held the selected recipe in React memory.
+
+Local validation after latest fix:
 
 - `npx vitest run tests/unit/provider-boundary-happy-paths.test.ts` passed: 1 file, 9 tests.
-- `npm run test:unit` passed: 34 files, 221 tests.
+- `npx vitest run tests/unit/planning-choice.test.tsx` passed: 1 file, 16 tests.
+- `npm run test:unit` passed: 34 files, 222 tests.
 - `npm run check` passed.
 - `npm run build` passed with existing non-blocking Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 
 ## Reasoning
 
 `/api/cooking/steps` reused the strict `pantryItemSchema`, which caps user pantry entries at 64 characters. That is appropriate for hand-entered inventory, but too narrow for generated recipe context passed from Chef It Up into Live Cooking. The new schema is still bounded and trimmed, but avoids rejecting normal descriptive recipe context before the mocked or live provider boundary can run.
+
+Separately, Live Cooking already persisted step/timer progress, but the parent app did not persist the selected recipe. A Replit dev-server reconnect or equivalent remount could therefore reload a complete guest profile and choose the default planning phase because `selectedMeal` was gone. The active cooking plan is scoped by identity (`guest:<id>` or `linked:<id>`), expires after four hours, validates the saved recipe shape before restore, and clears on explicit navigation/completion.
 
 ## Required Replit Re-test
 
@@ -52,6 +69,7 @@ Before production deploy, re-test on the Replit runtime branch/head:
 5. Confirm `/api/cooking/steps` returns `200`.
 6. Confirm Live Cooking shows generated provider steps rather than only the fallback two-step flow.
 7. Confirm no error popup appears.
+8. For guest smoke, confirm a transient dev-server reconnect or manual refresh during active Live Cooking restores the same recipe screen rather than silently returning to the planning-choice menu.
 
 ## Negative Scope
 
@@ -60,6 +78,7 @@ Before production deploy, re-test on the Replit runtime branch/head:
 - Does not validate ElevenLabs audio quality beyond any smoke Wilson runs.
 - Does not prove production OAuth authorized-domain state.
 - Does not resolve EFF-017.
+- Does not claim a production server outage/reconnect test; the restore guard is local/client state coverage for the Replit-observed remount symptom.
 
 ## Stack / Base Status
 

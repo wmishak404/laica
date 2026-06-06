@@ -61,9 +61,10 @@ interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
   onBackToPlanning: () => void;
+  onCookingComplete?: () => void;
 }
 
-export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning }: LiveCookingProps) {
+export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning, onCookingComplete }: LiveCookingProps) {
   const { user } = useAuth();
   const isGuest = isGuestUser(user);
   const cookingSessionScopeKey = useMemo(
@@ -401,6 +402,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
   const completeCookingSession = async (rating?: number, notes?: string) => {
     // Clear saved cooking session on completion
     clearCookingSession();
+    onCookingComplete?.();
 
     if (isGuest) {
       toast({

@@ -54,6 +54,8 @@ const createEmptyUserProfile = (): UserProfile => ({
 const guestProfileStorageKey = (userId: string) => `laica:guest-profile:${userId}`;
 const GUEST_PROMOTION_CONFIRMATION = 'Account successfully connected and signed in. Your kitchen is saved.';
 const GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY = 'laica:guest-promotion-confirmation';
+const ACTIVE_COOKING_PLAN_STORAGE_KEY = 'laica_active_cooking_plan';
+const ACTIVE_COOKING_PLAN_MAX_AGE_MS = 4 * 60 * 60 * 1000;
 
 function readGuestPromotionConfirmation() {
   if (typeof window === 'undefined') return null;
@@ -128,7 +130,100 @@ interface RecipeRecommendation {
   overview?: string;           // short tagline from slop-bowl response
 }
 
+interface SavedActiveCookingPlan {
+  selectedMeal: RecipeRecommendation;
+  scheduledTime: string;
+  savedAt: number;
+}
+
 type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'history' | 'slop-bowl';
+
+function normalizeStringList(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : [];
+}
+
+function validateRecipeRecommendation(value: unknown): RecipeRecommendation | null {
+  if (typeof value !== 'object' || value === null) return null;
+
+  const candidate = value as Partial<RecipeRecommendation>;
+  const cookTime = typeof candidate.cookTime === 'number' && Number.isFinite(candidate.cookTime)
+    ? candidate.cookTime
+    : null;
+  const pantryMatch = typeof candidate.pantryMatch === 'number' && Number.isFinite(candidate.pantryMatch)
+    ? candidate.pantryMatch
+    : null;
+
+  if (
+    typeof candidate.id !== 'string' ||
+    typeof candidate.recipeName !== 'string' ||
+    typeof candidate.description !== 'string' ||
+    cookTime === null ||
+    typeof candidate.difficulty !== 'string' ||
+    typeof candidate.cuisine !== 'string' ||
+    pantryMatch === null
+  ) {
+    return null;
+  }
+
+  return {
+    id: candidate.id,
+    recipeName: candidate.recipeName,
+    description: candidate.description,
+    cookTime,
+    difficulty: candidate.difficulty,
+    cuisine: candidate.cuisine,
+    pantryMatch,
+    missingIngredients: normalizeStringList(candidate.missingIngredients),
+    isFusion: typeof candidate.isFusion === 'boolean' ? candidate.isFusion : undefined,
+    ingredients: normalizeStringList(candidate.ingredients),
+    equipment: normalizeStringList(candidate.equipment),
+    overview: typeof candidate.overview === 'string' ? candidate.overview : undefined,
+  };
+}
+
+function readActiveCookingPlan(storageKey: string): SavedActiveCookingPlan | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const rawPlan = window.localStorage.getItem(storageKey);
+    if (!rawPlan) return null;
+
+    const parsed = JSON.parse(rawPlan) as Partial<SavedActiveCookingPlan>;
+    const selectedMeal = validateRecipeRecommendation(parsed.selectedMeal);
+    const savedAt = typeof parsed.savedAt === 'number' ? parsed.savedAt : 0;
+    const scheduledTime = typeof parsed.scheduledTime === 'string' ? parsed.scheduledTime : '';
+    const isRecent = Date.now() - savedAt < ACTIVE_COOKING_PLAN_MAX_AGE_MS;
+
+    if (!selectedMeal || !isRecent) {
+      window.localStorage.removeItem(storageKey);
+      return null;
+    }
+
+    return { selectedMeal, scheduledTime, savedAt };
+  } catch {
+    window.localStorage.removeItem(storageKey);
+    return null;
+  }
+}
+
+function writeActiveCookingPlan(storageKey: string, selectedMeal: RecipeRecommendation, scheduledTime: string) {
+  if (typeof window === 'undefined') return;
+
+  const plan: SavedActiveCookingPlan = {
+    selectedMeal,
+    scheduledTime,
+    savedAt: Date.now(),
+  };
+  window.localStorage.setItem(storageKey, JSON.stringify(plan));
+}
+
+function clearActiveCookingPlan(storageKey: string) {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.removeItem(storageKey);
+}
 
 const normalizeDietaryRestrictions = (restrictions: string[] | null | undefined) =>
   (restrictions || []).map((restriction) => restriction === 'None' ? 'No restrictions' : restriction);
@@ -264,6 +359,7 @@ export default function MobileApp() {
     [isGuest, user?.id],
   );
   const planningTimeStorageKey = `${PLANNING_TIME_STORAGE_KEY}:${planningStateScopeKey}`;
+  const activeCookingPlanStorageKey = `${ACTIVE_COOKING_PLAN_STORAGE_KEY}:${planningStateScopeKey}`;
   const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() =>
     readPlanningTime(planningTimeStorageKey)
   );
@@ -320,7 +416,17 @@ export default function MobileApp() {
 
       if (!hasLoadedFromDb) {
         setHasLoadedFromDb(true);
-        setCurrentPhase(hasCompletedCookingProfile(profileFromBrowser) ? 'planning' : 'profiling');
+        const isProfileComplete = hasCompletedCookingProfile(profileFromBrowser);
+        const activeCookingPlan = isProfileComplete ? readActiveCookingPlan(activeCookingPlanStorageKey) : null;
+
+        if (activeCookingPlan) {
+          setSelectedMeal(activeCookingPlan.selectedMeal);
+          setScheduledTime(activeCookingPlan.scheduledTime);
+          setShowPlanningChoice(false);
+          setCurrentPhase('cooking');
+        } else {
+          setCurrentPhase(isProfileComplete ? 'planning' : 'profiling');
+        }
       }
 
       setIsLoadingProfile(false);
@@ -349,8 +455,14 @@ export default function MobileApp() {
 
         // Check if profile is complete
         const isProfileComplete = hasCompletedCookingProfile(profileFromDb);
+        const activeCookingPlan = isProfileComplete ? readActiveCookingPlan(activeCookingPlanStorageKey) : null;
 
-        if (isProfileComplete) {
+        if (activeCookingPlan) {
+          setSelectedMeal(activeCookingPlan.selectedMeal);
+          setScheduledTime(activeCookingPlan.scheduledTime);
+          setShowPlanningChoice(false);
+          setCurrentPhase('cooking');
+        } else if (isProfileComplete) {
           setShowPlanningChoice(true);
           setCurrentPhase('planning');
         } else {
@@ -369,7 +481,7 @@ export default function MobileApp() {
       setCurrentPhase('profiling');
     }
     setIsLoadingProfile(false);
-  }, [user?.id, isGuest, dbProfile, isLoadingDbProfile, hasLoadedFromDb]);
+  }, [user?.id, isGuest, dbProfile, isLoadingDbProfile, hasLoadedFromDb, activeCookingPlanStorageKey]);
 
   // Save profile to database
   const saveProfileToDb = useCallback(async (profile: UserProfile) => {
@@ -564,6 +676,7 @@ export default function MobileApp() {
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
+    writeActiveCookingPlan(activeCookingPlanStorageKey, meal, scheduledTime);
     setSelectedMeal(meal);
     setScheduledTime(scheduledTime);
     setCurrentPhase('cooking');
@@ -608,6 +721,8 @@ export default function MobileApp() {
   }, [isGuest, updateProfileMutation, user?.id, userProfile]);
 
   const handleBackToPlanning = () => {
+    clearActiveCookingPlan(activeCookingPlanStorageKey);
+
     // Check if profile is complete before allowing access to planning
     const isProfileComplete = hasCompletedCookingProfile(userProfile);
 
@@ -686,6 +801,7 @@ export default function MobileApp() {
   const handleLogout = async () => {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
+    clearActiveCookingPlan(activeCookingPlanStorageKey);
 
     try {
       const { FirebaseAuthService } = await import('@/lib/firebase');
@@ -701,6 +817,7 @@ export default function MobileApp() {
     if (isGuest && user?.id) {
       clearGuestProfile(user.id);
       window.localStorage.removeItem(planningTimeStorageKey);
+      clearActiveCookingPlan(activeCookingPlanStorageKey);
     }
 
     await handleLogout();
@@ -1129,6 +1246,7 @@ export default function MobileApp() {
             selectedMeal={selectedMeal}
             scheduledTime={scheduledTime}
             onBackToPlanning={handleBackToPlanning}
+            onCookingComplete={() => clearActiveCookingPlan(activeCookingPlanStorageKey)}
           />
         ) : null;
         

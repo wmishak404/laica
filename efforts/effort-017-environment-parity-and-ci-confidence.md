@@ -520,3 +520,11 @@ After PR #143 merged, Wilson's Replit light smoke reached Live Cooking through C
 Current inference: the cooking-steps route reused the strict user pantry-item schema for generated recipe context. Chef It Up recipe outputs can pass richer ingredient/equipment strings into Live Cooking than hand-entered pantry values, so provider-boundary route coverage needs a fixture with descriptive generated context, not only short pantry item names.
 
 EFF-017 implication: mocked provider-boundary coverage should include realistic model-shaped payloads from upstream user flows. Passing route tests with short strings did not fully cover the Chef It Up → Live Cooking contract.
+
+## 2026-06-05 — Replit smoke caught active cooking remount state loss
+
+While retesting the cooking-steps fix on the PR #144 branch, Wilson found a guest Chef It Up flow that entered Live Cooking briefly and then returned to the "What are we cooking today?" planning-choice menu with no user-facing error. Browser console showed `[vite] server connection lost` and `TypeError: Failed to fetch`, not the earlier `/api/cooking/steps 400`.
+
+Current inference: the Replit dev server or client connection remounted while Live Cooking was loading. Live Cooking already persisted step/timer state, but the parent app held the selected recipe only in React memory. After a remount, the app could reload the complete guest profile and choose the default planning phase because there was no durable active cooking plan to restore.
+
+EFF-017 implication: runtime confidence needs app-level remount/reconnect assertions in addition to route-contract tests. The PR #144 branch now adds a scoped active-cooking-plan restore guard and a guest remount unit regression; it still does not prove production outage behavior or replace Replit smoke for deployment-bound runtime behavior.
