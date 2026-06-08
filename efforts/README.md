@@ -64,6 +64,7 @@ Read these before starting work in their governed domains:
 | [EFF-017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `In Progress` | Wilson / Codex / Claude | 2026-05-05 |
 | [EFF-022](effort-022-cross-cuisine-recommendation-prompts.md) | Cross-cuisine recommendation prompts | `Open` | Wilson / Codex / Claude | 2026-05-23 |
 | [EFF-025](effort-025-settings-unsaved-inventory-reminder.md) | Settings unsaved inventory reminder | `Open` | Wilson / Codex / Claude | 2026-05-27 |
+| [EFF-026](effort-026-stale-prep-plan-invalidation.md) | Stale prep plan invalidation after pantry changes | `Open` | Wilson / Codex / Claude | 2026-06-08 |
 
 ## Deferred Efforts
 
