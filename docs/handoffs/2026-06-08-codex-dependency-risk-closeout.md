@@ -8,7 +8,9 @@
 
 ## Summary
 
-The immediate open dependency PR risk is cleared. PR #150 merged the small workflow dependency update with better version alignment than the raw Dependabot PR, PR #147 is closed as superseded, and PR #134 is closed unmerged because its broad 85-package scope is not an acceptable merge unit.
+The immediate open dependency PR risk is cleared. PR #150 merged the small workflow dependency update, PR #147 is closed as superseded, and PR #134 is closed unmerged because its broad package-batch scope is not an acceptable merge unit.
+
+This public handoff intentionally keeps scanner logs, advisory specifics, and protected-runner mechanics out of markdown. Authorized maintainers should use GitHub Actions, GitHub Security, Dependabot, and private scan artifacts for exact security details.
 
 ## Changes
 
@@ -38,13 +40,9 @@ Do not reopen PR #134 as-is. If Dependabot recreates a similar monolithic npm-ve
 ## Verification
 
 - PR #150 merged as `e583c2d8a2f12fc1bb79bdc5c349cc29cdfc9c20`.
-- PR #150 head `01e501923f55dec670dc86711fa38d05799aa410` passed:
-  - `Secret Scan (TruffleHog)`
-  - `Dependency Audit (High/Critical)`
-  - CI `unit`
-  - CI `e2e_guest_smoke`
-- PR #147 was commented and closed as superseded by PR #150.
-- PR #134 was commented and closed unmerged.
+- PR #150 passed the required same-repo GitHub checks; exact logs and security-scan details remain in GitHub Actions and security tooling rather than copied into public docs.
+- PR #147 was closed as superseded by PR #150.
+- PR #134 was closed unmerged.
 
 ## Stack / base status
 
