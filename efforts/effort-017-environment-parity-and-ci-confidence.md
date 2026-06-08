@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-05
+**Updated:** 2026-06-08
 
 ## One-line summary
 
@@ -24,11 +24,11 @@ Key external constraints (provenance):
   - https://docs.replit.com/cloud-services/storage-and-databases/replit-database
 - Replit has separate development vs production databases; publishing/deploy uses production DB:
   - https://docs.replit.com/cloud-services/storage-and-databases/create-production-database-when-publishing
-- Firebase Auth Emulator issues unsigned tokens; Admin SDK accepts them only when `FIREBASE_AUTH_EMULATOR_HOST` is set (must never be set in production):
+- Firebase Auth Emulator has environment-specific token handling; local/CI auth setup must stay isolated from production:
   - https://firebase.google.com/docs/emulator-suite/connect_auth
 - Firebase OAuth redirect domains: whitelisting is domain-based (any port on that domain):
   - https://support.google.com/firebase/answer/6400741?hl=en
-- Identity Platform `accounts:createAuthUri` can generate an authorization URI for a providerId like `google.com` (useful for a “OAuth can start” preflight check):
+- Identity Platform can generate authorization URIs for configured identity providers, which is useful for a production-domain start preflight:
   - https://cloud.google.com/identity-platform/docs/reference/rest/v1/accounts/createAuthUri
 - Node 20 is EOL 2026-04-30; Node 22 is supported until 2027-04-30:
   - https://github.com/nodejs/Release
@@ -39,14 +39,14 @@ Key external constraints (provenance):
 
 - Define minimal parity invariants (runtime + install + env contract + DB schema parity + auth parity).
 - Define what CI must prove so “passes in CI” implies “safe to deploy to Replit” (with explicit exceptions).
-- Define how local/CI can use Firebase Auth Emulator while still ensuring prod Google OAuth doesn’t silently break.
+- Define how local/CI can use deterministic auth while still ensuring production Google sign-in does not silently break.
 - Define DB parity where schema and semantics are identical but instances/users/data differ per environment.
 - Define a repeatable authenticated browser-smoke path for high-value flows where code review and unit tests are not enough, such as Chef It Up pantry persistence and live recipe generation.
 
 ### Out of scope (for now)
 
 - Changing `AGENTS.md` / ADR-0001 to remove the Replit validation gate (requires an explicit follow-up decision).
-- Automating full Google OAuth popup completion with a real user account. The preferred direction remains a deterministic dev-only auth lane plus a separate production-domain OAuth preflight.
+- Automating full Google sign-in popup completion with a real user account. The preferred direction remains a deterministic dev-only auth lane plus a separate production-domain identity-provider preflight.
 - Treating the PR #109 harness as proof that CI is already primary; it is additive until a separate ADR/PD changes validation authority.
 
 ## Decisions made so far
@@ -56,20 +56,20 @@ These are recorded from discussion; they are not yet implemented repo-wide.
 1. **Parity definition target:** Behavioral parity (same semantics/contracts), not bitwise OS parity.
 2. **Runtime direction:** Standardize on Node 22 LTS (Node 20 is EOL as of 2026-04-30).
 3. **DB parity stance:** Different DB instances/users/data per env is OK; schema + migration posture must match.
-4. **Local/CI auth lane:** Prefer Firebase Auth Emulator for deterministic local/CI auth.
-5. **“Real login works” definition:** Prefer an automated “OAuth can start on prod domain” preflight check, not an automated full Google sign-in completion (avoid test-account credential/2FA brittleness).
+4. **Local/CI auth lane:** Prefer deterministic local/CI auth that does not depend on real user credentials.
+5. **“Real login works” definition:** Prefer an automated production-domain identity-provider start check, not an automated full Google sign-in completion (avoid test-account credential/2FA brittleness).
 6. **Authenticated browser-smoke target:** Future automation should cover actual UI state transitions, DB persistence/no-duplicate assertions, and provider-route completion for selected high-value flows. Code review alone is not a substitute for these browser/environment checks.
 
 ## Open questions
 
-1. Which domain(s) are “production hostnames” for the OAuth-domain preflight gate?
+1. Which domain(s) are “production hostnames” for the identity-provider preflight gate?
    - Replit deployment domain(s) only vs custom domain only vs both
 2. Should the preflight gate run on every PR merge, only on release, or as a nightly canary?
 3. What DB strategy beyond PR #109's schema-only Neon branches is needed for local agent validation and future smoke coverage?
 4. How should this Effort’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EFF-005 / EFF-010)?
 5. Which smoke journeys are the first automation targets?
    - Candidate from Phase 3.2: authenticated Chef It Up progressive staples, including staple queue UI, submit-time pantry write, duplicate prevention, loading Back/cancel, and Ticket Pass completion.
-6. Should live AI recipe generation be part of every browser smoke, gated behind an explicit live-service flag, or replaced by a controlled fixture for most PR runs with a smaller live-provider canary?
+6. Should live AI recipe generation be part of every browser smoke, gated behind an explicit live-service flag, or replaced by a controlled fixture for most PR runs with a smaller provider canary?
 7. What reset/seed API or script can safely prepare deterministic `dev-test-*` users without touching real user data?
 
 ## Agent checklist — when to read this Effort
@@ -87,14 +87,14 @@ Also read:
 
 ## Resolution criteria — what "done" looks like
 
-The full CI-confidence objective remains broader than PR #109. The current active slice is follow-through on the additive harness: configure the required GitHub repo variable/secrets, prove `e2e_guest_smoke` runs instead of skipping, and fix startup-isolation issues that block the privacy-forward guest smoke from exercising auth/setup/DB/UI. Split future harness enhancements into separate PRs from `main`. Preserve the current Replit validation gate until a separate ADR/PD explicitly changes validation authority.
+The full CI-confidence objective remains broader than PR #109. The current active slice is follow-through on the additive harness: complete required private GitHub repo configuration, prove the guest smoke runs instead of skipping, and fix startup-isolation issues that block the privacy-forward guest smoke from exercising auth/setup/DB/UI. Split future harness enhancements into separate PRs from `main`. Preserve the current Replit validation gate until a separate ADR/PD explicitly changes validation authority.
 
 This Effort can be `Resolved` when all of the following are true:
 
 1. CI is the primary merge gate for correctness (with explicit exceptions documented).
 2. Local + CI run a repeatable authenticated smoke path (emulator-based) and DB schema health checks.
-3. A prod OAuth-domain preflight gate exists (automated) and prevents `auth/unauthorized-domain` regressions.
-4. At least one high-value authenticated browser flow is automated end to end with deterministic test data, UI assertions, persistence/no-duplicate checks, and clear handling for live-provider calls.
+3. A production identity-provider preflight gate exists and prevents authorized-domain regressions.
+4. At least one high-value authenticated browser flow is automated end to end with deterministic test data, UI assertions, persistence/no-duplicate checks, and clear handling for provider calls.
 5. `AGENTS.md` + ADR-0001 + EFF-005/010 are updated so policy is consistent everywhere.
 
 ## 2026-05-05 — Parked
@@ -119,11 +119,11 @@ The missing manual validation was not generic "does the code look right"; it req
 
 Desired future automation:
 
-- A dev-only Firebase custom-token or emulator-backed auth lane that still sends Firebase bearer tokens to protected APIs.
+- A dev-only deterministic auth lane that still sends Firebase bearer tokens to protected APIs.
 - Deterministic `dev-test-*` users with resettable pantry/profile fixtures.
 - Browser-level Playwright smoke for the Chef It Up progressive-staples flow.
 - DB assertion/reset support scoped to test users so no-duplicate behavior can be proven safely.
-- A controlled choice for recipe generation: fixture/stub for routine UI smoke, plus explicit live-provider smoke or canary when validating OpenAI/Replit provider integration.
+- A controlled choice for recipe generation: fixture/stub for routine UI smoke, plus explicit provider smoke or canary when validating OpenAI/Replit provider integration.
 - Clear separation between code-verified checks and runtime/browser-verified checks in PR/handoff validation notes.
 
 This does not reactivate EFF-017 during INIT-001. It preserves the new concrete acceptance target for the later environment-parity/dev-test-harness window.
@@ -187,7 +187,7 @@ PR #109 (`codex/ci-automation-harness`) was brought to merge-ready state on a `m
 
 Important limitation to record explicitly:
 
-- The `e2e_guest_smoke` job is intentionally gated on repo `vars` / `secrets` (Neon + Firebase + ElevenLabs). Until those are configured in GitHub, the guest-lane E2E smoke and `db:health` path will be skipped in CI, so the confidence lift is limited to typecheck/build/unit.
+- The guest-lane E2E job is intentionally gated on private GitHub configuration. Until that configuration exists, the guest-lane E2E smoke and schema-health path will be skipped in CI, so the confidence lift is limited to typecheck/build/unit.
 
 This is an expected setup dependency, not a change in the Replit-authoritative validation policy.
 
@@ -195,17 +195,17 @@ This is an expected setup dependency, not a change in the Replit-authoritative v
 
 PR #109 merged to `main` as `3720c26`, making the CI automation harness a shipped additive foundation rather than a parked plan. EFF-017 is now `In Progress` because work, decisions, and validation are partially complete.
 
-Do not create a new INIT for the immediate next step. The concrete follow-up belongs here: configure `NEON_PROJECT_ID` plus the required Neon, Firebase, and ElevenLabs GitHub Actions secrets so `e2e_guest_smoke` stops being skipped and produces real guest-lane + `db:health` evidence.
+Do not create a new INIT for the immediate next step. The concrete follow-up belongs here: complete the required private GitHub Actions configuration so the guest smoke stops being skipped and produces real guest-lane plus schema-health evidence.
 
-Open separate PRs from `main` for later harness improvements such as stubbed AI mode, selector hardening, canary/live-provider workflows, prod OAuth-domain preflight, or a stronger dev-auth lane. A policy change from Replit-primary to CI-primary validation requires a separate explicit ADR/PD.
+Open separate PRs from `main` for later harness improvements such as stubbed AI mode, selector hardening, provider canary workflows, production identity-provider preflight, or a stronger dev-auth lane. A policy change from Replit-primary to CI-primary validation requires a separate explicit ADR/PD.
 
 ## 2026-06-01 — First active E2E run proved config and exposed startup isolation bug
 
-Wilson configured the GitHub Actions Neon/Firebase/ElevenLabs inputs after PR #109 merged. Re-running the `main` CI workflow confirmed the `e2e_guest_smoke` job no longer skipped: preflight secrets passed, the workflow created a schema-only Neon branch, applied schema with Drizzle, passed `npm run db:health`, installed Chromium, and cleaned up the Neon branch.
+Wilson configured the required private GitHub Actions inputs after PR #109 merged. Re-running the `main` CI workflow confirmed the guest smoke no longer skipped: preflight checks passed, the workflow prepared an isolated schema-health environment, installed browser dependencies, and cleaned up afterward.
 
 The run then failed while Playwright waited for the local web server because `server/routes.ts` eagerly constructed an OpenAI transcription client at module load. The guest smoke itself is intentionally neutral: it completes anonymous auth/setup and reaches the planning choice without calling paid AI providers. The correct follow-up is therefore a startup-isolation fix, not expanding the guest-smoke secret contract to require `OPENAI_API_KEY`.
 
-Process lesson: the guest-lane smoke should stay privacy-forward and provider-light by default. Live OpenAI or transcription validation belongs in an explicit live-provider smoke/canary once that scope is deliberately accepted.
+Process lesson: the guest-lane smoke should stay privacy-forward and provider-light by default. Live OpenAI or transcription validation belongs in an explicit provider smoke/canary once that scope is deliberately accepted.
 
 ## 2026-06-01 — Automation evidence reports accepted as merge-gate discipline
 
@@ -250,7 +250,7 @@ Wilson accepted the framing that this is not "full app regression coverage." Do 
 5. **UI and accessibility guardrails.**
    Add focused assertions for important tap targets, obvious accessibility regressions, and key-screen axe/a11y checks. Treat these as complements to the existing UI-governance lint/PR-template guardrails, not a replacement for product/design review.
 
-Open scope that remains outside the default merge gate until separately accepted: live OpenAI output quality, ElevenLabs audio quality, full Google linked-account login, production OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` data-access integration, and Replit deployment behavior. These should become separate EFF-017 slices or INIT/PD work when their acceptance criteria are clear.
+Open scope that remains outside the default merge gate until separately accepted: live OpenAI output quality, ElevenLabs audio quality, full Google linked-account login, production identity-provider preflight, admin eval/prompt-versioning workflows, `storage.ts` data-access integration, and Replit deployment behavior. These should become separate EFF-017 slices or INIT/PD work when their acceptance criteria are clear.
 
 ## 2026-06-02 — PR #120 merged P0 route-contract coverage
 
@@ -274,11 +274,11 @@ Local evidence before handoff:
 
 Additional merge evidence:
 
-- GitHub PR checks passed for head `e3f7d1029e301c69b04160fd83a106227b37bf9b`, including `unit`, `e2e_guest_smoke`, dependency audit, TruffleHog, and CodeQL checks.
+- GitHub PR checks passed for head `e3f7d1029e301c69b04160fd83a106227b37bf9b`, including the required test, dependency, secret, and static-analysis checks.
 - Wilson checked out PR #120 in the Replit workspace and ran `npm ci && npm run test:unit && npm run check && npm run build`; the Replit shell pass matched local evidence with 30 unit files / 186 tests passing and build warnings limited to known non-blocking Vite/Browserslist/chunk notices.
 - Wilson also completed a scoped Replit happy-path smoke on the branch. Corner-case Replit checks were not run.
 
-This slice increases deterministic route confidence but does not resolve EFF-017 and does not change the Replit-primary validation policy. Remaining accepted backlog items are provider-light live-cooking smoke, mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails. Live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, admin eval/prompt-versioning workflows, `storage.ts` integration, exhaustive corner-case Replit coverage, and Replit deployment behavior remain outside this branch's automated proof.
+This slice increases deterministic route confidence but does not resolve EFF-017 and does not change the Replit-primary validation policy. Remaining accepted backlog items are provider-light live-cooking smoke, mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails. Live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, production identity-provider preflight, admin eval/prompt-versioning workflows, `storage.ts` integration, exhaustive corner-case Replit coverage, and Replit deployment behavior remain outside this branch's automated proof.
 
 ## 2026-06-02 — Provider-light live-cooking smoke branch started
 
@@ -292,7 +292,7 @@ Current branch signal:
 - Local `npm ci`, focused Vitest, full unit suite, `npm run check`, `npm run build`, and `git diff --check` passed.
 - Local DB-backed Playwright did not complete against the decrypted local `.env` database because `npm run db:health` reports missing `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, and `cooking_sessions.recipe_snapshot`. Per EFF-010, this branch does not run `db:push` against that unknown local database; the GitHub E2E job's schema-only Neon branch is the expected automation evidence for the browser smoke.
 
-This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, and exhaustive corner cases remain outside this branch.
+This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, production identity-provider preflight, real storage integration beyond the harness, full Replit deployment behavior, and exhaustive corner cases remain outside this branch.
 
 ## 2026-06-02 — PR #123 merged provider-light live-cooking smoke
 
@@ -317,11 +317,11 @@ Current EFF-017 implication:
 - Remaining accepted backlog items are mocked provider-boundary happy paths, coverage reporting/ratcheting, and UI/accessibility guardrails.
 - Replit remains primary for deployment-bound runtime validation until a separate ADR/PD changes validation authority. GitHub Actions is currently the reliable automated Playwright runner; Replit-shell Playwright should only become a dependency if the workspace's Chromium system dependencies are deliberately configured through Replit System Dependencies/Nix.
 
-Still unvalidated by this slice: live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, prod OAuth-domain preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit Playwright browser behavior in the current workspace, and exhaustive corner cases.
+Still unvalidated by this slice: live OpenAI output quality, ElevenLabs audio quality, Google linked-account login, production identity-provider preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit Playwright browser behavior in the current workspace, and exhaustive corner cases.
 
 ## 2026-06-04 — Anonymous promotion CI retro: assign every gap to a lane
 
-PR #126 (`codex/anonymous-google-promotion`) merged after the routine GitHub Actions gate passed: Dependency Audit, Secret Scan, typecheck/build/unit, and the guest E2E smoke on a disposable schema-only Neon branch. The same PR also needed Replit/manual evidence for Google promotion behavior, because the current CI lane intentionally avoids real Google OAuth and live provider identity.
+PR #126 (`codex/anonymous-google-promotion`) merged after the routine GitHub Actions gate passed, including typecheck/build/unit and the guest E2E smoke on a disposable schema-only branch. The same PR also needed Replit/manual evidence for Google promotion behavior, because the current CI lane intentionally avoids real Google sign-in and live provider identity.
 
 The retro lesson is not "make CI cover everything." The stronger rule is: every important uncovered behavior should belong to a named validation lane with a clear reason and future automation path. Default PR CI should stay deterministic, provider-light, and privacy-forward; Replit/manual validation should shrink to the places where real environment, provider, identity, or human judgment still matters.
 
@@ -330,11 +330,11 @@ Useful lane assignments from PR #126:
 | Gap | Preferred lane |
 |---|---|
 | Full Google popup/linking and existing-Google credential import | Replit human validation for now; do not make routine PR CI depend on real Google credentials or popup completion |
-| Firebase/OAuth authorized-domain drift | Automated production-domain OAuth-start preflight, not full login completion |
+| Firebase/OAuth authorized-domain drift | Automated production-domain identity-provider preflight, not full login completion |
 | Existing-Google consent and merge policy | Unit/component coverage using mocked `credential-already-in-use` errors and local merge assertions |
 | Guest recipe `#11` exact toast copy | Cheap Playwright forced-403 test that stubs `/api/recipes/pantry` with `LINKED_ACCOUNT_REQUIRED`; do not spend 10 real generations to reach the boundary |
 | Replit/Firebase real runtime behavior | Targeted Replit validation when auth/provider/deployment behavior changes, until a later ADR/PD changes validation authority |
-| Live OpenAI, Vision, and ElevenLabs quality | Separate live-provider canary or manual release smoke; keep the default PR gate provider-light |
+| Live OpenAI, Vision, and ElevenLabs quality | Separate provider canary or manual release smoke; keep the default PR gate provider-light |
 | History non-import after conversion | Unit/route assertions for anonymous durable-write boundaries plus Replit/manual conversion validation until a deterministic linked dev-auth lane exists |
 
 Near-term EFF-017 follow-ups from this retro:
@@ -342,7 +342,7 @@ Near-term EFF-017 follow-ups from this retro:
 1. Add a guest quota-copy Playwright test that forces the `403 LINKED_ACCOUNT_REQUIRED` response and asserts `Sign up before making more recipes.`
 2. Add an OAuth-domain/config preflight that proves Google OAuth can start for the accepted production/Replit domain without completing real sign-in.
 3. Design a deterministic linked-account dev-auth lane so CI can cover linked-user flows without relying on Google popup automation.
-4. Keep live-provider canaries separate from default PR CI and record their evidence with the automation evidence report format.
+4. Keep provider canaries separate from default PR CI and record their evidence with the automation evidence report format.
 
 ## 2026-06-02 — Provider-boundary happy-path coverage branch started
 
@@ -356,7 +356,7 @@ Current branch signal:
 - Keeps the routine gate provider-light by mocking `server/openai`, `server/elevenlabs`, and the direct OpenAI transcription constructor; the tests assert request validation, successful response shape, and provider payload/context without calling live OpenAI, ElevenLabs, transcription, or vision providers.
 - Local `npm ci`, focused Vitest, full unit suite, `npm run check`, `npm run build`, and `git diff --check` passed. Build still reports the known Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 
-This does not change the Replit-primary validation policy. Replit validation is not yet run for this branch, and live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this provider-light proof.
+This does not change the Replit-primary validation policy. Replit validation is not yet run for this branch, and live OpenAI quality, ElevenLabs audio quality, Google linked login, production identity-provider preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this provider-light proof.
 
 ## 2026-06-04 — Guest quota-copy forced-response branch merged
 
@@ -371,29 +371,29 @@ Current branch signal:
 - Keeps the routine gate provider-light; the test does not call live OpenAI, ElevenLabs, Google OAuth, transcription, or vision providers.
 - Local `npm run check`, `npm run build`, `git diff --check`, and Playwright test discovery passed. Local focused Playwright execution did not reach app behavior: sandboxed `tsx` IPC failed with `EPERM`, and the unsandboxed isolated-port retry then failed at server startup because `DATABASE_URL` is not present in the local shell. GitHub Actions passed on the PR head, including the configured `e2e_guest_smoke` lane with disposable Neon schema-health setup and cleanup.
 
-This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, prod OAuth preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this forced-response proof.
+This does not change the Replit-primary validation policy. Live OpenAI quality, ElevenLabs audio quality, Google linked login, production identity-provider preflight, real storage integration beyond the harness, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases remain outside this forced-response proof.
 
-## 2026-06-04 — PR #132 merged OAuth-start preflight lane
+## 2026-06-04 — PR #132 merged identity-provider preflight lane
 
-PR #132 (`codex/eff-017-oauth-start-preflight`) merged as `26985d3a46a40857525a9ccb6992010d2c6c3b13` after starting from fresh `origin/main` at `040df3912d6b8f1463ff48f8bc5fc97c9e76b493`. This implements the next near-term lane from the PR #126 retro: prove Google OAuth can start for configured production/Replit continue URIs without automating full Google sign-in.
+PR #132 (`codex/eff-017-oauth-start-preflight`) merged as `26985d3a46a40857525a9ccb6992010d2c6c3b13` after starting from fresh `origin/main` at `040df3912d6b8f1463ff48f8bc5fc97c9e76b493`. This implements the next near-term lane from the PR #126 retro: prove Google sign-in can start for accepted production/Replit targets without automating full Google sign-in.
 
 Merged signal:
 
-- Adds `scripts/oauth-start-preflight.ts`, which calls Identity Toolkit `accounts:createAuthUri` with `providerId: "google.com"` for each configured HTTPS continue URI and verifies that the response contains a Google authorization URI.
-- Adds `npm run check:oauth` plus mocked unit coverage for skip/fail behavior, continue-URI validation, request payload shape, successful provider response shape, sanitized provider error reporting, and no raw continue-URI/API-key logging.
-- Adds a separate `OAuth Start Preflight` GitHub Actions workflow with `workflow_dispatch` and a scheduled run. It is intentionally separate from the routine PR CI gate and only runs the live preflight when `OAUTH_PREFLIGHT_CONTINUE_URIS` is supplied by manual input or repo variable and `VITE_FIREBASE_API_KEY` is available as a secret.
-- Extends `.env.example` with the OAuth preflight env contract.
-- GitHub checks passed on PR head `0ed15b4c1c3539616b7c5aa20381ba53f54a75b8`: Dependency Audit (`npm-audit`), TruffleHog PR scan, CI `unit`, CI `e2e_guest_smoke`, CodeQL `Analyze (actions)`, CodeQL `Analyze (javascript-typescript)`, and GitHub Advanced Security `CodeQL`.
-- The first pushed PR head triggered GitHub Advanced Security alert #26 for clear-text logging of `OAUTH_PREFLIGHT_CONTINUE_URIS`; the merged head sanitized validation and success/failure logs, added regression assertions that raw continue URIs/API keys are not logged, and passed the CodeQL check.
+- Adds a script and workflow that check whether a configured Google sign-in start path can produce an authorization URI for accepted HTTPS targets.
+- Adds mocked unit coverage for skip/fail behavior, target validation, request/response shape, sanitized provider error reporting, and no raw target/key logging.
+- Adds a separate GitHub Actions workflow with manual and scheduled entry points. It is intentionally separate from the routine PR CI gate and only runs the live preflight when the required private GitHub configuration is present.
+- Extends `.env.example` with the preflight env contract.
+- Required GitHub checks passed on the PR head.
+- The first pushed PR head triggered a security alert for clear-text logging of sensitive preflight configuration; the merged head sanitized validation and success/failure logs, added regression assertions, and passed the static-analysis check.
 
 Parallel-safe next lanes:
 
 - Deterministic linked-account dev-auth design is parallel-safe with this branch, but should read INIT-003 and the mobile-refresh dev-test-harness note before proposing how linked-user flows enter CI without Google popup automation.
-- Live-provider canary planning is parallel-safe, but must remain outside default PR CI and should name exactly which OpenAI, Vision, ElevenLabs, and storage/provider seams it proves.
-- Coverage reporting/ratcheting is parallel-safe conceptually, but may touch `package.json` or workflow files; coordinate branch order if this OAuth preflight PR is still open.
+- Provider canary planning is parallel-safe, but must remain outside default PR CI and should name exactly which OpenAI, Vision, ElevenLabs, and storage/provider seams it proves.
+- Coverage reporting/ratcheting is parallel-safe conceptually, but may touch `package.json` or workflow files; coordinate branch order if this preflight PR is still open.
 - UI/accessibility guardrails are parallel-safe conceptually, but should avoid editing the same Playwright helper surfaces if another EFF-017 browser-smoke branch is active.
 
-This does not change the Replit-primary validation policy. It does not complete a Google login, link an account, prove Firebase Console domain state until the repo variable/secret are configured and the workflow runs, prove provider/audio/model quality, or validate Replit deployment behavior.
+This does not change the Replit-primary validation policy. It does not complete a Google login, link an account, prove production identity-provider state until private configuration is complete and the workflow runs, prove provider/audio/model quality, or validate Replit deployment behavior.
 
 ## 2026-06-04 — Linked dev-auth CI lane branch
 
@@ -401,13 +401,13 @@ Branch `codex/eff-017-linked-dev-auth` started from fresh `origin/main` at `559a
 
 Merged signal:
 
-- Adds `/api/dev/auth/linked-token`, a dev-only endpoint that mints Firebase custom tokens for allowlisted `dev-test-*` users only when `LAICA_DEV_AUTH_ENABLED` is set, the runtime is non-production, `REPLIT_DEPLOYMENT` is not enabled, and the guarded `X-Laica-Dev-Auth` header matches `LAICA_DEV_AUTH_SECRET`.
+- Adds a dev-only endpoint that mints Firebase custom tokens for allowlisted test users only when the private dev-auth guards prove the runtime is non-production and non-deployment.
 - Seeds the deterministic linked test user through `storage.upsertUser` and returns a Firebase custom token with private no-store headers; it does not add a backend auth-bypass header to protected routes.
 - Adds unit coverage for disabled, production/Replit deployment, missing secret header, malformed UID/email, unallowlisted UID, and successful seed/token behavior.
 - Adds a Playwright API smoke that mints a custom token, exchanges it through Firebase Identity Toolkit, and calls `/api/auth/session` plus `/api/auth/user` with the resulting Firebase ID token.
-- Extends the existing conditional GitHub E2E job to opt into `LAICA_DEV_AUTH_*` only inside the provider-light Neon/Firebase smoke lane; routine unit/typecheck/build CI and paid provider boundaries remain unchanged.
+- Extends the existing conditional GitHub E2E job to opt into dev-auth only inside the provider-light smoke lane; routine unit/typecheck/build CI and paid provider boundaries remain unchanged.
 
-Local evidence on the branch: focused Vitest for the new route/helper passed, full `npm run test:unit` passed, `npm run check` passed, `npm run build` passed, `git diff --check` passed, and Playwright test discovery found the new Chromium smoke. GitHub checks passed on head `73f2e7aa981afb5782e32d2afccd9408d16be50b`: Dependency Audit, Secret Scan, CI `unit`, CI `e2e_guest_smoke` with 5 Playwright tests, CodeQL `Analyze (actions)`, CodeQL `Analyze (javascript-typescript)`, and GitHub Advanced Security `CodeQL`.
+Local evidence on the branch: focused Vitest for the new route/helper passed, full `npm run test:unit` passed, `npm run check` passed, `npm run build` passed, `git diff --check` passed, and Playwright test discovery found the new Chromium smoke. Required GitHub checks passed on the PR head.
 
 This does not change the Replit-primary validation policy. It does not complete Google popup sign-in, prove anonymous-to-Google linking UX, prove production authorized-domain state, validate live OpenAI quality, validate ElevenLabs audio quality, validate Replit deployment behavior, or replace Replit/human validation for third-party identity UI and full linked-account promotion flows.
 
@@ -417,7 +417,7 @@ Branch `codex/eff-017-deterministic-wrapup` started from fresh `origin/main` at 
 
 Current branch signal:
 
-- Extends the linked dev-auth lane from API-only Playwright into a browser-level linked-user smoke. The smoke mints an allowlisted `dev-test-*` Firebase custom token, signs the browser in through the Firebase Web SDK behind a dev-only `VITE_LAICA_DEV_AUTH_BROWSER` flag, seeds a complete linked profile through protected APIs, drives Chef It Up, stubs `/api/recipes/pantry`, asserts the provider-light request payload, verifies recipe suggestions render, reads the linked profile back, and checks confirmed pantry staples persisted exactly once.
+- Extends the linked dev-auth lane from API-only Playwright into a browser-level linked-user smoke. The smoke signs in a deterministic test user through the Firebase Web SDK behind private dev-only guards, seeds a complete linked profile through protected APIs, drives Chef It Up, stubs `/api/recipes/pantry`, asserts the provider-light request payload, verifies recipe suggestions render, reads the linked profile back, and checks confirmed pantry staples persisted exactly once.
 - Adds the first UI/accessibility guardrail with Playwright + axe for the landing auth surface: accessible button names, minimum 44 px tap targets, and no serious/critical WCAG A/AA axe violations on the scoped surface.
 - Adds non-blocking unit coverage visibility through `npm run test:coverage` plus a CI coverage-summary artifact. This intentionally starts with visibility, not thresholds; thresholds should be added only after the measured baseline is accepted and ratcheting rules are explicit.
 - Keeps routine CI provider-light. The branch does not add live OpenAI, ElevenLabs, transcription, vision, or Google popup completion to the default PR gate.
@@ -436,53 +436,53 @@ Local evidence before PR:
 - `npm run build` passed with the existing Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 - `npm audit --audit-level=high` passed and reported `found 0 vulnerabilities`.
 - `git diff --check` passed.
-- Local secret-backed Playwright execution was not claimed as evidence: sandboxed `npx @dotenvx/dotenvx` could not resolve the registry, and the escalated rerun was rejected because fetching/executing dotenvx while holding decrypted secrets was too risky. The shell also did not already have the required service env. GitHub Actions remains the intended evidence lane for this browser smoke because the workflow has the configured Neon/Firebase secrets and disposable schema-only database setup.
+- Local secret-backed Playwright execution was not claimed as evidence: sandboxed dependency execution could not resolve the registry, and the escalated rerun was rejected because fetching/executing tooling while holding decrypted secrets was too risky. The shell also did not already have the required service environment. GitHub Actions remains the intended evidence lane for this browser smoke because the workflow has the configured private inputs and disposable schema setup.
 
 Replit attempt before merge:
 
 - Wilson loaded PR #138 in Replit and confirmed the checked-out head was `30d4d0f7c81c50a6c08fc3b73347c0ca0537f1c2`.
-- Replit shell checks were blocked before app behavior: `npm ci` failed with Replit package firewall `403 Forbidden` for `es5-ext@0.10.64`; `npm run check` and `npm run build` then failed because `tsc` and `vite` were not installed.
-- The Replit env sanity check for the dev-auth browser guard passed: `VITE_LAICA_DEV_AUTH_BROWSER set: false`.
+- Replit shell checks were blocked before app behavior: the package install path hit a Replit package-firewall blocker, so `npm run check` and `npm run build` did not have local shell tooling available afterward.
+- The Replit env sanity check for the dev-auth browser guard passed without exposing the guard name in public docs.
 
-EFF-017 is closer to resolution after this branch because the remaining deterministic backlog items are represented: high-value linked browser flow, coverage visibility, and initial UI/accessibility guardrails. It should still remain `In Progress` until the policy criteria are resolved: Replit-primary authority is still documented, live-provider canaries remain separate from default CI, and `AGENTS.md` / ADR-0001 / related testing policy docs have not been changed to make CI the primary correctness gate.
+EFF-017 is closer to resolution after this branch because the remaining deterministic backlog items are represented: high-value linked browser flow, coverage visibility, and initial UI/accessibility guardrails. It should still remain `In Progress` until the policy criteria are resolved: Replit-primary authority is still documented, provider canaries remain separate from default CI, and `AGENTS.md` / ADR-0001 / related testing policy docs have not been changed to make CI the primary correctness gate.
 
-Still unvalidated by this slice: live OpenAI output quality, live `/api/recipes/pantry` provider response-contract drift because the smoke stubs recipe suggestions, ElevenLabs audio quality, full Google popup login/linking, production OAuth-domain state until the preflight workflow is configured and run, real storage integration beyond the disposable Neon/test-user harness, idempotency across repeated recipe submissions beyond the single-submit unique-staples assertion, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases.
+Still unvalidated by this slice: live OpenAI output quality, live `/api/recipes/pantry` provider response-contract drift because the smoke stubs recipe suggestions, ElevenLabs audio quality, full Google popup login/linking, production identity-provider state until the preflight workflow is configured and run, real storage integration beyond the disposable test harness, idempotency across repeated recipe submissions beyond the single-submit unique-staples assertion, full Replit deployment behavior, Replit-shell Playwright until Chromium dependencies are configured, and exhaustive corner cases.
 
 ## 2026-06-05 — PR #138 merged deterministic wrap-up; EFF-017 stays In Progress
 
-PR #138 merged to `main` as `823b0758824e55bca6de5d203de5b841ba91843f` after final GitHub CI passed at head `b252588aa7498d8949e0b0559c6b8b51c3abd00c`, including `unit`, `e2e_guest_smoke`, dependency audit, secret scan, and CodeQL. The deterministic linked-user browser smoke, landing accessibility/tap-target guardrail, and non-blocking coverage visibility are now part of `main`.
+PR #138 merged to `main` as `823b0758824e55bca6de5d203de5b841ba91843f` after final required GitHub checks passed at head `b252588aa7498d8949e0b0559c6b8b51c3abd00c`. The deterministic linked-user browser smoke, landing accessibility/tap-target guardrail, and non-blocking coverage visibility are now part of `main`.
 
 Merged CI now covers linked dev-auth browser behavior with a real Firebase ID token plus disposable Neon persistence, but it does not automate full Google popup login or account linking. Routine CI remains provider-light: the browser smoke stubs `/api/recipes/pantry`, live OpenAI quality and response-contract drift remain outside the default gate, ElevenLabs audio quality is still unvalidated, and coverage remains visibility-only with no thresholds.
 
-Wilson completed scoped Replit human smoke on the PR runtime content: Google sign-in, one recipe suggestion round, Live Cooking guidance, and Slop Bowl were green. Replit shell install/check/build did not complete because `npm ci` hit the Replit package firewall with `403 Forbidden` for `es5-ext@0.10.64`, leaving `tsc` and `vite` unavailable afterward. Replit env sanity confirmed `VITE_LAICA_DEV_AUTH_BROWSER` was unset. The font inconsistency observed during the same Replit smoke is intentionally not tracked in EFF-017 because it is being handled in another workstream.
+Wilson completed scoped Replit human smoke on the PR runtime content: Google sign-in, one recipe suggestion round, Live Cooking guidance, and Slop Bowl were green. Replit shell install/check/build did not complete because the package install path hit a Replit package-firewall blocker, leaving local shell tooling unavailable afterward. Replit env sanity confirmed the dev-auth browser guard was disabled. The font inconsistency observed during the same Replit smoke is intentionally not tracked in EFF-017 because it is being handled in another workstream.
 
-Do not close or split EFF-017 yet. The remaining resolution work is policy and lane alignment: decide and document whether CI becomes the primary correctness gate with explicit exceptions, configure and run the OAuth-start preflight rather than only shipping the lane, decide live-provider canary scope, decide coverage threshold/ratchet posture, and reconcile `AGENTS.md`, ADR-0001, and testing-policy language.
+Do not close or split EFF-017 yet. The remaining resolution work is policy and lane alignment: decide and document whether CI becomes the primary correctness gate with explicit exceptions, configure and run the identity-provider preflight rather than only shipping the lane, decide provider canary scope, decide coverage threshold/ratchet posture, and reconcile `AGENTS.md`, ADR-0001, and testing-policy language.
 
-Still unvalidated or excluded: live provider response-contract drift, repeated-submit idempotency beyond the current single-submit unique-staples assertion, full Google popup login/linking, production OAuth authorized-domain state until preflight runs, full Replit deployment behavior, Replit-shell Playwright, and exhaustive corner cases.
+Still unvalidated or excluded: live provider response-contract drift, repeated-submit idempotency beyond the current single-submit unique-staples assertion, full Google popup login/linking, production identity-provider state until preflight runs, full Replit deployment behavior, Replit-shell Playwright, and exhaustive corner cases.
 
-## 2026-06-05 — OAuth-start preflight run blocked by provider configuration
+## 2026-06-05 — Identity-provider preflight run blocked by provider configuration
 
-After PR #139 merged the PR #138 closeout to `main` as `b040952b2bc9635c99e0bea9889c1c19fede441f`, Codex manually dispatched the existing `OAuth Start Preflight` workflow on `main` with `continue_uris=https://cookwithlaica.com/`. The run was `https://github.com/wmishak404/laica/actions/runs/27040110722`.
+After PR #139 merged the PR #138 closeout to `main` as `b040952b2bc9635c99e0bea9889c1c19fede441f`, Codex manually dispatched the existing identity-provider preflight workflow on `main`.
 
 Observed result:
 
-- GitHub Actions repo variables currently include `NEON_PROJECT_ID`; `OAUTH_PREFLIGHT_CONTINUE_URIS` is not configured, so the scheduled OAuth preflight still has no default target.
-- GitHub Actions secrets include `VITE_FIREBASE_API_KEY` by name; the secret value was not inspected.
-- The workflow installed dependencies successfully with `npm ci` and then failed in `npm run check:oauth`.
-- The sanitized Google error was `OPERATION_NOT_ALLOWED : The identity provider configuration is not found.`
+- GitHub Actions configuration was checked through GitHub-owned settings surfaces; exact variable and secret names are intentionally not repeated in this public Effort file.
+- The scheduled preflight still has no default target.
+- The workflow installed dependencies successfully and then failed in the preflight command.
+- The sanitized provider error indicated a configuration mismatch.
 
 Reasoning and current inference:
 
-- Google Identity Platform documents `accounts:createAuthUri` as the API that creates an IdP authorization URI when a `providerId` such as `google.com` is supplied, and the API key identifies the Google Cloud project.
-- The failed run is therefore real negative evidence for the currently configured GitHub Actions preflight project/key, not proof that full Replit Google sign-in is broken. Wilson's PR #138 Replit smoke still observed Google sign-in green.
-- The likely configuration gap is that the Actions `VITE_FIREBASE_API_KEY` points at a project where the Google provider configuration is not found for this REST preflight, or the preflight needs a dedicated `OAUTH_PREFLIGHT_FIREBASE_API_KEY`/accepted-URI setup for the production/Replit Firebase project.
+- Google Identity Platform can create an authorization URI for a configured identity provider when the project/key setup matches.
+- The failed run is therefore real negative evidence for the currently configured GitHub Actions preflight project/key alignment, not proof that full Replit Google sign-in is broken. Wilson's PR #138 Replit smoke still observed Google sign-in green.
+- The likely configuration gap is project/key alignment for the production/Replit Firebase project. Exact key, variable, run, and provider-error details belong in GitHub Actions/Security or private maintainer notes.
 
 Next smallest actions:
 
-1. Decide the accepted preflight target set: `https://cookwithlaica.com/` only, or custom production domain plus the concrete Replit deployment URL.
-2. Configure `OAUTH_PREFLIGHT_CONTINUE_URIS` as a repo variable once the target set is accepted.
-3. Ensure the workflow uses an API key for the Firebase project where Google sign-in is enabled, either by correcting `VITE_FIREBASE_API_KEY` for this lane or adding a dedicated `OAUTH_PREFLIGHT_FIREBASE_API_KEY` secret.
-4. Rerun `OAuth Start Preflight` and record the pass/fail evidence before treating production OAuth-start state as covered.
+1. Decide the accepted preflight target set.
+2. Configure the accepted target set in private GitHub repo settings.
+3. Ensure the workflow uses credentials for the Firebase/identity-provider project where Google sign-in is enabled.
+4. Rerun the preflight and record pass/fail evidence without copying exact security/config artifacts into public markdown.
 
 ## 2026-06-05 — Remaining EFF-017 items classified after deterministic wrap-up
 
@@ -491,13 +491,13 @@ With PR #138 merged and PR #139 merged as its closeout, the remaining EFF-017 wo
 | Remaining item | Current classification | Smallest next action |
 |---|---|---|
 | CI-primary merge authority | Human validation-policy decision | Do not edit `AGENTS.md`, ADR-0001, or `docs/workflows/testing-and-acceptance.md` to make CI primary until Wilson explicitly accepts the policy shift and its exceptions. |
-| OAuth-start preflight | Blocked by GitHub/Firebase configuration | Resolve accepted continue URIs and provider-enabled API key, then rerun `OAuth Start Preflight`. |
-| Live-provider canary | Product/ops lane decision | Decide which seams belong in canary evidence: OpenAI recipe contract, Vision route contract, ElevenLabs synth/audio reachability, transcription route, and any storage/provider correlation. Keep canaries outside default PR CI unless explicitly accepted. |
+| Identity-provider preflight | Blocked by GitHub/Firebase configuration | Resolve accepted target set and provider-enabled project/key alignment, then rerun the preflight. |
+| Provider canary | Product/ops lane decision | Decide which seams belong in canary evidence: OpenAI recipe contract, Vision route contract, ElevenLabs synth/audio reachability, transcription route, and any storage/provider correlation. Keep canaries outside default PR CI unless explicitly accepted. |
 | Coverage thresholds | Evidence-ratcheting decision | Use PR #138's non-blocking coverage as visibility first. Add thresholds only after the baseline and ratchet rule are accepted; do not turn the current 65.18% line baseline into a blocking gate by default. |
-| Replit shell install/check/build | Replit/package-firewall blocker | Allow `es5-ext@0.10.64` or change the install path before treating Replit shell `npm ci`, `npm run check`, or `npm run build` as available evidence again. |
+| Replit shell install/check/build | Replit package-install blocker | Resolve the package-install blocker or change the install path before treating Replit shell `npm ci`, `npm run check`, or `npm run build` as available evidence again. |
 | Full Google popup/linking and Replit deployment behavior | Replit human/ops validation lane | Keep outside deterministic CI until a separate full-login automation or deployment preflight is accepted. |
 
-This classification does not close or split EFF-017 yet. It narrows the next useful work: either resolve the OAuth config blocker, write a canary-lane proposal/implementation branch, or ask Wilson for the validation-authority decision before touching policy docs.
+This classification does not close or split EFF-017 yet. It narrows the next useful work: either resolve the identity-provider config blocker, write a canary-lane proposal/implementation branch, or ask Wilson for the validation-authority decision before touching policy docs.
 
 ## 2026-06-05 — Replit smoke caught planning profile-save auth churn
 
@@ -505,7 +505,7 @@ Wilson's short Replit smoke after PR #140 found a deployment-blocking Chef It Up
 
 Observed Replit/browser signal:
 
-- Replit shell `npm ci` and `npm run test:unit` passed on `main` after PR #140, so the prior `es5-ext@0.10.64` package-firewall blocker did not reproduce in this shell.
+- Replit shell `npm ci` and `npm run test:unit` passed on `main` after PR #140, so the prior package-firewall blocker did not reproduce in this shell.
 - Browser/Replit logs showed `PUT /api/user/profile 200`, `POST /api/recipes/pantry 200`, intermittent `GET /api/auth/session 401`, and follow-up `POST /api/auth/google 200`.
 - Browser console reported `AbortError: signal is aborted without reason` from the meal-planning active-generation cancellation path.
 
@@ -553,7 +553,7 @@ Final evidence:
 
 - Focused unit slice passed: provider-boundary route, parent active-plan restore, Live Cooking step-tray restore, and no duplicate durable linked session start.
 - Full local `npm run test:unit`, `npm run check`, and `npm run build` passed.
-- GitHub CI passed: `unit`, `e2e_guest_smoke`, audit, secret scan, and CodeQL.
+- GitHub CI passed with the required test, dependency, secret, and static-analysis checks.
 - Replit validation covered guest Chef It Up into provider-backed Live Cooking, guest constraints, guest-to-existing-Google linking and profile merge, linked Chef It Up with added staples after cuisine selection, Live Cooking assistance, refresh restore at current/final steps, no duplicate `/api/cooking/session/start` or duplicate History entry, and completion/History behavior.
 
-EFF-017 remains `In Progress`. PR #144 improved runtime confidence and added useful regression coverage for provider-boundary payload shape and remount/restore side effects, but it does not resolve the remaining EFF-017 policy/config lanes: CI-primary policy alignment, OAuth-start preflight configuration/run, live-provider canary decisions, coverage threshold/ratchet posture, production OAuth authorized-domain proof, and broader provider quality/eval coverage.
+EFF-017 remains `In Progress`. PR #144 improved runtime confidence and added useful regression coverage for provider-boundary payload shape and remount/restore side effects, but it does not resolve the remaining EFF-017 policy/config work: CI-primary policy alignment, identity-provider preflight configuration/run, provider canary decisions, coverage threshold/ratchet posture, production identity-provider proof, and broader provider quality/eval coverage.

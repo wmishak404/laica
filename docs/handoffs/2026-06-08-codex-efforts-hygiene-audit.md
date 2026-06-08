@@ -31,7 +31,7 @@ Weekly Efforts hygiene ran from fresh `origin/main` at `ba924d6`. The Effort sou
 | Effort | Decision | Rationale |
 |---|---|---|
 | EFF-010 | Keep active standalone | `npm run db:health` and CI Neon schema-only branches are useful shipped progress, but the local DB ownership model, safe `db:push` boundary, worktree `DATABASE_URL` policy, `.env.keys` provisioning, and local service-backed validation workflow remain unresolved. |
-| EFF-017 | Keep active standalone, `In Progress` | PRs #109, #118, #119, #120, #123, #125, #130, #132, #135, #138, and #144 added major CI/auth/browser-smoke confidence. The Effort file already records the remaining policy/config lanes: CI-primary authority, OAuth preflight configuration/run, live-provider canary scope, coverage thresholds, production OAuth proof, and provider/eval coverage. |
+| EFF-017 | Keep active standalone, `In Progress` | PRs #109, #118, #119, #120, #123, #125, #130, #132, #135, #138, and #144 added major CI/auth/browser-smoke confidence. The remaining work is still policy/configuration alignment plus provider and validation-scope decisions; detailed security/config evidence should stay in private GitHub-owned surfaces rather than this public handoff. |
 | EFF-022 | Keep active standalone | No merged prompt/eval work has audited cuisine picker payloads or added cross-cuisine fixture/eval coverage. INIT-003 still points to EFF-022 as the durable home for cuisine-fit prompt work. |
 | EFF-025 | Keep active standalone | No merged Settings dirty-state reminder work was found. The issue spans guest and linked Settings Pantry/Kitchen behavior and is not naturally owned by a single unclosed INIT phase today. |
 | EFF-024 | Keep resolved history | PR #126 resolved the guest privacy/trust copy slice. `efforts/README.md`, `efforts/registry.md`, INIT-003, and the Effort file already record that outcome. The stale active references were only in `AGENTS.md` and `CLAUDE.md`. |
@@ -49,7 +49,7 @@ Weekly Efforts hygiene ran from fresh `origin/main` at `ba924d6`. The Effort sou
 
 ## Claude Review Request
 
-Please review the taxonomy decision, especially the conservative call to keep EFF-017 as one active standalone Effort rather than splitting it into separate OAuth/canary/coverage-policy Efforts. Current rationale: EFF-017 already has the accepted remaining-lane table from 2026-06-05, and splitting would create more status surfaces before Wilson accepts the policy/config decisions.
+Please review the taxonomy decision, especially the conservative call to keep EFF-017 as one active standalone Effort rather than splitting it into multiple status surfaces before Wilson accepts the remaining policy/config decisions.
 
 ## Remaining Active Efforts
 
