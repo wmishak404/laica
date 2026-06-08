@@ -94,11 +94,12 @@ This Effort records the parked state so future agents can deliberately split or 
 The same broad modernization risk is still present, but the active Dependabot PR is now #134 rather than #104. Current open-PR posture is:
 
 - PR #134 remains the high-risk broad npm batch and should not be merged opportunistically.
-- PR #147 is a separate low-risk workflow-only bump (`actions/upload-artifact` and `trufflehog`) that can be reviewed and merged independently if checks are clean.
+- PR #147 is a separate low-risk workflow-only bump (`actions/upload-artifact` and `trufflehog`) that can be reviewed and merged independently if checks are clean. A Codex replacement branch should also keep TruffleHog's explicit `version` input aligned with the action version, because Dependabot only changed the `uses:` reference.
 
 Recommended path from this point:
 
 - treat PR #147 as quick hygiene
+- prefer the Codex replacement branch when it includes the matching TruffleHog `version` input update
 - keep PR #134 parked
 - open replacement upgrade slices from fresh `origin/main` by domain rather than trying to salvage the monolithic PR
 
