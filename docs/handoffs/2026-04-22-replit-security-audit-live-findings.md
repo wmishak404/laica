@@ -7,17 +7,16 @@
 
 ## Summary
 
-Ran the live `npm audit` Codex requested as the follow-up to its offline report. The cached "0 vulnerabilities" result was stale — the live registry returned **19 vulnerabilities (1 critical, 8 high, 9 moderate, 1 low)** across the 917-package locked tree.
+Ran the live `npm audit` Codex requested as the follow-up to its offline report. The cached "0 vulnerabilities" result was stale; the live audit surfaced findings across several severity buckets and the details were routed to the dedicated security report.
 
 Full findings, severity breakdown, prod-vs-dev impact, and a phased fix plan are in `docs/security/npm-audit-2026-04-22-live.md`.
 
 ## Headline findings
 
-- 🔴 **`protobufjs`** — arbitrary code execution (critical, non-breaking fix)
-- 🟠 **`drizzle-orm`** — SQL injection via improperly escaped identifiers (high, **breaking** fix → 0.45.2)
-- 🟠 **`multer`** — 3 DoS advisories on our image-upload path (high, non-breaking fix)
-- 🟠 **`vite`** — path traversal in optimized deps (high, **breaking** fix → vite@8)
-- 🟠 Plus: `path-to-regexp`, `lodash`, `minimatch`, `picomatch`, `rollup` (all non-breaking)
+- Live audit surfaced dependency findings across several severity buckets.
+- Non-breaking remediation was available for part of the finding set.
+- Breaking dependency changes needed separate review before landing.
+- Specific advisory details stay in GitHub Security/Dependabot or private/local audit artifacts.
 
 ## Changes in this push
 
@@ -30,14 +29,14 @@ No code changes. No `npm audit fix` has been run. No `package.json` / `package-l
 
 The advisories split cleanly into two phases:
 
-- **Phase A:** Single `npm audit fix` clears the critical + most highs without breaking changes (protobufjs, multer, path-to-regexp, lodash, picomatch, minimatch, rollup, qs, yaml, @babel/helpers, brace-expansion, tsx, @vitejs/plugin-react).
-- **Phase B:** Three breaking bumps that each deserve their own PR: `drizzle-orm@0.45.2`, `vite@8`, `drizzle-kit@0.31.10`.
+- **Phase A:** Non-breaking dependency maintenance clears the highest-priority runtime findings without forcing major upgrades.
+- **Phase B:** Breaking dependency bumps each deserve their own PR and validation plan.
 
 Phase B is where I want Codex's review before any change lands on `main`, especially:
 
-1. **`drizzle-orm` 0.45.x** — touches every server route. Want to know if you'd rather pre-audit drizzle import sites before the bump, or trust `npm run check` + a manual cooking-flow smoke test.
-2. **`vite` 8** — collides with Replit's "do not modify `server/vite.ts` / `vite.config.ts`" rule. Need confirmation that vite 8 is compatible with the existing Express+Vite middleware integration, or we accept the path-traversal advisory as a dev-only risk and stay on vite 6.
-3. **`drizzle-kit` 0.31.x** — affects `npm run db:push` against Neon. Want sign-off on whether to validate by dry-running a push from a feature branch first.
+1. **Server database runtime upgrade** — touches every server route. Want to know if you'd rather pre-audit import sites before the bump, or trust `npm run check` + a manual cooking-flow smoke test.
+2. **Frontend dev-server upgrade** — collides with Replit's protected middleware/config rule. Need confirmation that the upgrade is compatible with the existing Express integration, or we accept the dev-only risk and stay on the current line.
+3. **Schema-tooling upgrade** — affects `npm run db:push` against Neon. Want sign-off on whether to validate by dry-running a push from a feature branch first.
 
 ## Proposed plan (pending your input)
 
@@ -54,7 +53,7 @@ Phase B is where I want Codex's review before any change lands on `main`, especi
 ## Verification I ran
 
 ```bash
-npm audit         # 19 vulnerabilities (1 low, 9 moderate, 8 high, 1 critical)
+npm audit         # live audit surfaced findings across several severity buckets
 npm audit --json  # captured for the live report
 ```
 

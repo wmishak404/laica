@@ -31,7 +31,7 @@ Implemented the Replit-primary local-agent onboarding plan. Created the shared w
 ## Open items
 
 - **Codex local-environment config** — Codex completed `.codex/environments/environment.toml` on their branch (`codex/local-agent-setup`). This file does not exist on Claude's branch yet — it will arrive after Codex's branch merges to `main` first.
-- ~~**Rotate `ADMIN_SECRET`**~~ — Completed. ADMIN_SECRET has been rotated in Replit Secrets.
+- ~~**Rotate `ADMIN_SECRET`**~~ - Completed. `ADMIN_SECRET` has been rotated. Keep the current value in Replit Secrets only.
 
 ## Merge notes
 

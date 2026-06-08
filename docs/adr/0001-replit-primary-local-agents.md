@@ -7,7 +7,7 @@
 
 Laica is developed and deployed on Replit, which provides runtime, secrets management, PostgreSQL database, and deployment infrastructure. However, Replit does not natively host AI coding agents (OpenAI Codex, Anthropic Claude Code). We need a workflow that lets these agents contribute locally while keeping Replit as the authoritative environment.
 
-The repository had a security concern: a previous `ADMIN_SECRET` value was committed in Git history. The secret has been rotated in Replit Secrets. The old Git history should be treated as sensitive.
+`ADMIN_SECRET` has been rotated. Keep the current value in Replit Secrets only.
 
 ## Decision
 
@@ -49,6 +49,6 @@ Branch scope and validation reports should use `origin/main...HEAD` as the compa
 - Local dev can now run the full app using dotenvx for encrypted secrets (see `product-decisions/pd-001-secrets-management.md`). Replit remains the authoritative deployment and validation environment.
 - PRs from agent branches need Replit validation before shipping.
 - The `.codex` and `.claude/` directories are checked in for reproducibility across worktrees.
-- The historical `ADMIN_SECRET` exposure has been handled operationally with a Replit secret rotation, but the old Git history should still be treated as sensitive.
+- `ADMIN_SECRET` has been rotated. Keep the current value in Replit Secrets only.
 - Stacked PRs require a small rebase step after lower-stack merges so validation reflects `main + current PR`, not an outdated intermediate branch.
 - Replit validation is invalidated by any later branch commit until the branch is re-validated at the new commit SHA.

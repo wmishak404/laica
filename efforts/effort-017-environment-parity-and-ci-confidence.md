@@ -384,7 +384,7 @@ Merged signal:
 - Adds a separate GitHub Actions workflow with manual and scheduled entry points. It is intentionally separate from the routine PR CI gate and only runs the live preflight when the required private GitHub configuration is present.
 - Extends `.env.example` with the preflight env contract.
 - Required GitHub checks passed on the PR head.
-- The first pushed PR head triggered a security alert for clear-text logging of sensitive preflight configuration; the merged head sanitized validation and success/failure logs, added regression assertions, and passed the static-analysis check.
+- An automated security check flagged a logging issue on an early push; the merged version sanitizes logs, adds regression assertions that sensitive inputs are not logged, and passed the required check.
 
 Parallel-safe next lanes:
 

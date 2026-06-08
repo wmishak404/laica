@@ -12,26 +12,25 @@ Cleared the remaining medium/low npm audit findings with a narrow dependency-mai
 
 ## Changes
 
-- `package.json` — adds an override for `@esbuild-kit/core-utils -> esbuild@^0.25.12`, replacing the vulnerable nested `esbuild@0.18.20` pulled through `drizzle-kit -> @esbuild-kit/esm-loader`.
-- `package.json` — adds an override for `@tootallnate/once@^3.0.1`, replacing the vulnerable nested `@tootallnate/once@2.0.0` pulled through `firebase-admin -> @google-cloud/storage -> teeny-request -> http-proxy-agent`.
-- `package-lock.json` — refreshes the resolved transitive packages for those two override paths.
+- `package.json` — adds npm overrides for vulnerable transitive packages flagged by Dependabot/audit.
+- `package-lock.json` — refreshes the resolved transitive packages for those override paths.
 
 ## Impact on other agents
 
-`drizzle-kit` is already at the current registry release (`0.31.10`) and still declares `@esbuild-kit/esm-loader`; Firebase Admin's current line still declares optional Google Cloud packages that resolve the low advisory path. The audit tool recommended downgrades (`drizzle-kit@0.18.1`, `firebase-admin@10.3.0`) were rejected as higher-risk than these medium/low advisories.
+The direct upstream packages were already on current supported lines, while the audit tool's suggested downgrades were rejected as higher-risk than the medium/low maintenance findings.
 
-The overrides should be treated as maintenance guardrails, not permanent product architecture. Remove them once upstream `drizzle-kit`, `firebase-admin`, or the Google Cloud helper packages ship patched dependency ranges that resolve cleanly without overrides.
+The overrides should be treated as maintenance guardrails, not permanent product architecture. Remove them once upstream packages ship patched dependency ranges that resolve cleanly without overrides.
 
 ## Open items
 
 - Replit validation was not run because this is dependency metadata plus local tooling/runtime import smoke coverage, with no product flow or service-backed behavior change.
-- Monitor future Dependabot PRs for upstream removal opportunities. If an upstream package release removes `@esbuild-kit/esm-loader` or moves Google Cloud helpers past the vulnerable chain, prefer dropping these overrides over adding more.
+- Monitor future Dependabot PRs for upstream removal opportunities. If upstream package releases remove the flagged transitive chains, prefer dropping these overrides over adding more.
 
 ## Verification
 
 - `npm ci`
-- `npm ls esbuild @esbuild-kit/core-utils @esbuild-kit/esm-loader drizzle-kit --all`
-- `npm ls @tootallnate/once http-proxy-agent teeny-request retry-request google-gax @google-cloud/firestore @google-cloud/storage firebase-admin --all`
+- `npm ls <affected-transitive-dependency-chain> --all`
+- `npm ls <affected-runtime-helper-chain> --all`
 - `npm run check`
 - `npm run build`
 - `npm audit --json` (`0` total vulnerabilities)

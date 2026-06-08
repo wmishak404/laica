@@ -58,7 +58,7 @@ Configure it with:
 - Replit Secrets remains the canonical place for live secret values.
 - Use `.env.example` only as a template for local setup.
 - Never commit real secret values.
-- The historically exposed `ADMIN_SECRET` has been rotated in Replit. Keep the new value in Replit Secrets only.
+- `ADMIN_SECRET` has been rotated. Keep the current value in Replit Secrets only.
 
 ## Replit validation gate
 

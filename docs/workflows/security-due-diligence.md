@@ -31,11 +31,11 @@ Use this checklist only for surfaces touched by the branch.
 
 ## Lessons From PR #111 and PR #113
 
-- Server-derived identity must win over request-body identity. PR #111 fixed settings updates by stripping `authUserId` from the body and passing the authenticated UID separately.
-- Authenticated generated audio is private user content. PR #111 changed speech synthesis from year-long public caching to `private, no-store` with `Vary: Authorization`.
-- Production HTML should not load Replit dev scripts. PR #113 removed the Replit dev banner script and removed `replit.com` from the production script allowlist.
+- Server-derived identity must win over request-body identity. Pass authenticated ownership separately from client-supplied payload fields.
+- Authenticated generated media is private user content. Default sensitive generated responses to private/no-store caching with the relevant `Vary` header.
+- Production HTML should load only production-required scripts and origins. Development helpers and domains stay out of production CSP.
 - Admin data should not be cacheable. PR #113 added `Cache-Control: no-store`, `Pragma: no-cache`, `Expires: 0`, and `Vary: X-Admin-Secret` across admin routes.
-- Autoscale makes per-process abuse limits soft. PR #113 added database-backed rate-limit buckets for production provider routes.
+- Autoscale requires shared abuse controls for provider routes. Use durable server-side guardrails where provider spend or process scale matters.
 - AI interaction logs are untrusted prompt material. PR #113 hardened admin prompt generation so failure examples are treated as data, not instructions.
 
 ## Automation Guidance
