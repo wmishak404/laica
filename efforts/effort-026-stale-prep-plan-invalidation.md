@@ -151,3 +151,22 @@ Remaining before marking this Effort `Resolved`:
 - Hard refresh after pantry changes.
 - Confirmation that valid unchanged-profile Live Cooking refresh remains reliable in the Replit runtime.
 - History review to confirm completed sessions remain distinct from invalidated active plans.
+
+## 2026-06-08 - Wilson Replit validation signal at `3180c17`
+
+Wilson reported Replit validation on branch `codex/deferred-stale-prep-plan-effort` at head `3180c17bd6c8cb4309ce7354559102005a0c8464`.
+
+Observed passing behavior:
+
+- Guest flow did not resume a previous stale session.
+- Signed-in flow did not resume a previous stale session.
+- Changing the pantry mid-prep-tray decision did not restore the previous stale prep tray/session.
+- History did not record the prep-tray decision as a cooking session until cooking actually started.
+
+Evidence provenance: Wilson-reported Replit UI smoke in chat on 2026-06-08.
+
+Remaining narrow validation before marking this Effort `Resolved`:
+
+- Explicit hard refresh after pantry changes.
+- Explicit unchanged-profile Live Cooking refresh to confirm the PR #144 restore path still holds in Replit.
+- Pantry reset/delete/add variants if they were not covered by the mid-prep-tray pantry change.
