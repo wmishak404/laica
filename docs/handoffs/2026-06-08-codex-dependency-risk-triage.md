@@ -48,3 +48,11 @@ Current recommended path:
 - `git status --short --branch`
 - Reviewed `efforts/effort-023-broad-dependency-modernization-strategy.md`
 - Reviewed `docs/handoffs/2026-05-19-codex-dependabot-medium-low-maintenance.md`
+- `git diff --check`
+
+## Stack / base status
+
+- Base refreshed: yes
+- Current base: `origin/main` at `ba924d6ad0f7ef0906d967a25ecb95fd7319da88`
+- Last Replit-validated at: not applicable for workflow-only/docs change
+- Notes: rebased after PR #146 moved `main` forward.
