@@ -170,3 +170,18 @@ Remaining narrow validation before marking this Effort `Resolved`:
 - Explicit hard refresh after pantry changes.
 - Explicit unchanged-profile Live Cooking refresh to confirm the PR #144 restore path still holds in Replit.
 - Pantry reset/delete/add variants if they were not covered by the mid-prep-tray pantry change.
+
+## 2026-06-08 - Wilson Replit hard-refresh validation
+
+Wilson reported that the Replit hard-refresh test passed after generating/viewing a prep tray from old pantry contents, changing/saving Pantry to new contents, and refreshing the app.
+
+Observed passing behavior:
+
+- After the pantry save and browser hard refresh, the old prep tray/session did not come back.
+
+Evidence provenance: Wilson-reported Replit UI smoke in chat on 2026-06-08.
+
+Remaining narrow validation before marking this Effort `Resolved`:
+
+- Explicit unchanged-profile Live Cooking refresh to confirm the PR #144 restore path still holds in Replit.
+- Pantry reset/delete/add variants if Wilson's mid-prep-tray pantry changes did not cover those exact saved-change paths.
