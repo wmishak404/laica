@@ -11,6 +11,7 @@ import MobileApp, {
   getRandomSlopItUpPlanningCopy,
   mergeProfilesForGuestPromotion,
 } from '../../client/src/pages/app';
+import { createPlanningProfileFingerprint } from '../../client/src/lib/planningCache';
 
 const mocks = vi.hoisted(() => ({
   authUser: { id: 'user-1', email: 'tester@example.com' } as {
@@ -109,8 +110,26 @@ vi.mock('@/components/cooking/live-cooking', () => ({
 }));
 
 vi.mock('@/components/cooking/user-settings', () => ({
-  default: ({ initialSection, persistenceMode }: { initialSection?: string; persistenceMode?: string }) => (
-    <div data-testid="user-settings">Settings section: {initialSection}; mode: {persistenceMode}</div>
+  default: ({
+    initialSection,
+    persistenceMode,
+    onProfileUpdate,
+  }: {
+    initialSection?: string;
+    persistenceMode?: string;
+    onProfileUpdate?: (profile: ReturnType<typeof makeProfile>) => void;
+  }) => (
+    <div data-testid="user-settings">
+      Settings section: {initialSection}; mode: {persistenceMode}
+      <button
+        type="button"
+        aria-label="Mock save changed pantry"
+        onClick={() => onProfileUpdate?.(makeProfile({
+          pantryIngredients: ['rice', 'eggs', 'spinach'],
+          kitchenEquipment: ['skillet'],
+        }))}
+      />
+    </div>
   ),
 }));
 
@@ -429,6 +448,10 @@ describe('MobileApp planning choice pantry status', () => {
   });
 
   it('restores an active guest cooking plan after a remount', async () => {
+    const profile = makeProfile({
+      pantryIngredients: ['tofu', 'bell peppers', 'soy sauce'],
+      kitchenEquipment: ['wok'],
+    });
     const selectedMeal = {
       id: 'recipe-vegetable-tofu-stir-fry',
       recipeName: 'Vegetable and Tofu Stir Fry',
@@ -447,20 +470,80 @@ describe('MobileApp planning choice pantry status', () => {
       email: null,
       isAnonymous: true,
     };
-    window.localStorage.setItem('laica:guest-profile:guest-test-1', JSON.stringify(makeProfile({
-      pantryIngredients: ['tofu', 'bell peppers', 'soy sauce'],
-      kitchenEquipment: ['wok'],
-    })));
+    window.localStorage.setItem('laica:guest-profile:guest-test-1', JSON.stringify(profile));
     window.localStorage.setItem('laica_active_cooking_plan:guest:guest-test-1', JSON.stringify({
       selectedMeal,
       scheduledTime: '30',
       savedAt: Date.now(),
+      profileFingerprint: createPlanningProfileFingerprint(profile),
     }));
 
     render(<MobileApp />);
 
     expect(await screen.findByTestId('live-cooking')).toHaveTextContent('Live cooking: Vegetable and Tofu Stir Fry');
     expect(screen.queryByRole('heading', { name: /what are we cooking today/i })).toBeNull();
+  });
+
+  it('does not restore an active cooking plan after the saved pantry basis changes', async () => {
+    const staleProfile = makeProfile({
+      pantryIngredients: ['tofu', 'bell peppers', 'soy sauce'],
+      kitchenEquipment: ['wok'],
+    });
+    const currentProfile = makeProfile({
+      pantryIngredients: ['rice', 'eggs', 'spinach'],
+      kitchenEquipment: ['skillet'],
+    });
+    const selectedMeal = {
+      id: 'recipe-vegetable-tofu-stir-fry',
+      recipeName: 'Vegetable and Tofu Stir Fry',
+      description: 'Crisp vegetables and tofu in a quick sauce.',
+      cookTime: 25,
+      difficulty: 'Easy',
+      cuisine: 'Chinese',
+      pantryMatch: 92,
+      missingIngredients: [],
+      ingredients: ['extra-firm tofu, pressed and cubed', 'bell peppers, sliced'],
+      equipment: ['wok or large skillet'],
+    };
+
+    mocks.authUser = {
+      id: 'guest-test-1',
+      email: null,
+      isAnonymous: true,
+    };
+    window.localStorage.setItem('laica:guest-profile:guest-test-1', JSON.stringify(currentProfile));
+    window.localStorage.setItem('laica_active_cooking_plan:guest:guest-test-1', JSON.stringify({
+      selectedMeal,
+      scheduledTime: '30',
+      savedAt: Date.now(),
+      profileFingerprint: createPlanningProfileFingerprint(staleProfile),
+    }));
+
+    render(<MobileApp />);
+
+    expect(await screen.findByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
+    expect(screen.queryByTestId('live-cooking')).toBeNull();
+    expect(window.localStorage.getItem('laica_active_cooking_plan:guest:guest-test-1')).toBeNull();
+  });
+
+  it('clears scoped recipe planning caches when Settings saves material profile changes', async () => {
+    await renderPlanningChoice(makeProfile({
+      pantryIngredients: ['chicken', 'mushrooms', 'miso'],
+      kitchenEquipment: ['pot'],
+    }));
+    window.localStorage.setItem('laica_active_cooking_plan:linked:user-1', JSON.stringify({ savedAt: Date.now() }));
+    window.localStorage.setItem('laica_meal_planning_session_v2:linked:user-1', JSON.stringify({ savedAt: Date.now() }));
+    window.localStorage.setItem('laica_cooking_session:linked:user-1', JSON.stringify({ savedAt: Date.now() }));
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /settings pantry, kitchen, and cooking profile/i,
+    }));
+    await screen.findByTestId('user-settings');
+    fireEvent.click(screen.getByRole('button', { name: /mock save changed pantry/i }));
+
+    expect(window.localStorage.getItem('laica_active_cooking_plan:linked:user-1')).toBeNull();
+    expect(window.localStorage.getItem('laica_meal_planning_session_v2:linked:user-1')).toBeNull();
+    expect(window.localStorage.getItem('laica_cooking_session:linked:user-1')).toBeNull();
   });
 
   it('scopes Chef It Up planning time by guest or linked account identity', async () => {

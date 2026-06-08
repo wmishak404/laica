@@ -1,6 +1,6 @@
 # EFF-026 - Stale prep plan invalidation after pantry changes
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-06-08
 **Updated:** 2026-06-08
@@ -131,3 +131,23 @@ This Effort is `Resolved` when all of the following are true:
 ## 2026-06-08 - Created from prod-push smoke stale prep tray observation
 
 Wilson observed a stale prep tray/recipe plan remaining actionable after the saved pantry state changed materially. Created this Effort so future Settings, planning, and Live Cooking work can add an explicit invalidation rule without blocking PR #146 or the current production CSP push.
+
+## 2026-06-08 - Implementation branch adds profile-basis invalidation
+
+Branch `codex/deferred-stale-prep-plan-effort` pivoted from docs-only tracking into the first implementation pass after Wilson asked Codex to tackle the bug here. The branch adds a shared normalized planning-profile fingerprint and uses it to reject stale active cooking plans, Chef It Up planning sessions, and Live Cooking generated-step caches when saved pantry/kitchen/profile inputs no longer match the profile basis that produced the plan.
+
+The branch also makes successful linked Settings saves notify the parent app after their API mutation, so the parent clears scoped active recipe/planning/cooking caches immediately instead of waiting for a hard refresh or profile-query refetch. Guest Settings saves already went through the parent callback; the same invalidation path now applies there.
+
+Local validation completed:
+
+- `npx vitest run tests/unit/planning-choice.test.tsx tests/unit/meal-planning.test.tsx tests/unit/live-cooking-guest-session.test.tsx` passed: 3 files, 37 tests.
+- `npm run check` passed.
+- `npm run build` passed with existing non-blocking Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
+
+Remaining before marking this Effort `Resolved`:
+
+- Replit validation for guest and linked flows.
+- Pantry add/delete/reset/save after viewing a prep tray.
+- Hard refresh after pantry changes.
+- Confirmation that valid unchanged-profile Live Cooking refresh remains reliable in the Replit runtime.
+- History review to confirm completed sessions remain distinct from invalidated active plans.

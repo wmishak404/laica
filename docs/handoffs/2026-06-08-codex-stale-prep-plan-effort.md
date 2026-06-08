@@ -8,7 +8,7 @@
 
 ## Summary
 
-Created a docs-only active Effort for the stale prep tray/active recipe plan invalidation bug observed during prod-push smoke after PR #146. The Effort preserves the product expectation that saved pantry/profile/kitchen changes should not leave a materially stale recipe or generated step tray actionable, while explicitly keeping the current production CSP push unblocked.
+Created a docs-only active Effort for the stale prep tray/active recipe plan invalidation bug observed during prod-push smoke after PR #146. Wilson then asked Codex to tackle the fix in this same branch; see [`2026-06-08-codex-stale-prep-plan-fix.md`](2026-06-08-codex-stale-prep-plan-fix.md) for the implementation handoff.
 
 ## Changes
 

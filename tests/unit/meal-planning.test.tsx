@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import MealPlanning from '../../client/src/components/cooking/meal-planning';
 import { mergeUniqueEntries } from '../../client/src/lib/entryParsing';
+import { createPlanningProfileFingerprint } from '../../client/src/lib/planningCache';
 
 const fetchPantryRecipesMock = vi.hoisted(() => vi.fn());
 const toastMock = vi.hoisted(() => vi.fn());
@@ -96,6 +97,23 @@ interface RenderMealPlanningOptions {
   onEditPantry?: () => void;
 }
 
+function makeMealPlanningProfile(overrides: Partial<{
+  cookingSkill: string;
+  dietaryRestrictions: string[];
+  pantryIngredients: string[];
+  kitchenEquipment: string[];
+  favoriteChefs: string[];
+}> = {}) {
+  return {
+    cookingSkill: 'Intermediate',
+    dietaryRestrictions: [] as string[],
+    pantryIngredients: ['rice', 'eggs', 'spinach'],
+    kitchenEquipment: ['skillet'],
+    favoriteChefs: [] as string[],
+    ...overrides,
+  };
+}
+
 function renderMealPlanning({
   savePantryIngredients = true,
   sessionScopeKey = 'linked:user-1',
@@ -106,13 +124,7 @@ function renderMealPlanning({
   const onPantryIngredientsAdded = vi.fn(async (ingredients: string[]) => true);
 
   function Harness() {
-    const [profile, setProfile] = useState(initialProfile ?? {
-      cookingSkill: 'Intermediate',
-      dietaryRestrictions: [] as string[],
-      pantryIngredients: ['rice', 'eggs', 'spinach'],
-      kitchenEquipment: ['skillet'],
-      favoriteChefs: [] as string[],
-    });
+    const [profile, setProfile] = useState(initialProfile ?? makeMealPlanningProfile());
 
     onPantryIngredientsAdded.mockImplementation(async (ingredients: string[]) => {
       if (savePantryIngredients) {
@@ -172,6 +184,7 @@ afterEach(() => {
 describe('MealPlanning recipe generation locking', () => {
   it('restores in-progress planning only from the current auth scope', async () => {
     const savedAt = Date.now();
+    const profileFingerprint = createPlanningProfileFingerprint(makeMealPlanningProfile());
     window.localStorage.setItem('laica_meal_planning_session_v2', JSON.stringify({
       currentStep: 'cuisine',
       mealPrefs: {
@@ -183,6 +196,7 @@ describe('MealPlanning recipe generation locking', () => {
       recommendations: [],
       selectedMeal: null,
       savedAt,
+      profileFingerprint,
     }));
     window.localStorage.setItem('laica_meal_planning_session_v2:guest:old-user', JSON.stringify({
       currentStep: 'cuisine',
@@ -195,6 +209,7 @@ describe('MealPlanning recipe generation locking', () => {
       recommendations: [],
       selectedMeal: null,
       savedAt,
+      profileFingerprint,
     }));
     window.localStorage.setItem('laica_meal_planning_session_v2:linked:user-1', JSON.stringify({
       currentStep: 'cuisine',
@@ -207,6 +222,7 @@ describe('MealPlanning recipe generation locking', () => {
       recommendations: [],
       selectedMeal: null,
       savedAt,
+      profileFingerprint,
     }));
 
     renderMealPlanning({ sessionScopeKey: 'linked:user-1' });
@@ -216,6 +232,59 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.getByRole('button', { name: /thai/i }).dataset.selected).toBe('false');
     expect(screen.getByRole('button', { name: /korean/i }).dataset.selected).toBe('false');
     expect(window.localStorage.getItem('laica_meal_planning_session_v2')).toBeNull();
+  });
+
+  it('drops restored prep tray state when the saved pantry fingerprint is stale', () => {
+    const staleProfile = makeMealPlanningProfile({
+      pantryIngredients: ['chicken', 'mushrooms', 'miso'],
+      kitchenEquipment: ['pot'],
+    });
+    window.localStorage.setItem('laica_meal_planning_session_v2:linked:user-1', JSON.stringify({
+      currentStep: 'prep-tray',
+      mealPrefs: {
+        timeAvailable: '30',
+        cuisinePreference: ['Japanese'],
+      },
+      selectedStaples: [],
+      seenStapleCandidates: [],
+      recommendations: [{
+        id: 'stale-soup',
+        recipeName: 'Keto Chicken & Mushroom Miso Soup',
+        description: 'A stale soup from an older pantry.',
+        cookTime: 35,
+        difficulty: 'Easy',
+        cuisine: 'Japanese',
+        pantryMatch: 95,
+        missingIngredients: [],
+        ingredients: ['chicken', 'mushrooms', 'miso'],
+        equipment: ['pot'],
+      }],
+      selectedMeal: {
+        id: 'stale-soup',
+        recipeName: 'Keto Chicken & Mushroom Miso Soup',
+        description: 'A stale soup from an older pantry.',
+        cookTime: 35,
+        difficulty: 'Easy',
+        cuisine: 'Japanese',
+        pantryMatch: 95,
+        missingIngredients: [],
+        ingredients: ['chicken', 'mushrooms', 'miso'],
+        equipment: ['pot'],
+      },
+      savedAt: Date.now(),
+      profileFingerprint: createPlanningProfileFingerprint(staleProfile),
+    }));
+
+    renderMealPlanning({
+      initialProfile: makeMealPlanningProfile({
+        pantryIngredients: ['rice', 'eggs', 'spinach'],
+        kitchenEquipment: ['skillet'],
+      }),
+    });
+
+    expect(screen.getByRole('heading', { name: /how much time do you have today/i })).toBeTruthy();
+    expect(screen.queryByText(/keto chicken/i)).toBeNull();
+    expect(window.localStorage.getItem('laica_meal_planning_session_v2:linked:user-1')).toBeNull();
   });
 
   it('starts fresh when only another auth scope has in-progress planning', () => {
