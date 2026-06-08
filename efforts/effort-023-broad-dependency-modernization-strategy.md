@@ -11,7 +11,7 @@ Park and later split Dependabot's broad 85-package version-update batch into int
 
 ## Context
 
-Dependabot's current broad npm-version batch is PR #134, which supersedes the earlier PR #104 lineage. It carries 85 package updates across runtime, frontend, testing, build, and provider SDK dependencies. The batch includes major-version or foundation-level moves such as Express 5, React 19, Tailwind 4, TypeScript 6, Vite 8, Vitest 4, OpenAI SDK 6, ElevenLabs SDK updates, Neon driver updates, Radix primitives, date-fns 4, and related type packages.
+Dependabot's latest broad npm-version batch was PR #134, which superseded the earlier PR #104 lineage. It carried 85 package updates across runtime, frontend, testing, build, and provider SDK dependencies. The batch included major-version or foundation-level moves such as Express 5, React 19, Tailwind 4, TypeScript 6, Vite 8, Vitest 4, OpenAI SDK 6, ElevenLabs SDK updates, Neon driver updates, Radix primitives, date-fns 4, and related type packages.
 
 That scope is too broad to merge as routine dependency hygiene while active initiative work is still stabilizing guest auth, AI/speech routes, mobile-refresh cooking guidance, and local DB workflow boundaries. The narrow security update in PR #103 should proceed separately; this Effort preserves the larger modernization work without keeping a risky mega-PR on the active merge path.
 
@@ -19,7 +19,7 @@ That scope is too broad to merge as routine dependency hygiene while active init
 
 ### In scope
 
-- Decide whether to close, recreate, or split Dependabot PR #134.
+- Preserve the decision to close broad Dependabot batches like PR #134 instead of merging them as the upgrade unit.
 - Group upgrades into small, reviewable slices by risk domain:
   - server runtime and Express middleware
   - AI and speech provider SDKs
@@ -39,13 +39,11 @@ That scope is too broad to merge as routine dependency hygiene while active init
 ## Decisions made so far
 
 - PR #103 is the current dependency priority because it addresses a narrow runtime dependency security path.
-- PR #134 should be parked rather than merged as-is.
+- PR #134 was closed unmerged and should not be reopened as-is.
 - Broad modernization should be handled as intentionally scoped branches, not a single 85-package update.
 
 ## Open questions
 
-- Should PR #134 be closed immediately after this Effort lands, or left open only until Dependabot can recreate smaller grouped PRs?
-- Should the small workflow-only bump PR #147 be merged immediately as low-risk hygiene while PR #134 stays parked?
 - Which domain should be modernized first after current INIT-003 production gates settle?
 - Do provider SDK upgrades require Replit validation with real OpenAI and ElevenLabs routes before merge?
 - Should Dependabot grouping rules be changed so future version-update batches arrive in smaller risk domains?
@@ -75,6 +73,7 @@ This Effort is `Resolved` when all of the following are true:
 
 - PR #134 — `chore(deps): bump the npm-version-updates group across 1 directory with 85 updates`
 - PR #147 — `chore(deps): bump the github-actions-version-updates group with 2 updates`
+- PR #150 — `[codex] Replace workflow dependency bump`
 - PR #103 — narrow runtime dependency security update
 - `package.json`
 - `package-lock.json`
@@ -102,6 +101,12 @@ Recommended path from this point:
 - prefer the Codex replacement branch when it includes the matching TruffleHog `version` input update
 - keep PR #134 parked
 - open replacement upgrade slices from fresh `origin/main` by domain rather than trying to salvage the monolithic PR
+
+## 2026-06-08 - Open repo-risk PRs closed
+
+PR #150 merged as `e583c2d8a2f12fc1bb79bdc5c349cc29cdfc9c20`, replacing Dependabot PR #147 with the same workflow dependency bump plus the missing TruffleHog `version` input alignment. GitHub checks passed on PR #150 head `01e501923f55dec670dc86711fa38d05799aa410`: secret scan, dependency audit, CI unit, and `e2e_guest_smoke` including Neon cleanup.
+
+After #150 merged, PR #147 was closed as superseded and PR #134 was closed unmerged. This clears the immediate open-PR repo-risk queue while keeping the larger modernization work deferred. Future dependency modernization should start from fresh `origin/main` in scoped branches by risk domain rather than reviving #134.
 
 ## 2026-05-31 - Current moderate dependency alert parked
 
