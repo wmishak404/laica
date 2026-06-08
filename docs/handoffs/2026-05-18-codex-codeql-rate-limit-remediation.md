@@ -8,11 +8,11 @@
 
 ## Summary
 
-Followed the completed GitHub guardrail setup by addressing the first high-severity CodeQL alert cluster now visible in the Security tab: `js/missing-rate-limiting`. The branch adds a CodeQL-modeled Express rate limiter as a broad API/page guardrail while keeping LAICA's existing per-feature AI, speech, recipe, feedback, and vision quota controls intact.
+Followed the completed GitHub guardrail setup by addressing an automated security finding. The branch adds an Express rate-limit guardrail as a broad API/page protection while keeping LAICA's existing per-feature AI, speech, recipe, feedback, and vision quota controls intact.
 
 ## Changes
 
-- `package.json` / `package-lock.json` — add `express-rate-limit`, the standard Express middleware modeled by CodeQL's missing-rate-limiting query.
+- `package.json` / `package-lock.json` — add `express-rate-limit`, the standard Express middleware used for the broad rate-limit guardrail.
 - `server/rate-limit.ts` — export standard 15-minute API and app/page request limiters with a shared `RATE_LIMITED` response body and env overrides.
 - `server/routes.ts` — apply the API limiter before registered `/api` routes, then keep existing narrower feature-specific limiters for expensive AI and speech routes.
 - `server/vite.ts` — apply the app/page limiter before development Vite middleware and production static/fallback serving so file-system-backed handlers are rate-limited.
@@ -26,7 +26,7 @@ Future backend routes should keep using the existing domain-specific rate limite
 
 - CodeQL closure is expected to be verified by GitHub Actions on the PR and/or after merge in GitHub Security → Code scanning.
 - Replit runtime validation was not run locally because this is middleware/security behavior; perform a quick Replit smoke test before deployment if desired.
-- Existing npm audit output still contains only low/moderate advisories (`@tootallnate/once`, `esbuild` via transitive tooling); no high/critical dependency advisories remain.
+- Existing npm audit output still contains only low/moderate advisories via transitive dependencies; no high/critical dependency advisories remain.
 
 ## Verification
 

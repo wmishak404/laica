@@ -135,7 +135,7 @@ The symlink stays untracked because `.env.*` is gitignored. Without this link, d
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` — Firebase client config
 
 ### Security notes
-- The historical `ADMIN_SECRET` exposure has been rotated in Replit. Treat old Git history as sensitive.
+- `ADMIN_SECRET` has been rotated. Keep the current value in Replit Secrets only.
 - Never hardcode secret values. The encrypted `.env` and Replit Secrets are the only approved stores.
 
 ## When blocked — human handoff protocol

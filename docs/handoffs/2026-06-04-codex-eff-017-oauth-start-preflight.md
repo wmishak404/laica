@@ -44,7 +44,7 @@ The branch also records the remaining EFF-017 adjacencies as parallel-safe lanes
 
 ## Security note
 
-The first pushed PR head `bf5ca12905909299e3ee37432a3d83d94caa8b43` triggered a GitHub Advanced Security CodeQL alert for clear-text logging of `OAUTH_PREFLIGHT_CONTINUE_URIS` through the generic validation-error path. The merged head `0ed15b4c1c3539616b7c5aa20381ba53f54a75b8` removes raw continue URIs from validation errors and success/failure logs, labels checked URIs by ordinal instead, adds unit assertions that raw continue URIs and API keys are not logged, and passed the GitHub Advanced Security CodeQL check.
+An automated security check flagged a logging issue on an early push. The merged version sanitizes logs, labels checked targets without echoing raw input, adds regression assertions that sensitive inputs are not logged, and passed the required check.
 
 ## Verification
 
@@ -55,19 +55,18 @@ Automation is evidence for the stated preflight-script claim, not a conclusion a
 **Command/check provenance:**
 
 - Local macOS worktree `/Users/wilsonishak-macbookpro/.codex/worktrees/ba8b/laica`, branch `codex/eff-017-oauth-start-preflight`, base `origin/main` at `040df3912d6b8f1463ff48f8bc5fc97c9e76b493`.
-- `npx vitest run tests/unit/oauth-start-preflight.test.ts` passed after the CodeQL remediation: 1 file, 7 tests, including no-raw-continue-URI logging assertions.
+- `npx vitest run tests/unit/oauth-start-preflight.test.ts` passed after the logging remediation: 1 file, 7 tests, including no-raw-continue-URI logging assertions.
 - `npm run check:oauth` passed outside the sandbox and reported a skip because `OAUTH_PREFLIGHT_CONTINUE_URIS` is not configured locally.
 - Local sandboxed `npm run check:oauth` did not produce script behavior evidence because `tsx` could not create its IPC pipe (`EPERM`).
-- `npm run check` passed before and after the CodeQL remediation.
+- `npm run check` passed before and after the logging remediation.
 - `npm run build` passed, with the known Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
-- `npm run test:unit` passed after the CodeQL remediation: 32 files, 211 tests.
+- `npm run test:unit` passed after the logging remediation: 32 files, 211 tests.
 - `git diff --check` passed.
-- GitHub Actions on PR head `0ed15b4c1c3539616b7c5aa20381ba53f54a75b8` passed:
+- GitHub Actions on the PR head passed:
   - Dependency Audit (High/Critical), job `npm-audit`, run `26969668111`.
-  - Secret Scan (TruffleHog), job `trufflehog_pr`, run `26969668118`; `trufflehog_push` skipped because this was a PR event.
+  - Secret-scan check passed for the PR event.
   - CI (Typecheck, Unit, E2E), jobs `unit` and `e2e_guest_smoke`, run `26969668164`.
-  - CodeQL, jobs `Analyze (actions)` and `Analyze (javascript-typescript)`, run `26969665185`.
-  - GitHub Advanced Security `CodeQL` check run `79581419355` passed after the logging remediation.
+  - Static-analysis checks passed after the logging remediation.
 
 **Source provenance:**
 
@@ -80,7 +79,7 @@ Automation is evidence for the stated preflight-script claim, not a conclusion a
 
 - Focused mocked unit coverage passed, including no-raw-continue-URI/API-key logging assertions.
 - The direct local script path runs and skips cleanly without configured target domains.
-- Static/type/lint checks, production build, full unit suite, whitespace checks, dependency audit, TruffleHog PR scan, GitHub CI unit/e2e guest smoke, CodeQL analysis, and GitHub Advanced Security CodeQL passed.
+- Static/type/lint checks, production build, full unit suite, whitespace checks, dependency audit, secret scan, GitHub CI unit/e2e guest smoke, and static-analysis checks passed.
 - Live Google OAuth-start behavior is not yet observed because no continue URI/API key pair was configured for this local run.
 
 **Reasoning:**

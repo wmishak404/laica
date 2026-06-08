@@ -21,7 +21,7 @@ The report is written for a non-software engineer and explains impact, severity,
 ## Changes
 
 - `docs/security/npm-audit-2026-04-30.md`
-  - Adds an updated audit report with today's command outputs, current dependency counts, current key package versions, a plain-English timeline, and recommended next steps.
+  - Adds an updated audit report with current audit status, a plain-English timeline, and recommended next steps.
 - `docs/handoffs/2026-04-30-codex-security-audit-refresh.md`
   - Adds this handoff.
 
@@ -51,12 +51,11 @@ Commands run on 2026-04-30:
 npm audit --json
 npm audit --json --offline
 npm audit --omit=dev --json --offline
-node -p "JSON.stringify({drizzleKit: require('./node_modules/drizzle-kit/package.json').version, vite: require('./node_modules/vite/package.json').version, firebaseAdmin: require('./node_modules/firebase-admin/package.json').version, tsx: require('./node_modules/tsx/package.json').version}, null, 2)"
-npm ls esbuild @esbuild-kit/core-utils @esbuild-kit/esm-loader drizzle-kit --all
+npm ls <affected-dev-tool-chain> --all
 ```
 
 Observed results:
 
 - `npm audit --json` failed with `getaddrinfo ENOTFOUND registry.npmjs.org`
 - both offline audit variants reported `0 vulnerabilities`
-- installed dependency versions matched the already-documented post-remediation state
+- installed dependency state matched the already-documented post-remediation status

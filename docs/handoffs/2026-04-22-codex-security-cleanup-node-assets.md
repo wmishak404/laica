@@ -36,4 +36,4 @@ Codex ran:
 - `npm ci` -> passed after rerunning outside the local sandbox so npm could write cache/log files
 - `npm run check` -> passed
 - `npm run build` -> passed with existing Vite chunk-size/static-dynamic import warnings
-- `npm audit --audit-level=moderate` -> reports the same four accepted moderate `@esbuild-kit/*` / `drizzle-kit` residual advisories
+- `npm audit --audit-level=moderate` -> reports the same accepted moderate development-tooling advisories

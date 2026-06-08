@@ -38,9 +38,9 @@ npm run check
 npm run build
 ```
 
-Then smoke-test the user-facing route most relevant to the high-severity runtime fixes:
+Then smoke-test the user-facing flows most relevant to the dependency changes:
 
-- image upload path that uses `multer`
+- image upload behavior
 - Firebase sign-in still initializes
 - one recipe/cooking suggestion path still reaches the server
 
@@ -50,21 +50,21 @@ If `npm audit fix` unexpectedly proposes a breaking change or touches the Vite/d
 
 Handle Phase B as separate PRs in this order:
 
-1. `drizzle-orm` security upgrade
-2. `vite` / frontend toolchain upgrade assessment
-3. `drizzle-kit` upgrade and `db:push` validation
+1. server database runtime upgrade
+2. frontend toolchain upgrade assessment
+3. schema tooling upgrade and `db:push` validation
 
-## Drizzle ORM recommendation
+## Database Runtime Recommendation
 
-Treat `drizzle-orm` as the first Phase B item because it is production-facing and the advisory is SQL-injection class.
+Treat the server database runtime as the first Phase B item because it is production-facing.
 
-Before bumping, do a quick code audit for risky identifier construction, especially:
+Before bumping, do a quick code audit for dynamic query-construction patterns:
 
 ```bash
-rg "sql\.identifier|\.as\(|orderBy|groupBy|sort|column|field" server shared
+rg "<dynamic-query-construction-patterns>" server shared
 ```
 
-The GitHub advisory says the issue is mainly reachable when untrusted runtime input is passed into SQL identifier or alias APIs. Static schema usage and explicit allowlists are much safer. That means the upgrade is still important, but we should also confirm whether LAICA has dynamic sorting/report-style patterns.
+Static schema usage and explicit allowlists are safer than caller-shaped query construction. The upgrade is still important, but we should also confirm whether LAICA has dynamic sorting or report-style patterns.
 
 Validation for the Drizzle PR:
 
@@ -80,9 +80,9 @@ Then smoke-test database-backed flows:
 - cooking-session persistence
 - feedback writes
 
-## Vite recommendation
+## Frontend Toolchain Recommendation
 
-Do not jump straight to Vite 8 in the same PR as Phase A or Drizzle.
+Do not jump straight to the next major frontend-tooling line in the same PR as Phase A or the database runtime upgrade.
 
 This app uses Vite in Express middleware mode in `server/vite.ts` with:
 
@@ -92,13 +92,13 @@ hmr: { server },
 allowedHosts: true as const,
 ```
 
-That setup is more sensitive than a plain standalone Vite app. The Vite advisories are primarily development-server risks, but Replit development still has meaningful exposure because the dev environment sits near secrets, database credentials, and local source files.
+That setup is more sensitive than a plain standalone frontend app, so toolchain changes should be reviewed against the Replit development environment before merge.
 
-Recommended next step for Vite is an assessment PR, not an immediate force-upgrade PR:
+Recommended next step for the frontend toolchain is an assessment PR, not an immediate force-upgrade PR:
 
-1. Check whether Vite 8 is compatible with the current Replit plugins.
+1. Check whether the target major version is compatible with the current Replit plugins.
 2. Check whether `allowedHosts: true` is still required by Replit.
-3. Prefer the smallest patched Vite version that `npm audit` accepts and that preserves the current `server/vite.ts` pattern.
+3. Prefer the smallest patched version that `npm audit` accepts and that preserves the current `server/vite.ts` pattern.
 4. Only edit `server/vite.ts` / `vite.config.ts` if required for compatibility, and call that out explicitly because those files are part of the protected Replit setup.
 
 Validation for a Vite/toolchain PR:
@@ -111,11 +111,11 @@ PORT=3000 npx @dotenvx/dotenvx run -- npm run dev
 
 Then open the app and verify HMR/dev-server behavior in Replit.
 
-## Drizzle Kit recommendation
+## Schema Tooling Recommendation
 
-Keep `drizzle-kit` separate from `drizzle-orm` unless npm's dependency graph makes that impossible.
+Keep schema tooling separate from the database runtime unless npm's dependency graph makes that impossible.
 
-Reason: `drizzle-kit` affects schema push/migration workflow rather than runtime queries. Validate it with Replit/Neon access before merge:
+Reason: schema tooling affects push/migration workflow rather than runtime queries. Validate it with Replit/Neon access before merge:
 
 ```bash
 npm run db:push
@@ -139,4 +139,4 @@ Reviewed:
 - `vite.config.ts`
 - `package.json`
 
-Also spot-checked the GitHub advisories for `protobufjs` and `drizzle-orm` to confirm the high-level impact and patched-version claims.
+Also spot-checked the relevant GitHub advisories to confirm the high-level impact and patched-version claims.
