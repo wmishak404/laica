@@ -7,13 +7,15 @@
 
 ## One-line summary
 
-Park and later split Dependabot's broad 85-package version-update batch into intentional upgrade slices with validation sized to the runtime and UI risk.
+Park and later split Dependabot's broad package-update batch into intentional upgrade slices with validation sized to the runtime and UI risk.
 
 ## Context
 
-Dependabot's latest broad npm-version batch was PR #134, which superseded the earlier PR #104 lineage. It carried 85 package updates across runtime, frontend, testing, build, and provider SDK dependencies. The batch included major-version or foundation-level moves such as Express 5, React 19, Tailwind 4, TypeScript 6, Vite 8, Vitest 4, OpenAI SDK 6, ElevenLabs SDK updates, Neon driver updates, Radix primitives, date-fns 4, and related type packages.
+Dependabot's latest broad npm-version batch was PR #134, which superseded the earlier PR #104 lineage. It carried a large set of package updates across runtime, frontend, testing, build, and provider SDK dependencies, including several major-version or foundation-level moves.
 
-That scope is too broad to merge as routine dependency hygiene while active initiative work is still stabilizing guest auth, AI/speech routes, mobile-refresh cooking guidance, and local DB workflow boundaries. The narrow security update in PR #103 should proceed separately; this Effort preserves the larger modernization work without keeping a risky mega-PR on the active merge path.
+That scope is too broad to merge as routine dependency hygiene while active initiative work is still stabilizing guest auth, AI/speech routes, mobile-refresh cooking guidance, and local DB workflow boundaries. Narrow security maintenance should proceed separately; this Effort preserves the larger modernization work without keeping a risky mega-PR on the active merge path.
+
+Because this repository is public, do not copy exact security-advisory details, scan output, package paths, exploitability notes, or scanner-run internals into public markdown. Authorized maintainers should use GitHub Security, Dependabot, GitHub Actions logs, and local/private scan artifacts for those specifics.
 
 ## Scope
 
@@ -32,15 +34,15 @@ That scope is too broad to merge as routine dependency hygiene while active init
 ### Out of scope
 
 - Merging PR #134 as a single batch.
-- Blocking the narrow security dependency fix in PR #103.
+- Blocking narrow security maintenance.
 - Changing package versions without a focused compatibility review.
 - Replacing Replit validation for deployment-bound auth, DB, AI, or speech behavior.
 
 ## Decisions made so far
 
-- PR #103 is the current dependency priority because it addresses a narrow runtime dependency security path.
+- Narrow security maintenance should be handled separately from broad modernization batches.
 - PR #134 was closed unmerged and should not be reopened as-is.
-- Broad modernization should be handled as intentionally scoped branches, not a single 85-package update.
+- Broad modernization should be handled as intentionally scoped branches, not a single large package update.
 
 ## Open questions
 
@@ -71,10 +73,10 @@ This Effort is `Resolved` when all of the following are true:
 
 ## Linked artifacts
 
-- PR #134 — `chore(deps): bump the npm-version-updates group across 1 directory with 85 updates`
-- PR #147 — `chore(deps): bump the github-actions-version-updates group with 2 updates`
-- PR #150 — `[codex] Replace workflow dependency bump`
-- PR #103 — narrow runtime dependency security update
+- PR #134 — broad npm version-update batch
+- PR #147 — workflow dependency update, superseded
+- PR #150 — workflow dependency replacement
+- PR #103 — narrow security maintenance update
 - `package.json`
 - `package-lock.json`
 - [INIT-001 — Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
@@ -84,32 +86,32 @@ This Effort is `Resolved` when all of the following are true:
 
 ## 2026-05-26 - Parked from open PR triage
 
-Open PR triage after PR #105 merged found three active PRs: docs hygiene PR #101, narrow security dependency PR #103, and broad version-update PR #104. The recommendation was to repair/replace #101, prioritize #103 after a fresh base update and checks, and park #104 because it spans too many runtime and UI foundations for the current initiative load.
+Open PR triage after PR #105 merged found three active PRs: docs hygiene PR #101, narrow security maintenance PR #103, and broad version-update PR #104. The recommendation was to repair/replace #101, prioritize narrow security maintenance after a fresh base update and checks, and park #104 because it spans too many runtime and UI foundations for the current initiative load.
 
-This Effort records the parked state so future agents can deliberately split or close #104 instead of rediscovering the same risk from the PR list.
+This Effort records the parked state so future agents can deliberately split or close broad dependency batches instead of rediscovering the same risk from the PR list.
 
 ## 2026-06-08 - Current repo-risk posture refreshed
 
 The same broad modernization risk is still present, but the active Dependabot PR is now #134 rather than #104. Current open-PR posture is:
 
 - PR #134 remains the high-risk broad npm batch and should not be merged opportunistically.
-- PR #147 is a separate low-risk workflow-only bump (`actions/upload-artifact` and `trufflehog`) that can be reviewed and merged independently if checks are clean. A Codex replacement branch should also keep TruffleHog's explicit `version` input aligned with the action version, because Dependabot only changed the `uses:` reference.
+- PR #147 is a separate low-risk workflow-only dependency update that can be reviewed and merged independently if checks are clean. A Codex replacement branch should keep related workflow and wrapper version fields aligned without copying scanner-run details into public docs.
 
 Recommended path from this point:
 
-- treat PR #147 as quick hygiene
-- prefer the Codex replacement branch when it includes the matching TruffleHog `version` input update
+- treat PR #147's scope as quick hygiene
+- prefer the Codex replacement branch when it includes the paired workflow-version alignment
 - keep PR #134 parked
 - open replacement upgrade slices from fresh `origin/main` by domain rather than trying to salvage the monolithic PR
 
 ## 2026-06-08 - Open repo-risk PRs closed
 
-PR #150 merged as `e583c2d8a2f12fc1bb79bdc5c349cc29cdfc9c20`, replacing Dependabot PR #147 with the same workflow dependency bump plus the missing TruffleHog `version` input alignment. GitHub checks passed on PR #150 head `01e501923f55dec670dc86711fa38d05799aa410`: secret scan, dependency audit, CI unit, and `e2e_guest_smoke` including Neon cleanup.
+PR #150 merged as `e583c2d8a2f12fc1bb79bdc5c349cc29cdfc9c20`, replacing Dependabot PR #147 with the same workflow dependency scope plus paired version-field alignment. Required GitHub checks passed; exact scanner logs and runner artifacts should remain in GitHub Actions or security tooling rather than public markdown.
 
 After #150 merged, PR #147 was closed as superseded and PR #134 was closed unmerged. This clears the immediate open-PR repo-risk queue while keeping the larger modernization work deferred. Future dependency modernization should start from fresh `origin/main` in scoped branches by risk domain rather than reviving #134.
 
 ## 2026-05-31 - Current moderate dependency alert parked
 
-After PR #113 merged, GitHub still reported one moderate default-branch dependency alert. Because this repository is public, do not publish the exact advisory details, package path, or reproduction notes in public docs; use the GitHub Security/Dependabot alert UI and local `npm audit --omit=dev` output when an authorized maintainer needs the specifics.
+After PR #113 merged, GitHub still reported one moderate default-branch dependency alert. Because this repository is public, do not publish the exact advisory details, package path, or reproduction notes in public docs; use the GitHub Security/Dependabot alert UI and local private scan output when an authorized maintainer needs the specifics.
 
-This is accepted as deferred dependency hygiene, not an urgent security blocker, because there are no high/critical findings. If someone picks this up later, prefer a narrow dependency PR with `npm ci`, `npm run check`, `npm run build`, `npm audit --omit=dev`, and Replit smoke only if runtime middleware behavior changes.
+This is accepted as deferred dependency hygiene, not an urgent security blocker, because there are no high/critical findings. If someone picks this up later, prefer a narrow dependency PR with standard local checks and Replit smoke only if runtime middleware behavior changes.
