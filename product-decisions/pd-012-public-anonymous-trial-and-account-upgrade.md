@@ -71,6 +71,8 @@ PR #126 merged the first Google promotion slice as `8282d5193f6eeef50eeecdff9f91
 
 Wilson rejected the guest-only `Save progress` bottom-nav shortcut as an unapproved durable navigation addition. Guest promotion remains available through the planning reminder and the app menu action, but the bottom nav should not add a one-function guest promotion icon unless Wilson explicitly approves that navigation change.
 
+PR #156 merged this correction as `492b3a6808dd088c430b49649ea3c4ef4bfde0ee`. The merged behavior removes the guest-only bottom-nav shortcut while preserving the app menu and planning reminder promotion paths. The same PR also made the E2E evidence lane and signup-continuation validation nuance durable in the testing workflow and EFF-017.
+
 ## Decision
 
 ### Public entry model
