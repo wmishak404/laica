@@ -30,16 +30,16 @@ Read both INIT-004 and EFF-022 before changing cuisine-fit evaluation or prompt 
 
 Read INIT-002 only for operational failure telemetry and safe error-cluster handoff. The session grounding from Codex thread `019ead6c-2397-7e92-894d-27b30a119b4c` reinforced that PR #159 / INIT-002 Phase 1 should remain focused and should not absorb this planning INIT.
 
-Local seed artifacts reviewed or referenced but not committed:
+Seed artifacts reviewed or referenced but not committed:
 
-- `/Users/wilsonishak-macbookpro/Documents/cowork/llm_eval_course_notes.pdf`
-- `/Users/wilsonishak-macbookpro/Downloads/eval_items_OutputDataItemStatusParam.ALL_2026-06-04_17-55-13.jsonl`
+- Wilson-provided evaluation methodology notes PDF, summarized in INIT-004 as industry-standard eval practice.
+- Wilson-provided OpenAI Platform JSONL export, indexed in INIT-004 by run id.
 
 Phase 0 takeaways from those artifacts are summarized in the INIT. The OpenAI Platform export had 25 items from `evalrun_685361470e9c819195a768074ef126cd`, generated with `gpt-4.1-2025-04-14`, graded with `o3-mini-2025-01-31`, and showed 149/150 criterion-level passes. One max-time criterion failed, and at least one invalid JSON output still passed all LLM-judge checks, which is why INIT-004 calls for deterministic contract checks alongside LLM judges.
 
 Wilson later provided Arize open-coding data in chat. The raw prompt/table are not committed, but INIT-004 now summarizes the seed signal: 18 notes across 16 unique examples from 2025-11-07, with 9 explicit positive/no-issue notes and issue clusters around food safety/doneness, proficiency fit, equipment availability, cook-time adherence, cuisine/pantry tradeoff, and Markdown extraction/format fragility.
 
-INIT-004 also now includes an `Eval Intake Record Structure`. Future eval imports should use that template so source summaries, input schemas, sample sizes, calibration status, failure clusters, positive examples, fixture candidates, privacy posture, and open deferrals remain readable and durable.
+INIT-004 also now includes an `Eval Intake Record Structure`. Future eval imports should use that template so source summaries, input schemas, sample sizes, calibration status, failure clusters, positive examples, fixture candidates, privacy posture, and open deferrals remain readable and durable. The two seed intakes now use the same format and shared trend tags so future judge LLMs and deterministic evals can compare repeated patterns instead of reading isolated notes.
 
 Wilson asked whether the Arize data was saved as an index of eval runs. Follow-up added an `Eval Intake Index` to INIT-004 with rows for:
 
@@ -47,6 +47,8 @@ Wilson asked whether the Arize data was saved as an index of eval runs. Follow-u
 - `arize-open-coding-2025-11-07`
 
 Future eval data should add a row to that index first, then use the detailed intake template when the import changes rubric, fixtures, metrics, reporting, or prompt workflow.
+
+Wilson later clarified that the two seed runs should be easy to compare and should avoid public-facing references to named training-material branding. Follow-up normalized both seed intakes into matching records with source summary, metrics summary, failure/learning clusters, positives worth preserving, fixture candidates, open questions, and a cross-intake trend comparison. The INIT now describes the methodology as industry-standard eval practice.
 
 ## Open items
 
