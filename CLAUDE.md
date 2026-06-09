@@ -87,7 +87,9 @@ Current active INITs:
 
 ## UI governance — check before any UI work
 
-UI governance and visual standards are **not** tracked as active Efforts. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, or visual changes tied to mobile-refresh phases, read [`product-decisions/pd-005-ui-governance.md`](product-decisions/pd-005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`efforts/registry.md`](efforts/registry.md).
+UI governance and visual standards are **not** tracked as active Efforts. Before adding new pages, tone-forward components, hex-literal styling, custom primitive overrides, font/icon changes, scoped-class reuse on a new wrapper, durable cross-functional navigation changes, or visual changes tied to mobile-refresh phases, read [`product-decisions/pd-005-ui-governance.md`](product-decisions/pd-005-ui-governance.md) (operating model) and [`design_guidelines.md`](design_guidelines.md) (canonical visual standard). Resolved-state history lives in [`efforts/registry.md`](efforts/registry.md).
+
+Ask Wilson before adding, removing, reordering, renaming, or changing auth-mode visibility for durable cross-functional navigation surfaces such as the bottom nav, top nav/header, app menu/account drawer, global menu, tabs, or persistent app-shell actions. Treat these as product/IA decisions, not incidental UI polish or copy work. If approved, record the explicit approval, affected surfaces, and affected user modes in the PR description, handoff, and relevant INIT/PD.
 
 ## Active Efforts — check before starting work in a governed domain
 
