@@ -41,11 +41,18 @@ Wilson later provided Arize open-coding data in chat. The raw prompt/table are n
 
 INIT-004 also now includes an `Eval Intake Record Structure`. Future eval imports should use that template so source summaries, input schemas, sample sizes, calibration status, failure clusters, positive examples, fixture candidates, privacy posture, and open deferrals remain readable and durable.
 
+Wilson asked whether the Arize data was saved as an index of eval runs. Follow-up added an `Eval Intake Index` to INIT-004 with rows for:
+
+- `openai-platform-evalrun-685361470e9c819195a768074ef126cd`
+- `arize-open-coding-2025-11-07`
+
+Future eval data should add a row to that index first, then use the detailed intake template when the import changes rubric, fixtures, metrics, reporting, or prompt workflow.
+
 ## Open items
 
 - Arize open-coding data has been summarized in INIT-004. Phase 1 should map those clusters into a label schema and fixture candidates, but should not commit the raw chat table without a separate privacy/source decision.
 - No raw local exports are committed. Future agents should not commit them without a separate privacy/source decision.
-- Future eval intake should use INIT-004's `Eval Intake Record Structure`; do not add ad hoc raw tables to handoffs when a summarized source/rubric/metrics record would be enough.
+- Future eval intake should add a row to INIT-004's `Eval Intake Index` and use its `Eval Intake Record Structure`; do not add ad hoc raw tables to handoffs when a summarized source/rubric/metrics record would be enough.
 - Phase 1 still needs a code/data audit of `server/openai.ts`, `server/evaluator.ts`, `server/eval-criteria.ts`, `server/admin-routes.ts`, `shared/schema.ts`, and client cuisine/time/preference packaging.
 - The exact daily-report scheduler is still a Phase 4 decision. Wilson prefers daily automation over an admin dashboard for v1.
 - Prompt improvements should produce inactive candidates and regression comparisons; no automatic production activation without Wilson approval.

@@ -71,6 +71,15 @@ Known Phase 1 audit questions:
 
 Do not commit raw local exports or course-note files without a separate privacy/source decision. The INIT should carry only summarized findings, fixture identities, and paths in handoffs when needed for same-machine agent continuity.
 
+## Eval Intake Index
+
+This table is the durable index of eval runs, open-coding imports, and other quality-evidence intakes known to INIT-004. Future eval data should add one row here and then use the [Eval Intake Record Structure](#eval-intake-record-structure) for details when the intake changes rubric, fixtures, metrics, reporting, or prompt workflow.
+
+| Intake id | Source | Source date | Provided / imported | Surface | Sample size | Raw artifact handling | Current status | Next action |
+|---|---|---|---|---|---|---|---|---|
+| `openai-platform-evalrun-685361470e9c819195a768074ef126cd` | OpenAI Platform eval export | File timestamp 2026-06-04; user remembered June 4, 2025 | 2026-06-09 | Legacy recipe suggestion eval | 25 items; 150 criterion checks | Local JSONL only; summarized in INIT/handoff; not committed | Seed run indexed; 149/150 grader passes; one max-time failure; one invalid JSON case still passed LLM judges | Phase 1 should extract fixture candidates and deterministic contract checks |
+| `arize-open-coding-2025-11-07` | Arize open-coding notes | 2025-11-07 note timestamps | 2026-06-09 | Legacy pantry-first recipe suggestions | 18 notes across 16 unique examples | Raw prompt/table provided in chat; summarized in INIT/handoff; not committed | Seed intake indexed; clusters identified for food safety, proficiency fit, equipment, time, cuisine/pantry tradeoff, and format fragility | Phase 1 should map clusters into label schema and fixture candidates |
+
 ## Arize Open-Coding Seed Findings
 
 Wilson's Arize notes should seed the first taxonomy, not be treated as the final rubric. The historical prompt differs from the current app in at least one important way: it asked for Markdown output with recipe fields, while current routes often require structured JSON. Use the Arize data for quality/failure-mode discovery and revalidate against current response contracts during Phase 1.
@@ -108,6 +117,7 @@ Future eval imports, open-coding notes, judge runs, or daily reports should use 
 
 Where to file:
 
+- Add every future run/import as a row in the [Eval Intake Index](#eval-intake-index), even when the detailed intake record lives in a handoff or later phase file.
 - Dated source/rubric learnings that affect INIT-004 should be appended to this INIT or to a phase-specific INIT-004 handoff, then linked from this INIT.
 - Point-in-time command output, raw run ids, local artifact paths, and PR branch status belong in PR descriptions or `docs/handoffs/`.
 - Cuisine-fit product decisions still need [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) when they change cross-cuisine behavior, with INIT-004 linked as the measurement home.
