@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 0 - Source-of-truth filing and seed-data routing
-**Active PR:** None
+**Active PR:** [#160](https://github.com/wmishak404/laica/pull/160)
 **Active branch:** `codex/init-004-output-evals`
 
 ## Overview
@@ -101,6 +101,23 @@ Current cross-intake trend summary:
 | Cuisine/pantry tradeoff | No strong cuisine-failure signal from this run; legacy ingredient relevance passed | Human notes accepted some pantry-first adaptation but flagged authenticity nuance | Rubric should separate pantry-first usefulness from cuisine authenticity rather than treating either as absolute |
 
 These trends reinforce that the first rubric should include both positive examples and failure examples. A useful pass set is not only "no issues"; it should preserve why constrained-pantry examples were acceptable so future prompts do not over-correct into unnecessary shopping lists.
+
+## How We Will Run Evals
+
+The INIT-004 eval loop is:
+
+1. **Register the evidence.** Every eval run, open-coding import, human review batch, judge run, daily report, or production/staged sample gets a stable row in [docs/evals/registry.md](../docs/evals/registry.md). If it affects rubric, fixtures, metrics, reporting, or prompts, it also gets a normalized record under [docs/evals/intakes/](../docs/evals/intakes/) using the template.
+2. **Normalize before interpreting.** Each intake record captures source summary, input schema, prompt/model/evaluator versions, sample size, positive definition, trend tags, raw artifact handling, privacy posture, metrics, failure clusters, positive examples worth preserving, fixture candidates, and open questions. Raw exports stay local/external unless a privacy/source decision explicitly allows committing them.
+3. **Start with human-readable failure taxonomy.** Use Wilson-labeled examples, Arize open-coding clusters, the OpenAI Platform export, EFF-022 cuisine-fit failures, and current app traces to name failure modes before writing broad metrics. The first known trend families are structure/contract, max-time, food-safety, proficiency fit, equipment fit, cuisine/pantry tradeoff, and judge-calibration gap.
+4. **Implement deterministic checks first.** Schema/JSON validity, current response-shape fit, max-time adherence, required field presence, suggestion count, and obvious equipment/ingredient contract checks should run before any LLM judge. The seed evidence already shows that LLM judges can miss invalid structure.
+5. **Create criterion-level human labels.** Wilson-first labels are acceptable for v1, but labels must be per criterion rather than only "good" or "bad." Positive examples stay in the dataset so fixes do not over-correct useful pantry-first behavior into unnecessary shopping-list behavior.
+6. **Use narrow LLM judges only after rubric shape is clear.** Each judge should evaluate one criterion or tightly related criterion family. Broad aggregate judge scores are triage at best and should not become product-quality truth.
+7. **Calibrate judges against human labels.** Report observed judge pass rate, human label pass rate when available, TPR, TNR, corrected pass rate when the denominator is valid, confidence interval, sample size, prompt/model/evaluator versions, and negative scope. Until TPR/TNR exist, mark LLM-judge metrics as uncalibrated.
+8. **Run two evidence lanes.** Golden/regression fixtures protect known contracts in CI or scheduled automation. Production/staged sampling estimates real output quality only after privacy handling, source fields, and raw artifact policy are explicit.
+9. **Report compactly and routinely.** V1 reporting should be daily automation, not an admin dashboard. Reports should include criterion rates, calibration status, sample size, trend deltas, top clusters, fixture/report ids, privacy posture, and negative scope, and should be indexed through `docs/evals/registry.md`.
+10. **Turn failures into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
+
+This loop is intentionally evidence-first: the durable eval registry records what was observed, INIT-004 records the current initiative plan, and implementation phases convert those records into checks, labels, reports, and prompt candidates.
 
 ## Eval Scope
 
@@ -200,7 +217,7 @@ This policy is especially important because active database-backed prompts may o
 
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
-| Phase 0 - INIT filing | In progress | `codex/init-004-output-evals` | Create INIT hub, durable `docs/evals/` registry and intake records, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
+| Phase 0 - INIT filing | In progress | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Create INIT hub, durable `docs/evals/` registry and intake records, active-list links, INIT-002 boundary note, EFF-022 link, handoff, and end-to-end eval operating loop |
 | Phase 1 - Surface and data audit | Planned | TBD | Inventory generation surfaces, prompts, DB prompt overrides, eval criteria, response schemas, and legacy export mismatch |
 | Phase 2 - Rubric and dataset spec | Planned | TBD | Define criterion-level rubric, label schema, fixture format, privacy posture, and first Wilson-labeled gold set |
 | Phase 3 - Eval harness | Planned | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
@@ -213,7 +230,7 @@ This policy is especially important because active database-backed prompts may o
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
-| TBD | Local docs branch | `codex/init-004-output-evals` | Docs-only filing. No Replit validation required unless implementation is added. |
+| [#160](https://github.com/wmishak404/laica/pull/160) | Draft | `codex/init-004-output-evals` | Docs-only filing and durable eval evidence registry. No Replit validation required unless implementation is added. |
 
 ## Validation State
 
@@ -238,3 +255,4 @@ After Phase 0 merges, the next agent should start Phase 1 from fresh `origin/mai
 - **2026-06-09** - Wilson decided this should be filed as a standalone INIT-004 rather than folded into INIT-002. Separate ownership keeps operational error telemetry in INIT-002 and output-quality evals/prompt improvement in INIT-004.
 - **2026-06-09** - Wilson provided Arize open-coding seed data. The notes added initial taxonomy signal for food safety/doneness, proficiency fit, equipment availability, cook-time adherence, cuisine/pantry tradeoff, and output extraction/format fragility.
 - **2026-06-09** - Wilson clarified that eval records need a durable home beyond INIT closeout. Created [docs/evals/](../docs/evals/README.md), moved the normalized OpenAI Platform and Arize seed intake records there, and kept INIT-004 as the active hub that links to the durable registry.
+- **2026-06-09** - Wilson asked for another cleanup pass and a whole-INIT summary of how evals should run based on the current registry/intake structure. Added the end-to-end eval operating loop and updated stale PR placeholders to PR #160.

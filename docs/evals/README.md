@@ -37,6 +37,15 @@ When raw artifacts remain local or external, the registry and intake record shou
 - Use PR descriptions and `docs/handoffs/` for point-in-time command output, branch status, local-only file paths, and review context.
 - Use feature phase docs, product decisions, or active Efforts when an eval finding changes product behavior, not only measurement.
 
+## Standard Eval Loop
+
+1. Register the run/import/report in `registry.md`.
+2. Normalize the intake under `intakes/` when it changes rubric, fixtures, metrics, reporting, or prompts.
+3. Derive or update criterion-level human labels before treating judge metrics as truth.
+4. Run deterministic checks before LLM judges for structure, schema, time, count, and other machine-checkable contracts.
+5. Calibrate each LLM judge against human labels with TPR/TNR before reporting corrected pass rates.
+6. Index reports and prompt-candidate comparisons back through this directory.
+
 ## Current Related Initiative
 
 - [INIT-004 - AI Output Quality Evals & Prompt Improvement](../../initiatives/INIT-004-ai-output-quality-evals.md)

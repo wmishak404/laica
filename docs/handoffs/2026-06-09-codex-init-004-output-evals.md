@@ -20,6 +20,7 @@ The work is docs-only. No runtime behavior, schema, prompt, or eval harness chan
 - `docs/evals/intakes/TEMPLATE.md` - required normalized intake-record structure for future eval imports.
 - `docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md` - normalized OpenAI Platform eval intake record.
 - `docs/evals/intakes/arize-open-coding-2025-11-07.md` - normalized Arize open-coding intake record.
+- Updated INIT-004 and `docs/evals/README.md` with the current end-to-end eval operating loop: register evidence, normalize intakes, build taxonomy, run deterministic checks first, create human labels, calibrate narrow LLM judges, split golden/regression from production/staged sampling, report routinely, and turn failures into controlled prompt candidates.
 - `initiatives/registry.md` - added INIT-004 to the searchable registry.
 - `initiatives/README.md` - added INIT-004 to the current initiatives list.
 - `AGENTS.md` and `CLAUDE.md` - added INIT-004 to active INIT read-before lists.
@@ -56,6 +57,8 @@ Future eval data should add a row to that durable registry first, then use the d
 Wilson later clarified that the two seed runs should be easy to compare and should avoid public-facing references to named training-material branding. Follow-up normalized both seed intakes into matching records with source summary, metrics summary, failure/learning clusters, positives worth preserving, fixture candidates, open questions, and a cross-intake trend comparison. The INIT now describes the methodology as industry-standard eval practice.
 
 Wilson then asked whether complete structured datasets should live in the INIT, because INITs can close. Follow-up created `docs/evals/` as the durable home. INIT-004 now links to that registry and keeps only initiative context plus a compact current-trend summary.
+
+Wilson asked for another cleanup pass after `docs/evals/` existed. Follow-up removed stale INIT placeholders (`Active PR: None`, local-only PR table row), linked PR #160 in INIT-004/registry, and added the whole-eval operating loop to INIT-004 and `docs/evals/README.md`.
 
 ## Open items
 
