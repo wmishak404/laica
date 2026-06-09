@@ -3,9 +3,9 @@
 **Status:** Planning
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
-**Current phase:** Phase 0 - Source-of-truth filing and seed-data routing
-**Active PR:** [#160](https://github.com/wmishak404/laica/pull/160)
-**Active branch:** `codex/init-004-output-evals`
+**Current phase:** Phase 1 - Surface and data audit (next)
+**Active PR:** None
+**Active branch:** None
 
 ## Overview
 
@@ -24,7 +24,9 @@ The relationship is **parallel-safe with a soft data link**:
 
 ## Current Status
 
-Phase 0 is a docs-only filing step. Wilson provided Arize open-coding data after the initial filing. The seed inputs are:
+Phase 0 merged in [PR #160](https://github.com/wmishak404/laica/pull/160) as `680e26e` on 2026-06-09. Wilson plans to continue INIT-002 implementation first, then resume INIT-004 implementation from Phase 1.
+
+The seed inputs are:
 
 - Wilson's 2026-06-09 direction to create a standalone INIT-004 rather than folding the work into INIT-002.
 - Durable eval discipline now lives in [docs/workflows/evaluations.md](../docs/workflows/evaluations.md); seed records and practical eval artifacts live in [docs/evals/](../docs/evals/README.md), not inside this INIT.
@@ -115,8 +117,8 @@ INIT-004 should produce or coordinate:
 
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
-| Phase 0 - INIT filing | In progress | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Create focused INIT hub, durable `docs/evals/` workflow/registry/intake records, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
-| Phase 1 - Surface and data audit | Planned | TBD | Inventory generation surfaces, prompts, DB prompt overrides, eval criteria, response schemas, and legacy export mismatch |
+| Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
+| Phase 1 - Surface and data audit | Next | TBD | Inventory generation surfaces, prompts, DB prompt overrides, eval criteria, response schemas, and legacy export mismatch |
 | Phase 2 - Rubric and dataset spec | Planned | TBD | Define criterion-level rubric, label schema, fixture format, privacy posture, and first Wilson-labeled gold set |
 | Phase 3 - Eval harness | Planned | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
@@ -128,17 +130,17 @@ INIT-004 should produce or coordinate:
 
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
-| [#160](https://github.com/wmishak404/laica/pull/160) | Draft | `codex/init-004-output-evals` | Docs-only filing and durable eval evidence registry. No Replit validation required unless implementation is added. |
+| [#160](https://github.com/wmishak404/laica/pull/160) | Merged as `680e26e` | `codex/init-004-output-evals` | Docs-only filing and durable eval evidence registry. Marked ready, checks passed after unit rerun; no Replit validation required. |
 
 ## Validation State
 
-Phase 0 is docs-only. No local build, Replit preview, DB push, or runtime validation is required for the filing itself.
+Phase 0 was docs-only. No local build, Replit preview, DB push, or runtime validation was required for the filing itself. PR #160 passed `unit` on rerun, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL before merge.
 
 Future implementation phases that use eval results as merge evidence must follow [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). Future DB or production-sampling work must coordinate with [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) and Replit as the primary runtime.
 
 ## Current Resume Point
 
-After Phase 0 merges, the next agent should start Phase 1 from fresh `origin/main`:
+When Wilson is ready to resume INIT-004 after the near-term INIT-002 implementation work, the next agent should start Phase 1 from fresh `origin/main`:
 
 1. Read this INIT, the [AI Eval Intake Registry](../docs/evals/registry.md), [INIT-002](INIT-002-ai-error-telemetry.md), [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md), [PD-008](../product-decisions/pd-008-optional-context-and-local-validation-boundaries.md), and [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md).
 2. Audit current output generation paths and response schemas in `server/openai.ts`, `server/evaluator.ts`, `server/eval-criteria.ts`, `server/admin-routes.ts`, `shared/schema.ts`, and the relevant client request packaging.
@@ -154,3 +156,4 @@ After Phase 0 merges, the next agent should start Phase 1 from fresh `origin/mai
 - **2026-06-09** - Wilson provided Arize open-coding seed data. The notes added initial taxonomy signal for food safety/doneness, proficiency fit, equipment availability, cook-time adherence, cuisine/pantry tradeoff, and output extraction/format fragility.
 - **2026-06-09** - Wilson clarified that eval records need a durable home beyond INIT closeout. Created [docs/evals/](../docs/evals/README.md), moved the normalized OpenAI Platform and Arize seed intake records there, and kept INIT-004 as the active hub that links to the durable registry.
 - **2026-06-09** - Wilson asked to move eval discipline out of INIT-004 because the INIT should stay focused on what needs to be built. Created the durable [Evaluation Workflow](../docs/workflows/evaluations.md), kept `docs/evals/` as the practical registry/intake home, trimmed INIT-004 back to build context, and updated stale PR placeholders to PR #160.
+- **2026-06-09** - PR #160 merged as `680e26e` after being marked ready and passing CI on rerun. Phase 0 is closed; Phase 1 is the next INIT-004 work, after Wilson's near-term INIT-002 implementation focus.
