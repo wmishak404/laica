@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-05-27
+**Updated:** 2026-06-09
 
 ## One-line summary
 
@@ -76,6 +76,7 @@ This Effort is `Resolved` when all of the following are true:
 - `server/openai.ts`
 - `server/eval-criteria.ts`
 - `client/src/components/cooking/meal-planning.tsx`
+- `initiatives/INIT-004-ai-output-quality-evals.md`
 - `docs/handoffs/2026-05-22-codex-init-003-preauth-homepage.md`
 - PR #102, INIT-003 pre-auth homepage and Plan B guest MVP
 
@@ -130,3 +131,13 @@ Wilson captured the same repeated pattern when selecting Thai. The returned sugg
 This adds a more specific hypothesis for the future prompt/eval pass: the model may be over-anchoring on the strongest pantry identity marker, especially `korean beef bone soup broth`, then allowing the selected cuisine to become a weak style modifier on only one card. The issue is not only "make cuisine preference stronger"; it may also need ranking or prompt guidance for ingredient provenance. A Korean-labeled ingredient should not silently override an explicit Thai, Indian, or Chinese request unless the product clearly presents that as a pantry-constrained fallback.
 
 Future fixtures should include pantry sets with a strongly labeled cross-cuisine ingredient to test whether selected cuisine remains primary, whether the model asks for missing staples, or whether the UI explains why a pantry-flexible fallback is being offered.
+
+## 2026-06-09 - Linked to INIT-004 output-quality evals
+
+Wilson accepted [INIT-004](../initiatives/INIT-004-ai-output-quality-evals.md) as the active home for quantitative AI output-quality evals and prompt improvement. This Effort remains open because its cuisine-specific prompt decisions are still unresolved, but its bad Chinese, Indian, and Thai examples should seed INIT-004's first recipe-quality rubric and fixtures.
+
+The coordination boundary is:
+
+- EFF-022 owns the product-specific cuisine-fit behavior: how strict cuisine alignment should be, when cross-cuisine or inspired dishes are acceptable, and when the UI/prompt should explain a pantry-constrained fallback.
+- INIT-004 owns the eval infrastructure around that behavior: human labels, deterministic checks, LLM-as-judge criteria, TPR/TNR calibration, daily reporting, and prompt-candidate workflow.
+- Future agents changing cuisine eval criteria should read both files and cite whether the change resolves part of EFF-022 or only adds INIT-004 measurement scaffolding.
