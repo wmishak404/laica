@@ -88,6 +88,10 @@ CI gap-lane rule:
 - Keep default PR CI deterministic and provider-light unless a durable decision expands the routine gate. Real Google popup completion, live model/audio quality, production-domain checks, and Replit deployment behavior should remain separate named lanes until their automation is deliberately accepted.
 - When a user-facing boundary is expensive to reach naturally, prefer a forced-response or fixture test that proves the UI contract directly. For example, a guest quota-copy check can stub `403 LINKED_ACCOUNT_REQUIRED` instead of spending ten real recipe generations to reach attempt `#11`.
 
+Signup-continuation risk check:
+- After E2E on changes that touch guest promotion, signup-required copy, quota walls, linked-only save boundaries, guest-to-linked conversion, or navigation into those surfaces, explicitly record whether the continuous journey is covered: guest reaches a signup-required moment, signs up or links, returns to the expected linked state, and preserves or resumes the intended action/data.
+- The custom-token linked-auth lane proves the signed-in destination state and linked-only behavior; it does not by itself prove the continuous guest-blocked -> sign-up/link -> continue journey or the real Google popup. If routine CI covers the guest block and the linked destination separately, record the continuous journey as an optional but relevant validation gap and choose the smallest follow-up lane based on risk: targeted Playwright with dev auth, Replit human validation, or a future identity-provider/preflight check.
+
 E2E note: browser automation depends on service-backed env (at minimum a `DATABASE_URL` that points to a non-production test database). Keep E2E flows privacy-forward by using synthetic data and by avoiding production/Replit databases.
 
 ## Bug and Regression Closeout

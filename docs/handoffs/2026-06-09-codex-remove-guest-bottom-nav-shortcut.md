@@ -39,5 +39,6 @@ Wilson rejected the guest-only bottom-nav promotion shortcut as an unapproved du
 
 - No existing menu contents were redesigned.
 - No guest promotion/linking logic changed.
+- Signup-continuation risk check: considered for this PR. The branch removes the guest-only bottom-nav shortcut but does not change quota walls, signup-required route guards, Google/custom-token linking handlers, guest data preservation, or resume-after-link behavior. Existing CI covers guest blocks and linked destination state separately; the continuous guest-blocked -> sign-up/link -> continue journey remains an optional EFF-017 validation lane for future changes that alter those surfaces.
 - Replit validation is not yet refreshed for this branch.
 - Local dotenvx-backed E2E remains blocked against the decrypted worktree `.env` database until that database has the schema expected by latest `origin/main`; use the GitHub ephemeral Neon lane as the merge-gate E2E evidence unless a local `DATABASE_URL` is explicitly pointed at an equivalent prepared non-production test database.

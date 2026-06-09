@@ -565,3 +565,9 @@ While validating the guest bottom-nav shortcut removal, local dotenvx-backed Pla
 This was useful system signal, not a product-code reason to weaken `/api/auth/session`: unknown or stale databases should fail loudly when required guest quota schema is absent.
 
 The authoritative automated E2E lane for the PR then passed on GitHub Actions head `aa7ba84`: `e2e_guest_smoke` created a schema-only Neon branch, applied the current Drizzle schema, passed `db:health`, ran Playwright, and deleted the Neon branch. The Testing and Acceptance Workflow now states this explicitly: use the ephemeral non-production Neon lane for merge-gate E2E evidence when available; treat local decrypted `.env` E2E as diagnostic unless `DATABASE_URL` is pointed at an equivalent prepared non-production test database.
+
+## 2026-06-09 — Guest signup-continuation nuance added to post-E2E risk checks
+
+The same PR discussion clarified a separate coverage nuance: Firebase custom-token dev auth is valuable because it tests the signed-in linked destination state without a brittle Google popup, but it does not automatically prove the continuous product journey where a guest hits a signup-required boundary, signs up or links, and then resumes the intended action/state with the right guest data preserved.
+
+The Testing and Acceptance Workflow now asks agents to record that distinction after E2E when a change touches guest promotion, signup-required copy, quota walls, linked-only save boundaries, guest-to-linked conversion, or navigation into those surfaces. If routine CI proves the guest block and linked destination separately, the continuous guest-blocked -> sign-up/link -> continue journey should be listed as an optional but relevant validation gap, with the follow-up lane chosen by risk: targeted Playwright with dev auth, Replit human validation, or a future identity-provider/preflight check.
