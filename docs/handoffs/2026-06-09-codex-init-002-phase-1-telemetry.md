@@ -44,7 +44,7 @@ Phase 2 remains the Replit observation week. Phase 3 remains the first DB persis
 ## Open items
 
 - GitHub CI/E2E is pending on PR #159's pushed head.
-- Replit validation is not done. INIT-002 still calls for Replit validation focused on AI provider routes, ElevenLabs speech routes, and secrets/deployment posture before merge unless Wilson accepts a narrower validation lane.
+- Wilson accepted deferring human Replit validation to Phase 2 observation on 2026-06-09. Phase 2 should still focus on AI provider routes, ElevenLabs speech routes, and secrets/deployment posture.
 - Phase 2 observation and all DB/admin/eval phases remain untouched.
 
 ## Verification
@@ -58,4 +58,4 @@ Phase 2 remains the Replit observation week. Phase 3 remains the first DB persis
 - `npm run build` — passed with existing Browserslist, Firebase dynamic/static import, and large-bundle warnings.
 - `git diff --check` — passed.
 - Last Replit-validated at: not yet validated.
-- Human Replit validation: pending decision for INIT-002 Phase 1 provider/secrets surfaces.
+- Human Replit validation: deferred to INIT-002 Phase 2 observation per Wilson on 2026-06-09.
