@@ -359,6 +359,45 @@ describe("Phase 0 protected routes", () => {
     }
   });
 
+  it("rejects unsupported transcription upload types before provider calls", async () => {
+    const originalOpenAIKey = process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = "test-key";
+
+    try {
+      const server = await startTestServer();
+      const boundary = "laica-test-boundary";
+      const body = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="audio"; filename="not-audio.txt"',
+        "Content-Type: text/plain",
+        "",
+        "not audio bytes",
+        `--${boundary}--`,
+        "",
+      ].join("\r\n");
+
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${boundary}`,
+          Authorization: "Bearer test-token",
+        },
+        body,
+      });
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "Unsupported audio file type" });
+      expect(mocks.createTranscription).not.toHaveBeenCalled();
+    } finally {
+      if (typeof originalOpenAIKey === "string") {
+        process.env.OPENAI_API_KEY = originalOpenAIKey;
+      } else {
+        delete process.env.OPENAI_API_KEY;
+      }
+    }
+  });
+
   it("does not expose raw transcription provider errors to clients", async () => {
     const originalOpenAIKey = process.env.OPENAI_API_KEY;
     process.env.OPENAI_API_KEY = "test-key";

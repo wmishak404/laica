@@ -67,6 +67,29 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
+const allowedTranscriptionMimeTypes = new Set([
+  "audio/aac",
+  "audio/flac",
+  "audio/m4a",
+  "audio/mp3",
+  "audio/mp4",
+  "audio/mpeg",
+  "audio/mpga",
+  "audio/wav",
+  "audio/wave",
+  "audio/webm",
+  "audio/x-m4a",
+  "audio/x-wav",
+]);
+
+function isAllowedTranscriptionMimeType(mimetype: string | undefined): boolean {
+  if (!mimetype) {
+    return false;
+  }
+
+  return allowedTranscriptionMimeTypes.has(mimetype.toLowerCase().split(";")[0].trim());
+}
+
 // Firebase/Google authentication middleware only
 const isAuthenticated: RequestHandler = async (req, res, next) => {
   setPrivateResponseHeaders(res);
@@ -731,6 +754,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Audio file is required' });
       }
 
+      if (!isAllowedTranscriptionMimeType(req.file.mimetype)) {
+        return res.status(400).json({ error: 'Unsupported audio file type' });
+      }
+
       const transcriptionClient = getTranscriptionClient();
       if (!transcriptionClient) {
         return res.status(503).json({
@@ -1050,6 +1077,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Feedback submission endpoint
   app.post('/api/feedback', feedbackIpLimit, async (req, res) => {
     try {
+      if (req.headers.authorization) {
+        setPrivateResponseHeaders(res);
+      }
+
       const feedbackData = insertFeedbackSchema.extend({
         currentPage: z.string().trim().min(1).max(120),
         feedbackText: shortTextSchema,
