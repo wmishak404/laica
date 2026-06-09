@@ -90,9 +90,11 @@ The classifier returns a stable enum and short error code only — never the ori
 | `upstream_5xx` with shared `error_code` across users | Vendor incident — monitor, no action; dashboard signal only |
 | `upstream_auth` cluster | Vendor key rotation or expiry — infra ticket, rotate via Replit secrets |
 | `unknown` cluster | Classifier gap — extend `classifyAiError` with the new shape, ship via EFF-018 channel |
-| Recurring `input_shape_hash` that fails consistently | Engineer manually constructs an `aiInteractions` eval row that exercises the trigger. **No user data leaves the failure stream**; the engineer reproduces from the shape signal alone (preference_length, ingredient_count, image_count, error_class, error_code) |
+| Recurring `input_shape_hash` that fails consistently | Engineer manually constructs a redacted or synthetic INIT-004 fixture candidate that exercises the trigger. **No user data leaves the failure stream**; the engineer reproduces from shape signal alone (`feature`, `route`, `preference_length`, `ingredient_count`, `image_count`, `error_class`, `error_code`, latency, counts, and `input_shape_hash`) |
 
 Phase 5 of [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) appends one worked example per cluster type from real Replit data so the process is non-theoretical.
+
+INIT-004 bridge boundary: `validation`, `unknown`, or response-contract-adjacent clusters can become output-quality eval fixtures only after manual safe reconstruction. `rate_limit`, `network`, `upstream_auth`, `upstream_5xx`, provider outage, secrets, auth, and deployment clusters remain operational telemetry or infra work unless Wilson explicitly accepts a quality-eval framing. Raw prompts, preferences, model outputs, request payloads, transcripts, images, audio, stack traces, headers, tokens, and user identifiers must not be copied from INIT-002 telemetry into INIT-004 artifacts.
 
 ### Admin API exposure
 

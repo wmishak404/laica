@@ -12,6 +12,8 @@ This is the first live run of the daily INIT continuation automation workflow. T
 
 The implemented milestone is the non-persistent telemetry foundation only: request IDs, a server-side AI error classifier/logger, and wiring for the 9 documented AI route catch blocks. No DB schema, admin API, Feedback correlation, eval pipeline, provider behavior, or client UX changes landed.
 
+After PR #160 merged INIT-004, this branch was rebased onto fresh `origin/main` and now preserves the clarified INIT boundary: INIT-002 owns operational AI failures, while INIT-004 owns output-quality evals. The bridge is deliberately narrow: INIT-002 clusters may become INIT-004 fixture candidates only through safe redacted or synthetic reconstruction from operational shape, never by copying raw prompts, preferences, outputs, transcripts, images, audio, stack traces, headers, tokens, user ids, or request payloads.
+
 ## Changes
 
 - `server/requestId.ts`
@@ -41,21 +43,25 @@ INIT-002 Phase 1 is now owned by [PR #159](https://github.com/wmishak404/laica/p
 
 Phase 2 remains the Replit observation week. Phase 3 remains the first DB persistence phase and must still follow EFF-010 before any `ai_error_events` schema or `db:push` work. The logger's stdout shape is intentionally close to the future PD-010 table shape so Phase 3 can reuse the same allowlist instead of inventing a second telemetry contract.
 
+INIT-004 Phase 1 can later consume safe fixture candidates from repeated INIT-002 `validation`, `unknown`, or response-contract clusters. Provider outage, network, upstream auth, upstream 5xx, secrets, deployment, and auth clusters should stay in INIT-002/infra unless Wilson explicitly reframes them as quality eval cases.
+
 ## Open items
 
-- GitHub CI/E2E is pending on PR #159's pushed head.
+- GitHub CI/E2E is pending on PR #159's rebased pushed head.
 - Wilson accepted deferring human Replit validation to Phase 2 observation on 2026-06-09. Phase 2 should still focus on AI provider routes, ElevenLabs speech routes, and secrets/deployment posture.
+- The one-run future-phase exception stops after PR #159 evidence/merge approval because INIT-002 Phase 2 is a Replit observation week and requires Wilson/Replit-side observation rather than local implementation.
 - Phase 2 observation and all DB/admin/eval phases remain untouched.
 
 ## Verification
 
 - Base refreshed: yes.
-- Current base: `origin/main` at `180960bcb85005447a618154a1eaf300d126746e`.
+- Current base: `origin/main` at `b156c197020679f48137f70d37077646962b4add` after PR #160 merged INIT-004.
 - `npm ci` — passed; 904 packages installed, 0 vulnerabilities.
 - `npx vitest run tests/unit/ai-error-classifier.test.ts tests/unit/ai-errors.test.ts` — passed, 2 files / 7 tests.
-- `npx vitest run tests/unit/ai-error-classifier.test.ts tests/unit/ai-errors.test.ts tests/unit/phase0-security-routes.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-provider-errors.test.ts` — passed, 5 files / 31 tests.
-- `npm run check` — passed.
-- `npm run build` — passed with existing Browserslist, Firebase dynamic/static import, and large-bundle warnings.
-- `git diff --check` — passed.
+- Rebased follow-up validation:
+  - `git diff --check` — passed.
+  - `npx vitest run tests/unit/ai-error-classifier.test.ts tests/unit/ai-errors.test.ts tests/unit/phase0-security-routes.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-provider-errors.test.ts` — passed, 5 files / 31 tests.
+  - `npm run check` — passed.
+  - `npm run build` — passed with existing Browserslist, Firebase dynamic/static import, and large-bundle warnings.
 - Last Replit-validated at: not yet validated.
 - Human Replit validation: deferred to INIT-002 Phase 2 observation per Wilson on 2026-06-09.

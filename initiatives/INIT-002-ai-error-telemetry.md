@@ -13,6 +13,8 @@ INIT-002 sequences the operational AI error telemetry work formerly filed as [EF
 
 As of 2026-06-09, successful or partially successful AI output-quality evals live in [INIT-004](INIT-004-ai-output-quality-evals.md). INIT-002 still owns operational AI failures and safe error-cluster handoff; INIT-004 owns recipe/Slop Bowl/cooking-step quality rubrics, human labels, judge calibration, daily reports, and prompt-candidate workflow.
 
+Bridge rule: INIT-002 may hand a cluster to INIT-004 only as a safe fixture candidate reconstructed from operational shape, such as `feature`, `route`, `error_class`, `error_code`, counts, latency, and `input_shape_hash`. Do not pass raw prompts, preferences, model outputs, images, audio, transcripts, stack traces, headers, tokens, user ids, or full request payloads into INIT-004. Provider outage, auth, network, upstream auth, upstream 5xx, secrets, and deployment clusters usually remain INIT-002/infra work; recurring validation, unknown, or response-contract clusters are the likely bridge candidates after an engineer recreates a redacted or synthetic fixture.
+
 The work is phased so the redaction allowlist is locked before any rows write, and so the field shape is validated against real Replit traffic before committing to a schema:
 
 - Phase 0: INIT-002 hub, [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) redaction policy, active-list updates
@@ -80,6 +82,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 - 2026-05-07 — EFF-018 ([PR #43](https://github.com/wmishak404/laica/pull/43)) merged with a *client-side* classifier in `rateLimitHandler.ts` / `queryClient.ts` and *typed server-side error payloads* in `server/routes.ts` — but no server-side classifier function. Phase 1 now owns building `server/aiErrorClassifier.ts` mirroring EFF-018's wider taxonomy (400/401/403/404/413/429/5xx/network) so the user-facing copy and telemetry stay aligned. This is a clarification of ownership, not a new phase.
 - 2026-06-01 — Automation-backed merge gates now require evidence reports with full reasoning and provenance per [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). When INIT-002 later adds eval-backed gates, each eval result must identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, artifact location, and negative scope.
 - 2026-06-09 — Wilson accepted a separate [INIT-004](INIT-004-ai-output-quality-evals.md) for AI output-quality evals and prompt improvement. INIT-002's eval adjacency is now limited to safe operational error clusters becoming future quality fixtures; INIT-004 owns human-labeled rubrics, calibrated judge metrics, daily quality reporting, and prompt-candidate workflow for successful/partial outputs.
+- 2026-06-09 — After PR #160 merged, PR #159 was rebased onto fresh `origin/main` and the INIT-002/INIT-004 bridge was narrowed to safe fixture reconstruction from operational cluster shape only. Raw telemetry content never becomes eval input.
 
 ## Validation State
 
