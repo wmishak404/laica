@@ -37,13 +37,13 @@ The implemented milestone is the non-persistent telemetry foundation only: reque
 
 ## Impact on other agents
 
-INIT-002 Phase 1 is now owned by `codex/init-002-phase-1-telemetry`. Do not start a second Phase 1 branch unless this PR closes or merges.
+INIT-002 Phase 1 is now owned by [PR #159](https://github.com/wmishak404/laica/pull/159) / `codex/init-002-phase-1-telemetry`. Do not start a second Phase 1 branch unless this PR closes or merges.
 
 Phase 2 remains the Replit observation week. Phase 3 remains the first DB persistence phase and must still follow EFF-010 before any `ai_error_events` schema or `db:push` work. The logger's stdout shape is intentionally close to the future PD-010 table shape so Phase 3 can reuse the same allowlist instead of inventing a second telemetry contract.
 
 ## Open items
 
-- Open a PR and run GitHub CI/E2E on the pushed head.
+- GitHub CI/E2E is pending on PR #159's pushed head.
 - Replit validation is not done. INIT-002 still calls for Replit validation focused on AI provider routes, ElevenLabs speech routes, and secrets/deployment posture before merge unless Wilson accepts a narrower validation lane.
 - Phase 2 observation and all DB/admin/eval phases remain untouched.
 

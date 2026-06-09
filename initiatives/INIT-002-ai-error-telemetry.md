@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-07
 **Current phase:** Phase 1 — Request-ID middleware + structured stdout logger + 9 AI route catch blocks
-**Active PR:** Draft pending from `codex/init-002-phase-1-telemetry`
+**Active PR:** [#159](https://github.com/wmishak404/laica/pull/159)
 **Active branch:** `codex/init-002-phase-1-telemetry`
 
 ## Overview
@@ -25,7 +25,7 @@ The work is phased so the redaction allowlist is locked before any rows write, a
 ## Current Status
 
 **Phase 0 merged** via [PR #41](https://github.com/wmishak404/laica/pull/41) at `cb94f28` on 2026-05-08. The INIT hub, former [EFF-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md), [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and active-list updates in CLAUDE.md / AGENTS.md / `efforts/` / `initiatives/` are now on `main`. No source code landed in Phase 0.
-**Phase 1 implementation is in progress** on `codex/init-002-phase-1-telemetry` from fresh `origin/main`. The branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy (400/401/403/404/413/429/5xx/network), a request-id middleware scoped to `/api/*`, and a structured stdout JSON logger; it wires all three into the 9 AI route catch blocks. No DB persistence lands in Phase 1 — that's Phase 3 after a Replit observation week (Phase 2).
+**Phase 1 implementation is in progress** on [PR #159](https://github.com/wmishak404/laica/pull/159) / `codex/init-002-phase-1-telemetry` from fresh `origin/main`. The branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy (400/401/403/404/413/429/5xx/network), a request-id middleware scoped to `/api/*`, and a structured stdout JSON logger; it wires all three into the 9 AI route catch blocks. No DB persistence lands in Phase 1 — that's Phase 3 after a Replit observation week (Phase 2).
 
 ## Source Docs
 
@@ -49,7 +49,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
 | Phase 0 — INIT hub + PD-010 | Merged | [#41](https://github.com/wmishak404/laica/pull/41) (`cb94f28`) | EFF-019, INIT-002, PD-010, active-list updates landed on `main` 2026-05-08; EFF-019 later resolved into this INIT |
-| Phase 1 — stdout logger + 9 routes | In progress | `codex/init-002-phase-1-telemetry`; draft PR pending | EFF-018 merged via [#43](https://github.com/wmishak404/laica/pull/43). The current Codex branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy, request-id middleware, and JSON stdout logger wired into 9 AI route catch blocks |
+| Phase 1 — stdout logger + 9 routes | In progress | [#159](https://github.com/wmishak404/laica/pull/159) / `codex/init-002-phase-1-telemetry` | EFF-018 merged via [#43](https://github.com/wmishak404/laica/pull/43). The current Codex branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy, request-id middleware, and JSON stdout logger wired into 9 AI route catch blocks |
 | Phase 2 — Replit observation week | Planned | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix |
 | Phase 3 — DB schema + writer | Planned | TBD | `ai_error_events` schema + bounded writer + Replit `db:push` per EFF-010 |
 | Phase 4 — admin APIs | Planned | TBD | `/api/admin/ai-errors/{summary,list,detail,clusters}` mirroring existing admin pattern |
@@ -98,7 +98,7 @@ Any local, CI, Replit automation, or future eval result used as a merge gate mus
 
 ## Current Resume Point
 
-**Phase 1 implementation branch active.** Next agent should continue `codex/init-002-phase-1-telemetry` unless its PR has already merged or been closed. The branch currently owns:
+**Phase 1 implementation branch active.** Next agent should continue [PR #159](https://github.com/wmishak404/laica/pull/159) / `codex/init-002-phase-1-telemetry` unless the PR has already merged or been closed. The branch currently owns:
 1. `server/aiErrorClassifier.ts` — pure `classifyAiError(err, ctx)` returning `{ errorClass, errorCode, httpStatus, retryAfterSeconds, vendor }` using the expanded PD-010 Phase 1 enum.
 2. `server/requestId.ts` — Express middleware scoped to `/api/*`. UUID v4 to `req.requestId`, set `X-Request-Id` response header, and overwrite client-supplied values.
 3. `server/aiErrors.ts` — `logAiError(input)` that writes one JSON line to `console.error` with the [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) allowlist shape. No DB.
