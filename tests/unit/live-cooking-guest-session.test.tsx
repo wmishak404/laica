@@ -164,6 +164,7 @@ describe('LiveCooking guest session boundary', () => {
         },
       ],
       ingredients: [{ name: 'rice' }, { name: 'beans' }],
+      profileFingerprint: 'current-profile',
     }));
 
     render(
@@ -171,6 +172,7 @@ describe('LiveCooking guest session boundary', () => {
         selectedMeal={selectedMeal}
         scheduledTime=""
         onBackToPlanning={vi.fn()}
+        profileFingerprint="current-profile"
       />,
     );
 
@@ -229,6 +231,7 @@ describe('LiveCooking guest session boundary', () => {
         },
       ],
       ingredients: [{ name: 'rice' }, { name: 'beans' }],
+      profileFingerprint: 'current-profile',
     }));
 
     render(
@@ -236,11 +239,51 @@ describe('LiveCooking guest session boundary', () => {
         selectedMeal={selectedMeal}
         scheduledTime=""
         onBackToPlanning={vi.fn()}
+        profileFingerprint="current-profile"
       />,
     );
 
     expect(await screen.findByText('Finish with lime.')).toBeTruthy();
     expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
     expect(mocks.startCookingSession).not.toHaveBeenCalled();
+  });
+
+  it('drops saved step trays when the profile fingerprint no longer matches', async () => {
+    window.localStorage.setItem('laica_cooking_session:guest:guest-user-id', JSON.stringify({
+      recipeName: 'Guest Rice Bowl',
+      recipeId: 'meal-1',
+      currentStepIndex: 1,
+      timer: 0,
+      isTimerRunning: false,
+      savedAt: Date.now(),
+      steps: [
+        {
+          id: 1,
+          instruction: 'Stale step from the old pantry.',
+          tips: 'Old tip.',
+          visualCues: 'Old cue.',
+          commonMistakes: 'Old mistake.',
+          safetyLevel: 'minor',
+        },
+      ],
+      ingredients: [{ name: 'old pantry item' }],
+      profileFingerprint: 'old-profile',
+    }));
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+        profileFingerprint="current-profile"
+      />,
+    );
+
+    expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
+    expect(screen.queryByText('Stale step from the old pantry.')).toBeNull();
+    expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(1);
+    const rewrittenSession = JSON.parse(window.localStorage.getItem('laica_cooking_session:guest:guest-user-id') || '{}');
+    expect(rewrittenSession.profileFingerprint).toBe('current-profile');
+    expect(rewrittenSession.steps?.[0]?.instruction).toBe('Warm the rice and beans.');
   });
 });

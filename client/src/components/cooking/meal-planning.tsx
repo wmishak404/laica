@@ -17,9 +17,9 @@ import {
   getAllStapleCandidatesForCuisines,
 } from '@shared/planning-staples';
 import { mergeUniqueEntries, normalizeEntryKey } from '@/lib/entryParsing';
+import { MEAL_PLANNING_STORAGE_KEY, createPlanningProfileFingerprint } from '@/lib/planningCache';
 import { ArrowLeft, ChefHat, CheckCircle2, Clock, Plus, RefreshCw, Sparkles, Utensils, X } from 'lucide-react';
 
-const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
 const NO_PREFERENCE = 'No preference';
 
 type PlanningStep = 'time' | 'cuisine' | 'staples' | 'tickets' | 'prep-tray';
@@ -32,6 +32,7 @@ interface SavedMealPlanningSession {
   recommendations: RecipeRecommendation[];
   selectedMeal: RecipeRecommendation | null;
   savedAt: number;
+  profileFingerprint: string;
 }
 
 interface LockedStapleView {
@@ -182,12 +183,17 @@ export default function MealPlanning({
     () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
     [sessionScopeKey],
   );
+  const profileFingerprint = useMemo(
+    () => createPlanningProfileFingerprint(userProfile),
+    [userProfile],
+  );
 
   const validateSession = (data: any): SavedMealPlanningSession | null => {
     try {
       if (typeof data !== 'object' || data === null) return null;
       if (!isPlanningStep(data.currentStep)) return null;
       if (typeof data.savedAt !== 'number') return null;
+      if (data.profileFingerprint !== profileFingerprint) return null;
 
       const recommendations = Array.isArray(data.recommendations)
         ? data.recommendations.filter((recipe: any) =>
@@ -213,6 +219,7 @@ export default function MealPlanning({
         recommendations,
         selectedMeal,
         savedAt: data.savedAt,
+        profileFingerprint: data.profileFingerprint,
       };
     } catch {
       return null;
@@ -251,7 +258,7 @@ export default function MealPlanning({
       console.error('Error loading saved planning session:', error);
       localStorage.removeItem(mealPlanningStorageKey);
     }
-  }, [mealPlanningStorageKey, onPlanningTimeChange]);
+  }, [mealPlanningStorageKey, onPlanningTimeChange, profileFingerprint]);
 
   useEffect(() => {
     if (sessionRestored) {
@@ -270,6 +277,7 @@ export default function MealPlanning({
       recommendations: recommendations.slice(0, 3),
       selectedMeal,
       savedAt: Date.now(),
+      profileFingerprint,
     };
 
     localStorage.setItem(mealPlanningStorageKey, JSON.stringify(session));
@@ -282,6 +290,7 @@ export default function MealPlanning({
     selectedMeal,
     sessionRestored,
     mealPlanningStorageKey,
+    profileFingerprint,
   ]);
 
   useEffect(() => {

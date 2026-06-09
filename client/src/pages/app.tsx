@@ -31,6 +31,13 @@ import {
   type PlanningTimeValue,
 } from '@shared/planning';
 import { mergeUniqueEntries } from '@/lib/entryParsing';
+import {
+  ACTIVE_COOKING_PLAN_STORAGE_KEY,
+  clearScopedCookingSession,
+  clearScopedMealPlanningSession,
+  createPlanningProfileFingerprint,
+  planningProfileFingerprintsMatch,
+} from '@/lib/planningCache';
 import { hasAnySavedProfileSignal, hasCompletedCookingProfile } from '@/lib/profileReadiness';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { OPEN_FEEDBACK_EVENT } from '@/lib/rateLimitHandler';
@@ -54,7 +61,6 @@ const createEmptyUserProfile = (): UserProfile => ({
 const guestProfileStorageKey = (userId: string) => `laica:guest-profile:${userId}`;
 const GUEST_PROMOTION_CONFIRMATION = 'Account successfully connected and signed in. Your kitchen is saved.';
 const GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY = 'laica:guest-promotion-confirmation';
-const ACTIVE_COOKING_PLAN_STORAGE_KEY = 'laica_active_cooking_plan';
 const ACTIVE_COOKING_PLAN_MAX_AGE_MS = 4 * 60 * 60 * 1000;
 
 function readGuestPromotionConfirmation() {
@@ -134,6 +140,7 @@ interface SavedActiveCookingPlan {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
   savedAt: number;
+  profileFingerprint?: string;
 }
 
 type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'history' | 'slop-bowl';
@@ -183,7 +190,7 @@ function validateRecipeRecommendation(value: unknown): RecipeRecommendation | nu
   };
 }
 
-function readActiveCookingPlan(storageKey: string): SavedActiveCookingPlan | null {
+function readActiveCookingPlan(storageKey: string, profileFingerprint: string): SavedActiveCookingPlan | null {
   if (typeof window === 'undefined') return null;
 
   try {
@@ -194,27 +201,35 @@ function readActiveCookingPlan(storageKey: string): SavedActiveCookingPlan | nul
     const selectedMeal = validateRecipeRecommendation(parsed.selectedMeal);
     const savedAt = typeof parsed.savedAt === 'number' ? parsed.savedAt : 0;
     const scheduledTime = typeof parsed.scheduledTime === 'string' ? parsed.scheduledTime : '';
+    const savedProfileFingerprint = typeof parsed.profileFingerprint === 'string' ? parsed.profileFingerprint : '';
     const isRecent = Date.now() - savedAt < ACTIVE_COOKING_PLAN_MAX_AGE_MS;
+    const matchesProfile = savedProfileFingerprint === profileFingerprint;
 
-    if (!selectedMeal || !isRecent) {
+    if (!selectedMeal || !isRecent || !matchesProfile) {
       window.localStorage.removeItem(storageKey);
       return null;
     }
 
-    return { selectedMeal, scheduledTime, savedAt };
+    return { selectedMeal, scheduledTime, savedAt, profileFingerprint: savedProfileFingerprint };
   } catch {
     window.localStorage.removeItem(storageKey);
     return null;
   }
 }
 
-function writeActiveCookingPlan(storageKey: string, selectedMeal: RecipeRecommendation, scheduledTime: string) {
+function writeActiveCookingPlan(
+  storageKey: string,
+  selectedMeal: RecipeRecommendation,
+  scheduledTime: string,
+  profileFingerprint: string,
+) {
   if (typeof window === 'undefined') return;
 
   const plan: SavedActiveCookingPlan = {
     selectedMeal,
     scheduledTime,
     savedAt: Date.now(),
+    profileFingerprint,
   };
   window.localStorage.setItem(storageKey, JSON.stringify(plan));
 }
@@ -360,6 +375,10 @@ export default function MobileApp() {
   );
   const planningTimeStorageKey = `${PLANNING_TIME_STORAGE_KEY}:${planningStateScopeKey}`;
   const activeCookingPlanStorageKey = `${ACTIVE_COOKING_PLAN_STORAGE_KEY}:${planningStateScopeKey}`;
+  const planningProfileFingerprint = useMemo(
+    () => createPlanningProfileFingerprint(userProfile),
+    [userProfile],
+  );
   const [lastPlanningTime, setLastPlanningTime] = useState<PlanningTimeValue>(() =>
     readPlanningTime(planningTimeStorageKey)
   );
@@ -417,7 +436,10 @@ export default function MobileApp() {
       if (!hasLoadedFromDb) {
         setHasLoadedFromDb(true);
         const isProfileComplete = hasCompletedCookingProfile(profileFromBrowser);
-        const activeCookingPlan = isProfileComplete ? readActiveCookingPlan(activeCookingPlanStorageKey) : null;
+        const profileFingerprint = createPlanningProfileFingerprint(profileFromBrowser);
+        const activeCookingPlan = isProfileComplete
+          ? readActiveCookingPlan(activeCookingPlanStorageKey, profileFingerprint)
+          : null;
 
         if (activeCookingPlan) {
           setSelectedMeal(activeCookingPlan.selectedMeal);
@@ -455,7 +477,10 @@ export default function MobileApp() {
 
         // Check if profile is complete
         const isProfileComplete = hasCompletedCookingProfile(profileFromDb);
-        const activeCookingPlan = isProfileComplete ? readActiveCookingPlan(activeCookingPlanStorageKey) : null;
+        const profileFingerprint = createPlanningProfileFingerprint(profileFromDb);
+        const activeCookingPlan = isProfileComplete
+          ? readActiveCookingPlan(activeCookingPlanStorageKey, profileFingerprint)
+          : null;
 
         if (activeCookingPlan) {
           setSelectedMeal(activeCookingPlan.selectedMeal);
@@ -482,6 +507,14 @@ export default function MobileApp() {
     }
     setIsLoadingProfile(false);
   }, [user?.id, isGuest, dbProfile, isLoadingDbProfile, hasLoadedFromDb, activeCookingPlanStorageKey]);
+
+  const clearScopedRecipeState = useCallback(() => {
+    clearActiveCookingPlan(activeCookingPlanStorageKey);
+    clearScopedMealPlanningSession(planningStateScopeKey);
+    clearScopedCookingSession(planningStateScopeKey);
+    setSelectedMeal(null);
+    setScheduledTime('');
+  }, [activeCookingPlanStorageKey, planningStateScopeKey]);
 
   // Save profile to database
   const saveProfileToDb = useCallback(async (profile: UserProfile) => {
@@ -676,7 +709,7 @@ export default function MobileApp() {
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
-    writeActiveCookingPlan(activeCookingPlanStorageKey, meal, scheduledTime);
+    writeActiveCookingPlan(activeCookingPlanStorageKey, meal, scheduledTime, planningProfileFingerprint);
     setSelectedMeal(meal);
     setScheduledTime(scheduledTime);
     setCurrentPhase('cooking');
@@ -736,9 +769,19 @@ export default function MobileApp() {
   };
 
   const handleSettingsProfileUpdate = useCallback((updatedProfile: UserProfile) => {
+    const shouldInvalidateRecipeState = !planningProfileFingerprintsMatch(userProfile, updatedProfile);
+
     setUserProfile(updatedProfile);
-    saveProfile(updatedProfile);
-  }, [saveProfile]);
+
+    if (shouldInvalidateRecipeState) {
+      clearScopedRecipeState();
+      setShowPlanningChoice(true);
+    }
+
+    if (isGuest) {
+      saveProfile(updatedProfile);
+    }
+  }, [clearScopedRecipeState, isGuest, saveProfile, userProfile]);
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile);
@@ -1247,6 +1290,7 @@ export default function MobileApp() {
             scheduledTime={scheduledTime}
             onBackToPlanning={handleBackToPlanning}
             onCookingComplete={() => clearActiveCookingPlan(activeCookingPlanStorageKey)}
+            profileFingerprint={planningProfileFingerprint}
           />
         ) : null;
         

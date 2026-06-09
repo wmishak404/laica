@@ -19,8 +19,7 @@ import { calculateTimeDomainVolume, isOperationalMessage, VOICE_RECORDING_SILENC
 import { useStartCookingSession, useUpdateCookingSession, useCompleteCookingSession } from '@/hooks/useCookingSession';
 import { useToast } from '@/hooks/use-toast';
 import { isGuestUser, useAuth } from '@/hooks/useAuth';
-
-const COOKING_SESSION_STORAGE_KEY = 'laica_cooking_session';
+import { COOKING_SESSION_STORAGE_KEY } from '@/lib/planningCache';
 
 interface SavedCookingSession {
   recipeName: string;
@@ -33,6 +32,7 @@ interface SavedCookingSession {
   ingredients?: RecipeIngredient[];
   cookingSessionId?: number;
   cookingStartedAt?: string;
+  profileFingerprint?: string;
 }
 
 interface RecipeStep {
@@ -72,9 +72,16 @@ interface LiveCookingProps {
   scheduledTime: string;
   onBackToPlanning: () => void;
   onCookingComplete?: () => void;
+  profileFingerprint?: string;
 }
 
-export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlanning, onCookingComplete }: LiveCookingProps) {
+export default function LiveCooking({
+  selectedMeal,
+  scheduledTime,
+  onBackToPlanning,
+  onCookingComplete,
+  profileFingerprint,
+}: LiveCookingProps) {
   const { user } = useAuth();
   const isGuest = isGuestUser(user);
   const cookingSessionScopeKey = useMemo(
@@ -147,6 +154,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       const cookingStartedAt = typeof data.cookingStartedAt === 'string' && !Number.isNaN(Date.parse(data.cookingStartedAt))
         ? data.cookingStartedAt
         : undefined;
+      const savedProfileFingerprint = typeof data.profileFingerprint === 'string'
+        ? data.profileFingerprint
+        : undefined;
       const steps = Array.isArray(data.steps)
         ? data.steps.map((step: unknown, index: number): RecipeStep | null => {
           if (typeof step !== 'object' || step === null) return null;
@@ -198,6 +208,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         ingredients,
         cookingSessionId,
         cookingStartedAt,
+        profileFingerprint: savedProfileFingerprint,
       };
     } catch {
       return null;
@@ -223,8 +234,9 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
         // Only restore if session is for the same recipe and less than 4 hours old
         const isRecent = Date.now() - session.savedAt < 4 * 60 * 60 * 1000;
         const isSameRecipe = session.recipeName === selectedMeal.recipeName && session.recipeId === selectedMeal.id;
+        const matchesProfile = !profileFingerprint || session.profileFingerprint === profileFingerprint;
         
-        if (isRecent && isSameRecipe) {
+        if (isRecent && isSameRecipe && matchesProfile) {
           setCurrentStepIndex(session.currentStepIndex);
           setTimer(session.timer);
           setIsTimerRunning(session.isTimerRunning);
@@ -238,8 +250,8 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
             sessionStepsRestoredRef.current = true;
           }
           sessionRestoredRef.current = true;
-        } else if (!isRecent) {
-          // Only clear if session is stale (expired), not if it's a different recipe
+        } else if (!isRecent || !matchesProfile) {
+          // Only clear if session is stale or based on old profile inputs, not if it's a different recipe
           // This preserves sessions for other recipes the user might return to
           localStorage.removeItem(cookingSessionStorageKey);
         }
@@ -250,7 +262,7 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       console.error('Error loading saved cooking session:', error);
       localStorage.removeItem(cookingSessionStorageKey);
     }
-  }, [cookingSessionStorageKey, selectedMeal.recipeName, selectedMeal.id]);
+  }, [cookingSessionStorageKey, selectedMeal.recipeName, selectedMeal.id, profileFingerprint]);
 
   // Save cooking session whenever state changes
   useEffect(() => {
@@ -281,9 +293,10 @@ export default function LiveCooking({ selectedMeal, scheduledTime, onBackToPlann
       ingredients: loadedRecipeIngredients,
       cookingSessionId: cookingSessionId ?? undefined,
       cookingStartedAt: cookingStartTime?.toISOString(),
+      profileFingerprint,
     };
     localStorage.setItem(cookingSessionStorageKey, JSON.stringify(session));
-  }, [currentStepIndex, timer, isTimerRunning, loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId, cookingStartTime, selectedMeal.recipeName, selectedMeal.id, cookingSessionStorageKey]);
+  }, [currentStepIndex, timer, isTimerRunning, loadedRecipeSteps, loadedRecipeIngredients, cookingSessionId, cookingStartTime, selectedMeal.recipeName, selectedMeal.id, cookingSessionStorageKey, profileFingerprint]);
 
   // Clear cooking session when navigating back or completing
   const clearCookingSession = () => {

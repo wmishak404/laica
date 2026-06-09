@@ -336,8 +336,10 @@ export default function UserSettings({
 
       try {
         await resetPantryMutation.mutateAsync();
+        const updatedProfile = { ...profile, pantryIngredients: [] };
         updateInventoryItems('pantry', []);
         clearReviewEntries('pantry');
+        onProfileUpdate(updatedProfile);
         toast({
           title: "Pantry Reset",
           description: "Your pantry has been completely cleared. You can now rescan or add ingredients fresh.",
@@ -371,11 +373,13 @@ export default function UserSettings({
       }
 
       try {
+        const updatedProfile = { ...profile, kitchenEquipment: [] };
         await updateProfileMutation.mutateAsync({ 
           kitchenEquipment: [] 
         });
         updateInventoryItems('kitchen', []);
         clearReviewEntries('kitchen');
+        onProfileUpdate(updatedProfile);
         toast({
           title: "Equipment Reset",
           description: "Your equipment list has been cleared.",
@@ -412,6 +416,7 @@ export default function UserSettings({
         pantryIngredients: profile.pantryIngredients 
       });
       clearReviewEntries('pantry');
+      onProfileUpdate(profile);
       toast({
         title: "Pantry saved!",
         description: "Your pantry ingredients have been updated successfully."
@@ -447,6 +452,7 @@ export default function UserSettings({
         kitchenEquipment: profile.kitchenEquipment 
       });
       clearReviewEntries('kitchen');
+      onProfileUpdate(profile);
       toast({
         title: "Equipment saved!",
         description: "Your kitchen equipment has been updated successfully."
@@ -476,6 +482,7 @@ export default function UserSettings({
         cookingSkill: profile.cookingSkill,
         dietaryRestrictions: profile.dietaryRestrictions
       });
+      onProfileUpdate(profile);
       toast({
         title: "Profile saved!",
         description: "Your cooking profile has been updated successfully."
