@@ -328,6 +328,13 @@ describe('MobileApp planning choice pantry status', () => {
     expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: hub; mode: session');
   });
 
+  it('keeps guest promotion out of the bottom nav while leaving it in the menu', async () => {
+    await renderGuestPlanningChoice(makeProfile());
+
+    expect(screen.queryByRole('button', { name: /save progress/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /sign up save your pantry and profile/i })).toBeTruthy();
+  });
+
   it('shows guest sign-up separately from the start-over action', async () => {
     await renderGuestPlanningChoice(makeProfile());
 

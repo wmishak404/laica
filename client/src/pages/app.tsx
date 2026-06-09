@@ -1186,20 +1186,6 @@ export default function MobileApp() {
             <ChefHat className="h-6 w-6" aria-hidden="true" />
           </Button>
 
-          {isGuest && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleGuestSignUp}
-              className="app-bottom-button"
-              disabled={isPromotingGuest}
-              aria-label="Save progress"
-              title={isPromotingGuest ? guestPromotionLabel : 'Save progress'}
-            >
-              <UserPlus className="h-6 w-6" aria-hidden="true" />
-            </Button>
-          )}
-
           {renderAppMenu(
             <Button
               variant="ghost"

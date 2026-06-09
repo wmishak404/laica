@@ -67,6 +67,10 @@ Wilson validated the first Google promotion slice in Replit and accepted the pro
 
 PR #126 merged the first Google promotion slice as `8282d5193f6eeef50eeecdff9f91bd029bbcd561`. The merged implementation preserves Pantry, Kitchen, Cooking Profile, and favorite chefs through Google conversion, asks before importing browser-local setup into an existing Google credential path, keeps Sign up separate from Start over, and leaves completed guest cooks out of durable History. GitHub Actions passed Dependency Audit, Secret Scan, typecheck/build/unit, and guest E2E smoke at PR head `f2eb44d`; Wilson's Replit validation reached runtime code head `2a4ae75`.
 
+### 2026-06-09 guest bottom-nav correction
+
+Wilson rejected the guest-only `Save progress` bottom-nav shortcut as an unapproved durable navigation addition. Guest promotion remains available through the planning reminder and the app menu action, but the bottom nav should not add a one-function guest promotion icon unless Wilson explicitly approves that navigation change.
+
 ## Decision
 
 ### Public entry model
@@ -177,6 +181,7 @@ Future validation of the first anonymous-to-Google promotion slice should prove:
 - Guest menu/header copy reinforces browser-local progress without implying a durable anonymous account.
 - Settings menu/screen/toast copy stays concise; do not repeat `this browser` on every Settings surface.
 - Guest users have both a preservation action (`Sign up` / save progress) and an abandon action (`Start over`).
+- Guest promotion can appear in the app menu and planning reminder, but not as a guest-only bottom-nav shortcut without explicit Wilson approval.
 - Canceling or closing the Google popup uses calm cancel copy rather than a failure tone and must not leave the UI stuck in a busy state. Firebase may take a few seconds to report popup closure; avoid brittle window-focus heuristics unless the delay becomes a blocker.
 - New Google sign-up preserves Pantry, Kitchen, Cooking Profile, and favorite chefs after refresh.
 - Existing Google credential/import flow asks before importing the browser setup.
