@@ -20,7 +20,8 @@ The work is docs-only. No runtime behavior, schema, prompt, or eval harness chan
 - `docs/evals/intakes/TEMPLATE.md` - required normalized intake-record structure for future eval imports.
 - `docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md` - normalized OpenAI Platform eval intake record.
 - `docs/evals/intakes/arize-open-coding-2025-11-07.md` - normalized Arize open-coding intake record.
-- Updated INIT-004 and `docs/evals/README.md` with the current end-to-end eval operating loop: register evidence, normalize intakes, build taxonomy, run deterministic checks first, create human labels, calibrate narrow LLM judges, split golden/regression from production/staged sampling, report routinely, and turn failures into controlled prompt candidates.
+- `docs/evals/workflow.md` - durable eval operating model: register evidence, normalize intakes, build taxonomy, run deterministic checks first, create human labels, calibrate narrow LLM judges, split golden/regression from production/staged sampling, report routinely, and turn failures into controlled prompt candidates.
+- Trimmed INIT-004 so it links to the durable workflow and focuses on build scope, current signals, phases, PR status, and resume point.
 - `initiatives/registry.md` - added INIT-004 to the searchable registry.
 - `initiatives/README.md` - added INIT-004 to the current initiatives list.
 - `AGENTS.md` and `CLAUDE.md` - added INIT-004 to active INIT read-before lists.
@@ -58,7 +59,7 @@ Wilson later clarified that the two seed runs should be easy to compare and shou
 
 Wilson then asked whether complete structured datasets should live in the INIT, because INITs can close. Follow-up created `docs/evals/` as the durable home. INIT-004 now links to that registry and keeps only initiative context plus a compact current-trend summary.
 
-Wilson asked for another cleanup pass after `docs/evals/` existed. Follow-up removed stale INIT placeholders (`Active PR: None`, local-only PR table row), linked PR #160 in INIT-004/registry, and added the whole-eval operating loop to INIT-004 and `docs/evals/README.md`.
+Wilson asked for another cleanup pass after `docs/evals/` existed, then clarified that the eval discipline should live outside INIT-004 because the INIT should stay focused on build work. Follow-up removed stale INIT placeholders (`Active PR: None`, local-only PR table row), linked PR #160 in INIT-004/registry, moved the full eval operating model into `docs/evals/workflow.md`, and trimmed INIT-004 to build context.
 
 ## Open items
 

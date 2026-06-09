@@ -7,6 +7,7 @@ INIT files are initiative hubs. They can close. Eval evidence that should remain
 ## What Lives Here
 
 - `registry.md` - durable index of eval runs, open-coding imports, judge runs, human review batches, and daily reports.
+- `workflow.md` - durable operating model for running, measuring, reporting, and acting on evals.
 - `intakes/` - normalized records for each eval intake listed in the registry.
 - `intakes/TEMPLATE.md` - required structure for future intake records.
 
@@ -38,6 +39,8 @@ When raw artifacts remain local or external, the registry and intake record shou
 - Use feature phase docs, product decisions, or active Efforts when an eval finding changes product behavior, not only measurement.
 
 ## Standard Eval Loop
+
+See [workflow.md](workflow.md) for the full durable process. In short:
 
 1. Register the run/import/report in `registry.md`.
 2. Normalize the intake under `intakes/` when it changes rubric, fixtures, metrics, reporting, or prompts.

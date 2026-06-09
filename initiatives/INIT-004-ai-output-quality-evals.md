@@ -27,15 +27,14 @@ The relationship is **parallel-safe with a soft data link**:
 Phase 0 is a docs-only filing step. Wilson provided Arize open-coding data after the initial filing. The seed inputs are:
 
 - Wilson's 2026-06-09 direction to create a standalone INIT-004 rather than folding the work into INIT-002.
-- Wilson-provided evaluation methodology notes PDF, read locally and summarized below.
-- Wilson-provided OpenAI Platform eval export from a prior run. The user described the run as June 4, 2025; the file name and run export timestamp indicate 2026-06-04, so future work should preserve exact dates instead of relying on the remembered year.
-- Wilson-provided Arize prompt, prompt template, dataset input field list, and open-coding notes from 2025-11-07.
+- Durable eval discipline and seed records now live in [docs/evals/](../docs/evals/README.md), not inside this INIT.
 - Good/bad examples already embedded in `server/openai.ts` prompt text from earlier open coding.
 - [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) negative cuisine-fit fixtures for Chinese, Indian, and Thai requests under constrained pantry conditions.
 
 ## Source Docs
 
 - [AI Eval Evidence README](../docs/evals/README.md) - durable home for eval registry, intake records, fixture candidates, and reporting references after INIT closeout
+- [AI Eval Workflow](../docs/evals/workflow.md) - durable operating model for running, measuring, reporting, and acting on evals
 - [AI Eval Intake Registry](../docs/evals/registry.md) - durable index of eval runs, open-coding imports, judge runs, human review batches, and daily reports
 - [EFF-022 - Cross-cuisine recommendation prompts](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) - active prompt/eval follow-up for cuisine-fit and pantry-grounded cross-cuisine behavior
 - [INIT-002 - AI Error Telemetry & Eval Monitoring](INIT-002-ai-error-telemetry.md) - operational error telemetry and later safe cluster handoff
@@ -61,65 +60,29 @@ Known Phase 1 audit questions:
 - The legacy OpenAI Platform export returned one recipe object, while current product surfaces commonly return three suggestions under `recipes[]` or one Slop Bowl recipe under `recipe`. The harness must score current product contracts rather than only the legacy shape.
 - Deterministic contract checks should sit beside LLM-as-judge checks. The legacy export included at least one invalid JSON output that still passed all LLM criteria, so parse/schema checks cannot be delegated to a judge model.
 
-## Assets And Seed Data
+## Durable Eval System
 
-| Asset | Status | Phase 0 signal |
-|---|---|---|
-| Wilson evaluation methodology notes PDF | Local artifact, not committed | Industry-standard workflow: Analyze -> Measure -> Improve; start with real-trace open coding; build a failure taxonomy; use narrow binary judges; calibrate judges against human labels using true positive and true negative rates; report uncertainty |
-| OpenAI Platform JSONL export | Local artifact, not committed | 25 eval items from `evalrun_685361470e9c819195a768074ef126cd`; generated model `gpt-4.1-2025-04-14`; grader model `o3-mini-2025-01-31`; 149/150 grader passes; one max-time failure; at least one invalid JSON output still passed judge checks |
-| Arize open-coding data | Provided in Wilson chat on 2026-06-09, not committed raw | Historical prompt asked for pantry-first Markdown recipe suggestions from pantry/cuisine/proficiency/time/diet/nutrition/equipment fields; notes include 18 coding rows across 16 unique examples from 2025-11-07 |
-| `server/openai.ts` examples | In repo | Existing prompt examples came from earlier eval/open-coding work and need a cleaner source-of-truth link |
-| EFF-022 fixtures | In repo | Negative examples where explicit Chinese/Indian/Thai cuisine requests were weakly honored under constrained pantry conditions |
+INIT-004 builds on the durable eval system but does not own it permanently. Complete normalized intake records and long-lived process guidance live in [`docs/evals/`](../docs/evals/README.md) so they remain discoverable after INIT-004 closes.
 
-Do not commit raw local exports or methodology-note files without a separate privacy/source decision. The INIT should carry only summarized findings, fixture identities, and paths in handoffs when needed for same-machine agent continuity.
-
-## Durable Eval Evidence Home
-
-The INIT is the active initiative hub, not the permanent dataset ledger. Complete normalized intake records live in [`docs/evals/`](../docs/evals/README.md) so they remain discoverable after INIT-004 closes.
-
+- Workflow: [docs/evals/workflow.md](../docs/evals/workflow.md)
 - Durable registry: [docs/evals/registry.md](../docs/evals/registry.md)
 - Intake template: [docs/evals/intakes/TEMPLATE.md](../docs/evals/intakes/TEMPLATE.md)
 - OpenAI Platform seed record: [openai-platform-evalrun-685361470e9c819195a768074ef126cd](../docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md)
 - Arize seed record: [arize-open-coding-2025-11-07](../docs/evals/intakes/arize-open-coding-2025-11-07.md)
 
-Current seed intakes:
+## Current Build Signals
 
-| Intake id | Durable record | Trend tags | Current status |
+The seed records point to the first implementation priorities for INIT-004:
+
+| Signal | Source | Build implication |
 |---|---|---|---|
-| `openai-platform-evalrun-685361470e9c819195a768074ef126cd` | [record](../docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md) | `structure-contract`, `max-time`, `judge-calibration-gap`, `legacy-contract-drift` | Indexed seed run; 149/150 uncalibrated grader passes; one max-time failure; one invalid JSON case still passed LLM judges |
-| `arize-open-coding-2025-11-07` | [record](../docs/evals/intakes/arize-open-coding-2025-11-07.md) | `food-safety`, `proficiency-fit`, `equipment-fit`, `max-time`, `cuisine-pantry-tradeoff`, `structure-contract` | Indexed seed intake; clusters identified for food safety, proficiency fit, equipment, time, cuisine/pantry tradeoff, and format fragility |
+| Structure/contract fragility | [OpenAI Platform seed](../docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md), [Arize seed](../docs/evals/intakes/arize-open-coding-2025-11-07.md) | Add deterministic JSON/schema/current-response-shape checks before any LLM judge. |
+| Max-time failures | Both seed records | Add deterministic max-time checks and clarify that rounding cannot exceed the user's max unless Wilson accepts an explicit product exception. |
+| Judge calibration gap | Both seed records | Build a Wilson-labeled gold set and report TPR/TNR before trusting LLM-judge pass rates. |
+| Food safety, proficiency, and equipment misses | Arize seed | Add rubric labels and judge checks for raw-protein safety, beginner/intermediate step fit, and unlisted equipment assumptions. |
+| Cuisine/pantry tradeoff | Arize seed and [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) | Separate pantry-first usefulness from cuisine authenticity so prompt fixes do not over-correct into shopping-list behavior. |
 
-Current cross-intake trend summary:
-
-| Trend | OpenAI Platform seed | Arize seed | First-rubric implication |
-|---|---|---|---|
-| Structure/contract fragility | Invalid JSON passed LLM judging | Markdown extraction produced fragile recipe-title values | Deterministic parse/schema checks must run before any judge score |
-| Max-time adherence | One 25-minute max returned 30 minutes | One 25-minute max returned 30 minutes | Add deterministic max-time check and clarify rounding cannot exceed max unless Wilson accepts an explicit exception |
-| Judge calibration gap | Automated judge pass rates lack human TPR/TNR | Human notes lack automated judge observations | Build Wilson-labeled gold set, then report TPR/TNR before trusting LLM judges |
-| Food safety and doneness | Automated food-safety grader passed all items | Human notes found raw beef/chicken safety gaps | Food-safety judge needs human calibration and likely stricter raw-protein criteria |
-| Proficiency and equipment fit | Automated required-skill grader passed all items | Human notes found beginner complexity and missing-equipment assumptions | Add criterion-level human labels for skill/equipment fit; deterministic equipment term checks where practical |
-| Cuisine/pantry tradeoff | No strong cuisine-failure signal from this run; legacy ingredient relevance passed | Human notes accepted some pantry-first adaptation but flagged authenticity nuance | Rubric should separate pantry-first usefulness from cuisine authenticity rather than treating either as absolute |
-
-These trends reinforce that the first rubric should include both positive examples and failure examples. A useful pass set is not only "no issues"; it should preserve why constrained-pantry examples were acceptable so future prompts do not over-correct into unnecessary shopping lists.
-
-## How We Will Run Evals
-
-The INIT-004 eval loop is:
-
-1. **Register the evidence.** Every eval run, open-coding import, human review batch, judge run, daily report, or production/staged sample gets a stable row in [docs/evals/registry.md](../docs/evals/registry.md). If it affects rubric, fixtures, metrics, reporting, or prompts, it also gets a normalized record under [docs/evals/intakes/](../docs/evals/intakes/) using the template.
-2. **Normalize before interpreting.** Each intake record captures source summary, input schema, prompt/model/evaluator versions, sample size, positive definition, trend tags, raw artifact handling, privacy posture, metrics, failure clusters, positive examples worth preserving, fixture candidates, and open questions. Raw exports stay local/external unless a privacy/source decision explicitly allows committing them.
-3. **Start with human-readable failure taxonomy.** Use Wilson-labeled examples, Arize open-coding clusters, the OpenAI Platform export, EFF-022 cuisine-fit failures, and current app traces to name failure modes before writing broad metrics. The first known trend families are structure/contract, max-time, food-safety, proficiency fit, equipment fit, cuisine/pantry tradeoff, and judge-calibration gap.
-4. **Implement deterministic checks first.** Schema/JSON validity, current response-shape fit, max-time adherence, required field presence, suggestion count, and obvious equipment/ingredient contract checks should run before any LLM judge. The seed evidence already shows that LLM judges can miss invalid structure.
-5. **Create criterion-level human labels.** Wilson-first labels are acceptable for v1, but labels must be per criterion rather than only "good" or "bad." Positive examples stay in the dataset so fixes do not over-correct useful pantry-first behavior into unnecessary shopping-list behavior.
-6. **Use narrow LLM judges only after rubric shape is clear.** Each judge should evaluate one criterion or tightly related criterion family. Broad aggregate judge scores are triage at best and should not become product-quality truth.
-7. **Calibrate judges against human labels.** Report observed judge pass rate, human label pass rate when available, TPR, TNR, corrected pass rate when the denominator is valid, confidence interval, sample size, prompt/model/evaluator versions, and negative scope. Until TPR/TNR exist, mark LLM-judge metrics as uncalibrated.
-8. **Run two evidence lanes.** Golden/regression fixtures protect known contracts in CI or scheduled automation. Production/staged sampling estimates real output quality only after privacy handling, source fields, and raw artifact policy are explicit.
-9. **Report compactly and routinely.** V1 reporting should be daily automation, not an admin dashboard. Reports should include criterion rates, calibration status, sample size, trend deltas, top clusters, fixture/report ids, privacy posture, and negative scope, and should be indexed through `docs/evals/registry.md`.
-10. **Turn failures into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
-
-This loop is intentionally evidence-first: the durable eval registry records what was observed, INIT-004 records the current initiative plan, and implementation phases convert those records into checks, labels, reports, and prompt candidates.
-
-## Eval Scope
+## Build Scope
 
 V1 covers these output surfaces:
 
@@ -136,88 +99,23 @@ V1 does not cover:
 - Full dashboard UX
 - Automated prompt activation without Wilson review
 
-## Initial Quality Criteria
+## INIT-004 Build Outputs
 
-The first rubric should be built from real traces and human review, then split into binary checks that can be measured independently. Initial criteria:
+INIT-004 should produce or coordinate:
 
-| Criterion family | What to measure | Example pass/fail shape |
-|---|---|---|
-| Structure and contract | Valid JSON, schema conformity, required fields, exactly the expected number of suggestions, parseable cooking-step arrays | Fail if JSON has comments, missing `recipes[]`, malformed step fields, or a response shape the UI cannot render |
-| User constraints | Cuisine, max cook time, skill level, dietary restrictions, allergies, nutrition preferences, meal type | Fail if max time is exceeded, dietary restriction conflicts, or chosen cuisine is silently ignored |
-| Pantry grounding | Uses available pantry items, treats optional extras as optional, avoids invented required ingredients, explains constrained fallbacks when needed | Fail if the recipe cannot be cooked without non-pantry required ingredients or if it over-corrects a pantry-first request into a shopping-list recipe |
-| Cuisine fit | Returned options visibly honor selected cuisine, or transparently state a pantry-flexible fallback when pantry evidence is too weak | Fail if only one of three options weakly acknowledges the selected cuisine without explaining the constraint |
-| Recipe usefulness | Coherent dish, clear name, practical preparation, good ranking/diversity across suggestions, appropriate substitutions | Fail if suggestions are generic, duplicated, incoherent, or culturally overclaim authenticity |
-| Cooking steps | Steps align with the accepted recipe, equipment, ingredients, skill, time, and safe sequencing | Fail if steps introduce unavailable ingredients/equipment, omit safe alternatives, exceed user proficiency, or omit key safety/cooking actions |
-| Food safety | Safe handling/cook guidance for meat, eggs, leftovers, allergens, and storage where relevant | Fail if raw sausage/meat guidance is unsafe or allergen conflicts are ignored |
-
-Each family can have deterministic checks, human labels, and LLM-as-judge checks. Use deterministic checks first where possible.
-
-## Measurement Policy
-
-Use industry-standard eval methodology as the measurement standard:
-
-1. Analyze real outputs first through open coding. Name failure modes before writing metrics.
-2. Create human-labeled gold examples. Wilson-first seed labels are acceptable for v1; add more reviewers only when the rubric stabilizes.
-3. Turn each failure mode into a narrow binary criterion. Avoid broad single-score judges.
-4. Calibrate each automated judge against human labels:
-   - Positive means a human-labeled pass for that criterion.
-   - True positive rate means the judge marks a human-pass item as pass.
-   - True negative rate means the judge marks a human-fail item as fail.
-5. Only use corrected pass-rate estimates after enough calibration labels exist. For a binary judge, estimate true pass rate from observed judge pass rate with `(observed_pass_rate + TNR - 1) / (TPR + TNR - 1)` when the denominator is valid, and report uncertainty rather than a false exact number.
-6. Use bootstrap confidence intervals or another documented uncertainty method for reported rates once the sample is large enough.
-7. Treat CI/golden evals as regression checks, not representative production quality estimates.
-
-Uncalibrated judge results may be useful for triage, but must be labeled as uncalibrated and not used as product-quality truth.
-
-## Human Review Loop
-
-V1 review flow:
-
-1. Seed the rubric with Wilson-labeled examples from:
-   - the [OpenAI Platform eval intake record](../docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md),
-   - the [Arize open-coding intake record](../docs/evals/intakes/arize-open-coding-2025-11-07.md),
-   - examples already embedded in prompts,
-   - EFF-022 cuisine-fit failures,
-   - a small current production or staged sample once privacy handling is explicit.
-2. Label each example at criterion level, not only "good" or "bad."
-3. Record why failures happened: prompt ambiguity, missing deterministic validation, stale DB prompt, pantry too constrained, response shape drift, model over-anchoring, unsafe recipe, or product copy/fallback gap.
-4. Use failure clusters to create eval fixtures and prompt-candidate briefs.
-5. Keep unresolved examples visible until each has either a prompt fix, product fallback decision, deterministic guard, or accepted limitation.
-
-The seed eval records live in [docs/evals/](../docs/evals/README.md). Future additions should update the durable eval registry and intake records first, then link any initiative-specific implications back into this INIT while it remains active.
-
-## Reporting Vehicle
-
-V1 reporting should be a daily automation, not an admin dashboard:
-
-- Run a small stable golden/regression suite daily.
-- Sample recent eligible production/staged `ai_interactions` separately for monitoring when privacy handling is approved.
-- Produce a compact Markdown or JSON report with criterion pass rates, calibrated/uncalibrated label, sample size, confidence interval when available, top failure modes, exemplar ids, prompt/model versions, and negative scope.
-- Keep raw prompts/user-identifying data out of the report unless a later privacy decision explicitly permits a redacted field.
-- Dashboard work is deferred until the metric definitions are stable enough that a UI would not create false confidence.
-
-The exact scheduler is a Phase 4 decision. Replit is the primary runtime and deployment environment; a GitHub Action may be acceptable for repo-only golden fixtures, but any production DB sampling must respect Replit/secret ownership and EFF-010 database workflow.
-
-## Prompt Improvement Policy
-
-INIT-004 can recommend prompt improvements, but must not auto-activate them in production without Wilson approval.
-
-Prompt improvement loop:
-
-1. Cluster bad examples by criterion/failure mode.
-2. Create a prompt-candidate brief with source examples, intended fix, expected risks, and affected surfaces.
-3. Run the candidate against the gold set, current regression fixtures, and relevant fresh examples.
-4. Compare to baseline using criterion-level metrics and failure examples, not only aggregate score.
-5. Write inactive prompt versions or prompt diffs for review.
-6. Activate only after Wilson approval and any required Replit prompt-version update.
-
-This policy is especially important because active database-backed prompts may override code fallback prompts.
+- a current-surface audit of recipe suggestions, pantry recipes, Slop Bowl, and cooking-step generation;
+- first-class eval coverage for Slop Bowl, which current criteria do not name;
+- deterministic contract checks for schema, shape, max time, required fields, suggestion count, and other machine-checkable constraints;
+- a first Wilson-labeled gold set mapped to the durable seed records and EFF-022 cuisine-fit fixtures;
+- narrow LLM judges with calibration status, not broad uncalibrated aggregate scores;
+- daily report automation that indexes reports through `docs/evals/registry.md`;
+- inactive prompt-candidate workflow and comparison evidence, with Wilson approval before production activation.
 
 ## Phase Progress
 
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
-| Phase 0 - INIT filing | In progress | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Create INIT hub, durable `docs/evals/` registry and intake records, active-list links, INIT-002 boundary note, EFF-022 link, handoff, and end-to-end eval operating loop |
+| Phase 0 - INIT filing | In progress | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Create focused INIT hub, durable `docs/evals/` workflow/registry/intake records, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Planned | TBD | Inventory generation surfaces, prompts, DB prompt overrides, eval criteria, response schemas, and legacy export mismatch |
 | Phase 2 - Rubric and dataset spec | Planned | TBD | Define criterion-level rubric, label schema, fixture format, privacy posture, and first Wilson-labeled gold set |
 | Phase 3 - Eval harness | Planned | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
@@ -255,4 +153,4 @@ After Phase 0 merges, the next agent should start Phase 1 from fresh `origin/mai
 - **2026-06-09** - Wilson decided this should be filed as a standalone INIT-004 rather than folded into INIT-002. Separate ownership keeps operational error telemetry in INIT-002 and output-quality evals/prompt improvement in INIT-004.
 - **2026-06-09** - Wilson provided Arize open-coding seed data. The notes added initial taxonomy signal for food safety/doneness, proficiency fit, equipment availability, cook-time adherence, cuisine/pantry tradeoff, and output extraction/format fragility.
 - **2026-06-09** - Wilson clarified that eval records need a durable home beyond INIT closeout. Created [docs/evals/](../docs/evals/README.md), moved the normalized OpenAI Platform and Arize seed intake records there, and kept INIT-004 as the active hub that links to the durable registry.
-- **2026-06-09** - Wilson asked for another cleanup pass and a whole-INIT summary of how evals should run based on the current registry/intake structure. Added the end-to-end eval operating loop and updated stale PR placeholders to PR #160.
+- **2026-06-09** - Wilson asked to move eval discipline out of INIT-004 because the INIT should stay focused on what needs to be built. Created the durable [AI Eval Workflow](../docs/evals/workflow.md), trimmed INIT-004 back to build context, and updated stale PR placeholders to PR #160.
