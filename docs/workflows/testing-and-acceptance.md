@@ -10,6 +10,8 @@ This workflow defines how agents decide whether a Laica change is ready to merge
 
 Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether Replit validation is still required.
 
+For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Replit smoke is still required for deployment-bound service confidence, but it is not a substitute for the automated E2E gate.
+
 ## Automation Evidence Gate
 
 When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."
@@ -24,6 +26,14 @@ Required evidence:
 - **Negative scope:** mocked providers, untested live-provider paths, skipped jobs, fork/draft/secret gates, Replit/human dependencies, stale validation, and deferred follow-up.
 
 Merge-readiness rule: if a PR relies on automated testing to replace or reduce a manual/Replit check, reviewers must be able to reconstruct the proof from the PR description, handoff, and linked logs/artifacts without replaying chat. If the evidence cannot be produced, the automation is not a merge gate yet.
+
+Full E2E gate on pushed builds:
+
+- Runtime, product, client, server, schema, auth, persistence, AI, speech, or user-flow PRs must have the automated E2E gate run or triggered after every pushed build/head intended for review or merge.
+- The E2E gate must be tied to the exact head SHA being considered. If new commits land after the last passing E2E run, including docs-only commits on a deployment-bound code PR, the PR description or handoff must either show the new head's E2E result or say the gate is pending/failed.
+- Replit smoke, manual Replit validation, and local unit coverage are complementary evidence. They cannot replace a missing, skipped, or failed automated E2E gate.
+- Draft/fork/secret/config skips are blockers, not passes. If CI skips because the PR is draft, mark the PR ready under the ready-for-review rule when the branch is otherwise complete enough to start automation, then monitor the CI E2E job and update the PR/handoff with the result.
+- A local E2E run is acceptable only when it uses a non-production service-backed test environment with schema health verified. A missing table, stale database, unavailable provider secret, port collision, or skipped linked-lane env is a gate failure or blocker until rerun against a valid E2E environment.
 
 Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data.
 
@@ -55,6 +65,16 @@ Use the repo scripts instead of ad hoc `npx` commands so validation evidence sta
 - `npm run test:e2e` — Playwright E2E (Chromium) against the local dev server.
 - `npm run test` — runs unit + E2E.
 - `npm run db:health` — database schema preflight check for known drift vectors (required before DB-backed E2E).
+
+For dotenvx-backed local E2E in macOS worktrees, link `.env.keys` first and run the E2E server on a known-free port:
+
+```bash
+ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
+PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npx @dotenvx/dotenvx run -- npm run db:health
+PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npx @dotenvx/dotenvx run -- npm run test:e2e
+```
+
+Use a different free port if `3000` is already occupied. Avoid the default `5000` on macOS when AirPlay/Control Center is listening there; otherwise Playwright can target the wrong listener and produce misleading blank-page failures.
 
 CI note (automation harness foundation):
 - The GitHub Actions guest-lane E2E job is intentionally gated on repo `vars` / `secrets` for Neon + Firebase + ElevenLabs. Until those are configured, CI will report green for typecheck/build/unit while the guest smoke + `db:health` path is skipped. This is a setup dependency, not a change in the Replit-authoritative validation policy.

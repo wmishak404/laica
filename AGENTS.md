@@ -30,6 +30,8 @@ Run these locally when the task does not depend on Replit-only services:
 
 When automated tests, CI, Playwright, `db:health`, or future eval runs are used as merge-readiness evidence, the PR or handoff must include the evidence report required by [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md): claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope. Do not conclude a code PR is correct from "tests passed" or "CI green" alone.
 
+Every pushed implementation build/head intended for review or merge must run or trigger the full automated E2E gate for that exact head. Replit smoke is complementary deployment validation, not a substitute for a missing, skipped, or failed automated E2E gate.
+
 ## Replit validation gate
 
 Before merging deployment-bound changes, sync the branch into Replit and verify:
