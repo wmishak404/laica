@@ -14,7 +14,7 @@ The work is docs-only. No runtime behavior, schema, prompt, or eval harness chan
 
 ## Changes
 
-- `initiatives/INIT-004-ai-output-quality-evals.md` - new INIT hub covering scope, INIT-002 boundary, source docs, seed data, initial rubric, TPR/TNR measurement policy, human review loop, daily reporting preference, prompt-candidate policy, phases, validation state, and current resume point.
+- `initiatives/INIT-004-ai-output-quality-evals.md` - new INIT hub covering scope, INIT-002 boundary, source docs, seed data, Arize open-coding clusters, initial rubric, TPR/TNR measurement policy, human review loop, daily reporting preference, prompt-candidate policy, phases, validation state, and current resume point.
 - `initiatives/registry.md` - added INIT-004 to the searchable registry.
 - `initiatives/README.md` - added INIT-004 to the current initiatives list.
 - `AGENTS.md` and `CLAUDE.md` - added INIT-004 to active INIT read-before lists.
@@ -37,10 +37,15 @@ Local seed artifacts reviewed or referenced but not committed:
 
 Phase 0 takeaways from those artifacts are summarized in the INIT. The OpenAI Platform export had 25 items from `evalrun_685361470e9c819195a768074ef126cd`, generated with `gpt-4.1-2025-04-14`, graded with `o3-mini-2025-01-31`, and showed 149/150 criterion-level passes. One max-time criterion failed, and at least one invalid JSON output still passed all LLM-judge checks, which is why INIT-004 calls for deterministic contract checks alongside LLM judges.
 
+Wilson later provided Arize open-coding data in chat. The raw prompt/table are not committed, but INIT-004 now summarizes the seed signal: 18 notes across 16 unique examples from 2025-11-07, with 9 explicit positive/no-issue notes and issue clusters around food safety/doneness, proficiency fit, equipment availability, cook-time adherence, cuisine/pantry tradeoff, and Markdown extraction/format fragility.
+
+INIT-004 also now includes an `Eval Intake Record Structure`. Future eval imports should use that template so source summaries, input schemas, sample sizes, calibration status, failure clusters, positive examples, fixture candidates, privacy posture, and open deferrals remain readable and durable.
+
 ## Open items
 
-- Wilson will provide Arize open-coding data later. Phase 2 taxonomy/rubric work should import that data when available, but Phase 1 can proceed without it by using the OpenAI export, prompt examples, and EFF-022 fixtures.
+- Arize open-coding data has been summarized in INIT-004. Phase 1 should map those clusters into a label schema and fixture candidates, but should not commit the raw chat table without a separate privacy/source decision.
 - No raw local exports are committed. Future agents should not commit them without a separate privacy/source decision.
+- Future eval intake should use INIT-004's `Eval Intake Record Structure`; do not add ad hoc raw tables to handoffs when a summarized source/rubric/metrics record would be enough.
 - Phase 1 still needs a code/data audit of `server/openai.ts`, `server/evaluator.ts`, `server/eval-criteria.ts`, `server/admin-routes.ts`, `shared/schema.ts`, and client cuisine/time/preference packaging.
 - The exact daily-report scheduler is still a Phase 4 decision. Wilson prefers daily automation over an admin dashboard for v1.
 - Prompt improvements should produce inactive candidates and regression comparisons; no automatic production activation without Wilson approval.
