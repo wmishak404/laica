@@ -8,9 +8,9 @@ This workflow defines how agents decide whether a Laica change is ready to merge
 
 ## Plain-English Rule
 
-Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether Replit validation is still required.
+Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether human manual Replit validation is required before merge, deferred to a release/batch pass, or replaced by an accepted automated Replit-environment lane.
 
-For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Replit smoke is still required for deployment-bound service confidence, but it is not a substitute for the automated E2E gate.
+For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
 
 ## Automation Evidence Gate
 
@@ -31,12 +31,33 @@ Full E2E gate on pushed builds:
 
 - Runtime, product, client, server, schema, auth, persistence, AI, speech, or user-flow PRs must have the automated E2E gate run or triggered after every pushed build/head intended for review or merge.
 - The E2E gate must be tied to the exact head SHA being considered. If new commits land after the last passing E2E run, including docs-only commits on a deployment-bound code PR, the PR description or handoff must either show the new head's E2E result or say the gate is pending/failed.
-- Replit smoke, manual Replit validation, and local unit coverage are complementary evidence. They cannot replace a missing, skipped, or failed automated E2E gate.
+- Human Replit smoke, automated Replit-environment checks, and local unit coverage are complementary evidence. They cannot replace a missing, skipped, or failed automated E2E gate.
 - Draft/fork/secret/config skips are blockers, not passes. If CI skips because the PR is draft, mark the PR ready under the ready-for-review rule when the branch is otherwise complete enough to start automation, then monitor the CI E2E job and update the PR/handoff with the result.
 - A local E2E run is acceptable only when it uses a non-production service-backed test environment with schema health verified. A missing table, stale database, unavailable provider secret, port collision, or skipped linked-lane env is a gate failure or blocker until rerun against a valid E2E environment.
 - Prefer the GitHub Actions `e2e_guest_smoke` lane for merge-gate E2E evidence when it is available. That lane creates a schema-only Neon branch for the run, applies the current Drizzle schema, runs `db:health`, runs Playwright, and deletes the branch afterward. Local dotenvx runs against a decrypted `.env` database are diagnostic unless `DATABASE_URL` is explicitly pointed at an equivalent non-production test database prepared with the same schema-push and health-check sequence.
 
 Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data.
+
+## Risk Lanes And Human Replit Gates
+
+Human manual Replit validation is no longer the default PR merge gate. Classify the branch before closeout:
+
+- **Automation-primary:** CI/local automation covers the changed behavior well enough for PR merge. Human Replit validation is not required before merge.
+- **Batched release validation:** low-risk, narrowly scoped runtime changes may merge or remain queued with other related patches after passing automation. The PR/handoff records the deferred manual Replit checks, and the batch is validated before production publish.
+- **Manual Replit before merge:** required when the branch is higher risk or cross-functional, changes schema/secrets/deployment/runtime startup, changes auth/session/provider behavior in a way CI or accepted automated Replit-environment checks do not exercise, has weak/skipped automated evidence, or Wilson explicitly asks for PR-level manual validation.
+- **Automated Replit-environment gate:** future lane for scripts or CI that exercise the Replit environment without Wilson manually driving the UI. Treat this as a merge gate only after the workflow, environment setup, evidence report, and negative scope are documented.
+
+Risk annotation should stay lightweight and close to the PR or handoff:
+
+| Field | What to write |
+|---|---|
+| Risk lane | Automation-primary, batched release validation, manual Replit before merge, or automated Replit-environment gate |
+| Why this lane | One or two concrete reasons, such as narrow route-boundary change with route tests, or auth/provider behavior not covered by CI |
+| Evidence | Exact local/GitHub checks and source files that prove the claim |
+| Deferred/manual scope | The smallest Replit or release-batch check still worth doing |
+| Future-bug breadcrumb | One sentence naming the user-visible symptom or surface to inspect first if a regression appears |
+
+Do not create a new Effort or broad durable doc for every risk note. Use PR bodies and handoffs for point-in-time risk annotations. Update workflow, PD, INIT, or Effort docs only when a bug or validation result changes future rules.
 
 ## Validation Breadth Discipline
 
@@ -138,10 +159,10 @@ Do not use an Effort file as the long-term ledger for every feature's validation
 | Change type | Minimum local checks | Replit validation |
 |---|---|---|
 | Docs-only | `git diff --check` | Not required |
-| Pure frontend copy/layout with no service behavior | `npm run check`, `npm run build` when practical; targeted visual/manual review | Required if deployment-bound visuals or auth-gated flows must be inspected live |
-| Client logic or shared user-flow state | `npm run check`, `npm run build`, targeted Vitest/Playwright when existing coverage matches | Required when auth, persistence, AI, speech, or real browser/mobile behavior is part of acceptance |
-| Server route, shared schema, auth, DB, AI, speech, or feedback writes | `npm run check`, `npm run build`, targeted tests | Required before merge unless explicitly documented as docs-only or non-deployment-bound |
-| DB schema or migration workflow | Local static/build checks plus schema review | Required; coordinate schema push through the Replit-authoritative path |
+| Pure frontend copy/layout with no service behavior | `npm run check`, `npm run build` when practical; targeted visual/manual review | Human Replit only if deployment-bound visuals/auth-gated flows need live inspection; otherwise record visual negative scope |
+| Client logic or shared user-flow state | `npm run check`, `npm run build`, targeted Vitest/Playwright when existing coverage matches | Human Replit before merge only when the risk lane requires real auth, persistence, AI, speech, mobile/browser, or human judgement; otherwise defer to release/batch if relevant |
+| Server route, shared schema, auth, DB, AI, speech, or feedback writes | `npm run check`, `npm run build`, targeted tests plus automated E2E gate when applicable | Human Replit before merge only for high-risk or uncovered service seams; low-risk route-boundary patches may use automation-primary or batched release validation with risk notes |
+| DB schema or migration workflow | Local static/build checks plus schema review | Usually manual or automated Replit-environment validation before merge/release; coordinate schema push through the Replit-authoritative path unless disposable CI schema evidence fully covers the PR claim |
 | Workflow/process docs | `git diff --check` and link/reference search | Not required |
 
 ## Feature Impact Review
@@ -168,7 +189,7 @@ Every implementation handoff and PR description should include:
 - Automation evidence reports for any automated test used as a merge gate: claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope.
 - A coverage classification that separates happy paths, corner cases, local automation, Replit automation, Replit human validation, confidence gaps, and explicitly deferred scope.
 - Manual checks performed.
-- Replit validation status, including `Last Replit-validated at: <sha>` or `not yet validated` for deployment-bound work.
+- Validation lane and human Replit status, including `Last Replit-validated at: <sha>`, `Human Replit validation: deferred to release/batch validation`, or `Human Replit validation: not required before merge` with rationale.
 - What was intentionally not tested.
 - Any accepted deferrals and where they are tracked.
 - Whether docs were updated: INIT, feature phase record, PD, active Effort, workflow doc, and handoff as applicable.

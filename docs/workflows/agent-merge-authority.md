@@ -8,7 +8,7 @@ This workflow defines when Codex may merge a PR without a fresh Wilson instructi
 
 ## Plain-English Rule
 
-Codex may auto-merge docs-only workflow PRs and fact-only post-merge evidence closeouts after the relevant merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, Replit validation when applicable, and an explicit human merge instruction.
+Codex may auto-merge docs-only workflow PRs and fact-only post-merge evidence closeouts after the relevant merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, human Replit validation when the risk lane requires it, and an explicit human merge instruction.
 
 Codex may mark its own complete draft PRs ready for review and monitor CI without waiting for Wilson when the ready-for-review gates below pass. That authority only starts the shared CI/review loop; it does not grant merge authority.
 
@@ -20,7 +20,7 @@ Codex may mark an agent-owned draft PR ready for review, then watch and report C
 2. The implementation scope is complete enough for review and is not marked WIP, blocked, superseded, or waiting on a product/security/Replit-side decision.
 3. The PR body and handoff describe the claim, validation lane, current evidence, and remaining negative scope. If GitHub CI is needed as part of the evidence, say it is pending and update the report after it completes.
 4. Required local checks for the change type have passed, or skipped checks are explicitly justified by [`testing-and-acceptance.md`](testing-and-acceptance.md).
-5. Replit validation is either completed at the final head SHA, explicitly not required with rationale, or still pending and therefore blocks merge even if the PR is ready for review.
+5. Human Replit validation is either completed at the final head SHA, explicitly not required before merge with risk-lane rationale, deferred to release/batch validation with exact checks, or still pending and therefore blocks merge if the risk lane requires it.
 6. Existing PR comments, review comments, and handoffs do not contain unresolved blockers or explicit peer-review-before-ready requests.
 
 If any gate is uncertain, keep the PR draft and leave a blocking note with the smallest next action. If checks fail after the PR is marked ready, do not merge; either fix the branch or document the blocker. Ready-for-review automation must never be used to bypass the code/deployment merge rules below.
@@ -103,7 +103,7 @@ Always pass an expected head SHA when the tool supports it so a moved branch can
 
 Codex does not have standing auto-merge authority for code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs.
 
-Those PRs require the relevant local checks from [`testing-and-acceptance.md`](testing-and-acceptance.md), targeted tests, Replit validation when service-backed or deployment-bound, fresh validation at the final head SHA, and an explicit human merge instruction unless Wilson later grants a narrower authority in a workflow doc.
+Those PRs require the relevant local checks from [`testing-and-acceptance.md`](testing-and-acceptance.md), targeted tests, automated E2E gate evidence, human Replit validation when the risk lane requires it, fresh validation at the final head SHA for every claimed lane, and an explicit human merge instruction unless Wilson later grants a narrower authority in a workflow doc.
 
 When automated testing, CI, Playwright, `db:health`, Replit automation, or future eval runs are used as merge-readiness evidence, the PR or handoff must include the full evidence report required by [`testing-and-acceptance.md`](testing-and-acceptance.md). "Checks are green" is not sufficient reasoning for code merge readiness.
 

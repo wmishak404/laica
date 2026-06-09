@@ -28,9 +28,19 @@ This branch follows up on the 2026-06-09 security automation pass with narrow se
 
 ## Open items
 
-- Needs GitHub PR review and Wilson's explicit merge instruction before merge.
-- Last Replit-validated at: not yet validated.
-- Suggested targeted Replit validation: Firebase sign-in, feedback submission while signed in, and live cooking speech transcription with the configured provider secret.
+- Wilson has approved the direction and asked to batch this with related security patches so manual Replit testing can happen once.
+- Human Replit validation: deferred to release/batch validation.
+- Suggested targeted release/batch validation: Firebase sign-in, feedback submission while signed in, and live cooking speech transcription with the configured provider secret.
+
+## Risk annotation
+
+| Field | Note |
+|---|---|
+| Risk lane | Batched release validation |
+| Why this lane | Narrow server route-boundary hardening; no schema, dependency, or client contract change; focused route tests cover accepted/rejected cases |
+| Evidence | Local checks and GitHub CI at the PR head; route tests in `tests/unit/phase0-security-routes.test.ts`, `tests/unit/p0-route-contracts.test.ts`, and `tests/unit/provider-boundary-happy-paths.test.ts` |
+| Deferred/manual scope | Validate signed-in feedback submission and live cooking transcription in the next Replit security/release batch |
+| Future-bug breadcrumb | If signed-in feedback or voice-question transcription regresses, inspect this route-boundary change first |
 
 ## Verification
 
@@ -45,5 +55,5 @@ This branch follows up on the 2026-06-09 security automation pass with narrow se
 
 - Base refreshed: yes
 - Current base: `origin/main` at `f24adafd9ee6d5b92d685607dd01e3e06aa3b8cf`
-- Last Replit-validated at: not yet validated
-- Notes: independent security hardening branch from current `origin/main`.
+- Human Replit validation: deferred to release/batch validation
+- Notes: independent low-risk security hardening branch from current `origin/main`; intended to batch with related security patches before production release.
