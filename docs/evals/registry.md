@@ -1,0 +1,28 @@
+# AI Eval Intake Registry
+
+Durable index of AI output-quality eval runs, open-coding imports, judge runs, human review batches, and daily reports.
+
+The registry survives INIT closeout. Active INITs should link here for current work, but this file remains the long-term lookup table.
+
+| Intake id | Source | Source date | Provided / imported | Surface | Sample size | Trend tags | Record | Raw artifact handling | Current status | Next action |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `openai-platform-evalrun-685361470e9c819195a768074ef126cd` | OpenAI Platform eval export | File timestamp 2026-06-04; user remembered June 4, 2025 | 2026-06-09 | Legacy recipe suggestion eval | 25 items; 150 criterion checks | `structure-contract`, `max-time`, `judge-calibration-gap`, `legacy-contract-drift` | [record](intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md) | Local JSONL only; summarized in registry/record/handoff; not committed | Seed run indexed; 149/150 grader passes; one max-time failure; one invalid JSON case still passed LLM judges | Phase 1 should extract fixture candidates and deterministic contract checks |
+| `arize-open-coding-2025-11-07` | Arize open-coding notes | 2025-11-07 note timestamps | 2026-06-09 | Legacy pantry-first recipe suggestions | 18 notes across 16 unique examples | `food-safety`, `proficiency-fit`, `equipment-fit`, `max-time`, `cuisine-pantry-tradeoff`, `structure-contract` | [record](intakes/arize-open-coding-2025-11-07.md) | Raw prompt/table provided in chat; summarized in registry/record/handoff; not committed | Seed intake indexed; clusters identified for food safety, proficiency fit, equipment, time, cuisine/pantry tradeoff, and format fragility | Phase 1 should map clusters into label schema and fixture candidates |
+
+## Cross-Intake Trend Comparison
+
+| Trend | OpenAI Platform seed | Arize seed | First-rubric implication |
+|---|---|---|---|
+| Structure/contract fragility | Invalid JSON passed LLM judging | Markdown extraction produced fragile recipe-title values | Deterministic parse/schema checks must run before any judge score |
+| Max-time adherence | One 25-minute max returned 30 minutes | One 25-minute max returned 30 minutes | Add deterministic max-time check and clarify rounding cannot exceed max unless Wilson accepts an explicit exception |
+| Judge calibration gap | Automated judge pass rates lack human TPR/TNR | Human notes lack automated judge observations | Build Wilson-labeled gold set, then report TPR/TNR before trusting LLM judges |
+| Food safety and doneness | Automated food-safety grader passed all items | Human notes found raw beef/chicken safety gaps | Food-safety judge needs human calibration and likely stricter raw-protein criteria |
+| Proficiency and equipment fit | Automated required-skill grader passed all items | Human notes found beginner complexity and missing-equipment assumptions | Add criterion-level human labels for skill/equipment fit; deterministic equipment term checks where practical |
+| Cuisine/pantry tradeoff | No strong cuisine-failure signal from this run; legacy ingredient relevance passed | Human notes accepted some pantry-first adaptation but flagged authenticity nuance | Rubric should separate pantry-first usefulness from cuisine authenticity rather than treating either as absolute |
+
+## Registry Rules
+
+- Add future eval imports to the table before using them as evidence in an INIT, PR, or handoff.
+- Keep raw artifact handling explicit.
+- Mark calibration status honestly. Uncalibrated LLM judge results are triage signal, not product-quality truth.
+- Use [intakes/TEMPLATE.md](intakes/TEMPLATE.md) for new intake records.

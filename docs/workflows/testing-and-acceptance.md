@@ -147,6 +147,7 @@ When a change touches browser-local state, client caches, or persisted in-progre
 | Stable cross-feature testing rule or workflow | `docs/workflows/` or a top-level PD |
 | Point-in-time command output, manual checks, and branch status | PR description and `docs/handoffs/` |
 | Replit validation focus by drift vector | [`docs/workflows/replit-validation-focus.md`](replit-validation-focus.md) |
+| Durable AI eval run/intake registry and normalized intake records | [`docs/evals/registry.md`](../evals/registry.md) and [`docs/evals/intakes/`](../evals/intakes/) |
 | Focused security checks from recent scan learnings | [`docs/workflows/security-due-diligence.md`](security-due-diligence.md) |
 | Local-vs-Replit authority | [`docs/adr/0001-replit-primary-local-agents.md`](../adr/0001-replit-primary-local-agents.md), `AGENTS.md`, and `CLAUDE.md` |
 | Cross-doc routing and closeout | [`docs/workflows/documentation-routing.md`](documentation-routing.md) |
