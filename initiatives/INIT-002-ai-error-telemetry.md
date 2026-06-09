@@ -1,11 +1,11 @@
 # INIT-002 — AI Error Telemetry & Eval Monitoring
 
-**Status:** Planning
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-07
-**Current phase:** Phase 1 — Request-ID middleware + structured stdout logger + 9 AI route catch blocks (next)
-**Active PR:** None (Phase 0 [#41](https://github.com/wmishak404/laica/pull/41) merged at `cb94f28` on 2026-05-08)
-**Active branch:** None (Phase 1 starts on a fresh branch off `main`)
+**Current phase:** Phase 1 — Request-ID middleware + structured stdout logger + 9 AI route catch blocks
+**Active PR:** Draft pending from `codex/init-002-phase-1-telemetry`
+**Active branch:** `codex/init-002-phase-1-telemetry`
 
 ## Overview
 
@@ -25,7 +25,7 @@ The work is phased so the redaction allowlist is locked before any rows write, a
 ## Current Status
 
 **Phase 0 merged** via [PR #41](https://github.com/wmishak404/laica/pull/41) at `cb94f28` on 2026-05-08. The INIT hub, former [EFF-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md), [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and active-list updates in CLAUDE.md / AGENTS.md / `efforts/` / `initiatives/` are now on `main`. No source code landed in Phase 0.
-**Phase 1 is the next work.** Start from a fresh branch off `main`. Build a server-side `classifyAiError` mirroring EFF-018's taxonomy (400/401/403/404/413/429/5xx/network), a request-id middleware scoped to `/api/*`, and a structured stdout JSON logger; wire all three into the 9 AI route catch blocks. No DB persistence in Phase 1 — that's Phase 3 after a Replit observation week (Phase 2).
+**Phase 1 implementation is in progress** on `codex/init-002-phase-1-telemetry` from fresh `origin/main`. The branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy (400/401/403/404/413/429/5xx/network), a request-id middleware scoped to `/api/*`, and a structured stdout JSON logger; it wires all three into the 9 AI route catch blocks. No DB persistence lands in Phase 1 — that's Phase 3 after a Replit observation week (Phase 2).
 
 ## Source Docs
 
@@ -49,7 +49,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
 | Phase 0 — INIT hub + PD-010 | Merged | [#41](https://github.com/wmishak404/laica/pull/41) (`cb94f28`) | EFF-019, INIT-002, PD-010, active-list updates landed on `main` 2026-05-08; EFF-019 later resolved into this INIT |
-| Phase 1 — stdout logger + 9 routes | Planned (next) | TBD | EFF-018 merged via [#43](https://github.com/wmishak404/laica/pull/43). Phase 1 builds a server-side `classifyAiError` mirroring EFF-018's taxonomy, request-id middleware, and JSON stdout logger wired into 9 AI route catch blocks |
+| Phase 1 — stdout logger + 9 routes | In progress | `codex/init-002-phase-1-telemetry`; draft PR pending | EFF-018 merged via [#43](https://github.com/wmishak404/laica/pull/43). The current Codex branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy, request-id middleware, and JSON stdout logger wired into 9 AI route catch blocks |
 | Phase 2 — Replit observation week | Planned | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix |
 | Phase 3 — DB schema + writer | Planned | TBD | `ai_error_events` schema + bounded writer + Replit `db:push` per EFF-010 |
 | Phase 4 — admin APIs | Planned | TBD | `/api/admin/ai-errors/{summary,list,detail,clusters}` mirroring existing admin pattern |
@@ -98,18 +98,13 @@ Any local, CI, Replit automation, or future eval result used as a merge gate mus
 
 ## Current Resume Point
 
-**Phase 1 (planned, ready to start).** Next agent should:
-1. `git fetch origin && git checkout -b claude/init-002-phase-1-stdout-logger origin/main`. Verify [`server/ai-privacy.ts`](../server/ai-privacy.ts) and EFF-018's typed-error payloads in [`server/routes.ts`](../server/routes.ts) are present (they should be, since both are on `main`).
-2. Symlink `.env.keys` per [`CLAUDE.md`](../CLAUDE.md) worktree note if running locally.
-3. Read [EFF-018's client-side classifier](../client/src/lib/rateLimitHandler.ts) and [`queryClient.ts`](../client/src/lib/queryClient.ts) to extract the canonical taxonomy (400/401/403/404/413/429/5xx/network).
-4. Build:
-   - `server/aiErrorClassifier.ts` — pure `classifyAiError(err, ctx)` returning `{ errorClass, errorCode, httpStatus, retryAfterSeconds, vendor }`. Mirror EFF-018's taxonomy. Wrap callers in try/catch with `unknown/500` fallback so a classifier bug never takes down a route.
-   - `server/requestId.ts` — Express middleware scoped to `/api/*`. UUID v4 to `req.requestId`, set `X-Request-Id` response header. Always overwrite client-supplied value.
-   - `server/aiErrors.ts` — `logAiError(input)` that writes one JSON line to `console.error` with the [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) allowlist shape. No DB. Reuse [`server/ai-privacy.ts`](../server/ai-privacy.ts) `redactForAiLog` as defense-in-depth.
-5. Wire all three into the 9 AI route catch blocks in [`server/routes.ts`](../server/routes.ts): `/api/recipes/suggestions`, `/api/recipes/pantry`, `/api/recipes/slop-bowl`, `/api/cooking/steps`, `/api/cooking/assistance`, `/api/vision/analyze`, `/api/speech/synthesize`, `/api/speech/voices`, `/api/speech/transcribe`. Each catch adds ~3 lines.
-6. Tests: table-driven `tests/server/aiErrorClassifier.test.ts`; mocked-writer assertions in `tests/server/aiErrors.test.ts`.
-7. Validate locally (`npm run check`, `npm run build`, vitest, manual dotenvx dev-server smoke). Open PR with the [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) "Replit validation request" template citing the **AI provider routes**, **ElevenLabs speech routes**, and **Secrets** matrix rows.
-If the v0 `error_class` enum in PD-010 cannot cleanly express EFF-018's wider HTTP taxonomy, propose an enum expansion as a PD-010 amendment in the same PR.
+**Phase 1 implementation branch active.** Next agent should continue `codex/init-002-phase-1-telemetry` unless its PR has already merged or been closed. The branch currently owns:
+1. `server/aiErrorClassifier.ts` — pure `classifyAiError(err, ctx)` returning `{ errorClass, errorCode, httpStatus, retryAfterSeconds, vendor }` using the expanded PD-010 Phase 1 enum.
+2. `server/requestId.ts` — Express middleware scoped to `/api/*`. UUID v4 to `req.requestId`, set `X-Request-Id` response header, and overwrite client-supplied values.
+3. `server/aiErrors.ts` — `logAiError(input)` that writes one JSON line to `console.error` with the [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) allowlist shape. No DB.
+4. [`server/routes.ts`](../server/routes.ts) wiring for the 9 AI route catch blocks: `/api/recipes/suggestions`, `/api/recipes/pantry`, `/api/recipes/slop-bowl`, `/api/cooking/steps`, `/api/cooking/assistance`, `/api/vision/analyze`, `/api/speech/synthesize`, `/api/speech/voices`, `/api/speech/transcribe`.
+
+Before merge, finish validation and PR evidence with the [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) "Replit validation request" template citing the **AI provider routes**, **ElevenLabs speech routes**, and **Secrets** matrix rows.
 
 ## Chronology
 
