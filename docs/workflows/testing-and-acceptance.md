@@ -34,6 +34,7 @@ Full E2E gate on pushed builds:
 - Replit smoke, manual Replit validation, and local unit coverage are complementary evidence. They cannot replace a missing, skipped, or failed automated E2E gate.
 - Draft/fork/secret/config skips are blockers, not passes. If CI skips because the PR is draft, mark the PR ready under the ready-for-review rule when the branch is otherwise complete enough to start automation, then monitor the CI E2E job and update the PR/handoff with the result.
 - A local E2E run is acceptable only when it uses a non-production service-backed test environment with schema health verified. A missing table, stale database, unavailable provider secret, port collision, or skipped linked-lane env is a gate failure or blocker until rerun against a valid E2E environment.
+- Prefer the GitHub Actions `e2e_guest_smoke` lane for merge-gate E2E evidence when it is available. That lane creates a schema-only Neon branch for the run, applies the current Drizzle schema, runs `db:health`, runs Playwright, and deletes the branch afterward. Local dotenvx runs against a decrypted `.env` database are diagnostic unless `DATABASE_URL` is explicitly pointed at an equivalent non-production test database prepared with the same schema-push and health-check sequence.
 
 Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data.
 
@@ -78,6 +79,7 @@ Use a different free port if `3000` is already occupied. Avoid the default `5000
 
 CI note (automation harness foundation):
 - The GitHub Actions guest-lane E2E job is intentionally gated on repo `vars` / `secrets` for Neon + Firebase + ElevenLabs. Until those are configured, CI will report green for typecheck/build/unit while the guest smoke + `db:health` path is skipped. This is a setup dependency, not a change in the Replit-authoritative validation policy.
+- When configured, the guest-lane E2E job is the preferred routine automation path for DB-backed guest smoke evidence because it provisions a disposable non-production Neon branch and applies the current schema before testing.
 - The guest-lane E2E smoke should avoid paid AI/provider calls by default. If the server cannot start because an unused provider client is created at module load, treat that as a startup isolation bug or split it into an explicit live-provider canary; do not silently expand the guest smoke's secret contract.
 - When a draft PR is complete enough to need GitHub Actions evidence, agents should use the ready-for-review rule in [`agent-merge-authority.md`](agent-merge-authority.md) to mark it ready and monitor CI instead of waiting on Wilson only to start automation. The PR or handoff must still record pending checks as pending, then replace that with observed results and negative scope after CI completes.
 
@@ -85,6 +87,10 @@ CI gap-lane rule:
 - Do not summarize important CI gaps as a single generic "not covered" bucket. Assign each gap to the smallest honest validation lane: routine deterministic CI, mocked unit/component coverage, forced-response Playwright smoke, OAuth-start/config preflight, live-provider canary, Replit automated check, or Replit human validation.
 - Keep default PR CI deterministic and provider-light unless a durable decision expands the routine gate. Real Google popup completion, live model/audio quality, production-domain checks, and Replit deployment behavior should remain separate named lanes until their automation is deliberately accepted.
 - When a user-facing boundary is expensive to reach naturally, prefer a forced-response or fixture test that proves the UI contract directly. For example, a guest quota-copy check can stub `403 LINKED_ACCOUNT_REQUIRED` instead of spending ten real recipe generations to reach attempt `#11`.
+
+Signup-continuation risk check:
+- After E2E on changes that touch guest promotion, signup-required copy, quota walls, linked-only save boundaries, guest-to-linked conversion, or navigation into those surfaces, explicitly record whether the continuous journey is covered: guest reaches a signup-required moment, signs up or links, returns to the expected linked state, and preserves or resumes the intended action/data.
+- The custom-token linked-auth lane proves the signed-in destination state and linked-only behavior; it does not by itself prove the continuous guest-blocked -> sign-up/link -> continue journey or the real Google popup. If routine CI covers the guest block and the linked destination separately, record the continuous journey as an optional but relevant validation gap and choose the smallest follow-up lane based on risk: targeted Playwright with dev auth, Replit human validation, or a future identity-provider/preflight check.
 
 E2E note: browser automation depends on service-backed env (at minimum a `DATABASE_URL` that points to a non-production test database). Keep E2E flows privacy-forward by using synthetic data and by avoiding production/Replit databases.
 
