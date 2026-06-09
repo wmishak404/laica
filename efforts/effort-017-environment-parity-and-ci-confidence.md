@@ -564,7 +564,7 @@ While validating the guest bottom-nav shortcut removal, local dotenvx-backed Pla
 
 This was useful system signal, not a product-code reason to weaken `/api/auth/session`: unknown or stale databases should fail loudly when required guest quota schema is absent.
 
-The authoritative automated E2E lane for the PR then passed on GitHub Actions head `aa7ba84`: `e2e_guest_smoke` created a schema-only Neon branch, applied the current Drizzle schema, passed `db:health`, ran Playwright, and deleted the Neon branch. The Testing and Acceptance Workflow now states this explicitly: use the ephemeral non-production Neon lane for merge-gate E2E evidence when available; treat local decrypted `.env` E2E as diagnostic unless `DATABASE_URL` is pointed at an equivalent prepared non-production test database.
+The authoritative automated E2E lane for the PR then passed on GitHub Actions head `1102c1f`, and PR #156 merged as `492b3a6808dd088c430b49649ea3c4ef4bfde0ee`: `e2e_guest_smoke` created a schema-only Neon branch, applied the current Drizzle schema, passed `db:health`, ran Playwright, and deleted the Neon branch. The Testing and Acceptance Workflow now states this explicitly: use the ephemeral non-production Neon lane for merge-gate E2E evidence when available; treat local decrypted `.env` E2E as diagnostic unless `DATABASE_URL` is pointed at an equivalent prepared non-production test database.
 
 ## 2026-06-09 — Guest signup-continuation nuance added to post-E2E risk checks
 
