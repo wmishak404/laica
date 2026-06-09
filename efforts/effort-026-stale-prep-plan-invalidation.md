@@ -1,6 +1,6 @@
 # EFF-026 - Stale prep plan invalidation after pantry changes
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-06-08
 **Updated:** 2026-06-08
@@ -38,7 +38,7 @@ This intersects [`EFF-025`](effort-025-settings-unsaved-inventory-reminder.md) b
 
 - Not blocking PR #146 or the current production CSP push.
 - Not yet reproduced exhaustively across every guest, linked, refresh, and navigation path.
-- No app code fix in the branch that creates this Effort.
+- No app code fix was included in the initial docs-only commit that created this Effort; PR #149 later implemented the fix on the same branch.
 - No change to recipe prompt quality, recommendation criteria, or cuisine selection.
 - No change to the explicit Settings save model except where future implementation chooses how stale plan invalidation hooks into a successful save.
 - No broad rewrite of planning, Live Cooking, or session persistence architecture unless investigation proves a smaller fix cannot protect the user.
@@ -185,3 +185,17 @@ Remaining narrow validation before marking this Effort `Resolved`:
 
 - Explicit unchanged-profile Live Cooking refresh to confirm the PR #144 restore path still holds in Replit.
 - Pantry reset/delete/add variants if Wilson's mid-prep-tray pantry changes did not cover those exact saved-change paths.
+
+## 2026-06-08 - Resolved after unchanged-profile restore validation
+
+Wilson reported that unchanged-profile Live Cooking refresh was also tested on Replit. With the earlier guest and signed-in stale-session checks, pantry change during prep-tray decision, hard refresh after pantry change, and History not recording until cooking starts, EFF-026's acceptance boundary is now covered for PR #149.
+
+Resolution references:
+
+- PR #149: <https://github.com/wmishak404/laica/pull/149>
+- Runtime code validated at: `3180c17bd6c8cb4309ce7354559102005a0c8464`
+- Current branch head after docs-only validation records: `8b58e230d72d47b2484c265022afe989d4edcd71`
+- Local validation: focused Vitest, full unit, `npm run check`, and `npm run build`
+- Replit validation provenance: Wilson-reported Replit UI smoke in chat on 2026-06-08
+
+EFF-026 is marked `Resolved` because the stale prep tray/session no longer resumes after material pantry changes or hard refresh, unchanged-profile Live Cooking restore remains reliable, and History only records after cooking starts. Future refinements to Settings dirty-state reminders remain owned by [`EFF-025`](effort-025-settings-unsaved-inventory-reminder.md).
