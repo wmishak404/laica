@@ -83,6 +83,7 @@ Current active INITs:
 - `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
 - `initiatives/INIT-002-ai-error-telemetry.md` — read before adding AI error logging/telemetry, creating or migrating an `ai_error_events` schema, adding admin APIs for AI error summaries/lists/details, correlating Feedback with AI failures, or extending the eval pipeline to consume operational error clusters.
 - `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md` — read before changing guest entry, anonymous quota, Google linking, account upgrade boundaries, guest persistence, App Check launch gates, or Phase 5 linked-only memory behavior.
+- `initiatives/INIT-004-ai-output-quality-evals.md` — read before changing AI output-quality eval rubrics, importing eval/open-coding data, human review labels, LLM-as-judge calibration, golden datasets, daily eval reports, prompt-candidate workflow, or recipe/Slop Bowl/cooking-step eval criteria. Durable eval discipline belongs in `docs/workflows/evaluations.md`; practical eval records and artifacts belong in `docs/evals/registry.md` and `docs/evals/intakes/`, with INIT-004 linking to the current build context while active.
 
 ## UI governance — check before any UI work
 

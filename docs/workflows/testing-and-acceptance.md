@@ -36,7 +36,7 @@ Full E2E gate on pushed builds:
 - A local E2E run is acceptable only when it uses a non-production service-backed test environment with schema health verified. A missing table, stale database, unavailable provider secret, port collision, or skipped linked-lane env is a gate failure or blocker until rerun against a valid E2E environment.
 - Prefer the GitHub Actions `e2e_guest_smoke` lane for merge-gate E2E evidence when it is available. That lane creates a schema-only Neon branch for the run, applies the current Drizzle schema, runs `db:health`, runs Playwright, and deletes the branch afterward. Local dotenvx runs against a decrypted `.env` database are diagnostic unless `DATABASE_URL` is explicitly pointed at an equivalent non-production test database prepared with the same schema-push and health-check sequence.
 
-Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data.
+Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data. Use [evaluations.md](evaluations.md) for the canonical eval discipline and dataset/result routing.
 
 ## Risk Lanes And Human Replit Gates
 
@@ -147,6 +147,7 @@ When a change touches browser-local state, client caches, or persisted in-progre
 | Stable cross-feature testing rule or workflow | `docs/workflows/` or a top-level PD |
 | Point-in-time command output, manual checks, and branch status | PR description and `docs/handoffs/` |
 | Replit validation focus by drift vector | [`docs/workflows/replit-validation-focus.md`](replit-validation-focus.md) |
+| Durable AI eval workflow, run/intake registry, and normalized intake records | [`docs/workflows/evaluations.md`](evaluations.md), [`docs/evals/registry.md`](../evals/registry.md), and [`docs/evals/intakes/`](../evals/intakes/) |
 | Focused security checks from recent scan learnings | [`docs/workflows/security-due-diligence.md`](security-due-diligence.md) |
 | Local-vs-Replit authority | [`docs/adr/0001-replit-primary-local-agents.md`](../adr/0001-replit-primary-local-agents.md), `AGENTS.md`, and `CLAUDE.md` |
 | Cross-doc routing and closeout | [`docs/workflows/documentation-routing.md`](documentation-routing.md) |

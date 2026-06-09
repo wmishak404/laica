@@ -11,6 +11,8 @@
 
 INIT-002 sequences the operational AI error telemetry work formerly filed as [EFF-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md). EFF-019 is now resolved as a standalone Effort because this INIT is the active source of truth. The goal is operational signal — what's failing, where, for whom, in what cluster — that converts into evals, prompt fixes, product bugs, or infra tickets, **without** ever storing raw prompts, preferences, headers, images, audio, tokens, or stack traces with bodies.
 
+As of 2026-06-09, successful or partially successful AI output-quality evals live in [INIT-004](INIT-004-ai-output-quality-evals.md). INIT-002 still owns operational AI failures and safe error-cluster handoff; INIT-004 owns recipe/Slop Bowl/cooking-step quality rubrics, human labels, judge calibration, daily reports, and prompt-candidate workflow.
+
 The work is phased so the redaction allowlist is locked before any rows write, and so the field shape is validated against real Replit traffic before committing to a schema:
 
 - Phase 0: INIT-002 hub, [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) redaction policy, active-list updates
@@ -28,6 +30,7 @@ The work is phased so the redaction allowlist is locked before any rows write, a
 ## Source Docs
 
 - [EFF-019 — AI error telemetry and eval monitoring](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md)
+- [INIT-004 — AI output quality evals and prompt improvement](INIT-004-ai-output-quality-evals.md) — successful/partial output-quality evals; receives safe operational cluster handoffs from INIT-002 when a cluster becomes a quality fixture candidate
 - [PD-010 — AI error telemetry allowlist](../product-decisions/pd-010-ai-error-telemetry-allowlist.md)
 - [AI error handling and telemetry workflow](../docs/workflows/ai-error-handling-and-telemetry.md)
 - [EFF-018 — Authenticated AI error handling](../efforts/effort-018-authenticated-ai-error-handling.md) — `Resolved` 2026-05-07. Owns the **client-side** classifier (`ApiRequestError` in [`client/src/lib/rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts)) and the typed-error route payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 mirrors its taxonomy in a new server-side `classifyAiError` function
@@ -76,6 +79,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 - 2026-05-07 — Phase 2 (Replit observation week) added between stdout logging and DB persistence so the field shape and classifier coverage can be validated against real failures before locking a schema.
 - 2026-05-07 — EFF-018 ([PR #43](https://github.com/wmishak404/laica/pull/43)) merged with a *client-side* classifier in `rateLimitHandler.ts` / `queryClient.ts` and *typed server-side error payloads* in `server/routes.ts` — but no server-side classifier function. Phase 1 now owns building `server/aiErrorClassifier.ts` mirroring EFF-018's wider taxonomy (400/401/403/404/413/429/5xx/network) so the user-facing copy and telemetry stay aligned. This is a clarification of ownership, not a new phase.
 - 2026-06-01 — Automation-backed merge gates now require evidence reports with full reasoning and provenance per [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). When INIT-002 later adds eval-backed gates, each eval result must identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, artifact location, and negative scope.
+- 2026-06-09 — Wilson accepted a separate [INIT-004](INIT-004-ai-output-quality-evals.md) for AI output-quality evals and prompt improvement. INIT-002's eval adjacency is now limited to safe operational error clusters becoming future quality fixtures; INIT-004 owns human-labeled rubrics, calibrated judge metrics, daily quality reporting, and prompt-candidate workflow for successful/partial outputs.
 
 ## Validation State
 
@@ -117,3 +121,4 @@ If the v0 `error_class` enum in PD-010 cannot cleanly express EFF-018's wider HT
 - **2026-05-08** — Phase 0 docs PR ([#41](https://github.com/wmishak404/laica/pull/41)) squash-merged at `cb94f28`. Closeout pass updated INIT-002 status, phase table, PRs and Branches, validation state, current resume point, and chronology, plus the `initiatives/registry.md` last-signal column.
 - **2026-05-09** — Effort cleanup resolved EFF-019 as a standalone item. Active implementation remains in INIT-002, with PD-010 and `docs/workflows/ai-error-handling-and-telemetry.md` as the durable governance/workflow entrypoints.
 - **2026-06-01** — Wilson accepted automation evidence reports with full reasoning and provenance as the standard before automated tests or future evals can be used as merge gates. INIT-002 eval phases must inherit that standard and keep privacy/redaction provenance visible.
+- **2026-06-09** — Wilson split output-quality evals into [INIT-004](INIT-004-ai-output-quality-evals.md). INIT-002 remains the operational error telemetry home and may hand safe clusters into INIT-004 later.
