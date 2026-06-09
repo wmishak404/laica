@@ -1,15 +1,20 @@
-# AI Eval Evidence
+# AI Eval System
 
-This directory is the durable home for AI output-quality eval indexes, intake records, fixture candidates, and reporting references.
+This directory is the practical home for AI output-quality eval indexes, intake records, fixture candidates, report references, and future harness instructions.
 
-INIT files are initiative hubs. They can close. Eval evidence that should remain discoverable after an INIT closes belongs here.
+The canonical eval discipline lives in [docs/workflows/evaluations.md](../workflows/evaluations.md). INIT files are initiative hubs and can close; eval evidence that should remain discoverable after an INIT closes belongs here.
 
 ## What Lives Here
 
 - `registry.md` - durable index of eval runs, open-coding imports, judge runs, human review batches, and daily reports.
-- `workflow.md` - durable operating model for running, measuring, reporting, and acting on evals.
 - `intakes/` - normalized records for each eval intake listed in the registry.
 - `intakes/TEMPLATE.md` - required structure for future intake records.
+
+Future implementation work may add:
+
+- `fixtures/` - redacted or synthetic golden/regression cases used by the harness.
+- `reports/` - generated summaries or durable references to generated summaries when committing the report itself is appropriate.
+- Harness command notes in this README once INIT-004 adds executable eval tooling.
 
 ## What Does Not Live Here By Default
 
@@ -32,22 +37,23 @@ When raw artifacts remain local or external, the registry and intake record shou
 
 ## Routing Rules
 
+- Use [docs/workflows/evaluations.md](../workflows/evaluations.md) for the repo-wide operating model, merge-gate rules, calibration standard, privacy posture, and prompt-activation discipline.
 - Add every future eval run/import/report as a row in `registry.md`.
 - Add or update a matching `intakes/<intake-id>.md` record when the run changes rubric, fixtures, metrics, reporting, or prompt workflow.
 - Link active initiative hubs, such as `INIT-004`, back to this registry instead of treating the INIT as the permanent dataset ledger.
 - Use PR descriptions and `docs/handoffs/` for point-in-time command output, branch status, local-only file paths, and review context.
 - Use feature phase docs, product decisions, or active Efforts when an eval finding changes product behavior, not only measurement.
 
-## Standard Eval Loop
+## Practical Eval Loop
 
-See [workflow.md](workflow.md) for the full durable process. In short:
+See [docs/workflows/evaluations.md](../workflows/evaluations.md) for the full durable process. In this directory:
 
 1. Register the run/import/report in `registry.md`.
 2. Normalize the intake under `intakes/` when it changes rubric, fixtures, metrics, reporting, or prompts.
-3. Derive or update criterion-level human labels before treating judge metrics as truth.
-4. Run deterministic checks before LLM judges for structure, schema, time, count, and other machine-checkable contracts.
-5. Calibrate each LLM judge against human labels with TPR/TNR before reporting corrected pass rates.
-6. Index reports and prompt-candidate comparisons back through this directory.
+3. Store only redacted, synthetic, or explicitly approved fixture data in repo.
+4. Record harness commands, result artifact ids, report ids, and negative scope in the registry or matching intake.
+5. Link prompt-candidate comparisons and daily reports back through this directory.
+6. When executable tooling lands, document the exact command, required environment, output paths, and artifact-retention policy here.
 
 ## Current Related Initiative
 

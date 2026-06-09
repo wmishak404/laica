@@ -27,14 +27,14 @@ The relationship is **parallel-safe with a soft data link**:
 Phase 0 is a docs-only filing step. Wilson provided Arize open-coding data after the initial filing. The seed inputs are:
 
 - Wilson's 2026-06-09 direction to create a standalone INIT-004 rather than folding the work into INIT-002.
-- Durable eval discipline and seed records now live in [docs/evals/](../docs/evals/README.md), not inside this INIT.
+- Durable eval discipline now lives in [docs/workflows/evaluations.md](../docs/workflows/evaluations.md); seed records and practical eval artifacts live in [docs/evals/](../docs/evals/README.md), not inside this INIT.
 - Good/bad examples already embedded in `server/openai.ts` prompt text from earlier open coding.
 - [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) negative cuisine-fit fixtures for Chinese, Indian, and Thai requests under constrained pantry conditions.
 
 ## Source Docs
 
-- [AI Eval Evidence README](../docs/evals/README.md) - durable home for eval registry, intake records, fixture candidates, and reporting references after INIT closeout
-- [AI Eval Workflow](../docs/evals/workflow.md) - durable operating model for running, measuring, reporting, and acting on evals
+- [AI Eval Evidence README](../docs/evals/README.md) - practical home for eval registry, intake records, fixture candidates, report references, and future harness notes after INIT closeout
+- [Evaluation Workflow](../docs/workflows/evaluations.md) - canonical operating model for running, measuring, reporting, gating, and acting on evals
 - [AI Eval Intake Registry](../docs/evals/registry.md) - durable index of eval runs, open-coding imports, judge runs, human review batches, and daily reports
 - [EFF-022 - Cross-cuisine recommendation prompts](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) - active prompt/eval follow-up for cuisine-fit and pantry-grounded cross-cuisine behavior
 - [INIT-002 - AI Error Telemetry & Eval Monitoring](INIT-002-ai-error-telemetry.md) - operational error telemetry and later safe cluster handoff
@@ -62,9 +62,9 @@ Known Phase 1 audit questions:
 
 ## Durable Eval System
 
-INIT-004 builds on the durable eval system but does not own it permanently. Complete normalized intake records and long-lived process guidance live in [`docs/evals/`](../docs/evals/README.md) so they remain discoverable after INIT-004 closes.
+INIT-004 builds on the durable eval system but does not own it permanently. The canonical operating discipline lives in [`docs/workflows/evaluations.md`](../docs/workflows/evaluations.md). Complete normalized intake records and practical artifact indexes live in [`docs/evals/`](../docs/evals/README.md) so they remain discoverable after INIT-004 closes.
 
-- Workflow: [docs/evals/workflow.md](../docs/evals/workflow.md)
+- Workflow: [docs/workflows/evaluations.md](../docs/workflows/evaluations.md)
 - Durable registry: [docs/evals/registry.md](../docs/evals/registry.md)
 - Intake template: [docs/evals/intakes/TEMPLATE.md](../docs/evals/intakes/TEMPLATE.md)
 - OpenAI Platform seed record: [openai-platform-evalrun-685361470e9c819195a768074ef126cd](../docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md)
@@ -153,4 +153,4 @@ After Phase 0 merges, the next agent should start Phase 1 from fresh `origin/mai
 - **2026-06-09** - Wilson decided this should be filed as a standalone INIT-004 rather than folded into INIT-002. Separate ownership keeps operational error telemetry in INIT-002 and output-quality evals/prompt improvement in INIT-004.
 - **2026-06-09** - Wilson provided Arize open-coding seed data. The notes added initial taxonomy signal for food safety/doneness, proficiency fit, equipment availability, cook-time adherence, cuisine/pantry tradeoff, and output extraction/format fragility.
 - **2026-06-09** - Wilson clarified that eval records need a durable home beyond INIT closeout. Created [docs/evals/](../docs/evals/README.md), moved the normalized OpenAI Platform and Arize seed intake records there, and kept INIT-004 as the active hub that links to the durable registry.
-- **2026-06-09** - Wilson asked to move eval discipline out of INIT-004 because the INIT should stay focused on what needs to be built. Created the durable [AI Eval Workflow](../docs/evals/workflow.md), trimmed INIT-004 back to build context, and updated stale PR placeholders to PR #160.
+- **2026-06-09** - Wilson asked to move eval discipline out of INIT-004 because the INIT should stay focused on what needs to be built. Created the durable [Evaluation Workflow](../docs/workflows/evaluations.md), kept `docs/evals/` as the practical registry/intake home, trimmed INIT-004 back to build context, and updated stale PR placeholders to PR #160.

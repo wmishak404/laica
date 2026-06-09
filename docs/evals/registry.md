@@ -2,6 +2,8 @@
 
 Durable index of AI output-quality eval runs, open-coding imports, judge runs, human review batches, and daily reports.
 
+Use [docs/workflows/evaluations.md](../workflows/evaluations.md) for the canonical eval discipline, evidence standard, calibration rules, privacy posture, and prompt-activation policy.
+
 The registry survives INIT closeout. Active INITs should link here for current work, but this file remains the long-term lookup table.
 
 | Intake id | Source | Source date | Provided / imported | Surface | Sample size | Trend tags | Record | Raw artifact handling | Current status | Next action |

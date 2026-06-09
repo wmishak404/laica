@@ -8,19 +8,19 @@
 
 ## Summary
 
-Wilson decided AI output-quality evals should be a standalone initiative rather than being folded into INIT-002. This branch files INIT-004 as the durable source of truth for quantitative recipe/Slop Bowl/cooking-step evals, human review, judge calibration, daily reporting, and prompt-improvement workflow, while leaving INIT-002 focused on operational AI error telemetry.
+Wilson decided AI output-quality evals should be a standalone initiative rather than being folded into INIT-002. This branch files INIT-004 as the focused build hub for quantitative recipe/Slop Bowl/cooking-step evals, puts the reusable eval discipline in `docs/workflows/evaluations.md`, and keeps durable eval records under `docs/evals/`, while leaving INIT-002 focused on operational AI error telemetry.
 
 The work is docs-only. No runtime behavior, schema, prompt, or eval harness changed in this branch.
 
 ## Changes
 
 - `initiatives/INIT-004-ai-output-quality-evals.md` - new INIT hub covering scope, INIT-002 boundary, source docs, seed data, durable eval evidence links, current cross-intake trends, initial rubric, TPR/TNR measurement policy, human review loop, daily reporting preference, prompt-candidate policy, phases, validation state, and current resume point.
-- `docs/evals/README.md` - durable AI eval evidence home that survives INIT closeout.
+- `docs/workflows/evaluations.md` - canonical eval operating model: register evidence, normalize intakes, build taxonomy, run deterministic checks first, create human labels, calibrate narrow LLM judges, split golden/regression from production/staged sampling, report routinely, and turn failures into controlled prompt candidates.
+- `docs/evals/README.md` - practical AI eval system home that survives INIT closeout and points agents to registry/intake artifacts plus future harness/report conventions.
 - `docs/evals/registry.md` - durable index of eval runs/open-coding imports, with the OpenAI Platform and Arize seed intakes as the first rows.
 - `docs/evals/intakes/TEMPLATE.md` - required normalized intake-record structure for future eval imports.
 - `docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md` - normalized OpenAI Platform eval intake record.
 - `docs/evals/intakes/arize-open-coding-2025-11-07.md` - normalized Arize open-coding intake record.
-- `docs/evals/workflow.md` - durable eval operating model: register evidence, normalize intakes, build taxonomy, run deterministic checks first, create human labels, calibrate narrow LLM judges, split golden/regression from production/staged sampling, report routinely, and turn failures into controlled prompt candidates.
 - Trimmed INIT-004 so it links to the durable workflow and focuses on build scope, current signals, phases, PR status, and resume point.
 - `initiatives/registry.md` - added INIT-004 to the searchable registry.
 - `initiatives/README.md` - added INIT-004 to the current initiatives list.
@@ -59,7 +59,7 @@ Wilson later clarified that the two seed runs should be easy to compare and shou
 
 Wilson then asked whether complete structured datasets should live in the INIT, because INITs can close. Follow-up created `docs/evals/` as the durable home. INIT-004 now links to that registry and keeps only initiative context plus a compact current-trend summary.
 
-Wilson asked for another cleanup pass after `docs/evals/` existed, then clarified that the eval discipline should live outside INIT-004 because the INIT should stay focused on build work. Follow-up removed stale INIT placeholders (`Active PR: None`, local-only PR table row), linked PR #160 in INIT-004/registry, moved the full eval operating model into `docs/evals/workflow.md`, and trimmed INIT-004 to build context.
+Wilson asked for another cleanup pass after `docs/evals/` existed, then clarified that the eval discipline should live outside INIT-004 because the INIT should stay focused on build work. Follow-up removed stale INIT placeholders (`Active PR: None`, local-only PR table row), linked PR #160 in INIT-004/registry, moved the full eval operating model into `docs/workflows/evaluations.md`, kept `docs/evals/` as the practical registry/intake/artifact home, and trimmed INIT-004 to build context.
 
 ## Open items
 
