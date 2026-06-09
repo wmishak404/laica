@@ -12,9 +12,9 @@ Capture the decisions + open questions required to make local + CI validation tr
 
 ## Context — why this exists
 
-Today, LAICA uses a manual “Replit validation gate” because local macOS runs and Replit runs can diverge (runtime, env vars, database, OAuth domains, etc.). This creates friction and correctness ambiguity: “it worked locally” does not reliably imply “it will work on Replit deploy.”
+Historically, LAICA used a broad manual “Replit validation gate” because local macOS runs and Replit runs can diverge (runtime, env vars, database, OAuth domains, etc.). That created friction and correctness ambiguity: “it worked locally” did not reliably imply “it will work on Replit deploy.” The current policy narrows human Replit validation to risk-triggered PRs and release/batch checks while automation carries the routine PR merge gate.
 
-This Effort exists to preserve the decision points and intended direction for the now-active CI harness path without re-deriving this context from chat. PR #109 merged the first additive CI foundation, but it does not replace Replit validation.
+This Effort exists to preserve the decision points and intended direction for the now-active CI harness path without re-deriving this context from chat. PR #109 merged the first additive CI foundation. As of the 2026-06-09 validation-authority update, automated evidence is the routine PR merge gate with explicit risk-lane exceptions; human manual Replit validation is targeted for higher-risk PRs and release/batch validation.
 
 Primary spec / drift-vector inventory:
 - `docs/workflows/environment-parity-spec.md`
@@ -45,9 +45,9 @@ Key external constraints (provenance):
 
 ### Out of scope (for now)
 
-- Changing `AGENTS.md` / ADR-0001 to remove the Replit validation gate (requires an explicit follow-up decision).
+- Further broadening agent merge authority for code/security/product PRs beyond explicit human merge instructions.
 - Automating full Google sign-in popup completion with a real user account. The preferred direction remains a deterministic dev-only auth lane plus a separate production-domain identity-provider preflight.
-- Treating the PR #109 harness as proof that CI is already primary; it is additive until a separate ADR/PD changes validation authority.
+- Treating any one harness lane as proof of full app coverage; automation remains evidence that must be reasoned from, with negative scope and risk lanes.
 
 ## Decisions made so far
 
@@ -59,6 +59,7 @@ These are recorded from discussion; they are not yet implemented repo-wide.
 4. **Local/CI auth lane:** Prefer deterministic local/CI auth that does not depend on real user credentials.
 5. **“Real login works” definition:** Prefer an automated production-domain identity-provider start check, not an automated full Google sign-in completion (avoid test-account credential/2FA brittleness).
 6. **Authenticated browser-smoke target:** Future automation should cover actual UI state transitions, DB persistence/no-duplicate assertions, and provider-route completion for selected high-value flows. Code review alone is not a substitute for these browser/environment checks.
+7. **Validation-authority shift:** Routine PRs use automated evidence as the primary merge gate when the PR records claim, provenance, reasoning, negative scope, and risk lane. Human manual Replit validation is no longer the default PR gate; it is required before merge only for higher-risk/cross-functional work, uncovered live-service seams, weak/skipped automation, or explicit Wilson request. Low-risk PRs can defer human Replit checks to a batched release/pre-production pass. Future automated Replit-environment checks are a desired PR gate lane once their setup and evidence standard are accepted.
 
 ## Open questions
 
@@ -66,7 +67,7 @@ These are recorded from discussion; they are not yet implemented repo-wide.
    - Replit deployment domain(s) only vs custom domain only vs both
 2. Should the preflight gate run on every PR merge, only on release, or as a nightly canary?
 3. What DB strategy beyond PR #109's schema-only Neon branches is needed for local agent validation and future smoke coverage?
-4. How should this Effort’s direction reconcile with current workflow docs that state Replit is the service-backed validation gate (ADR-0001 / `AGENTS.md` / EFF-005 / EFF-010)?
+4. Which automated Replit-environment checks should become per-PR CI gates first, and what secrets/environment isolation do they require?
 5. Which smoke journeys are the first automation targets?
    - Candidate from Phase 3.2: authenticated Chef It Up progressive staples, including staple queue UI, submit-time pantry write, duplicate prevention, loading Back/cancel, and Ticket Pass completion.
 6. Should live AI recipe generation be part of every browser smoke, gated behind an explicit live-service flag, or replaced by a controlled fixture for most PR runs with a smaller provider canary?
@@ -87,15 +88,15 @@ Also read:
 
 ## Resolution criteria — what "done" looks like
 
-The full CI-confidence objective remains broader than PR #109. The current active slice is follow-through on the additive harness: complete required private GitHub repo configuration, prove the guest smoke runs instead of skipping, and fix startup-isolation issues that block the privacy-forward guest smoke from exercising auth/setup/DB/UI. Split future harness enhancements into separate PRs from `main`. Preserve the current Replit validation gate until a separate ADR/PD explicitly changes validation authority.
+The full CI-confidence objective remains broader than PR #109. The current active slice is follow-through on the additive harness: keep the routine PR gate deterministic and evidence-rich, expand accepted automated lanes where useful, and move remaining human Replit work into explicit risk-triggered or release/batch validation. Split future harness enhancements into separate PRs from `main`.
 
 This Effort can be `Resolved` when all of the following are true:
 
-1. CI is the primary merge gate for correctness (with explicit exceptions documented).
+1. CI/automation is the primary PR merge gate for correctness, with explicit human Replit exceptions documented.
 2. Local + CI run a repeatable authenticated smoke path (emulator-based) and DB schema health checks.
 3. A production identity-provider preflight gate exists and prevents authorized-domain regressions.
 4. At least one high-value authenticated browser flow is automated end to end with deterministic test data, UI assertions, persistence/no-duplicate checks, and clear handling for provider calls.
-5. `AGENTS.md` + ADR-0001 + EFF-005/010 are updated so policy is consistent everywhere.
+5. `AGENTS.md` + ADR-0001 + testing/security workflows are updated so policy is consistent everywhere; EFF-010 remains the local DB/schema strategy companion.
 
 ## 2026-05-05 — Parked
 
@@ -571,3 +572,11 @@ The authoritative automated E2E lane for the PR then passed on GitHub Actions he
 The same PR discussion clarified a separate coverage nuance: Firebase custom-token dev auth is valuable because it tests the signed-in linked destination state without a brittle Google popup, but it does not automatically prove the continuous product journey where a guest hits a signup-required boundary, signs up or links, and then resumes the intended action/state with the right guest data preserved.
 
 The Testing and Acceptance Workflow now asks agents to record that distinction after E2E when a change touches guest promotion, signup-required copy, quota walls, linked-only save boundaries, guest-to-linked conversion, or navigation into those surfaces. If routine CI proves the guest block and linked destination separately, the continuous guest-blocked -> sign-up/link -> continue journey should be listed as an optional but relevant validation gap, with the follow-up lane chosen by risk: targeted Playwright with dev auth, Replit human validation, or a future identity-provider/preflight check.
+
+## 2026-06-09 — Human Replit validation moved from default PR gate to risk/release lane
+
+Wilson accepted the validation-authority shift that EFF-017 had been working toward: human manual Replit validation should no longer be a default PR merge gate for every deployment-bound code change. Routine PR readiness should rely on documented automated evidence, exact-head CI/E2E status, and a lightweight risk lane. Human Replit validation remains required before PR merge only when risk warrants it: higher-risk/cross-functional changes, schema/secrets/deployment/runtime startup changes, auth/session/provider behavior not exercised by CI or accepted automated Replit-environment checks, weak/skipped automation, or explicit Wilson request.
+
+Low-risk security or runtime-boundary fixes can now be batched so one targeted release/pre-production Replit pass covers several related patches. The PR/handoff should carry a compact risk annotation: risk lane, why the lane fits, exact evidence, deferred manual scope, and a future-bug breadcrumb. This keeps future debugging traceable without creating a new Effort or workflow note for every small hardening patch.
+
+This does not resolve EFF-017. Remaining work is to turn more real Replit-environment checks into automated CI lanes, finish provider canary decisions, resolve identity-provider preflight configuration/targeting, and eventually decide coverage threshold/ratchet posture. The policy update reduces the human bottleneck now while preserving explicit manual gates where automation still cannot prove the relevant live-service behavior.

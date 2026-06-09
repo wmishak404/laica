@@ -27,7 +27,7 @@ See [docs/adr/0001-replit-primary-local-agents.md](docs/adr/0001-replit-primary-
 4. **One agent per branch** — never share a branch with Codex or a human session.
 5. **Local checks OK** — `npm run check`, `npm run build` work on macOS.
 6. **Local dev OK** — full app runs locally via dotenvx (see Secrets below).
-7. **Service validation requires Replit** — deployment-bound changes must be tested there.
+7. **Human Replit validation is targeted** — routine low-risk PRs can rely on automation when the PR records evidence, risk, and deferred manual Replit scope; higher-risk or cross-functional changes still need targeted human Replit validation before merge. Future automated Replit-environment checks may become PR gates once their evidence lane is accepted.
 
 ## Agent merge authority
 
@@ -199,4 +199,4 @@ This prevents orphaned work and ensures clean git history.
 - AI prompts are versioned in the database via `prompt_versions` table.
 - Run Claude from the repo root or from a dedicated feature checkout for the task you are handling.
 - Keep personal overrides in `.claude/settings.local.json` and any user-only memory outside tracked project files.
-- Treat Replit as the final verification environment for database-backed, auth-backed, and deployment-bound changes.
+- Treat Replit as the final verification environment before production release for database-backed, auth-backed, and deployment-bound changes. Do not make human Replit validation a default PR gate when accepted automation and risk notes are sufficient.

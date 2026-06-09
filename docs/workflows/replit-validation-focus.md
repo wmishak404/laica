@@ -6,7 +6,9 @@ Follow [operating-principles.md](operating-principles.md): evidence first, no un
 
 This doc exists to make Replit validation *targeted*.
 
-After a feature is validated locally, Replit validation should focus on the **environmental differences** that can still cause failures (ports/origins, deployment secrets, dev-vs-prod database separation, Firebase OAuth domains, etc.), not re-test everything every time.
+After a feature is validated locally or in CI, Replit validation should focus on the **environmental differences** that can still cause failures (ports/origins, deployment secrets, dev-vs-prod database separation, Firebase OAuth domains, etc.), not re-test everything every time.
+
+Human manual Replit validation is not the default PR gate. Use this guide when a PR's risk lane requires manual Replit validation before merge, when a low-risk batch is ready for pre-production/release validation, or when an accepted automated Replit-environment lane needs focus areas and expected evidence.
 
 For the exhaustive drift-vector inventory and longer-term parity plan, see:
 - `docs/workflows/environment-parity-spec.md`
@@ -71,7 +73,7 @@ Replit runs on Linux; local dev is usually macOS (often ARM64). Native modules a
 
 ## What To Validate On Replit (Matrix)
 
-Use this as a checklist picker. If you didn’t touch a category, you generally don’t need to re-test it in Replit.
+Use this as a checklist picker. If you did not touch a category, you generally do not need to re-test it in Replit. If a PR defers human Replit validation to a release/batch pass, copy only the relevant rows into the PR risk note or handoff.
 
 | If your change touches… | Replit validation focus |
 |---|---|
@@ -88,7 +90,7 @@ Use this as a checklist picker. If you didn’t touch a category, you generally 
 
 ## Replit Validation Request Template (Copy/Paste)
 
-Use this in PR descriptions and handoffs so the validator knows *exactly* what to test.
+Use this in PR descriptions and handoffs only when manual Replit validation is required before merge or deliberately deferred to a release/batch pass. For future automated Replit-environment checks, use the same focus/coverage fields and replace human steps with the script/workflow/run provenance.
 
 ```md
 ## Replit validation request
@@ -98,6 +100,11 @@ Validated locally:
 - [ ] npm run check
 - [ ] npm run build
 - [ ] manual localhost smoke (describe)
+
+Replit validation lane:
+- [ ] Human before PR merge
+- [ ] Human release/batch validation
+- [ ] Automated Replit-environment gate
 
 Replit validation target:
 - [ ] Workspace (replit.dev)
@@ -128,7 +135,7 @@ Steps to run on Replit (numbered, specific):
 2.
 3.
 
-Last Replit-validated at: <commit-sha>
+Last Replit-validated at: <commit-sha> / deferred to release-batch validation
 ```
 
 ## Updating This Doc

@@ -10,7 +10,7 @@ This workflow captures the reusable security lessons from the May 2026 Replit sc
 
 When a change touches auth, user-owned data, provider spend, admin data, AI prompt inputs, response caching, or production HTML/security headers, do a focused security pass for that surface and add the smallest test or Replit check that would catch the same class of bug next time.
 
-Do not chase a zero-findings target. Block merge for critical/high production-reachable issues and for medium issues that expose user data, auth/session material, admin data, or paid-provider abuse at scale. Table low, speculative, dev-only, or stale findings unless they fit naturally into the current change.
+Do not chase a zero-findings target. Block merge for critical/high production-reachable issues and for medium issues that expose user data, auth/session material, admin data, or paid-provider abuse at scale. Table low, speculative, dev-only, or stale findings unless they fit naturally into the current change. Low-risk hardening patches may be batched so related security fixes can share one targeted release/Replit validation pass.
 
 Because the repository is public, do not publish exact unresolved dependency advisory details, package paths, exploit notes, reproduction steps, raw scanner output, or vulnerable-route evidence in public docs, PR bodies, or pushed handoffs. Keep that detail in private/local working artifacts such as `$CODEX_HOME/automations/security/report-YYYY-MM-DD.md`, `$CODEX_HOME/automations/security/last_scan.json`, local untracked notes, or GitHub Security/Dependabot. Public GitHub text should stay at the coordination level: severity bucket, sanitized remediation theme, decision, owner, validation status, and merge recommendation. If a public PR or handoff needs to mention security work, say what changed and how it was validated without teaching the unresolved weakness.
 
@@ -21,9 +21,9 @@ Use this checklist only for surfaces touched by the branch.
 | If the change touches... | Check for... | Preferred coverage |
 |---|---|---|
 | User settings, profile, pantry, sessions, feedback, or saved app state | Caller-supplied IDs must not override the authenticated Firebase UID; reads/writes must be scoped to the owner | Unit test with a malicious `authUserId` or owner field in the body and an authenticated different user |
-| Authenticated audio, generated content, admin JSON, or private API responses | Private responses must not be publicly cacheable; authenticated variants should include the relevant `Vary` header | Route/header unit test plus Replit `curl -i` for deployment-bound endpoints |
+| Authenticated audio, generated content, admin JSON, or private API responses | Private responses must not be publicly cacheable; authenticated variants should include the relevant `Vary` header | Route/header unit test; human Replit `curl -i` before merge only when the risk lane requires live header proof, otherwise defer to release/batch validation |
 | `client/index.html`, CSP, external scripts, analytics, embeds, or production HTML | Avoid third-party scripts with signed-in page access unless explicitly accepted; CSP must match the real production allowlist | Static test/assertion over HTML and CSP headers |
-| AI, speech, vision, recipe generation, or other paid-provider routes | Abuse limits must be server-side and shared across production instances when running on autoscale; client limits are UX only | Unit test for the limiter contract and Replit smoke for real provider calls |
+| AI, speech, vision, recipe generation, or other paid-provider routes | Abuse limits must be server-side and shared across production instances when running on autoscale; client limits are UX only | Unit test for the limiter contract and either accepted automated provider/Replit canary evidence or targeted human Replit smoke before release |
 | AI logs, eval data, feedback, transcripts, or user text flowing into prompts | Treat logged/user content as untrusted data; neutralize prompt markers and tell prompt-writing models not to obey examples | Unit test for prompt construction/sanitization when practical; admin workflow smoke when provider-backed |
 | `/api/admin/*` routes or admin tooling | Require admin auth, do not cache sensitive responses, avoid leaking secrets or raw user payloads | Header/auth unit test and Replit `curl` with/without `X-Admin-Secret` |
 | DB schema that supports security controls | Schema must be applied in the Replit-authoritative DB before relying on the control | `npm run db:push` in Replit plus a smoke that exercises the control |
@@ -48,7 +48,19 @@ When a future feature touches one of the focus areas, prefer adding a targeted r
 - Add limiter tests for provider routes, including image-count or multi-request accounting where relevant.
 - Add prompt-construction tests when user/logged content is repackaged for an AI prompt.
 
-If the behavior depends on Replit-only services, real Firebase Google sign-in, Replit deployment secrets, production DB schema, ElevenLabs, OpenAI, or autoscale behavior, record it as Replit validation instead of pretending local mocks fully prove it.
+If the behavior depends on Replit-only services, real Firebase Google sign-in, Replit deployment secrets, production DB schema, ElevenLabs, OpenAI, or autoscale behavior, record the missing live-service proof instead of pretending local mocks fully prove it. That proof can be human Replit validation, accepted automated Replit-environment CI, a provider canary, or a deferred release-batch check depending on the risk lane in [`testing-and-acceptance.md`](testing-and-acceptance.md).
+
+## Low-Risk Security Patch Batching
+
+For low-risk security hardening, prefer a small PR risk note over a standalone process document:
+
+- **Risk lane:** automation-primary or batched release validation.
+- **Why low risk:** narrow route/header/input boundary, no schema/dependency/client contract change, and representative route tests exist.
+- **Evidence:** exact local/GitHub checks and the test files/assertions that cover the boundary.
+- **Deferred release check:** the smallest human or automated Replit check to run with the next security/release batch.
+- **Future-bug breadcrumb:** the likely symptom/surface to inspect first if the enhancement causes a regression.
+
+Do not publish detailed scanner output or vulnerability breadcrumbs in this note. Keep it at the remediation/validation level.
 
 ## Replit Checks To Reuse
 

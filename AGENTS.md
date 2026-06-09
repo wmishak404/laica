@@ -15,7 +15,7 @@ See the full shared workflow in [docs/adr/0001-replit-primary-local-agents.md](d
 - Only one agent/session should actively own a branch or checked-out worktree at a time.
 - Prefer Codex app worktrees for parallel Codex tasks. Codex-managed worktrees live under `$CODEX_HOME/worktrees`; manually managed worktrees for this repo live under `/Users/wilsonishak-macbookpro/src/laica-worktrees`.
 - Shared Codex local-environment files belong in the repo-root `.codex` folder.
-- Local macOS work is for editing, reviews, refactors, and compile-time checks. Full local dev is now possible via dotenvx (see Secrets below). Service-backed validation still happens in Replit before deployment.
+- Local macOS work is for editing, reviews, refactors, and compile-time checks. Full local dev is now possible via dotenvx (see Secrets below). Human manual Replit validation is reserved for production deployment readiness and PRs whose risk lane requires it.
 
 ## Local checks
 
@@ -30,11 +30,17 @@ Run these locally when the task does not depend on Replit-only services:
 
 When automated tests, CI, Playwright, `db:health`, or future eval runs are used as merge-readiness evidence, the PR or handoff must include the evidence report required by [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md): claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope. Do not conclude a code PR is correct from "tests passed" or "CI green" alone.
 
-Every pushed implementation build/head intended for review or merge must run or trigger the full automated E2E gate for that exact head. Replit smoke is complementary deployment validation, not a substitute for a missing, skipped, or failed automated E2E gate.
+Every pushed implementation build/head intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human manual Replit smoke is complementary deployment/release validation, not a substitute for a missing, skipped, or failed automated E2E gate. Future automated Replit-environment checks may become PR gates when their evidence lane is documented and accepted.
 
-## Replit validation gate
+## Human Replit validation policy
 
-Before merging deployment-bound changes, sync the branch into Replit and verify:
+Human manual Replit validation is no longer the default PR merge gate for every deployment-bound change. Use [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md) to classify the validation lane.
+
+For low-risk, narrowly scoped changes with strong automated evidence, PRs may defer human Replit validation to a batched pre-production/release pass. The PR or handoff must annotate the risk, automated evidence, negative scope, and the exact deferred manual checks so future debugging can trace a regression back to the enhancement without bloating durable docs.
+
+Require human Replit validation before PR merge only when the change is higher risk or cross-functional, changes schema/secrets/deployment/runtime startup, changes auth/session/provider behavior in a way CI or automated Replit-environment checks do not exercise, has weak or skipped automated evidence, or Wilson explicitly asks for PR-level manual validation.
+
+Before production publish, sync the merged validation batch into Replit and verify the selected focus areas manually or through an accepted automated Replit-environment lane:
 
 - Use `docs/workflows/replit-validation-focus.md` to choose *targeted* Replit validation steps based on what changed locally.
 - Firebase sign-in
@@ -45,7 +51,7 @@ Before merging deployment-bound changes, sync the branch into Replit and verify:
 
 ## Stacked PRs and Replit validation
 
-When work spans phased or dependent PRs, two rules backstop stale Replit validation.
+When work spans phased or dependent PRs, two rules backstop stale Replit validation when a branch claims human/manual or automated Replit-environment evidence, or is part of a batched pre-production validation pass.
 
 **1. Rebase the upper-stack branch after lower-stack merges.** A branch is "stacked" when it logically depends on a lower PR: shared files, builds on the feature, or needs the lower PR's polish/docs to represent the real post-merge product. This rule does not apply to parallel independent PRs. Once a lower-stack PR merges to `main`, the agent owning the next stacked branch must:
 
@@ -56,11 +62,11 @@ When work spans phased or dependent PRs, two rules backstop stale Replit validat
 
 The branch owner performs this rebase, triggered by the lower-stack merge handoff. Pair `--force-with-lease` with the one-agent-per-branch rule so rewritten branch history stays safe.
 
-**2. Re-validate if new commits land after validation.** PR descriptions and handoffs for deployment-bound work must include `Last Replit-validated at: <commit-sha>` or clearly say `not yet validated`. If new commits arrive on the branch after that SHA, the validation is stale by definition. The PR cannot merge until Replit validation is re-run and the SHA is refreshed. There are no exceptions for "small" cosmetic commits because that judgment call is where regressions slip in.
+**2. Re-validate if new commits land after validation.** PR descriptions and handoffs for work that claims Replit validation must include `Last Replit-validated at: <commit-sha>` or clearly say `Human Replit validation: deferred to release/batch validation`. If new commits arrive after a claimed Replit-validated SHA, that validation is stale by definition for the affected batch. There are no exceptions for "small" cosmetic commits because that judgment call is where regressions slip in.
 
 **Audit hygiene.** When auditing PR scope, compare against `origin/main...HEAD`, never a stale local `main` or old merge base.
 
-**Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include the last Replit-validated commit SHA.
+**Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include either the last Replit-validated commit SHA or the deferred release/batch validation status.
 
 ## Agent merge authority
 
