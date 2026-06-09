@@ -557,3 +557,11 @@ Final evidence:
 - Replit validation covered guest Chef It Up into provider-backed Live Cooking, guest constraints, guest-to-existing-Google linking and profile merge, linked Chef It Up with added staples after cuisine selection, Live Cooking assistance, refresh restore at current/final steps, no duplicate `/api/cooking/session/start` or duplicate History entry, and completion/History behavior.
 
 EFF-017 remains `In Progress`. PR #144 improved runtime confidence and added useful regression coverage for provider-boundary payload shape and remount/restore side effects, but it does not resolve the remaining EFF-017 policy/config work: CI-primary policy alignment, identity-provider preflight configuration/run, provider canary decisions, coverage threshold/ratchet posture, production identity-provider proof, and broader provider quality/eval coverage.
+
+## 2026-06-09 — PR #156 clarified local DB drift vs ephemeral CI E2E authority
+
+While validating the guest bottom-nav shortcut removal, local dotenvx-backed Playwright against the worktree `.env` database failed after anonymous auth because `/api/auth/session` correctly queried required quota state and the local configured database was missing `anonymous_recipe_usage`. `db:health` also found older drift for `ai_interactions`, `prompt_versions`, and `cooking_sessions.recipe_snapshot`.
+
+This was useful system signal, not a product-code reason to weaken `/api/auth/session`: unknown or stale databases should fail loudly when required guest quota schema is absent.
+
+The authoritative automated E2E lane for the PR then passed on GitHub Actions head `aa7ba84`: `e2e_guest_smoke` created a schema-only Neon branch, applied the current Drizzle schema, passed `db:health`, ran Playwright, and deleted the Neon branch. The Testing and Acceptance Workflow now states this explicitly: use the ephemeral non-production Neon lane for merge-gate E2E evidence when available; treat local decrypted `.env` E2E as diagnostic unless `DATABASE_URL` is pointed at an equivalent prepared non-production test database.
