@@ -497,7 +497,7 @@ Relevant Firebase provenance:
 - Local macOS development, by default, uses whatever is installed via Homebrew/Xcode/etc (not pinned by this repo).
 
 **Why this matters:**
-- Even if most dependencies are JavaScript, some packages ship native binaries (example in this repo: `bcrypt`), and system tooling can influence runtime behavior (image/audio processing, headless browser dependencies, etc).
+- Even if most dependencies are JavaScript, optional native modules and system tooling can influence runtime behavior (image/audio processing, headless browser dependencies, optional WebSocket buffers, etc).
 - CPU architecture differs: many macOS setups are `arm64`, while Replit commonly runs `linux` on `x86_64`. Native module builds may differ, even if behavior should be equivalent.
 
 **Options:**

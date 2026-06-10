@@ -638,4 +638,21 @@ Current implementation signal:
 - After the split-secret commit, GitHub `unit`, `e2e_guest_smoke`, security/dependency checks, CodeQL, and manual OAuth Start Preflight all passed on the same pushed head.
 - A local/private diagnostics opt-in exists for OAuth provider errors, but it must not be enabled in public GitHub workflows. Exact CI/ruleset/provider evidence belongs under the security due-diligence private-evidence rule.
 
-This does not close EFF-017. Remaining follow-up still includes root test-runner artifact cleanup, dead-code sweep, coverage baseline/ratchet decision after the honest denominator is measured, Replit-specific OAuth target decisions, provider canary scope, production/deployment proof, and targeted tests for live-but-thin surfaces as those areas are touched.
+This did not close EFF-017. At PR #165 closeout, remaining follow-up still included root test-runner artifact cleanup, dead-code sweep, coverage baseline/ratchet decision after the honest denominator is measured, Replit-specific OAuth target decisions, provider canary scope, production/deployment proof, and targeted tests for live-but-thin surfaces as those areas are touched.
+
+## 2026-06-10 — Root runner artifacts and unused local-auth helper removed
+
+The follow-up cleanup branch started from fresh `origin/main` after PR #165 merged and removed the confirmed-stale root testing artifacts:
+
+- `test-runner.js`
+- `run-tests.sh`
+- `test-criteria.md`
+- `test-criteria-template.js`
+
+Those files described an older ad hoc path using `node test-runner.js`, duplicated current `npm run test:*` scripts, and pointed at a nonexistent `create-test.js`. The canonical testing entry points now remain `package.json` scripts plus `docs/workflows/testing-and-acceptance.md` for evidence and risk-lane discipline.
+
+The same pass removed `server/localAuth.ts` after repo search showed no active imports or route wiring for the username/password helper. Its only direct runtime dependency, `bcrypt`, and the unused `@types/bcrypt` package were removed from `package.json` / `package-lock.json`. This narrows the coverage denominator and Replit install surface without changing the active Firebase/Auth path.
+
+The branch also added focused `cooking-history.tsx` coverage for loading/empty states, expanding completed-session recipe details, delayed single-session delete, undo, and confirmed delete-all. The history menu/delete buttons now have accessible names, giving both tests and users stable control labels.
+
+This still does not close EFF-017. The broader dead-code sweep remains open for product-shaped dormant surfaces that need separate judgment before deletion, and live-but-thin surfaces such as broader `useAuth` and broader `live-cooking.tsx` still need targeted coverage rather than removal.
