@@ -566,12 +566,12 @@ This section defines the canonical environment contract. Every environment (Repl
   - Provenance: `server/openai.ts` accepts empty string for non-critical paths and `/api/speech/transcribe` lazy-creates its transcription client; AI generation, transcription, and any live-provider smoke will fail if unset.
 - `ADMIN_SECRET`
   - Provenance: `server/admin-routes.ts` requires for admin endpoints.
-- `SESSION_SECRET`, `REPLIT_DOMAINS`, `ISSUER_URL`
-  - Provenance: `server/replitAuth.ts` (legacy path; should remain disabled unless explicitly used).
 - `PORT`
   - Provenance: `server/index.ts`
 - `REPLIT_DEV_DOMAIN`, `LAICA_DEV_ALLOWED_HOSTS`, `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS`
   - Provenance: `server/vite-hosts.ts`; development Vite host allowlist inputs.
+
+Legacy Replit OIDC/session variables (`SESSION_SECRET`, `ISSUER_URL`) are not part of the current application contract. Firebase Auth is the active auth path, and the old Replit OIDC/session server file has been deleted. Existing secret-store entries can be retired separately; do not reintroduce them unless a new auth design is explicitly accepted.
 
 #### Development Vite host allowlist
 

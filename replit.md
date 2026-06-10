@@ -54,7 +54,6 @@ Secrets are managed with `dotenvx` for cross-environment portability, decrypting
 -   `ELEVENLABS_API_KEY` — ElevenLabs TTS (required, crashes without it).
 -   `OPENAI_API_KEY` — OpenAI GPT-4o (optional, graceful fallback).
 -   `ADMIN_SECRET` — Admin endpoint auth via `X-Admin-Secret` header.
--   `SESSION_SECRET` — Express session signing.
 -   `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` — Firebase client config.
 -   `FIREBASE_SERVICE_ACCOUNT_JSON` — Firebase Admin service account JSON for server-side ID token verification (required for any authenticated API). `FIREBASE_SERVICE_ACCOUNT_BASE64` is accepted as an alternative; `FIREBASE_PROJECT_ID` may be set explicitly to override the project ID derived from the service account.
 -   `RATE_LIMIT_*` — Optional overrides for per-user rate-limit thresholds (e.g. `RATE_LIMIT_RECIPE_BURST`, `RATE_LIMIT_VISION_DAY`). See `server/rate-limit.ts` for the full list and defaults.

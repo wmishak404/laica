@@ -118,7 +118,6 @@ The symlink stays untracked because `.env.*` is gitignored. Without this link, d
 | `ELEVENLABS_API_KEY` | Text-to-speech | Yes (crashes) |
 | `OPENAI_API_KEY` | AI features | No (graceful fallback) |
 | `ADMIN_SECRET` | Admin route auth | No (on demand) |
-| `SESSION_SECRET` | Express sessions | No |
 | `VITE_FIREBASE_*` | Firebase client config | Yes (auth won't work) |
 
 ### Security notes
