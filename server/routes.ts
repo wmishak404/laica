@@ -42,6 +42,8 @@ import fs from "fs/promises";
 import fsSync from "fs";
 import OpenAI from "openai";
 import { AI_PROVIDER_QUOTA_EXHAUSTED, AIProviderQuotaError } from "./ai-errors";
+import { logAiError } from "./aiErrors";
+import { requestIdMiddleware } from "./requestId";
 
 function getTranscriptionClient(): OpenAI | null {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -323,7 +325,7 @@ async function getRecentCookingSessionsOrEmpty(userId: string, limit: number, co
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  app.use('/api', apiRequestLimit);
+  app.use('/api', requestIdMiddleware, apiRequestLimit);
 
   app.post('/api/dev/auth/linked-token', handleLinkedDevAuthTokenRequest);
 
@@ -438,7 +440,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(withAnonymousQuota(suggestions, quotaReservation));
     } catch (error) {
       await refundAnonymousRecipeQuota(firebaseUser, quotaReservation, "recipe-suggestions");
-      console.error('Error in recipe suggestions:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/recipes/suggestions",
+        feature: "recipe_suggestions",
+        vendor: "openai",
+      });
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid recipe suggestions request');
       }
@@ -483,7 +491,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(withAnonymousQuota(suggestions, quotaReservation));
     } catch (error) {
       await refundAnonymousRecipeQuota(firebaseUser, quotaReservation, "pantry-recipes");
-      console.error('Error in pantry recipe suggestions:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/recipes/pantry",
+        feature: "pantry_recipes",
+        vendor: "openai",
+      });
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid pantry recipe request');
       }
@@ -548,10 +562,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ recipe });
     } catch (error) {
+      logAiError({
+        error,
+        req,
+        route: "/api/recipes/slop-bowl",
+        feature: "slop_bowl",
+        vendor: "openai",
+      });
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, "Invalid Slop Bowl request");
       }
-      console.error("Error generating Slop Bowl recipe:", error);
       aiServiceErrorResponse(res, "Failed to generate Slop Bowl recipe", error);
     }
   });
@@ -570,7 +590,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const steps = await getCookingSteps(recipeName, ingredients, equipment, description);
       res.json(steps);
     } catch (error) {
-      console.error('Error in cooking steps:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/cooking/steps",
+        feature: "cooking_steps",
+        vendor: "openai",
+      });
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid cooking steps request');
       }
@@ -628,7 +654,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const assistance = await getCookingAssistance(step, question);
       res.send(assistance);
     } catch (error) {
-      console.error('Error in cooking assistance:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/cooking/assistance",
+        feature: "cooking_assistance",
+        vendor: "openai",
+      });
       if (error instanceof z.ZodError) {
         return invalidRequestResponse(res, error, 'Invalid cooking assistance request');
       }
@@ -683,7 +715,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysis = await analyzeIngredientImage(processedImage);
       res.json(analysis);
     } catch (error) {
-      console.error('Error in image analysis:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/vision/analyze",
+        feature: "ingredient_detection",
+        vendor: "openai",
+      });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid image analysis request' });
       }
@@ -726,7 +764,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.send(audioBuffer);
     } catch (error) {
-      console.error('Error in speech synthesis:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/speech/synthesize",
+        feature: "tts",
+        vendor: "elevenlabs",
+      });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid speech synthesis request' });
       }
@@ -742,7 +786,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         allVoices: await getAvailableVoices(),
       });
     } catch (error) {
-      console.error('Error fetching voices:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/speech/voices",
+        feature: "tts_voices",
+        vendor: "elevenlabs",
+      });
       res.status(500).json({ error: 'Failed to fetch voices' });
     }
   });
@@ -795,7 +845,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
     } catch (error) {
-      console.error('Transcription error:', error);
+      logAiError({
+        error,
+        req,
+        route: "/api/speech/transcribe",
+        feature: "transcription",
+        vendor: "whisper",
+      });
       res.status(500).json({ error: 'Failed to transcribe audio' });
     }
   });

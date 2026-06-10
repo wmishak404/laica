@@ -32,7 +32,7 @@ Adopt an **allowlist-first** policy enforced at the writer boundary by TypeScrip
 | `feature` | varchar(48) | no | Stable enum: `recipe_suggestions`, `pantry_recipes`, `slop_bowl`, `cooking_steps`, `cooking_assistance`, `ingredient_detection`, `tts`, `tts_voices`, `transcription` |
 | `vendor` | varchar(16) | no | `openai` \| `elevenlabs` \| `whisper` \| `internal` |
 | `http_status` | integer | no | Response status (400, 429, 500, 502, 503, 504, …) |
-| `error_class` | varchar(32) | no | Stable enum mirroring [EFF-018](../efforts/effort-018-authenticated-ai-error-handling.md)'s taxonomy. v0 set: `validation` \| `rate_limit` \| `upstream_timeout` \| `upstream_5xx` \| `upstream_auth` \| `unknown`. May expand in INIT-002 Phase 1 to distinguish 401/403/404/413/network if real Replit traffic shows the v0 set collapses too much. Any expansion lands in EFF-018's surface first; PD-010 amendment follows. |
+| `error_class` | varchar(32) | no | Stable enum mirroring [EFF-018](../efforts/effort-018-authenticated-ai-error-handling.md)'s taxonomy. Phase 1 set: `validation` \| `auth` \| `not_found` \| `payload_too_large` \| `product_precondition` \| `rate_limit` \| `upstream_timeout` \| `upstream_5xx` \| `upstream_auth` \| `network` \| `unknown`. This expands the original v0 set so server logs preserve the already-shipped 400/401/403/404/413/429/5xx/network distinctions without storing raw errors. |
 | `error_code` | varchar(128) | yes | Short vendor code if available (e.g. OpenAI `rate_limit_exceeded`); not the message body |
 | `is_authenticated` | boolean | no (default `false`) | Denormalized for cleaner anon-vs-authed queries |
 | `auth_user_id` | varchar(128) | yes | Firebase UID **only when route is authenticated**; FK to `auth_users(id)` `ON DELETE SET NULL` |
@@ -68,6 +68,8 @@ Even though the allowlist column types prevent free text from entering the table
 
 The classifier returns a stable enum and short error code only — never the original error message, stack, or response body. Telemetry callers consume the classifier's output, not the raw error. **Taxonomy ownership:** [EFF-018](../efforts/effort-018-authenticated-ai-error-handling.md) owns the canonical taxonomy (400/401/403/404/413/429/5xx/network), shipped in client-side [`rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts) and the typed payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 builds the *server-side* classifier function (`classifyAiError`) that mirrors that taxonomy for the writer to consume. Any taxonomy change lands in EFF-018's surface first; INIT-002 follows.
 
+2026-06-09 Phase 1 amendment: the server-side classifier may emit the expanded Phase 1 `error_class` set above for structured stdout telemetry. This is not a DB schema change; Phase 3 must use the same enum when `ai_error_events` persistence lands.
+
 ### Retention
 
 - **90 days** for `ai_error_events` rows, matching the mobile-refresh AI privacy commitment for `aiInteractions`.
@@ -88,9 +90,11 @@ The classifier returns a stable enum and short error code only — never the ori
 | `upstream_5xx` with shared `error_code` across users | Vendor incident — monitor, no action; dashboard signal only |
 | `upstream_auth` cluster | Vendor key rotation or expiry — infra ticket, rotate via Replit secrets |
 | `unknown` cluster | Classifier gap — extend `classifyAiError` with the new shape, ship via EFF-018 channel |
-| Recurring `input_shape_hash` that fails consistently | Engineer manually constructs an `aiInteractions` eval row that exercises the trigger. **No user data leaves the failure stream**; the engineer reproduces from the shape signal alone (preference_length, ingredient_count, image_count, error_class, error_code) |
+| Recurring `input_shape_hash` that fails consistently | Engineer manually constructs a redacted or synthetic INIT-004 fixture candidate that exercises the trigger. **No user data leaves the failure stream**; the engineer reproduces from shape signal alone (`feature`, `route`, `preference_length`, `ingredient_count`, `image_count`, `error_class`, `error_code`, latency, counts, and `input_shape_hash`) |
 
 Phase 5 of [INIT-002](../initiatives/INIT-002-ai-error-telemetry.md) appends one worked example per cluster type from real Replit data so the process is non-theoretical.
+
+INIT-004 bridge boundary: `validation`, `unknown`, or response-contract-adjacent clusters can become output-quality eval fixtures only after manual safe reconstruction. `rate_limit`, `network`, `upstream_auth`, `upstream_5xx`, provider outage, secrets, auth, and deployment clusters remain operational telemetry or infra work unless Wilson explicitly accepts a quality-eval framing. Raw prompts, preferences, model outputs, request payloads, transcripts, images, audio, stack traces, headers, tokens, and user identifiers must not be copied from INIT-002 telemetry into INIT-004 artifacts.
 
 ### Admin API exposure
 
