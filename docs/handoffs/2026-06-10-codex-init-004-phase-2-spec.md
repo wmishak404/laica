@@ -57,6 +57,6 @@ No E2E, DB health, Replit validation, eval run, or provider smoke is required fo
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `a11ac140d61697b20c08c1c6191e75fecf3f0fc5`
+- Current base: `origin/main` at `255e7cc3ff256974ff5250ed732583feefa30b84`
 - Last Replit-validated at: not applicable for docs-only draft
-- Notes: follows merged PR #166 and closeout PR #167; not stacked on another active branch.
+- Notes: follows merged PR #166 and closeout PR #167; rebased after unrelated PR #165 merged; not stacked on another active branch.
