@@ -3,6 +3,7 @@
 **Agent:** codex
 **Branch:** `codex/init-002-phase-1-telemetry`
 **Date:** 2026-06-09
+**Last updated:** 2026-06-10
 **Initiative:** INIT-002
 **INIT updated:** yes
 
@@ -12,7 +13,7 @@ This is the first live run of the daily INIT continuation automation workflow. T
 
 The implemented milestone is the non-persistent telemetry foundation only: request IDs, a server-side AI error classifier/logger, and wiring for the 9 documented AI route catch blocks. No DB schema, admin API, Feedback correlation, eval pipeline, provider behavior, or client UX changes landed.
 
-After PR #160 merged INIT-004, this branch was rebased onto fresh `origin/main` and now preserves the clarified INIT boundary: INIT-002 owns operational AI failures, while INIT-004 owns output-quality evals. The bridge is deliberately narrow: INIT-002 clusters may become INIT-004 fixture candidates only through safe redacted or synthetic reconstruction from operational shape, never by copying raw prompts, preferences, outputs, transcripts, images, audio, stack traces, headers, tokens, user ids, or request payloads.
+After PR #160 merged INIT-004, this branch was rebased onto fresh `origin/main` and now preserves the clarified INIT boundary: INIT-002 owns operational AI failures, while INIT-004 owns output-quality evals. After PR #163 and PR #162 merged, this branch was rebased again onto `origin/main` at `02c11668b5de9367f79ce4a1f68d7caf5c42ee05`; the legacy Replit auth dependency cleanup is now in the base branch, so the Replit package-firewall blocker on `es5-ext@0.10.64` is no longer part of the PR #159 validation path. The bridge is deliberately narrow: INIT-002 clusters may become INIT-004 fixture candidates only through safe redacted or synthetic reconstruction from operational shape, never by copying raw prompts, preferences, outputs, transcripts, images, audio, stack traces, headers, tokens, user ids, or request payloads.
 
 ## Changes
 
@@ -47,21 +48,23 @@ INIT-004 Phase 1 can later consume safe fixture candidates from repeated INIT-00
 
 ## Open items
 
-- GitHub CI/E2E is pending on PR #159's rebased pushed head.
-- Wilson accepted deferring human Replit validation to Phase 2 observation on 2026-06-09. Phase 2 should still focus on AI provider routes, ElevenLabs speech routes, and secrets/deployment posture.
+- GitHub CI/E2E is pending on PR #159's final pushed head after the PR #162 rebase.
+- Direct Replit shell/browser validation is pending on the final pushed head. Wilson approved using Replit through Chrome for targeted Google sign-in and related merge-readiness checks, but Replit Agent remains approval-required because of credits.
+- The Phase 2 Replit observation week remains a future handoff and should still focus on AI provider routes, ElevenLabs speech routes, and secrets/deployment posture.
 - The one-run future-phase exception stops after PR #159 evidence/merge approval because INIT-002 Phase 2 is a Replit observation week and requires Wilson/Replit-side observation rather than local implementation.
 - Phase 2 observation and all DB/admin/eval phases remain untouched.
 
 ## Verification
 
 - Base refreshed: yes.
-- Current base: `origin/main` at `b156c197020679f48137f70d37077646962b4add` after PR #160 merged INIT-004.
-- `npm ci` — passed; 904 packages installed, 0 vulnerabilities.
-- `npx vitest run tests/unit/ai-error-classifier.test.ts tests/unit/ai-errors.test.ts` — passed, 2 files / 7 tests.
-- Rebased follow-up validation:
-  - `git diff --check` — passed.
-  - `npx vitest run tests/unit/ai-error-classifier.test.ts tests/unit/ai-errors.test.ts tests/unit/phase0-security-routes.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-provider-errors.test.ts` — passed, 5 files / 31 tests.
-  - `npm run check` — passed.
-  - `npm run build` — passed with existing Browserslist, Firebase dynamic/static import, and large-bundle warnings.
-- Last Replit-validated at: not yet validated.
-- Human Replit validation: deferred to INIT-002 Phase 2 observation per Wilson on 2026-06-09.
+- Current base: `origin/main` at `02c11668b5de9367f79ce4a1f68d7caf5c42ee05` after PR #163 and PR #162 merged.
+- Current runtime-code head before this evidence-doc refresh: `800dced99da2f05a0ad8931013555f2c4e9b4f18`.
+- `git diff --check origin/main...HEAD` — passed.
+- `npm ci` — passed; 852 packages installed, 0 vulnerabilities.
+- `npx vitest run tests/unit/ai-error-classifier.test.ts tests/unit/ai-errors.test.ts tests/unit/phase0-security-routes.test.ts tests/unit/anonymous-production-gates-route.test.ts tests/unit/ai-provider-errors.test.ts` — passed, 5 files / 31 tests.
+- `npm run check` — passed.
+- `npm run build` — passed with existing Browserslist, Firebase dynamic/static import, and large-bundle warnings.
+- `npm run test:unit` — passed, 36 files / 238 tests.
+- GitHub CI/E2E: pending on the final pushed head.
+- Last Replit-validated at: not yet validated on the final pushed head.
+- Human Replit validation: targeted direct Replit shell/browser validation pending for PR #159; the longer Phase 2 observation week remains deferred.
