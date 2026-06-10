@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 2 - Rubric and dataset spec (drafting)
-**Active PR:** TBD
+**Active PR:** [#168](https://github.com/wmishak404/laica/pull/168) (draft)
 **Active branch:** `codex/init-004-phase-2-spec`
 
 ## Overview
@@ -28,7 +28,7 @@ Phase 0 merged in [PR #160](https://github.com/wmishak404/laica/pull/160) as `68
 
 Phase 1 audit merged in [PR #166](https://github.com/wmishak404/laica/pull/166) as `3338611` on 2026-06-10. The audit completed from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to its Replit observation week. This audit is documentation/architecture work only: it maps current generation surfaces, eval storage, prompt overrides, response shapes, seed intakes, and first rubric implications. It does not change runtime prompts, eval execution, schema, admin APIs, or provider behavior.
 
-Phase 2 drafting is active on `codex/init-004-phase-2-spec`. The draft spec lives in [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md). Phase 3 harness code remains blocked until Wilson accepts or revises the Phase 2 taxonomy, output-quality privacy posture, rubric, fixture format, and first Wilson-label target set.
+Phase 2 drafting is active in [PR #168](https://github.com/wmishak404/laica/pull/168) on `codex/init-004-phase-2-spec`. The draft spec lives in [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md). Phase 3 harness code remains blocked until Wilson accepts or revises the Phase 2 taxonomy, output-quality privacy posture, rubric, fixture format, and first Wilson-label target set.
 
 The seed inputs are:
 
