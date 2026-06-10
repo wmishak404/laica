@@ -5,9 +5,10 @@ import { describe, expect, it } from "vitest";
 describe("OAuth preflight workflow", () => {
   const workflow = readFileSync(".github/workflows/oauth-start-preflight.yml", "utf8");
 
-  it("stays manual-only until the private provider config passes", () => {
+  it("runs by manual dispatch and scheduled canary with required config", () => {
     expect(workflow).toContain("workflow_dispatch:");
-    expect(workflow).not.toContain("schedule:");
+    expect(workflow).toContain("schedule:");
+    expect(workflow).toContain('cron: "17 11 * * *"');
     expect(workflow).toContain('OAUTH_PREFLIGHT_REQUIRED: "true"');
     expect(workflow).not.toMatch(
       /google_oauth_start:[\s\S]{0,300}\n\s+if:\s*\$\{\{[\s\S]*OAUTH_PREFLIGHT_CONTINUE_URIS/,

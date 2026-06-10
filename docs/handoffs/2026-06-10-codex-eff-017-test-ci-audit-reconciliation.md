@@ -35,7 +35,7 @@ Do not treat PR #159's direct Replit shell/browser validation as an automated Re
 ## Open items
 
 - GitHub settings/ruleset update is still external to this branch.
-- OAuth preflight remains blocked on accepted target set and provider-enabled project/key alignment.
+- OAuth preflight was blocked on accepted target set and provider-enabled project/key alignment during the audit. PR #165 follow-up evidence later narrowed this to GitHub Firebase API-key drift and restored the scheduled canary after manual dispatch passed.
 - Coverage-threshold policy remains intentionally deferred until the denominator is honest.
 - Dead-code removal and root test-artifact cleanup are implementation follow-ups, not done here.
 
