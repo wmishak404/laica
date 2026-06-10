@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       continue_uris:
-        description: "Optional comma-separated HTTPS continue URIs to check instead of the repo variable."
+        description: "Optional comma-separated HTTPS continue URIs to check instead of the masked default secret."
         required: false
         type: string
   schedule:
@@ -15,7 +15,6 @@ permissions:
 
 jobs:
   google_oauth_start:
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.OAUTH_PREFLIGHT_CONTINUE_URIS != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -34,6 +33,6 @@ jobs:
       - name: Google OAuth Start Preflight
         env:
           OAUTH_PREFLIGHT_REQUIRED: "true"
-          OAUTH_PREFLIGHT_CONTINUE_URIS: ${{ github.event.inputs.continue_uris || vars.OAUTH_PREFLIGHT_CONTINUE_URIS }}
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          OAUTH_PREFLIGHT_CONTINUE_URIS: ${{ github.event.inputs.continue_uris || secrets.OAUTH_PREFLIGHT_CONTINUE_URIS }}
+          OAUTH_PREFLIGHT_FIREBASE_API_KEY: ${{ secrets.OAUTH_PREFLIGHT_FIREBASE_API_KEY }}
         run: npm run check:oauth

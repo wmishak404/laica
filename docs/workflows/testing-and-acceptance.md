@@ -12,6 +12,39 @@ Every change should say what it was expected to prove, what was actually checked
 
 For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
 
+## Validation Flow At A Glance
+
+```mermaid
+flowchart TD
+  local["1. Local implementation and checks<br/>check, build, unit, targeted tests"]
+  auth["Auth or linked-user behavior?"]
+  devauth["Use linked dev-auth custom-token lane<br/>synthetic Firebase users for local and CI"]
+  pr["2. Push PR or mark ready for review"]
+  ci["3. Required GitHub gate on exact head<br/>unit + e2e_guest_smoke + security checks"]
+  risk["Does risk lane require Replit proof?"]
+  replit["4. Replit dev validation when needed<br/>shell checks and/or Chrome smoke"]
+  merge["5. Merge after required CI passes<br/>and any risk-lane validation is done"]
+  publish["6. Publish production from Replit when ready"]
+  prodsmoke["7. Post-publish Chrome smoke<br/>changed areas + release-critical basics"]
+  oauth["OAuth start preflight canary<br/>production/stable Replit auth config"]
+
+  local --> auth
+  auth -->|Yes| devauth
+  auth -->|No| pr
+  devauth --> pr
+  pr --> ci
+  ci --> risk
+  risk -->|No| merge
+  risk -->|Yes| replit
+  replit --> merge
+  merge --> publish
+  publish --> prodsmoke
+  ci -. "separate config canary" .-> oauth
+  oauth -. "does not replace dev-auth or real Google smoke" .-> risk
+```
+
+Use this as the default order of evidence. Local checks are the fastest implementation loop, GitHub CI is the required PR merge gate, Replit shell/browser validation is risk-triggered or batched for release confidence, and post-publish Chrome smoke verifies the deployed artifact. The OAuth start preflight is a side canary for identity-provider domain/config drift; it is not the local auth test path.
+
 ## Automation Evidence Gate
 
 When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."
@@ -99,10 +132,14 @@ PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npx @dotenvx/dotenvx run -- 
 Use a different free port if `3000` is already occupied. Avoid the default `5000` on macOS when AirPlay/Control Center is listening there; otherwise Playwright can target the wrong listener and produce misleading blank-page failures.
 
 CI note (automation harness foundation):
-- The GitHub Actions guest-lane E2E job is intentionally gated on repo `vars` / `secrets` for Neon + Firebase + ElevenLabs. Until those are configured, CI will report green for typecheck/build/unit while the guest smoke + `db:health` path is skipped. This is a setup dependency, not a change in the Replit-authoritative validation policy.
+- The protected GitHub ruleset mechanically requires the `unit` and `e2e_guest_smoke` checks for protected merges. A same-repo implementation PR that is ready for review should not treat a missing, pending, failed, or unexpectedly skipped required check as merge evidence.
+- The GitHub Actions guest-lane E2E job is intentionally gated on repo `vars` / `secrets` for Neon + Firebase + ElevenLabs. If those are not configured on a reviewable same-repo PR, the skipped guest smoke + `db:health` path is a setup blocker, not a pass and not a change in the Replit-authoritative validation policy.
 - When configured, the guest-lane E2E job is the preferred routine automation path for DB-backed guest smoke evidence because it provisions a disposable non-production Neon branch and applies the current schema before testing.
 - The guest-lane E2E smoke should avoid paid AI/provider calls by default. If the server cannot start because an unused provider client is created at module load, treat that as a startup isolation bug or split it into an explicit live-provider canary; do not silently expand the guest smoke's secret contract.
 - When a draft PR is complete enough to need GitHub Actions evidence, agents should use the ready-for-review rule in [`agent-merge-authority.md`](agent-merge-authority.md) to mark it ready and monitor CI instead of waiting on Wilson only to start automation. The PR or handoff must still record pending checks as pending, then replace that with observed results and negative scope after CI completes.
+- Unit coverage reporting should include all intended shipped source files before any threshold or ratchet is proposed. Coverage remains a measurement integrity signal; do not use a higher or lower percentage as a substitute for behavior-specific happy-path, corner-case, and non-happy-path tests.
+- Firebase-backed CI E2E and production/provider OAuth preflight must use separate GitHub secret lanes. The `e2e_guest_smoke` lane maps `CI_FIREBASE_*` secrets into the app's runtime `VITE_FIREBASE_*` / `FIREBASE_SERVICE_ACCOUNT_BASE64` env names so custom-token exchange stays inside the `laica-ci-test` Firebase project. The OAuth start preflight uses `OAUTH_PREFLIGHT_FIREBASE_API_KEY` and accepted target secrets for the production/provider canary. Do not point both lanes at a shared `VITE_FIREBASE_API_KEY` secret.
+- The OAuth start preflight is a separate scheduled and manually dispatchable canary lane for identity-provider start configuration. It proves that Google OAuth can create an authorization URI for the accepted HTTPS target set; it does not complete the Google popup, prove account linking, or replace linked dev-auth CI and risk-triggered Replit/Chrome validation. Public workflow logs should stay sanitized; accepted target sets should be secret-backed when they are not intended as public log output, and exact provider diagnostics/settings payloads belong in private/local evidence under the security due-diligence rule.
 
 CI gap-lane rule:
 - Do not summarize important CI gaps as a single generic "not covered" bucket. Assign each gap to the smallest honest validation lane: routine deterministic CI, mocked unit/component coverage, forced-response Playwright smoke, OAuth-start/config preflight, live-provider canary, Replit automated check, or Replit human validation.

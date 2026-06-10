@@ -73,6 +73,7 @@ describe("OAuth start preflight", () => {
       apiKey: "firebase-key",
       continueUris: ["https://laica.example/login", "https://laica.replit.app/"],
       required: false,
+      revealProviderErrors: false,
     });
   });
 
@@ -156,7 +157,7 @@ describe("OAuth start preflight", () => {
     );
   });
 
-  it("reports Google config errors without logging the API key", async () => {
+  it("reports Google config failures without logging sensitive diagnostics by default", async () => {
     const logger = createLogger();
     const fetchImpl = vi.fn().mockResolvedValue(
       createResponse({
@@ -175,6 +176,38 @@ describe("OAuth start preflight", () => {
       env: {
         VITE_FIREBASE_API_KEY: "secret-api-key",
         OAUTH_PREFLIGHT_CONTINUE_URIS: "https://unapproved.example",
+      },
+      fetchImpl,
+      logger,
+    });
+
+    expect(result).toEqual({ ok: false, skipped: false, exitCode: 1 });
+    expect(logger.error).toHaveBeenCalledWith(expect.stringContaining("Provider diagnostic hidden"));
+    expect(logger.error.mock.calls.flat().join("\n")).not.toContain("secret-api-key");
+    expect(logger.error.mock.calls.flat().join("\n")).not.toContain("https://unapproved.example");
+    expect(logger.error.mock.calls.flat().join("\n")).not.toContain("auth/unauthorized-domain");
+  });
+
+  it("can reveal provider diagnostics for private/local evidence", async () => {
+    const logger = createLogger();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      createResponse({
+        ok: false,
+        status: 400,
+        statusText: "Bad Request",
+        body: {
+          error: {
+            message: "auth/unauthorized-domain",
+          },
+        },
+      }),
+    );
+
+    const result = await runOAuthStartPreflight({
+      env: {
+        VITE_FIREBASE_API_KEY: "secret-api-key",
+        OAUTH_PREFLIGHT_CONTINUE_URIS: "https://unapproved.example",
+        OAUTH_PREFLIGHT_LOG_PROVIDER_ERROR: "true",
       },
       fetchImpl,
       logger,

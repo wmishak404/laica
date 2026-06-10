@@ -26,6 +26,7 @@ type ParsedConfig = {
   apiKey: string;
   continueUris: string[];
   required: boolean;
+  revealProviderErrors: boolean;
 };
 
 type CreateAuthUriResponse = {
@@ -75,6 +76,7 @@ export function parseOAuthPreflightConfig(env: OAuthPreflightEnv): ParsedConfig 
   const required = isTruthy(env.OAUTH_PREFLIGHT_REQUIRED);
   const apiKey = env.OAUTH_PREFLIGHT_FIREBASE_API_KEY || env.VITE_FIREBASE_API_KEY;
   const continueUris = parseContinueUris(env.OAUTH_PREFLIGHT_CONTINUE_URIS);
+  const revealProviderErrors = isTruthy(env.OAUTH_PREFLIGHT_LOG_PROVIDER_ERROR);
 
   if (!apiKey || continueUris.length === 0) {
     if (required) {
@@ -92,6 +94,7 @@ export function parseOAuthPreflightConfig(env: OAuthPreflightEnv): ParsedConfig 
     apiKey,
     continueUris: continueUris.map(validateHttpUrl),
     required,
+    revealProviderErrors,
   };
 }
 
@@ -155,6 +158,7 @@ async function checkContinueUri(
   apiKey: string,
   continueUri: string,
   continueUriLabel: string,
+  revealProviderErrors: boolean,
   logger: OAuthPreflightLogger,
 ): Promise<boolean> {
   const request = buildCreateAuthUriRequest(apiKey, continueUri);
@@ -172,7 +176,11 @@ async function checkContinueUri(
       [
         `OAuth start preflight failed for ${continueUriLabel}.`,
         `Status: ${response.status} ${response.statusText}`.trim(),
-        googleMessage ? `Google error: ${googleMessage}` : null,
+        googleMessage && revealProviderErrors
+          ? `Provider diagnostic: ${googleMessage}`
+          : googleMessage
+            ? "Provider diagnostic hidden; rerun privately with OAUTH_PREFLIGHT_LOG_PROVIDER_ERROR=true."
+            : null,
       ]
         .filter(Boolean)
         .join(" "),
@@ -235,6 +243,7 @@ export async function runOAuthStartPreflight({
         config.apiKey,
         continueUri,
         config.continueUris.length === 1 ? "configured continue URI" : `configured continue URI ${index + 1}`,
+        config.revealProviderErrors,
         logger,
       ),
     ),
