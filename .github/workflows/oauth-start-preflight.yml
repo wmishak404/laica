@@ -33,6 +33,6 @@ jobs:
       - name: Google OAuth Start Preflight
         env:
           OAUTH_PREFLIGHT_REQUIRED: "true"
-          OAUTH_PREFLIGHT_CONTINUE_URIS: ${{ github.event.inputs.continue_uris || vars.OAUTH_PREFLIGHT_CONTINUE_URIS }}
+          OAUTH_PREFLIGHT_CONTINUE_URIS: ${{ github.event.inputs.continue_uris || secrets.OAUTH_PREFLIGHT_CONTINUE_URIS }}
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
         run: npm run check:oauth
