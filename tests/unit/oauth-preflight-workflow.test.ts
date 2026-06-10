@@ -18,6 +18,8 @@ describe("OAuth preflight workflow", () => {
   it("keeps provider diagnostics out of public GitHub logs", () => {
     expect(workflow).not.toContain("OAUTH_PREFLIGHT_LOG_PROVIDER_ERROR");
     expect(workflow).toContain("secrets.OAUTH_PREFLIGHT_CONTINUE_URIS");
+    expect(workflow).toContain("secrets.OAUTH_PREFLIGHT_FIREBASE_API_KEY");
+    expect(workflow).not.toContain("secrets.VITE_FIREBASE_API_KEY");
     expect(workflow).not.toContain("vars.OAUTH_PREFLIGHT_CONTINUE_URIS");
   });
 });
