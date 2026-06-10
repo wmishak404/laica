@@ -135,7 +135,6 @@ The symlink stays untracked because `.env.*` is gitignored. Without this link, d
 - `ELEVENLABS_API_KEY` — text-to-speech (crashes on startup if missing)
 - `OPENAI_API_KEY` — AI features (graceful fallback if missing)
 - `ADMIN_SECRET` — admin endpoint auth (only needed for eval routes)
-- `SESSION_SECRET` — express session signing
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` — Firebase client config
 
 ### Security notes
@@ -196,7 +195,7 @@ This prevents orphaned work and ensures clean git history.
 
 ## Claude-specific notes
 
-- Auth is Firebase (Google sign-in only), not Replit Auth. `server/replitAuth.ts` is legacy and unused.
+- Auth is Firebase (Google sign-in only), not Replit Auth. The legacy Replit OIDC/session server path has been deleted.
 - `reusePort` in server listen is Replit-only (guarded by `REPL_ID` env var).
 - The server port is configurable via `PORT` env var (defaults to 5000).
 - Vite runs as Express middleware in dev mode (single port serves API + client).

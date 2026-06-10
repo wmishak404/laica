@@ -580,3 +580,11 @@ Wilson accepted the validation-authority shift that EFF-017 had been working tow
 Low-risk security or runtime-boundary fixes can now be batched so one targeted release/pre-production Replit pass covers several related patches. The PR/handoff should carry a compact risk annotation: risk lane, why the lane fits, exact evidence, deferred manual scope, and a future-bug breadcrumb. This keeps future debugging traceable without creating a new Effort or workflow note for every small hardening patch.
 
 This does not resolve EFF-017. Remaining work is to turn more real Replit-environment checks into automated CI lanes, finish provider canary decisions, resolve identity-provider preflight configuration/targeting, and eventually decide coverage threshold/ratchet posture. The policy update reduces the human bottleneck now while preserving explicit manual gates where automation still cannot prove the relevant live-service behavior.
+
+## 2026-06-10 — Replit package firewall blocker traced to deleted legacy auth dependency island
+
+While preparing INIT-002 Phase 1 Replit observation, a clean Replit `npm ci` on the PR #159 head was blocked by Replit's package firewall at transitive `es5-ext@0.10.64`. The blocked package entered only through direct dependency `memoizee@0.4.17`, which was imported only by the unused legacy Replit OIDC/session file.
+
+The cleanup branch deletes the legacy Replit auth file and removes the whole unused OIDC/session dependency island (`memoizee`, `openid-client`, `passport`, `passport-local`, `express-session`, `connect-pg-simple`, `memorystore`, and their local-only type packages). This is environment-parity hygiene: it restores clean-install viability without changing the active Firebase Auth path.
+
+EFF-017 implication: Replit clean-install evidence can fail for dead dependency paths as well as active runtime code. Future Replit-environment automation should keep package-firewall failures as first-class install blockers, but agents should prefer deleting unused dependency islands over adding overrides when repo search proves the path is obsolete. `REPLIT_DOMAINS` remains part of the Vite development-host allowlist; legacy `SESSION_SECRET` / `ISSUER_URL` are no longer application contract variables.
