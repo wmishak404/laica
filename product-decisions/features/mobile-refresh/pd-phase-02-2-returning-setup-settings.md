@@ -23,14 +23,26 @@ Accepted durable outcomes:
 
 - Menu is the canonical global destination surface for returning users.
 - Settings and History are separate Menu destinations.
-- Settings means "what Laica knows about my kitchen": Pantry, Kitchen, and Cooking Profile.
+- Settings means "what Laica knows about my kitchen": Kitchen Inventory and Cooking Profile.
+- Kitchen Inventory contains Pantry and Tools as separate inventory areas with separate scan sessions.
 - History means "what I cooked": a standalone cooking-memory surface.
-- Slop Bowl `Edit pantry` deep-links directly into Settings -> Pantry.
+- Slop Bowl `Edit pantry` deep-links directly into Kitchen Inventory -> Pantry.
 - Phase 2.2 stays backend-neutral and reuses existing profile/session APIs.
 - First-time setup and returning Settings remain separate top-level flows because user intent differs.
 - Both flows read and write the same authenticated profile record through `/api/user/profile`.
-- Returning Pantry/Kitchen/Profile reuse or mirror setup's camera object, upload/manual hierarchy, scanning state, chips, full-row profile choices, and isolated `No restrictions`.
+- Returning Pantry/Tools/Profile reuse or mirror setup's camera object, upload/manual hierarchy, scanning state, chips, full-row profile choices, and isolated `No restrictions`.
 - Differences are allowed for returning-user needs: existing saved data is visible immediately, reset/remove/save controls are explicit, deep-links are supported, and camera stays off until the user turns it on.
+
+## 2026-06-08 Revision - Kitchen Inventory and Optional Tools
+
+Wilson accepted the product-language direction that **Pantry** stays the user-facing food inventory label, because it is warmer and lower-pressure than `Ingredients`, while helper copy clarifies that Pantry includes cabinets, fridge, and freezer. `Tools` replaces visible `Kitchen` / `equipment` language for the non-food inventory area. Backend fields, database columns, scan types, and prompt contracts remain unchanged (`pantryIngredients`, `kitchenEquipment`, and scan type `kitchen`).
+
+Accepted behavior:
+
+- First-time setup keeps Pantry as the required food inventory pass, then shows an explicit optional Tools prompt before opening any second camera surface.
+- Returning Settings consolidates the former separate Pantry and Kitchen cards into **Kitchen Inventory**, with Pantry and Tools as internal sections.
+- Pantry and Tools scans remain separate; this revision does not combine food and tools recognition into one scan.
+- User-facing copy should avoid `track` / `tracked` / `tracking` language for inventory capture. Prefer `save`, `add`, `use for suggestions`, `editable`, and `optional`.
 
 ## Design and UX Gate
 
@@ -62,22 +74,23 @@ flowchart TD
   I --> L["Feedback"]
   I --> M["Account / Sign out"]
 
-  J --> N["Pantry"]
-  J --> O["Kitchen"]
-  J --> P["Cooking Profile"]
+  J --> N["Kitchen Inventory"]
+  N --> O["Pantry"]
+  N --> P["Tools"]
+  J --> R["Cooking Profile"]
 
   H --> Q["Slop Bowl"]
-  Q --> R["Edit pantry"]
-  R --> N
+  Q --> S["Edit pantry"]
+  S --> O
 ```
 
 ## Implementation Direction
 
 - Add a `history` app phase or equivalent route state so History is no longer a Settings tab.
-- Add Settings deep-link state such as `initialSection: hub | pantry | kitchen | profile`.
+- Add Settings deep-link state such as `initialSection: hub | inventory | pantry | kitchen | profile`, where legacy `pantry` and `kitchen` open Kitchen Inventory on the matching internal section.
 - `Menu -> Settings` opens the Settings hub.
 - `Menu -> History` opens standalone History.
-- `Slop Bowl -> Edit pantry` opens Settings directly to Pantry.
+- `Slop Bowl -> Edit pantry` opens Settings directly to Kitchen Inventory -> Pantry.
 - Keep History v1 light in this phase: standalone destination, existing list/detail/delete behavior, refreshed shell only.
 - Do not add new History share/cook-again behavior until Phase 5.
 
@@ -99,8 +112,8 @@ This lesson is now codified in [PD-005](../../pd-005-ui-governance.md) and [`des
 Validated scope for PR #30:
 
 - Menu -> Settings and Menu -> History.
-- Slop Bowl -> Edit pantry deep-link to Pantry Settings.
-- Pantry, Kitchen, and Cooking Profile saves.
+- Slop Bowl -> Edit pantry deep-link to Pantry Settings; under the 2026-06-08 revision this opens Kitchen Inventory -> Pantry.
+- Pantry, Kitchen, and Cooking Profile saves; under the 2026-06-08 revision Kitchen remains the backend area and is visible to users as Tools.
 - History list, expand, delete, and undo-delete after moving History out of Settings.
 - Feedback context, including the active surface/subsection.
 - Returning Settings visual parity with first-time setup for circular camera controls and upload/manual typography.
@@ -110,16 +123,16 @@ Validated scope for PR #30:
 
 - Returning users can open `Menu -> Settings` without starting a Planning flow.
 - Returning users can open `Menu -> History`.
-- Slop Bowl `Edit pantry` opens directly to Pantry settings.
+- Slop Bowl `Edit pantry` opens directly to Kitchen Inventory -> Pantry.
 - Pantry scan, upload, manual add, remove, reset, and save still work.
-- Kitchen scan, upload, manual add, remove, reset, and save still work.
+- Tools scan, upload, manual add, remove, reset, and save still work.
 - Cooking Skill and Dietary Restrictions save correctly.
 - History list, expand, delete, and undo-delete still work after moving out of Settings.
 - Settings no longer contains a History tab.
 - Feedback submissions include the active app surface, including Settings subsection where applicable.
 - Bottom navigation uses icon-only Cook/Menu actions with accessible labels.
 - Visual review confirms Menu, Settings, and History match the Phase 2.2 storyboard and mobile-refresh design principles.
-- Visual review confirms returning Pantry/Kitchen/Profile remain consistent with the accepted Phase 2.1 first-time setup direction while honoring returning-user edit needs.
+- Visual review confirms returning Pantry/Tools/Profile remain consistent with the accepted Phase 2.1 first-time setup direction while honoring returning-user edit needs.
 - Visual review confirms setup-derived controls in returning Settings preserve first-time setup's computed circular camera controls and `Nunito`/800 upload/manual action typography.
 
 ## Effort and Governance Interactions
@@ -127,8 +140,8 @@ Validated scope for PR #30:
 - [PD-005](../../pd-005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Phase 2.2 is a UI-governance pressure test for utilitarian but branded app surfaces.
 - Full-row selection pattern: Settings profile choices must keep full-row tap targets.
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.2 adds explicit acceptance and visual-review gates.
-- Scan feedback: Pantry/Kitchen scan outcome feedback remains explicit.
-- Shared manual-entry parser: Manual Pantry/Kitchen entry keeps the shared comma/period parser.
+- Scan feedback: Pantry/Tools scan outcome feedback remains explicit.
+- Shared manual-entry parser: Manual Pantry/Tools entry keeps the shared comma/period parser.
 - INIT-001 future pantry work: Pantry spell correction remains deferred in the Mobile Refresh phase records.
 - INIT-001 future scan-review work: latest-scan chip states and deeper duplicate refinement remain deferred in the Mobile Refresh phase records.
 

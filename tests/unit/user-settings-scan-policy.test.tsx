@@ -61,7 +61,53 @@ describe('UserSettings scan upload policy', () => {
     vi.clearAllMocks();
   });
 
-  it('uses the same 20-photo over-cap guard for Pantry and Kitchen Settings refreshes', () => {
+  it('consolidates Pantry and Tools under Kitchen Inventory while preserving deep links', () => {
+    const { rerender } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="hub"
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: /kitchen inventory/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /^kitchen$/i })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /kitchen inventory/i }));
+
+    expect(screen.getByRole('heading', { name: /^pantry$/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^pantry$/i }).getAttribute('data-active')).toBe('true');
+
+    fireEvent.click(screen.getByRole('button', { name: /^tools$/i }));
+
+    expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^tools$/i }).getAttribute('data-active')).toBe('true');
+
+    rerender(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="pantry"
+      />,
+    );
+
+    expect(screen.getByRole('heading', { name: /^pantry$/i })).toBeTruthy();
+
+    rerender(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="kitchen"
+      />,
+    );
+
+    expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
+  });
+
+  it('uses the same 20-photo over-cap guard for Pantry and Tools Settings refreshes', () => {
     const { container, rerender } = render(
       <UserSettings
         userProfile={baseProfile()}
@@ -135,7 +181,7 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.queryByText('broccoli')).toBeNull();
   });
 
-  it('does not correct Settings kitchen manual entry', () => {
+  it('does not correct Settings tools manual entry', () => {
     render(
       <UserSettings
         userProfile={baseProfile()}
@@ -146,10 +192,10 @@ describe('UserSettings scan upload policy', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+    fireEvent.change(screen.getByLabelText(/^tools$/i), {
       target: { value: 'brocolli' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     expect(screen.getByText('brocolli')).toBeTruthy();
     expect(toastMock).not.toHaveBeenCalledWith(expect.objectContaining({
@@ -202,14 +248,14 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByText('sheet pan').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
 
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+    fireEvent.change(screen.getByLabelText(/^tools$/i), {
       target: { value: 'blender' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     expect(screen.getByText('blender').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
 
-    fireEvent.click(screen.getByRole('button', { name: /save kitchen/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save tools/i }));
 
     await waitFor(() => {
       expect(updateProfileMock).toHaveBeenCalledWith(expect.objectContaining({
@@ -273,11 +319,11 @@ describe('UserSettings scan upload policy', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+    fireEvent.change(screen.getByLabelText(/^tools$/i), {
       target: { value: 'blender' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
-    fireEvent.click(screen.getByRole('button', { name: /save kitchen/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save tools/i }));
 
     await waitFor(() => {
       expect(onProfileUpdate).toHaveBeenCalledWith(expect.objectContaining({
@@ -287,8 +333,8 @@ describe('UserSettings scan upload policy', () => {
 
     expect(updateProfileMock).not.toHaveBeenCalled();
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Kitchen updated',
-      description: 'Your kitchen tools are updated.',
+      title: 'Tools updated',
+      description: 'Your tools are updated.',
     }));
   });
 

@@ -84,7 +84,7 @@ describe('UserProfiling setup flow', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    fireEvent.click(screen.getByRole('button', { name: /skip for now/i }));
+    fireEvent.click(screen.getByRole('button', { name: /skip tools/i }));
 
     expect(screen.getByRole('heading', { name: /how comfortable are you with cooking/i })).toBeTruthy();
 
@@ -98,6 +98,34 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /no restrictions/i }));
     expect(nextButton.disabled).toBe(false);
+  });
+
+  it('asks before opening the optional tools scanner', () => {
+    render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: /tell me what tools you use/i })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
+
+    expect(screen.getByRole('heading', { name: /tell me what tools you use/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /tools camera/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+
+    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /skip tools/i }));
+
+    expect(screen.getByRole('heading', { name: /how comfortable are you with cooking/i })).toBeTruthy();
   });
 
   it('corrects setup pantry manual-entry spelling and lets Undo restore the original batch', () => {
@@ -142,7 +170,7 @@ describe('UserProfiling setup flow', () => {
     expect(screen.queryByText('avocado')).toBeNull();
   });
 
-  it('does not correct setup kitchen manual entry', () => {
+  it('does not correct setup tools manual entry', () => {
     render(<UserProfiling onProfileComplete={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
@@ -152,14 +180,15 @@ describe('UserProfiling setup flow', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     toastMock.mockClear();
 
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+    fireEvent.change(screen.getByLabelText(/^tools$/i), {
       target: { value: 'brocolli, sheet pan' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     expect(screen.getByText('brocolli')).toBeTruthy();
     expect(screen.getByText('sheet pan')).toBeTruthy();
@@ -186,11 +215,12 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByText('ground beef').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
 
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
     fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
-    fireEvent.change(screen.getByLabelText(/kitchen tools/i), {
+    fireEvent.change(screen.getByLabelText(/^tools$/i), {
       target: { value: 'sheet pan' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /save equipment/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     expect(screen.getByText('sheet pan').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
 
@@ -222,6 +252,7 @@ describe('UserProfiling setup flow', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     const kitchenUpload = container.querySelector('#kitchen-setup-upload') as HTMLInputElement;
     fireEvent.change(kitchenUpload, { target: { files: makeImageFiles(21) } });
@@ -303,7 +334,7 @@ describe('UserProfiling setup flow', () => {
     });
   });
 
-  it('cancels an active kitchen upload when backing out of the step', async () => {
+  it('cancels an active tools upload when backing out of the scanner', async () => {
     let abortSignal: AbortSignal | undefined;
     vi.mocked(analyzeImage).mockImplementation((_image, _isHEIC, options) => {
       abortSignal = options?.signal;
@@ -319,6 +350,7 @@ describe('UserProfiling setup flow', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     const kitchenUpload = container.querySelector('#kitchen-setup-upload') as HTMLInputElement;
     fireEvent.change(kitchenUpload, {
@@ -336,7 +368,7 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
     expect(abortSignal?.aborted).toBe(true);
-    expect(screen.getByRole('heading', { name: /start with pantry staples/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Scan canceled',
       description: 'No new items were added from that scan.',
@@ -397,7 +429,7 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getAllByText('rice')).toHaveLength(1);
   });
 
-  it('skips repeated kitchen scan labels while adding genuinely new tools', async () => {
+  it('skips repeated tools scan labels while adding genuinely new tools', async () => {
     vi.mocked(analyzeImage)
       .mockResolvedValueOnce({ equipment: ['Chef Knife'] })
       .mockResolvedValueOnce({ equipment: ["chef's knife"] })
@@ -411,6 +443,7 @@ describe('UserProfiling setup flow', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     const kitchenUpload = container.querySelector('#kitchen-setup-upload') as HTMLInputElement;
     fireEvent.change(kitchenUpload, {
@@ -428,7 +461,7 @@ describe('UserProfiling setup flow', () => {
     await waitFor(() => {
       expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
         title: 'Already saved',
-        description: 'No new kitchen tools were added from that scan. 1 saved item was found again.',
+        description: 'No new tools were added from that scan. 1 saved item was found again.',
       }));
     });
     expect(screen.getAllByText('chef knife')).toHaveLength(1);
@@ -442,7 +475,7 @@ describe('UserProfiling setup flow', () => {
     });
     expect(screen.getAllByText('chef knife')).toHaveLength(1);
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Kitchen scan added items',
+      title: 'Tools scan added items',
       description: expect.stringContaining('1 saved item was found again'),
     }));
   });
@@ -474,7 +507,7 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
-    expect(screen.getByRole('heading', { name: /tell me what tools you use/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
   });
 
   it('cycles pantry manual placeholders across setup mounts', () => {

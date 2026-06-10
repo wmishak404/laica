@@ -314,7 +314,7 @@ describe('MobileApp planning choice pantry status', () => {
     await renderGuestPlanningChoice(makeProfile());
 
     const settingsButton = screen.getByRole('button', {
-      name: /settings pantry, kitchen, and cooking profile/i,
+      name: /settings pantry, tools, and cooking profile/i,
     });
     const historyButton = screen.getByRole('button', {
       name: /history meals you cooked/i,
@@ -543,7 +543,7 @@ describe('MobileApp planning choice pantry status', () => {
     window.localStorage.setItem('laica_cooking_session:linked:user-1', JSON.stringify({ savedAt: Date.now() }));
 
     fireEvent.click(screen.getByRole('button', {
-      name: /settings pantry, kitchen, and cooking profile/i,
+      name: /settings pantry, tools, and cooking profile/i,
     }));
     await screen.findByTestId('user-settings');
     fireEvent.click(screen.getByRole('button', { name: /mock save changed pantry/i }));

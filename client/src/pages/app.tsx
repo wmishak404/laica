@@ -960,9 +960,7 @@ export default function MobileApp() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-extrabold">Settings</span>
-                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
-                  Pantry, kitchen, and cooking profile
-                </span>
+                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Pantry, tools, and cooking profile</span>
               </span>
             </button>
 

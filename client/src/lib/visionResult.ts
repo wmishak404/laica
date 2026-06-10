@@ -29,7 +29,7 @@ export function getVisionRejectionFeedback(
   type: VisionScanType,
 ) {
   return {
-    title: type === 'pantry' ? 'Photo needs visible pantry items' : 'Photo needs visible kitchen tools',
+    title: type === 'pantry' ? 'Photo needs visible pantry items' : 'Photo needs visible tools',
     description:
       result?.rejectionMessage ||
       "I can't use screenshots, lists, receipts, menus, recipes, or notes as inventory evidence. Upload a photo with the items visible, or enter them manually.",

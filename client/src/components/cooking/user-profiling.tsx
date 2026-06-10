@@ -34,6 +34,7 @@ import {
   ScanLine,
   ShieldCheck,
   Sparkles,
+  Wrench,
 } from 'lucide-react';
 import {
   extractVisionLabels,
@@ -218,6 +219,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [pantryPlaceholder] = useState(getNextPantryPlaceholder);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isToolsCaptureOpen, setIsToolsCaptureOpen] = useState(() => (existingProfile?.kitchenEquipment?.length ?? 0) > 0);
   const [profile, setProfile] = useState<UserProfile>(existingProfile || {
     cookingSkill: '',
     dietaryRestrictions: [],
@@ -381,7 +383,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
     if (labels.length === 0) {
       toast({
-        title: type === 'pantry' ? 'No ingredients detected' : 'No equipment detected',
+        title: type === 'pantry' ? 'No ingredients detected' : 'No tools detected',
         description: 'Try another angle, upload a clearer photo, or enter items manually.',
       });
       return;
@@ -401,7 +403,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     toast({
-      title: type === 'pantry' ? 'Pantry scan added items' : 'Kitchen scan added items',
+      title: type === 'pantry' ? 'Pantry scan added items' : 'Tools scan added items',
       description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}. Review the list before moving on.${
         foundAgainCopy(mergeResult.foundAgain.length)
       }${
@@ -609,12 +611,17 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
   };
 
-  const currentScanType: ScanType | null = currentStep === 1 ? 'pantry' : currentStep === 2 ? 'kitchen' : null;
+  const currentScanType: ScanType | null = currentStep === 1 ? 'pantry' : currentStep === 2 && isToolsCaptureOpen ? 'kitchen' : null;
   const isCurrentScanAnalyzing = currentScanType ? isAnalyzing[currentScanType] : false;
 
   const handleBack = () => {
     if (currentScanType && isAnalyzing[currentScanType]) {
       cancelScan(currentScanType, true);
+    }
+
+    if (currentStep === 2 && isToolsCaptureOpen) {
+      setIsToolsCaptureOpen(false);
+      return;
     }
 
     setCurrentStep((step) => Math.max(0, step - 1));
@@ -637,6 +644,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
     if (currentScanType) {
       clearReviewEntries(currentScanType);
+    }
+
+    if (currentStep === 1) {
+      setIsToolsCaptureOpen(false);
     }
 
     setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
@@ -737,10 +748,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
         <NativeCamera
           variant="setup"
           setupTone={isPantry ? 'pantry' : 'kitchen'}
-          title={isPantry ? 'Pantry preview' : 'Kitchen preview'}
-          captureLabel={isPantry ? 'Capture pantry' : 'Capture kitchen'}
-          cameraToggleLabel={isPantry ? 'Pantry camera' : 'Kitchen camera'}
-          tipsTitle={isPantry ? 'Pantry scan tips' : 'Kitchen scan tips'}
+          title={isPantry ? 'Pantry preview' : 'Tools preview'}
+          captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
+          cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
+          tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
           tipsDescription={isPantry
             ? 'Open cabinets, use good light, and scan one area at a time.'
             : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
@@ -808,14 +819,14 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                 </div>
                 <div>
                   <p className="font-extrabold text-[hsl(var(--setup-ink))]">
-                    {isPantry ? 'Add pantry items' : 'Add kitchen tools'}
+                    {isPantry ? 'Add pantry items' : 'Add tools'}
                   </p>
                   <p className="setup-copy text-xs">Use short names so the list stays easy to skim.</p>
                 </div>
               </div>
               <div className="space-y-3">
                 <Input
-                  aria-label={isPantry ? 'Pantry items' : 'Kitchen tools'}
+                  aria-label={isPantry ? 'Pantry items' : 'Tools'}
                   value={manualEntry[type]}
                   onChange={(event) => setManualEntry((prev) => ({ ...prev, [type]: event.target.value }))}
                   placeholder={manualPlaceholder}
@@ -836,7 +847,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                   className={`setup-primary-button h-12 w-full ${!isPantry ? 'setup-kitchen-primary-button' : ''}`}
                   onClick={() => addManualItems(type)}
                 >
-                  Save {isPantry ? 'ingredients' : 'equipment'}
+                  {isPantry ? 'Save ingredients' : 'Add tools'}
                 </Button>
               </div>
             </div>
@@ -851,8 +862,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
             </div>
             <p className="mt-2 text-sm font-extrabold">
               {progress
-                ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'kitchen'} photos...`
-                : isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
+                ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'tools'} photos...`
+                : isPantry ? 'Scanning pantry photos...' : 'Scanning tools photos...'}
             </p>
             <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
           </div>
@@ -863,7 +874,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-extrabold text-[hsl(var(--setup-ink))]">
-                  {isPantry ? 'Your pantry list' : 'Your kitchen list'}
+                  {isPantry ? 'Your pantry list' : 'Your tools list'}
                 </p>
                 <p className="setup-copy text-xs">Edit anything I missed.</p>
               </div>
@@ -900,6 +911,47 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       </div>
     );
   };
+
+  const renderToolsIntroStep = () => (
+    <div className="flex min-h-[58vh] flex-col justify-center gap-5 py-5">
+      <div className="setup-illustration mx-auto flex h-28 w-28 items-center justify-center text-primary shadow-sm">
+        <div className="relative">
+          <Wrench className="h-12 w-12" />
+          <Check className="absolute -right-5 -top-3 h-7 w-7 rounded-full bg-primary p-1 text-primary-foreground" />
+          <Package className="absolute -bottom-4 -left-5 h-7 w-7 text-[hsl(var(--setup-herb))]" />
+        </div>
+      </div>
+
+      <div className="space-y-3 text-center">
+        <h2 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">
+          Pantry saved. Any tools to add?
+        </h2>
+        <p className="setup-copy mx-auto max-w-[20rem] text-sm leading-relaxed">
+          Optional. Add appliances or tools that change how you cook, like an air fryer, blender, rice cooker, oven, or sheet pan.
+        </p>
+      </div>
+
+      <div className="setup-surface space-y-3 p-4">
+        <div className="flex items-start gap-3">
+          <div className="setup-illustration flex h-12 w-12 shrink-0 items-center justify-center text-primary setup-kitchen-illustration">
+            <Wrench className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-extrabold text-[hsl(var(--setup-ink))]">Tools are optional</p>
+            <p className="setup-copy text-xs">They help Laica keep recipes realistic for your kitchen.</p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          className="setup-primary-button setup-kitchen-primary-button h-12 w-full"
+          onClick={() => setIsToolsCaptureOpen(true)}
+        >
+          Add tools
+        </Button>
+      </div>
+    </div>
+  );
 
   const renderSkillStep = () => (
     <div className="space-y-5">
@@ -1042,7 +1094,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
               🍳
             </span>
             <div>
-              <p className="font-extrabold text-[hsl(var(--setup-ink))]">Kitchen tools</p>
+              <p className="font-extrabold text-[hsl(var(--setup-ink))]">Tools</p>
               <p className="setup-copy text-sm">
                 {profile.kitchenEquipment.length > 0
                   ? `${profile.kitchenEquipment.length} item${profile.kitchenEquipment.length === 1 ? '' : 's'} saved`
@@ -1079,7 +1131,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       case 1:
         return renderScanStep('pantry');
       case 2:
-        return renderScanStep('kitchen');
+        return isToolsCaptureOpen ? renderScanStep('kitchen') : renderToolsIntroStep();
       case 3:
         return renderSkillStep();
       case 4:
@@ -1093,7 +1145,9 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
   };
 
-  const nextLabel = currentStep === 2 && profile.kitchenEquipment.length === 0
+  const nextLabel = currentStep === 2 && !isToolsCaptureOpen
+    ? 'Skip tools'
+    : currentStep === 2 && profile.kitchenEquipment.length === 0
     ? 'Skip for now'
     : currentStep === TOTAL_STEPS
       ? 'Finish setup'
