@@ -193,7 +193,12 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
           {visibleSessions.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="returning-menu-icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="returning-menu-icon"
+                  aria-label="Open history actions"
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -254,6 +259,7 @@ export default function CookingHistory({ onBackToPlanning }: CookingHistoryProps
                       variant="ghost"
                       size="icon"
                       className="h-9 w-9 shrink-0 rounded-full text-muted-foreground hover:text-destructive"
+                      aria-label={`Delete ${session.recipeName} from history`}
                       onClick={(e) => handleDelete(session.id, e)}
                     >
                       <Trash2 className="h-4 w-4" />

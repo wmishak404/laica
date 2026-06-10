@@ -69,7 +69,7 @@ Reference: https://docs.replit.com/cloud-services/storage-and-databases/create-p
 Replit runs on Linux; local dev is usually macOS (often ARM64). Native modules and system tools can behave differently even with identical JS code.
 
 **Why this matters for LAICA:**
-- Image/audio handling and any native dependency (`bcrypt`, headless browser bits, image conversion toolchains) are more likely to diverge.
+- Image/audio handling, headless browser bits, image conversion toolchains, and optional native modules are more likely to diverge.
 
 ## What To Validate On Replit (Matrix)
 
