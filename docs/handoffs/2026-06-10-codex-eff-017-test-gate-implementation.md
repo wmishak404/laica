@@ -40,7 +40,8 @@ PR validation:
 
 - Required PR checks passed after each pushed head, including `unit` and `e2e_guest_smoke`.
 - OAuth Start Preflight manual dispatch passed after the GitHub production OAuth preflight key was aligned with the working Firebase Browser key. Public logs kept the configured target and key masked.
-- Required `e2e_guest_smoke` then failed with `Firebase custom-token exchange failed: CREDENTIAL_MISMATCH`, proving the prior shared `VITE_FIREBASE_API_KEY` secret overloaded the production OAuth canary and the `laica-ci-test` E2E lane. This branch now separates those secret names. Wilson populated the new `CI_FIREBASE_*` and `OAUTH_PREFLIGHT_FIREBASE_API_KEY` GitHub secrets before the split commit was pushed; the next E2E/OAuth rerun must validate the separation.
+- Required `e2e_guest_smoke` then failed with `Firebase custom-token exchange failed: CREDENTIAL_MISMATCH`, proving the prior shared `VITE_FIREBASE_API_KEY` secret overloaded the production OAuth canary and the `laica-ci-test` E2E lane. This branch now separates those secret names. Wilson populated the new `CI_FIREBASE_*` and `OAUTH_PREFLIGHT_FIREBASE_API_KEY` GitHub secrets before the split commit was pushed; the next E2E/OAuth rerun validated the separation.
+- After the split-secret commit `c1b092f138d9516dbe75a6717ca57ec4c255748b`, GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and manual OAuth Start Preflight all passed.
 
 ## Private Evidence
 
@@ -57,7 +58,7 @@ Do not copy raw provider diagnostics, exact settings payloads, or full secret/va
 - No dead-code sweep was performed.
 - Replit-specific OAuth targets were not added because the accepted Replit target set was not established.
 - OAuth preflight now runs and passes for the masked accepted target set when the production OAuth preflight key is present. It remains a start/config canary, not a full Google popup or account-linking proof.
-- CI E2E must be rerun after the new `CI_FIREBASE_*` GitHub secrets are populated from the separate `laica-ci-test` Firebase project.
+- CI E2E now passes against the new `CI_FIREBASE_*` GitHub secrets from the separate `laica-ci-test` Firebase project.
 - This does not complete real Google popup sign-in, account linking, production deployment behavior, live OpenAI/ElevenLabs/Vision/transcription canaries, or AI output quality validation.
 
 ## Next Steps
