@@ -2,7 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/init-004-phase-2-spec`
-**PR:** TBD
+**PR:** [#168](https://github.com/wmishak404/laica/pull/168) (draft)
 **Date:** 2026-06-10
 **Initiative:** INIT-004
 **INIT updated:** yes
@@ -43,7 +43,6 @@ The draft intentionally keeps EFF-022 product behavior unresolved. It only says 
 
 ## Open items
 
-- PR number must be filled in after the draft PR is opened.
 - Wilson needs to review the Phase 2 decisions before this can become the accepted Phase 2 spec.
 - Phase 3 harness code, schema/comment cleanup, judge prompts, daily reports, fixture files, and prompt-candidate automation are deferred.
 
