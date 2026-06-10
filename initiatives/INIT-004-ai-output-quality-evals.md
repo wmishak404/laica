@@ -1,11 +1,11 @@
 # INIT-004 - AI Output Quality Evals & Prompt Improvement
 
-**Status:** Planning
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
-**Current phase:** Phase 1 - Surface and data audit (next)
-**Active PR:** None
-**Active branch:** None
+**Current phase:** Phase 2 - Rubric and dataset spec (next)
+**Active PR:** [#166](https://github.com/wmishak404/laica/pull/166) (draft)
+**Active branch:** `codex/init-004-phase-1-audit`
 
 ## Overview
 
@@ -24,7 +24,9 @@ The relationship is **parallel-safe with a soft data link**:
 
 ## Current Status
 
-Phase 0 merged in [PR #160](https://github.com/wmishak404/laica/pull/160) as `680e26e` on 2026-06-09. Wilson plans to continue INIT-002 implementation first, then resume INIT-004 implementation from Phase 1.
+Phase 0 merged in [PR #160](https://github.com/wmishak404/laica/pull/160) as `680e26e` on 2026-06-09.
+
+Phase 1 audit completed on 2026-06-10 from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to its Replit observation week. This audit is documentation/architecture work only: it maps current generation surfaces, eval storage, prompt overrides, response shapes, seed intakes, and first rubric implications. It does not change runtime prompts, eval execution, schema, admin APIs, or provider behavior.
 
 The seed inputs are:
 
@@ -84,6 +86,69 @@ The seed records point to the first implementation priorities for INIT-004:
 | Food safety, proficiency, and equipment misses | Arize seed | Add rubric labels and judge checks for raw-protein safety, beginner/intermediate step fit, and unlisted equipment assumptions. |
 | Cuisine/pantry tradeoff | Arize seed and [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) | Separate pantry-first usefulness from cuisine authenticity so prompt fixes do not over-correct into shopping-list behavior. |
 
+
+## Phase 1 Surface/Data Audit Findings
+
+The 2026-06-10 audit inspected `server/openai.ts`, `server/evaluator.ts`, `server/eval-criteria.ts`, `server/admin-routes.ts`, `server/prompt-manager.ts`, `shared/schema.ts`, `client/src/lib/openai.ts`, `client/src/components/cooking/meal-planning.tsx`, and the current eval intake records.
+
+### Current generation/eval surface map
+
+| Surface | Current route / caller | Feature ids now in use | Current response shape | Audit finding |
+|---|---|---|---|---|
+| General recipe suggestions | `POST /api/recipes/suggestions` -> `getRecipeSuggestions`; older `client/src/pages/recipes.tsx` also calls `fetchRecipeSuggestions` | `recipe_suggestions` in `ai_interactions`, prompt versions, eval criteria, and error telemetry | JSON object normalized by `normalizeRecipeSuggestionsResponse`; expected `recipes[]` when current UI consumes it | Existing eval criteria can reach this feature id, but the old seed export used a legacy one-recipe shape. Future fixtures must validate the current `recipes[]` contract. |
+| Chef It Up / pantry recipes | `MealPlanning` -> `fetchPantryRecipes` -> `POST /api/recipes/pantry` -> `getRecipeSuggestions` | Error telemetry uses `pantry_recipes`; interaction logging still stores `recipe_suggestions` because the route reuses `getRecipeSuggestions` | Client requires exactly three recipes under `recipes[]` and maps `imageUrl`/`image_url`, `pantryIngredientsUsed`, `additionalIngredientsNeeded`, `cookTime`, `difficulty`, `cuisine`, and `isFusion` | Phase 2 should decide whether `pantry_recipes` becomes a first-class eval/prompt feature or remains a `recipe_suggestions` subtype. Current metrics would otherwise mix generic suggestions and Chef It Up pantry recommendations. |
+| Slop Bowl | `POST /api/recipes/slop-bowl` -> `getSlopBowlRecipe` | `slop_bowl` in interaction logging and error telemetry; no eval criteria or prompt-version admin support | Strict `slopBowlRecipeSchema`; API wraps one object under `{ recipe }` | Slop Bowl requires feature-type changes before it can enter the eval harness: `FeatureType`, `EVAL_CRITERIA`, prompt admin schemas, prompt manager typing if DB overrides are desired, and current-shape deterministic checks. |
+| Cooking steps | `LiveCooking` -> `fetchCookingSteps` -> `POST /api/cooking/steps` -> `getCookingSteps` | `cooking_steps` across logging, prompt versions, eval criteria, and error telemetry | JSON object with `recipe`, `steps[]`, and optional `variations`; route accepts descriptive generated recipe context after PR #144 fixes | Existing eval criteria name this surface, but there is no deterministic response schema check before the broad judge prompt. Fixture work should include generated-context payloads from Chef It Up and Slop Bowl, not only short pantry item strings. |
+| Cooking assistance | `POST /api/cooking/assistance` -> `getCookingAssistance` | `cooking_assistance` across logging, prompt versions, eval criteria, and error telemetry | Plain text | Existing eval criteria cover it, but INIT-004 V1 build scope is recipe recommendations, Slop Bowl, and cooking-step generation. Keep assistance as existing infrastructure unless Wilson pulls it into V1 quality reporting. |
+| Vision, speech synthesis, voices, transcription | Provider routes under `/api/vision/*` and `/api/speech/*` | Operational telemetry ids exist (`ingredient_detection`, `tts`, `tts_voices`, `transcription`) | Provider-specific JSON/audio/text | These stay outside INIT-004 V1 output-quality evals per build scope. INIT-002 owns operational failure telemetry for these routes. |
+
+### Contract and taxonomy gaps to resolve before harness work
+
+- `server/eval-criteria.ts` defines `FeatureType` as only `recipe_suggestions`, `cooking_assistance`, and `cooking_steps`; admin prompt generation/saving and `prompt-manager.ts` inherit that set. This blocks first-class Slop Bowl evals and any separate `pantry_recipes` reporting.
+- `shared/schema.ts` comments still describe `ai_interactions.feature_type` and `prompt_versions.feature_type` as the three original feature ids, while runtime already writes `slop_bowl` interactions. The eventual schema/comment cleanup should happen with the feature-taxonomy implementation branch, not in this audit-only branch.
+- The batch evaluator builds one broad LLM-judge prompt per feature and stores the verdict directly. It does not first run deterministic JSON/schema/suggestion-count/max-time checks, so it can reproduce the seed-run failure mode where invalid structure still passes judge criteria.
+- Current `ai_interactions.input_data` and `output_data` can contain user preferences, pantry labels, generated recipe text, and cooking steps. `sanitizePromptInput` strips prompt markers but does not implement the redaction/allowlist posture used for INIT-002 operational telemetry. Phase 2 must define an output-quality eval privacy policy before production/staged samples, admin summaries, or durable reports preserve raw examples.
+- Admin eval summaries return failed interactions with raw `inputData` and `outputData`. This is acceptable as existing internal tooling, but INIT-004 report artifacts should not copy those raw rows into public markdown without a privacy/source decision.
+- `MealPlanning` packages time, cooking skill, optional-ingredient rules, selected cuisines, confirmed staples, unconfirmed staples, dietary restrictions, and previous recipe names into one free-text `preferences` string; `/api/recipes/pantry` can append `ready in <timeAvailable>` again. Eval fixtures should test this actual packaged request shape instead of an idealized structured preference schema.
+- `DEFAULT_RECIPE_SUGGESTIONS_PROMPT` currently says `cookTime` should be rounded up in 15-minute intervals. Both seed intakes include a 25-minute max returning 30 minutes, so Phase 2 must decide whether the max time is a hard ceiling or whether an explicit product exception exists before writing a deterministic max-time check.
+- The prompt and client currently encode the pantry/cuisine tradeoff as a quiet range (`pantry-strict`, `pantry-flexible`, `cuisine-leaning`) without showing those tiers to the user. EFF-022 remains the product home for deciding when cuisine mismatch needs an explicit fallback story; INIT-004 should measure this separately from pantry grounding.
+
+### First deterministic checks to build after Phase 2
+
+1. Parseability and schema conformity for each current surface: `recipes[]` length 3 for `recipe_suggestions`/Chef It Up, one `{ recipe }` object for Slop Bowl, and `recipe` plus `steps[]` for cooking steps.
+2. Required-field checks for recipe names, descriptions, cook time, difficulty, pantry ingredient arrays, optional ingredient arrays, instructions/overview, cuisine, and `isFusion` where the UI or downstream route consumes them.
+3. Max-time adherence using the accepted Phase 2 rule for rounding vs hard ceiling.
+4. Optional-ingredient contract checks: 0-3 optional extras after normalization, no universal staples, no optional-marker words, and no instructions that require an item listed only in `additionalIngredientsNeeded` when this can be checked deterministically or with a focused judge.
+5. Suggestion-count and shape checks before any LLM judge so malformed output cannot receive a quality pass.
+6. Cooking-step equipment and safety flags for obvious missing equipment terms, raw protein/egg doneness cues, visual/sensory cues on judgment steps, and step order issues that need human/judge labels.
+
+### First label schema direction
+
+Phase 2 should draft criterion-level labels rather than a single pass/fail label:
+
+- `structure_contract`
+- `max_time_adherence`
+- `pantry_grounding`
+- `optional_ingredient_contract`
+- `cuisine_fit`
+- `inspired_or_fusion_labeling`
+- `recipe_usefulness`
+- `food_safety`
+- `skill_fit`
+- `equipment_fit`
+- `cooking_step_sequence`
+- `judge_calibration`
+
+Arize clusters map naturally into `food_safety`, `skill_fit`, `equipment_fit`, `max_time_adherence`, `cuisine_fit`, and `structure_contract`. EFF-022's Chinese, Indian, Thai, and Loco Moco-style cases should seed `cuisine_fit`, `pantry_grounding`, and `inspired_or_fusion_labeling` fixtures without resolving the product rule inside the eval harness.
+
+### Phase 1 decisions
+
+- Do not build the eval harness before Phase 2 locks the feature taxonomy, fixture schema, privacy posture, and first Wilson-label target set.
+- Treat Slop Bowl as requiring first-class feature-type/eval criteria changes before it can be measured honestly.
+- Treat `pantry_recipes` as an explicit Phase 2 taxonomy decision because current operational telemetry distinguishes it while `ai_interactions` and prompt versions do not.
+- Keep raw seed exports and raw admin eval rows out of repo. Phase 2 may create summarized or synthetic fixtures, or commit redacted fixtures only after a privacy/source decision.
+- Do not activate prompt changes from this audit. Prompt-candidate generation remains inactive until Wilson reviews baseline/candidate comparison evidence.
+
 ## Build Scope
 
 V1 covers these output surfaces:
@@ -118,8 +183,8 @@ INIT-004 should produce or coordinate:
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
-| Phase 1 - Surface and data audit | Next | TBD | Inventory generation surfaces, prompts, DB prompt overrides, eval criteria, response schemas, and legacy export mismatch |
-| Phase 2 - Rubric and dataset spec | Planned | TBD | Define criterion-level rubric, label schema, fixture format, privacy posture, and first Wilson-labeled gold set |
+| Phase 1 - Surface and data audit | Complete | `codex/init-004-phase-1-audit` | Audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
+| Phase 2 - Rubric and dataset spec | Next | TBD | Define feature taxonomy, criterion-level rubric, label schema, fixture format, privacy posture, and first Wilson-labeled gold set |
 | Phase 3 - Eval harness | Planned | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
@@ -140,13 +205,14 @@ Future implementation phases that use eval results as merge evidence must follow
 
 ## Current Resume Point
 
-When Wilson is ready to resume INIT-004 after the near-term INIT-002 implementation work, the next agent should start Phase 1 from fresh `origin/main`:
+Phase 1 audit is complete. The next agent should start Phase 2 from fresh `origin/main` after the Phase 1 audit PR merges:
 
-1. Read this INIT, the [AI Eval Intake Registry](../docs/evals/registry.md), [INIT-002](INIT-002-ai-error-telemetry.md), [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md), [PD-008](../product-decisions/pd-008-optional-context-and-local-validation-boundaries.md), and [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md).
-2. Audit current output generation paths and response schemas in `server/openai.ts`, `server/evaluator.ts`, `server/eval-criteria.ts`, `server/admin-routes.ts`, `shared/schema.ts`, and the relevant client request packaging.
-3. Re-read the durable OpenAI Platform and Arize intake records in `docs/evals/intakes/`; consult local raw exports only if needed, and do not commit raw exports or trace-level tables without a privacy/source decision.
-4. Proceed with a small Wilson-first seed set that includes both positive and negative Arize examples, EFF-022 cuisine-fit failures, and legacy OpenAI Platform export cases.
-5. Produce a Phase 1 handoff that says whether Slop Bowl requires feature-type changes, whether current eval criteria match current response shapes, which deterministic checks should be implemented before LLM judges, and how Arize clusters map into the first label schema.
+1. Read this INIT, the [AI Eval Intake Registry](../docs/evals/registry.md), [INIT-002](INIT-002-ai-error-telemetry.md), [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md), [PD-008](../product-decisions/pd-008-optional-context-and-local-validation-boundaries.md), [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md).
+2. Decide the Phase 2 feature taxonomy before code: whether `pantry_recipes` remains folded into `recipe_suggestions` or becomes first-class, and which prompt/admin/eval ids Slop Bowl needs.
+3. Draft the output-quality eval privacy posture for raw examples, admin eval rows, production/staged samples, redacted/synthetic fixtures, and daily report artifacts. Do not commit raw prompts, pantry labels, model outputs, cooking steps, or admin interaction rows without that decision.
+4. Draft the criterion-level rubric and label schema from the Phase 1 audit findings: structure/contract, max time, pantry grounding, optional ingredients, cuisine fit, inspired/fusion labeling, usefulness, food safety, skill fit, equipment fit, cooking-step sequence, and judge calibration.
+5. Select a small Wilson-first seed set using summarized or synthetic fixtures from the OpenAI max-time/invalid-JSON cases, Arize positive/negative clusters, and EFF-022 cuisine-fit examples. Keep raw exports local/external unless a privacy/source decision explicitly allows committing them.
+6. Do not build Phase 3 eval harness code, schema changes, judge prompts, daily reports, or prompt-candidate automation until Phase 2 records the accepted taxonomy, fixture format, privacy posture, and label target set.
 
 ## Chronology
 
@@ -157,3 +223,4 @@ When Wilson is ready to resume INIT-004 after the near-term INIT-002 implementat
 - **2026-06-09** - Wilson clarified that eval records need a durable home beyond INIT closeout. Created [docs/evals/](../docs/evals/README.md), moved the normalized OpenAI Platform and Arize seed intake records there, and kept INIT-004 as the active hub that links to the durable registry.
 - **2026-06-09** - Wilson asked to move eval discipline out of INIT-004 because the INIT should stay focused on what needs to be built. Created the durable [Evaluation Workflow](../docs/workflows/evaluations.md), kept `docs/evals/` as the practical registry/intake home, trimmed INIT-004 back to build context, and updated stale PR placeholders to PR #160.
 - **2026-06-09** - PR #160 merged as `680e26e` after being marked ready and passing CI on rerun. Phase 0 is closed; Phase 1 is the next INIT-004 work, after Wilson's near-term INIT-002 implementation focus.
+- **2026-06-10** - Phase 1 audit completed from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to Replit observation. The audit found first-class Slop Bowl feature-type work is required, `pantry_recipes` needs a Phase 2 taxonomy decision, current eval criteria do not match all current response shapes, deterministic checks must precede LLM judges, raw eval interaction rows need a dedicated output-quality privacy posture before becoming artifacts, and EFF-022 cuisine-fit examples should seed rubric labels without resolving the product rule inside the eval harness.

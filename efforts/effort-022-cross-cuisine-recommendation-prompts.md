@@ -141,3 +141,9 @@ The coordination boundary is:
 - EFF-022 owns the product-specific cuisine-fit behavior: how strict cuisine alignment should be, when cross-cuisine or inspired dishes are acceptable, and when the UI/prompt should explain a pantry-constrained fallback.
 - INIT-004 owns the eval infrastructure around that behavior: human labels, deterministic checks, LLM-as-judge criteria, TPR/TNR calibration, daily reporting, and prompt-candidate workflow.
 - Future agents changing cuisine eval criteria should read both files and cite whether the change resolves part of EFF-022 or only adds INIT-004 measurement scaffolding.
+
+## 2026-06-10 - Phase 1 eval audit confirms cuisine-fit fixture role
+
+INIT-004 Phase 1 audited the current Chef It Up request packaging and recipe prompt path. The current UI sends selected cuisines, confirmed staples, unconfirmed staples, dietary restrictions, time, skill, and previous recipe names as one free-text `preferences` string to `/api/recipes/pantry`, while the server reuses `getRecipeSuggestions` and logs the interaction as `recipe_suggestions`.
+
+This adds measurement signal but does not resolve the product question. The audit recommends that Phase 2 labels separate `pantry_grounding`, `cuisine_fit`, and `inspired_or_fusion_labeling`, with EFF-022's Chinese, Indian, Thai, and Loco Moco-style examples seeding fixtures. The product decision still remains here: when a pantry-constrained result should stay literal to the selected cuisine, when inspired/adapted naming is acceptable, and when Laica should explain a pantry-flexible fallback.
