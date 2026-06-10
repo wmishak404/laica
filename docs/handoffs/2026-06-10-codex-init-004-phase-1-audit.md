@@ -39,7 +39,7 @@ Key audit decisions:
 
 ## Open items
 
-- Update PR #166 and this handoff with final GitHub checks after the post-PR docs-refresh commit runs CI.
+- If PR #166 is marked ready for review, update the PR with final-head GitHub CI status because draft `unit`/`e2e_guest_smoke` checks may skip.
 - Phase 2 still needs a Wilson-first seed set and privacy/source decision before any raw or redacted fixtures are committed.
 - No Replit validation is needed for this docs-only audit, but future runtime/schema/eval-harness branches must follow the full evidence gate.
 
@@ -50,8 +50,8 @@ Completed on branch `codex/init-004-phase-1-audit`:
 - `git diff --check` - passed.
 - `npm run check` - initially failed because this fresh worktree had no installed dependencies (`tsc: command not found`).
 - `npm ci` - passed; 852 packages installed, 0 vulnerabilities, existing deprecation warnings only.
-- `npm run check` - passed after `npm ci`; passed again after the PR-link docs refresh.
-- `npm run build` - passed with existing Browserslist, Firebase dynamic/static import, and large chunk-size warnings; passed again after the PR-link docs refresh with the same warning class.
+- `npm run check` - passed after `npm ci`; passed again after the PR-link docs refresh and final handoff refresh.
+- `npm run build` - passed with existing Browserslist, Firebase dynamic/static import, and large chunk-size warnings; passed again after the PR-link docs refresh and final handoff refresh with the same warning class.
 
 No E2E, DB health, Replit shell/browser validation, or eval run is required for this docs-only audit because it does not change runtime code, schema, prompt behavior, provider calls, or UI.
 
