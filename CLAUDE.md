@@ -28,6 +28,7 @@ See [docs/adr/0001-replit-primary-local-agents.md](docs/adr/0001-replit-primary-
 5. **Local checks OK** — `npm run check`, `npm run build` work on macOS.
 6. **Local dev OK** — full app runs locally via dotenvx (see Secrets below).
 7. **Human Replit validation is targeted** — routine low-risk PRs can rely on automation when the PR records evidence, risk, and deferred manual Replit scope; higher-risk or cross-functional changes still need targeted human Replit validation before merge. Future automated Replit-environment checks may become PR gates once their evidence lane is accepted.
+8. **Replit Agent spends credits** — when accessing Replit through Chrome, use direct shell commands, the workspace UI, local tooling, and GitHub automation first. Ask Wilson for explicit approval before starting or continuing a Replit Agent task unless a current instruction already authorizes it. Record approved Replit Agent use in the PR or handoff evidence with the reason direct validation was insufficient.
 
 ## Agent merge authority
 

@@ -36,6 +36,10 @@ Every pushed implementation build/head intended for review or merge must run or 
 
 Human manual Replit validation is no longer the default PR merge gate for every deployment-bound change. Use [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md) to classify the validation lane.
 
+### Replit Agent credit guard
+
+When accessing Replit through Chrome, do not use Replit Agent by default because it spends Replit credits. Prefer direct Replit shell commands, the workspace UI, local tooling, and GitHub automation first. If Replit Agent looks necessary because direct shell/UI paths are blocked or substantially unsafe, stop and ask Wilson for explicit approval before starting or continuing a Replit Agent task. Document any approved Replit Agent use in the PR or handoff evidence, including why direct validation was insufficient.
+
 For low-risk, narrowly scoped changes with strong automated evidence, PRs may defer human Replit validation to a batched pre-production/release pass. The PR or handoff must annotate the risk, automated evidence, negative scope, and the exact deferred manual checks so future debugging can trace a regression back to the enhancement without bloating durable docs.
 
 Require human Replit validation before PR merge only when the change is higher risk or cross-functional, changes schema/secrets/deployment/runtime startup, changes auth/session/provider behavior in a way CI or automated Replit-environment checks do not exercise, has weak or skipped automated evidence, or Wilson explicitly asks for PR-level manual validation.
