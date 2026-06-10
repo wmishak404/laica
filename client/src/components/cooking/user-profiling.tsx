@@ -62,13 +62,32 @@ interface UserProfilingProps {
   onProfileComplete: (profile: UserProfile) => void;
   existingProfile?: UserProfile;
   menuSlot?: ReactNode;
+  sessionScopeKey?: string;
 }
 
 type ScanType = InventoryScanType;
 type ScanProgress = { completed: number; total: number } | null;
+type UserProfilingDraft = {
+  version: 1;
+  currentStep: number;
+  isToolsCaptureOpen: boolean;
+  profile: UserProfile;
+  manualEntry: Record<ScanType, string>;
+  manualOpen: Record<ScanType, boolean>;
+};
 
 const TOTAL_STEPS = 5;
 const MIN_PANTRY_INGREDIENTS = 3;
+const SETUP_DRAFT_STORAGE_PREFIX = 'laica:setup-profile-draft:';
+const EMPTY_PROFILE: UserProfile = {
+  cookingSkill: '',
+  dietaryRestrictions: [],
+  pantryIngredients: [],
+  kitchenEquipment: [],
+  favoriteChefs: [],
+};
+const EMPTY_MANUAL_ENTRY: Record<ScanType, string> = { pantry: '', kitchen: '' };
+const EMPTY_MANUAL_OPEN: Record<ScanType, boolean> = { pantry: false, kitchen: false };
 const PANTRY_PLACEHOLDERS = [
   'raw chicken, broccoli, spaghetti',
   'parmesan, sumac, chili crisp',
@@ -95,6 +114,102 @@ const dietaryOptions = [
   { label: 'Keto', illustration: '🥑' },
   { label: 'Paleo', illustration: '🥩' },
 ];
+
+function createEmptyProfile(): UserProfile {
+  return {
+    ...EMPTY_PROFILE,
+    dietaryRestrictions: [],
+    pantryIngredients: [],
+    kitchenEquipment: [],
+    favoriteChefs: [],
+  };
+}
+
+function normalizeStringList(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0)
+    : [];
+}
+
+function normalizeProfile(value: unknown): UserProfile {
+  if (typeof value !== 'object' || value === null) {
+    return createEmptyProfile();
+  }
+
+  const profile = value as Partial<UserProfile>;
+  return {
+    cookingSkill: typeof profile.cookingSkill === 'string' ? profile.cookingSkill : '',
+    dietaryRestrictions: normalizeStringList(profile.dietaryRestrictions),
+    pantryIngredients: normalizeStringList(profile.pantryIngredients),
+    kitchenEquipment: normalizeStringList(profile.kitchenEquipment),
+    favoriteChefs: normalizeStringList(profile.favoriteChefs),
+  };
+}
+
+function setupDraftStorageKey(sessionScopeKey: string) {
+  return `${SETUP_DRAFT_STORAGE_PREFIX}${sessionScopeKey}`;
+}
+
+function readSetupDraft(sessionScopeKey?: string): UserProfilingDraft | null {
+  if (!sessionScopeKey || typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const rawDraft = window.sessionStorage.getItem(setupDraftStorageKey(sessionScopeKey));
+    if (!rawDraft) return null;
+
+    const parsed = JSON.parse(rawDraft) as Partial<UserProfilingDraft>;
+    if (parsed.version !== 1) return null;
+
+    const currentStep = Number.isInteger(parsed.currentStep)
+      ? Math.min(TOTAL_STEPS, Math.max(0, parsed.currentStep as number))
+      : 0;
+    const manualEntry = typeof parsed.manualEntry === 'object' && parsed.manualEntry !== null
+      ? {
+          pantry: typeof parsed.manualEntry.pantry === 'string' ? parsed.manualEntry.pantry : '',
+          kitchen: typeof parsed.manualEntry.kitchen === 'string' ? parsed.manualEntry.kitchen : '',
+        }
+      : { ...EMPTY_MANUAL_ENTRY };
+    const manualOpen = typeof parsed.manualOpen === 'object' && parsed.manualOpen !== null
+      ? {
+          pantry: Boolean(parsed.manualOpen.pantry),
+          kitchen: Boolean(parsed.manualOpen.kitchen),
+        }
+      : { ...EMPTY_MANUAL_OPEN };
+
+    return {
+      version: 1,
+      currentStep,
+      isToolsCaptureOpen: Boolean(parsed.isToolsCaptureOpen),
+      profile: normalizeProfile(parsed.profile),
+      manualEntry,
+      manualOpen,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeSetupDraft(sessionScopeKey: string | undefined, draft: UserProfilingDraft) {
+  if (!sessionScopeKey || typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(setupDraftStorageKey(sessionScopeKey), JSON.stringify(draft));
+  } catch {
+    return;
+  }
+}
+
+function clearSetupDraft(sessionScopeKey?: string) {
+  if (!sessionScopeKey || typeof window === 'undefined') {
+    return;
+  }
+
+  window.sessionStorage.removeItem(setupDraftStorageKey(sessionScopeKey));
+}
 
 function readImageAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -212,27 +327,35 @@ function getNextPantryPlaceholder() {
   }
 }
 
-export default function UserProfiling({ onProfileComplete, existingProfile, menuSlot }: UserProfilingProps) {
+export default function UserProfiling({ onProfileComplete, existingProfile, menuSlot, sessionScopeKey }: UserProfilingProps) {
   const { toast } = useToast();
   const scanRunIds = useRef<Record<ScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
   const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [initialDraft] = useState(() => existingProfile ? null : readSetupDraft(sessionScopeKey));
   const [pantryPlaceholder] = useState(getNextPantryPlaceholder);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isToolsCaptureOpen, setIsToolsCaptureOpen] = useState(() => (existingProfile?.kitchenEquipment?.length ?? 0) > 0);
-  const [profile, setProfile] = useState<UserProfile>(existingProfile || {
-    cookingSkill: '',
-    dietaryRestrictions: [],
-    pantryIngredients: [],
-    kitchenEquipment: [],
-    favoriteChefs: [],
-  });
-  const [manualEntry, setManualEntry] = useState<Record<ScanType, string>>({ pantry: '', kitchen: '' });
-  const [manualOpen, setManualOpen] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
+  const [currentStep, setCurrentStep] = useState(() => initialDraft?.currentStep ?? 0);
+  const [isToolsCaptureOpen, setIsToolsCaptureOpen] = useState(() =>
+    initialDraft?.isToolsCaptureOpen ?? (existingProfile?.kitchenEquipment?.length ?? 0) > 0
+  );
+  const [profile, setProfile] = useState<UserProfile>(() => initialDraft?.profile ?? existingProfile ?? createEmptyProfile());
+  const [manualEntry, setManualEntry] = useState<Record<ScanType, string>>(() => initialDraft?.manualEntry ?? { ...EMPTY_MANUAL_ENTRY });
+  const [manualOpen, setManualOpen] = useState<Record<ScanType, boolean>>(() => initialDraft?.manualOpen ?? { ...EMPTY_MANUAL_OPEN });
   const [isAnalyzing, setIsAnalyzing] = useState<Record<ScanType, boolean>>({ pantry: false, kitchen: false });
   const [scanProgress, setScanProgress] = useState<Record<ScanType, ScanProgress>>({ pantry: null, kitchen: null });
   const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
   const [inventoryReviewState, setInventoryReviewState] = useState(createInventoryReviewState);
+
+  useEffect(() => {
+    writeSetupDraft(sessionScopeKey, {
+      version: 1,
+      currentStep,
+      isToolsCaptureOpen,
+      profile,
+      manualEntry,
+      manualOpen,
+    });
+  }, [currentStep, isToolsCaptureOpen, manualEntry, manualOpen, profile, sessionScopeKey]);
 
   useEffect(() => () => {
     scanControllers.current.pantry?.abort();
@@ -638,6 +761,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     if (currentStep === TOTAL_STEPS) {
+      clearSetupDraft(sessionScopeKey);
       onProfileComplete(profile);
       return;
     }

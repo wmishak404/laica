@@ -1219,9 +1219,11 @@ export default function MobileApp() {
         return (
           <div>
             <UserProfiling 
+              key={planningStateScopeKey}
               onProfileComplete={handleProfileComplete}
               existingProfile={hasExistingProfile ? userProfile : undefined}
               menuSlot={renderSetupMenu()}
+              sessionScopeKey={planningStateScopeKey}
             />
           </div>
         );
@@ -1301,9 +1303,11 @@ export default function MobileApp() {
       default:
         return (
           <UserProfiling
+            key={planningStateScopeKey}
             onProfileComplete={handleProfileComplete}
             existingProfile={hasExistingProfile ? userProfile : undefined}
             menuSlot={renderSetupMenu()}
+            sessionScopeKey={planningStateScopeKey}
           />
         );
     }

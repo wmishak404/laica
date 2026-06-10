@@ -38,6 +38,7 @@ describe('UserProfiling setup flow', () => {
     cleanup();
     vi.clearAllMocks();
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it('starts with a welcome screen and lets pantry back return there', () => {
@@ -126,6 +127,35 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /skip tools/i }));
 
     expect(screen.getByRole('heading', { name: /how comfortable are you with cooking/i })).toBeTruthy();
+  });
+
+  it('restores in-progress setup after a same-session remount', () => {
+    const sessionScopeKey = 'guest:setup-remount-test';
+    const firstRender = render(<UserProfiling onProfileComplete={vi.fn()} sessionScopeKey={sessionScopeKey} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/^tools$/i), {
+      target: { value: 'blender' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
+
+    firstRender.unmount();
+    render(<UserProfiling onProfileComplete={vi.fn()} sessionScopeKey={sessionScopeKey} />);
+
+    expect(screen.getByRole('heading', { name: /tell me what tools you use/i })).toBeTruthy();
+    expect(screen.getByText('blender')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+    expect(screen.getByText('ground beef')).toBeTruthy();
   });
 
   it('corrects setup pantry manual-entry spelling and lets Undo restore the original batch', () => {
