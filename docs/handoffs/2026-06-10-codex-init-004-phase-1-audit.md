@@ -2,6 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/init-004-phase-1-audit`
+**PR:** [#166](https://github.com/wmishak404/laica/pull/166) (draft)
 **Date:** 2026-06-10
 **Initiative:** INIT-004
 **INIT updated:** yes
@@ -38,7 +39,7 @@ Key audit decisions:
 
 ## Open items
 
-- Open/update the PR and record final GitHub checks after push.
+- Update PR #166 and this handoff with final GitHub checks after the post-PR docs-refresh commit runs CI.
 - Phase 2 still needs a Wilson-first seed set and privacy/source decision before any raw or redacted fixtures are committed.
 - No Replit validation is needed for this docs-only audit, but future runtime/schema/eval-harness branches must follow the full evidence gate.
 
@@ -49,8 +50,8 @@ Completed on branch `codex/init-004-phase-1-audit`:
 - `git diff --check` - passed.
 - `npm run check` - initially failed because this fresh worktree had no installed dependencies (`tsc: command not found`).
 - `npm ci` - passed; 852 packages installed, 0 vulnerabilities, existing deprecation warnings only.
-- `npm run check` - passed after `npm ci`.
-- `npm run build` - passed with existing Browserslist, Firebase dynamic/static import, and large chunk-size warnings.
+- `npm run check` - passed after `npm ci`; passed again after the PR-link docs refresh.
+- `npm run build` - passed with existing Browserslist, Firebase dynamic/static import, and large chunk-size warnings; passed again after the PR-link docs refresh with the same warning class.
 
 No E2E, DB health, Replit shell/browser validation, or eval run is required for this docs-only audit because it does not change runtime code, schema, prompt behavior, provider calls, or UI.
 

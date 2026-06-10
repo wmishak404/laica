@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 2 - Rubric and dataset spec (next)
-**Active PR:** Draft planned for Phase 1 audit handoff
+**Active PR:** [#166](https://github.com/wmishak404/laica/pull/166) (draft)
 **Active branch:** `codex/init-004-phase-1-audit`
 
 ## Overview
