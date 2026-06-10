@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-08
+**Updated:** 2026-06-10
 
 ## One-line summary
 
@@ -601,3 +601,26 @@ New EFF-017 signal:
 - Replit Agent is not required for these checks and remains approval-required because of credits.
 
 This narrows the old negative scope around Replit access and install viability, but it does **not** create an accepted automated Replit-environment gate. The lane is still manual/direct through Chrome and shell, with evidence recorded in the PR body or handoff. It also does not prove production deployment behavior, identity-provider preflight configuration, live OpenAI/ElevenLabs/Vision/transcription canaries, AI output quality, or broader provider failure telemetry. Future automated Replit-environment work should turn this pattern into a repeatable script/workflow before treating it as a merge gate.
+
+## 2026-06-10 — Test and CI audit reconciliation after PR #159/#164
+
+Codex and Claude ran parallel audits of the current test and CI posture, then reconciled the findings after PR #159 merged as `382ebd07f106ac241e2ed1caa69d34c46a66882c`. The active automated suite is healthy and current: PR #159 added request-id and AI-error telemetry coverage, and its final head `76b536170c5c47d7cb04016b3c4cae451544da3b` passed GitHub `unit`, `e2e_guest_smoke`, dependency audit, secret scan, and CodeQL. The post-merge `main` CI run for `382ebd0` also passed `unit` and `e2e_guest_smoke`.
+
+The audit did not find stale active tests. Recent runtime changes have generally shipped with same-branch regression coverage, including the Replit-smoke bugs around profile-save auth churn, model-shaped cooking-step payloads, remount restore, duplicate durable session starts, stale prep-plan invalidation, speech upload MIME hardening, feedback private headers, and guest bottom-nav correction. The old `voice-recording.test.ts` copied-logic problem has been fixed; the test now imports the shipping helper.
+
+The current weakness is enforcement and measurement, not the existence of tests:
+
+| Item | Current classification | Smallest next action |
+|---|---|---|
+| Required CI checks | Repo setting / governance gap | The `unit` and `e2e_guest_smoke` jobs already run and pass in normal same-repo CI, but they should also be mechanically required for protected merges. This is a GitHub settings/ruleset action, not a code-test change. Treat skipped or missing E2E evidence as a blocker, not as a pass. |
+| Coverage denominator | Measurement-integrity gap | Before adding thresholds, make coverage include all intended shipped source files, including currently unimported or fully mocked files. Coverage should remain evidence about exercised code, not a substitute for behavior tests or E2E claims. |
+| Coverage thresholds | Evidence-ratcheting decision | After the denominator is honest, record the baseline and ratchet rule. Do not promote the current visible coverage percentage into a blocking threshold until the denominator and policy are accepted. |
+| OAuth start preflight | Config-blocked canary lane | The workflow exists, but the scheduled lane is still inert until the accepted target set and Firebase/identity-provider project/key alignment are configured. This lane proves Google OAuth can start for accepted production/Replit domains without automating full popup completion. It complements, but does not replace, linked dev-auth CI or Replit/Chrome full-login validation. |
+| Direct Replit shell/browser evidence | Proven manual lane | PR #159 proved exact-head Replit shell checks and Chrome browser sign-in validation are viable without using Replit Agent. Keep using this for risk-triggered PR evidence, but do not call it an automated Replit-environment gate until a reusable workflow/script, setup, evidence report, and negative scope are documented and accepted. |
+| Old root test artifacts | Cleanup candidate | `test-runner.js`, `run-tests.sh`, `test-criteria.md`, and `test-criteria-template.js` describe an older ad hoc testing path and should be removed or rewritten to point at the current `npm run test:*`, `db:health`, E2E evidence, and risk-lane workflow. |
+| Dead or dormant code | Coverage clarity candidate | Audit and remove confirmed-dead code before treating "cover everything" metrics as meaningful. Examples to verify before deletion include `server/localAuth.ts`, old pages, disabled grocery surfaces, and orphaned cooking components. Keep live surfaces such as `cooking-history.tsx` separate from dead-code cleanup; they need tests, not deletion. |
+| Live but thinly tested surfaces | Targeted coverage backlog | Add focused coverage for `cooking-history.tsx`, broader `useAuth` behavior, broader `live-cooking.tsx` behavior, and admin/eval routes when INIT-004 moves from planning into implementation. |
+
+The direct Replit validation lane recorded above is a useful middle lane between GitHub CI and Wilson-only smoke. It can now produce stronger PR-level evidence without spending Replit Agent credits. It still does not prove production/deployed Replit behavior, identity-provider preflight configuration, live OpenAI/ElevenLabs/Vision/transcription canaries, storage integration against a real non-disposable DB beyond the validated shell/browser path, or AI output quality. It also does not replace the GitHub `e2e_guest_smoke` requirement for every pushed implementation head intended for review or merge.
+
+EFF-017 remains `In Progress`. The next highest-leverage actions are: mechanically require the routine correctness checks in GitHub settings, make coverage measurement honest before thresholds, configure and rerun the OAuth preflight lane, clean up stale root test artifacts and confirmed-dead code, and then add targeted coverage for live-but-thin surfaces.
