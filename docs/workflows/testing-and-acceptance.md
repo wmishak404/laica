@@ -12,6 +12,39 @@ Every change should say what it was expected to prove, what was actually checked
 
 For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
 
+## Validation Flow At A Glance
+
+```mermaid
+flowchart TD
+  local["1. Local implementation and checks<br/>check, build, unit, targeted tests"]
+  auth["Auth or linked-user behavior?"]
+  devauth["Use linked dev-auth custom-token lane<br/>synthetic Firebase users for local and CI"]
+  pr["2. Push PR or mark ready for review"]
+  ci["3. Required GitHub gate on exact head<br/>unit + e2e_guest_smoke + security checks"]
+  risk["Does risk lane require Replit proof?"]
+  replit["4. Replit dev validation when needed<br/>shell checks and/or Chrome smoke"]
+  merge["5. Merge after required CI passes<br/>and any risk-lane validation is done"]
+  publish["6. Publish production from Replit when ready"]
+  prodsmoke["7. Post-publish Chrome smoke<br/>changed areas + release-critical basics"]
+  oauth["OAuth start preflight canary<br/>production/stable Replit auth config"]
+
+  local --> auth
+  auth -->|Yes| devauth
+  auth -->|No| pr
+  devauth --> pr
+  pr --> ci
+  ci --> risk
+  risk -->|No| merge
+  risk -->|Yes| replit
+  replit --> merge
+  merge --> publish
+  publish --> prodsmoke
+  ci -. "separate config canary" .-> oauth
+  oauth -. "does not replace dev-auth or real Google smoke" .-> risk
+```
+
+Use this as the default order of evidence. Local checks are the fastest implementation loop, GitHub CI is the required PR merge gate, Replit shell/browser validation is risk-triggered or batched for release confidence, and post-publish Chrome smoke verifies the deployed artifact. The OAuth start preflight is a side canary for identity-provider domain/config drift; it is not the local auth test path.
+
 ## Automation Evidence Gate
 
 When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."

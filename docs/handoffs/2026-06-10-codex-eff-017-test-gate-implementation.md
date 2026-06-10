@@ -21,6 +21,7 @@ This branch also adds the durable security rule Wilson requested: exact CI/rules
 - `scripts/oauth-start-preflight.ts`: public logs hide provider diagnostics by default; a private/local opt-in can reveal provider diagnostics when evidence is captured outside public GitHub.
 - `tests/unit/oauth-start-preflight.test.ts` and `tests/unit/oauth-preflight-workflow.test.ts`: cover sanitized provider logging, private diagnostic opt-in, no workflow-level skip, and secret-backed target configuration.
 - `docs/workflows/security-due-diligence.md` and `docs/workflows/testing-and-acceptance.md`: record the private-evidence and OAuth-target masking rules.
+- `docs/workflows/testing-and-acceptance.md`: adds a human-readable Mermaid validation-flow chart for local checks, GitHub required CI, risk-triggered Replit validation, production publish, post-publish smoke, and the OAuth preflight side canary.
 - `.gitignore`: reserves `.codex/private/` for local-only evidence in worktrees where that directory is writable.
 
 ## Validation
