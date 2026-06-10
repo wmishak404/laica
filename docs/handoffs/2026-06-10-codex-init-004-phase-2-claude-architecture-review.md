@@ -1,0 +1,231 @@
+# INIT-004 Phase 2 Claude Architecture Review Request
+
+**Agent:** codex
+**Branch:** `codex/init-004-phase-2-spec`
+**PR:** [#168](https://github.com/wmishak404/laica/pull/168) (draft)
+**Date:** 2026-06-10
+**Initiative:** INIT-004
+**INIT updated:** no
+
+## Purpose
+
+Wilson asked Codex to prepare a full architecture-review prompt for Claude and a separate set of Wilson decision questions for INIT-004 Phase 2. PR #168 is intentionally draft because it proposes product/privacy/architecture decisions that should be reviewed before Phase 3 eval harness work starts.
+
+No code changes are requested in this review handoff.
+
+## Claude Prompt
+
+Claude, please review the architecture of INIT-004 Phase 2 in draft PR #168:
+
+- PR: https://github.com/wmishak404/laica/pull/168
+- Branch: `codex/init-004-phase-2-spec`
+- Final pushed head at request time: `291f2466392a5d06c91acca05a078305bffffaf6`
+- Base: `origin/main` at `a11ac140d61697b20c08c1c6191e75fecf3f0fc5`
+- Primary spec: `docs/evals/init-004-phase-2-rubric-dataset-spec.md`
+- Scope: docs-only Phase 2 draft; no runtime code, prompts, schema, admin APIs, provider calls, UI, deployment config, Replit behavior, fixture files, or eval runs changed.
+
+### Review Objective
+
+Review whether the Phase 2 architecture is the right foundation before Phase 3 harness work. Focus on taxonomy, privacy/source handling, fixture format, rubric labels, seed set selection, and implementation implications. Treat this as an architecture review, not a copy edit.
+
+### Source Docs To Read
+
+Read these before giving architectural feedback:
+
+- `AGENTS.md` for LAICA workflow and INIT/Effort rules.
+- `initiatives/INIT-004-ai-output-quality-evals.md` for current phase, Phase 1 audit findings, Phase 2 gate, and source docs.
+- `docs/evals/init-004-phase-2-rubric-dataset-spec.md` for the actual draft under review.
+- `docs/handoffs/2026-06-10-codex-init-004-phase-1-audit.md` and `docs/handoffs/2026-06-10-codex-init-004-phase-1-merge-closeout.md` for Phase 1 provenance.
+- `docs/workflows/evaluations.md` for durable eval discipline.
+- `docs/workflows/testing-and-acceptance.md` for evidence requirements and future eval gates.
+- `docs/workflows/documentation-routing.md` for source-of-truth routing.
+- `docs/evals/README.md`, `docs/evals/registry.md`, and both current intake records under `docs/evals/intakes/`.
+- `efforts/effort-022-cross-cuisine-recommendation-prompts.md` for the cuisine-fit product boundary.
+- `product-decisions/pd-008-optional-context-and-local-validation-boundaries.md`.
+- `product-decisions/pd-010-ai-error-telemetry-allowlist.md`.
+- `product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md`.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md`.
+- `product-decisions/features/slop-bowl/pd-phase-03-simplified-bowl.md`.
+
+Check current code contracts where relevant:
+
+- `server/eval-criteria.ts`
+- `server/evaluator.ts`
+- `server/openai.ts`
+- `server/prompt-manager.ts`
+- `server/admin-routes.ts`
+- `shared/schema.ts`
+- `server/aiErrors.ts`
+- `client/src/components/cooking/meal-planning.tsx`
+
+### Questions To Answer
+
+Please answer these directly:
+
+1. Is the proposed split between `EvalFeatureType` and `PromptFeatureType` architecturally correct, given current code couples `FeatureType` to eval criteria and prompt management?
+2. Should `pantry_recipes` become a first-class eval/reporting feature in Phase 3, or should it remain a subtype of `recipe_suggestions`?
+3. Should `slop_bowl` get first-class eval/reporting support while keeping prompt activation out of Phase 3?
+4. Does the proposed output-quality privacy posture sufficiently protect raw `ai_interactions`, admin eval rows, production/staged samples, pantry labels, model outputs, images, audio, transcripts, auth data, and secrets?
+5. Is the recommended fixture shape sufficient for deterministic checks, human labels, and later judge calibration?
+6. Are the criterion labels complete and well separated, or are any labels missing, overlapping, too vague, or too hard to operationalize?
+7. Is the first Wilson-label target set appropriately small and representative across recipe suggestions, Chef It Up pantry recipes, Slop Bowl, and cooking steps?
+8. Does the spec preserve the EFF-022 boundary, or does it accidentally decide cuisine fallback product behavior that should remain Wilson-owned?
+9. What implementation risks should Phase 3 address first, especially around admin prompt endpoints, immediate prompt activation, `ai_interactions` logging, stale schema comments, and evaluator prompt design?
+10. What should block Phase 3 until Wilson decides?
+
+### Expected Output
+
+Please produce a review with:
+
+- Findings first, ordered by severity (`P0`, `P1`, `P2`, or `P3`), with file/section references.
+- Explicit architectural recommendations, including alternatives and tradeoffs.
+- A short "Wilson decisions needed" list.
+- A short "Phase 3 implementation risks" list.
+- Any suggested PR comments that should be applied inline.
+
+Do not implement code. Do not mark the PR ready. Do not merge. If you think the spec is acceptable as-is, say that clearly and still identify residual risks.
+
+## Wilson Architecture Decision Questions
+
+These are the questions Wilson should decide or explicitly delegate before Phase 3 harness work starts.
+
+### 1. Should `pantry_recipes` be a first-class eval/reporting feature?
+
+**Recommended answer:** yes.
+
+**Reasoning:** Phase 1 found `/api/recipes/pantry` is the primary Chef It Up flow and has different input packaging, product expectations, and EFF-022 risk than generic recipe suggestions. Current runtime logs it as `recipe_suggestions`, while INIT-002 operational telemetry already names `pantry_recipes`. Keeping it folded into `recipe_suggestions` would blur the exact surface most affected by pantry/cuisine tradeoffs.
+
+**Provenance:** INIT-004 Phase 1 surface map; `server/routes.ts` uses `feature: "pantry_recipes"` for operational errors; `server/openai.ts` logs pantry output through `logInteraction('recipe_suggestions', ...)`; EFF-022 is specifically about Chef It Up pantry recommendation quality.
+
+**Decision options:**
+
+- A. First-class `pantry_recipes` eval feature. Better reporting and fixture routing; requires Phase 3 type/logging updates.
+- B. Keep as `recipe_suggestions` subtype. Less code churn; weaker metrics and harder diagnosis.
+- C. Keep logging as `recipe_suggestions` but add metadata subtype. More flexible but requires schema or fixture conventions that do not exist yet.
+
+### 2. Should eval feature IDs be split from prompt-management feature IDs?
+
+**Recommended answer:** yes.
+
+**Reasoning:** Current `FeatureType` is used for both `EVAL_CRITERIA` and prompt management. Expanding it naively would make admin prompt endpoints appear to support prompt generation/save/activation for every eval feature. That is risky because prompt save currently activates immediately, while INIT-004 says prompt-candidate workflow should stay inactive until Wilson review.
+
+**Provenance:** `server/eval-criteria.ts` exports `FeatureType`; `server/prompt-manager.ts` imports that type for active prompts; `server/admin-routes.ts` Zod enums gate prompt generation/save; INIT-004 Phase 6 says no automatic production activation.
+
+**Decision options:**
+
+- A. Split `EvalFeatureType` and `PromptFeatureType`. More explicit and safer; requires a small type refactor.
+- B. Expand current `FeatureType` and let prompt management follow. Faster but risks accidental prompt activation paths for `slop_bowl` and `pantry_recipes`.
+- C. Keep current type and special-case new eval features. Lowest initial churn but preserves the coupling problem.
+
+### 3. Should Slop Bowl get eval coverage before DB prompt activation?
+
+**Recommended answer:** yes.
+
+**Reasoning:** Slop Bowl already logs `slop_bowl` interactions and is in INIT-004 V1 scope, but the accepted Slop Bowl v1 direction kept its prompt hardcoded. Eval coverage is needed to measure current behavior; DB prompt activation is a separate prompt-candidate concern.
+
+**Provenance:** `server/openai.ts` logs `slop_bowl`; Slop Bowl phase record says hardcoded prompt for v1; INIT-004 V1 includes Slop Bowl; current `EVAL_CRITERIA` omits `slop_bowl`.
+
+**Decision options:**
+
+- A. Add `slop_bowl` eval/reporting only in Phase 3. Recommended.
+- B. Add `slop_bowl` prompt manager support now. More flexible; risks activating prompt changes before prompt workflow is safe.
+- C. Defer Slop Bowl entirely. Simpler; conflicts with INIT-004 V1 scope.
+
+### 4. Is max cook time a hard ceiling?
+
+**Recommended answer:** yes, unless Wilson explicitly wants a product exception.
+
+**Reasoning:** Both seed intakes have 25-minute max failures returning 30 minutes. Current prompt says round up in 15-minute intervals, which can violate a user constraint. Deterministic checks need a crisp rule. If the app says the user has 25 minutes, an eval should fail a 30-minute result unless product copy changes the meaning of the selection.
+
+**Provenance:** OpenAI Platform intake max-time failure; Arize intake max-time failure; INIT-004 Phase 1 audit notes prompt round-up conflict; `pd-phase-03-planning.md` describes time as a per-planning-session bound.
+
+**Decision options:**
+
+- A. Hard ceiling. Clear and user-respecting; may require prompt/output cleanup.
+- B. Allow rounding above max if within one interval. Easier with current prompt; weakens user trust and tests.
+- C. Treat time as approximate and make eval judge semantic. Flexible but hard to automate.
+
+### 5. What output-quality data may enter the repo?
+
+**Recommended answer:** synthetic by default; redacted only with review; raw never by default.
+
+**Reasoning:** Output-quality rows contain user preferences, pantry labels, generated recipes, and cooking steps. That is richer than INIT-002 operational telemetry and cannot use the same allowlist-only safety guarantee. The repo should hold durable labels and synthetic/redacted fixtures, not raw admin rows or raw production samples.
+
+**Provenance:** INIT-004 Phase 1 privacy finding; `docs/workflows/evaluations.md`; `docs/evals/README.md`; PD-010 raw-data denylist for operational telemetry; mobile-refresh AI privacy rules on AI interaction retention/redaction.
+
+**Decision options:**
+
+- A. Synthetic fixtures by default, redacted only after review. Recommended.
+- B. Redacted real examples by default. Higher fidelity; higher leakage/reidentification risk.
+- C. Commit raw examples under admin-only assumptions. Not recommended; repo artifacts are durable and shareable.
+
+### 6. Where should fixtures live?
+
+**Recommended answer:** define canonical fixtures under `docs/evals/fixtures/`, then let Phase 3 harness read or transform them.
+
+**Reasoning:** `docs/evals/` is already the durable eval ledger and survives INIT closeout. Keeping fixture definitions there makes the privacy/source posture and human labels reviewable. If tests need faster imports later, generated or mirrored test fixtures can be created deliberately.
+
+**Provenance:** `docs/evals/README.md` already names future `fixtures/`; `docs/workflows/evaluations.md` routes durable eval artifacts through `docs/evals/`.
+
+**Decision options:**
+
+- A. `docs/evals/fixtures/` as canonical. Best provenance and reviewability.
+- B. `tests/fixtures/evals/` as canonical. Easier test imports; weaker durable eval ledger.
+- C. Store only in code fixtures. Fastest harness; poorer product/privacy review.
+
+### 7. Is the first label target set the right size and coverage?
+
+**Recommended answer:** start with the current 13 proposed seeds, then trim only if Wilson wants a shorter first review session.
+
+**Reasoning:** The set covers positive and negative examples, structure, max time, food safety, equipment, skill, cuisine fit, Slop Bowl shape, and cooking-step generated context. It is small enough for Wilson-first review and broad enough to expose rubric ambiguity before code.
+
+**Provenance:** OpenAI Platform intake, Arize intake, EFF-022, INIT-004 Phase 1 audit.
+
+**Decision options:**
+
+- A. Keep 13 seeds. Better architecture coverage.
+- B. Trim to 6-8 seeds. Faster Wilson session; less coverage.
+- C. Expand before Phase 3. More complete; delays harness foundation.
+
+### 8. How strict should selected cuisine matching be?
+
+**Recommended answer:** keep the product rule in EFF-022 for Wilson, and measure separate labels now.
+
+**Reasoning:** The eval harness can label `pantry_grounding`, `cuisine_fit`, and `inspired_or_fusion_labeling` separately without deciding whether the product should require literal cuisine alignment, ask for missing staples, or show pantry-flexible fallback copy. Deciding that policy inside the eval harness would overstep.
+
+**Provenance:** EFF-022 explicitly owns cuisine fallback behavior; INIT-004 Phase 1 says the eval harness should measure, not resolve, the product rule.
+
+**Decision options:**
+
+- A. Separate measurement now; product rule later. Recommended.
+- B. Require all selected-cuisine outputs to visibly align. Strong user promise; may overcorrect against pantry-first value.
+- C. Allow off-cuisine pantry fit silently. Preserves pantry usefulness; repeats current user-facing ambiguity.
+- D. Require explicit fallback copy when pantry evidence is weak. Likely product-good, but needs UI/prompt design.
+
+### 9. Should prompt save keep activating immediately?
+
+**Recommended answer:** do not expand the immediate-activation path in Phase 3.
+
+**Reasoning:** Existing admin prompt save activates immediately. INIT-004's prompt-candidate workflow says failures should generate inactive candidates and require Wilson review before activation. Phase 3 should avoid making more surfaces eligible for immediate activation until a safer candidate/activation model is designed.
+
+**Provenance:** `server/admin-routes.ts` prompt save endpoint; `server/prompt-manager.ts` `createPromptVersion` deactivates prior active prompts and inserts active prompt; INIT-004 Phase 6 no automatic activation.
+
+**Decision options:**
+
+- A. Keep Phase 3 eval-only; no prompt activation expansion. Recommended.
+- B. Add inactive prompt version support now. Useful but expands Phase 2/3 scope.
+- C. Use current save/activate path for new features. Risky.
+
+### 10. What makes Phase 2 accepted?
+
+**Recommended answer:** Wilson approves or edits PR #168's review decisions, then the PR is marked ready, required checks run, and the accepted spec merges. Only then Phase 3 starts.
+
+**Reasoning:** Phase 2 contains product/privacy/architecture decisions. A draft PR with passing docs checks is not acceptance. The durable acceptance signal should be explicit review plus merge.
+
+**Provenance:** AGENTS documentation foundation rule; INIT-004 Phase 2 gate; testing-and-acceptance evidence requirements; PR #168 is intentionally draft.
+
+**Decision options:**
+
+- A. Approval/edits on PR #168 plus merge. Recommended.
+- B. Chat approval only. Faster but harder for future agents to trace.
+- C. Claude review approval only. Helpful but Wilson still owns product/privacy calls.
