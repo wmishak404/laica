@@ -4,11 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       continue_uris:
-        description: "Optional comma-separated HTTPS continue URIs to check instead of the repo variable."
+        description: "Optional comma-separated HTTPS continue URIs to check instead of the masked default secret."
         required: false
         type: string
-  schedule:
-    - cron: "17 11 * * *"
 
 permissions:
   contents: read

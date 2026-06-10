@@ -17,7 +17,7 @@ This branch also adds the durable security rule Wilson requested: exact CI/rules
 
 - GitHub settings: protected required status checks now include `unit` and `e2e_guest_smoke` alongside the existing security/dependency checks. Raw ruleset API payloads are local/private only.
 - `vitest.config.ts`: coverage now includes `client/src`, `server`, `shared`, and `scripts` shipped-source globs so the reported baseline includes unimported/fully mocked files before any threshold discussion.
-- `.github/workflows/oauth-start-preflight.yml`: removed the job-level skip and moved the configured continue-target source to a masked secret.
+- `.github/workflows/oauth-start-preflight.yml`: removed the job-level skip, moved the configured continue-target source to a masked secret, and kept the workflow manual-only while private provider/Firebase configuration remains blocked.
 - `scripts/oauth-start-preflight.ts`: public logs hide provider diagnostics by default; a private/local opt-in can reveal provider diagnostics when evidence is captured outside public GitHub.
 - `tests/unit/oauth-start-preflight.test.ts` and `tests/unit/oauth-preflight-workflow.test.ts`: cover sanitized provider logging, private diagnostic opt-in, no workflow-level skip, and secret-backed target configuration.
 - `docs/workflows/security-due-diligence.md` and `docs/workflows/testing-and-acceptance.md`: record the private-evidence and OAuth-target masking rules.
@@ -38,7 +38,7 @@ Local validation before PR/push:
 PR validation:
 
 - Required PR checks passed after each pushed head, including `unit` and `e2e_guest_smoke`.
-- OAuth Start Preflight manual dispatch now reaches checkout/setup/install and the provider preflight command with target/key masking active. It still fails with a sanitized HTTP 400 provider/config rejection, so the lane is active but private identity-provider configuration alignment remains unresolved.
+- OAuth Start Preflight manual dispatch now reaches checkout/setup/install and the provider preflight command with target/key masking active. It still fails with a sanitized HTTP 400 provider/config rejection, so the lane is active/manual-only while private identity-provider configuration alignment remains unresolved.
 
 ## Private Evidence
 
@@ -59,6 +59,6 @@ Do not copy raw provider diagnostics, exact settings payloads, or full secret/va
 
 ## Next Steps
 
-1. Resolve the private identity-provider configuration alignment, then rerun OAuth Start Preflight and record sanitized pass/fail evidence.
+1. Resolve the private identity-provider configuration alignment, then rerun OAuth Start Preflight and record sanitized pass/fail evidence. Restore the schedule only after manual dispatch passes for the accepted stable target set.
 2. Continue approved reconciliation items 4-6 in separate scoped work: stale root test artifact cleanup, dead-code sweep, and targeted coverage for live-but-thin surfaces.
 3. Decide coverage threshold/ratchet policy only after accepting the honest baseline.
