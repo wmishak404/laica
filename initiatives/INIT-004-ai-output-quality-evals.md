@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
-**Current phase:** Phase 2 - Rubric and dataset spec (next)
-**Active PR:** None
-**Active branch:** None
+**Current phase:** Phase 2 - Rubric and dataset spec (drafting)
+**Active PR:** TBD
+**Active branch:** `codex/init-004-phase-2-spec`
 
 ## Overview
 
@@ -28,6 +28,8 @@ Phase 0 merged in [PR #160](https://github.com/wmishak404/laica/pull/160) as `68
 
 Phase 1 audit merged in [PR #166](https://github.com/wmishak404/laica/pull/166) as `3338611` on 2026-06-10. The audit completed from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to its Replit observation week. This audit is documentation/architecture work only: it maps current generation surfaces, eval storage, prompt overrides, response shapes, seed intakes, and first rubric implications. It does not change runtime prompts, eval execution, schema, admin APIs, or provider behavior.
 
+Phase 2 drafting is active on `codex/init-004-phase-2-spec`. The draft spec lives in [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md). Phase 3 harness code remains blocked until Wilson accepts or revises the Phase 2 taxonomy, output-quality privacy posture, rubric, fixture format, and first Wilson-label target set.
+
 The seed inputs are:
 
 - Wilson's 2026-06-09 direction to create a standalone INIT-004 rather than folding the work into INIT-002.
@@ -40,6 +42,7 @@ The seed inputs are:
 - [AI Eval Evidence README](../docs/evals/README.md) - practical home for eval registry, intake records, fixture candidates, report references, and future harness notes after INIT closeout
 - [Evaluation Workflow](../docs/workflows/evaluations.md) - canonical operating model for running, measuring, reporting, gating, and acting on evals
 - [AI Eval Intake Registry](../docs/evals/registry.md) - durable index of eval runs, open-coding imports, judge runs, human review batches, and daily reports
+- [INIT-004 Phase 2 Rubric and Dataset Spec](../docs/evals/init-004-phase-2-rubric-dataset-spec.md) - draft taxonomy, privacy posture, rubric, fixture format, and Wilson-label target set
 - [EFF-022 - Cross-cuisine recommendation prompts](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) - active prompt/eval follow-up for cuisine-fit and pantry-grounded cross-cuisine behavior
 - [INIT-002 - AI Error Telemetry & Eval Monitoring](INIT-002-ai-error-telemetry.md) - operational error telemetry and later safe cluster handoff
 - [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) - evidence reports required before eval results can be used as merge-readiness signal
@@ -184,7 +187,7 @@ INIT-004 should produce or coordinate:
 |---|---|---|---|
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
-| Phase 2 - Rubric and dataset spec | Next | TBD | Define feature taxonomy, criterion-level rubric, label schema, fixture format, privacy posture, and first Wilson-labeled gold set |
+| Phase 2 - Rubric and dataset spec | Drafting | `codex/init-004-phase-2-spec` | Draft spec proposes eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, output-quality privacy posture, fixture format, criterion labels, and first Wilson-label target set |
 | Phase 3 - Eval harness | Planned | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
@@ -208,14 +211,15 @@ Future implementation phases that use eval results as merge evidence must follow
 
 ## Current Resume Point
 
-Phase 1 audit is merged. The next agent should start Phase 2 from fresh `origin/main`:
+Phase 2 draft spec is in progress on `codex/init-004-phase-2-spec`. Review [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md), then resolve or revise these Phase 3 gates:
 
-1. Read this INIT, the [AI Eval Intake Registry](../docs/evals/registry.md), [INIT-002](INIT-002-ai-error-telemetry.md), [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md), [PD-008](../product-decisions/pd-008-optional-context-and-local-validation-boundaries.md), [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md).
-2. Decide the Phase 2 feature taxonomy before code: whether `pantry_recipes` remains folded into `recipe_suggestions` or becomes first-class, and which prompt/admin/eval ids Slop Bowl needs.
-3. Draft the output-quality eval privacy posture for raw examples, admin eval rows, production/staged samples, redacted/synthetic fixtures, and daily report artifacts. Do not commit raw prompts, pantry labels, model outputs, cooking steps, or admin interaction rows without that decision.
-4. Draft the criterion-level rubric and label schema from the Phase 1 audit findings: structure/contract, max time, pantry grounding, optional ingredients, cuisine fit, inspired/fusion labeling, usefulness, food safety, skill fit, equipment fit, cooking-step sequence, and judge calibration.
-5. Select a small Wilson-first seed set using summarized or synthetic fixtures from the OpenAI max-time/invalid-JSON cases, Arize positive/negative clusters, and EFF-022 cuisine-fit examples. Keep raw exports local/external unless a privacy/source decision explicitly allows committing them.
-6. Do not build Phase 3 eval harness code, schema changes, judge prompts, daily reports, or prompt-candidate automation until Phase 2 records the accepted taxonomy, fixture format, privacy posture, and label target set.
+1. Accept or revise the proposed split between eval/reporting feature IDs and prompt-management feature IDs.
+2. Accept or revise first-class `pantry_recipes` and `slop_bowl` eval coverage.
+3. Accept or revise the output-quality privacy/source posture for raw examples, admin eval rows, production/staged samples, redacted fixtures, synthetic fixtures, and report artifacts.
+4. Accept or revise the criterion-level rubric and label schema.
+5. Accept or revise the first Wilson-label target set.
+6. Decide whether max cook time is a hard ceiling for eval purposes or whether a product exception allows rounding above the user's selected max.
+7. Do not build Phase 3 eval harness code, schema changes, judge prompts, daily reports, or prompt-candidate automation until Phase 2 records the accepted taxonomy, fixture format, privacy posture, and label target set.
 
 ## Chronology
 
@@ -228,3 +232,4 @@ Phase 1 audit is merged. The next agent should start Phase 2 from fresh `origin/
 - **2026-06-09** - PR #160 merged as `680e26e` after being marked ready and passing CI on rerun. Phase 0 is closed; Phase 1 is the next INIT-004 work, after Wilson's near-term INIT-002 implementation focus.
 - **2026-06-10** - Phase 1 audit completed from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to Replit observation. The audit found first-class Slop Bowl feature-type work is required, `pantry_recipes` needs a Phase 2 taxonomy decision, current eval criteria do not match all current response shapes, deterministic checks must precede LLM judges, raw eval interaction rows need a dedicated output-quality privacy posture before becoming artifacts, and EFF-022 cuisine-fit examples should seed rubric labels without resolving the product rule inside the eval harness.
 - **2026-06-10** - PR #166 merged as `3338611` after Wilson approval, local docs/build validation, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, TruffleHog PR, and CodeQL checks passed. Phase 2 is now the next INIT-004 work from fresh `origin/main`.
+- **2026-06-10** - Phase 2 drafting started on `codex/init-004-phase-2-spec`. The draft spec recommends separating eval/reporting feature IDs from prompt-management IDs, making `pantry_recipes` and `slop_bowl` first-class eval surfaces, keeping raw output-quality artifacts out of repo, defining criterion-level labels, and selecting a small Wilson-first seed set before harness code.

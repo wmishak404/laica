@@ -151,3 +151,7 @@ This adds measurement signal but does not resolve the product question. The audi
 ## 2026-06-10 - INIT-004 Phase 1 merged
 
 PR #166 merged the Phase 1 audit as `3338611`. EFF-022 remains open because the audit only records the measurement role for cuisine-fit examples; it does not change recipe prompts, picker options, display guidance, or the product rule for pantry-constrained cuisine fallback.
+
+## 2026-06-10 - Phase 2 draft selects cuisine-fit label targets
+
+INIT-004 Phase 2 drafting selected the Chinese, Indian, Thai, and Loco Moco-style examples as first Wilson-label target candidates for `cuisine_fit`, `pantry_grounding`, and `inspired_or_fusion_labeling`. This adds measurement scaffolding only. EFF-022 still owns the product rule for how strict selected-cuisine matching should be and when Laica should explain a pantry-flexible fallback.
