@@ -588,3 +588,16 @@ While preparing INIT-002 Phase 1 Replit observation, a clean Replit `npm ci` on 
 The cleanup branch deletes the legacy Replit auth file and removes the whole unused OIDC/session dependency island (`memoizee`, `openid-client`, `passport`, `passport-local`, `express-session`, `connect-pg-simple`, `memorystore`, and their local-only type packages). This is environment-parity hygiene: it restores clean-install viability without changing the active Firebase Auth path.
 
 EFF-017 implication: Replit clean-install evidence can fail for dead dependency paths as well as active runtime code. Future Replit-environment automation should keep package-firewall failures as first-class install blockers, but agents should prefer deleting unused dependency islands over adding overrides when repo search proves the path is obsolete. `REPLIT_DOMAINS` remains part of the Vite development-host allowlist; legacy `SESSION_SECRET` / `ISSUER_URL` are no longer application contract variables.
+
+## 2026-06-10 — Direct Replit shell/browser validation proved viable but not automated
+
+PR #159 (`codex/init-002-phase-1-telemetry`) merged as `382ebd07f106ac241e2ed1caa69d34c46a66882c` after the final head `76b536170c5c47d7cb04016b3c4cae451544da3b` passed local checks, GitHub CI/E2E, and direct Replit shell/browser validation.
+
+New EFF-017 signal:
+
+- Replit shell validation can cover an exact PR head without Replit Agent: fetch the branch, switch detached to the reviewed SHA, run `npm ci`, `npm run check`, `npm run build`, and `npm run test:unit`, then record the observed package count, test counts, and warnings.
+- Replit browser validation through Chrome can complete a real Google sign-out/sign-in loop using the existing account chooser without entering credentials or 2FA. For PR #159, selecting `wilson@ishak.net` returned to authenticated app state and the menu confirmed `Wilson Ishak · wilson@ishak.net`.
+- Replit request checks can prove environment-specific headers and auth boundaries. PR #159's direct curl checks showed server-generated `X-Request-Id` values on real `/api/*` `401` responses and proved a client-supplied request id was overwritten.
+- Replit Agent is not required for these checks and remains approval-required because of credits.
+
+This narrows the old negative scope around Replit access and install viability, but it does **not** create an accepted automated Replit-environment gate. The lane is still manual/direct through Chrome and shell, with evidence recorded in the PR body or handoff. It also does not prove production deployment behavior, identity-provider preflight configuration, live OpenAI/ElevenLabs/Vision/transcription canaries, AI output quality, or broader provider failure telemetry. Future automated Replit-environment work should turn this pattern into a repeatable script/workflow before treating it as a merge gate.

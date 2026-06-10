@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-07
-**Current phase:** Phase 1 — Request-ID middleware + structured stdout logger + 9 AI route catch blocks
-**Active PR:** [#159](https://github.com/wmishak404/laica/pull/159)
-**Active branch:** `codex/init-002-phase-1-telemetry`
+**Current phase:** Phase 2 — Replit observation week
+**Active PR:** None
+**Active branch:** None
 
 ## Overview
 
@@ -27,9 +27,9 @@ The work is phased so the redaction allowlist is locked before any rows write, a
 ## Current Status
 
 **Phase 0 merged** via [PR #41](https://github.com/wmishak404/laica/pull/41) at `cb94f28` on 2026-05-08. The INIT hub, former [EFF-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md), [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and active-list updates in CLAUDE.md / AGENTS.md / `efforts/` / `initiatives/` are now on `main`. No source code landed in Phase 0.
-**Phase 1 implementation is in progress** on [PR #159](https://github.com/wmishak404/laica/pull/159) / `codex/init-002-phase-1-telemetry` from fresh `origin/main`. The branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy (400/401/403/404/413/429/5xx/network), a request-id middleware scoped to `/api/*`, and a structured stdout JSON logger; it wires all three into the 9 AI route catch blocks. No DB persistence lands in Phase 1 — that's Phase 3 after a Replit observation week (Phase 2).
+**Phase 1 merged** via [PR #159](https://github.com/wmishak404/laica/pull/159) as `382ebd07f106ac241e2ed1caa69d34c46a66882c` on 2026-06-10. It shipped the non-persistent telemetry foundation: a server-side `classifyAiError` mirroring EFF-018's taxonomy (400/401/403/404/413/429/5xx/network), request-id middleware scoped to `/api/*`, and a structured stdout JSON logger wired into the 9 AI route catch blocks. No DB persistence landed in Phase 1 — that remains Phase 3 after the Replit observation week.
 
-On 2026-06-10, after PR #163 documented the Replit Agent approval guard and PR #162 removed the legacy Replit auth dependency island, PR #159 was rebased onto `origin/main` at `02c11668b5de9367f79ce4a1f68d7caf5c42ee05`. The `es5-ext@0.10.64` package-firewall blocker is now resolved in the base branch before PR #159 merge review. Local install, typecheck, build, focused Vitest, and full unit evidence was refreshed on the rebased runtime-code head `800dced99da2f05a0ad8931013555f2c4e9b4f18`; final GitHub CI/E2E and direct Replit shell/browser validation are still pending on the final pushed head.
+The final Phase 1 head `76b536170c5c47d7cb04016b3c4cae451544da3b` was rebased onto `origin/main` at `02c11668b5de9367f79ce4a1f68d7caf5c42ee05` after PR #163 documented the Replit Agent approval guard and PR #162 removed the legacy Replit auth dependency island. Final local validation, GitHub unit/E2E/security checks, and direct Replit shell/browser validation all passed before merge.
 
 ## Source Docs
 
@@ -53,8 +53,8 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
 | Phase 0 — INIT hub + PD-010 | Merged | [#41](https://github.com/wmishak404/laica/pull/41) (`cb94f28`) | EFF-019, INIT-002, PD-010, active-list updates landed on `main` 2026-05-08; EFF-019 later resolved into this INIT |
-| Phase 1 — stdout logger + 9 routes | In progress | [#159](https://github.com/wmishak404/laica/pull/159) / `codex/init-002-phase-1-telemetry` | EFF-018 merged via [#43](https://github.com/wmishak404/laica/pull/43). The current Codex branch builds a server-side `classifyAiError` mirroring EFF-018's taxonomy, request-id middleware, and JSON stdout logger wired into 9 AI route catch blocks. Rebased after PR #162 onto `02c1166`; final CI/E2E and direct Replit validation pending |
-| Phase 2 — Replit observation week | Planned | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix |
+| Phase 1 — stdout logger + 9 routes | Merged | [#159](https://github.com/wmishak404/laica/pull/159) / `382ebd0` | Server-side classifier, `/api/*` request IDs, and JSON stdout logger wired into 9 AI route catch blocks. Final head `76b5361` passed local checks, GitHub unit/E2E/security, and direct Replit shell/browser validation before merge |
+| Phase 2 — Replit observation week | Current | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix |
 | Phase 3 — DB schema + writer | Planned | TBD | `ai_error_events` schema + bounded writer + Replit `db:push` per EFF-010 |
 | Phase 4 — admin APIs | Planned | TBD | `/api/admin/ai-errors/{summary,list,detail,clusters}` mirroring existing admin pattern |
 | Phase 5 — closeout + worked examples | Planned | TBD | Four cluster→action examples from real Replit data; INIT flipped to Complete |
@@ -64,7 +64,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
 | [#41](https://github.com/wmishak404/laica/pull/41) | Merged | `claude/elated-poincare-269ddc` | Docs-only; squash-merged at `cb94f28` on 2026-05-08. Rebased twice during review: once onto `bc242a0` (PR #40 Replit Validation Focus Guide) and once onto `24decb2` (PR #44 EFF-018 closeout) |
-| [#159](https://github.com/wmishak404/laica/pull/159) | In progress | `codex/init-002-phase-1-telemetry` | Rebased onto `origin/main` at `02c1166` after PR #162. Local `npm ci`, targeted Vitest, `npm run check`, `npm run build`, and `npm run test:unit` passed on the rebased runtime-code head. Final GitHub CI/E2E and direct Replit validation pending |
+| [#159](https://github.com/wmishak404/laica/pull/159) | Merged | `codex/init-002-phase-1-telemetry` | Squash-merged as `382ebd0` on 2026-06-10. Final head `76b5361` passed local `npm ci`, targeted Vitest, `npm run check`, `npm run build`, `npm run test:unit`, GitHub unit/E2E/security checks, and direct Replit shell/browser validation |
 
 ## Efforts and Governance
 
@@ -87,6 +87,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 - 2026-06-09 — Wilson accepted a separate [INIT-004](INIT-004-ai-output-quality-evals.md) for AI output-quality evals and prompt improvement. INIT-002's eval adjacency is now limited to safe operational error clusters becoming future quality fixtures; INIT-004 owns human-labeled rubrics, calibrated judge metrics, daily quality reporting, and prompt-candidate workflow for successful/partial outputs.
 - 2026-06-09 — After PR #160 merged, PR #159 was rebased onto fresh `origin/main` and the INIT-002/INIT-004 bridge was narrowed to safe fixture reconstruction from operational cluster shape only. Raw telemetry content never becomes eval input.
 - 2026-06-10 — After PR #163 and PR #162 merged, PR #159 was rebased onto `origin/main` at `02c11668b5de9367f79ce4a1f68d7caf5c42ee05`. PR #162 removed the legacy Replit auth dependencies that pulled blocked `es5-ext@0.10.64`, so final PR #159 validation can proceed without the prior Replit package-firewall install blocker. Replit Agent remains approval-required; PR-level Replit validation should use direct shell/browser checks.
+- 2026-06-10 — PR #159 merged as `382ebd07f106ac241e2ed1caa69d34c46a66882c` after final-head local, GitHub, and direct Replit validation passed. Phase 2 is now the active resume point. The direct Replit pass proved exact-head shell/browser validation is viable without Replit Agent, but it did not complete the longer Phase 2 observation week or force live provider failures.
 
 ## Validation State
 
@@ -97,7 +98,7 @@ Any local, CI, Replit automation, or future eval result used as a merge gate mus
 | Phase | Local checks | Replit validation focus (from the guide) | Last Replit-validated SHA |
 |---|---|---|---|
 | Phase 0 | n/a (docs only) | n/a (no runtime change) | n/a — merged at `cb94f28` |
-| Phase 1 | `git diff --check origin/main...HEAD`, `npm ci`, focused Vitest classifier/logger/auth route coverage, `npm run check`, `npm run build`, `npm run test:unit`, GitHub unit + E2E guest smoke | PR-level direct Replit shell/browser validation pending on the final pushed head. Use direct shell/browser only unless Wilson explicitly approves Replit Agent. For merge readiness, confirm clean install/startup on Replit, `X-Request-Id` on `/api/*` responses, and Google sign-in behavior still works under the request-id middleware. Phase 2 still handles the longer observation pass across **AI provider routes** + **ElevenLabs speech routes** + **Secrets** rows. | pending on final PR head; Phase 2 observation still planned |
+| Phase 1 | Final head `76b5361`: `git diff --check origin/main...HEAD`, `npm ci`, focused Vitest classifier/logger/auth route coverage, `npm run check`, `npm run build`, `npm run test:unit`, GitHub unit + E2E guest smoke | Direct Replit shell/browser validation passed without Replit Agent: exact-head `npm ci`, `npm run check`, `npm run build`, `npm run test:unit`, Replit startup, `X-Request-Id` on `/api/*` 401 responses, and Google sign-out/sign-in with `wilson@ishak.net`. This was PR-level merge evidence only; Phase 2 still handles the longer observation pass across **AI provider routes** + **ElevenLabs speech routes** + **Secrets** rows. | `76b536170c5c47d7cb04016b3c4cae451544da3b` |
 | Phase 2 | n/a (observation) | One week of production traffic; Replit log inspection daily. Capture classifier gaps and field nullability for PD-010 appendix. | not yet validated |
 | Phase 3 | `npm run check`, `npm run build`, writer tests with mocked DB | **DB schema / migrations / Drizzle / persistence** row (the big one). After Replit `db:push`, trigger one error per class on each AI route. **Manual row inspection to confirm no raw payloads**. Verify deployed app uses the intended DB and the new table is present in both workspace and deployment runtimes. | not yet validated |
 | Phase 4 | `npm run check`, `npm run build` | **Auth UI / Firebase** row is unaffected; pick the **AI provider routes** row only to confirm admin endpoints respect `X-Admin-Secret` rejection on Replit. Hit `/api/admin/ai-errors/summary` with the secret; verify exemplars contain only allowlist fields. | not yet validated |
@@ -105,13 +106,14 @@ Any local, CI, Replit automation, or future eval result used as a merge gate mus
 
 ## Current Resume Point
 
-**Phase 1 implementation branch active.** Next agent should continue [PR #159](https://github.com/wmishak404/laica/pull/159) / `codex/init-002-phase-1-telemetry` unless the PR has already merged or been closed. The branch currently owns:
-1. `server/aiErrorClassifier.ts` — pure `classifyAiError(err, ctx)` returning `{ errorClass, errorCode, httpStatus, retryAfterSeconds, vendor }` using the expanded PD-010 Phase 1 enum.
-2. `server/requestId.ts` — Express middleware scoped to `/api/*`. UUID v4 to `req.requestId`, set `X-Request-Id` response header, and overwrite client-supplied values.
-3. `server/aiErrors.ts` — `logAiError(input)` that writes one JSON line to `console.error` with the [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) allowlist shape. No DB.
-4. [`server/routes.ts`](../server/routes.ts) wiring for the 9 AI route catch blocks: `/api/recipes/suggestions`, `/api/recipes/pantry`, `/api/recipes/slop-bowl`, `/api/cooking/steps`, `/api/cooking/assistance`, `/api/vision/analyze`, `/api/speech/synthesize`, `/api/speech/voices`, `/api/speech/transcribe`.
+**Phase 2 observation week is current.** Next agent should not start DB persistence or admin API work yet. Observe the Phase 1 stdout logger under real Replit traffic and record classifier gaps, nullability questions, and route/error-class examples before Phase 3 schema work.
 
-Before merge, finish final-head GitHub CI/E2E, update PR #159 evidence, and run direct Replit shell/browser validation without Replit Agent. For this PR-level pass, prove the app installs/starts on Replit after PR #162, `/api/*` responses carry `X-Request-Id`, and Google sign-in behavior still works. The broader [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) **AI provider routes**, **ElevenLabs speech routes**, and **Secrets** observation remains Phase 2.
+Minimum Phase 2 focus:
+1. Confirm `X-Request-Id` continues to round-trip on real `/api/*` responses during normal Replit use.
+2. Capture at least one safe, redacted stdout JSON line per reachable operational failure class when it naturally appears or can be triggered without leaking raw user/provider content.
+3. Exercise or observe the **AI provider routes**, **ElevenLabs speech routes**, and **Secrets** rows from the [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md).
+4. Record any classifier gaps, unexpected `unknown` clusters, missing or noisy fields, and field-nullability decisions in this INIT and [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) before Phase 3.
+5. Do not use Replit Agent unless Wilson explicitly approves it; direct shell/browser validation is now proven viable for targeted PR evidence but is still manual, not an accepted automated Replit-environment gate.
 
 ## Chronology
 
@@ -124,4 +126,5 @@ Before merge, finish final-head GitHub CI/E2E, update PR #159 evidence, and run 
 - **2026-05-09** — Effort cleanup resolved EFF-019 as a standalone item. Active implementation remains in INIT-002, with PD-010 and `docs/workflows/ai-error-handling-and-telemetry.md` as the durable governance/workflow entrypoints.
 - **2026-06-01** — Wilson accepted automation evidence reports with full reasoning and provenance as the standard before automated tests or future evals can be used as merge gates. INIT-002 eval phases must inherit that standard and keep privacy/redaction provenance visible.
 - **2026-06-09** — Wilson split output-quality evals into [INIT-004](INIT-004-ai-output-quality-evals.md). INIT-002 remains the operational error telemetry home and may hand safe clusters into INIT-004 later.
-- **2026-06-10** — PR #163 merged the Replit Agent approval guard, then PR #162 merged the legacy Replit auth dependency cleanup that removed the blocked `es5-ext@0.10.64` path. PR #159 was rebased onto the new `origin/main` at `02c1166`; local validation was refreshed and final GitHub CI/E2E plus direct Replit shell/browser validation are next.
+- **2026-06-10** — PR #163 merged the Replit Agent approval guard, then PR #162 merged the legacy Replit auth dependency cleanup that removed the blocked `es5-ext@0.10.64` path. PR #159 was rebased onto the new `origin/main` at `02c1166`; local validation was refreshed before final GitHub CI/E2E plus direct Replit shell/browser validation.
+- **2026-06-10** — PR #159 merged as `382ebd0` after final head `76b5361` passed local checks, GitHub unit/E2E/security checks, and direct Replit shell/browser validation. Phase 2 Replit observation is now the next planned milestone; Phase 3 DB persistence remains blocked on Phase 2 signal.
