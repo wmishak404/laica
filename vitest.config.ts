@@ -17,6 +17,12 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, 'tests/e2e/**'],
     coverage: {
       reporter: ['text', 'json', 'json-summary', 'html'],
+      include: [
+        'client/src/**/*.{ts,tsx}',
+        'server/**/*.ts',
+        'shared/**/*.ts',
+        'scripts/**/*.ts',
+      ],
       exclude: [
         'node_modules/',
         'tests/',

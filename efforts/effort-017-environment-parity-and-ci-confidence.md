@@ -624,3 +624,16 @@ The current weakness is enforcement and measurement, not the existence of tests:
 The direct Replit validation lane recorded above is a useful middle lane between GitHub CI and Wilson-only smoke. It can now produce stronger PR-level evidence without spending Replit Agent credits. It still does not prove production/deployed Replit behavior, identity-provider preflight configuration, live OpenAI/ElevenLabs/Vision/transcription canaries, storage integration against a real non-disposable DB beyond the validated shell/browser path, or AI output quality. It also does not replace the GitHub `e2e_guest_smoke` requirement for every pushed implementation head intended for review or merge.
 
 EFF-017 remains `In Progress`. The next highest-leverage actions are: mechanically require the routine correctness checks in GitHub settings, make coverage measurement honest before thresholds, configure and rerun the OAuth preflight lane, clean up stale root test artifacts and confirmed-dead code, and then add targeted coverage for live-but-thin surfaces.
+
+## 2026-06-10 — Approved audit fixes started after PR #159/#164 rebase
+
+Wilson approved the first three reconciliation items from the test/CI audit: require the core GitHub checks, make the coverage denominator honest before thresholds, and fix/configure the OAuth start preflight so it actually runs. The implementation branch was rebased onto fresh `origin/main` after PR #159 and PR #164, preserving the PR #159 direct Replit validation signal and the PR #164 INIT closeout.
+
+Current implementation signal:
+
+- The protected GitHub ruleset now requires `unit` and `e2e_guest_smoke` alongside the existing security/dependency checks. Raw ruleset API payloads and exact settings evidence were kept out of public markdown and recorded in a local-private evidence note instead.
+- Vitest coverage now includes intended shipped source globs across `client/src`, `server`, `shared`, and `scripts` before any thresholds are proposed. Coverage remains non-blocking measurement evidence, not a replacement for behavior-specific happy-path, corner-case, and non-happy-path tests.
+- The OAuth start preflight now has a configured production-domain target and the workflow no longer skips the scheduled job when private config is missing. Missing or rejected config should be visible as a preflight failure, while public logs hide raw target URLs, API keys, and provider diagnostics by default.
+- A local/private diagnostics opt-in exists for OAuth provider errors, but it must not be enabled in public GitHub workflows. Exact CI/ruleset/provider evidence belongs under the security due-diligence private-evidence rule.
+
+This does not close EFF-017. Remaining follow-up still includes root test-runner artifact cleanup, dead-code sweep, coverage baseline/ratchet decision after the honest denominator is measured, Replit-specific OAuth target decisions, provider canary scope, production/deployment proof, and targeted tests for live-but-thin surfaces as those areas are touched.

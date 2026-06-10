@@ -15,6 +15,7 @@ vite.config.ts.*
 .claude/settings.local.json
 .claude/worktrees/
 CLAUDE.local.md
+.codex/private/
 .codex/environments/*.local.*
 
 # History-rewrite tooling artifacts (must never be tracked)

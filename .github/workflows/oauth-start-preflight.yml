@@ -15,7 +15,6 @@ permissions:
 
 jobs:
   google_oauth_start:
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.OAUTH_PREFLIGHT_CONTINUE_URIS != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
