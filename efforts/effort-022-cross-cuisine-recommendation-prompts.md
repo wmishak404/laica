@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-06-09
+**Updated:** 2026-06-10
 
 ## One-line summary
 
@@ -147,3 +147,7 @@ The coordination boundary is:
 INIT-004 Phase 1 audited the current Chef It Up request packaging and recipe prompt path. The current UI sends selected cuisines, confirmed staples, unconfirmed staples, dietary restrictions, time, skill, and previous recipe names as one free-text `preferences` string to `/api/recipes/pantry`, while the server reuses `getRecipeSuggestions` and logs the interaction as `recipe_suggestions`.
 
 This adds measurement signal but does not resolve the product question. The audit recommends that Phase 2 labels separate `pantry_grounding`, `cuisine_fit`, and `inspired_or_fusion_labeling`, with EFF-022's Chinese, Indian, Thai, and Loco Moco-style examples seeding fixtures. The product decision still remains here: when a pantry-constrained result should stay literal to the selected cuisine, when inspired/adapted naming is acceptable, and when Laica should explain a pantry-flexible fallback.
+
+## 2026-06-10 - INIT-004 Phase 1 merged
+
+PR #166 merged the Phase 1 audit as `3338611`. EFF-022 remains open because the audit only records the measurement role for cuisine-fit examples; it does not change recipe prompts, picker options, display guidance, or the product rule for pantry-constrained cuisine fallback.

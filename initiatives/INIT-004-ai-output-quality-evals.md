@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 2 - Rubric and dataset spec (next)
-**Active PR:** [#166](https://github.com/wmishak404/laica/pull/166) (draft)
-**Active branch:** `codex/init-004-phase-1-audit`
+**Active PR:** None
+**Active branch:** None
 
 ## Overview
 
@@ -26,7 +26,7 @@ The relationship is **parallel-safe with a soft data link**:
 
 Phase 0 merged in [PR #160](https://github.com/wmishak404/laica/pull/160) as `680e26e` on 2026-06-09.
 
-Phase 1 audit completed on 2026-06-10 from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to its Replit observation week. This audit is documentation/architecture work only: it maps current generation surfaces, eval storage, prompt overrides, response shapes, seed intakes, and first rubric implications. It does not change runtime prompts, eval execution, schema, admin APIs, or provider behavior.
+Phase 1 audit merged in [PR #166](https://github.com/wmishak404/laica/pull/166) as `3338611` on 2026-06-10. The audit completed from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to its Replit observation week. This audit is documentation/architecture work only: it maps current generation surfaces, eval storage, prompt overrides, response shapes, seed intakes, and first rubric implications. It does not change runtime prompts, eval execution, schema, admin APIs, or provider behavior.
 
 The seed inputs are:
 
@@ -183,7 +183,7 @@ INIT-004 should produce or coordinate:
 | Phase | Status | PR / branch | Current signal |
 |---|---|---|---|
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
-| Phase 1 - Surface and data audit | Complete | `codex/init-004-phase-1-audit` | Audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
+| Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
 | Phase 2 - Rubric and dataset spec | Next | TBD | Define feature taxonomy, criterion-level rubric, label schema, fixture format, privacy posture, and first Wilson-labeled gold set |
 | Phase 3 - Eval harness | Planned | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
@@ -196,16 +196,19 @@ INIT-004 should produce or coordinate:
 | PR | Status | Branch | Validation / merge signal |
 |---|---|---|---|
 | [#160](https://github.com/wmishak404/laica/pull/160) | Merged as `680e26e` | `codex/init-004-output-evals` | Docs-only filing and durable eval evidence registry. Marked ready, checks passed after unit rerun; no Replit validation required. |
+| [#166](https://github.com/wmishak404/laica/pull/166) | Merged as `3338611` | `codex/init-004-phase-1-audit` | Docs-only Phase 1 audit. Local `git diff --check`, `npm ci`, `npm run check`, and `npm run build` passed; GitHub unit, `e2e_guest_smoke`, `npm-audit`, TruffleHog PR, and CodeQL passed after the draft was marked ready; no Replit validation required. |
 
 ## Validation State
 
 Phase 0 was docs-only. No local build, Replit preview, DB push, or runtime validation was required for the filing itself. PR #160 passed `unit` on rerun, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL before merge.
 
+Phase 1 was docs-only. No Replit preview, DB push, eval run, or runtime validation was required because it changed only planning/audit docs. PR #166 passed local `git diff --check`, `npm ci`, `npm run check`, and `npm run build`; after the draft was marked ready, GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed before merge.
+
 Future implementation phases that use eval results as merge evidence must follow [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). Future DB or production-sampling work must coordinate with [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) and Replit as the primary runtime.
 
 ## Current Resume Point
 
-Phase 1 audit is complete. The next agent should start Phase 2 from fresh `origin/main` after the Phase 1 audit PR merges:
+Phase 1 audit is merged. The next agent should start Phase 2 from fresh `origin/main`:
 
 1. Read this INIT, the [AI Eval Intake Registry](../docs/evals/registry.md), [INIT-002](INIT-002-ai-error-telemetry.md), [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md), [PD-008](../product-decisions/pd-008-optional-context-and-local-validation-boundaries.md), [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md), and [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md).
 2. Decide the Phase 2 feature taxonomy before code: whether `pantry_recipes` remains folded into `recipe_suggestions` or becomes first-class, and which prompt/admin/eval ids Slop Bowl needs.
@@ -224,3 +227,4 @@ Phase 1 audit is complete. The next agent should start Phase 2 from fresh `origi
 - **2026-06-09** - Wilson asked to move eval discipline out of INIT-004 because the INIT should stay focused on what needs to be built. Created the durable [Evaluation Workflow](../docs/workflows/evaluations.md), kept `docs/evals/` as the practical registry/intake home, trimmed INIT-004 back to build context, and updated stale PR placeholders to PR #160.
 - **2026-06-09** - PR #160 merged as `680e26e` after being marked ready and passing CI on rerun. Phase 0 is closed; Phase 1 is the next INIT-004 work, after Wilson's near-term INIT-002 implementation focus.
 - **2026-06-10** - Phase 1 audit completed from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to Replit observation. The audit found first-class Slop Bowl feature-type work is required, `pantry_recipes` needs a Phase 2 taxonomy decision, current eval criteria do not match all current response shapes, deterministic checks must precede LLM judges, raw eval interaction rows need a dedicated output-quality privacy posture before becoming artifacts, and EFF-022 cuisine-fit examples should seed rubric labels without resolving the product rule inside the eval harness.
+- **2026-06-10** - PR #166 merged as `3338611` after Wilson approval, local docs/build validation, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, TruffleHog PR, and CodeQL checks passed. Phase 2 is now the next INIT-004 work from fresh `origin/main`.
