@@ -9,6 +9,7 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 - `registry.md` - durable index of eval runs, open-coding imports, judge runs, human review batches, and daily reports.
 - `intakes/` - normalized records for each eval intake listed in the registry.
 - `intakes/TEMPLATE.md` - required structure for future intake records.
+- `init-004-phase-2-rubric-dataset-spec.md` - draft INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec.
 
 Future implementation work may add:
 
