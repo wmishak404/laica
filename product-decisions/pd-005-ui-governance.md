@@ -29,6 +29,7 @@ EFF-001 accumulated the rubric across Slop Bowl and mobile-refresh phases. Phase
 | All tone-forward overrides carry a `// design:tone-override — <reason>` comment above the customized element | Without an explicit marker the rubric is ignored on playful surfaces (Slop Bowl card is the canonical example) |
 | Card radius ∈ `{rounded-md, rounded-lg, rounded-xl, rounded-2xl}` — no `rounded-[N]` arbitrary-value radii | Keeps card shape coherent across utility, branded, and tone-forward surfaces |
 | Reused phase-scoped utility classes (e.g. `setup-*`) must verify rendered/computed style on the destination surface, not assume class-name reuse is sufficient | Phase 2.2 returning Settings inherited `setup-*` class names under a different root wrapper; the accepted CSS depended on `.setup-ui .setup-*` selector specificity, so shadcn Button utilities overrode setup typography and round camera-control shapes. Same class name ≠ same computed style. |
+| Durable cross-functional navigation changes require Wilson approval before implementation | Bottom nav, top nav/header, app menu/account drawer, global menu, tabs, and persistent app-shell actions define the product IA across flows and auth modes. Adding or exposing an item there is not incidental UI polish; ask first, then record the approved surface, user modes, and rationale in the PR/handoff/owning INIT or PD. |
 
 ### Recommended rules
 
@@ -77,6 +78,7 @@ Before any of the following, read this PD and `design_guidelines.md`:
 - Changing `client/src/components/ui/*.tsx`
 - Adding a new icon library or changing fonts in `client/src/index.css`
 - Reusing phase-scoped utility classes outside their original root wrapper
+- Adding, removing, reordering, renaming, or changing auth-mode visibility for durable navigation surfaces such as the bottom nav, top nav/header, app menu/account drawer, global menu, tabs, or persistent app-shell actions
 - Adding a new provenance/state-change animation such as a flash, pulse, or corrected-item highlight
 - Writing a feature handoff that describes a new UX pattern
 
