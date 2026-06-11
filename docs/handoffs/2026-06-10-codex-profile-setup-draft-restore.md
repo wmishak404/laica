@@ -16,6 +16,7 @@ The profile setup flow now survives same-session React remounts or browser refre
 - `client/src/pages/app.tsx` explicitly clears the setup draft when a guest uses Start Over, before signing out.
 - `tests/unit/user-profiling.test.tsx` adds a regression test that first failed on current code, then passed after the draft restore behavior was implemented.
 - `tests/unit/planning-choice.test.tsx` adds a Start Over contract test that clears the in-progress setup draft for the current guest scope.
+- `tests/e2e/cooking-workflow.test.ts` updates the guest setup helper to expect the new optional Tools intro and click `Skip tools`.
 
 ## Impact on other agents
 - Treat setup reset reports carefully: this patch fixes the confirmed remount/refresh data-loss path, but it does not prove or disprove an external Replit preview reload source.
@@ -33,6 +34,7 @@ The profile setup flow now survives same-session React remounts or browser refre
 - `npm run check` passed.
 - `npm run build` passed with existing Vite warnings about Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
 - `git diff --check` passed.
+- GitHub `e2e_guest_smoke` failed at `6ce49b3` because the E2E helper still expected the Tools scanner immediately after Pantry. The helper now targets the accepted `Pantry saved. Any tools to add?` prompt; rerun CI after the follow-up push.
 
 ## Stack / base status
 
