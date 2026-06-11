@@ -13,7 +13,7 @@ import { InventoryReviewChip } from '@/components/cooking/inventory-review-chip'
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import { Trash2, Package, User, Check, ImagePlus, Loader2, Wrench } from 'lucide-react';
+import { Trash2, Package, User, Check, ImagePlus, Loader2 } from 'lucide-react';
 import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
 import {
   clearInventoryReviewType,
@@ -1003,23 +1003,28 @@ export default function UserSettings({
     );
   };
 
-  const renderSectionNav = () => (
-    <div className="returning-section-nav" aria-label="Settings sections">
-      {sectionCards.map((section) => {
-        const Icon = section.icon;
-        return (
-          <button
-            key={section.id}
-            type="button"
-            className="returning-nav-pill"
-            data-active={activeSection === section.id}
-            onClick={() => setActiveSection(section.id)}
-          >
-            <Icon className="h-4 w-4" />
-            <span>{section.title}</span>
-          </button>
-        );
-      })}
+  const renderInventoryTabs = () => (
+    <div className="returning-section-tabs" role="tablist" aria-label="Kitchen Inventory sections">
+      <button
+        type="button"
+        role="tab"
+        aria-selected={activeInventoryType === 'pantry'}
+        className="returning-section-tab"
+        data-active={activeInventoryType === 'pantry'}
+        onClick={() => setActiveInventoryType('pantry')}
+      >
+        <span>Pantry</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={activeInventoryType === 'kitchen'}
+        className="returning-section-tab"
+        data-active={activeInventoryType === 'kitchen'}
+        onClick={() => setActiveInventoryType('kitchen')}
+      >
+        <span>Tools</span>
+      </button>
     </div>
   );
 
@@ -1079,8 +1084,7 @@ export default function UserSettings({
 
     return (
       <div className={`returning-setup-anchor space-y-4 ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}>
-        {renderSectionNav()}
-        <section className="returning-panel">
+        <section className="returning-panel returning-inventory-panel">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="returning-kicker">Kitchen Inventory</p>
@@ -1088,27 +1092,6 @@ export default function UserSettings({
               <p className="setup-copy mt-2 max-w-[20rem] text-sm leading-relaxed">{description}</p>
             </div>
             <span className="returning-count">{items.length}</span>
-          </div>
-
-          <div className="returning-section-nav mt-5" aria-label="Kitchen Inventory sections">
-            <button
-              type="button"
-              className="returning-nav-pill"
-              data-active={type === 'pantry'}
-              onClick={() => setActiveInventoryType('pantry')}
-            >
-              <Package className="h-4 w-4" />
-              <span>Pantry</span>
-            </button>
-            <button
-              type="button"
-              className="returning-nav-pill"
-              data-active={type === 'kitchen'}
-              onClick={() => setActiveInventoryType('kitchen')}
-            >
-              <Wrench className="h-4 w-4" />
-              <span>Tools</span>
-            </button>
           </div>
 
           <div className="mt-5 space-y-5">
@@ -1310,7 +1293,6 @@ export default function UserSettings({
 
     return (
       <div className="returning-setup-anchor space-y-4">
-        {renderSectionNav()}
         <section className="returning-panel">
           <p className="returning-kicker">Cooking Profile</p>
           <h1 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">How Laica adapts.</h1>
@@ -1421,7 +1403,13 @@ export default function UserSettings({
   return (
     <main className="returning-ui min-h-screen pb-24">
       <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5">
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div
+          className={`returning-settings-header ${
+            activeSection === 'inventory' && !showCrossSectionScanNotice
+              ? 'returning-settings-header-attached'
+              : 'mb-4'
+          }`}
+        >
           <Button
             type="button"
             variant="ghost"
@@ -1430,7 +1418,7 @@ export default function UserSettings({
           >
             Back
           </Button>
-          <span className="returning-mini-chip">Settings</span>
+          {activeSection === 'inventory' && renderInventoryTabs()}
         </div>
 
         {showCrossSectionScanNotice && (

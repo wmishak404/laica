@@ -34,7 +34,7 @@ The profile setup flow now survives React remounts and Replit Preview iframe ref
 - `npm run check` passed.
 - `npm run build` passed with existing Vite warnings about Browserslist data, Firebase dynamic/static import chunking, and large chunk size.
 - `git diff --check` passed.
-- GitHub `e2e_guest_smoke` failed at `6ce49b3` because the E2E helper still expected the Tools scanner immediately after Pantry. The helper now targets the accepted `Pantry saved. Any tools to add?` prompt; rerun CI after the follow-up push.
+- GitHub `e2e_guest_smoke` failed at `6ce49b3` because the E2E helper still expected the Tools scanner immediately after Pantry. The helper was updated to target the accepted optional Tools intro; PR #171 later refines that heading to `Any kitchen tools to add?`.
 - Chrome/Replit smoke before the browser-local draft change: Pantry → Tools manual entry worked, but Preview refresh returned to `Yes, Chef!` because the iframe recreated storage. This is the evidence for switching setup draft storage from `sessionStorage` to scoped `localStorage`.
 
 ## Stack / base status

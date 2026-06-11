@@ -27,14 +27,14 @@ import {
   ArrowLeft,
   Check,
   ChefHat,
+  CookingPot,
   ImagePlus,
-  Leaf,
   Loader2,
   Package,
   ScanLine,
   ShieldCheck,
   Sparkles,
-  Wrench,
+  UtensilsCrossed,
 } from 'lucide-react';
 import {
   extractVisionLabels,
@@ -1040,30 +1040,29 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     <div className="flex min-h-[58vh] flex-col justify-center gap-5 py-5">
       <div className="setup-illustration mx-auto flex h-28 w-28 items-center justify-center text-primary shadow-sm">
         <div className="relative">
-          <Wrench className="h-12 w-12" />
+          <CookingPot className="h-12 w-12" />
           <Check className="absolute -right-5 -top-3 h-7 w-7 rounded-full bg-primary p-1 text-primary-foreground" />
-          <Package className="absolute -bottom-4 -left-5 h-7 w-7 text-[hsl(var(--setup-herb))]" />
         </div>
       </div>
 
       <div className="space-y-3 text-center">
         <h2 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">
-          Pantry saved. Any tools to add?
+          Any kitchen tools to add?
         </h2>
         <p className="setup-copy mx-auto max-w-[20rem] text-sm leading-relaxed">
-          Optional. Add appliances or tools that change how you cook, like an air fryer, blender, rice cooker, oven, or sheet pan.
+          Totally optional! Proceed to <strong>Add tools</strong> if you cook with special appliances like an air fryer, rice cooker, sous-vide contraptions, etc.
         </p>
       </div>
 
       <div className="setup-surface space-y-3 p-4">
         <div className="flex items-start gap-3">
           <div className="setup-illustration flex h-12 w-12 shrink-0 items-center justify-center text-primary setup-kitchen-illustration">
-            <Wrench className="h-5 w-5" />
+            <UtensilsCrossed className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-extrabold text-[hsl(var(--setup-ink))]">Tools are optional</p>
+            <p className="font-extrabold text-[hsl(var(--setup-ink))]">Ready to scan your kitchen for tools?</p>
             <p className="setup-copy text-xs">
-              Common kitchen basics are already expected. Add only special tools that change what Laica should suggest.
+              We'll stick to common kitchen basics if you choose to skip.
             </p>
           </div>
         </div>
@@ -1189,11 +1188,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     <div className="space-y-5">
       <div className="space-y-3 text-center">
         <div className="setup-illustration mx-auto flex h-28 w-28 items-center justify-center text-primary">
-          <div className="relative">
-            <ChefHat className="h-12 w-12" />
-            <Check className="absolute -right-5 -top-3 h-7 w-7 rounded-full bg-primary p-1 text-primary-foreground" />
-            <Leaf className="absolute -bottom-4 -left-5 h-7 w-7 text-[hsl(var(--setup-herb))]" />
-          </div>
+          <Check className="h-14 w-14 rounded-full bg-primary p-3 text-primary-foreground" />
         </div>
         <h2 className="setup-display text-[2.35rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">
           You are ready.

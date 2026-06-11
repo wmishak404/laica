@@ -44,7 +44,10 @@ Accepted behavior:
 - First-time setup keeps Pantry as the required food inventory pass, then shows an explicit optional Tools prompt before opening any second camera surface.
 - Returning Settings consolidates the former separate Pantry and Kitchen cards into **Kitchen Inventory**, with Pantry and Tools as internal sections.
 - Pantry and Tools scans remain separate; this revision does not combine food and tools recognition into one scan.
-- The optional Tools intro should reassure users that common kitchen basics are already expected, so adding a special tool does not imply Laica will ignore everyday household kitchen appliances.
+- Once a user is inside Kitchen Inventory, Pantry / Tools switching belongs in connected browser-style header tabs beside the rounded Back control, not as duplicated rounded section cards inside the content panel. The active tab should visually attach to the panel like a phonebook/folder tab, with inactive tabs clearly recessed; the Kitchen Inventory panel uses a rectangular top edge and rounded bottom corners so the tab rail does not collide with card-radius notches. The Back control stays visually subordinate as a smaller nav chip, not a third tab. Cooking Profile remains reachable through the Settings hub via Back. The old top-right `Settings` chip is removed because it was not actionable.
+- The optional Tools intro should lead with `Any kitchen tools to add?`, frame the pass once as `Totally optional!`, and reassure users with `We'll stick to common kitchen basics if you choose to skip.` so adding a special tool does not imply Laica will ignore everyday household kitchen appliances.
+- Tools intro iconography should read as kitchen/cookware, not hardware-store tools or generic inventory packages.
+- The final first-time setup confirmation hero should use a simple completion checkmark rather than repeating the chef-hat motif.
 - User-facing copy should avoid `track` / `tracked` / `tracking` language for inventory capture. Prefer `save`, `add`, `use for suggestions`, `editable`, and `optional`.
 
 ## Design and UX Gate
@@ -126,7 +129,7 @@ Validated scope for PR #170:
 
 - GitHub `unit`, `e2e_guest_smoke`, CodeQL, `npm-audit`, and TruffleHog passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`.
 - Replit Chrome smoke passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`: Pantry manual entry, optional Tools intro, Tools manual entry, Preview refresh restoring Tools with `blender`, Start Over clearing the draft, and a fresh guest setup returning to `Yes, Chef!` without stale Tools state.
-- PR #171 follow-up added the Tools intro reassurance copy and passed `npx vitest run tests/unit/user-profiling.test.tsx -t "asks before opening the optional tools scanner"` plus `git diff --check`.
+- PR #171 follow-up added the Tools intro reassurance copy, simplified the final setup hero to a checkmark, promoted Pantry / Tools switching into connected header tabs beside a subordinate Back chip, and passed focused/full `user-settings-scan-policy` Vitest coverage, focused/full `user-profiling` Vitest coverage, `npm run check`, `npm run build`, `git diff --check`, GitHub PR checks, and Replit Chrome visual smoke of the Pantry/Tools tab attachment and selected-state swap.
 
 ## Acceptance Criteria
 
