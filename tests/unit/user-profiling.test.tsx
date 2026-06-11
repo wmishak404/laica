@@ -113,6 +113,7 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
     expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
+    expect(screen.getByText(/common kitchen basics are already expected/i)).toBeTruthy();
     expect(screen.queryByRole('heading', { name: /tell me what tools you use/i })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /add tools/i }));

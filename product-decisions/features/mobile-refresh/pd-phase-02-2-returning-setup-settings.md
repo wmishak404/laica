@@ -44,6 +44,7 @@ Accepted behavior:
 - First-time setup keeps Pantry as the required food inventory pass, then shows an explicit optional Tools prompt before opening any second camera surface.
 - Returning Settings consolidates the former separate Pantry and Kitchen cards into **Kitchen Inventory**, with Pantry and Tools as internal sections.
 - Pantry and Tools scans remain separate; this revision does not combine food and tools recognition into one scan.
+- The optional Tools intro should reassure users that common kitchen basics are already expected, so adding a special tool does not imply Laica will ignore everyday household kitchen appliances.
 - User-facing copy should avoid `track` / `tracked` / `tracking` language for inventory capture. Prefer `save`, `add`, `use for suggestions`, `editable`, and `optional`.
 
 ## Design and UX Gate
@@ -125,6 +126,7 @@ Validated scope for PR #170:
 
 - GitHub `unit`, `e2e_guest_smoke`, CodeQL, `npm-audit`, and TruffleHog passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`.
 - Replit Chrome smoke passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`: Pantry manual entry, optional Tools intro, Tools manual entry, Preview refresh restoring Tools with `blender`, Start Over clearing the draft, and a fresh guest setup returning to `Yes, Chef!` without stale Tools state.
+- PR #171 follow-up added the Tools intro reassurance copy and passed `npx vitest run tests/unit/user-profiling.test.tsx -t "asks before opening the optional tools scanner"` plus `git diff --check`.
 
 ## Acceptance Criteria
 

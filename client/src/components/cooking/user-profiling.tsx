@@ -1062,7 +1062,9 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
           </div>
           <div>
             <p className="font-extrabold text-[hsl(var(--setup-ink))]">Tools are optional</p>
-            <p className="setup-copy text-xs">They help Laica keep recipes realistic for your kitchen.</p>
+            <p className="setup-copy text-xs">
+              Common kitchen basics are already expected. Add only special tools that change what Laica should suggest.
+            </p>
           </div>
         </div>
         <Button
