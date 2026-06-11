@@ -168,3 +168,17 @@ This partially satisfies the schema-health portion of this Effort, but it does n
 - The dedicated automation database remains separate from Replit's app-scoped DB and must use synthetic data only.
 - Agents still do not have general permission to run `npm run db:push` against arbitrary local/shared databases.
 - The broader ownership model for Codex worktree `DATABASE_URL`, `.env.keys` provisioning, and local service-backed validation remains open.
+
+## 2026-06-10 — Local diagnostics sandbox guardrail
+
+Local browser review for the Kitchen Inventory branch hit the known drift class again: `/api/auth/session` failed because the decrypted `.env` database was missing `anonymous_recipe_usage`; `npm run db:health` also reported missing `ai_interactions`, `prompt_versions`, and `cooking_sessions.recipe_snapshot`.
+
+Follow-up added a guarded local helper rather than mutating the drifted `.env` database:
+
+- `scripts/local-sandbox.ts` requires `LAICA_LOCAL_SANDBOX_DATABASE_URL` and refuses to run if it equals `DATABASE_URL`.
+- The helper requires `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true` before running `drizzle-kit push --force`.
+- `npm run dev:sandbox`, `npm run test:e2e:sandbox`, and `npm run db:sandbox:prepare` provide the local workflow.
+- `docs/workflows/local-diagnostics-sandbox.md` documents the visual-review and Playwright commands.
+- `docs/workflows/environment-map.md` records the broader human-review map of environments, databases, auth paths, and when local sandbox is worth using versus CI/Replit.
+
+This improves the local diagnostic path but does not resolve this Effort. The unresolved ownership question remains: which database or Neon project/branch agents should use routinely, and when schema mutation is allowed without Wilson intervention.

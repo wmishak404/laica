@@ -2,7 +2,7 @@ import { type ReactNode, useState, useEffect, useCallback, useMemo } from 'react
 import type { AuthCredential } from 'firebase/auth';
 import { isGuestUser, useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import UserProfiling from '@/components/cooking/user-profiling';
+import UserProfiling, { clearUserProfilingSetupDraft } from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
 import SlopBowl from '@/components/cooking/slop-bowl';
 import LiveCooking from '@/components/cooking/live-cooking';
@@ -859,6 +859,7 @@ export default function MobileApp() {
   const handleGuestStartOver = async () => {
     if (isGuest && user?.id) {
       clearGuestProfile(user.id);
+      clearUserProfilingSetupDraft(planningStateScopeKey);
       window.localStorage.removeItem(planningTimeStorageKey);
       clearActiveCookingPlan(activeCookingPlanStorageKey);
     }
@@ -960,9 +961,7 @@ export default function MobileApp() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-extrabold">Settings</span>
-                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">
-                  Pantry, kitchen, and cooking profile
-                </span>
+                <span className="block text-xs font-bold text-[hsl(var(--returning-ink)/0.58)]">Pantry, tools, and cooking profile</span>
               </span>
             </button>
 
@@ -1221,9 +1220,11 @@ export default function MobileApp() {
         return (
           <div>
             <UserProfiling 
+              key={planningStateScopeKey}
               onProfileComplete={handleProfileComplete}
               existingProfile={hasExistingProfile ? userProfile : undefined}
               menuSlot={renderSetupMenu()}
+              sessionScopeKey={planningStateScopeKey}
             />
           </div>
         );
@@ -1303,9 +1304,11 @@ export default function MobileApp() {
       default:
         return (
           <UserProfiling
+            key={planningStateScopeKey}
             onProfileComplete={handleProfileComplete}
             existingProfile={hasExistingProfile ? userProfile : undefined}
             menuSlot={renderSetupMenu()}
+            sessionScopeKey={planningStateScopeKey}
           />
         );
     }

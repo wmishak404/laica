@@ -45,6 +45,8 @@ flowchart TD
 
 Use this as the default order of evidence. Local checks are the fastest implementation loop, GitHub CI is the required PR merge gate, Replit shell/browser validation is risk-triggered or batched for release confidence, and post-publish Chrome smoke verifies the deployed artifact. The OAuth start preflight is a side canary for identity-provider domain/config drift; it is not the local auth test path.
 
+For a plain-English inventory of each environment, database, auth path, and best use case, see [environment-map.md](environment-map.md).
+
 ## Automation Evidence Gate
 
 When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."
@@ -127,6 +129,16 @@ For dotenvx-backed local E2E in macOS worktrees, link `.env.keys` first and run 
 ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
 PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npx @dotenvx/dotenvx run -- npm run db:health
 PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npx @dotenvx/dotenvx run -- npm run test:e2e
+```
+
+If the decrypted `.env` database fails `db:health`, do not run `db:push` against it by default. Use the [Local Diagnostics Sandbox](local-diagnostics-sandbox.md) helper with a disposable/non-production database instead:
+
+```bash
+LAICA_LOCAL_SANDBOX_DATABASE_URL='postgresql://...' \
+LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true \
+PORT=3000 \
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 \
+npx @dotenvx/dotenvx run -- npm run test:e2e:sandbox
 ```
 
 Use a different free port if `3000` is already occupied. Avoid the default `5000` on macOS when AirPlay/Control Center is listening there; otherwise Playwright can target the wrong listener and produce misleading blank-page failures.

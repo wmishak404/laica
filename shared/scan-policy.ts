@@ -10,9 +10,9 @@ export const SCAN_UPLOAD_LIMITS: Record<InventoryScanType, number> = {
 };
 
 export function scanAreaLabel(type: InventoryScanType): string {
-  return type === 'pantry' ? 'Pantry' : 'Kitchen';
+  return type === 'pantry' ? 'Pantry' : 'Tools';
 }
 
 export function scanItemLabel(type: InventoryScanType): string {
-  return type === 'pantry' ? 'pantry items' : 'kitchen tools';
+  return type === 'pantry' ? 'pantry items' : 'tools';
 }

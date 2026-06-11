@@ -8,16 +8,19 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
+    "dev:sandbox": "tsx scripts/local-sandbox.ts -- npm run dev",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc && npm run lint:ui",
     "lint:ui": "eslint \"client/src/**/*.{ts,tsx}\"",
     "db:push": "drizzle-kit push",
     "db:health": "tsx scripts/db-schema-health.ts",
+    "db:sandbox:prepare": "tsx scripts/local-sandbox.ts --prepare-only",
     "check:oauth": "tsx scripts/oauth-start-preflight.ts",
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --project=chromium",
+    "test:e2e:sandbox": "tsx scripts/local-sandbox.ts -- npm run test:e2e",
     "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {

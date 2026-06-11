@@ -13,7 +13,7 @@ import { InventoryReviewChip } from '@/components/cooking/inventory-review-chip'
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import { Trash2, Settings, Package, User, Check, ImagePlus, Loader2 } from 'lucide-react';
+import { Trash2, Package, User, Check, ImagePlus, Loader2, Wrench } from 'lucide-react';
 import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
 import {
   clearInventoryReviewType,
@@ -63,8 +63,28 @@ interface UserSettingsProps {
   persistenceMode?: 'linked' | 'session';
 }
 
-export type SettingsSection = 'hub' | 'pantry' | 'kitchen' | 'profile';
+export type SettingsSection = 'hub' | 'inventory' | 'pantry' | 'kitchen' | 'profile';
+type ActiveSettingsSection = 'hub' | 'inventory' | 'profile';
 type ScanProgress = { completed: number; total: number } | null;
+
+function resolveSettingsSection(section: SettingsSection): {
+  activeSection: ActiveSettingsSection;
+  activeInventoryType: InventoryScanType;
+} {
+  if (section === 'pantry') {
+    return { activeSection: 'inventory', activeInventoryType: 'pantry' };
+  }
+
+  if (section === 'kitchen') {
+    return { activeSection: 'inventory', activeInventoryType: 'kitchen' };
+  }
+
+  if (section === 'inventory') {
+    return { activeSection: 'inventory', activeInventoryType: 'pantry' };
+  }
+
+  return { activeSection: section, activeInventoryType: 'pantry' };
+}
 
 function isAbortError(error: unknown) {
   if (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') {
@@ -82,8 +102,10 @@ export default function UserSettings({
   initialSection = 'hub',
   persistenceMode = 'linked',
 }: UserSettingsProps) {
+  const initialSettingsState = resolveSettingsSection(initialSection);
   const [profile, setProfile] = useState<UserProfile>(userProfile);
-  const [activeSection, setActiveSection] = useState<SettingsSection>(initialSection);
+  const [activeSection, setActiveSection] = useState<ActiveSettingsSection>(initialSettingsState.activeSection);
+  const [activeInventoryType, setActiveInventoryType] = useState<InventoryScanType>(initialSettingsState.activeInventoryType);
   const isSessionOnly = persistenceMode === 'session';
   
   // Sync local state with prop changes (e.g., after profile reset)
@@ -92,7 +114,9 @@ export default function UserSettings({
   }, [userProfile]);
 
   useEffect(() => {
-    setActiveSection(initialSection);
+    const nextSettingsState = resolveSettingsSection(initialSection);
+    setActiveSection(nextSettingsState.activeSection);
+    setActiveInventoryType(nextSettingsState.activeInventoryType);
   }, [initialSection]);
   
   // Option arrays matching the initial profiling
@@ -360,13 +384,13 @@ export default function UserSettings({
       return;
     }
 
-    if (window.confirm('Are you sure you want to reset your equipment list? This will remove all current equipment.')) {
+    if (window.confirm('Are you sure you want to reset your tools list? This will remove all current tools.')) {
       if (isSessionOnly) {
         const updatedProfile = { ...profile, kitchenEquipment: [] };
         saveSessionProfile(
           updatedProfile,
-          "Equipment cleared",
-          "Your kitchen list has been cleared.",
+          "Tools cleared",
+          "Your tools list has been cleared.",
         );
         clearReviewEntries('kitchen');
         return;
@@ -381,13 +405,13 @@ export default function UserSettings({
         clearReviewEntries('kitchen');
         onProfileUpdate(updatedProfile);
         toast({
-          title: "Equipment Reset",
-          description: "Your equipment list has been cleared.",
+          title: "Tools reset",
+          description: "Your tools list has been cleared.",
         });
       } catch (error) {
         toast({
-          title: "Equipment did not reset",
-          description: "I couldn't reset your equipment. Try again.",
+          title: "Tools did not reset",
+          description: "I couldn't reset your tools. Try again.",
           variant: "destructive",
         });
       }
@@ -439,8 +463,8 @@ export default function UserSettings({
     if (isSessionOnly) {
       saveSessionProfile(
         profile,
-        "Kitchen updated",
-        "Your kitchen tools are updated.",
+        "Tools updated",
+        "Your tools are updated.",
       );
       clearReviewEntries('kitchen');
       return;
@@ -454,13 +478,13 @@ export default function UserSettings({
       clearReviewEntries('kitchen');
       onProfileUpdate(profile);
       toast({
-        title: "Equipment saved!",
-        description: "Your kitchen equipment has been updated successfully."
+        title: "Tools saved!",
+        description: "Your tools have been updated successfully."
       });
     } catch (error) {
       toast({
-        title: "Equipment did not save",
-        description: "I couldn't save your equipment. Try again.",
+        title: "Tools did not save",
+        description: "I couldn't save your tools. Try again.",
         variant: "destructive"
       });
     }
@@ -594,7 +618,7 @@ export default function UserSettings({
   const showAlreadySavedFeedback = (type: VisionScanType, foundAgainCount = 0) => {
     toast({
       title: "Already saved",
-      description: `No new ${type === 'pantry' ? 'pantry items' : 'kitchen tools'} were added from that scan.${foundAgainCopy(foundAgainCount)}`,
+      description: `No new ${type === 'pantry' ? 'pantry items' : 'tools'} were added from that scan.${foundAgainCopy(foundAgainCount)}`,
     });
   };
 
@@ -663,7 +687,7 @@ export default function UserSettings({
       
       const result = await analyzeImage(imageData, isHEIC, { signal: scan.controller.signal, scanType: 'kitchen' }) as VisionAnalysisResult;
       if (!isActiveInventoryScan('kitchen', scan.id, scan.controller)) return;
-      console.log('Equipment image analysis result:', result);
+      console.log('Tools image analysis result:', result);
 
       if (isRejectedVisionResult(result)) {
         showRejectedScanFeedback('kitchen', result);
@@ -688,12 +712,12 @@ export default function UserSettings({
         }
         
         toast({
-          title: "Kitchen scan complete",
+          title: "Tools scan complete",
           description: `Found ${mergeResult.added.length} new item${mergeResult.added.length === 1 ? '' : 's'}: ${mergeResult.added.slice(0, 3).join(', ')}${mergeResult.added.length > 3 ? '...' : ''}${foundAgainCopy(mergeResult.foundAgain.length)}`
         });
       } else {
         toast({
-          title: "No equipment detected",
+          title: "No tools detected",
           description: "Try taking a clearer photo or add items manually.",
           variant: "destructive"
         });
@@ -701,7 +725,7 @@ export default function UserSettings({
     } catch (error) {
       if (isAbortError(error) || !isActiveInventoryScan('kitchen', scan.id, scan.controller)) return;
 
-      console.error('Error analyzing kitchen image:', error);
+      console.error('Error analyzing tools image:', error);
       toast({
         title: "Analysis failed",
         description: "I couldn't analyze that photo. Check your connection and try again.",
@@ -817,7 +841,7 @@ export default function UserSettings({
                 .map(e => normalizeEntryLabel(String(e).toLowerCase()))
                 .filter(e => e && e.length > 1);
               allNewEquipment = [...allNewEquipment, ...cleanEquipment];
-              console.log('Added equipment:', cleanEquipment);
+              console.log('Added tools:', cleanEquipment);
             }
           }
         } catch (error) {
@@ -871,7 +895,7 @@ export default function UserSettings({
         } else {
           toast({
             title: `Scan complete!`,
-            description: `Found ${mergeResult.added.length} new equipment item${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${foundAgainCopy(mergeResult.foundAgain.length)}${
+            description: `Found ${mergeResult.added.length} new tool${mergeResult.added.length === 1 ? '' : 's'} across ${processedFiles.length} image(s).${foundAgainCopy(mergeResult.foundAgain.length)}${
               rejectedCount > 0 ? ` ${rejectedCount} text-only photo${rejectedCount === 1 ? ' was' : 's were'} skipped.` : ''
             }${
               failedCount > 0 ? ` ${failedCount} photo${failedCount === 1 ? ' could' : 's could'} not be scanned.` : ''
@@ -937,18 +961,11 @@ export default function UserSettings({
 
   const sectionCards = [
     {
-      id: 'pantry' as const,
-      title: 'Pantry',
-      description: `${profile.pantryIngredients.length} item${profile.pantryIngredients.length === 1 ? '' : 's'} saved`,
+      id: 'inventory' as const,
+      title: 'Kitchen Inventory',
+      description: `${profile.pantryIngredients.length} pantry item${profile.pantryIngredients.length === 1 ? '' : 's'} + ${profile.kitchenEquipment.length} tool${profile.kitchenEquipment.length === 1 ? '' : 's'}`,
       icon: Package,
       tone: 'pantry',
-    },
-    {
-      id: 'kitchen' as const,
-      title: 'Kitchen',
-      description: `${profile.kitchenEquipment.length} tool${profile.kitchenEquipment.length === 1 ? '' : 's'} saved`,
-      icon: Settings,
-      tone: 'kitchen',
     },
     {
       id: 'profile' as const,
@@ -961,7 +978,7 @@ export default function UserSettings({
 
   const activeScanRows = [
     { id: 'pantry' as const, label: 'Pantry', active: isAnalyzingPantry, progress: scanProgress.pantry },
-    { id: 'kitchen' as const, label: 'Kitchen', active: isAnalyzingEquipment, progress: scanProgress.kitchen },
+    { id: 'kitchen' as const, label: 'Tools', active: isAnalyzingEquipment, progress: scanProgress.kitchen },
   ].filter((row) => row.active);
 
   const renderActiveScanNotice = () => {
@@ -1051,10 +1068,10 @@ export default function UserSettings({
     const isInventoryLocked = hasActiveScan;
     const uploadId = isPantry ? 'pantry-upload' : 'equipment-upload';
     const manualId = isPantry ? 'manual-ingredients' : 'manual-equipment';
-    const title = isPantry ? 'Pantry' : 'Kitchen';
+    const title = isPantry ? 'Pantry' : 'Tools';
     const description = isPantry
-      ? 'Update what Laica can cook with.'
-      : 'Update tools, pans, heat, and appliances.';
+      ? 'Food you have at home, including cabinets, fridge, and freezer.'
+      : 'Optional tools and appliances that shape what Laica suggests.';
     const placeholder = isPantry ? 'rice, eggs, spinach' : 'oven, blender, sheet pan';
     const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
     const handleReset = isPantry ? handleResetPantry : handleResetEquipment;
@@ -1066,21 +1083,42 @@ export default function UserSettings({
         <section className="returning-panel">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="returning-kicker">{isPantry ? 'Returning setup' : 'Equipment setup'}</p>
+              <p className="returning-kicker">Kitchen Inventory</p>
               <h1 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">{title}</h1>
               <p className="setup-copy mt-2 max-w-[20rem] text-sm leading-relaxed">{description}</p>
             </div>
             <span className="returning-count">{items.length}</span>
           </div>
 
+          <div className="returning-section-nav mt-5" aria-label="Kitchen Inventory sections">
+            <button
+              type="button"
+              className="returning-nav-pill"
+              data-active={type === 'pantry'}
+              onClick={() => setActiveInventoryType('pantry')}
+            >
+              <Package className="h-4 w-4" />
+              <span>Pantry</span>
+            </button>
+            <button
+              type="button"
+              className="returning-nav-pill"
+              data-active={type === 'kitchen'}
+              onClick={() => setActiveInventoryType('kitchen')}
+            >
+              <Wrench className="h-4 w-4" />
+              <span>Tools</span>
+            </button>
+          </div>
+
           <div className="mt-5 space-y-5">
             <NativeCamera
               variant="setup"
               setupTone={isPantry ? 'pantry' : 'kitchen'}
-              title={isPantry ? 'Pantry preview' : 'Kitchen preview'}
-              captureLabel={isPantry ? 'Capture pantry' : 'Capture kitchen'}
-              cameraToggleLabel={isPantry ? 'Pantry camera' : 'Kitchen camera'}
-              tipsTitle={isPantry ? 'Pantry scan tips' : 'Kitchen scan tips'}
+              title={isPantry ? 'Pantry preview' : 'Tools preview'}
+              captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
+              cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
+              tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
               tipsDescription={isPantry
                 ? 'Open cabinets, use good light, and scan one area at a time.'
                 : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
@@ -1149,7 +1187,7 @@ export default function UserSettings({
                     </div>
                     <div>
                       <p className="font-extrabold text-[hsl(var(--setup-ink))]">
-                        {isPantry ? 'Add pantry items' : 'Add kitchen tools'}
+                        {isPantry ? 'Add pantry items' : 'Add tools'}
                       </p>
                       <p className="setup-copy text-xs">Use short names so the list stays easy to skim.</p>
                     </div>
@@ -1157,7 +1195,7 @@ export default function UserSettings({
                   <div className="space-y-3">
                     <Input
                       id={manualId}
-                      aria-label={isPantry ? 'Pantry items' : 'Kitchen tools'}
+                      aria-label={isPantry ? 'Pantry items' : 'Tools'}
                       value={manualEntry[type]}
                       onChange={(event) => setManualEntry(prev => ({ ...prev, [type]: event.target.value }))}
                       placeholder={placeholder}
@@ -1178,7 +1216,7 @@ export default function UserSettings({
                       onClick={() => handleManualEntry(type)}
                       disabled={isInventoryLocked}
                     >
-                      Save {isPantry ? 'ingredients' : 'equipment'}
+                      {isPantry ? 'Save ingredients' : 'Add tools'}
                     </Button>
                   </div>
                 </div>
@@ -1192,8 +1230,8 @@ export default function UserSettings({
                 </div>
                 <p className="mt-2 text-sm font-extrabold">
                   {progress
-                    ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'kitchen'} photos...`
-                    : isPantry ? 'Scanning pantry photos...' : 'Scanning kitchen photos...'}
+                    ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'tools'} photos...`
+                    : isPantry ? 'Scanning pantry photos...' : 'Scanning tools photos...'}
                 </p>
                 <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
               </div>
@@ -1202,8 +1240,8 @@ export default function UserSettings({
             <div className="setup-surface space-y-3 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="font-extrabold text-[hsl(var(--setup-ink))]">{isPantry ? 'Your pantry list' : 'Your kitchen list'}</p>
-                  <p className="setup-copy text-xs">Remove anything Laica should ignore.</p>
+                  <p className="font-extrabold text-[hsl(var(--setup-ink))]">{isPantry ? 'Your pantry list' : 'Your tools list'}</p>
+                  <p className="setup-copy text-xs">Remove anything you do not want used for suggestions.</p>
                 </div>
                 {items.length > 0 && (
                   <Button
@@ -1223,7 +1261,7 @@ export default function UserSettings({
               {items.length === 0 ? (
                 <div className="returning-empty min-h-24">
                   <Package className="h-8 w-8 text-primary/70" />
-                  <p className="setup-copy text-sm">{isPantry ? 'No pantry items saved yet.' : 'No kitchen tools saved yet.'}</p>
+                  <p className="setup-copy text-sm">{isPantry ? 'No pantry items saved yet.' : 'No tools saved yet.'}</p>
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
@@ -1257,7 +1295,7 @@ export default function UserSettings({
               onClick={handleSave}
               disabled={isInventoryLocked}
             >
-              {isPantry ? 'Save pantry' : 'Save kitchen'}
+              {isPantry ? 'Save pantry' : 'Save tools'}
             </Button>
           </div>
         </section>
@@ -1371,13 +1409,14 @@ export default function UserSettings({
   };
 
   const renderActiveSection = () => {
-    if (activeSection === 'pantry') return renderInventorySection('pantry');
-    if (activeSection === 'kitchen') return renderInventorySection('kitchen');
+    if (activeSection === 'inventory') return renderInventorySection(activeInventoryType);
     if (activeSection === 'profile') return renderProfileSection();
     return renderHub();
   };
 
-  const showCrossSectionScanNotice = activeScanRows.some((row) => activeSection !== row.id);
+  const showCrossSectionScanNotice = activeScanRows.some((row) =>
+    activeSection !== 'inventory' || activeInventoryType !== row.id
+  );
 
   return (
     <main className="returning-ui min-h-screen pb-24">

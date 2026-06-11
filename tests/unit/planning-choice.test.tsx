@@ -79,6 +79,11 @@ vi.mock('@/lib/queryClient', async (importOriginal) => {
 
 vi.mock('@/components/cooking/user-profiling', () => ({
   default: () => <div data-testid="user-profiling">User profiling</div>,
+  clearUserProfilingSetupDraft: (sessionScopeKey?: string) => {
+    if (sessionScopeKey) {
+      window.localStorage.removeItem(`laica:setup-profile-draft:${sessionScopeKey}`);
+    }
+  },
 }));
 
 vi.mock('@/components/cooking/meal-planning', () => ({
@@ -314,7 +319,7 @@ describe('MobileApp planning choice pantry status', () => {
     await renderGuestPlanningChoice(makeProfile());
 
     const settingsButton = screen.getByRole('button', {
-      name: /settings pantry, kitchen, and cooking profile/i,
+      name: /settings pantry, tools, and cooking profile/i,
     });
     const historyButton = screen.getByRole('button', {
       name: /history meals you cooked/i,
@@ -343,6 +348,25 @@ describe('MobileApp planning choice pantry status', () => {
     expect(screen.getByRole('button', { name: /start over clear this setup and return home/i })).toBeTruthy();
     expect(screen.queryByText('Guest session')).toBeNull();
     expect(screen.queryByText('Sign out')).toBeNull();
+  });
+
+  it('clears the in-progress setup draft when a guest starts over', async () => {
+    await renderGuestPlanningChoice(makeProfile());
+    const setupDraftKey = 'laica:setup-profile-draft:guest:guest-test-1';
+    window.localStorage.setItem(setupDraftKey, JSON.stringify({
+      version: 1,
+      currentStep: 2,
+      isToolsCaptureOpen: true,
+      profile: makeProfile({ kitchenEquipment: ['blender'] }),
+      manualEntry: { pantry: '', kitchen: '' },
+      manualOpen: { pantry: false, kitchen: true },
+    }));
+
+    fireEvent.click(screen.getByRole('button', { name: /start over clear this setup and return home/i }));
+
+    await waitFor(() => expect(mocks.signOut).toHaveBeenCalledTimes(1));
+    expect(window.localStorage.getItem(setupDraftKey)).toBeNull();
+    expect(window.localStorage.getItem('laica:guest-profile:guest-test-1')).toBeNull();
   });
 
   it('imports this-browser guest setup into the linked Google account on sign-up', async () => {
@@ -543,7 +567,7 @@ describe('MobileApp planning choice pantry status', () => {
     window.localStorage.setItem('laica_cooking_session:linked:user-1', JSON.stringify({ savedAt: Date.now() }));
 
     fireEvent.click(screen.getByRole('button', {
-      name: /settings pantry, kitchen, and cooking profile/i,
+      name: /settings pantry, tools, and cooking profile/i,
     }));
     await screen.findByTestId('user-settings');
     fireEvent.click(screen.getByRole('button', { name: /mock save changed pantry/i }));
