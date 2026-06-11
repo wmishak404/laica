@@ -2,7 +2,7 @@ import { type ReactNode, useState, useEffect, useCallback, useMemo } from 'react
 import type { AuthCredential } from 'firebase/auth';
 import { isGuestUser, useAuth, useUserProfile, useUpdateUserProfile } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import UserProfiling from '@/components/cooking/user-profiling';
+import UserProfiling, { clearUserProfilingSetupDraft } from '@/components/cooking/user-profiling';
 import MealPlanning from '@/components/cooking/meal-planning';
 import SlopBowl from '@/components/cooking/slop-bowl';
 import LiveCooking from '@/components/cooking/live-cooking';
@@ -859,6 +859,7 @@ export default function MobileApp() {
   const handleGuestStartOver = async () => {
     if (isGuest && user?.id) {
       clearGuestProfile(user.id);
+      clearUserProfilingSetupDraft(planningStateScopeKey);
       window.localStorage.removeItem(planningTimeStorageKey);
       clearActiveCookingPlan(activeCookingPlanStorageKey);
     }

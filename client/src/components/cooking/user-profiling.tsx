@@ -203,7 +203,7 @@ function writeSetupDraft(sessionScopeKey: string | undefined, draft: UserProfili
   }
 }
 
-function clearSetupDraft(sessionScopeKey?: string) {
+export function clearUserProfilingSetupDraft(sessionScopeKey?: string) {
   if (!sessionScopeKey || typeof window === 'undefined') {
     return;
   }
@@ -761,7 +761,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     if (currentStep === TOTAL_STEPS) {
-      clearSetupDraft(sessionScopeKey);
+      clearUserProfilingSetupDraft(sessionScopeKey);
       onProfileComplete(profile);
       return;
     }
