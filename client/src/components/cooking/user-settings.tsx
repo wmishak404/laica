@@ -59,6 +59,7 @@ interface UserSettingsProps {
   userProfile: UserProfile;
   onProfileUpdate: (profile: UserProfile) => void;
   onBackToPlanning: () => void;
+  onSectionChange?: (section: SettingsSection) => void;
   initialSection?: SettingsSection;
   persistenceMode?: 'linked' | 'session';
 }
@@ -99,6 +100,7 @@ export default function UserSettings({
   userProfile,
   onProfileUpdate,
   onBackToPlanning,
+  onSectionChange,
   initialSection = 'hub',
   persistenceMode = 'linked',
 }: UserSettingsProps) {
@@ -118,6 +120,10 @@ export default function UserSettings({
     setActiveSection(nextSettingsState.activeSection);
     setActiveInventoryType(nextSettingsState.activeInventoryType);
   }, [initialSection]);
+
+  useEffect(() => {
+    onSectionChange?.(activeSection === 'inventory' ? activeInventoryType : activeSection);
+  }, [activeInventoryType, activeSection, onSectionChange]);
   
   // Option arrays matching the initial profiling
   const skillLevels = [

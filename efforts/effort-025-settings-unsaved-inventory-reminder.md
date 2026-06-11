@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-05-27
+**Updated:** 2026-06-11
 
 ## One-line summary
 
@@ -81,3 +81,9 @@ This Effort is `Resolved` when all of the following are true:
 ## 2026-05-27 - Created from Settings save-reminder observation
 
 Wilson observed during anonymous guest validation that after Pantry additions/deletions, the UI does not clearly remind the user to save before leaving or continuing. Created this Effort so the broader Settings dirty-state/save-reminder fix can be handled later without expanding INIT-003 production-gates scope.
+
+## 2026-06-11 - Linked Tools save remount regression found during release smoke
+
+During pre-production Replit smoke, Wilson reproduced a linked Google-account Settings issue: saving Tools appeared to refresh/remount the app and the startup load routed the complete profile back to the planning-choice screen instead of preserving the active Settings/Tools surface. The inferred root cause was app-level profile bootstrap behavior, not the explicit-save model itself: complete linked profiles restored to planning unless an active cooking plan existed, and Settings had no active-section restore contract across remounts.
+
+Branch `codex/settings-save-remount-restore` adds a scoped, fresh active Settings section marker and has `UserSettings` report Pantry/Tools/Profile navigation back to the app shell. A remount after a signed-in Tools save should now restore `Settings > Tools` instead of planning. This adds evidence for EFF-025's leave/save UX surface but does not resolve the broader dirty-state reminder, save affordance, or unsaved-leave warning criteria.
