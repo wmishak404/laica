@@ -112,7 +112,10 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
-    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /any kitchen tools to add/i })).toBeTruthy();
+    expect(screen.getAllByText(/totally optional/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/ready to scan your kitchen for tools/i)).toBeTruthy();
+    expect(screen.getByText(/we'll stick to common kitchen basics if you choose to skip/i)).toBeTruthy();
     expect(screen.queryByRole('heading', { name: /tell me what tools you use/i })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
@@ -122,7 +125,7 @@ describe('UserProfiling setup flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
-    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /any kitchen tools to add/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /skip tools/i }));
 
@@ -398,7 +401,7 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
     expect(abortSignal?.aborted).toBe(true);
-    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /any kitchen tools to add/i })).toBeTruthy();
     expect(toastMock).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Scan canceled',
       description: 'No new items were added from that scan.',
@@ -537,7 +540,7 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 
-    expect(screen.getByRole('heading', { name: /pantry saved. any tools to add/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /any kitchen tools to add/i })).toBeTruthy();
   });
 
   it('cycles pantry manual placeholders across setup mounts', () => {

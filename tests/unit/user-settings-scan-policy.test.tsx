@@ -62,7 +62,7 @@ describe('UserSettings scan upload policy', () => {
   });
 
   it('consolidates Pantry and Tools under Kitchen Inventory while preserving deep links', () => {
-    const { rerender } = render(
+    const { container, rerender } = render(
       <UserSettings
         userProfile={baseProfile()}
         onProfileUpdate={vi.fn()}
@@ -73,16 +73,21 @@ describe('UserSettings scan upload policy', () => {
 
     expect(screen.getByRole('button', { name: /kitchen inventory/i })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /^kitchen$/i })).toBeNull();
+    expect(screen.queryByRole('tablist', { name: /kitchen inventory sections/i })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /kitchen inventory/i }));
 
+    expect(screen.getByRole('tablist', { name: /kitchen inventory sections/i })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: /^pantry$/i }).getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByRole('tab', { name: /^tools$/i }).getAttribute('aria-selected')).toBe('false');
+    expect(screen.queryByRole('tab', { name: /cooking profile/i })).toBeNull();
+    expect(container.querySelector('.returning-mini-chip')).toBeNull();
     expect(screen.getByRole('heading', { name: /^pantry$/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /^pantry$/i }).getAttribute('data-active')).toBe('true');
 
-    fireEvent.click(screen.getByRole('button', { name: /^tools$/i }));
+    fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
 
     expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /^tools$/i }).getAttribute('data-active')).toBe('true');
+    expect(screen.getByRole('tab', { name: /^tools$/i }).getAttribute('aria-selected')).toBe('true');
 
     rerender(
       <UserSettings
@@ -105,6 +110,36 @@ describe('UserSettings scan upload policy', () => {
     );
 
     expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
+  });
+
+  it('uses the same inventory header tabs for session-only Settings access', () => {
+    const { container, rerender } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="pantry"
+        persistenceMode="session"
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: /^back$/i })).toBeTruthy();
+    expect(screen.getByRole('tablist', { name: /kitchen inventory sections/i })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: /^pantry$/i }).getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelector('.returning-mini-chip')).toBeNull();
+
+    rerender(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="profile"
+        persistenceMode="session"
+      />,
+    );
+
+    expect(screen.getByRole('heading', { name: /how laica adapts/i })).toBeTruthy();
+    expect(screen.queryByRole('tablist', { name: /kitchen inventory sections/i })).toBeNull();
   });
 
   it('uses the same 20-photo over-cap guard for Pantry and Tools Settings refreshes', () => {

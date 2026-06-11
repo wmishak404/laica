@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-04-29
 **Current phase:** Phase 3.1 / Phase 4 planning
-**Active PR:** none; [#141](https://github.com/wmishak404/laica/pull/141) merged the Slop Bowl generated-result button typography alignment on 2026-06-05, and no runtime PR is currently active
+**Active PR:** none; [#170](https://github.com/wmishak404/laica/pull/170) merged the Kitchen Inventory consolidation and setup draft restore on 2026-06-11, and no runtime PR is currently active
 **Active branch:** none; the next Ticket Pass retry should start from fresh `origin/main` on a new runtime branch
 
 ## Overview
@@ -30,7 +30,7 @@ Phase 0, Phase 1, Phase 2, Phase 2.1, Phase 2.2, Phase 3, Phase 3.2, and the INI
 
 Phase 2.1 is the accepted first-time setup visual and behavior anchor. It shipped setup visual conformance, camera opt-in, peer upload/manual paths, scan cancellation, clearer scan/camera errors, fail-closed upload caps, manual-entry normalization, pantry minimums, and duplicate mitigation. Pantry manual-entry spell correction later shipped through EFF-013 / PR #62 and is now resolved. Richer setup/settings scan-review states shipped through Phase 3.1 / PR #75, resolving EFF-014 for existing Setup and returning Settings Pantry/Kitchen review surfaces.
 
-Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Kitchen Inventory and Cooking Profile edits; History is separate cooking memory. Kitchen Inventory contains Pantry and Tools as separate scan/edit areas, preserving the existing backend `pantryIngredients` / `kitchenEquipment` contract while replacing visible Kitchen/equipment language with Tools. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs.
+Phase 2.2 is the accepted returning-user IA bridge before Phase 3. Menu is the global access point; Settings owns Kitchen Inventory and Cooking Profile edits; History is separate cooking memory. Kitchen Inventory contains Pantry and Tools as separate scan/edit areas, preserving the existing backend `pantryIngredients` / `kitchenEquipment` contract while replacing visible Kitchen/equipment language with Tools. Returning Settings should remain visually aligned with first-time setup while preserving returning-user edit needs. PR #170 shipped the Kitchen Inventory consolidation in returning Settings, made Tools opt-in after Pantry during first-time setup, and added browser-local setup draft restore so Replit preview refreshes/remounts no longer lose Pantry/Tools setup progress.
 
 The latest Phase 3.1 consistency slices are merged:
 
@@ -102,7 +102,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | Phase 2 | Merged | PR #23 / `codex/mobile-refresh-phase-2-setup` | Functional setup validated and merged; visual/trust polish moved to Phase 2.1 |
 | INIT/process docs | Merged | PR #25 / `codex/mobile-refresh-init-process-docs` | Docs-only INIT/process/design baseline |
 | Phase 2.1 | Merged | PR #27 / `codex/mobile-refresh-phase-2-1-setup-polish` | First-time setup visual/trust polish accepted and merged as `5419a90` |
-| Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history` | Returning Settings/History IA accepted and merged as `bc25ef3` |
+| Phase 2.2 | Merged | PR #30 / `codex/mobile-refresh-phase-2-2-settings-history`; [#170](https://github.com/wmishak404/laica/pull/170) / `codex/setup-tools-privacy-copy` | Returning Settings/History IA accepted and merged as `bc25ef3`; Kitchen Inventory consolidation, optional Tools setup, and setup draft restore merged as `c164f58` |
 | Phase 3 | Merged | [#38](https://github.com/wmishak404/laica/pull/38) + [#45](https://github.com/wmishak404/laica/pull/45) | Functional Planning/Chef It Up/Ticket Pass/Prep Tray/Slop Bowl closed; baseline validated at `8a5c3d5` and merged as `f1d17d8`; generation lock/cancel validated at `0c98a47` and merged as `8892327` |
 | Phase 3.1 | In progress | [#69](https://github.com/wmishak404/laica/pull/69), [#73](https://github.com/wmishak404/laica/pull/73), [#75](https://github.com/wmishak404/laica/pull/75), [#81](https://github.com/wmishak404/laica/pull/81), [#141](https://github.com/wmishak404/laica/pull/141); [#78](https://github.com/wmishak404/laica/pull/78) closed unmerged | Kickoff/audit, Planning copy/count emphasis, Slop Bowl pantry-check chip alignment, Setup/Settings inventory review chip states, Slop Bowl generated-result button typography alignment, and the PR #78 abandonment/retry brief are merged. Remaining scope is a narrower Ticket Pass layout-only retry, light Prep Tray alignment after that, async imagery, and closeout visual review |
 | Phase 3.2 | Merged | [#46](https://github.com/wmishak404/laica/pull/46) / `codex/mobile-refresh-phase-3-2-progressive-staples` | Progressive Added shelf / rolling staple queue validated at `9646c80`; merged as `b22f6b6`; behavior baseline for Phase 3.1 |
@@ -136,6 +136,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | #78 | Closed / abandoned | `codex/mobile-refresh-phase-3-1-ticket-prep-polish` | Ticket Pass / Prep Tray polish branch passed focused local checks and earlier behavioral smoke on `7e6c817`, but visual acceptance was withdrawn and later placeholder/layout experiments were rejected; branch rolled back to baseline and closed unmerged at `672f14e` |
 | #81 | Merged | `codex/mobile-refresh-phase-3-1-ticket-pass-plan` | Docs-only abandonment and retry-planning follow-up after PR #78; merged as `7630d97` and establishes the narrower layout-only Ticket Pass brief from fresh `origin/main` |
 | #141 | Merged | `codex/slop-bowl-button-fonts` | Slop Bowl generated-result and feedback buttons aligned with Chef It Up suggestion-button typography; Wilson Replit visual pass at `9d30177`, post-rebase local checks and GitHub CI at `8f11990`; merged as `2145407` |
+| #170 | Merged | `codex/setup-tools-privacy-copy` | Kitchen Inventory now contains Pantry and Tools, first-time setup asks before optional Tools capture, and setup draft restore survives Replit preview refresh/remounts; GitHub CI and Replit Chrome smoke passed at `3b867b9`; merged as `c164f58` |
 
 ## Efforts and Governance
 
@@ -185,6 +186,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 - Public guest entry is now governed by [PD-012](../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md) and [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Phase 1's Google-only landing remains the historical shipped baseline, while Phase 5 durable history/cleanup/taste memory is explicitly linked-only in the guest-trial v1 policy.
 - PR #78 proved the current Phase 3.1 Ticket Pass gap is about hierarchy and object language, not just placeholder art. The rejected overcorrection also established a negative constraint for future work: do not use fake bowl/noodle/skillet illustrations as a stand-in for the later async imagery slice, and do not trade away compact-ticket readability for a more theatrical ticket silhouette.
 - PR #141 fixed Slop Bowl generated-result button typography drift by putting the generated-result/feedback surfaces under the Planning typography wrapper and using the same `h-12`, `rounded-xl`, `font-extrabold` action-button contract as adjacent Chef It Up recipe-suggestion controls. Future Slop Bowl button work should compare computed styles against Chef It Up rather than trusting local class names.
+- PR #170 consolidated the Profile/Settings inventory language into Kitchen Inventory with Pantry and Tools, kept Pantry/Tools scans separate, kept backend `pantryIngredients` / `kitchenEquipment` / scan type `kitchen` contracts unchanged, removed tracking-framed inventory copy, and made setup draft restore browser-local so Replit preview refreshes/remounts preserve in-progress Pantry/Tools entries while Start Over clears the draft.
 
 ## Validation State
 
@@ -213,6 +215,7 @@ Known validation facts:
 - Phase 3.1 Setup/Settings inventory chip-state alignment in PR #75 passed `npx vitest run tests/unit/entry-parsing.test.ts tests/unit/user-settings-scan-policy.test.tsx tests/unit/user-profiling.test.tsx tests/unit/meal-planning.test.tsx tests/unit/slop-bowl.test.tsx`, `npm run check`, `npm run build`, `git diff --check`, and a dotenvx dev-server HTTP 200 smoke. Wilson confirmed Replit was on head `1e93bf8fdcd9933dea3200e66c138c91a5c00be1` and validated the Settings Pantry minimum path; PR #75 merged as `c82433d9089ca4e9cc86b5d5e77322981333eba3`.
 - PR #78's early authenticated Replit/browser pass at `7e6c8174878e76b01807ee7b1f3b3479ddb3be66` still stands only for behavioral scope: suggestion reveal, stable in-place ticket expansion for tickets 1/2/3, Prep Tray open for the selected ticket, and placeholder stability when `imageUrl` is absent. That branch never achieved visual acceptance. A later same-day illustration/layout experiment was rejected and rolled back, and PR #78 closed unmerged at `672f14e17387f601fe4a18bc0106d58108660467`.
 - Phase 3.1 Slop Bowl generated-result button typography alignment in PR #141 passed `npx vitest run tests/unit/slop-bowl.test.tsx tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check` at rebased PR head `8f11990`; GitHub CI also passed at that head. Wilson visually confirmed the Slop Bowl generated-result buttons and Chef It Up recipe-suggestion buttons in Replit at pre-rebase head `9d30177` before the branch was rebased over docs-only `origin/main` commit `b040952`; PR #141 merged as `2145407`.
+- PR #170 passed GitHub `unit`, `e2e_guest_smoke`, CodeQL, `npm-audit`, and TruffleHog at head `3b867b94ee9760888d65fc8cc20b5e325ebcd894`. Replit Chrome smoke at the same head passed Pantry manual entry -> optional Tools intro -> Tools manual `blender` -> Preview refresh restoring Tools with `blender`, and Start Over -> fresh guest start returning to `Yes, Chef!` without stale Tools state. PR #170 merged as `c164f58a30e1fb382c30fa1ee6d7f2033c20ea0a`.
 - Full `npx vitest run` is not green because existing repo-wide harness issues remain outside Phase 3 scope: `tests/e2e/cooking-workflow.test.ts` is a Playwright file being collected by Vitest, and `tests/unit/voice-recording.test.ts` expects `MediaStream` in the test environment.
 
 ## Current Resume Point
@@ -347,3 +350,9 @@ INIT-003 public guest validation exposed a Planning-entry polish issue that belo
 PR #141 merged Slop Bowl generated-result and feedback button typography alignment as `2145407`. The root cause was local Slop Bowl button sizing/weight plus a missing Planning typography wrapper, which made the `Let's cook this!`, `Try something else`, and `Plan your own meal instead` controls feel like a different app family from adjacent Chef It Up recipe-suggestion buttons. The merged fix adds the Planning wrapper and matches the shared action-button contract while keeping Slop Bowl behavior unchanged.
 
 Wilson visually confirmed the Replit comparison at pre-rebase head `9d30177`; after the branch rebased over docs-only `main` closeout commit `b040952`, focused unit tests, `npm run check`, `npm run build`, `git diff --check`, and GitHub CI passed at PR head `8f11990`.
+
+### 2026-06-11 - Kitchen Inventory consolidation merged
+
+PR #170 merged the accepted Pantry/Tools profile consolidation as `c164f58`. Settings now presents Kitchen Inventory with Pantry and Tools inside it, first-time setup asks before opening the optional Tools capture surface, visible Kitchen/equipment language is replaced with Tools, and backend profile/scan contracts remain unchanged. The follow-up also fixed the Replit preview refresh/remount data-loss path by restoring in-progress setup draft state in the browser and clearing it on setup finish or guest Start Over.
+
+GitHub CI and Replit Chrome smoke passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`; Wilson's passive-wait reproduction no longer reproduced the old data-loss problem before merge.
