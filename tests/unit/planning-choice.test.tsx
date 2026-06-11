@@ -81,7 +81,7 @@ vi.mock('@/components/cooking/user-profiling', () => ({
   default: () => <div data-testid="user-profiling">User profiling</div>,
   clearUserProfilingSetupDraft: (sessionScopeKey?: string) => {
     if (sessionScopeKey) {
-      window.sessionStorage.removeItem(`laica:setup-profile-draft:${sessionScopeKey}`);
+      window.localStorage.removeItem(`laica:setup-profile-draft:${sessionScopeKey}`);
     }
   },
 }));
@@ -353,7 +353,7 @@ describe('MobileApp planning choice pantry status', () => {
   it('clears the in-progress setup draft when a guest starts over', async () => {
     await renderGuestPlanningChoice(makeProfile());
     const setupDraftKey = 'laica:setup-profile-draft:guest:guest-test-1';
-    window.sessionStorage.setItem(setupDraftKey, JSON.stringify({
+    window.localStorage.setItem(setupDraftKey, JSON.stringify({
       version: 1,
       currentStep: 2,
       isToolsCaptureOpen: true,
@@ -365,7 +365,7 @@ describe('MobileApp planning choice pantry status', () => {
     fireEvent.click(screen.getByRole('button', { name: /start over clear this setup and return home/i }));
 
     await waitFor(() => expect(mocks.signOut).toHaveBeenCalledTimes(1));
-    expect(window.sessionStorage.getItem(setupDraftKey)).toBeNull();
+    expect(window.localStorage.getItem(setupDraftKey)).toBeNull();
     expect(window.localStorage.getItem('laica:guest-profile:guest-test-1')).toBeNull();
   });
 

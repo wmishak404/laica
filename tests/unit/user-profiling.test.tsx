@@ -129,7 +129,7 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByRole('heading', { name: /how comfortable are you with cooking/i })).toBeTruthy();
   });
 
-  it('restores in-progress setup after a same-session remount', () => {
+  it('restores in-progress setup after a browser-local remount', () => {
     const sessionScopeKey = 'guest:setup-remount-test';
     const firstRender = render(<UserProfiling onProfileComplete={vi.fn()} sessionScopeKey={sessionScopeKey} />);
 

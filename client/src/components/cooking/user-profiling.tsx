@@ -156,7 +156,7 @@ function readSetupDraft(sessionScopeKey?: string): UserProfilingDraft | null {
   }
 
   try {
-    const rawDraft = window.sessionStorage.getItem(setupDraftStorageKey(sessionScopeKey));
+    const rawDraft = window.localStorage.getItem(setupDraftStorageKey(sessionScopeKey));
     if (!rawDraft) return null;
 
     const parsed = JSON.parse(rawDraft) as Partial<UserProfilingDraft>;
@@ -197,7 +197,7 @@ function writeSetupDraft(sessionScopeKey: string | undefined, draft: UserProfili
   }
 
   try {
-    window.sessionStorage.setItem(setupDraftStorageKey(sessionScopeKey), JSON.stringify(draft));
+    window.localStorage.setItem(setupDraftStorageKey(sessionScopeKey), JSON.stringify(draft));
   } catch {
     return;
   }
@@ -208,7 +208,7 @@ export function clearUserProfilingSetupDraft(sessionScopeKey?: string) {
     return;
   }
 
-  window.sessionStorage.removeItem(setupDraftStorageKey(sessionScopeKey));
+  window.localStorage.removeItem(setupDraftStorageKey(sessionScopeKey));
 }
 
 function readImageAsBase64(file: File): Promise<string> {
