@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 2.2 - Returning Setup, Settings, and History IA
 
-**Status:** Accepted / Merged PR #30
+**Status:** Accepted / Merged PR #30; Kitchen Inventory revision merged PR #170
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-01
@@ -36,6 +36,8 @@ Accepted durable outcomes:
 ## 2026-06-08 Revision - Kitchen Inventory and Optional Tools
 
 Wilson accepted the product-language direction that **Pantry** stays the user-facing food inventory label, because it is warmer and lower-pressure than `Ingredients`, while helper copy clarifies that Pantry includes cabinets, fridge, and freezer. `Tools` replaces visible `Kitchen` / `equipment` language for the non-food inventory area. Backend fields, database columns, scan types, and prompt contracts remain unchanged (`pantryIngredients`, `kitchenEquipment`, and scan type `kitchen`).
+
+PR #170 implemented this revision and merged into `main` as `c164f58a30e1fb382c30fa1ee6d7f2033c20ea0a`. The shipped follow-up also preserves in-progress first-time setup draft state across Replit preview refresh/remounts and explicitly clears that draft when setup finishes or a guest chooses Start Over.
 
 Accepted behavior:
 
@@ -118,6 +120,11 @@ Validated scope for PR #30:
 - Feedback context, including the active surface/subsection.
 - Returning Settings visual parity with first-time setup for circular camera controls and upload/manual typography.
 - Local `git diff --check`, `npm run check`, `npm run build`, and relevant Vitest coverage.
+
+Validated scope for PR #170:
+
+- GitHub `unit`, `e2e_guest_smoke`, CodeQL, `npm-audit`, and TruffleHog passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`.
+- Replit Chrome smoke passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`: Pantry manual entry, optional Tools intro, Tools manual entry, Preview refresh restoring Tools with `blender`, Start Over clearing the draft, and a fresh guest setup returning to `Yes, Chef!` without stale Tools state.
 
 ## Acceptance Criteria
 
