@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 2.2 - Returning Setup, Settings, and History IA
 
-**Status:** Accepted / Merged PR #30; Kitchen Inventory revision merged PR #170
+**Status:** Accepted / Merged PR #30; Kitchen Inventory revision merged PR #170 and polish merged PR #171
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-01
@@ -37,7 +37,7 @@ Accepted durable outcomes:
 
 Wilson accepted the product-language direction that **Pantry** stays the user-facing food inventory label, because it is warmer and lower-pressure than `Ingredients`, while helper copy clarifies that Pantry includes cabinets, fridge, and freezer. `Tools` replaces visible `Kitchen` / `equipment` language for the non-food inventory area. Backend fields, database columns, scan types, and prompt contracts remain unchanged (`pantryIngredients`, `kitchenEquipment`, and scan type `kitchen`).
 
-PR #170 implemented this revision and merged into `main` as `c164f58a30e1fb382c30fa1ee6d7f2033c20ea0a`. The shipped follow-up also preserves in-progress first-time setup draft state across Replit preview refresh/remounts and explicitly clears that draft when setup finishes or a guest chooses Start Over.
+PR #170 implemented this revision and merged into `main` as `c164f58a30e1fb382c30fa1ee6d7f2033c20ea0a`. The shipped follow-up also preserves in-progress first-time setup draft state across Replit preview refresh/remounts and explicitly clears that draft when setup finishes or a guest chooses Start Over. PR #171 merged the final UI polish into `main` as `ca13ccd261c328420bfb4292d19905bc5bec4683`.
 
 Accepted behavior:
 
@@ -129,7 +129,7 @@ Validated scope for PR #170:
 
 - GitHub `unit`, `e2e_guest_smoke`, CodeQL, `npm-audit`, and TruffleHog passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`.
 - Replit Chrome smoke passed at `3b867b94ee9760888d65fc8cc20b5e325ebcd894`: Pantry manual entry, optional Tools intro, Tools manual entry, Preview refresh restoring Tools with `blender`, Start Over clearing the draft, and a fresh guest setup returning to `Yes, Chef!` without stale Tools state.
-- PR #171 follow-up added the Tools intro reassurance copy, simplified the final setup hero to a checkmark, promoted Pantry / Tools switching into connected header tabs beside a subordinate Back chip, and passed focused/full `user-settings-scan-policy` Vitest coverage, focused/full `user-profiling` Vitest coverage, `npm run check`, `npm run build`, `git diff --check`, GitHub PR checks, and Replit Chrome visual smoke of the Pantry/Tools tab attachment and selected-state swap.
+- PR #171 follow-up added the Tools intro reassurance copy, simplified the final setup hero to a checkmark, promoted Pantry / Tools switching into connected header tabs beside a subordinate Back chip, gave the Kitchen Inventory panel a rectangular top edge with rounded bottom corners, and passed focused/full `user-settings-scan-policy` Vitest coverage, focused/full `user-profiling` Vitest coverage, `npm run check`, `npm run build`, `git diff --check`, GitHub PR checks, and Replit Chrome visual smoke of the Pantry/Tools tab attachment, selected-state swap, and tab/panel seam.
 
 ## Acceptance Criteria
 
