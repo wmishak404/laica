@@ -26,7 +26,7 @@ This conforms with EFF-025 by preserving explicit save behavior; it does not imp
 
 ## Open items
 
-- Human Replit smoke still needs to repeat the exact signed-in Google flow changed by this PR: open Settings > Tools, save a tool change, and confirm the app stays/restores on Tools if the preview remounts.
+- Optional extra confidence check: because Wilson noted the original refresh is intermittent, a manual hard refresh while sitting on `Settings > Tools` can deterministically confirm the restore contract on Replit even when Save itself does not trigger a remount.
 - Broader EFF-025 dirty-state reminder work remains open.
 
 ## Verification
@@ -56,9 +56,21 @@ This conforms with EFF-025 by preserving explicit save behavior; it does not imp
 
 **Negative scope:** This carry-forward does not validate the new PR #173 behavior at head `890097903d32e5df62d66c8114603e8e8cf290e1`. The changed path still needs the targeted signed-in Replit check for Settings > Tools save/remount restore. If another commit changes auth, feedback, AI generation, live cooking persistence, speech, audio, or vision upload, the relevant carry-forward item becomes stale for that surface.
 
+## Wilson Targeted Replit Smoke for PR #173
+
+**Source provenance:** Wilson reported in Codex chat on 2026-06-11 after fetching `codex/settings-save-remount-restore` in Replit that the page did not refresh like the earlier bug during the signed-in Tools save attempt. Wilson also noted the original refresh behavior is intermittent.
+
+**Claim:** The direct signed-in Replit save attempt did not reproduce the bug on this run: saving Tools did not visibly refresh the page or dump the user back to the planning-choice screen.
+
+**Observed result:** `Settings > Tools > Save tools` stayed stable in Wilson's Replit smoke attempt. No repeat of the previous planning-choice fallback was observed.
+
+**Reasoning:** This validates the normal save path on the PR branch and gives human Replit signal for the affected surface. The local regression still covers the remount/restore branch by preloading the active Tools section and remounting the app.
+
+**Negative scope:** Because the original refresh/remount was intermittent, this single human run does not prove the browser will never remount after Save. It also did not force a hard refresh while on Tools, so deterministic Replit proof of restore-after-remount remains optional extra confidence rather than completed human evidence.
+
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `ca03c3ca411296e83a599ef74826056f6f0b631e`
-- Last Replit-validated at: release-batch smoke reported successful by Wilson for the Replit build under test on 2026-06-11; PR #173 head `890097903d32e5df62d66c8114603e8e8cf290e1` is not yet targeted Replit-validated for the Settings > Tools remount fix.
-- Notes: Branch was created from the release-smoked `origin/main` head after PR #171 merge closeout. Replit should fetch this branch before validating the signed-in Tools save regression; unchanged surfaces listed above do not need full repeat smoke unless their code or environment changes.
+- Last Replit-validated at: release-batch smoke reported successful by Wilson for the Replit build under test on 2026-06-11; targeted PR #173 Replit smoke reported no visible refresh/no route loss during one signed-in `Settings > Tools > Save tools` attempt on 2026-06-11.
+- Notes: Branch was created from the release-smoked `origin/main` head after PR #171 merge closeout. Unchanged surfaces listed above do not need full repeat smoke unless their code or environment changes. Because the original refresh was intermittent, the strongest remaining optional manual check is a hard refresh while already on `Settings > Tools`.
