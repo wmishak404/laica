@@ -175,6 +175,12 @@ function getStapleRows() {
   return screen.getByRole('group', { name: /pantry staple options/i });
 }
 
+function getRecipeTicketButtons() {
+  return recipeResponse.recipes.map((recipe) =>
+    screen.getByRole('button', { name: new RegExp(recipe.recipeName, 'i') })
+  );
+}
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
@@ -636,5 +642,51 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.getByText('Pantry Rice Bowl')).toBeTruthy();
     expect(screen.getByText('Spinach Egg Skillet')).toBeTruthy();
     expect(screen.getByText('Rice Frittata')).toBeTruthy();
+  });
+
+  it('expands selected tickets in place without changing generated order', async () => {
+    const recipesDeferred = createDeferred<typeof recipeResponse>();
+    fetchPantryRecipesMock.mockReturnValue(recipesDeferred.promise);
+    renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    await waitFor(() => {
+      expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(1);
+    });
+
+    await act(async () => {
+      recipesDeferred.resolve(recipeResponse);
+      await recipesDeferred.promise;
+    });
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    let ticketButtons = getRecipeTicketButtons();
+    expect(ticketButtons.map((button) => button.textContent?.match(/Pantry Rice Bowl|Spinach Egg Skillet|Rice Frittata/)?.[0])).toEqual([
+      'Pantry Rice Bowl',
+      'Spinach Egg Skillet',
+      'Rice Frittata',
+    ]);
+    expect(ticketButtons[0]).toHaveClass('planning-ticket-large');
+    expect(ticketButtons[1]).toHaveClass('planning-ticket-row');
+    expect(ticketButtons[2]).toHaveClass('planning-ticket-row');
+
+    fireEvent.click(ticketButtons[1]);
+
+    ticketButtons = getRecipeTicketButtons();
+    expect(ticketButtons.map((button) => button.textContent?.match(/Pantry Rice Bowl|Spinach Egg Skillet|Rice Frittata/)?.[0])).toEqual([
+      'Pantry Rice Bowl',
+      'Spinach Egg Skillet',
+      'Rice Frittata',
+    ]);
+    expect(ticketButtons[0]).toHaveClass('planning-ticket-row');
+    expect(ticketButtons[1]).toHaveClass('planning-ticket-large');
+    expect(ticketButtons[2]).toHaveClass('planning-ticket-row');
+
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
+    expect(await screen.findByRole('heading', { name: /spinach egg skillet/i })).toBeTruthy();
   });
 });

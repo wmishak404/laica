@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 3.1 — Design Facelift and Recipe Imagery
 
-**Status:** In progress; merged consistency slices, Slop Bowl button alignment, plus Ticket Pass retry planning
+**Status:** In progress; merged consistency slices, Slop Bowl button alignment, Ticket Pass retry planning, and Ticket Pass hierarchy retry in review
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-05
@@ -183,6 +183,16 @@ Selected #3
 
 PR #81 merged this abandonment/retry plan into `main` as `7630d97a68a1ca4adfe5915484fbd9c397b4c406`, so future Phase 3.1 runtime branches should treat these constraints as the current baseline rather than reviving PR #78.
 
+## 2026-06-12 - Ticket Pass Hierarchy Retry Implemented
+
+Codex implemented the next Ticket Pass runtime slice on `codex/init-001-ticket-pass-hierarchy` from fresh `origin/main` `ca03c3c`. The branch follows the PR #81 retry constraints: it stays layout-only, keeps the existing image-slot and compact-row content skeleton, and improves ticket object language through shared pass backing, selected-ticket depth, compact-row offsets, and tighter row readability.
+
+Behavior is intentionally unchanged. The generated recipe order stays stable, selection still expands in place, the display-only recipe-name split contract remains intact, and the selected recipe still drives the Prep Tray. Focused regression coverage now asserts those constraints when switching from ticket 1 to ticket 2 and opening the Prep Tray.
+
+Negative scope remains explicit: no fake bowl/noodle/skillet placeholders, no real image generation or async image hydration, no Prep Tray redesign, no prompt/provider/backend changes, no Settings or navigation work, and no change to the Phase 3.2 staple-check behavior.
+
+Local validation passed `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check`. `npm audit --audit-level=high` failed on existing `@grpc/grpc-js` advisories already addressed by open Dependabot PR #174. The in-app Browser rejected local `data:` and `file:` fixture URLs under its URL policy, so authenticated Replit/manual visual acceptance is still required before marking this drift fixed.
+
 ## 2026-05-29 - Planning Toast Copy and Persistence Follow-Up
 
 During INIT-003 public guest validation, Wilson found that the Planning entry post-setup toast showed the heading `Your kitchen is ready` plus the supporting line `I'll remember this on this browser while you try Laica.` The supporting line adds more explanation than the moment needs and should be removed in Phase 3.1. If a success confirmation remains, keep it concise and avoid re-explaining anonymous/local browser retention in this transient UI.
@@ -209,7 +219,7 @@ Future Slop Bowl button work should compare rendered controls against adjacent C
 | Cuisine list looked capped at six | The user could infer only six cuisines existed | Implementation overfit the visible mockup examples as the full data set | Fixed | Treat mockups as visible slices when content naturally exceeds one screen |
 | `No preference` was not default | The default path required an unnecessary tap | Docs said exclusive anchor option but not initial/default state | Fixed | Document default paths separately from option exclusivity and placement |
 | Suggestion copy exposed "three" | UI surfaced the exact generation count as product language | Acceptance criteria required exactly three but did not say the count should stay hidden in copy | Fixed | Keep deterministic constraints in tests/docs; use browsing language in user-facing UI |
-| Ticket Pass looked like generic cards | Suggestions did not carry the mockup's ticket-stack object language enough | Phase 3 said Ticket Pass, but not enough hard requirements for image slot, density, hierarchy, or what must remain readable in the compact rows | Not fixed; PR #78 was abandoned after one too-incremental pass and one rejected overcorrection | Retry as a layout-only hierarchy pass from the current `main` baseline. Keep the current image-slot and compact-row skeleton readable, compare directly against `phase-03-ticket-pass.png`, and do not use fake illustrations or aggressive strip layouts as a shortcut |
+| Ticket Pass looked like generic cards | Suggestions did not carry the mockup's ticket-stack object language enough | Phase 3 said Ticket Pass, but not enough hard requirements for image slot, density, hierarchy, or what must remain readable in the compact rows | In review; PR #78 was abandoned after one too-incremental pass and one rejected overcorrection, and `codex/init-001-ticket-pass-hierarchy` implements the narrower layout-only retry | Verify the current branch visually against `phase-03-ticket-pass.png` and the stable `main` baseline before closing this drift. The branch keeps the image-slot and compact-row skeleton readable, avoids fake illustrations/aggressive strip layouts, and still needs Replit/manual acceptance |
 | Ticket Pass selection reordered recipes | Selecting recipe 2 or 3 made the chosen recipe jump to the featured position and moved recipe 1 into the compact list, so users lost their place | The component modeled selection as promotion to a separate featured slot instead of expanding the chosen ticket in the generated order | Fixed as a Phase 3 basic-usability exception | Phase 3.1 can revisit the ticket hierarchy, but must preserve selection orientation unless a replacement pattern is explicitly validated |
 | Recipe names read like one long paragraph | AI-generated names sometimes contain a main dish plus explicit parenthetical or colon-separated detail | The schema stores one recipe-name string and the UI rendered every name as a single large heading | Fixed with conservative display-only main/supporting split when explicit detail exists | Phase 3.1 should refine title hierarchy with the broader Ticket Pass facelift while preserving the underlying recipe-name contract and avoiding invented subtitles |
 | Cuisine-selected recipes overuse optional ingredients | Suggestions felt like they were completing a cuisine with missing staples instead of cooking from the pantry | Older recipe prompt language prioritized cuisine correction and allowed missing ingredients to complete a cuisine | Fixed with Phase 3 staple check, prompt balance, and optional cleanup; needs Replit validation | Decide whether the staple check needs richer UI, pantry confidence, or a pantry-staples profile in Phase 3.1 |
