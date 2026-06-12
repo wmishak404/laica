@@ -31,7 +31,7 @@ The branch intentionally leaves these later Phase 3.1 items untouched: real reci
 
 ## Open items
 
-- PR number is TBD until the draft PR is opened.
+- Draft PR #175 is open for this branch.
 - `npm audit --audit-level=high` currently fails on existing `@grpc/grpc-js` advisories. Open Dependabot PR #174 updates the affected direct and nested versions and should unblock this lane after merge/rebase.
 - Authenticated Replit/manual visual acceptance is pending. Review should select tickets 1, 2, and 3; compare selected depth, compact readability, image-slot placeholder stability, recipe order orientation, and Prep Tray selection against current `main` and `phase-03-ticket-pass.png`.
 - The in-app Browser local fixture path is not accepted evidence. The Browser rejected `data:` and `file:` fixture URLs under its URL policy, and a full local/app visual check would require auth/live recipe generation or an approved fixture lane.
