@@ -115,7 +115,7 @@
     "@vitest/coverage-v8": "^4.1.8",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.10",
-    "esbuild": "^0.26.0",
+    "esbuild": "^0.28.1",
     "eslint": "^10.3.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
@@ -127,9 +127,11 @@
     "bufferutil": "^4.0.8"
   },
   "overrides": {
+    "@grpc/grpc-js": "^1.14.4",
     "@esbuild-kit/core-utils": {
-      "esbuild": "^0.25.12"
+      "esbuild": "$esbuild"
     },
+    "esbuild": "$esbuild",
     "@tootallnate/once": "^3.0.1",
     "firebase-admin": {
       "uuid": "^11.1.1"
