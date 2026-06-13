@@ -26,7 +26,7 @@ This conforms with EFF-025 by preserving explicit save behavior; it does not imp
 
 ## Open items
 
-- Optional extra confidence check: because Wilson noted the original refresh is intermittent, a manual hard refresh while sitting on `Settings > Tools` can deterministically confirm the restore contract on Replit even when Save itself does not trigger a remount.
+- Human Replit validation for PR #173 is still pending. Test the signed-in `Settings > Tools` save path, then hard refresh while sitting on `Settings > Tools` to deterministically confirm the restore contract even if Save itself does not trigger the intermittent remount.
 - Broader EFF-025 dirty-state reminder work remains open.
 
 ## Verification
@@ -39,7 +39,7 @@ This conforms with EFF-025 by preserving explicit save behavior; it does not imp
 
 ## Wilson Human Replit Smoke Carry-Forward
 
-**Source provenance:** Wilson reported in Codex chat on 2026-06-11 that the release-smoke list below was successful on the Replit build under test. Codex did not independently rerun these human checks in this docs update.
+**Source provenance:** Wilson reported in Codex chat on 2026-06-11 that the release-smoke list below was successful on the PR #172 / `main` Replit build under test, before PR #173 was merged. Codex did not independently rerun these human checks in this docs update.
 
 **Claim:** These successful human checks can be carried forward for PR #173 where the surface was not touched by the Settings active-section restore fix, so post-fix validation can stay targeted instead of repeating the full release smoke list.
 
@@ -54,23 +54,26 @@ This conforms with EFF-025 by preserving explicit save behavior; it does not imp
 
 **Reasoning:** PR #173 changes app-shell restoration of the active Settings subsection and `UserSettings` section reporting. It does not change Google provider configuration, feedback routes, Chef It Up generation, suggested-staple persistence, Live Cooking completion/history writes, ElevenLabs routes, speech transcription, or vision/photo upload. The successful release-smoke evidence above can therefore reduce repeat manual coverage for those unchanged surfaces after this fix.
 
-**Negative scope:** This carry-forward does not validate the new PR #173 behavior at head `890097903d32e5df62d66c8114603e8e8cf290e1`. The changed path still needs the targeted signed-in Replit check for Settings > Tools save/remount restore. If another commit changes auth, feedback, AI generation, live cooking persistence, speech, audio, or vision upload, the relevant carry-forward item becomes stale for that surface.
+**Negative scope:** This carry-forward does not validate the new PR #173 behavior at head `39f2ceea79785837d9ba7abf14140c4a7e40921a`. The changed path still needs the targeted signed-in Replit check for Settings > Tools save/remount restore. If another commit changes auth, feedback, AI generation, live cooking persistence, speech, audio, or vision upload, the relevant carry-forward item becomes stale for that surface.
 
-## Wilson Targeted Replit Smoke for PR #173
+## PR #173 Replit Validation Status
 
-**Source provenance:** Wilson reported in Codex chat on 2026-06-11 after fetching `codex/settings-save-remount-restore` in Replit that the page did not refresh like the earlier bug during the signed-in Tools save attempt. Wilson also noted the original refresh behavior is intermittent.
+**Source provenance:** Wilson clarified in Codex chat on 2026-06-12 that the earlier successful smoke was on the PR #172 / `main` build while PR #173 was still being fixed.
 
-**Claim:** The direct signed-in Replit save attempt did not reproduce the bug on this run: saving Tools did not visibly refresh the page or dump the user back to the planning-choice screen.
+**Status:** PR #173 has local and GitHub automation evidence, but has not yet had a clean human Replit validation pass on the PR #173 dev build.
 
-**Observed result:** `Settings > Tools > Save tools` stayed stable in Wilson's Replit smoke attempt. No repeat of the previous planning-choice fallback was observed.
+**Targeted validation needed on Replit dev:** switch/fetch `codex/settings-save-remount-restore`, confirm the app is running head `39f2ceea79785837d9ba7abf14140c4a7e40921a` or newer on that branch, then test:
 
-**Reasoning:** This validates the normal save path on the PR branch and gives human Replit signal for the affected surface. The local regression still covers the remount/restore branch by preloading the active Tools section and remounting the app.
+- Signed-in Google account opens `Settings > Tools`.
+- Saving a Tools change does not route back to planning.
+- Hard refresh while still on `Settings > Tools` restores back to Tools.
+- Tap `Cook`, hard refresh, and confirm the Settings restore marker was cleared rather than forcing the app back to Tools.
 
-**Negative scope:** Because the original refresh/remount was intermittent, this single human run does not prove the browser will never remount after Save. It also did not force a hard refresh while on Tools, so deterministic Replit proof of restore-after-remount remains optional extra confidence rather than completed human evidence.
+**Negative scope:** Because the original refresh/remount was intermittent, a Save attempt that does not refresh is useful but not sufficient by itself. The hard-refresh check is the deterministic proof for PR #173's restore path.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `ca03c3ca411296e83a599ef74826056f6f0b631e`
-- Last Replit-validated at: release-batch smoke reported successful by Wilson for the Replit build under test on 2026-06-11; targeted PR #173 Replit smoke reported no visible refresh/no route loss during one signed-in `Settings > Tools > Save tools` attempt on 2026-06-11.
-- Notes: Branch was created from the release-smoked `origin/main` head after PR #171 merge closeout. Unchanged surfaces listed above do not need full repeat smoke unless their code or environment changes. Because the original refresh was intermittent, the strongest remaining optional manual check is a hard refresh while already on `Settings > Tools`.
+- Last Replit-validated at: release-batch smoke reported successful by Wilson for PR #172 / `main` build `ca03c3ca411296e83a599ef74826056f6f0b631e`; PR #173 head `39f2ceea79785837d9ba7abf14140c4a7e40921a` has not yet been human Replit-validated.
+- Notes: Branch was created from the release-smoked `origin/main` head after PR #171 merge closeout. Unchanged surfaces listed above do not need full repeat smoke unless their code or environment changes. Because the original refresh was intermittent, the required PR #173 manual check should include a hard refresh while already on `Settings > Tools`.
