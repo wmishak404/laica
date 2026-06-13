@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-06-12
+**Updated:** 2026-06-13
 
 ## One-line summary
 
@@ -93,3 +93,9 @@ Branch `codex/settings-save-remount-restore` adds a scoped, fresh active Setting
 Wilson clarified that the broad successful release smoke happened on PR #172 / `main`, while PR #173 was still being fixed. Focused PR #173 Replit dev validation then confirmed the mitigation behavior: signed-in Tools save did not route back to planning, hard refresh while on `Settings > Tools` restored to Tools, and navigating to Cook cleared the restore marker so a later refresh returned to the normal planning screen.
 
 This should be treated as a user-experience remedy for route loss after an intermittent remount, not a proven fix for the underlying refresh trigger. The trigger itself remains unidentified and may recur. The implementation is not Tools-only: the marker supports Settings hub, Pantry, Tools, and Cooking Profile, but only Tools was manually validated because that was the observed failing surface.
+
+## 2026-06-13 - PR #173 merged Settings remount mitigation
+
+PR #173 merged as `4ee5c27df2ec9dc9ed127d18c3e3a02c81995b3a` after PR #176 cleared the shared dependency audit blocker and PR #173 was rebased onto `origin/main` at `e1c4d4ab5f147ef556d6200e09b4972e5b417fc6`. GitHub CI passed on exact head `b81a0c78d2c711e0263396e6db77dd983100db39`, and Wilson's focused Replit smoke on that head confirmed refresh restored to the previously active page/section. The original unexpected refresh could not be reproduced during final smoke.
+
+EFF-025 remains open. PR #173 landed an active-section restore mitigation for route loss after remount; it did not add dirty-state reminders, save affordance changes, or unsaved-leave warnings.
