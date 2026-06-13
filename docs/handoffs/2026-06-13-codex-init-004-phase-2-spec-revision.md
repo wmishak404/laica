@@ -24,6 +24,7 @@ This is still docs-only. No runtime code, schema, admin route, prompt, provider 
     - label values use `blocked_on_product_rule` instead of `needs_wilson`;
     - `dietary_compliance` is added and nutrition is excluded;
     - public synthetic/redacted fixtures live under `docs/evals/fixtures/`, while private raw gold fixtures live under `LAICA_PRIVATE_EVAL_DIR`;
+    - eval artifacts are offline evidence only and must not become runtime memory, production prompt material, another user's context, or user-facing content;
     - `cooking_assistance` remains infrastructure-only in V1;
     - Phase 3 implementation implications now include eval-queue selection, prompt-version provenance, no DB migration for feature IDs, and canonical feature-id typing.
 - `docs/evals/README.md`
@@ -39,7 +40,7 @@ This is still docs-only. No runtime code, schema, admin route, prompt, provider 
 
 `gh pr view 168` reported PR #168 as closed/unmerged on 2026-06-13, while `origin/codex/init-004-phase-2-spec` still exists and contains Claude's decision handoff. This revision was made from a detached clean worktree at `origin/codex/init-004-phase-2-spec` to avoid pulling unrelated local divergent history into the branch.
 
-PR state was restored by opening draft [PR #181](https://github.com/wmishak404/laica/pull/181) from `codex/init-004-phase-2-spec` after GitHub continued to report #168 at stale head `4d3ebdd`. PR #181 started from rebased branch head `cf57966c23e22af918e47fb6c840c98e5629a23a`.
+PR state was restored by opening [PR #181](https://github.com/wmishak404/laica/pull/181) from `codex/init-004-phase-2-spec` after GitHub continued to report #168 at stale head `4d3ebdd`. PR #181 started from rebased branch head `cf57966c23e22af918e47fb6c840c98e5629a23a` and is now ready for review.
 
 ## Validation
 
@@ -52,7 +53,7 @@ No Replit validation is required for this docs-only revision. Required GitHub ch
 ## Remaining work
 
 - Review the revised spec in PR #181 for faithful incorporation of Wilson's decisions.
-- Mark the docs PR ready and run required checks.
+- Run required checks for the current head and merge the accepted spec after Wilson approval.
 - Merge the accepted Phase 2 spec before starting Phase 3 harness code.
 
 Phase 3 harness code remains blocked until the revised spec is merged.

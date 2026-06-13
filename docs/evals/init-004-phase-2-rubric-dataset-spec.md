@@ -26,6 +26,7 @@ Accepted Phase 2 decisions:
 7. Use a two-tier fixture storage model: public synthetic/redacted derivatives in repo; raw real durable gold fixtures only in a gitignored private local directory outside worktrees.
 8. Keep `cooking_assistance` in the taxonomy and current criteria, but outside V1 reporting and the first Wilson labeling budget unless a later trigger pulls it in.
 9. Keep EFF-022 cuisine fallback behavior explicitly open. The eval harness measures pantry grounding, cuisine fit, and inspired/fusion labeling; it does not decide the product fallback rule.
+10. Treat eval artifacts as offline evidence only. Real user input/output may teach a pattern, but must never become live runtime memory, production prompt material, another user's context, user-facing records, or GitHub-visible fixture content.
 
 ## Feature Taxonomy
 
@@ -100,6 +101,34 @@ Leak guards required in Phase 3:
 2. Add a CI/local fixture-privacy check that fails if any committed fixture has `privacyClass: "raw_private"` or if committed `output` text fails a redaction scan.
 
 Judge and provider runs may send fixture content to providers only in a named eval lane with model/prompt/evaluator provenance and negative scope recorded per [Testing and Acceptance Workflow](../workflows/testing-and-acceptance.md) and [Evaluation Workflow](../workflows/evaluations.md).
+
+### Cross-User Bleed Prevention
+
+The eval system must not become an accidental cross-user memory path. A real user's input/output may teach Laica a pattern, but it must not be retrievable by live generation or exposed to another user.
+
+Hard rules:
+
+- Eval fixtures, labels, reports, and private gold examples are offline evidence. They are not runtime memory, retrieval context, or user-facing content.
+- The live app must not query `docs/evals/fixtures/`, `LAICA_PRIVATE_EVAL_DIR`, eval reports, private gold fixtures, or admin eval rows while generating a user's response.
+- Raw or redacted private examples must not be embedded directly into production prompts or prompt candidates. Prompt candidates may use generalized lessons or synthetic examples only.
+- Eval runs must not write fixture outputs into user-facing tables such as pantry, profile, recipe history, cooking sessions, feedback, or saved recipes.
+- Eval runners should be stateless per fixture: no shared browser state, localStorage, sessionStorage, user cache, model thread, or chat context may carry one fixture's request/output into the next fixture.
+- Private eval tooling must not print raw private fixture content to CI logs, PR comments, handoffs, public reports, or terminal output likely to be copied into GitHub.
+- Public fixture identifiers must avoid real database ids, request ids, user ids, feedback ids, emails, exact private timestamps, or other values that link a public case back to a specific user row.
+- Reports should publish aggregate rates, fixture ids, and synthetic examples. Private real examples can be cited only through non-sensitive private ids.
+
+Safe flow:
+
+```text
+real user row -> private inspection -> private gold fixture when needed
+private gold fixture -> synthetic/redacted public twin -> CI regression fixture
+```
+
+Forbidden flow:
+
+```text
+real user row -> GitHub fixture/report -> production prompt/runtime memory -> another user
+```
 
 ## Fixture Format
 
@@ -230,6 +259,8 @@ The first human-label batch should stay small and targeted. Public fixtures shou
 - Feature taxonomy work needs no DB migration because `feature_type` is a free `varchar`; update stale `shared/schema.ts` comments and TypeScript unions instead.
 - Admin prompt endpoints should validate `PromptFeatureType`, not `EvalFeatureType`, so expanding eval coverage does not accidentally expand immediate prompt activation.
 - Make eval-queue selection criteria-aware. The current submit-all-pending path can be poisoned by any pending feature row without criteria, because `buildEvalPrompt` throws for unsupported feature types. Phase 3 should select only rows whose feature has criteria or route unsupported rows to a clear skipped state.
+- Keep eval storage and live product memory separated. Phase 3 fixture loaders, private gold-set readers, and eval reports must be unreachable from normal user-generation paths, and tests should assert that fixture data is not used as runtime retrieval context.
+- Make fixture execution isolated per case. Phase 3 should reset any evaluator/model/browser context between fixtures so one fixture's output cannot influence the next fixture's score or generated response.
 - Deterministic fixture validation belongs in unit/script lanes. App-regression proof should still use required GitHub `unit` and `e2e_guest_smoke`, but provider-quality and Wilson-labeling evidence are separate eval lanes.
 
 ## Phase 3 Readiness Gate
@@ -238,6 +269,7 @@ Do not start Phase 3 harness code until this revised Phase 2 spec is accepted an
 
 - accepted eval feature taxonomy and prompt-feature boundary;
 - accepted two-tier privacy/source posture;
+- accepted cross-user bleed prevention rule;
 - accepted fixture format and storage paths;
 - accepted criterion labels;
 - accepted first Wilson-label target set;
@@ -246,7 +278,7 @@ Do not start Phase 3 harness code until this revised Phase 2 spec is accepted an
 
 Recommended Phase 3 validation plan:
 
-- Unit/script: fixture schema validation, deterministic contract checks, max-time band check, privacy/leak guard, feature-id union tests, evaluator queue selection behavior, admin prompt enum separation, and logging provenance.
+- Unit/script: fixture schema validation, deterministic contract checks, max-time band check, privacy/leak guard, cross-user bleed guard, feature-id union tests, evaluator queue selection behavior, admin prompt enum separation, and logging provenance.
 - GitHub required checks: `unit`, `e2e_guest_smoke`, security/audit/static checks for exact-head app regression evidence. The E2E lane is provider-light and should not be treated as live output-quality proof.
 - Eval run lane: Wilson-labeled fixture scoring, judge calibration, TPR/TNR reporting, prompt/model/evaluator provenance, and registry updates.
 - Live-provider canary or Replit/local dotenvx eval lane: only for named model-output or provider-quality claims; never silently fold this into routine PR CI.

@@ -19,9 +19,13 @@ Future implementation work may add:
 
 Private raw-real gold fixtures do not live in this repo. INIT-004 Phase 2 reserves `LAICA_PRIVATE_EVAL_DIR` for a gitignored local directory outside worktrees when Wilson-labeled raw or staged outputs need to outlive normal interaction retention for calibration.
 
+Eval artifacts are offline evidence, not runtime memory. The live app must not retrieve from `docs/evals/fixtures/`, private gold fixtures, eval reports, or admin eval rows while generating a user response. Real user examples may inform synthetic fixtures and generalized prompt lessons, but they must not become another user's prompt context or user-facing content.
+
 ## What Does Not Live Here By Default
 
 Do not commit raw trace exports, raw prompts containing user-identifying data, images, audio, secrets, auth data, or full production payloads without a durable privacy/source decision. Prefer summarized, redacted, or synthetic fixtures until that decision exists.
+
+Do not copy private eval fixture content into PR comments, handoffs, CI logs, public reports, production prompts, or user-facing tables.
 
 When raw artifacts remain local or external, the registry and intake record should still preserve:
 
