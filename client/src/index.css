@@ -2106,23 +2106,46 @@ html, body {
 
   .planning-ticket-stack {
     position: relative;
-    display: grid;
-    gap: 0.65rem;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.7rem 0.55rem 0.8rem;
+    border: 1px solid hsl(var(--planning-ticket-edge) / 0.38);
+    border-radius: 1.1rem;
+    background:
+      radial-gradient(circle at 18% 8%, hsl(0 0% 100% / 0.72), transparent 5.5rem),
+      linear-gradient(180deg, hsl(31 43% 81% / 0.42), hsl(30 41% 70% / 0.22)),
+      hsl(30 38% 83% / 0.46);
+    box-shadow:
+      inset 0 0 0 1px hsl(0 0% 100% / 0.44),
+      0 1.25rem 2.7rem hsl(30 35% 38% / 0.14);
   }
 
   .planning-ticket-stack::before {
-    display: none;
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0.42rem 0.9rem auto;
+    height: 2.1rem;
+    border-radius: 0.7rem 0.7rem 0.35rem 0.35rem;
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.7), hsl(37 59% 91% / 0.38));
+    box-shadow:
+      0 0.55rem 1rem hsl(30 35% 38% / 0.12),
+      inset 0 0 0 1px hsl(var(--planning-ticket-edge) / 0.25);
   }
 
   .planning-ticket {
     position: relative;
+    z-index: 1;
     display: flex;
     width: 100%;
     flex-direction: column;
     align-items: center;
     overflow: hidden;
     border: 1px solid hsl(var(--planning-ticket-edge) / 0.6);
-    border-radius: 0.48rem;
+    border-radius: 0.55rem;
     background:
       radial-gradient(circle at 80% 10%, hsl(0 0% 100% / 0.42), transparent 5rem),
       radial-gradient(circle at 18% 12%, hsl(0 0% 100% / 0.55), transparent 5rem),
@@ -2133,42 +2156,60 @@ html, body {
     box-shadow:
       0 0.9rem 1.9rem hsl(30 35% 38% / 0.13),
       inset 0 0 0 1px hsl(0 0% 100% / 0.36);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  }
+
+  .planning-ticket + .planning-ticket {
+    margin-top: 0.48rem;
   }
 
   .planning-ticket[data-selected='true'] {
     border-color: hsl(var(--planning-coral) / 0.56);
     box-shadow:
-      0 1rem 2.1rem hsl(30 35% 38% / 0.16),
-      0 0 0 2px hsl(var(--planning-coral) / 0.12);
+      0 1.35rem 2.45rem hsl(30 35% 38% / 0.19),
+      0 0 0 2px hsl(var(--planning-coral) / 0.12),
+      inset 0 0 0 1px hsl(0 0% 100% / 0.5);
   }
 
   .planning-ticket-large {
-    z-index: 1;
-    min-height: 21rem;
-    padding: 1.25rem 1rem 1rem;
+    z-index: 2;
+    min-height: 20.75rem;
+    margin-right: 0.18rem;
+    margin-left: 0.18rem;
+    padding: 1.3rem 1.05rem 1rem;
   }
 
   .planning-ticket-row {
-    min-height: 5.25rem;
+    min-height: 4.9rem;
     flex-direction: row;
     align-items: center;
     gap: 0.7rem;
-    padding: 0.75rem 0.85rem;
+    padding: 0.72rem 0.85rem;
+    border-color: hsl(var(--planning-ticket-edge) / 0.5);
+    background:
+      radial-gradient(circle at 86% 14%, hsl(0 0% 100% / 0.34), transparent 3.6rem),
+      linear-gradient(180deg, hsl(37 72% 94% / 0.96), hsl(36 55% 88% / 0.96));
     text-align: left;
+    box-shadow:
+      0 0.5rem 1rem hsl(30 35% 38% / 0.1),
+      inset 0 0 0 1px hsl(0 0% 100% / 0.32);
+  }
+
+  .planning-ticket-row:nth-child(odd) {
+    transform: translateX(-0.08rem);
+  }
+
+  .planning-ticket-row:nth-child(even) {
+    transform: translateX(0.08rem);
+  }
+
+  .planning-ticket-large + .planning-ticket-row,
+  .planning-ticket-row + .planning-ticket-large {
+    margin-top: 0.62rem;
   }
 
   .planning-ticket-short-list {
-    position: relative;
-    z-index: 0;
-    display: grid;
-    gap: 0.45rem;
-    margin-top: -0.1rem;
-    padding: 0.45rem 0.5rem 0.25rem;
-    border: 1px solid hsl(var(--planning-ticket-edge) / 0.44);
-    border-top: 0;
-    border-radius: 0 0 0.7rem 0.7rem;
-    background: hsl(34 52% 86% / 0.48);
-    box-shadow: 0 1rem 1.8rem hsl(30 35% 38% / 0.12);
+    display: none;
   }
 
   .planning-ticket-rip {
@@ -2289,7 +2330,7 @@ html, body {
     flex: 1 1 auto;
     margin-top: 0;
     max-width: none;
-    font-size: 0.94rem;
+    font-size: 0.96rem;
     line-height: 1.08;
   }
 
@@ -2300,8 +2341,8 @@ html, body {
 
   .planning-ticket-row .planning-recipe-image-slot {
     order: -1;
-    height: 3.2rem;
-    width: 3.6rem;
+    height: 3.05rem;
+    width: 3.45rem;
     flex-shrink: 0;
     margin-top: 0;
   }
@@ -2319,9 +2360,9 @@ html, body {
   }
 
   .planning-ticket-row .planning-ticket-meta {
-    width: 4.75rem;
+    width: 4.6rem;
     max-width: none;
-    flex: 0 0 4.75rem;
+    flex: 0 0 4.6rem;
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: flex-end;
