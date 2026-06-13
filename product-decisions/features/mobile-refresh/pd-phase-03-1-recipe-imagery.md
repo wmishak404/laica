@@ -191,7 +191,7 @@ Behavior is intentionally unchanged. The generated recipe order stays stable, se
 
 Negative scope remains explicit: no fake bowl/noodle/skillet placeholders, no real image generation or async image hydration, no Prep Tray redesign, no prompt/provider/backend changes, no Settings or navigation work, and no change to the Phase 3.2 staple-check behavior.
 
-Local validation passed `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check`. `npm audit --audit-level=high` failed on existing `@grpc/grpc-js` advisories already addressed by open Dependabot PR #174. The in-app Browser rejected local `data:` and `file:` fixture URLs under its URL policy, so authenticated Replit/manual visual acceptance is still required before marking this drift fixed.
+Initial local validation passed `npm ci`, `npx vitest run tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run build`, and `git diff --check`. `npm audit --audit-level=high` initially failed on existing `@grpc/grpc-js` advisories, which PR #176 later fixed on `main`. On 2026-06-13, PR #175 was rebased onto `origin/main` `a20406a` after the dependency-audit and Settings remount merges; `npm ci`, `npm audit --audit-level=high`, focused Ticket Pass Vitest coverage, `npm run check`, `npm run build`, and `git diff --check origin/main...HEAD` passed locally. The in-app Browser rejected local `data:` and `file:` fixture URLs under its URL policy, so authenticated Replit/manual visual acceptance is still required before marking this drift fixed.
 
 ## 2026-05-29 - Planning Toast Copy and Persistence Follow-Up
 
