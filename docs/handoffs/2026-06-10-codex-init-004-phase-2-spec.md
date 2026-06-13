@@ -9,7 +9,7 @@
 
 ## Summary
 
-This branch starts INIT-004 Phase 2 with a reviewable spec instead of harness code. It proposes the eval taxonomy, output-quality privacy/source posture, fixture format, criterion labels, and first Wilson-label target set that must be accepted or revised before Phase 3 implementation begins.
+This branch started INIT-004 Phase 2 with a reviewable spec instead of harness code. Wilson's 2026-06-13 decisions are now recorded in [2026-06-13-claude-init-004-phase-2-wilson-decisions.md](2026-06-13-claude-init-004-phase-2-wilson-decisions.md), and Codex revised the spec from that durable handoff.
 
 No runtime behavior, prompt activation, schema, admin API behavior, provider calls, UI, deployment, or Replit behavior changed.
 
@@ -30,21 +30,24 @@ No runtime behavior, prompt activation, schema, admin API behavior, provider cal
 
 ## Impact on other agents
 
-Do not begin Phase 3 harness code until Wilson accepts or revises the Phase 2 draft decisions:
+Do not begin Phase 3 harness code until the revised Phase 2 spec is restored to an open PR, reviewed, checked, and merged. Wilson has accepted the major Phase 2 architecture decisions:
 
 - eval/reporting feature taxonomy vs prompt-management feature taxonomy;
 - first-class `pantry_recipes` and `slop_bowl` eval surfaces;
-- privacy/source posture for raw rows, production/staged samples, redacted fixtures, synthetic fixtures, and daily reports;
-- criterion-level labels;
+- output-attached fixture format with request/constraints split and provenance;
+- two-tier public/private fixture storage, including `LAICA_PRIVATE_EVAL_DIR`;
+- +15-minute max-time band;
+- `dietary_compliance` and nutrition exclusion;
+- `cooking_assistance` infrastructure-only status in V1;
 - first Wilson-label target set;
-- whether max cook time is a hard eval ceiling or can be rounded above the user's selected max.
+- EFF-022 cuisine fallback behavior remaining Wilson-owned and unresolved.
 
 The draft intentionally keeps EFF-022 product behavior unresolved. It only says how cuisine-fit examples should be measured.
 
 ## Open items
 
-- Wilson needs to review the Phase 2 decisions before this can become the accepted Phase 2 spec.
-- Phase 3 harness code, schema/comment cleanup, judge prompts, daily reports, fixture files, and prompt-candidate automation are deferred.
+- Restore PR state because PR #168 is closed/unmerged as of 2026-06-13 while the branch remains active.
+- Phase 3 harness code, schema/comment cleanup, judge prompts, daily reports, fixture files, and prompt-candidate automation remain deferred until the revised spec merges.
 
 ## Verification
 

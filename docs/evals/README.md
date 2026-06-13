@@ -9,13 +9,15 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 - `registry.md` - durable index of eval runs, open-coding imports, judge runs, human review batches, and daily reports.
 - `intakes/` - normalized records for each eval intake listed in the registry.
 - `intakes/TEMPLATE.md` - required structure for future intake records.
-- `init-004-phase-2-rubric-dataset-spec.md` - draft INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec.
+- `init-004-phase-2-rubric-dataset-spec.md` - INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec revised from Wilson's architecture decisions.
 
 Future implementation work may add:
 
-- `fixtures/` - redacted or synthetic golden/regression cases used by the harness.
+- `fixtures/` - public redacted or synthetic golden/regression cases used by the harness.
 - `reports/` - generated summaries or durable references to generated summaries when committing the report itself is appropriate.
 - Harness command notes in this README once INIT-004 adds executable eval tooling.
+
+Private raw-real gold fixtures do not live in this repo. INIT-004 Phase 2 reserves `LAICA_PRIVATE_EVAL_DIR` for a gitignored local directory outside worktrees when Wilson-labeled raw or staged outputs need to outlive normal interaction retention for calibration.
 
 ## What Does Not Live Here By Default
 
