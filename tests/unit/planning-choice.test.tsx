@@ -119,13 +119,20 @@ vi.mock('@/components/cooking/user-settings', () => ({
     initialSection,
     persistenceMode,
     onProfileUpdate,
+    onSectionChange,
   }: {
     initialSection?: string;
     persistenceMode?: string;
     onProfileUpdate?: (profile: ReturnType<typeof makeProfile>) => void;
+    onSectionChange?: (section: string) => void;
   }) => (
     <div data-testid="user-settings">
       Settings section: {initialSection}; mode: {persistenceMode}
+      <button
+        type="button"
+        aria-label="Mock open tools settings"
+        onClick={() => onSectionChange?.('kitchen')}
+      />
       <button
         type="button"
         aria-label="Mock save changed pantry"
@@ -331,6 +338,34 @@ describe('MobileApp planning choice pantry status', () => {
     fireEvent.click(settingsButton);
 
     expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: hub; mode: session');
+  });
+
+  it('restores the active linked Tools settings section after a remount', async () => {
+    await renderPlanningChoice(makeProfile({
+      pantryIngredients: ['rice', 'eggs'],
+      kitchenEquipment: ['skillet', 'wok'],
+    }));
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /settings pantry, tools, and cooking profile/i,
+    }));
+
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: hub; mode: linked');
+
+    fireEvent.click(screen.getByRole('button', { name: /mock open tools settings/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-settings').textContent).toBe('Settings section: kitchen; mode: linked');
+    });
+
+    const savedSection = JSON.parse(window.localStorage.getItem('laica_active_settings_section:linked:user-1') || '{}');
+    expect(savedSection.section).toBe('kitchen');
+
+    cleanup();
+    render(<MobileApp />);
+
+    expect((await screen.findByTestId('user-settings')).textContent).toBe('Settings section: kitchen; mode: linked');
+    expect(screen.queryByRole('heading', { name: /what are we cooking today/i })).toBeNull();
   });
 
   it('keeps guest promotion out of the bottom nav while leaving it in the menu', async () => {

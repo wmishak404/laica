@@ -62,6 +62,18 @@ const guestProfileStorageKey = (userId: string) => `laica:guest-profile:${userId
 const GUEST_PROMOTION_CONFIRMATION = 'Account successfully connected and signed in. Your kitchen is saved.';
 const GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY = 'laica:guest-promotion-confirmation';
 const ACTIVE_COOKING_PLAN_MAX_AGE_MS = 4 * 60 * 60 * 1000;
+const ACTIVE_SETTINGS_SECTION_STORAGE_KEY = 'laica_active_settings_section';
+const ACTIVE_SETTINGS_SECTION_MAX_AGE_MS = 4 * 60 * 60 * 1000;
+const SETTINGS_SECTION_VALUES: readonly SettingsSection[] = ['hub', 'inventory', 'pantry', 'kitchen', 'profile'];
+
+interface SavedActiveSettingsSection {
+  section: SettingsSection;
+  savedAt: number;
+}
+
+function isSettingsSection(value: unknown): value is SettingsSection {
+  return typeof value === 'string' && SETTINGS_SECTION_VALUES.includes(value as SettingsSection);
+}
 
 function readGuestPromotionConfirmation() {
   if (typeof window === 'undefined') return null;
@@ -79,6 +91,45 @@ function clearStoredGuestPromotionConfirmation() {
   if (typeof window === 'undefined') return;
 
   window.sessionStorage.removeItem(GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY);
+}
+
+function readActiveSettingsSection(storageKey: string): SettingsSection | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const rawSection = window.localStorage.getItem(storageKey);
+    if (!rawSection) return null;
+
+    const parsed = JSON.parse(rawSection) as Partial<SavedActiveSettingsSection>;
+    const savedAt = typeof parsed.savedAt === 'number' ? parsed.savedAt : 0;
+    const isFresh = Date.now() - savedAt < ACTIVE_SETTINGS_SECTION_MAX_AGE_MS;
+
+    if (!isSettingsSection(parsed.section) || !isFresh) {
+      window.localStorage.removeItem(storageKey);
+      return null;
+    }
+
+    return parsed.section;
+  } catch {
+    window.localStorage.removeItem(storageKey);
+    return null;
+  }
+}
+
+function writeActiveSettingsSection(storageKey: string, section: SettingsSection) {
+  if (typeof window === 'undefined') return;
+
+  const activeSection: SavedActiveSettingsSection = {
+    section,
+    savedAt: Date.now(),
+  };
+  window.localStorage.setItem(storageKey, JSON.stringify(activeSection));
+}
+
+function clearActiveSettingsSection(storageKey: string) {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.removeItem(storageKey);
 }
 
 function readGuestProfile(userId: string): UserProfile {
@@ -375,6 +426,7 @@ export default function MobileApp() {
   );
   const planningTimeStorageKey = `${PLANNING_TIME_STORAGE_KEY}:${planningStateScopeKey}`;
   const activeCookingPlanStorageKey = `${ACTIVE_COOKING_PLAN_STORAGE_KEY}:${planningStateScopeKey}`;
+  const activeSettingsSectionStorageKey = `${ACTIVE_SETTINGS_SECTION_STORAGE_KEY}:${planningStateScopeKey}`;
   const planningProfileFingerprint = useMemo(
     () => createPlanningProfileFingerprint(userProfile),
     [userProfile],
@@ -437,11 +489,18 @@ export default function MobileApp() {
         setHasLoadedFromDb(true);
         const isProfileComplete = hasCompletedCookingProfile(profileFromBrowser);
         const profileFingerprint = createPlanningProfileFingerprint(profileFromBrowser);
+        const activeSettingsSection = isProfileComplete
+          ? readActiveSettingsSection(activeSettingsSectionStorageKey)
+          : null;
         const activeCookingPlan = isProfileComplete
           ? readActiveCookingPlan(activeCookingPlanStorageKey, profileFingerprint)
           : null;
 
-        if (activeCookingPlan) {
+        if (activeSettingsSection) {
+          setSettingsSection(activeSettingsSection);
+          setShowPlanningChoice(true);
+          setCurrentPhase('settings');
+        } else if (activeCookingPlan) {
           setSelectedMeal(activeCookingPlan.selectedMeal);
           setScheduledTime(activeCookingPlan.scheduledTime);
           setShowPlanningChoice(false);
@@ -478,11 +537,18 @@ export default function MobileApp() {
         // Check if profile is complete
         const isProfileComplete = hasCompletedCookingProfile(profileFromDb);
         const profileFingerprint = createPlanningProfileFingerprint(profileFromDb);
+        const activeSettingsSection = isProfileComplete
+          ? readActiveSettingsSection(activeSettingsSectionStorageKey)
+          : null;
         const activeCookingPlan = isProfileComplete
           ? readActiveCookingPlan(activeCookingPlanStorageKey, profileFingerprint)
           : null;
 
-        if (activeCookingPlan) {
+        if (activeSettingsSection) {
+          setSettingsSection(activeSettingsSection);
+          setShowPlanningChoice(true);
+          setCurrentPhase('settings');
+        } else if (activeCookingPlan) {
           setSelectedMeal(activeCookingPlan.selectedMeal);
           setScheduledTime(activeCookingPlan.scheduledTime);
           setShowPlanningChoice(false);
@@ -506,7 +572,7 @@ export default function MobileApp() {
       setCurrentPhase('profiling');
     }
     setIsLoadingProfile(false);
-  }, [user?.id, isGuest, dbProfile, isLoadingDbProfile, hasLoadedFromDb, activeCookingPlanStorageKey]);
+  }, [user?.id, isGuest, dbProfile, isLoadingDbProfile, hasLoadedFromDb, activeCookingPlanStorageKey, activeSettingsSectionStorageKey]);
 
   const clearScopedRecipeState = useCallback(() => {
     clearActiveCookingPlan(activeCookingPlanStorageKey);
@@ -515,6 +581,15 @@ export default function MobileApp() {
     setSelectedMeal(null);
     setScheduledTime('');
   }, [activeCookingPlanStorageKey, planningStateScopeKey]);
+
+  const rememberSettingsSection = useCallback((section: SettingsSection) => {
+    setSettingsSection(section);
+    writeActiveSettingsSection(activeSettingsSectionStorageKey, section);
+  }, [activeSettingsSectionStorageKey]);
+
+  const clearSettingsRestore = useCallback(() => {
+    clearActiveSettingsSection(activeSettingsSectionStorageKey);
+  }, [activeSettingsSectionStorageKey]);
 
   // Save profile to database
   const saveProfileToDb = useCallback(async (profile: UserProfile) => {
@@ -582,6 +657,7 @@ export default function MobileApp() {
 
     setIsMenuOpen(false);
     setShowPlanningChoice(true);
+    clearSettingsRestore();
     setCurrentPhase(hasCompletedCookingProfile(profileToUse) ? 'planning' : 'profiling');
     writeGuestPromotionConfirmation();
     setGuestPromotionConfirmation(GUEST_PROMOTION_CONFIRMATION);
@@ -592,7 +668,7 @@ export default function MobileApp() {
         ? 'Your pantry, tools, and cooking profile are saved to your Google account.'
         : 'You are signed in with Google.',
     });
-  }, [importGuestProfileToLinkedAccount, toast]);
+  }, [clearSettingsRestore, importGuestProfileToLinkedAccount, toast]);
 
   const handleGuestSignUp = useCallback(async () => {
     if (!isGuest || !user?.id || isPromotingGuest) return;
@@ -690,7 +766,7 @@ export default function MobileApp() {
               onClick={() => {
                 clearStoredGuestPromotionConfirmation();
                 setGuestPromotionConfirmation(null);
-                setSettingsSection('hub');
+                rememberSettingsSection('hub');
                 setCurrentPhase('settings');
               }}
               className="underline text-primary hover:text-primary/80"
@@ -703,12 +779,14 @@ export default function MobileApp() {
       });
     }
     
+    clearSettingsRestore();
     setCurrentPhase('planning');
   };
 
   const handleMealSelected = (meal: RecipeRecommendation, scheduledTime: string) => {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
+    clearSettingsRestore();
     writeActiveCookingPlan(activeCookingPlanStorageKey, meal, scheduledTime, planningProfileFingerprint);
     setSelectedMeal(meal);
     setScheduledTime(scheduledTime);
@@ -754,6 +832,7 @@ export default function MobileApp() {
   }, [isGuest, updateProfileMutation, user?.id, userProfile]);
 
   const handleBackToPlanning = () => {
+    clearSettingsRestore();
     clearActiveCookingPlan(activeCookingPlanStorageKey);
 
     // Check if profile is complete before allowing access to planning
@@ -771,6 +850,7 @@ export default function MobileApp() {
   const handleSettingsProfileUpdate = useCallback((updatedProfile: UserProfile) => {
     const shouldInvalidateRecipeState = !planningProfileFingerprintsMatch(userProfile, updatedProfile);
 
+    writeActiveSettingsSection(activeSettingsSectionStorageKey, settingsSection);
     setUserProfile(updatedProfile);
 
     if (shouldInvalidateRecipeState) {
@@ -781,7 +861,7 @@ export default function MobileApp() {
     if (isGuest) {
       saveProfile(updatedProfile);
     }
-  }, [clearScopedRecipeState, isGuest, saveProfile, userProfile]);
+  }, [activeSettingsSectionStorageKey, clearScopedRecipeState, isGuest, saveProfile, settingsSection, userProfile]);
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
     setUserProfile(updatedProfile);
@@ -808,7 +888,7 @@ export default function MobileApp() {
                 onClick={() => {
                   clearStoredGuestPromotionConfirmation();
                   setGuestPromotionConfirmation(null);
-                  setSettingsSection('hub');
+                  rememberSettingsSection('hub');
                   setCurrentPhase('settings');
                 }}
                 className="underline text-primary hover:text-primary/80"
@@ -821,8 +901,10 @@ export default function MobileApp() {
         });
       }
       
+      clearSettingsRestore();
       setCurrentPhase('planning');
     } else {
+      clearSettingsRestore();
       setCurrentPhase('profiling');
     }
   };
@@ -844,6 +926,7 @@ export default function MobileApp() {
   const handleLogout = async () => {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
+    clearSettingsRestore();
     clearActiveCookingPlan(activeCookingPlanStorageKey);
 
     try {
@@ -861,6 +944,7 @@ export default function MobileApp() {
       clearGuestProfile(user.id);
       clearUserProfilingSetupDraft(planningStateScopeKey);
       window.localStorage.removeItem(planningTimeStorageKey);
+      clearSettingsRestore();
       clearActiveCookingPlan(activeCookingPlanStorageKey);
     }
 
@@ -870,7 +954,7 @@ export default function MobileApp() {
   const openSettings = (section: SettingsSection = 'hub') => {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
-    setSettingsSection(section);
+    rememberSettingsSection(section);
     setCurrentPhase('settings');
     setIsMenuOpen(false);
   };
@@ -878,6 +962,7 @@ export default function MobileApp() {
   const openHistory = () => {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
+    clearSettingsRestore();
     setCurrentPhase('history');
     setIsMenuOpen(false);
   };
@@ -913,6 +998,7 @@ export default function MobileApp() {
 
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
+    clearSettingsRestore();
     setShowPlanningChoice(false);
   };
 
@@ -924,6 +1010,7 @@ export default function MobileApp() {
 
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
+    clearSettingsRestore();
     setShowPlanningChoice(false);
     setCurrentPhase('slop-bowl');
   };
@@ -1174,6 +1261,7 @@ export default function MobileApp() {
             variant="ghost" 
             size="icon"
             onClick={() => {
+              clearSettingsRestore();
               setShowPlanningChoice(true);
               setCurrentPhase('planning');
             }}
@@ -1288,6 +1376,7 @@ export default function MobileApp() {
               userProfile={userProfile}
               onProfileUpdate={handleSettingsProfileUpdate}
               onBackToPlanning={handleBackToPlanning}
+              onSectionChange={rememberSettingsSection}
               initialSection={settingsSection}
               persistenceMode={isGuest ? 'session' : 'linked'}
             />
