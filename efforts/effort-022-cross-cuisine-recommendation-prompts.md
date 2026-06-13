@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-06-10
+**Updated:** 2026-06-13
 
 ## One-line summary
 
@@ -155,3 +155,7 @@ PR #166 merged the Phase 1 audit as `3338611`. EFF-022 remains open because the 
 ## 2026-06-10 - Phase 2 draft selects cuisine-fit label targets
 
 INIT-004 Phase 2 drafting selected the Chinese, Indian, Thai, and Loco Moco-style examples as first Wilson-label target candidates for `cuisine_fit`, `pantry_grounding`, and `inspired_or_fusion_labeling`. This adds measurement scaffolding only. EFF-022 still owns the product rule for how strict selected-cuisine matching should be and when Laica should explain a pantry-flexible fallback.
+
+## 2026-06-13 - INIT-004 Phase 2 spec merged
+
+PR #181 merged INIT-004 Phase 2 as `5c410e3`. The accepted eval spec keeps EFF-022's cuisine examples as first Wilson-label targets and uses `blocked_on_product_rule` for cuisine-fallback cases that depend on Wilson's unresolved product decision. This gives Phase 3 permission to measure pantry grounding, cuisine fit, and inspired/fusion labeling without deciding whether Laica should stay literal, ask for staples, or explain a pantry-flexible fallback.

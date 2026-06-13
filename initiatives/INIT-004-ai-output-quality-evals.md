@@ -3,9 +3,9 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
-**Current phase:** Phase 2 - Rubric and dataset spec (revised from Wilson decisions)
-**Active PR:** [#181](https://github.com/wmishak404/laica/pull/181) (ready for review; replaces closed/unmerged [#168](https://github.com/wmishak404/laica/pull/168))
-**Active branch:** `codex/init-004-phase-2-spec`
+**Current phase:** Phase 3 - Eval harness
+**Active PR:** None
+**Active branch:** TBD
 
 ## Overview
 
@@ -28,7 +28,7 @@ Phase 0 merged in [PR #160](https://github.com/wmishak404/laica/pull/160) as `68
 
 Phase 1 audit merged in [PR #166](https://github.com/wmishak404/laica/pull/166) as `3338611` on 2026-06-10. The audit completed from fresh `origin/main` at `c62ad54` after INIT-002 Phase 1 merged and moved to its Replit observation week. This audit is documentation/architecture work only: it maps current generation surfaces, eval storage, prompt overrides, response shapes, seed intakes, and first rubric implications. It does not change runtime prompts, eval execution, schema, admin APIs, or provider behavior.
 
-Phase 2 decisions were captured on `codex/init-004-phase-2-spec` in [2026-06-13-claude-init-004-phase-2-wilson-decisions.md](../docs/handoffs/2026-06-13-claude-init-004-phase-2-wilson-decisions.md), then folded into [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md). PR state was restored through ready-for-review [PR #181](https://github.com/wmishak404/laica/pull/181) after [PR #168](https://github.com/wmishak404/laica/pull/168) closed unmerged and stopped tracking the branch head. Phase 3 harness code remains blocked until the revised Phase 2 spec is reviewed, required checks pass, and the spec merges.
+Phase 2 merged in [PR #181](https://github.com/wmishak404/laica/pull/181) as `5c410e3` on 2026-06-13 after Wilson approved the spec and GitHub checks passed at PR head `d9a17d7`. The accepted Phase 2 contract is [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md). Phase 3 eval harness work may now start from fresh `origin/main`, using that spec as the implementation contract.
 
 The seed inputs are:
 
@@ -188,8 +188,8 @@ INIT-004 should produce or coordinate:
 |---|---|---|---|
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
-| Phase 2 - Rubric and dataset spec | Revised from Wilson decisions | `codex/init-004-phase-2-spec` | Revised spec records eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
-| Phase 3 - Eval harness | Planned | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
+| Phase 2 - Rubric and dataset spec | Merged | [#181](https://github.com/wmishak404/laica/pull/181) / `codex/init-004-phase-2-spec` | Merged as `5c410e3`; accepted eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
+| Phase 3 - Eval harness | Ready to start | TBD | Add deterministic contract checks, narrow LLM-judge checks, feature taxonomy coverage including Slop Bowl, and evidence artifacts |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
@@ -201,6 +201,7 @@ INIT-004 should produce or coordinate:
 |---|---|---|---|
 | [#160](https://github.com/wmishak404/laica/pull/160) | Merged as `680e26e` | `codex/init-004-output-evals` | Docs-only filing and durable eval evidence registry. Marked ready, checks passed after unit rerun; no Replit validation required. |
 | [#166](https://github.com/wmishak404/laica/pull/166) | Merged as `3338611` | `codex/init-004-phase-1-audit` | Docs-only Phase 1 audit. Local `git diff --check`, `npm ci`, `npm run check`, and `npm run build` passed; GitHub unit, `e2e_guest_smoke`, `npm-audit`, TruffleHog PR, and CodeQL passed after the draft was marked ready; no Replit validation required. |
+| [#181](https://github.com/wmishak404/laica/pull/181) | Merged as `5c410e3` | `codex/init-004-phase-2-spec` | Docs-only Phase 2 spec. GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at PR head `d9a17d7`; no Replit validation required. |
 
 ## Validation State
 
@@ -208,15 +209,18 @@ Phase 0 was docs-only. No local build, Replit preview, DB push, or runtime valid
 
 Phase 1 was docs-only. No Replit preview, DB push, eval run, or runtime validation was required because it changed only planning/audit docs. PR #166 passed local `git diff --check`, `npm ci`, `npm run check`, and `npm run build`; after the draft was marked ready, GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed before merge.
 
+Phase 2 was docs-only. No runtime, schema, prompt, admin route, provider, UI, deployment, fixture-data, or eval-run behavior changed. PR #181 passed local markdown diff checks and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL at final PR head `d9a17d7` before Wilson approved the merge. The squash merge commit is `5c410e3`.
+
 Future implementation phases that use eval results as merge evidence must follow [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). Future DB or production-sampling work must coordinate with [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) and Replit as the primary runtime.
 
 ## Current Resume Point
 
-Phase 2 revised spec is in progress on `codex/init-004-phase-2-spec` after Wilson accepted the open architecture decisions. Before Phase 3 starts:
+Phase 3 is the next INIT-004 phase. Start from fresh `origin/main` after PR #181 and this closeout are merged. The smallest ready implementation milestone is the first bounded harness foundation slice from the Phase 2 spec:
 
-1. Review [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md) in PR #181 for faithful incorporation of Wilson's decisions.
-2. Run required checks for the current head and merge the accepted spec after Wilson approval.
-3. Do not build Phase 3 eval harness code, schema changes, judge prompts, daily reports, or prompt-candidate automation until the revised Phase 2 spec merges.
+1. Create a fresh `codex/<phase-3-harness-slice>` branch from current `origin/main`.
+2. Read [docs/evals/init-004-phase-2-rubric-dataset-spec.md](../docs/evals/init-004-phase-2-rubric-dataset-spec.md), [docs/workflows/evaluations.md](../docs/workflows/evaluations.md), [docs/workflows/testing-and-acceptance.md](../docs/workflows/testing-and-acceptance.md), and active Efforts that intersect the changed surface.
+3. Prefer the narrow foundation milestone first: canonical public fixture schema/loading, deterministic contract validation, feature-id typing, privacy/leak checks, and cross-user bleed guards. Do not start live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, or EFF-022 cuisine-fallback product changes in the same first slice.
+4. Ask Wilson before expanding Phase 3 into product/security/privacy/secrets/Replit/deployment/validation-lane decisions not already accepted in the Phase 2 spec.
 
 ## Chronology
 
@@ -231,3 +235,4 @@ Phase 2 revised spec is in progress on `codex/init-004-phase-2-spec` after Wilso
 - **2026-06-10** - PR #166 merged as `3338611` after Wilson approval, local docs/build validation, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, TruffleHog PR, and CodeQL checks passed. Phase 2 is now the next INIT-004 work from fresh `origin/main`.
 - **2026-06-10** - Phase 2 drafting started on `codex/init-004-phase-2-spec`. The draft spec recommends separating eval/reporting feature IDs from prompt-management IDs, making `pantry_recipes` and `slop_bowl` first-class eval surfaces, keeping raw output-quality artifacts out of repo, defining criterion-level labels, and selecting a small Wilson-first seed set before harness code.
 - **2026-06-13** - Wilson accepted the Phase 2 architecture decisions captured in Claude's decision handoff: +15-minute max-time band, output-attached request/constraints fixture format, `dietary_compliance`, nutrition exclusion, two-tier public/private fixture storage with `LAICA_PRIVATE_EVAL_DIR`, cross-user bleed prevention, `cooking_assistance` infrastructure-only V1 status, and the Phase 3 implementation-risk checklist. Codex revised the Phase 2 spec from that handoff. PR #168 closed unmerged and stopped tracking the branch head, so PR #181 was opened as the clean review surface and marked ready for review.
+- **2026-06-13** - PR #181 merged as `5c410e3` after Wilson approved the accepted Phase 2 spec and GitHub checks passed at final PR head `d9a17d7`. Phase 3 eval harness work is now unblocked from the merged spec, with EFF-022 cuisine fallback still open as a product decision and no runtime/eval execution changes shipped in Phase 2.
