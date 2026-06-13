@@ -1,4 +1,4 @@
-# Settings Save Remount Restore
+# Settings Save Remount Mitigation
 
 **Agent:** codex
 **Branch:** codex/settings-save-remount-restore
@@ -8,7 +8,7 @@
 
 ## Summary
 
-Wilson reproduced a release-smoke blocker in signed-in Google state: saving Tools in Settings appeared to refresh/remount the app, then the profile bootstrap routed the complete profile back to the planning-choice screen. This branch adds an app-shell restore contract for active Settings sections so a remount after a linked save returns to the active Settings subsection, especially Tools, instead of treating the load like a normal complete-profile startup.
+Wilson reproduced a release-smoke blocker in signed-in Google state: saving Tools in Settings appeared to refresh/remount the app, then the profile bootstrap routed the complete profile back to the planning-choice screen. This branch does not identify or eliminate the intermittent refresh/remount trigger. It adds an app-shell restore contract for active Settings sections so a remount after a linked save returns to the active Settings subsection, especially Tools, instead of treating the load like a normal complete-profile startup.
 
 ## Changes
 
@@ -20,13 +20,13 @@ Wilson reproduced a release-smoke blocker in signed-in Google state: saving Tool
 
 ## Impact on other agents
 
-Settings now has a narrow active-surface restore mechanism independent of cooking-plan restore. If future Settings work changes section names, inventory tabs, or save navigation, update the `SettingsSection` values and keep the marker cleared on intentional exits from Settings.
+Settings now has a narrow active-surface restore mitigation independent of cooking-plan restore. If future Settings work changes section names, inventory tabs, or save navigation, update the `SettingsSection` values and keep the marker cleared on intentional exits from Settings.
 
 This conforms with EFF-025 by preserving explicit save behavior; it does not implement dirty-state reminders or leave warnings.
 
 ## Open items
 
-- Human Replit validation for PR #173 is still pending. Test the signed-in `Settings > Tools` save path, then hard refresh while sitting on `Settings > Tools` to deterministically confirm the restore contract even if Save itself does not trigger the intermittent remount.
+- The root cause of the intermittent browser/app refresh remains unconfirmed. If the refresh itself needs to be eliminated later, open a separate investigation around Replit preview reloads, auth/profile cache invalidation, and browser/session lifecycle.
 - Broader EFF-025 dirty-state reminder work remains open.
 
 ## Verification
@@ -52,28 +52,39 @@ This conforms with EFF-025 by preserving explicit save behavior; it does not imp
 - ElevenLabs audio and speech transcription.
 - Vision/photo upload.
 
-**Reasoning:** PR #173 changes app-shell restoration of the active Settings subsection and `UserSettings` section reporting. It does not change Google provider configuration, feedback routes, Chef It Up generation, suggested-staple persistence, Live Cooking completion/history writes, ElevenLabs routes, speech transcription, or vision/photo upload. The successful release-smoke evidence above can therefore reduce repeat manual coverage for those unchanged surfaces after this fix.
+**Reasoning:** PR #173 changes app-shell restoration of the active Settings subsection and `UserSettings` section reporting. It does not change Google provider configuration, feedback routes, Chef It Up generation, suggested-staple persistence, Live Cooking completion/history writes, ElevenLabs routes, speech transcription, or vision/photo upload. The successful release-smoke evidence above can therefore reduce repeat manual coverage for those unchanged surfaces after this mitigation.
 
-**Negative scope:** This carry-forward does not validate the new PR #173 behavior at head `39f2ceea79785837d9ba7abf14140c4a7e40921a`. The changed path still needs the targeted signed-in Replit check for Settings > Tools save/remount restore. If another commit changes auth, feedback, AI generation, live cooking persistence, speech, audio, or vision upload, the relevant carry-forward item becomes stale for that surface.
+**Negative scope:** This carry-forward does not validate the new PR #173 behavior. The changed path needs the targeted signed-in Replit check for Settings > Tools save/remount restore. If another commit changes auth, feedback, AI generation, live cooking persistence, speech, audio, or vision upload, the relevant carry-forward item becomes stale for that surface.
 
 ## PR #173 Replit Validation Status
 
-**Source provenance:** Wilson clarified in Codex chat on 2026-06-12 that the earlier successful smoke was on the PR #172 / `main` build while PR #173 was still being fixed.
+**Source provenance:** Wilson clarified in Codex chat on 2026-06-12 that the earlier successful broad smoke was on the PR #172 / `main` build while PR #173 was still being fixed. Wilson then ran the focused PR #173 Replit dev validation and reported the results in Codex chat.
 
-**Status:** PR #173 has local and GitHub automation evidence, but has not yet had a clean human Replit validation pass on the PR #173 dev build.
+**Status:** Focused PR #173 human Replit validation passed for the mitigation behavior. This validates the route-loss remedy, not the unknown refresh trigger.
 
-**Targeted validation needed on Replit dev:** switch/fetch `codex/settings-save-remount-restore`, confirm the app is running head `39f2ceea79785837d9ba7abf14140c4a7e40921a` or newer on that branch, then test:
+**Observed successful targeted checks on Replit dev:**
 
-- Signed-in Google account opens `Settings > Tools`.
-- Saving a Tools change does not route back to planning.
-- Hard refresh while still on `Settings > Tools` restores back to Tools.
-- Tap `Cook`, hard refresh, and confirm the Settings restore marker was cleared rather than forcing the app back to Tools.
+- Signed-in Google account opened `Settings > Tools`.
+- Saving a Tools change did not route back to `What are we cooking today?`.
+- Hard refresh while still on `Settings > Tools` restored back to Tools.
+- Tapping `Cook`, then hard refreshing, returned to `What are we cooking today?`, confirming the Settings restore marker clears on intentional Cook navigation.
 
-**Negative scope:** Because the original refresh/remount was intermittent, a Save attempt that does not refresh is useful but not sufficient by itself. The hard-refresh check is the deterministic proof for PR #173's restore path.
+**Other Settings pages:** The implementation is not Tools-only. `SettingsSection` supports `hub`, `inventory`, `pantry`, `kitchen`/Tools, and `profile`, and `UserSettings` reports Pantry/Tools/Profile section changes back to the app shell. Only Tools received focused Replit validation because it was the observed failing path.
+
+**Negative scope:** Because the original refresh/remount was intermittent, this does not prove the browser will never remount after Save. It proves the user-visible mitigation: if the app remounts while the Settings marker is active, the app should restore the active Settings section instead of dumping the user to planning. The root cause of the intermittent refresh remains open/unidentified.
+
+## Current CI Status After Validation-Docs Correction
+
+After docs-only correction commit `ad510d7b005b4985b7969718163259374facb4eb`, GitHub Actions reran. `e2e_guest_smoke`, CodeQL, and secret scan passed, but PR #173 is not merge-ready while these checks are red:
+
+- `npm-audit` failed because newly reported high-severity advisories affect `@grpc/grpc-js` and `esbuild` dependency paths.
+- `unit` failed one assertion in `tests/unit/live-cooking-guest-session.test.tsx` for persisted `profileFingerprint`.
+
+These failures are outside the Settings remount mitigation code path, but they are current PR gates and must be fixed, rerun cleanly, or explicitly triaged before merge.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `ca03c3ca411296e83a599ef74826056f6f0b631e`
-- Last Replit-validated at: release-batch smoke reported successful by Wilson for PR #172 / `main` build `ca03c3ca411296e83a599ef74826056f6f0b631e`; PR #173 head `39f2ceea79785837d9ba7abf14140c4a7e40921a` has not yet been human Replit-validated.
-- Notes: Branch was created from the release-smoked `origin/main` head after PR #171 merge closeout. Unchanged surfaces listed above do not need full repeat smoke unless their code or environment changes. Because the original refresh was intermittent, the required PR #173 manual check should include a hard refresh while already on `Settings > Tools`.
+- Last Replit-validated at: release-batch smoke reported successful by Wilson for PR #172 / `main` build `ca03c3ca411296e83a599ef74826056f6f0b631e`; focused PR #173 Replit dev validation passed for the Settings > Tools mitigation behavior on 2026-06-12, with runtime code introduced at `890097903d32e5df62d66c8114603e8e8cf290e1` and later branch commits docs-only.
+- Notes: Branch was created from the release-smoked `origin/main` head after PR #171 merge closeout. Unchanged surfaces listed above do not need full repeat smoke unless their code or environment changes. The intermittent refresh trigger is not resolved; PR #173 mitigates the bad route fallback after remount.

@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-06-11
+**Updated:** 2026-06-12
 
 ## One-line summary
 
@@ -87,3 +87,9 @@ Wilson observed during anonymous guest validation that after Pantry additions/de
 During pre-production Replit smoke, Wilson reproduced a linked Google-account Settings issue: saving Tools appeared to refresh/remount the app and the startup load routed the complete profile back to the planning-choice screen instead of preserving the active Settings/Tools surface. The inferred root cause was app-level profile bootstrap behavior, not the explicit-save model itself: complete linked profiles restored to planning unless an active cooking plan existed, and Settings had no active-section restore contract across remounts.
 
 Branch `codex/settings-save-remount-restore` adds a scoped, fresh active Settings section marker and has `UserSettings` report Pantry/Tools/Profile navigation back to the app shell. A remount after a signed-in Tools save should now restore `Settings > Tools` instead of planning. This adds evidence for EFF-025's leave/save UX surface but does not resolve the broader dirty-state reminder, save affordance, or unsaved-leave warning criteria.
+
+## 2026-06-12 - Reframed as remount mitigation, not refresh root-cause resolution
+
+Wilson clarified that the broad successful release smoke happened on PR #172 / `main`, while PR #173 was still being fixed. Focused PR #173 Replit dev validation then confirmed the mitigation behavior: signed-in Tools save did not route back to planning, hard refresh while on `Settings > Tools` restored to Tools, and navigating to Cook cleared the restore marker so a later refresh returned to the normal planning screen.
+
+This should be treated as a user-experience remedy for route loss after an intermittent remount, not a proven fix for the underlying refresh trigger. The trigger itself remains unidentified and may recur. The implementation is not Tools-only: the marker supports Settings hub, Pantry, Tools, and Cooking Profile, but only Tools was manually validated because that was the observed failing surface.
