@@ -46,7 +46,7 @@ The draft intentionally keeps EFF-022 product behavior unresolved. It only says 
 
 ## Open items
 
-- Restore PR state because PR #168 is closed/unmerged as of 2026-06-13 while the branch remains active.
+- PR state was restored through draft PR #181 after PR #168 closed/unmerged and stopped tracking the branch head.
 - Phase 3 harness code, schema/comment cleanup, judge prompts, daily reports, fixture files, and prompt-candidate automation remain deferred until the revised spec merges.
 
 ## Verification

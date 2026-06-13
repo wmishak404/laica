@@ -39,7 +39,7 @@ This is still docs-only. No runtime code, schema, admin route, prompt, provider 
 
 `gh pr view 168` reported PR #168 as closed/unmerged on 2026-06-13, while `origin/codex/init-004-phase-2-spec` still exists and contains Claude's decision handoff. This revision was made from a detached clean worktree at `origin/codex/init-004-phase-2-spec` to avoid pulling unrelated local divergent history into the branch.
 
-Before Phase 2 can merge, restore PR state by reopening PR #168 if appropriate or opening a new PR from `codex/init-004-phase-2-spec`.
+PR state was restored by opening draft [PR #181](https://github.com/wmishak404/laica/pull/181) from `codex/init-004-phase-2-spec` after GitHub continued to report #168 at stale head `4d3ebdd`. PR #181 started from rebased branch head `cf57966c23e22af918e47fb6c840c98e5629a23a`.
 
 ## Validation
 
@@ -51,8 +51,7 @@ No Replit validation is required for this docs-only revision. Required GitHub ch
 
 ## Remaining work
 
-- Restore PR state.
-- Review the revised spec for faithful incorporation of Wilson's decisions.
+- Review the revised spec in PR #181 for faithful incorporation of Wilson's decisions.
 - Mark the docs PR ready and run required checks.
 - Merge the accepted Phase 2 spec before starting Phase 3 harness code.
 
