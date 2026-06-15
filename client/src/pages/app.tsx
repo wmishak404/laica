@@ -61,6 +61,7 @@ const createEmptyUserProfile = (): UserProfile => ({
 const guestProfileStorageKey = (userId: string) => `laica:guest-profile:${userId}`;
 const GUEST_PROMOTION_CONFIRMATION = 'Account successfully connected and signed in. Your kitchen is saved.';
 const GUEST_PROMOTION_CONFIRMATION_STORAGE_KEY = 'laica:guest-promotion-confirmation';
+export const PLANNING_READY_TOAST_DURATION_MS = 2500;
 const ACTIVE_COOKING_PLAN_MAX_AGE_MS = 4 * 60 * 60 * 1000;
 const ACTIVE_SETTINGS_SECTION_STORAGE_KEY = 'laica_active_settings_section';
 const ACTIVE_SETTINGS_SECTION_MAX_AGE_MS = 4 * 60 * 60 * 1000;
@@ -624,6 +625,13 @@ export default function MobileApp() {
     }
   }, [isGuest, user?.id, saveProfileToDb]);
 
+  const showPlanningReadyToast = useCallback(() => {
+    toast({
+      title: "Your kitchen is ready",
+      duration: PLANNING_READY_TOAST_DURATION_MS,
+    });
+  }, [toast]);
+
   const importGuestProfileToLinkedAccount = useCallback(async (
     guestProfile: UserProfile,
     guestUserId: string,
@@ -750,11 +758,7 @@ export default function MobileApp() {
     saveProfile(profile);
     
     if (isGuest) {
-      toast({
-        title: "Your kitchen is ready",
-        description: "I'll remember this while you try Laica.",
-        duration: 5000,
-      });
+      showPlanningReadyToast();
     } else {
       // Show confirmation toast with link to settings
       toast({
@@ -872,11 +876,7 @@ export default function MobileApp() {
     
     if (isProfileComplete) {
       if (isGuest) {
-        toast({
-          title: "Your kitchen is ready",
-          description: "I'll remember this while you try Laica.",
-          duration: 5000,
-        });
+        showPlanningReadyToast();
       } else {
         // Show confirmation toast with link to settings
         toast({
