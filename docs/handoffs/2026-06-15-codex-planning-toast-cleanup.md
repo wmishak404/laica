@@ -34,7 +34,10 @@ This branch is a narrow Phase 3.1 polish slice. It deliberately avoids guest per
 - `initiatives/registry.md`
   - Updates INIT-001's last signal to this active branch.
 - `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`
-  - Marks the Planning toast drift implemented in PR #184 and records the audit blocker plus guardrail.
+- `package-lock.json`
+  - Resolves the dependency-audit blocker after Wilson explicitly asked to tackle the audit remediation in this PR: `ws` now resolves to `8.21.0`, with related patched lockfile updates for `vite`, `protobufjs`, `form-data`, and Babel packages from `npm audit fix --package-lock-only`.
+- `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`
+  - Marks the Planning toast drift implemented in PR #184 and records the guardrail.
 
 ## Impact on other agents
 
@@ -44,9 +47,8 @@ If PR #183 (Efforts hygiene) merges first, this branch may need a small docs reb
 
 ## Open items
 
-- PR #184 implements the milestone but is not merge-ready while `npm-audit` fails on the repository-wide `ws` high-severity advisory `GHSA-96hv-2xvq-fx4p`.
-- GitHub `unit`, `e2e_guest_smoke`, `trufflehog_pr`, and CodeQL checks passed for the post-status-sync head `bd3097bdf432bdefb66b85cd10c4482dfe641e18`; `npm-audit` failed with the `ws` advisory.
-- Smallest next action: resolve or merge a narrow dependency remediation for `ws`, then rebase/rerun PR #184 checks. Do not mix that dependency/security change into this INIT-001 UI PR unless Wilson explicitly approves.
+- Wilson explicitly approved tackling the dependency-audit remediation in PR #184, so the branch now includes the lockfile-only audit fix.
+- Local `npm audit --audit-level=high` passes after the remediation. GitHub exact-head checks must rerun after this push before merge readiness is claimed.
 - Human Replit validation is not required before merge by the current risk classification, but a reviewer may still visually confirm the shorter toast in the Planning surface if desired.
 - Merge still requires Wilson's explicit instruction because this is a client/runtime UI PR.
 
@@ -55,10 +57,12 @@ If PR #183 (Efforts hygiene) merges first, this branch may need a small docs reb
 Local checks on `codex/init-001-planning-toast-cleanup`:
 
 - `npm ci` passed and reported `found 0 vulnerabilities`.
+- `npm audit --audit-level=high` passed and reported `found 0 vulnerabilities` after the lockfile remediation.
+- `npm ls ws vite protobufjs form-data @babel/core` confirmed patched resolutions including `ws@8.21.0`, `vite@7.3.5`, `protobufjs@7.6.4`, `form-data@4.0.6` / `2.5.6`, and `@babel/core@7.29.7`.
 - `npx vitest run tests/unit/planning-choice.test.tsx` passed: 1 file / 22 tests.
 - `npm run check` passed (`tsc` and UI lint).
 - `npm run build` passed with existing warnings: stale Browserslist data, mixed Firebase dynamic/static import, and bundle chunk size.
-- GitHub checks on `bd3097bdf432bdefb66b85cd10c4482dfe641e18`: `unit`, `e2e_guest_smoke`, `trufflehog_pr`, CodeQL action/javascript analyses, and CodeQL summary passed; `npm-audit` failed on `ws` `GHSA-96hv-2xvq-fx4p`.
+- GitHub checks on `bd3097bdf432bdefb66b85cd10c4482dfe641e18`: `unit`, `e2e_guest_smoke`, `trufflehog_pr`, CodeQL action/javascript analyses, and CodeQL summary passed; `npm-audit` failed on `ws` `GHSA-96hv-2xvq-fx4p`. A new exact-head rerun is required after the audit-remediation push.
 
 Coverage reasoning:
 
