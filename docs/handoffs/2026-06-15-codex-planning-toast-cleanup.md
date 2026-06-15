@@ -2,6 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/init-001-planning-toast-cleanup`
+**PR:** [#184](https://github.com/wmishak404/laica/pull/184)
 **Date:** 2026-06-15
 **Initiative:** INIT-001
 **INIT updated:** yes
@@ -29,22 +30,22 @@ This branch is a narrow Phase 3.1 polish slice. It deliberately avoids guest per
   - Extends the setup mock so tests can complete guest setup.
   - Adds coverage that the guest setup-ready toast is title-only, uses the short duration, and does not include `remember` copy.
 - `initiatives/INIT-001-mobile-refresh.md`
-  - Records this active branch, current Phase 3.1 resume impact, validation, and negative scope.
+  - Records PR #184, current Phase 3.1 resume impact, validation, and negative scope.
 - `initiatives/registry.md`
   - Updates INIT-001's last signal to this active branch.
 - `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`
-  - Marks the Planning toast drift fixed in this branch pending PR review and records the guardrail.
+  - Marks the Planning toast drift fixed in PR #184 pending Wilson merge decision and records the guardrail.
 
 ## Impact on other agents
 
-Do not reopen this exact Planning-ready toast copy/duration slice while `codex/init-001-planning-toast-cleanup` is active. Future Planning-message work can still review empty-pantry or linked-account action toasts, but those should preserve required user actions and should not be mixed into this branch unless review finds a regression.
+Do not reopen this exact Planning-ready toast copy/duration slice while PR #184 is active. Future Planning-message work can still review empty-pantry or linked-account action toasts, but those should preserve required user actions and should not be mixed into this branch unless review finds a regression.
 
 If PR #183 (Efforts hygiene) merges first, this branch may need a small docs rebase because both touch INIT-001 summary text. Do not take over PR #183 from this branch.
 
 ## Open items
 
-- Open a draft PR for this branch and attach the final validation evidence.
-- Run GitHub required checks for the pushed head before merge readiness.
+- PR #184 is ready for Wilson review/merge decision.
+- GitHub exact-head `unit`, `e2e_guest_smoke`, security, and CodeQL checks passed for `80c33c9cdc7cde2cdc6bfac28f5b0e1f463ae63a`.
 - Human Replit validation is not required before merge by the current risk classification, but a reviewer may still visually confirm the shorter toast in the Planning surface if desired.
 - Merge still requires Wilson's explicit instruction because this is a client/runtime UI PR.
 
@@ -56,6 +57,7 @@ Local checks on `codex/init-001-planning-toast-cleanup`:
 - `npx vitest run tests/unit/planning-choice.test.tsx` passed: 1 file / 22 tests.
 - `npm run check` passed (`tsc` and UI lint).
 - `npm run build` passed with existing warnings: stale Browserslist data, mixed Firebase dynamic/static import, and bundle chunk size.
+- GitHub exact-head checks passed: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL action/javascript analyses, and CodeQL summary.
 
 Coverage reasoning:
 
@@ -67,5 +69,6 @@ Coverage reasoning:
 
 - Base refreshed: yes
 - Current base: `origin/main` at `5c410e33db4114c07f31a6cec38ddcc92bb71fad`
+- PR head before this docs status sync: `80c33c9cdc7cde2cdc6bfac28f5b0e1f463ae63a`
 - Last Replit-validated at: not required before merge; no Replit validation has been run for this branch
 - Notes: Open PR #182 owns INIT-004 Phase 2 closeout; open PR #183 owns Efforts hygiene review. This branch should not touch either PR.
