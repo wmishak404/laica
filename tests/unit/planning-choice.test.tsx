@@ -6,6 +6,7 @@ import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import MobileApp, {
+  PLANNING_READY_TOAST_DURATION_MS,
   SLOP_IT_UP_PLANNING_COPY_OPTIONS,
   getPlanningPantryCountLabel,
   getRandomSlopItUpPlanningCopy,
@@ -78,7 +79,33 @@ vi.mock('@/lib/queryClient', async (importOriginal) => {
 });
 
 vi.mock('@/components/cooking/user-profiling', () => ({
-  default: () => <div data-testid="user-profiling">User profiling</div>,
+  default: ({
+    onProfileComplete,
+  }: {
+    onProfileComplete?: (profile: {
+      cookingSkill: string;
+      dietaryRestrictions: string[];
+      pantryIngredients: string[];
+      kitchenEquipment: string[];
+      favoriteChefs: string[];
+    }) => void;
+  }) => (
+    <div data-testid="user-profiling">
+      User profiling
+      <button
+        type="button"
+        onClick={() => onProfileComplete?.({
+          cookingSkill: 'intermediate',
+          dietaryRestrictions: ['No restrictions'],
+          pantryIngredients: ['rice', 'eggs', 'beans'],
+          kitchenEquipment: ['skillet'],
+          favoriteChefs: [],
+        })}
+      >
+        Mock complete setup
+      </button>
+    </div>
+  ),
   clearUserProfilingSetupDraft: (sessionScopeKey?: string) => {
     if (sessionScopeKey) {
       window.localStorage.removeItem(`laica:setup-profile-draft:${sessionScopeKey}`);
@@ -244,6 +271,28 @@ describe('MobileApp planning choice pantry status', () => {
     const singularCount = screen.getByText('1 pantry item');
     expect(singularCount.className).toContain('planning-pantry-status-emphasis');
     expect(singularCount.closest('p')?.textContent).toBe('Right now I see 1 pantry item we can work with.');
+  });
+
+  it('uses a concise auto-dismissing toast after guest setup completes', async () => {
+    mocks.authUser = {
+      id: 'guest-test-1',
+      email: null,
+      isAnonymous: true,
+    };
+    mocks.userProfileReturn.data = null;
+
+    render(<MobileApp />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /mock complete setup/i }));
+
+    await screen.findByRole('heading', { name: /what are we cooking today/i });
+    expect(mocks.toast).toHaveBeenCalledWith({
+      title: 'Your kitchen is ready',
+      duration: PLANNING_READY_TOAST_DURATION_MS,
+    });
+    expect(mocks.toast).not.toHaveBeenCalledWith(expect.objectContaining({
+      description: expect.stringContaining('remember'),
+    }));
   });
 
   it('builds the pantry count phrase separately from the surrounding status line', () => {
