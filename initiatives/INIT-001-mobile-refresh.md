@@ -245,7 +245,7 @@ Next implementation / validation focus:
 2. Preserve the guest post-setup `Your kitchen is ready` toast as concise and short-lived over the Planning choice surface. Broader success/error/status messages should still avoid staying pinned over Chef It Up / Slop It Up cards unless user action is required.
 3. Start Phase 4 from fresh `origin/main` when cooking guidance begins. Phase 4 owns the hands-busy cooking flow and the live-cooking inline AI error recovery that EFF-018 intentionally deferred.
 4. Keep richer History share/cook-again/taste-memory behavior deferred to Phase 5 unless Wilson explicitly pulls it forward.
-5. Reopen authenticated smoke automation / environment-parity work in a separate EFF-017 branch as a narrow Phase 4 harness pilot. The pilot should reduce repeated manual checks without replacing the current Replit validation gate until the harness earns trust. Testing workflow cleanup now lives in `docs/workflows/testing-and-acceptance.md` and `docs/workflows/effort-system-audit.md`, not an active Effort.
+5. Use [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md) as the active source for environment-parity, CI-confidence, provider-canary, OAuth-preflight, and automated Replit-environment follow-up. Phase 4 should cite EFF-017 when choosing validation lanes: exact-head GitHub CI/E2E is the routine merge gate, while human Replit validation is risk-triggered or release-batched unless an accepted automated Replit-environment lane covers the relevant seam.
 6. Pantry spell correction is resolved through EFF-013 / PR #62. Setup/Settings scan-review chip states are resolved through EFF-014 / PR #75. Future pantry spelling/canonicalization or scan-review work should start from the shipped behavior and create a new Effort only when the follow-up is standalone outside INIT/phase/PD/workflow scope. Phase 5 post-cook rescan labels remain in the Phase 5 record.
 7. Coordinate any future guest-auth, upgrade, or Phase 5 returning-user memory changes with [INIT-003](INIT-003-anonymous-trial-and-account-upgrade.md). Do not reopen Phase 1 or Phase 5 assumptions in isolation. After Phase 5 is implemented and validated, trigger the INIT-003 checkpoint for whether any user-consented guest current-cook or selected-cook History import after Google linking should exist.
 
@@ -267,7 +267,7 @@ INIT order is the default resume path, not automatically a hard dependency graph
 | Phase 3.1 before Phase 4 | Soft sequence | Phase 3.1 is the default next design pass, but Phase 4 is not blocked by it. Phase 4 may start first if cooking guidance is the higher priority. |
 | Phase 3.1 alongside Phase 4 | Parallel-safe with guardrails | Avoid shared file ownership conflicts. If Phase 4 creates or exposes visual consistency debt, record it back to Phase 3.1 or the relevant phase record. |
 | Phase 4 before Phase 5 | Hard dependency | Phase 5 depends on Phase 4 completion semantics: cooking history save, no pantry mutation, and pending cleanup state. |
-| EFF-017 harness with Phase 4 | Support / pilot | The harness can help Phase 4 validation, but it does not replace the current Replit validation gate until a later explicit policy change. |
+| EFF-017 validation lanes with Phase 4 | Support / active companion | Use EFF-017's current CI-first, risk-lane model when Phase 4 starts. Human Replit validation remains risk-triggered or release-batched unless an accepted automated Replit-environment lane covers the relevant seam. |
 
 ## Chronology
 
