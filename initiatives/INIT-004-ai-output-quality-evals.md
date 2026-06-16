@@ -207,7 +207,7 @@ INIT-004 should produce or coordinate:
 | [#166](https://github.com/wmishak404/laica/pull/166) | Merged as `3338611` | `codex/init-004-phase-1-audit` | Docs-only Phase 1 audit. Local `git diff --check`, `npm ci`, `npm run check`, and `npm run build` passed; GitHub unit, `e2e_guest_smoke`, `npm-audit`, TruffleHog PR, and CodeQL passed after the draft was marked ready; no Replit validation required. |
 | [#181](https://github.com/wmishak404/laica/pull/181) | Merged as `5c410e3` | `codex/init-004-phase-2-spec` | Docs-only Phase 2 spec. GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at PR head `d9a17d7`; no Replit validation required. |
 | [#188](https://github.com/wmishak404/laica/pull/188) | Merged as `2e1c693` | `codex/init-004-harness-foundation` | First Phase 3 harness foundation slice. Local `npm ci`, fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `b865864`; no Replit validation required. |
-| [#190](https://github.com/wmishak404/laica/pull/190) | Draft / validation pending | `codex/init-004-public-fixtures` | First public synthetic fixture slice. Local validation passed before the PR-number handoff refresh; exact-head GitHub checks must pass before merge-readiness can be claimed. |
+| [#190](https://github.com/wmishak404/laica/pull/190) | Ready / GitHub checks pending | `codex/init-004-public-fixtures` | First public synthetic fixture slice. Final-head local validation passed; exact-head GitHub `unit`, `e2e_guest_smoke`, security, and CodeQL checks must pass before merge-readiness can be claimed. |
 
 ## Validation State
 

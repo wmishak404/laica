@@ -48,8 +48,9 @@ Human Replit validation is not required before merge under the automation-primar
 
 ## Open Items
 
-- PR #190 is draft until exact-head GitHub checks run.
-- Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL checks must pass before merge readiness can be claimed.
+- PR #190 is ready for review.
+- Initial draft-gated GitHub `unit`, `e2e_guest_smoke`, and TruffleHog checks skipped and are not merge evidence.
+- Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL checks must pass after a non-draft push before merge readiness can be claimed.
 - Next bounded Phase 3 candidates after this slice: fixture-validation script/routine command, another small target-set fixture batch, `pantry_recipes` queue/logging provenance, or later narrow LLM judges after fixture labels exist.
 
 Do not start live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, or EFF-022 cuisine-fallback product changes without a separate documented milestone and any required Wilson decision.
