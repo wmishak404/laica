@@ -1,7 +1,7 @@
 import { db } from "./db";
 import { promptVersions } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
-import type { FeatureType } from "./eval-criteria";
+import { isPromptFeatureType, type PromptFeatureType } from "./ai-feature-types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // In-memory cache — avoids a DB hit on every single AI call.
@@ -10,7 +10,7 @@ import type { FeatureType } from "./eval-criteria";
 const cache: Record<string, { prompt: string; cachedAt: number }> = {};
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-export async function getActivePrompt(featureType: FeatureType): Promise<string | null> {
+export async function getActivePrompt(featureType: PromptFeatureType): Promise<string | null> {
   const now = Date.now();
   const cached = cache[featureType];
   if (cached && now - cached.cachedAt < CACHE_TTL_MS) {
@@ -36,7 +36,7 @@ export async function getActivePrompt(featureType: FeatureType): Promise<string 
 }
 
 export async function createPromptVersion(
-  featureType: FeatureType,
+  featureType: PromptFeatureType,
   systemPrompt: string,
   versionNote: string,
   realExamplesUsed?: any[]
@@ -71,7 +71,10 @@ export async function activatePromptVersion(id: number): Promise<void> {
 
   if (version.length === 0) throw new Error(`Prompt version ${id} not found`);
 
-  const featureType = version[0].featureType as FeatureType;
+  const featureType = version[0].featureType;
+  if (!isPromptFeatureType(featureType)) {
+    throw new Error(`Prompt version ${id} has unsupported prompt feature type: ${featureType}`);
+  }
 
   await db
     .update(promptVersions)
@@ -86,7 +89,7 @@ export async function activatePromptVersion(id: number): Promise<void> {
   delete cache[featureType];
 }
 
-export async function getPromptVersionHistory(featureType: FeatureType) {
+export async function getPromptVersionHistory(featureType: PromptFeatureType) {
   return db
     .select()
     .from(promptVersions)

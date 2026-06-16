@@ -159,7 +159,7 @@ export const feedback = pgTable("feedback", {
 // AI interaction logging for evaluation framework
 export const aiInteractions = pgTable("ai_interactions", {
   id: serial("id").primaryKey(),
-  featureType: varchar("feature_type").notNull(), // 'recipe_suggestions' | 'cooking_assistance' | 'cooking_steps'
+  featureType: varchar("feature_type").notNull(), // Eval feature id such as 'recipe_suggestions' | 'pantry_recipes' | 'slop_bowl' | 'cooking_steps' | 'cooking_assistance'
   inputData: jsonb("input_data").notNull(),
   outputData: text("output_data").notNull(),
   authUserId: varchar("auth_user_id"),
@@ -176,7 +176,7 @@ export const aiInteractions = pgTable("ai_interactions", {
 // Prompt version history for self-improving prompts
 export const promptVersions = pgTable("prompt_versions", {
   id: serial("id").primaryKey(),
-  featureType: varchar("feature_type").notNull(), // 'recipe_suggestions' | 'cooking_assistance' | 'cooking_steps'
+  featureType: varchar("feature_type").notNull(), // Prompt-managed id: 'recipe_suggestions' | 'cooking_steps' | 'cooking_assistance'
   systemPrompt: text("system_prompt").notNull(),
   isActive: boolean("is_active").default(false),
   versionNote: text("version_note"),

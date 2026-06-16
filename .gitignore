@@ -17,6 +17,7 @@ vite.config.ts.*
 CLAUDE.local.md
 .codex/private/
 .codex/environments/*.local.*
+docs/evals/private/
 
 # History-rewrite tooling artifacts (must never be tracked)
 .git-rewrite/

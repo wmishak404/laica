@@ -17,7 +17,7 @@ import {
   getAllActivePrompts,
 } from "./prompt-manager";
 import { getPublicErrorMessage } from "./security";
-import type { FeatureType } from "./eval-criteria";
+import { promptFeatureTypeSchema } from "./ai-feature-types";
 import { z } from "zod";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -157,7 +157,11 @@ export function registerAdminRoutes(app: Express): void {
   // Returns full version history for a specific feature's prompt.
   app.get('/api/admin/prompts/:featureType/history', async (req, res) => {
     try {
-      const featureType = req.params.featureType as FeatureType;
+      const parsedFeature = promptFeatureTypeSchema.safeParse(req.params.featureType);
+      if (!parsedFeature.success) {
+        return res.status(400).json({ message: "Unsupported prompt feature type." });
+      }
+      const featureType = parsedFeature.data;
       const history = await getPromptVersionHistory(featureType);
       res.json({ featureType, versions: history });
     } catch (err) {
@@ -173,7 +177,7 @@ export function registerAdminRoutes(app: Express): void {
   app.post('/api/admin/prompts/generate', async (req, res) => {
     try {
       const schema = z.object({
-        featureType: z.enum(['recipe_suggestions', 'cooking_assistance', 'cooking_steps']),
+        featureType: promptFeatureTypeSchema,
         interactionIds: z.array(z.number()).min(1),
       });
       const { featureType, interactionIds } = schema.parse(req.body);
@@ -227,7 +231,7 @@ export function registerAdminRoutes(app: Express): void {
   app.post('/api/admin/prompts/save', async (req, res) => {
     try {
       const schema = z.object({
-        featureType: z.enum(['recipe_suggestions', 'cooking_assistance', 'cooking_steps']),
+        featureType: promptFeatureTypeSchema,
         systemPrompt: z.string().min(50),
         versionNote: z.string(),
         interactionIds: z.array(z.number()).optional(),

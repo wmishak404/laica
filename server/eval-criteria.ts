@@ -1,4 +1,4 @@
-export type FeatureType = 'recipe_suggestions' | 'cooking_assistance' | 'cooking_steps';
+import type { EvalFeatureType } from "./ai-feature-types";
 
 export type ErrorMode = {
   id: string;
@@ -8,7 +8,7 @@ export type ErrorMode = {
 };
 
 export type EvalCriteria = {
-  featureType: FeatureType;
+  featureType: EvalFeatureType;
   description: string;
   errorModes: ErrorMode[];
   evaluatorInstructions: string;
@@ -21,7 +21,7 @@ export type EvalCriteria = {
 // Changes here are picked up automatically by the next eval batch.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const EVAL_CRITERIA: Record<FeatureType, EvalCriteria> = {
+export const EVAL_CRITERIA: Record<EvalFeatureType, EvalCriteria> = {
 
   recipe_suggestions: {
     featureType: 'recipe_suggestions',
@@ -57,6 +57,82 @@ export const EVAL_CRITERIA: Record<FeatureType, EvalCriteria> = {
         name: 'Skill Level Mismatch',
         description: 'The recipe complexity or required techniques are clearly mismatched with the user\'s stated cooking skill level (e.g., a beginner being asked to make a soufflé or debone a whole fish).',
         severity: 'low',
+      },
+    ],
+  },
+
+  pantry_recipes: {
+    featureType: 'pantry_recipes',
+    description: 'Evaluates Chef It Up pantry recipe suggestions for current response shape, pantry grounding, cuisine fit, optional ingredients, and user constraints.',
+    evaluatorInstructions: `You are a culinary AI quality evaluator. Assess whether Chef It Up produced three pantry-first recipe suggestions that satisfy the user's packed preferences, selected cuisines, skill, time, dietary restrictions, confirmed staples, and pantry ingredients. Be strict on dietary and structure failures. Keep EFF-022 cuisine fallback cases separate from deterministic pantry grounding until the product rule is resolved.`,
+    errorModes: [
+      {
+        id: 'wrong_cuisine',
+        name: 'Wrong Cuisine',
+        description: 'One or more suggested recipes do not visibly honor the selected cuisine direction and do not clearly identify themselves as inspired, adapted, fusion, or pantry-flexible.',
+        severity: 'high',
+      },
+      {
+        id: 'dietary_violation',
+        name: 'Dietary Restriction Violation',
+        description: 'A recipe includes ingredients or required steps that violate the user\'s stated dietary restrictions. Dietary restrictions override softer cuisine or preference fit.',
+        severity: 'high',
+      },
+      {
+        id: 'pantry_mismatch',
+        name: 'Pantry Mismatch',
+        description: 'A recipe depends on required ingredients that are not in the pantry or confirmed staples. additionalIngredientsNeeded is only for optional enhancements.',
+        severity: 'medium',
+      },
+      {
+        id: 'optional_ingredient_required',
+        name: 'Optional Ingredient Required',
+        description: 'Instructions, overview, or dish identity require an item listed only in additionalIngredientsNeeded.',
+        severity: 'medium',
+      },
+      {
+        id: 'skill_mismatch',
+        name: 'Skill Level Mismatch',
+        description: 'The recipe complexity or required techniques are clearly mismatched with the user\'s stated cooking skill level.',
+        severity: 'low',
+      },
+    ],
+  },
+
+  slop_bowl: {
+    featureType: 'slop_bowl',
+    description: 'Evaluates Slop Bowl generation for one coherent bowl-style meal, current shape, pantry grounding, optional extras, equipment fit, safety, and usefulness.',
+    evaluatorInstructions: `You are evaluating Laica's Slop Bowl output: one bowl-style meal generated from a user's pantry, skill, restrictions, equipment, recent meals, planning time, and optional feedback. The output must be coherent, safe, pantry-grounded, and honest about fusion or cuisine direction.`,
+    errorModes: [
+      {
+        id: 'invalid_shape',
+        name: 'Invalid Shape',
+        description: 'The Slop Bowl output is not one valid recipe object in the current Slop Bowl response contract.',
+        severity: 'high',
+      },
+      {
+        id: 'not_bowl_meal',
+        name: 'Not A Bowl Meal',
+        description: 'The recipe is not plausibly a bowl-style meal or is a disconnected collection of pantry items.',
+        severity: 'medium',
+      },
+      {
+        id: 'pantry_mismatch',
+        name: 'Pantry Mismatch',
+        description: 'The bowl relies on required ingredients not in the pantry instead of treating additions as optional enhancements.',
+        severity: 'medium',
+      },
+      {
+        id: 'equipment_assumption',
+        name: 'Unsupported Equipment Assumption',
+        description: 'The bowl requires equipment the user did not list without a safe common alternative.',
+        severity: 'medium',
+      },
+      {
+        id: 'unsafe_instruction',
+        name: 'Unsafe Cooking Instruction',
+        description: 'The bowl includes unsafe food handling, unsafe technique, or inadequate doneness guidance.',
+        severity: 'high',
       },
     ],
   },

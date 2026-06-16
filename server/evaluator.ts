@@ -2,7 +2,8 @@ import OpenAI, { toFile } from "openai";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
 import { eq, inArray, and, isNull } from "drizzle-orm";
-import { EVAL_CRITERIA, type FeatureType } from "./eval-criteria";
+import { isEvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
+import { EVAL_CRITERIA } from "./eval-criteria";
 import { sanitizePromptInput, stripPromptMarkers } from "./ai-privacy";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
@@ -16,7 +17,10 @@ function buildEvalPrompt(interaction: {
   inputData: unknown;
   outputData: string;
 }): string {
-  const criteria = EVAL_CRITERIA[interaction.featureType as FeatureType];
+  if (!isEvalFeatureType(interaction.featureType)) {
+    throw new Error(`Unknown feature type: ${interaction.featureType}`);
+  }
+  const criteria = EVAL_CRITERIA[interaction.featureType];
   if (!criteria) throw new Error(`Unknown feature type: ${interaction.featureType}`);
 
   const errorModeList = criteria.errorModes
@@ -48,7 +52,7 @@ Return only valid JSON. No explanation outside the JSON.`;
 // Submit a batch of pending interactions to OpenAI Batch API (o4-mini).
 // Returns the batch ID and count of interactions submitted.
 // ─────────────────────────────────────────────────────────────────────────────
-export async function submitEvalBatch(interactionIds?: number[]): Promise<{ batchId: string; count: number }> {
+export async function submitEvalBatch(interactionIds?: number[]): Promise<{ batchId: string; count: number; skipped: number }> {
   let interactions;
 
   if (interactionIds && interactionIds.length > 0) {
@@ -63,11 +67,14 @@ export async function submitEvalBatch(interactionIds?: number[]): Promise<{ batc
       .where(eq(aiInteractions.evalStatus, 'pending'));
   }
 
-  if (interactions.length === 0) {
-    throw new Error("No pending interactions found to evaluate.");
+  const evaluableInteractions = interactions.filter(interaction => isEvalFeatureType(interaction.featureType));
+  const skipped = interactions.length - evaluableInteractions.length;
+
+  if (evaluableInteractions.length === 0) {
+    throw new Error("No pending interactions with eval criteria found to evaluate.");
   }
 
-  const lines = interactions.map(interaction =>
+  const lines = evaluableInteractions.map(interaction =>
     JSON.stringify({
       custom_id: `interaction-${interaction.id}`,
       method: "POST",
@@ -94,9 +101,9 @@ export async function submitEvalBatch(interactionIds?: number[]): Promise<{ batc
   await db
     .update(aiInteractions)
     .set({ evalStatus: 'batched', batchJobId: batch.id })
-    .where(inArray(aiInteractions.id, interactions.map(i => i.id)));
+    .where(inArray(aiInteractions.id, evaluableInteractions.map(i => i.id)));
 
-  return { batchId: batch.id, count: interactions.length };
+  return { batchId: batch.id, count: evaluableInteractions.length, skipped };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -233,7 +240,7 @@ export async function getEvalSummary() {
 // Uses GPT-4o (not o4-mini) for creative prompt writing quality.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function generateImprovedPrompt(
-  featureType: FeatureType,
+  featureType: PromptFeatureType,
   currentPrompt: string,
   failedExamples: Array<{ inputData: unknown; outputData: string; errorModes: string[] | null; reasoning: string | null }>
 ): Promise<string> {
