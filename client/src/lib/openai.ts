@@ -50,6 +50,39 @@ export async function fetchPantryRecipes(
   return await response.json();
 }
 
+export interface RecipeImageResolveRecipe {
+  recipeName: string;
+  cuisine?: string;
+  pantryIngredientsUsed?: string[];
+  ingredients?: string[];
+  additionalIngredientsNeeded?: string[];
+  missingIngredients?: string[];
+  overview?: string;
+  description?: string;
+}
+
+export type RecipeImageResolveResponse =
+  | {
+      status: 'ready';
+      images: Array<{
+        recipeIndex: number;
+        imageUrl: string;
+        cacheKey: string;
+      }>;
+    }
+  | { status: 'pending' }
+  | { status: 'unavailable'; reason?: string };
+
+export async function resolveRecipeImages(
+  recipes: RecipeImageResolveRecipe[],
+  options?: { signal?: AbortSignal },
+): Promise<RecipeImageResolveResponse> {
+  const response = await apiRequest('POST', '/api/recipe-images/resolve', {
+    recipes,
+  }, { signal: options?.signal });
+  return await response.json();
+}
+
 export async function fetchCookingSteps(
   recipeName: string,
   options?: {

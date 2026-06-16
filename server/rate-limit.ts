@@ -8,6 +8,7 @@ type RateLimitKey =
   | "api"
   | "vision"
   | "recipe"
+  | "recipeImage"
   | "slopBowl"
   | "ai"
   | "voice"
@@ -391,6 +392,20 @@ export const recipeUserDayLimit = createRateLimit({
   name: "recipe:user:day",
   windowMs: ONE_DAY,
   max: getConfiguredRateLimit("recipe", "day", 30),
+  keyGenerator: getUserRateLimitKey,
+});
+
+export const recipeImageIpHourLimit = createRateLimit({
+  name: "recipe-image:ip:hour",
+  windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("recipeImage", "hour", 60),
+  keyGenerator: getClientIp,
+});
+
+export const recipeImageUserHourLimit = createRateLimit({
+  name: "recipe-image:user:hour",
+  windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("recipeImage", "hour", 12),
   keyGenerator: getUserRateLimitKey,
 });
 

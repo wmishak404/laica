@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ToastAction } from '@/components/ui/toast';
-import { fetchPantryRecipes } from '@/lib/openai';
+import { fetchPantryRecipes, resolveRecipeImages } from '@/lib/openai';
 import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -103,6 +103,8 @@ const cuisineOptions = [
 ];
 
 const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
+const RECIPE_IMAGE_POLL_ATTEMPTS = 6;
+const RECIPE_IMAGE_POLL_DELAY_MS = 2_000;
 
 const isPlanningStep = (value: unknown): value is PlanningStep =>
   value === 'time' || value === 'cuisine' || value === 'staples' || value === 'tickets' || value === 'prep-tray';
@@ -178,6 +180,8 @@ export default function MealPlanning({
   const [savedStapleHint, setSavedStapleHint] = useState<string | null>(null);
   const generationRunIdRef = useRef(0);
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
+  const imagePreviewRunIdRef = useRef(0);
+  const activeImagePreviewRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const { toast } = useToast();
   const mealPlanningStorageKey = useMemo(
     () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
@@ -340,6 +344,18 @@ export default function MealPlanning({
   const isActiveGeneration = (runId: number, controller: AbortController) =>
     activeGenerationRef.current?.runId === runId && !controller.signal.aborted;
 
+  const isActiveImagePreview = (runId: number, controller: AbortController) =>
+    activeImagePreviewRef.current?.runId === runId && !controller.signal.aborted;
+
+  const cancelRecipeImageHydration = () => {
+    const activePreview = activeImagePreviewRef.current;
+    if (!activePreview) return;
+
+    activePreview.controller.abort();
+    activeImagePreviewRef.current = null;
+    imagePreviewRunIdRef.current += 1;
+  };
+
   const cancelActiveGeneration = ({ resetUi = true }: { resetUi?: boolean } = {}) => {
     const activeGeneration = activeGenerationRef.current;
     if (!activeGeneration) return;
@@ -357,6 +373,7 @@ export default function MealPlanning({
   useEffect(() => {
     return () => {
       cancelActiveGeneration({ resetUi: false });
+      cancelRecipeImageHydration();
     };
   }, []);
 
@@ -453,6 +470,106 @@ export default function MealPlanning({
     };
   };
 
+  const enforceAllOrNoneRecipeImages = (recipes: RecipeRecommendation[]): RecipeRecommendation[] => {
+    const hasCompleteImageSet = recipes.length === 3 && recipes.every((recipe) => Boolean(recipe.imageUrl));
+    return hasCompleteImageSet
+      ? recipes
+      : recipes.map((recipe) => ({ ...recipe, imageUrl: undefined }));
+  };
+
+  const waitForRecipeImagePoll = (signal: AbortSignal) =>
+    new Promise<void>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        signal.removeEventListener('abort', abort);
+        resolve();
+      }, RECIPE_IMAGE_POLL_DELAY_MS);
+      const abort = () => {
+        window.clearTimeout(timeout);
+        reject(new DOMException('Recipe image hydration canceled', 'AbortError'));
+      };
+
+      signal.addEventListener('abort', abort, { once: true });
+    });
+
+  const applyResolvedRecipeImages = (
+    recipeSnapshot: RecipeRecommendation[],
+    images: Array<{ recipeIndex: number; imageUrl: string }>,
+  ) => {
+    if (recipeSnapshot.length !== 3 || images.length !== 3) return;
+
+    const imageUrlByIndex = new Map(images.map((image) => [image.recipeIndex, image.imageUrl]));
+    if (!recipeSnapshot.every((_recipe, index) => Boolean(imageUrlByIndex.get(index)))) return;
+
+    setRecommendations((currentRecommendations) => {
+      const sameRecipeBatch = recipeSnapshot.every((recipe, index) =>
+        currentRecommendations[index]?.id === recipe.id
+      );
+      if (!sameRecipeBatch) return currentRecommendations;
+
+      return currentRecommendations.map((recipe, index) => {
+        const imageUrl = imageUrlByIndex.get(index);
+        return imageUrl ? { ...recipe, imageUrl } : recipe;
+      });
+    });
+
+    setSelectedMeal((currentSelectedMeal) => {
+      if (!currentSelectedMeal) return currentSelectedMeal;
+
+      const selectedIndex = recipeSnapshot.findIndex((recipe) => recipe.id === currentSelectedMeal.id);
+      const imageUrl = imageUrlByIndex.get(selectedIndex);
+      return imageUrl ? { ...currentSelectedMeal, imageUrl } : currentSelectedMeal;
+    });
+  };
+
+  const hydrateRecipeImages = (recipes: RecipeRecommendation[]) => {
+    if (recipes.length !== 3) return;
+
+    cancelRecipeImageHydration();
+    const controller = new AbortController();
+    const runId = imagePreviewRunIdRef.current + 1;
+    imagePreviewRunIdRef.current = runId;
+    activeImagePreviewRef.current = { runId, controller };
+
+    const resolverRecipes = recipes.map((recipe) => ({
+      recipeName: recipe.recipeName,
+      cuisine: recipe.cuisine,
+      pantryIngredientsUsed: recipe.ingredients || [],
+      ingredients: recipe.ingredients || [],
+      additionalIngredientsNeeded: recipe.missingIngredients,
+      missingIngredients: recipe.missingIngredients,
+      overview: recipe.overview,
+      description: recipe.description,
+    }));
+
+    void (async () => {
+      try {
+        for (let attempt = 0; attempt < RECIPE_IMAGE_POLL_ATTEMPTS; attempt += 1) {
+          const result = await resolveRecipeImages(resolverRecipes, { signal: controller.signal });
+          if (!isActiveImagePreview(runId, controller)) return;
+
+          if (result.status === 'ready') {
+            applyResolvedRecipeImages(recipes, result.images);
+            return;
+          }
+
+          if (result.status === 'unavailable' || attempt === RECIPE_IMAGE_POLL_ATTEMPTS - 1) {
+            return;
+          }
+
+          await waitForRecipeImagePoll(controller.signal);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.warn('Recipe image previews unavailable:', error);
+        }
+      } finally {
+        if (activeImagePreviewRef.current?.runId === runId) {
+          activeImagePreviewRef.current = null;
+        }
+      }
+    })();
+  };
+
   const generateRecommendations = async ({
     confirmedStaples = [],
     askedStaples = [],
@@ -463,6 +580,7 @@ export default function MealPlanning({
     visibleStaples?: string[];
   } = {}) => {
     if (activeGenerationRef.current) return;
+    cancelRecipeImageHydration();
 
     const requestMealPrefs = {
       timeAvailable: mealPrefs.timeAvailable,
@@ -602,13 +720,14 @@ export default function MealPlanning({
 
         if (!isActiveGeneration(runId, controller)) return null;
 
-        return recipes;
+        return enforceAllOrNoneRecipeImages(recipes);
       }, { context: 'meal recommendations' });
 
       if (result && isActiveGeneration(runId, controller)) {
         setRecommendations(result);
         setSelectedMeal(result[0]);
         setCurrentStep('tickets');
+        hydrateRecipeImages(result);
       }
     } finally {
       if (activeGenerationRef.current?.runId === runId) {
@@ -644,12 +763,14 @@ export default function MealPlanning({
   };
 
   const handleMealSelected = (meal: RecipeRecommendation) => {
+    cancelRecipeImageHydration();
     localStorage.removeItem(mealPlanningStorageKey);
     onMealSelected(meal, 'now');
   };
 
   const handleBack = () => {
     cancelActiveGeneration();
+    cancelRecipeImageHydration();
 
     if (currentStep === 'time') {
       onBackToProfile();

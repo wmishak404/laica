@@ -209,6 +209,36 @@ Codex implemented the narrow Planning toast cleanup in PR #184, which merged as 
 
 This slice intentionally does not change guest profile persistence, linked-account promotion, the empty-Pantry action toast, linked-user profile update toasts, Planning card layout, Ticket Pass, Prep Tray, Slop Bowl, navigation, provider calls, schema, or backend behavior. Focused unit coverage asserts the concise guest setup-complete toast and local validation passed before PR handoff. Wilson explicitly approved handling the dependency-audit remediation in PR #184, so the merge includes a lockfile-only audit fix for patched `ws`, `vite`, `protobufjs`, `form-data`, and Babel resolutions without changing the product behavior. GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final branch head `a87d303` before merge.
 
+## 2026-06-16 - Async Recipe Preview Imagery Implemented
+
+Codex implemented the Phase 3.1 recipe imagery pipeline on `codex/init-001-recipe-preview-images`. The runtime path keeps recipe text generation on the critical path and moves imagery into a background resolver: `/api/recipes/pantry` still returns exactly three recipes first, MealPlanning immediately enters Ticket Pass with existing placeholders, and the client then calls `POST /api/recipe-images/resolve` with only structured recipe data.
+
+Fairness rule: Ticket Pass and Prep Tray use the existing `imageUrl` contract, but MealPlanning strips partial legacy image sets and only applies resolver URLs when all three current recipe suggestions have approved images. If one or two images are ready, if one image fails, if the resolver is disabled/unconfigured, or if polling stops before completion, all three suggestions remain placeholder-only for that batch.
+
+Server policy:
+
+- `shared/schema.ts` now defines `recipe_image_cache` metadata: opaque cache key, normalized recipe fingerprint, provider/model/quality/output size/style version, status, object key, image URL, MIME type, accuracy result, failure reason, and timestamps.
+- Cache fingerprints are strict: normalized title, cuisine/flavor direction, and sorted core pantry ingredients. V1 does not use broad cuisine-level or dish-family fuzzy matching. A cached image is eligible only when the generated recipe title and core ingredients match the cached fingerprint.
+- Object keys are opaque hashes under `recipe-images/<styleVersion>/<cacheKey>.png`; recipe names, Firebase IDs, emails, raw prompts, and user profile details are not stored in object keys or sent to the image provider.
+- Generated image bytes are stored in Replit App Storage through `@replit/object-storage`, not Postgres or the local filesystem. The client receives a same-origin opaque route (`/api/recipe-images/:cacheKey`) that streams the ready object and sets public immutable cache headers.
+- Runtime generation is off until explicitly enabled with `RECIPE_IMAGE_GENERATION_ENABLED=true`. Cache hits can still be served while generation is disabled, which supports a pre-generated library rollout before live generation.
+- The default runtime provider is OpenAI `gpt-image-2`, `quality=low`, square `1024x1024` output. Gemini/Nano Banana remains a future provider flag (`RECIPE_IMAGE_PROVIDER=gemini`) and returns unavailable in this v1 implementation.
+- Each generated image is judged before approval. The judge compares image content against recipe title, core ingredients, optional ingredients, overview, and dish form, and rejects wrong proteins, wrong form, missing key ingredients, dominant optional ingredients, visible text/brands, or safety/dietary contradictions.
+
+Pre-generated library path:
+
+- `scripts/recipe-image-cache-fixtures.json` lists curated/common recipe fingerprints.
+- `scripts/seed-recipe-image-cache.ts` computes the same strict cache keys/object keys and upserts ready cache rows only after the approved object already exists in App Storage.
+- The seed path deliberately does not create fake ready rows or use recipe names in object keys.
+
+Related Effort: EFF-022 remains related but unchanged. This work does not alter recipe suggestion prompts, cuisine preference packaging, cuisine picker behavior, or recipe-output eval rubrics.
+
+Validation status:
+
+- Local checks passed: `npm run check`, focused `npx vitest run tests/unit/recipe-images.test.ts tests/unit/recipe-image-route.test.ts tests/unit/meal-planning.test.tsx`, full `npm run test:unit`, and `npm run build`.
+- Provider-light Playwright coverage was added for complete-set image reveal in `tests/e2e/cooking-workflow.test.ts`, but it was not executed locally in this worktree because `@dotenvx/dotenvx` is not installed and fetching it with decrypted secrets was rejected by the sandbox as an unacceptable secret-exfiltration risk.
+- Required before enabling/merge readiness: apply the `recipe_image_cache` schema in the Replit-authoritative environment, configure/confirm Replit App Storage, run one real three-recipe image smoke, inspect title/ingredient accuracy, confirm Ticket Pass and Prep Tray App Storage URLs load, and record model, quality, latency, cost, SHA, and negative scope in the PR or handoff.
+
 ## 2026-06-05 - Slop Bowl Generated-Result Button Typography Aligned
 
 PR #141 aligned Slop Bowl generated-result and feedback action buttons with the adjacent Chef It Up recipe-suggestion controls. The root cause was two-part drift: Slop Bowl generated-result screens were not wrapped in `.planning-screen`, and their approval/feedback actions used local `py-3 text-lg` sizing without the Planning action-button `h-12`, `rounded-xl`, `font-extrabold` contract.

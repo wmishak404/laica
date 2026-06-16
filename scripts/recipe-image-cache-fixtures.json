@@ -1,0 +1,32 @@
+[
+  {
+    "recipeName": "Pantry Rice Bowl",
+    "cuisine": "Pantry-first",
+    "pantryIngredientsUsed": ["rice", "eggs"],
+    "accuracyResult": {
+      "approved": true,
+      "score": 1,
+      "reasons": ["Curated common-dish fixture approved before seeding."]
+    }
+  },
+  {
+    "recipeName": "Spinach Egg Skillet",
+    "cuisine": "Pantry-first",
+    "pantryIngredientsUsed": ["eggs", "spinach"],
+    "accuracyResult": {
+      "approved": true,
+      "score": 1,
+      "reasons": ["Curated common-dish fixture approved before seeding."]
+    }
+  },
+  {
+    "recipeName": "Broccoli Beef Rice Bowl",
+    "cuisine": "Chinese",
+    "pantryIngredientsUsed": ["beef", "broccoli", "rice"],
+    "accuracyResult": {
+      "approved": true,
+      "score": 1,
+      "reasons": ["Curated common-dish fixture approved before seeding."]
+    }
+  }
+]

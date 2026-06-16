@@ -83,8 +83,34 @@ const cookingStepsResponse = {
   },
 };
 
-async function stubPantryRecipes(page: Page) {
+async function stubRecipeImageResolver(
+  page: Page,
+  responses: Array<Record<string, unknown>> = [{ status: 'unavailable' }],
+) {
   let requestCount = 0;
+
+  await page.route('**/api/recipe-images/resolve', async (route) => {
+    const response = responses[Math.min(requestCount, responses.length - 1)] ?? { status: 'unavailable' };
+    requestCount += 1;
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(response),
+    });
+  });
+
+  return {
+    getRequestCount: () => requestCount,
+  };
+}
+
+async function stubPantryRecipes(
+  page: Page,
+  recipeImageResponses: Array<Record<string, unknown>> = [{ status: 'unavailable' }],
+) {
+  let requestCount = 0;
+  const imageResolverRoutes = await stubRecipeImageResolver(page, recipeImageResponses);
 
   await page.route('**/api/recipes/pantry', async (route) => {
     requestCount += 1;
@@ -98,6 +124,7 @@ async function stubPantryRecipes(page: Page) {
 
   return {
     getRequestCount: () => requestCount,
+    getImageResolverRequestCount: imageResolverRoutes.getRequestCount,
   };
 }
 
@@ -266,6 +293,37 @@ test.describe('Laica Guest E2E Smoke', () => {
     await completeChefItUpToPrepTray(page);
 
     expect(pantryRoutes.getRequestCount()).toBe(1);
+  });
+
+  test('Guest sees recipe preview images only as a complete three-image set', async ({ page }) => {
+    const imageUrls = [
+      '/mock/recipe-image-a.png',
+      '/mock/recipe-image-b.png',
+      '/mock/recipe-image-c.png',
+    ];
+    const pantryRoutes = await stubPantryRecipes(page, [{
+      status: 'ready',
+      images: imageUrls.map((imageUrl, recipeIndex) => ({
+        recipeIndex,
+        imageUrl,
+        cacheKey: `cache-${recipeIndex}`,
+      })),
+    }]);
+
+    await completeChefItUpToStapleSelection(page);
+
+    await page.getByRole('button', { name: 'View recipe suggestions' }).click();
+
+    await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.locator('.planning-ticket .planning-recipe-image-slot[data-has-image="true"]')).toHaveCount(3);
+    await expect(page.locator('.planning-ticket .planning-recipe-image')).toHaveCount(3);
+    expect(await page.locator('.planning-ticket .planning-recipe-image').evaluateAll((images) =>
+      images.map((image) => image.getAttribute('src'))
+    )).toEqual(imageUrls);
+    expect(pantryRoutes.getRequestCount()).toBe(1);
+    expect(pantryRoutes.getImageResolverRequestCount()).toBe(1);
   });
 
   test('Guest recipe quota block shows sign-up copy with a forced linked-account response', async ({ page }) => {

@@ -182,3 +182,13 @@ Follow-up added a guarded local helper rather than mutating the drifted `.env` d
 - `docs/workflows/environment-map.md` records the broader human-review map of environments, databases, auth paths, and when local sandbox is worth using versus CI/Replit.
 
 This improves the local diagnostic path but does not resolve this Effort. The unresolved ownership question remains: which database or Neon project/branch agents should use routinely, and when schema mutation is allowed without Wilson intervention.
+
+## 2026-06-16 — INIT-001 recipe imagery adds cache schema
+
+`codex/init-001-recipe-preview-images` adds a required Drizzle table, `recipe_image_cache`, for async recipe preview image metadata. The branch intentionally did not run `npm run db:push` locally. Replit remains the authoritative environment for applying and validating this schema before live App Storage-backed image generation is enabled.
+
+New EFF-010 signal:
+
+- Future schema-health checks should include `recipe_image_cache` once the branch lands.
+- A missing `recipe_image_cache` table is environment/schema drift for the imagery resolver, not evidence that recipe text generation is broken.
+- The same unresolved local ownership rule applies: do not mutate an arbitrary local/shared DB from a Codex worktree just to clear this drift class.

@@ -3,17 +3,19 @@
  */
 
 import React, { useState } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import MealPlanning from '../../client/src/components/cooking/meal-planning';
 import { mergeUniqueEntries } from '../../client/src/lib/entryParsing';
 import { createPlanningProfileFingerprint } from '../../client/src/lib/planningCache';
 
 const fetchPantryRecipesMock = vi.hoisted(() => vi.fn());
+const resolveRecipeImagesMock = vi.hoisted(() => vi.fn());
 const toastMock = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/openai', () => ({
   fetchPantryRecipes: fetchPantryRecipesMock,
+  resolveRecipeImages: resolveRecipeImagesMock,
 }));
 
 vi.mock('@/hooks/use-toast', () => ({
@@ -28,6 +30,10 @@ class ResizeObserverMock {
 }
 
 globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+
+beforeEach(() => {
+  resolveRecipeImagesMock.mockResolvedValue({ status: 'unavailable' });
+});
 
 interface Deferred<T> {
   promise: Promise<T>;
@@ -151,9 +157,9 @@ function renderMealPlanning({
     );
   }
 
-  render(<Harness />);
+  const renderResult = render(<Harness />);
 
-  return { onMealSelected, onPantryIngredientsAdded };
+  return { onMealSelected, onPantryIngredientsAdded, ...renderResult };
 }
 
 function advanceToCuisine() {
@@ -179,6 +185,10 @@ function getRecipeTicketButtons() {
   return recipeResponse.recipes.map((recipe) =>
     screen.getByRole('button', { name: new RegExp(recipe.recipeName, 'i') })
   );
+}
+
+function getRecipeImageSlots(container: HTMLElement) {
+  return Array.from(container.querySelectorAll<HTMLElement>('.planning-ticket .planning-recipe-image-slot'));
 }
 
 afterEach(() => {
@@ -642,6 +652,97 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.getByText('Pantry Rice Bowl')).toBeTruthy();
     expect(screen.getByText('Spinach Egg Skillet')).toBeTruthy();
     expect(screen.getByText('Rice Frittata')).toBeTruthy();
+  });
+
+  it('keeps placeholders when the recipe response contains only a partial image set', async () => {
+    fetchPantryRecipesMock.mockResolvedValue({
+      recipes: recipeResponse.recipes.map((recipe, index) => (
+        index === 0 ? { ...recipe, imageUrl: '/api/recipe-images/one-ready-image' } : recipe
+      )),
+    });
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    await waitFor(() => {
+      expect(getRecipeImageSlots(container)).toHaveLength(3);
+    });
+    expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
+    expect(container.querySelectorAll('.planning-recipe-image')).toHaveLength(0);
+  });
+
+  it('hydrates recipe preview images only when all three resolver images are ready', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveRecipeImagesMock.mockResolvedValue({
+      status: 'ready',
+      images: [
+        { recipeIndex: 0, imageUrl: '/api/recipe-images/cache-a', cacheKey: 'cache-a' },
+        { recipeIndex: 1, imageUrl: '/api/recipe-images/cache-b', cacheKey: 'cache-b' },
+        { recipeIndex: 2, imageUrl: '/api/recipe-images/cache-c', cacheKey: 'cache-c' },
+      ],
+    });
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    await waitFor(() => {
+      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+    });
+    expect(Array.from(container.querySelectorAll<HTMLImageElement>('.planning-recipe-image')).map((image) =>
+      image.getAttribute('src')
+    )).toEqual([
+      '/api/recipe-images/cache-a',
+      '/api/recipe-images/cache-b',
+      '/api/recipe-images/cache-c',
+    ]);
+    expect(resolveRecipeImagesMock).toHaveBeenCalledWith([
+      expect.objectContaining({
+        recipeName: 'Pantry Rice Bowl',
+        pantryIngredientsUsed: ['rice', 'eggs'],
+        additionalIngredientsNeeded: [],
+      }),
+      expect.objectContaining({
+        recipeName: 'Spinach Egg Skillet',
+        pantryIngredientsUsed: ['eggs', 'spinach'],
+        additionalIngredientsNeeded: ['lemon'],
+      }),
+      expect.objectContaining({
+        recipeName: 'Rice Frittata',
+        pantryIngredientsUsed: ['rice', 'eggs', 'spinach'],
+        additionalIngredientsNeeded: [],
+      }),
+    ], expect.objectContaining({
+      signal: expect.any(AbortSignal),
+    }));
+  });
+
+  it('does not reveal partial resolver image results', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveRecipeImagesMock.mockResolvedValue({
+      status: 'ready',
+      images: [
+        { recipeIndex: 0, imageUrl: '/api/recipe-images/cache-a', cacheKey: 'cache-a' },
+        { recipeIndex: 1, imageUrl: '/api/recipe-images/cache-b', cacheKey: 'cache-b' },
+      ],
+    });
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    await waitFor(() => {
+      expect(resolveRecipeImagesMock).toHaveBeenCalledTimes(1);
+    });
+    expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
+    expect(container.querySelectorAll('.planning-recipe-image')).toHaveLength(0);
   });
 
   it('expands selected tickets in place without changing generated order', async () => {
