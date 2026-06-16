@@ -1,17 +1,7 @@
 import { createHash } from "crypto";
 import type { Request } from "express";
+import type { AiErrorFeature } from "./ai-feature-types";
 import { classifyAiError, type AiErrorVendor } from "./aiErrorClassifier";
-
-export type AiErrorFeature =
-  | "recipe_suggestions"
-  | "pantry_recipes"
-  | "slop_bowl"
-  | "cooking_steps"
-  | "cooking_assistance"
-  | "ingredient_detection"
-  | "tts"
-  | "tts_voices"
-  | "transcription";
 
 interface LogAiErrorInput {
   error: unknown;

@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import { z } from "zod";
 import { compositions } from "./prompts/composer";
 import { getActivePrompt } from "./prompt-manager";
 import { normalizeVisionAnalysisResult } from "./vision/analysis-result";
@@ -17,6 +16,7 @@ import {
   normalizePlanningTimeValue,
   type PlanningTimeValue,
 } from "@shared/planning";
+import { slopBowlRecipeSchema } from "./ai-response-schemas";
 import { lt } from "drizzle-orm";
 import { redactAiOutput, redactForAiLog, sanitizePromptInput } from "./ai-privacy";
 import { throwOpenAIProviderError } from "./ai-errors";
@@ -43,20 +43,6 @@ interface SlopBowlInput {
   feedback?: string;
   previousRecipe?: string;
 }
-
-const slopBowlRecipeSchema = z.object({
-  recipeName: z.string(),
-  description: z.string(),
-  cookTime: z.coerce.number().int().nonnegative(),
-  difficulty: z.string(),
-  cuisine: z.string(),
-  pantryIngredientsUsed: z.array(z.string()).default([]),
-  additionalIngredientsNeeded: z.array(z.string()).default([]),
-  overview: z.string(),
-  instructions: z.array(z.string()).min(1),
-  isFusion: z.boolean(),
-  pantryMatch: z.coerce.number().min(0).max(100),
-});
 
 let lastAiInteractionPruneAt = 0;
 const AI_INTERACTION_RETENTION_DAYS = 90;
