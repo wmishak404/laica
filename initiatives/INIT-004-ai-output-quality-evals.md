@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 3 - Eval harness
-**Active PR:** Pending
+**Active PR:** [#190](https://github.com/wmishak404/laica/pull/190)
 **Active branch:** `codex/init-004-public-fixtures`
 
 ## Overview
@@ -32,7 +32,7 @@ Phase 2 merged in [PR #181](https://github.com/wmishak404/laica/pull/181) as `5c
 
 The first Phase 3 harness foundation slice merged in [PR #188](https://github.com/wmishak404/laica/pull/188) as `2e1c693` on 2026-06-16 after Wilson approved the merge and exact-head checks passed at PR head `b865864`. The slice adds canonical eval-vs-prompt feature IDs, first-class `pantry_recipes` and `slop_bowl` eval criteria, public fixture schema/loading, deterministic contract checks for recipe suggestions, Slop Bowl, and cooking steps, public-fixture privacy checks, and a source-level cross-user bleed guard. It intentionally does not run provider judges, ingest private fixtures, change prompts, add DB migrations, activate prompt versions, start daily reports, or resolve EFF-022 cuisine fallback behavior.
 
-The first public synthetic fixture slice is in progress on `codex/init-004-public-fixtures`. It adds four CI-visible synthetic fixtures across V1 surfaces: a recipe-suggestions max-time boundary pass, a pantry-recipes max-time true negative, a Slop Bowl shape guard, and a cooking-steps generated-context guard. The slice also teaches the loader to accept expected deterministic failures only when the resolved criterion label says `fail`; privacy/schema failures and label mismatches still invalidate the artifact.
+The first public synthetic fixture slice is open in [PR #190](https://github.com/wmishak404/laica/pull/190) on `codex/init-004-public-fixtures`. It adds four CI-visible synthetic fixtures across V1 surfaces: a recipe-suggestions max-time boundary pass, a pantry-recipes max-time true negative, a Slop Bowl shape guard, and a cooking-steps generated-context guard. The slice also teaches the loader to accept expected deterministic failures only when the resolved criterion label says `fail`; privacy/schema failures and label mismatches still invalidate the artifact.
 
 The seed inputs are:
 
@@ -193,7 +193,7 @@ INIT-004 should produce or coordinate:
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
 | Phase 2 - Rubric and dataset spec | Merged | [#181](https://github.com/wmishak404/laica/pull/181) / `codex/init-004-phase-2-spec` | Merged as `5c410e3`; accepted eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
-| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / `codex/init-004-public-fixtures` active | Public synthetic fixture slice adds the first CI-visible fixtures for recipe suggestions, pantry recipes, Slop Bowl, and cooking steps, plus expected deterministic failure handling; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
+| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) active | Public synthetic fixture slice adds the first CI-visible fixtures for recipe suggestions, pantry recipes, Slop Bowl, and cooking steps, plus expected deterministic failure handling; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
@@ -207,7 +207,7 @@ INIT-004 should produce or coordinate:
 | [#166](https://github.com/wmishak404/laica/pull/166) | Merged as `3338611` | `codex/init-004-phase-1-audit` | Docs-only Phase 1 audit. Local `git diff --check`, `npm ci`, `npm run check`, and `npm run build` passed; GitHub unit, `e2e_guest_smoke`, `npm-audit`, TruffleHog PR, and CodeQL passed after the draft was marked ready; no Replit validation required. |
 | [#181](https://github.com/wmishak404/laica/pull/181) | Merged as `5c410e3` | `codex/init-004-phase-2-spec` | Docs-only Phase 2 spec. GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at PR head `d9a17d7`; no Replit validation required. |
 | [#188](https://github.com/wmishak404/laica/pull/188) | Merged as `2e1c693` | `codex/init-004-harness-foundation` | First Phase 3 harness foundation slice. Local `npm ci`, fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `b865864`; no Replit validation required. |
-| Pending | In progress | `codex/init-004-public-fixtures` | First public synthetic fixture slice. Focused fixture Vitest passes locally; full validation and GitHub checks are pending. |
+| [#190](https://github.com/wmishak404/laica/pull/190) | Draft / validation pending | `codex/init-004-public-fixtures` | First public synthetic fixture slice. Local validation passed before the PR-number handoff refresh; exact-head GitHub checks must pass before merge-readiness can be claimed. |
 
 ## Validation State
 
@@ -223,7 +223,7 @@ Future implementation phases that use eval results as merge evidence must follow
 
 ## Current Resume Point
 
-Complete review/validation for `codex/init-004-public-fixtures`. After this fixture slice lands, the next bounded Phase 3 candidates are:
+Complete review/validation for [PR #190](https://github.com/wmishak404/laica/pull/190). After this fixture slice lands, the next bounded Phase 3 candidates are:
 
 1. Wire deterministic fixture validation into a script or routine unit lane that can be cited by future PRs.
 2. Add another small fixture batch from the accepted Wilson-label target set.

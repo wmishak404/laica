@@ -5,6 +5,7 @@
 **Date:** 2026-06-16
 **Initiative:** INIT-004
 **INIT updated:** yes
+**PR:** [#190](https://github.com/wmishak404/laica/pull/190)
 
 ## Summary
 
@@ -47,7 +48,7 @@ Human Replit validation is not required before merge under the automation-primar
 
 ## Open Items
 
-- PR is pending until the branch is pushed.
+- PR #190 is draft until exact-head GitHub checks run.
 - Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL checks must pass before merge readiness can be claimed.
 - Next bounded Phase 3 candidates after this slice: fixture-validation script/routine command, another small target-set fixture batch, `pantry_recipes` queue/logging provenance, or later narrow LLM judges after fixture labels exist.
 
