@@ -1,0 +1,36 @@
+{
+  "id": "synthetic-max-time-30-to-60",
+  "surface": "pantry_recipes",
+  "privacyClass": "synthetic",
+  "roles": ["regression"],
+  "sourceRefs": ["init004-phase-2-target-set"],
+  "request": {
+    "preferences": "Time available: 30 minutes or less. Cooking skill: beginner. Preferred cuisines: Mexican. Confirmed staples: tortillas. Return a quiet range: pantry-strict, pantry-flexible, cuisine-leaning; don't label tiers.",
+    "ingredients": ["rice", "eggs", "black beans", "corn tortillas", "salsa"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 30,
+    "cuisines": ["Mexican"],
+    "skill": "beginner",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Black Bean Tortilla Scramble\",\"description\":\"A pantry-first skillet scramble with beans, eggs, tortillas, and salsa.\",\"difficulty\":\"Easy\",\"cookTime\":25,\"pantryIngredientsUsed\":[\"eggs\",\"black beans\",\"corn tortillas\",\"salsa\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Scramble eggs with beans and salsa, then tuck them into warm tortillas.\",\"instructions\":[\"Warm tortillas, scramble eggs with beans and salsa, and serve immediately.\"],\"cuisine\":\"Mexican-inspired\",\"isFusion\":true},{\"recipeName\":\"Rice and Bean Egg Bowls\",\"description\":\"A quick bowl using rice, beans, eggs, and salsa.\",\"difficulty\":\"Easy\",\"cookTime\":35,\"pantryIngredientsUsed\":[\"rice\",\"black beans\",\"eggs\",\"salsa\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Top warm rice and beans with eggs and salsa for a simple bowl.\",\"instructions\":[\"Warm rice and beans, cook eggs to preference, and spoon salsa over the bowl.\"],\"cuisine\":\"Mexican-inspired\",\"isFusion\":true},{\"recipeName\":\"Slow Baked Tortilla Rice Casserole\",\"description\":\"A casserole that violates the selected time constraint.\",\"difficulty\":\"Easy\",\"cookTime\":60,\"pantryIngredientsUsed\":[\"rice\",\"black beans\",\"corn tortillas\",\"salsa\",\"eggs\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Layer pantry ingredients and bake until set, but this takes too long for the selected limit.\",\"instructions\":[\"Layer rice, beans, tortillas, salsa, and eggs in a dish and bake until fully set.\"],\"cuisine\":\"Mexican-inspired\",\"isFusion\":true}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-16"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "fail",
+    "pantry_grounding": "pending",
+    "recipe_usefulness": "pending"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex",
+    "labeledAt": "2026-06-16"
+  },
+  "notes": "Synthetic true-negative max-time fixture. The 60-minute casserole should fail because the accepted bound is selectedMax + 15, or 45 minutes for a 30-minute request."
+}

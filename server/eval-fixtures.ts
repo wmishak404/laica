@@ -33,6 +33,8 @@ const criterionLabelSchema = z.enum([
   "equipment_fit",
   "cooking_step_sequence",
 ]);
+type CriterionLabel = z.infer<typeof criterionLabelSchema>;
+const criterionCheckIds = new Set<string>(criterionLabelSchema.options);
 
 export const evalFixtureSchema = z.object({
   id: fixtureIdSchema,
@@ -96,6 +98,29 @@ function parseOutputJson(fixture: EvalFixture): { value?: unknown; error?: strin
 
 function hasResolvedLabel(fixture: EvalFixture): boolean {
   return Object.values(fixture.labels).some((label) => label !== "pending");
+}
+
+function labelMatchesCheck(label: string | undefined, status: EvalFixtureCheck["status"]): boolean {
+  if (!label || label === "pending" || label === "blocked_on_product_rule") {
+    return true;
+  }
+  return label === status;
+}
+
+function checkLabelExpectations(fixture: EvalFixture, checks: EvalFixtureCheck[]): EvalFixtureCheck {
+  const mismatches = checks
+    .filter((item) => criterionCheckIds.has(item.id))
+    .filter((item) => !labelMatchesCheck(fixture.labels[item.id as CriterionLabel], item.status));
+
+  return mismatches.length === 0
+    ? check("label_expectations", "pass", "Resolved deterministic labels match observed fixture checks.")
+    : check(
+      "label_expectations",
+      "fail",
+      `Resolved labels do not match observed checks: ${mismatches
+        .map((item) => `${item.id} labeled ${fixture.labels[item.id as CriterionLabel]} but observed ${item.status}`)
+        .join("; ")}`,
+    );
 }
 
 function collectPrivacyLeaks(value: unknown, pathParts: string[] = []): string[] {
@@ -252,13 +277,33 @@ export function validateEvalFixture(input: unknown, options: { publicArtifact?: 
       : check("privacy_scan", "fail", `Potential private identifiers or secrets found at: ${leaks.join(", ")}`),
   );
 
-  checks.push(...validateSurfaceContract(fixture));
+  const surfaceChecks = validateSurfaceContract(fixture);
+  checks.push(...surfaceChecks);
+  checks.push(checkLabelExpectations(fixture, surfaceChecks));
 
   return {
     fixture,
     checks,
     passed: checks.every((item) => item.status !== "fail"),
   };
+}
+
+function isExpectedCriterionFailure(validation: EvalFixtureValidation, item: EvalFixtureCheck): boolean {
+  return Boolean(
+    validation.fixture
+      && item.status === "fail"
+      && criterionCheckIds.has(item.id)
+      && validation.fixture.labels[item.id as CriterionLabel] === "fail",
+  );
+}
+
+export function isEvalFixtureArtifactValid(
+  validation: EvalFixtureValidation,
+): validation is EvalFixtureValidation & { fixture: EvalFixture } {
+  return Boolean(
+    validation.fixture
+      && validation.checks.every((item) => item.status !== "fail" || isExpectedCriterionFailure(validation, item)),
+  );
 }
 
 async function readJsonFile(filePath: string): Promise<unknown> {
@@ -290,9 +335,9 @@ export async function loadPublicEvalFixtures(fixtureDir = PUBLIC_EVAL_FIXTURE_DI
     const filePath = path.join(fixtureDir, entry.name);
     const candidate = await readJsonFile(filePath);
     const validation = validateEvalFixture(candidate, { publicArtifact: true });
-    if (!validation.fixture || !validation.passed) {
+    if (!isEvalFixtureArtifactValid(validation)) {
       const failures = validation.checks
-        .filter((item) => item.status === "fail")
+        .filter((item) => item.status === "fail" && !isExpectedCriterionFailure(validation, item))
         .map((item) => `${item.id}: ${item.message}`)
         .join("; ");
       throw new Error(`${filePath} failed eval fixture validation: ${failures}`);

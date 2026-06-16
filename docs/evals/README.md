@@ -68,7 +68,14 @@ Current fixture foundation command:
 npx vitest run tests/unit/eval-fixtures.test.ts
 ```
 
-This command validates the public fixture schema, deterministic structure/count/max-time checks, public-fixture privacy guards, and the source-level guard that live generation modules do not read eval fixture stores.
+This command validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
+
+Current committed public fixture set:
+
+- `openai-max-time-25-to-30`
+- `synthetic-max-time-30-to-60`
+- `slop-bowl-current-shape`
+- `cooking-steps-generated-context`
 
 ## Current Related Initiative
 

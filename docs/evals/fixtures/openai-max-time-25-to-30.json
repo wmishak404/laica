@@ -1,0 +1,36 @@
+{
+  "id": "openai-max-time-25-to-30",
+  "surface": "recipe_suggestions",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "positive-guard"],
+  "sourceRefs": ["openai-platform-evalrun-685361470e9c819195a768074ef126cd"],
+  "request": {
+    "preferences": "Time available: 25 minutes or less. Cooking skill: beginner. Preferred cuisines: flexible pantry.",
+    "ingredients": ["rice", "eggs", "frozen peas", "soy sauce"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 25,
+    "cuisines": ["Flexible pantry"],
+    "skill": "beginner",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Fifteen Minute Egg Rice Skillet\",\"description\":\"A quick skillet meal using rice, eggs, peas, and soy sauce.\",\"difficulty\":\"Easy\",\"cookTime\":25,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"frozen peas\",\"soy sauce\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Warm leftover rice, scramble in eggs, and fold through peas for a fast pantry dinner.\",\"instructions\":[\"Heat a skillet, add rice and peas, then stir in beaten eggs until set and seasoned with soy sauce.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Pea and Egg Rice Bowl\",\"description\":\"A simple bowl that stays inside the accepted max-time band.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"frozen peas\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Steam peas with rice and top with soft scrambled eggs.\",\"instructions\":[\"Warm rice and peas together, cook eggs until softly set, and serve them over the bowl.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Soy Pea Rice Patties\",\"description\":\"Rice and egg patties with peas for a boundary-pass quick dinner.\",\"difficulty\":\"Easy\",\"cookTime\":40,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"frozen peas\",\"soy sauce\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Bind rice with egg, fold in peas, and pan-crisp small patties.\",\"instructions\":[\"Mix rice, egg, peas, and soy sauce, then cook small patties until crisp and hot throughout.\"],\"cuisine\":\"Pantry\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-16"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "pantry_grounding": "pending",
+    "recipe_usefulness": "pending"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex",
+    "labeledAt": "2026-06-16"
+  },
+  "notes": "Synthetic current-shape boundary-pass fixture for the accepted +15 minute max-time band. A 25-minute request may pass with a 40-minute recipe because selectedMax + 15 is allowed."
+}
