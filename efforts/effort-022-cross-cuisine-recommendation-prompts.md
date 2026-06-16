@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-06-13
+**Updated:** 2026-06-16
 
 ## One-line summary
 
@@ -160,8 +160,8 @@ INIT-004 Phase 2 drafting selected the Chinese, Indian, Thai, and Loco Moco-styl
 
 PR #181 merged INIT-004 Phase 2 as `5c410e3`. The accepted eval spec keeps EFF-022's cuisine examples as first Wilson-label targets and uses `blocked_on_product_rule` for cuisine-fallback cases that depend on Wilson's unresolved product decision. This gives Phase 3 permission to measure pantry grounding, cuisine fit, and inspired/fusion labeling without deciding whether Laica should stay literal, ask for staples, or explain a pantry-flexible fallback.
 
-## 2026-06-16 - Phase 3 fixture foundation started
+## 2026-06-16 - Phase 3 fixture foundation merged
 
-INIT-004 Phase 3 foundation work on `codex/init-004-harness-foundation` adds measurement scaffolding for EFF-022 without resolving the product rule. The new public fixture schema supports `pantry_recipes` as a first-class eval surface, preserves `blocked_on_product_rule` labels, validates deterministic structure/count/max-time checks, and adds privacy guards so EFF-022 examples can become synthetic/redacted fixtures later without committing raw user examples.
+PR #188 merged INIT-004 Phase 3 foundation work as `2e1c693`. The new public fixture schema supports `pantry_recipes` as a first-class eval surface, preserves `blocked_on_product_rule` labels, validates deterministic structure/count/max-time checks, and adds privacy guards so EFF-022 examples can become synthetic/redacted fixtures later without committing raw user examples.
 
 EFF-022 remains open. This slice does not change recipe prompts, cuisine picker options, card display, fallback copy, or the decision about when Laica should stay literal to selected cuisines versus explain a pantry-flexible fallback.
