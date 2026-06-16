@@ -21,6 +21,8 @@ Private raw-real gold fixtures do not live in this repo. INIT-004 Phase 2 reserv
 
 Eval artifacts are offline evidence, not runtime memory. The live app must not retrieve from `docs/evals/fixtures/`, private gold fixtures, eval reports, or admin eval rows while generating a user response. Real user examples may inform synthetic fixtures and generalized prompt lessons, but they must not become another user's prompt context or user-facing content.
 
+Eval artifacts should preserve the user's point of view. Each fixture, report, or judge run should say which user expectation it is testing, such as time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, privacy, or workflow continuity. Contract-only fixtures are useful, but label them as contract guards rather than broad output-quality proof.
+
 ## What Does Not Live Here By Default
 
 Do not commit raw trace exports, raw prompts containing user-identifying data, images, audio, secrets, auth data, or full production payloads without a durable privacy/source decision. Prefer summarized, redacted, or synthetic fixtures until that decision exists.
@@ -69,6 +71,8 @@ npx vitest run tests/unit/eval-fixtures.test.ts
 ```
 
 This command validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
+
+Current limitation: most committed fixtures are foundation and contract guards. The max-time fixtures directly protect a user time expectation, while the Slop Bowl and cooking-step fixtures primarily protect current response usability. The next fixture batches should add Wilson-labeled user-expectation cases from Arize/EFF-022 seeds, especially food safety, skill fit, equipment fit, dietary compliance, pantry grounding, cuisine fit, and cooking-step sequence.
 
 Current committed public fixture set:
 

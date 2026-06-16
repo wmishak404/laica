@@ -10,6 +10,8 @@ This workflow defines how agents decide whether a Laica change is ready to merge
 
 Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether human manual Replit validation is required before merge, deferred to a release/batch pass, or replaced by an accepted automated Replit-environment lane.
 
+For user-facing behavior, verification should also say which user expectation is being protected. Passing structure checks, snapshots, route contracts, or eval harness plumbing is not enough on its own; the evidence should connect back to what becomes better, safer, clearer, faster, less confusing, or more reliable for the user. If a test only proves infrastructure readiness, call it that and name the missing user-expectation check.
+
 For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
 
 ## Validation Flow At A Glance
@@ -58,6 +60,7 @@ Required evidence:
 - **Source provenance:** test file, assertion, route/component/schema, fixture, selector, seed/reset script, or eval dataset that exercised the claim.
 - **Observed result:** pass/fail status, relevant log lines or artifact names, test counts, DB/schema-health output, screenshots/traces when useful, and external-resource cleanup when the test creates resources.
 - **Reasoning:** how the observed result connects to the claimed behavior, and what assumptions remain.
+- **User expectation:** for user-facing product or eval behavior, the specific user promise being protected, such as time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, privacy, or continuity through a workflow.
 - **Negative scope:** mocked providers, untested live-provider paths, skipped jobs, fork/draft/secret gates, Replit/human dependencies, stale validation, and deferred follow-up.
 
 Merge-readiness rule: if a PR relies on automated testing to replace or reduce a manual/Replit check, reviewers must be able to reconstruct the proof from the PR description, handoff, and linked logs/artifacts without replaying chat. If the evidence cannot be produced, the automation is not a merge gate yet.
@@ -71,7 +74,7 @@ Full E2E gate on pushed builds:
 - A local E2E run is acceptable only when it uses a non-production service-backed test environment with schema health verified. A missing table, stale database, unavailable provider secret, port collision, or skipped linked-lane env is a gate failure or blocker until rerun against a valid E2E environment.
 - Prefer the GitHub Actions `e2e_guest_smoke` lane for merge-gate E2E evidence when it is available. That lane creates a schema-only Neon branch for the run, applies the current Drizzle schema, runs `db:health`, runs Playwright, and deletes the branch afterward. Local dotenvx runs against a decrypted `.env` database are diagnostic unless `DATABASE_URL` is explicitly pointed at an equivalent non-production test database prepared with the same schema-push and health-check sequence.
 
-Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, and artifact location. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data. Use [evaluations.md](evaluations.md) for the canonical eval discipline and dataset/result routing.
+Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, artifact location, and the user expectation each criterion protects. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data. Use [evaluations.md](evaluations.md) for the canonical eval discipline and dataset/result routing.
 
 ## Risk Lanes And Human Replit Gates
 

@@ -13,6 +13,8 @@ This branch turns the INIT-004 harness from an empty structure into a first CI-v
 
 The operator value is safer AI-quality iteration: future prompt/eval work can prove that known boundaries and current response shapes remain covered before adding provider judges, private fixtures, prompt changes, or reporting automation.
 
+Wilson clarified during review that the long-term value target is not "valid fixture data" by itself; evals must dig into how Laica's responses relate to the user. This branch now records that philosophy in the eval/testing docs: each future fixture, judge, report, and prompt comparison should name the user expectation it protects, while contract-only checks should be described as foundation work rather than broad output-quality proof.
+
 ## Changes
 
 - `docs/evals/fixtures/openai-max-time-25-to-30.json`: current-shape recipe-suggestions boundary pass for the accepted +15 minute max-time band.
@@ -22,6 +24,7 @@ The operator value is safer AI-quality iteration: future prompt/eval work can pr
 - `server/eval-fixtures.ts`: adds deterministic label-expectation checks and public artifact validity semantics so expected failures can load while privacy/schema/label mismatches still fail.
 - `tests/unit/eval-fixtures.test.ts`: covers committed fixture loading, expected deterministic failures, and mismatched label rejection.
 - `docs/evals/README.md`, `docs/evals/fixtures/README.md`, and `docs/evals/registry.md`: index the public fixture set and command.
+- `docs/workflows/evaluations.md`, `docs/workflows/testing-and-acceptance.md`, and `docs/evals/README.md`: add the user-expectation verification rule so future evals connect back to user promises, not only data shape.
 - `initiatives/INIT-004-ai-output-quality-evals.md` and `initiatives/registry.md`: mark the public fixture slice as active.
 
 ## Fixture Boundary
@@ -36,11 +39,12 @@ Local macOS validation on branch `codex/init-004-public-fixtures`:
 
 - `npm ci` passed with existing deprecation warnings and 0 vulnerabilities.
 - `npx vitest run tests/unit/eval-fixtures.test.ts` passed: 1 file / 11 tests.
+- After the user-expectation docs refresh, `npx vitest run tests/unit/eval-fixtures.test.ts` passed again: 1 file / 11 tests.
 - `npm run test:unit` passed: 40 files / 267 tests.
-- `npm run check` passed: `tsc` and UI ESLint.
-- `npm audit --audit-level=high` passed: 0 vulnerabilities.
-- `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
-- `git diff --check` passed.
+- After the user-expectation docs refresh, `npm run check` passed: `tsc` and UI ESLint.
+- After the user-expectation docs refresh, `npm audit --audit-level=high` passed: 0 vulnerabilities.
+- After the user-expectation docs refresh, `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
+- `git diff --check` passed before and after the user-expectation docs refresh.
 
 ## Replit Validation
 
@@ -52,6 +56,7 @@ Human Replit validation is not required before merge under the automation-primar
 - Initial draft-gated GitHub `unit`, `e2e_guest_smoke`, and TruffleHog checks skipped and are not merge evidence.
 - Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL checks must pass after a non-draft push before merge readiness can be claimed.
 - Next bounded Phase 3 candidates after this slice: fixture-validation script/routine command, another small target-set fixture batch, `pantry_recipes` queue/logging provenance, or later narrow LLM judges after fixture labels exist.
+- Highest-value next fixture batch: Arize/EFF-022-derived user-expectation cases, especially food safety, skill fit, equipment fit, dietary compliance, pantry grounding, cuisine fit, and cooking-step sequence.
 
 Do not start live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, or EFF-022 cuisine-fallback product changes without a separate documented milestone and any required Wilson decision.
 

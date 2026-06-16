@@ -34,6 +34,8 @@ The first Phase 3 harness foundation slice merged in [PR #188](https://github.co
 
 The first public synthetic fixture slice is open in [PR #190](https://github.com/wmishak404/laica/pull/190) on `codex/init-004-public-fixtures`. It adds four CI-visible synthetic fixtures across V1 surfaces: a recipe-suggestions max-time boundary pass, a pantry-recipes max-time true negative, a Slop Bowl shape guard, and a cooking-steps generated-context guard. The slice also teaches the loader to accept expected deterministic failures only when the resolved criterion label says `fail`; privacy/schema failures and label mismatches still invalidate the artifact.
 
+Wilson's 2026-06-16 verification direction is now part of INIT-004's evaluation philosophy: every future fixture, judge, report, or prompt comparison should name the user expectation it protects. Structure and schema checks are still required because broken output cannot help a user, but they should be presented as foundation checks unless they also prove time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, privacy, or another explicit user-facing promise.
+
 The seed inputs are:
 
 - Wilson's 2026-06-09 direction to create a standalone INIT-004 rather than folding the work into INIT-002.
@@ -92,6 +94,7 @@ The seed records point to the first implementation priorities for INIT-004:
 | Judge calibration gap | Both seed records | Build a Wilson-labeled gold set and report TPR/TNR before trusting LLM-judge pass rates. |
 | Food safety, proficiency, and equipment misses | Arize seed | Add rubric labels and judge checks for raw-protein safety, beginner/intermediate step fit, and unlisted equipment assumptions. |
 | Cuisine/pantry tradeoff | Arize seed and [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) | Separate pantry-first usefulness from cuisine authenticity so prompt fixes do not over-correct into shopping-list behavior. |
+| User-expectation fit | Wilson 2026-06-16 direction | Each eval must identify the user promise being protected; contract-only fixtures remain useful foundation work but should not be treated as broad user-quality proof. |
 
 
 ## Phase 1 Surface/Data Audit Findings
@@ -226,7 +229,7 @@ Future implementation phases that use eval results as merge evidence must follow
 Complete review/validation for [PR #190](https://github.com/wmishak404/laica/pull/190). After this fixture slice lands, the next bounded Phase 3 candidates are:
 
 1. Wire deterministic fixture validation into a script or routine unit lane that can be cited by future PRs.
-2. Add another small fixture batch from the accepted Wilson-label target set.
+2. Add another small fixture batch from the accepted Wilson-label target set that explicitly tests user-expectation fit, preferably Arize-derived food-safety, skill-fit, equipment-fit, dietary-compliance, pantry-grounding, or cuisine-fit cases.
 3. Add criteria-aware queue behavior and logging provenance work for `pantry_recipes`, while preserving prompt reuse.
 4. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
 
