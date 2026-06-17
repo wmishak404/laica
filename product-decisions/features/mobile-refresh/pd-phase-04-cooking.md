@@ -75,7 +75,7 @@ suggestedTimer?: {
 
 ### 2026-06-17 - Audio lifecycle cleanup slice
 
-Branch `codex/init-001-cooking-audio-cleanup` implements the first narrow Phase 4 runtime slice for the Replit-observed speech-leak issue. Back to Planning, Finish, and unmount now share a cleanup path that clears delayed speech, clears mobile audio retry timers, stops current audio/browser speech synthesis, invalidates late ElevenLabs synthesis responses before playback, and cancels active voice recording without processing abandoned audio chunks.
+[PR #191](https://github.com/wmishak404/laica/pull/191) / `codex/init-001-cooking-audio-cleanup` implements the first narrow Phase 4 runtime slice for the Replit-observed speech-leak issue. Back to Planning, Finish, and unmount now share a cleanup path that clears delayed speech, clears mobile audio retry timers, stops current audio/browser speech synthesis, invalidates late ElevenLabs synthesis responses before playback, and cancels active voice recording without processing abandoned audio chunks.
 
 This slice intentionally does not implement the broader Phase 4 cooking redesign: Ready Check, Coach Feed, timer redesign, inline AI recovery, Finish/history semantics, provider prompts, schema changes, and Phase 5 cleanup remain future Phase 4/5 work.
 

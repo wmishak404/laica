@@ -5,7 +5,7 @@
 **Date:** 2026-06-17
 **Initiative:** INIT-001
 **INIT updated:** yes
-**PR:** pending
+**PR:** [#191](https://github.com/wmishak404/laica/pull/191)
 
 ## Summary
 
@@ -44,8 +44,7 @@ The active `codex/init-001-recipe-preview-images` branch remains untouched and l
 
 ## Open items
 
-- Open a PR and update this handoff/INIT PR fields with the PR number.
-- Run exact-head local validation and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL after the PR is ready for review.
+- Run exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL after PR #191 is ready for review.
 - Human Replit validation is not required before merge for this narrow local lifecycle fix if CI/E2E passes, but a later Phase 4 closeout should still include Replit/mobile speech smoke for the full cooking-guide experience.
 
 ## Verification
