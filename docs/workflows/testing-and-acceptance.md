@@ -153,6 +153,9 @@ npm run env:run -- npm run test:e2e:sandbox
 
 Use a different free port if `3000` is already occupied. Avoid the default `5000` on macOS when AirPlay/Control Center is listening there; otherwise Playwright can target the wrong listener and produce misleading blank-page failures.
 
+Secret safety note:
+- Replit and dotenvx expose secrets to child processes through environment variables. Do not inspect or ask others to inspect full process environments with commands such as `ps eww`, `env`, `printenv`, `set`, or `/proc/*/environ`; they can print API keys and private config verbatim. Use masked presence checks for named variables, for example printing only `set` or `MISSING`.
+
 CI note (automation harness foundation):
 - The protected GitHub ruleset mechanically requires the `unit` and `e2e_guest_smoke` checks for protected merges. A same-repo implementation PR that is ready for review should not treat a missing, pending, failed, or unexpectedly skipped required check as merge evidence.
 - The GitHub Actions guest-lane E2E job is intentionally gated on repo `vars` / `secrets` for Neon + Firebase + ElevenLabs. If those are not configured on a reviewable same-repo PR, the skipped guest smoke + `db:health` path is a setup blocker, not a pass and not a change in the Replit-authoritative validation policy.

@@ -25,6 +25,8 @@ Use `npm run env:run -- <command>` after `npm ci` for local secret-backed comman
 
 For browser review or Playwright that needs current schema, first try `npm run db:health` against the default decrypted `.env` DB. If it fails, use `LAICA_LOCAL_SANDBOX_DATABASE_URL` plus `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true`, or skip local E2E and rely on CI `e2e_guest_smoke`.
 
+Do not inspect full process environments during Replit or dotenvx validation. Commands such as `ps eww`, `env`, `printenv`, `set`, and `/proc/*/environ` can print injected secrets verbatim; use masked named-variable checks instead.
+
 ## Open items
 
 - Local provider-light Playwright still needs a disposable/non-production DB URL if someone specifically wants to rerun it locally with current schema, but PR #192 CI has now supplied the repeatable provider-light evidence.

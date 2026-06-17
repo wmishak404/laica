@@ -68,3 +68,4 @@ When the project outgrows dotenvx (multiple environments, team rotation, audit r
 | Contributor commits `.env.keys` | `.gitignore` excludes it; add a pre-commit hook if team grows |
 | Encrypted `.env` brute-forced | AES-256-GCM is computationally infeasible to crack; repo is private |
 | One-off `npx` fetch executes code while secrets are decrypted | `@dotenvx/dotenvx` is pinned in `package-lock.json`; run it through `npm run env:run -- ...` after `npm ci` instead of ad hoc package fetches |
+| Process environment dump exposes injected secrets | Never use full environment dumps (`ps eww`, `env`, `printenv`, `set`, `/proc/*/environ`) in Replit or dotenvx shells; use masked `set` / `MISSING` checks for named variables |

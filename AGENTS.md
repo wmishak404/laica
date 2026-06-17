@@ -125,6 +125,7 @@ Run dotenvx through the repo scripts after `npm ci`; avoid ad hoc `npx @dotenvx/
 ### Security notes
 - `ADMIN_SECRET` has been rotated. Keep the current value in Replit Secrets only.
 - Never hardcode secret values. The encrypted `.env` and Replit Secrets are the only approved stores.
+- Never run or recommend commands that dump full process environments in secret-bearing contexts, such as `ps eww`, `env`, `printenv`, `set`, or `/proc/*/environ`. Replit and dotenvx inject secrets as environment variables, so use masked presence checks that print only `set` / `MISSING` and never secret values.
 
 ## Agent coordination — handoffs
 
