@@ -10,12 +10,12 @@ import { mergeUniqueEntries } from '../../client/src/lib/entryParsing';
 import { createPlanningProfileFingerprint } from '../../client/src/lib/planningCache';
 
 const fetchPantryRecipesMock = vi.hoisted(() => vi.fn());
-const resolveRecipeImagesMock = vi.hoisted(() => vi.fn());
+const resolveSelectedRecipeImageMock = vi.hoisted(() => vi.fn());
 const toastMock = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/openai', () => ({
   fetchPantryRecipes: fetchPantryRecipesMock,
-  resolveRecipeImages: resolveRecipeImagesMock,
+  resolveSelectedRecipeImage: resolveSelectedRecipeImageMock,
 }));
 
 vi.mock('@/hooks/use-toast', () => ({
@@ -32,7 +32,7 @@ class ResizeObserverMock {
 globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 
 beforeEach(() => {
-  resolveRecipeImagesMock.mockResolvedValue({ status: 'unavailable' });
+  resolveSelectedRecipeImageMock.mockResolvedValue({ status: 'unavailable' });
 });
 
 interface Deferred<T> {
@@ -341,7 +341,7 @@ describe('MealPlanning recipe generation locking', () => {
     expect(window.localStorage.getItem('laica_meal_planning_session_v2:linked:user-1')).toBeNull();
   });
 
-  it('hydrates restored ticket pass recipes when the cache is ready', async () => {
+  it('keeps restored Ticket Pass recipes placeholder-only until Prep Tray', async () => {
     const restoredRecommendations = recipeResponse.recipes.map((recipe, index) => ({
       id: `restored-recipe-${index}`,
       recipeName: recipe.recipeName,
@@ -367,37 +367,32 @@ describe('MealPlanning recipe generation locking', () => {
       savedAt: Date.now(),
       profileFingerprint: createPlanningProfileFingerprint(makeMealPlanningProfile()),
     }));
-    resolveRecipeImagesMock.mockResolvedValue({
+    resolveSelectedRecipeImageMock.mockResolvedValue({
       status: 'ready',
-      images: [
-        { recipeIndex: 0, imageUrl: '/api/recipe-images/cache-a', cacheKey: 'cache-a' },
-        { recipeIndex: 1, imageUrl: '/api/recipe-images/cache-b', cacheKey: 'cache-b' },
-        { recipeIndex: 2, imageUrl: '/api/recipe-images/cache-c', cacheKey: 'cache-c' },
-      ],
+      image: { imageUrl: '/api/recipe-images/cache-a', cacheKey: 'cache-a' },
     });
     const { container } = renderMealPlanning();
 
     expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
 
+    expect(resolveSelectedRecipeImageMock).not.toHaveBeenCalled();
+    expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
+
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
     await waitFor(() => {
-      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+      expect(container.querySelector<HTMLImageElement>('.planning-prep-hero .planning-recipe-image')?.src)
+        .toContain('/api/recipe-images/cache-a');
     });
-    expect(resolveRecipeImagesMock).toHaveBeenCalledWith([
+    expect(resolveSelectedRecipeImageMock).toHaveBeenCalledWith(
       expect.objectContaining({
         recipeName: 'Pantry Rice Bowl',
         pantryIngredientsUsed: ['rice', 'eggs'],
       }),
       expect.objectContaining({
-        recipeName: 'Spinach Egg Skillet',
-        pantryIngredientsUsed: ['eggs', 'spinach'],
+        signal: expect.any(AbortSignal),
       }),
-      expect.objectContaining({
-        recipeName: 'Rice Frittata',
-        pantryIngredientsUsed: ['rice', 'eggs', 'spinach'],
-      }),
-    ], expect.objectContaining({
-      signal: expect.any(AbortSignal),
-    }));
+    );
   });
 
   it('starts fresh when only another auth scope has in-progress planning', () => {
@@ -771,16 +766,8 @@ describe('MealPlanning recipe generation locking', () => {
     expect(container.querySelectorAll('.planning-recipe-image')).toHaveLength(0);
   });
 
-  it('hydrates recipe preview images only when all three resolver images are ready', async () => {
+  it('does not call the image resolver while showing Ticket Pass choices', async () => {
     fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
-    resolveRecipeImagesMock.mockResolvedValue({
-      status: 'ready',
-      images: [
-        { recipeIndex: 0, imageUrl: '/api/recipe-images/cache-a', cacheKey: 'cache-a' },
-        { recipeIndex: 1, imageUrl: '/api/recipe-images/cache-b', cacheKey: 'cache-b' },
-        { recipeIndex: 2, imageUrl: '/api/recipe-images/cache-c', cacheKey: 'cache-c' },
-      ],
-    });
     const { container } = renderMealPlanning();
 
     advanceToCuisine();
@@ -788,172 +775,127 @@ describe('MealPlanning recipe generation locking', () => {
 
     expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
 
-    await waitFor(() => {
-      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+    expect(resolveSelectedRecipeImageMock).not.toHaveBeenCalled();
+    expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
+    expect(container.querySelectorAll('.planning-recipe-image')).toHaveLength(0);
+  });
+
+  it('hydrates only the selected Prep Tray recipe image when ready', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveSelectedRecipeImageMock.mockResolvedValue({
+      status: 'ready',
+      image: { imageUrl: '/api/recipe-images/selected-cache', cacheKey: 'selected-cache' },
     });
-    expect(Array.from(container.querySelectorAll<HTMLImageElement>('.planning-recipe-image')).map((image) =>
-      image.getAttribute('src')
-    )).toEqual([
-      '/api/recipe-images/cache-a',
-      '/api/recipe-images/cache-b',
-      '/api/recipe-images/cache-c',
-    ]);
-    expect(resolveRecipeImagesMock).toHaveBeenCalledWith([
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
+    expect(await screen.findByRole('heading', { name: /pantry rice bowl/i })).toBeTruthy();
+    await waitFor(() => {
+      expect(container.querySelector<HTMLImageElement>('.planning-prep-hero .planning-recipe-image')?.src)
+        .toContain('/api/recipe-images/selected-cache');
+    });
+    expect(resolveSelectedRecipeImageMock).toHaveBeenCalledWith(
       expect.objectContaining({
         recipeName: 'Pantry Rice Bowl',
         pantryIngredientsUsed: ['rice', 'eggs'],
         additionalIngredientsNeeded: [],
       }),
       expect.objectContaining({
-        recipeName: 'Spinach Egg Skillet',
-        pantryIngredientsUsed: ['eggs', 'spinach'],
-        additionalIngredientsNeeded: ['lemon'],
+        signal: expect.any(AbortSignal),
       }),
-      expect.objectContaining({
-        recipeName: 'Rice Frittata',
-        pantryIngredientsUsed: ['rice', 'eggs', 'spinach'],
-        additionalIngredientsNeeded: [],
-      }),
-    ], expect.objectContaining({
-      signal: expect.any(AbortSignal),
-    }));
+    );
   });
 
-  it('keeps polling pending recipe preview images without revealing partial placeholders', async () => {
+  it('keeps polling a pending selected Prep Tray image without blocking cooking', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveSelectedRecipeImageMock.mockResolvedValue({ status: 'pending' });
+    const { container, onMealSelected } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
     vi.useFakeTimers();
-
     try {
-      fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
-      resolveRecipeImagesMock
-        .mockResolvedValueOnce({ status: 'pending' })
-        .mockResolvedValueOnce({ status: 'pending' })
-        .mockResolvedValueOnce({
-          status: 'ready',
-          images: [
-            { recipeIndex: 0, imageUrl: '/api/recipe-images/cache-a', cacheKey: 'cache-a' },
-            { recipeIndex: 1, imageUrl: '/api/recipe-images/cache-b', cacheKey: 'cache-b' },
-            { recipeIndex: 2, imageUrl: '/api/recipe-images/cache-c', cacheKey: 'cache-c' },
-          ],
-        });
-      const { container } = renderMealPlanning();
-
-      advanceToCuisine();
-      fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+      fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
 
       await act(async () => {
         await Promise.resolve();
         await Promise.resolve();
       });
 
-      expect(screen.getByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
-      expect(resolveRecipeImagesMock).toHaveBeenCalledTimes(1);
-      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
+      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
+      expect(container.querySelector('.planning-prep-hero .planning-recipe-image')).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: /cook this/i }));
+      expect(onMealSelected).toHaveBeenCalledTimes(1);
 
       await act(async () => {
-        vi.advanceTimersByTime(10_000);
-        await Promise.resolve();
+        await vi.advanceTimersByTimeAsync(5_000);
       });
 
-      expect(resolveRecipeImagesMock).toHaveBeenCalledTimes(2);
-      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
-
-      await act(async () => {
-        vi.advanceTimersByTime(10_000);
-        await Promise.resolve();
-      });
-
-      expect(resolveRecipeImagesMock).toHaveBeenCalledTimes(3);
-      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
+      expect(container.querySelector('.planning-prep-hero .planning-recipe-image')).toBeNull();
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it('keeps the previous image-backed tickets visible during refresh until the new image set is ready', async () => {
-    fetchPantryRecipesMock
-      .mockResolvedValueOnce(recipeResponse)
-      .mockResolvedValueOnce(refreshedRecipeResponse);
-    resolveRecipeImagesMock
-      .mockResolvedValueOnce({
-        status: 'ready',
-        images: [
-          { recipeIndex: 0, imageUrl: '/api/recipe-images/old-a', cacheKey: 'old-a' },
-          { recipeIndex: 1, imageUrl: '/api/recipe-images/old-b', cacheKey: 'old-b' },
-          { recipeIndex: 2, imageUrl: '/api/recipe-images/old-c', cacheKey: 'old-c' },
-        ],
-      })
+  it('shows a selected Prep Tray image if it becomes ready within the 15 second window', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveSelectedRecipeImageMock
       .mockResolvedValueOnce({ status: 'pending' })
       .mockResolvedValueOnce({
         status: 'ready',
-        images: [
-          { recipeIndex: 0, imageUrl: '/api/recipe-images/new-a', cacheKey: 'new-a' },
-          { recipeIndex: 1, imageUrl: '/api/recipe-images/new-b', cacheKey: 'new-b' },
-          { recipeIndex: 2, imageUrl: '/api/recipe-images/new-c', cacheKey: 'new-c' },
-        ],
+        image: { imageUrl: '/api/recipe-images/selected-cache', cacheKey: 'selected-cache' },
       });
     const { container } = renderMealPlanning();
 
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
-
     expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
-    await waitFor(() => {
-      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
-    });
 
     vi.useFakeTimers();
     try {
-      fireEvent.click(screen.getByRole('button', { name: /refresh suggestions/i }));
+      fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
 
       await act(async () => {
         await Promise.resolve();
         await Promise.resolve();
       });
-      expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(2);
-      expect(screen.getByText('Pantry Rice Bowl')).toBeTruthy();
-      expect(screen.queryByText('Leek Carrot Tofu Stir-Fry')).toBeNull();
-      expect(screen.getByRole('button', { name: /finding recipes/i })).toBeDisabled();
-      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
+      expect(container.querySelector('.planning-prep-hero .planning-recipe-image')).toBeNull();
 
       await act(async () => {
-        vi.advanceTimersByTime(8_000);
-        await Promise.resolve();
-        await Promise.resolve();
+        await vi.advanceTimersByTimeAsync(5_000);
       });
-
-      expect(screen.getByText('Leek Carrot Tofu Stir-Fry')).toBeTruthy();
-      expect(screen.queryByText('Pantry Rice Bowl')).toBeNull();
-      expect(Array.from(container.querySelectorAll<HTMLImageElement>('.planning-recipe-image')).map((image) =>
-        image.getAttribute('src')
-      )).toEqual([
-        '/api/recipe-images/new-a',
-        '/api/recipe-images/new-b',
-        '/api/recipe-images/new-c',
-      ]);
+      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(2);
+      expect(container.querySelector<HTMLImageElement>('.planning-prep-hero .planning-recipe-image')?.src)
+        .toContain('/api/recipe-images/selected-cache');
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it('does not reveal partial resolver image results', async () => {
-    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
-    resolveRecipeImagesMock.mockResolvedValue({
-      status: 'ready',
-      images: [
-        { recipeIndex: 0, imageUrl: '/api/recipe-images/cache-a', cacheKey: 'cache-a' },
-        { recipeIndex: 1, imageUrl: '/api/recipe-images/cache-b', cacheKey: 'cache-b' },
-      ],
-    });
+  it('refreshes Ticket Pass with placeholders instead of waiting for images', async () => {
+    fetchPantryRecipesMock
+      .mockResolvedValueOnce(recipeResponse)
+      .mockResolvedValueOnce(refreshedRecipeResponse);
     const { container } = renderMealPlanning();
 
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
     expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
-
-    await waitFor(() => {
-      expect(resolveRecipeImagesMock).toHaveBeenCalledTimes(1);
-    });
+    expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
+    fireEvent.click(screen.getByRole('button', { name: /refresh suggestions/i }));
+    expect(await screen.findByText('Leek Carrot Tofu Stir-Fry')).toBeTruthy();
+    expect(screen.queryByText('Pantry Rice Bowl')).toBeNull();
+    expect(resolveSelectedRecipeImageMock).not.toHaveBeenCalled();
     expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
     expect(container.querySelectorAll('.planning-recipe-image')).toHaveLength(0);
   });

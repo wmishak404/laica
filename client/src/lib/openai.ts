@@ -73,12 +73,33 @@ export type RecipeImageResolveResponse =
   | { status: 'pending' }
   | { status: 'unavailable'; reason?: string };
 
+export type SelectedRecipeImageResolveResponse =
+  | {
+      status: 'ready';
+      image: {
+        imageUrl: string;
+        cacheKey: string;
+      };
+    }
+  | { status: 'pending' }
+  | { status: 'unavailable'; reason?: string };
+
 export async function resolveRecipeImages(
   recipes: RecipeImageResolveRecipe[],
   options?: { signal?: AbortSignal },
 ): Promise<RecipeImageResolveResponse> {
   const response = await apiRequest('POST', '/api/recipe-images/resolve', {
     recipes,
+  }, { signal: options?.signal });
+  return await response.json();
+}
+
+export async function resolveSelectedRecipeImage(
+  recipe: RecipeImageResolveRecipe,
+  options?: { signal?: AbortSignal },
+): Promise<SelectedRecipeImageResolveResponse> {
+  const response = await apiRequest('POST', '/api/recipe-images/selected/resolve', {
+    recipe,
   }, { signal: options?.signal });
   return await response.json();
 }

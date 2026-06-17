@@ -248,6 +248,32 @@ Validation status:
 - Negative scope: the original live provider smoke validated schema/storage/provider/cache loading at `76b998d`, and the refresh-latency follow-up is unit-tested locally, but a second paid live three-image generation has not yet been run after parallel JPEG generation and Refresh gating. The Replit Preview wrapper showed its own "Start application artifact crashed" state because validation used a manually launched flagged server instead of the default workflow; the direct `.replit.dev` app was the validated surface. Production publish, broad recipe-image accuracy evals, and Gemini/Nano Banana comparison remain out of scope for PR #192.
 - Remaining before merge readiness: final PR-head CI must pass after the refresh-latency follow-up, and Replit should run one focused smoke at the new head to record model, quality, output format/compression, latency, estimated cost, SHA, and negative scope.
 
+## 2026-06-17 - Prep Tray Selected-Image Pivot and Gemini Benchmark Path
+
+Wilson's Replit follow-up showed that even after the all-or-none fairness rule, live three-image generation still sets the wrong user expectation when images arrive 80-120 seconds after recipe suggestions. Phase 3.1 now treats Ticket Pass as a fast, fair decision surface and Prep Tray imagery as a selected-recipe enhancement.
+
+Runtime rule:
+
+- Ticket Pass always renders intentional placeholders. MealPlanning strips any `imageUrl` values from `/api/recipes/pantry`, does not call the image resolver while showing the three choices, and Refresh Suggestions swaps to the next text set without waiting for imagery.
+- Prep Tray starts selected-recipe image hydration only after the user opens the tray. It calls `POST /api/recipe-images/selected/resolve` for one structured recipe, polls for up to 15 seconds, and quietly keeps the placeholder if the image is unavailable, rejected, or still pending.
+- Cooking is never blocked by imagery. Starting cooking cancels stale image hydration and carries the selected meal as-is.
+- The existing three-image resolver remains available for cache seeding and benchmark comparison, but it is no longer part of the user-visible Ticket Pass decision moment.
+
+Provider and benchmark updates:
+
+- `RECIPE_IMAGE_PROVIDER=gemini` is now implemented through a narrow REST wrapper using `GEMINI_API_KEY`; no Gemini SDK dependency was added.
+- Gemini defaults to `gemini-3.1-flash-image` with 512 square output when provider-specific defaults are used. `gemini-2.5-flash-image` remains a benchmark candidate. `gemini-3.5-flash-image` should only be tested if the API model list confirms that exact image model ID.
+- OpenAI remains the default provider. Gemini is a Replit benchmark candidate, not a production default, until selected-image runs meet the 15-second visible SLA with acceptable accuracy.
+- `accuracy_result` now carries image-generation, judge, upload, and total timing metadata for approved/rejected rows so benchmark runs can record latency without adding a new table.
+- `npm run benchmark:recipe-images -- --provider=gemini --model=gemini-3.1-flash-image --output-size=512` runs the selected-image benchmark first and can also run the legacy three-image batch as informational comparison. Use `--batch=false` to skip the batch path.
+
+Validation update:
+
+- Focused local coverage now asserts placeholder-only Ticket Pass behavior, selected Prep Tray image hydration, stale/canceled selected-image polling, selected resolver auth/rate-limit handling, and Gemini request/response parsing.
+- Local checks for the selected-image pivot passed `npx vitest run tests/unit/recipe-images.test.ts tests/unit/recipe-image-route.test.ts tests/unit/meal-planning.test.tsx`, full `npm run test:unit`, `npm run check`, `npm run build`, and `git diff --check`.
+- Targeted local Playwright was attempted on 2026-06-17 with dotenvx and an alternate port, but the flow failed before image-specific assertions because the decrypted local DB was missing `anonymous_recipe_usage`. The server returned `relation "anonymous_recipe_usage" does not exist`, so guest setup never reached the Ticket Pass / Prep Tray steps. This remains environment-parity negative scope, not selected-image evidence.
+- Replit still needs a paid live Gemini/OpenAI benchmark at the final head before changing runtime provider defaults. Record commit SHA, provider/model/output size, generation/judge/upload/total latency, judge result, visual accuracy notes, estimated cost, and negative scope.
+
 ## 2026-06-05 - Slop Bowl Generated-Result Button Typography Aligned
 
 PR #141 aligned Slop Bowl generated-result and feedback action buttons with the adjacent Chef It Up recipe-suggestion controls. The root cause was two-part drift: Slop Bowl generated-result screens were not wrapped in `.planning-screen`, and their approval/feedback actions used local `py-3 text-lg` sizing without the Planning action-button `h-12`, `rounded-xl`, `font-extrabold` contract.

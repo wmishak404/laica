@@ -7,9 +7,11 @@ import { recipeImageCache, type InsertRecipeImageCache, type RecipeImageCache } 
 
 const IMAGE_ROUTE_PREFIX = "/api/recipe-images";
 const DEFAULT_PROVIDER = "openai";
-const DEFAULT_MODEL = "gpt-image-2";
+const DEFAULT_OPENAI_MODEL = "gpt-image-2";
+const DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-image";
 const DEFAULT_QUALITY = "low";
-const DEFAULT_OUTPUT_SIZE = "1024x1024";
+const DEFAULT_OPENAI_OUTPUT_SIZE = "1024x1024";
+const DEFAULT_GEMINI_OUTPUT_SIZE = "512";
 const DEFAULT_OUTPUT_FORMAT = "jpeg";
 const DEFAULT_OUTPUT_COMPRESSION = 70;
 const DEFAULT_STYLE_VERSION = "phase-3-1-v1";
@@ -42,7 +44,7 @@ interface RecipeImageConfig {
   mimeType: string;
 }
 
-interface RecipeImageDescriptor {
+export interface RecipeImageDescriptor {
   recipeIndex: number;
   recipe: RecipeImageRecipeInput;
   fingerprint: RecipeImageFingerprint;
@@ -57,6 +59,12 @@ interface RecipeImageAccuracyResult {
   reasons: string[];
   observedIngredients?: string[];
   observedDishForm?: string;
+  timingsMs?: {
+    generation: number;
+    judge: number;
+    upload?: number;
+    total: number;
+  };
 }
 
 export type RecipeImageResolveResponse =
@@ -67,6 +75,22 @@ export type RecipeImageResolveResponse =
         imageUrl: string;
         cacheKey: string;
       }>;
+    }
+  | {
+      status: "pending";
+    }
+  | {
+      status: "unavailable";
+      reason?: string;
+    };
+
+export type SelectedRecipeImageResolveResponse =
+  | {
+      status: "ready";
+      image: {
+        imageUrl: string;
+        cacheKey: string;
+      };
     }
   | {
       status: "pending";
@@ -109,8 +133,13 @@ export const recipeImageResolveRequestSchema = z.object({
   recipes: z.array(recipeImageRecipeSchema).length(3),
 });
 
+export const selectedRecipeImageResolveRequestSchema = z.object({
+  recipe: recipeImageRecipeSchema,
+});
+
 export type RecipeImageRecipeInput = z.infer<typeof recipeImageRecipeSchema>;
 export type RecipeImageResolveInput = z.infer<typeof recipeImageResolveRequestSchema>;
+export type SelectedRecipeImageResolveInput = z.infer<typeof selectedRecipeImageResolveRequestSchema>;
 
 const activeImageBatches = new Set<string>();
 
@@ -149,14 +178,21 @@ function getRecipeImageObjectExtension(outputFormat: RecipeImageOutputFormat): s
 
 function getRecipeImageConfig(): RecipeImageConfig {
   const provider = (process.env.RECIPE_IMAGE_PROVIDER || DEFAULT_PROVIDER).toLowerCase();
-  const outputFormat = getRecipeImageOutputFormat(process.env.RECIPE_IMAGE_OUTPUT_FORMAT);
+  const normalizedProvider = provider === "gemini" ? "gemini" : "openai";
+  const outputFormat = normalizedProvider === "gemini"
+    ? "png"
+    : getRecipeImageOutputFormat(process.env.RECIPE_IMAGE_OUTPUT_FORMAT);
 
   return {
     enabled: isEnabledEnv(process.env.RECIPE_IMAGE_GENERATION_ENABLED),
-    provider: provider === "gemini" ? "gemini" : "openai",
-    model: process.env.RECIPE_IMAGE_MODEL || DEFAULT_MODEL,
+    provider: normalizedProvider,
+    model: process.env.RECIPE_IMAGE_MODEL || (
+      normalizedProvider === "gemini" ? DEFAULT_GEMINI_MODEL : DEFAULT_OPENAI_MODEL
+    ),
     quality: process.env.RECIPE_IMAGE_QUALITY || DEFAULT_QUALITY,
-    outputSize: process.env.RECIPE_IMAGE_OUTPUT_SIZE || DEFAULT_OUTPUT_SIZE,
+    outputSize: process.env.RECIPE_IMAGE_OUTPUT_SIZE || (
+      normalizedProvider === "gemini" ? DEFAULT_GEMINI_OUTPUT_SIZE : DEFAULT_OPENAI_OUTPUT_SIZE
+    ),
     outputFormat,
     outputCompression: getIntegerEnvInRange(
       "RECIPE_IMAGE_OUTPUT_COMPRESSION",
@@ -186,11 +222,14 @@ function getGenerationUnavailableReason(config: RecipeImageConfig): string | nul
   if (!config.enabled) {
     return "disabled";
   }
-  if (config.provider !== "openai") {
-    return "provider_unavailable";
+  if (config.provider === "openai" && !process.env.OPENAI_API_KEY) {
+    return "openai_unconfigured";
+  }
+  if (config.provider === "gemini" && !process.env.GEMINI_API_KEY) {
+    return "gemini_unconfigured";
   }
   if (!process.env.OPENAI_API_KEY) {
-    return "openai_unconfigured";
+    return "judge_unconfigured";
   }
 
   return getStorageRuntimeMissingReason();
@@ -388,20 +427,17 @@ function buildRecipeImagePrompt(descriptor: RecipeImageDescriptor): string {
   const recipe = descriptor.recipe;
   const coreIngredients = getRecipeCoreIngredients(recipe);
   const optionalIngredients = recipe.additionalIngredientsNeeded || recipe.missingIngredients || [];
-  const overview = recipe.overview || recipe.description || "";
 
   return [
-    "Create one realistic square food thumbnail for a recipe suggestion card.",
-    "Use the same neutral editorial style for every recipe: overhead three-quarter crop, natural kitchen light, plated or bowled serving, no people, no logos, no packaging, no text labels, no exaggerated garnish.",
-    "Accuracy is more important than beauty. The image must match the dish title and make the core ingredients visually plausible.",
-    "Do not introduce a different protein, dish form, sauce, or dominant ingredient that is not supported by the recipe.",
-    `Recipe title: ${recipe.recipeName}`,
-    `Cuisine or flavor direction: ${recipe.cuisine || "pantry-first"}`,
-    `Core pantry ingredients to represent: ${coreIngredients.join(", ")}`,
+    `Photo of the finished dish: ${recipe.recipeName}.`,
+    `Cuisine or flavor direction: ${recipe.cuisine || "pantry-first"}.`,
+    `Core ingredients: ${coreIngredients.join(", ")}.`,
+    "Show only those main ingredients as the dominant visual signals.",
+    "No people, no text, no labels, no logos, no packaging, no extra dominant toppings.",
+    "Simple overhead bowl or plate, natural light, square crop.",
     optionalIngredients.length > 0
-      ? `Optional extras that must not dominate the image: ${optionalIngredients.join(", ")}`
-      : "Optional extras: none",
-    overview ? `Recipe overview: ${overview}` : "",
+      ? `Optional ingredients that must not dominate: ${optionalIngredients.join(", ")}.`
+      : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -424,7 +460,7 @@ async function fetchJsonWithTimeout<T>(
     if (!response.ok) {
       const message = typeof (json as { error?: { message?: unknown } }).error?.message === "string"
         ? (json as { error: { message: string } }).error.message
-        : `OpenAI request failed with status ${response.status}`;
+        : `Provider request failed with status ${response.status}`;
       const code = typeof (json as { error?: { code?: unknown } }).error?.code === "string"
         ? (json as { error: { code: string } }).error.code
         : "provider_error";
@@ -449,10 +485,15 @@ class RecipeImageProviderError extends Error {
   }
 }
 
+export interface GeneratedRecipeImage {
+  imageBytes: Buffer;
+  mimeType: string;
+}
+
 async function generateOpenAiRecipeImage(
   descriptor: RecipeImageDescriptor,
   config: RecipeImageConfig,
-): Promise<Buffer> {
+): Promise<GeneratedRecipeImage> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OPENAI_API_KEY is not configured");
@@ -486,7 +527,116 @@ async function generateOpenAiRecipeImage(
     throw new Error("OpenAI image response did not include image data");
   }
 
-  return Buffer.from(base64Image, "base64");
+  return {
+    imageBytes: Buffer.from(base64Image, "base64"),
+    mimeType: config.mimeType,
+  };
+}
+
+function getGeminiImageSize(outputSize: string): string | null {
+  const normalized = outputSize.trim().toUpperCase();
+  if (normalized === "512" || normalized === "1K" || normalized === "2K" || normalized === "4K") {
+    return normalized;
+  }
+  if (normalized === "512X512") return "512";
+  if (normalized === "1024X1024") return "1K";
+  if (normalized === "2048X2048") return "2K";
+  if (normalized === "4096X4096") return "4K";
+  return null;
+}
+
+function geminiModelSupportsImageSize(model: string): boolean {
+  return model.includes("3.1-flash-image") || model.includes("3-pro-image");
+}
+
+export function buildGeminiRecipeImageRequest(
+  descriptor: RecipeImageDescriptor,
+  config: Pick<RecipeImageConfig, "model" | "outputSize">,
+): Record<string, unknown> {
+  const imageSize = getGeminiImageSize(config.outputSize) || DEFAULT_GEMINI_OUTPUT_SIZE;
+  const responseFormat = geminiModelSupportsImageSize(config.model)
+    ? {
+        image: {
+          aspectRatio: "1:1",
+          imageSize,
+        },
+      }
+    : undefined;
+
+  return {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: buildRecipeImagePrompt(descriptor),
+          },
+        ],
+      },
+    ],
+    generationConfig: {
+      responseModalities: ["TEXT", "IMAGE"],
+      ...(responseFormat ? { responseFormat } : {}),
+    },
+  };
+}
+
+export function parseGeminiRecipeImageResponse(
+  response: unknown,
+  fallbackMimeType = "image/png",
+): GeneratedRecipeImage {
+  const candidates = (response as {
+    candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data?: string; mimeType?: string } }> } }>;
+  }).candidates || [];
+  const parts = candidates.flatMap((candidate) => candidate.content?.parts || []);
+  const imagePart = parts.find((part) => typeof part.inlineData?.data === "string");
+  const base64Image = imagePart?.inlineData?.data;
+
+  if (!base64Image) {
+    throw new Error("Gemini image response did not include image data");
+  }
+
+  return {
+    imageBytes: Buffer.from(base64Image, "base64"),
+    mimeType: imagePart?.inlineData?.mimeType || fallbackMimeType,
+  };
+}
+
+async function generateGeminiRecipeImage(
+  descriptor: RecipeImageDescriptor,
+  config: RecipeImageConfig,
+): Promise<GeneratedRecipeImage> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
+  const model = encodeURIComponent(config.model);
+  const response = await fetchJsonWithTimeout<unknown>(
+    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
+      body: JSON.stringify(buildGeminiRecipeImageRequest(descriptor, config)),
+    },
+    getPositiveIntegerEnv("RECIPE_IMAGE_PROVIDER_TIMEOUT_MS", DEFAULT_IMAGE_GENERATION_TIMEOUT_MS),
+  );
+
+  return parseGeminiRecipeImageResponse(response, config.mimeType);
+}
+
+async function generateRecipeImage(
+  descriptor: RecipeImageDescriptor,
+  config: RecipeImageConfig,
+): Promise<GeneratedRecipeImage> {
+  if (config.provider === "gemini") {
+    return generateGeminiRecipeImage(descriptor, config);
+  }
+
+  return generateOpenAiRecipeImage(descriptor, config);
 }
 
 function parseAccuracyResult(rawContent: string | null | undefined): RecipeImageAccuracyResult {
@@ -561,7 +711,7 @@ async function judgeRecipeImageAccuracy(
                 type: "text",
                 text: [
                   "Compare this image to the recipe suggestion.",
-                  "Reject if the image shows the wrong protein, wrong dish form, missing key ingredients, dominant optional ingredients, visible text/brands, or a safety/dietary contradiction.",
+                  "Reject if the image shows the wrong protein, wrong dish form, missing key ingredients, dominant optional ingredients, visible people, visible text/brands, or a safety/dietary contradiction.",
                   "Reject if the image looks like a different named dish than the title.",
                   `Recipe title: ${recipe.recipeName}`,
                   `Cuisine: ${recipe.cuisine || "pantry-first"}`,
@@ -623,25 +773,51 @@ async function generateAndApproveDescriptor(
   descriptor: RecipeImageDescriptor,
   config: RecipeImageConfig,
 ): Promise<void> {
+  const totalStartedAt = Date.now();
   try {
-    const imageBytes = await generateOpenAiRecipeImage(descriptor, config);
-    const accuracyResult = await judgeRecipeImageAccuracy(descriptor, imageBytes, config.mimeType);
+    const generationStartedAt = Date.now();
+    const generatedImage = await generateRecipeImage(descriptor, config);
+    const generationMs = Date.now() - generationStartedAt;
+    const judgeStartedAt = Date.now();
+    const accuracyResult = await judgeRecipeImageAccuracy(
+      descriptor,
+      generatedImage.imageBytes,
+      generatedImage.mimeType,
+    );
+    const judgeMs = Date.now() - judgeStartedAt;
     if (!accuracyResult.approved) {
       await updateRecipeImageRow(descriptor.cacheKey, {
         status: "rejected",
-        accuracyResult,
+        accuracyResult: {
+          ...accuracyResult,
+          timingsMs: {
+            generation: generationMs,
+            judge: judgeMs,
+            total: Date.now() - totalStartedAt,
+          },
+        },
         failureReason: "accuracy_rejected",
       });
       return;
     }
 
-    await uploadRecipeImageObject(descriptor.objectKey, imageBytes);
+    const uploadStartedAt = Date.now();
+    await uploadRecipeImageObject(descriptor.objectKey, generatedImage.imageBytes);
+    const uploadMs = Date.now() - uploadStartedAt;
     await updateRecipeImageRow(descriptor.cacheKey, {
       status: "ready",
       objectKey: descriptor.objectKey,
       imageUrl: descriptor.imageUrl,
-      mimeType: config.mimeType,
-      accuracyResult,
+      mimeType: generatedImage.mimeType,
+      accuracyResult: {
+        ...accuracyResult,
+        timingsMs: {
+          generation: generationMs,
+          judge: judgeMs,
+          upload: uploadMs,
+          total: Date.now() - totalStartedAt,
+        },
+      },
       failureReason: null,
       generatedAt: new Date(),
     });
@@ -738,6 +914,24 @@ function readyResponseFromDescriptors(
   return null;
 }
 
+function selectedReadyResponseFromDescriptor(
+  descriptor: RecipeImageDescriptor,
+  rowMap: Map<string, RecipeImageCache>,
+): SelectedRecipeImageResolveResponse | null {
+  const row = rowMap.get(descriptor.cacheKey);
+  if (!rowIsReadyForDescriptor(row, descriptor)) {
+    return null;
+  }
+
+  return {
+    status: "ready",
+    image: {
+      imageUrl: row.imageUrl || descriptor.imageUrl,
+      cacheKey: descriptor.cacheKey,
+    },
+  };
+}
+
 export async function resolveRecipeImagesForRequest(
   rawInput: unknown,
   options: RecipeImageResolveOptions = {},
@@ -774,6 +968,43 @@ export async function resolveRecipeImagesForRequest(
 
   await touchOrCreatePendingRows(descriptors, config);
   startRecipeImageBatch(descriptors, existingRows, config);
+
+  return { status: "pending" };
+}
+
+export async function resolveSelectedRecipeImageForRequest(
+  rawInput: unknown,
+  options: RecipeImageResolveOptions = {},
+): Promise<SelectedRecipeImageResolveResponse> {
+  const input = selectedRecipeImageResolveRequestSchema.parse(rawInput);
+  const config = getRecipeImageConfig();
+  const descriptor = buildRecipeImageDescriptor(input.recipe, 0, config);
+  const existingRows = await selectRowsByCacheKey([descriptor.cacheKey]);
+  const readyResponse = selectedReadyResponseFromDescriptor(descriptor, existingRows);
+
+  if (readyResponse) {
+    return readyResponse;
+  }
+
+  if (rowIsTerminalFailure(existingRows.get(descriptor.cacheKey))) {
+    return { status: "unavailable", reason: "image_not_approved" };
+  }
+
+  const unavailableReason = getGenerationUnavailableReason(config);
+  if (unavailableReason) {
+    return { status: "unavailable", reason: unavailableReason };
+  }
+
+  const descriptorsNeedingGeneration = getDescriptorsNeedingGeneration([descriptor], existingRows);
+  if (descriptorsNeedingGeneration.length > 0 && options.consumeGenerationRateLimit) {
+    const allowed = await options.consumeGenerationRateLimit();
+    if (!allowed) {
+      return { status: "unavailable", reason: "rate_limited" };
+    }
+  }
+
+  await touchOrCreatePendingRows([descriptor], config);
+  startRecipeImageBatch([descriptor], existingRows, config);
 
   return { status: "pending" };
 }

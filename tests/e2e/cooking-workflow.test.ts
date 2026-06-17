@@ -89,7 +89,7 @@ async function stubRecipeImageResolver(
 ) {
   let requestCount = 0;
 
-  await page.route('**/api/recipe-images/resolve', async (route) => {
+  await page.route('**/api/recipe-images/selected/resolve', async (route) => {
     const response = responses[Math.min(requestCount, responses.length - 1)] ?? { status: 'unavailable' };
     requestCount += 1;
 
@@ -295,19 +295,14 @@ test.describe('Laica Guest E2E Smoke', () => {
     expect(pantryRoutes.getRequestCount()).toBe(1);
   });
 
-  test('Guest sees recipe preview images only as a complete three-image set', async ({ page }) => {
-    const imageUrls = [
-      '/mock/recipe-image-a.png',
-      '/mock/recipe-image-b.png',
-      '/mock/recipe-image-c.png',
-    ];
+  test('Guest sees selected recipe preview imagery only after opening Prep Tray', async ({ page }) => {
+    const imageUrl = '/mock/recipe-image-selected.png';
     const pantryRoutes = await stubPantryRecipes(page, [{
       status: 'ready',
-      images: imageUrls.map((imageUrl, recipeIndex) => ({
-        recipeIndex,
+      image: {
         imageUrl,
-        cacheKey: `cache-${recipeIndex}`,
-      })),
+        cacheKey: 'cache-selected',
+      },
     }]);
 
     await completeChefItUpToStapleSelection(page);
@@ -317,11 +312,17 @@ test.describe('Laica Guest E2E Smoke', () => {
     await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.locator('.planning-ticket .planning-recipe-image-slot[data-has-image="true"]')).toHaveCount(3);
-    await expect(page.locator('.planning-ticket .planning-recipe-image')).toHaveCount(3);
-    expect(await page.locator('.planning-ticket .planning-recipe-image').evaluateAll((images) =>
+    await expect(page.locator('.planning-ticket .planning-recipe-image-slot[data-has-image="true"]')).toHaveCount(0);
+    await expect(page.locator('.planning-ticket .planning-recipe-image')).toHaveCount(0);
+    expect(pantryRoutes.getImageResolverRequestCount()).toBe(0);
+
+    await page.getByRole('button', { name: 'View prep tray' }).click();
+
+    await expect(page.getByRole('heading', { name: 'Pantry Rice Bowl' })).toBeVisible();
+    await expect(page.locator('.planning-prep-hero .planning-recipe-image')).toHaveCount(1);
+    expect(await page.locator('.planning-prep-hero .planning-recipe-image').evaluateAll((images) =>
       images.map((image) => image.getAttribute('src'))
-    )).toEqual(imageUrls);
+    )).toEqual([imageUrl]);
     expect(pantryRoutes.getRequestCount()).toBe(1);
     expect(pantryRoutes.getImageResolverRequestCount()).toBe(1);
   });

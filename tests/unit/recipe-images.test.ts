@@ -5,9 +5,11 @@ vi.mock("../../server/db", () => ({
 }));
 
 import {
+  buildGeminiRecipeImageRequest,
   buildRecipeImageCacheKey,
   buildRecipeImageDescriptor,
   createRecipeImageFingerprint,
+  parseGeminiRecipeImageResponse,
   recipeImageFingerprintsMatch,
 } from "../../server/recipe-images";
 
@@ -89,5 +91,92 @@ describe("recipe image cache fingerprints", () => {
     expect(descriptor.objectKey).not.toContain("broccoli");
     expect(descriptor.objectKey).not.toContain("beef");
     expect(descriptor.imageUrl).toBe(`/api/recipe-images/${descriptor.cacheKey}`);
+  });
+});
+
+describe("Gemini recipe image provider helpers", () => {
+  const geminiConfig = {
+    ...recipeImageConfig,
+    provider: "gemini" as const,
+    model: "gemini-3.1-flash-image",
+    outputSize: "512",
+    outputFormat: "png" as const,
+    mimeType: "image/png",
+  };
+
+  it("builds a compact Gemini image request with square 512 output for Gemini 3.1 Flash Image", () => {
+    const descriptor = buildRecipeImageDescriptor({
+      recipeName: "Beef and Kimchi Rice Bowl with Spinach",
+      cuisine: "Korean",
+      pantryIngredientsUsed: ["beef", "kimchi", "rice", "spinach"],
+    }, 0, geminiConfig);
+
+    const request = buildGeminiRecipeImageRequest(descriptor, geminiConfig);
+
+    expect(request).toMatchObject({
+      generationConfig: {
+        responseModalities: ["TEXT", "IMAGE"],
+        responseFormat: {
+          image: {
+            aspectRatio: "1:1",
+            imageSize: "512",
+          },
+        },
+      },
+    });
+    expect(JSON.stringify(request)).toContain("No people");
+    expect(JSON.stringify(request)).toContain("Beef and Kimchi Rice Bowl with Spinach");
+  });
+
+  it("does not send Gemini 3-only image size parameters to Gemini 2.5 Flash Image", () => {
+    const config = {
+      ...geminiConfig,
+      model: "gemini-2.5-flash-image",
+      outputSize: "1024x1024",
+    };
+    const descriptor = buildRecipeImageDescriptor({
+      recipeName: "Spinach Egg Skillet",
+      cuisine: "Pantry-first",
+      pantryIngredientsUsed: ["eggs", "spinach"],
+    }, 0, config);
+
+    const request = buildGeminiRecipeImageRequest(descriptor, config);
+
+    expect(request).toMatchObject({
+      generationConfig: {
+        responseModalities: ["TEXT", "IMAGE"],
+      },
+    });
+    expect((request.generationConfig as { responseFormat?: unknown }).responseFormat).toBeUndefined();
+  });
+
+  it("parses Gemini inline image responses", () => {
+    const imageBytes = Buffer.from("gemini-image-bytes");
+    const parsed = parseGeminiRecipeImageResponse({
+      candidates: [
+        {
+          content: {
+            parts: [
+              { text: "done" },
+              {
+                inlineData: {
+                  mimeType: "image/png",
+                  data: imageBytes.toString("base64"),
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(parsed.mimeType).toBe("image/png");
+    expect(parsed.imageBytes.equals(imageBytes)).toBe(true);
+  });
+
+  it("rejects Gemini responses without image data", () => {
+    expect(() => parseGeminiRecipeImageResponse({ candidates: [] })).toThrow(
+      "Gemini image response did not include image data",
+    );
   });
 });

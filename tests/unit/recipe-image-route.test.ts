@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
     isAnonymous: false,
   },
   resolveRecipeImagesForRequest: vi.fn(),
+  resolveSelectedRecipeImageForRequest: vi.fn(),
   serveRecipeImageCacheObject: vi.fn(),
 }));
 
@@ -56,6 +57,7 @@ vi.mock("../../server/db", () => ({
 
 vi.mock("../../server/recipe-images", () => ({
   resolveRecipeImagesForRequest: mocks.resolveRecipeImagesForRequest,
+  resolveSelectedRecipeImageForRequest: mocks.resolveSelectedRecipeImageForRequest,
   serveRecipeImageCacheObject: mocks.serveRecipeImageCacheObject,
 }));
 
@@ -84,6 +86,10 @@ const recipeImagePayload = {
   ],
 };
 
+const selectedRecipeImagePayload = {
+  recipe: recipeImagePayload.recipes[0],
+};
+
 async function startTestServer() {
   const { registerRoutes } = await import("../../server/routes");
   const app = express();
@@ -106,6 +112,7 @@ describe("recipe image routes", () => {
   beforeEach(() => {
     resetRateLimitBucketsForTest();
     mocks.resolveRecipeImagesForRequest.mockResolvedValue({ status: "pending" });
+    mocks.resolveSelectedRecipeImageForRequest.mockResolvedValue({ status: "pending" });
     mocks.serveRecipeImageCacheObject.mockImplementation((_req, res) => {
       res.status(200).send(Buffer.from("image-bytes"));
     });
@@ -155,6 +162,27 @@ describe("recipe image routes", () => {
     );
   });
 
+  it("passes selected recipe data to the selected resolver", async () => {
+    mocks.resolveSelectedRecipeImageForRequest.mockResolvedValue({
+      status: "ready",
+      image: { imageUrl: "/api/recipe-images/a", cacheKey: "a" },
+    });
+
+    const response = await postJson("/api/recipe-images/selected/resolve", selectedRecipeImagePayload);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      status: "ready",
+      image: { imageUrl: "/api/recipe-images/a", cacheKey: "a" },
+    });
+    expect(mocks.resolveSelectedRecipeImageForRequest).toHaveBeenCalledWith(
+      selectedRecipeImagePayload,
+      expect.objectContaining({
+        consumeGenerationRateLimit: expect.any(Function),
+      }),
+    );
+  });
+
   it("returns a validation error for invalid resolver payloads", async () => {
     mocks.resolveRecipeImagesForRequest.mockRejectedValue(new z.ZodError([
       {
@@ -170,6 +198,24 @@ describe("recipe image routes", () => {
     expect(await response.json()).toEqual(expect.objectContaining({
       code: "INVALID_REQUEST",
       message: "Invalid recipe image request",
+    }));
+  });
+
+  it("returns a validation error for invalid selected resolver payloads", async () => {
+    mocks.resolveSelectedRecipeImageForRequest.mockRejectedValue(new z.ZodError([
+      {
+        code: z.ZodIssueCode.custom,
+        message: "At least one core pantry ingredient is required",
+        path: ["recipe", "pantryIngredientsUsed"],
+      },
+    ]));
+
+    const response = await postJson("/api/recipe-images/selected/resolve", { recipe: { recipeName: "Toast" } });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual(expect.objectContaining({
+      code: "INVALID_REQUEST",
+      message: "Invalid selected recipe image request",
     }));
   });
 
@@ -192,6 +238,24 @@ describe("recipe image routes", () => {
     const responses: TestResponse[] = [];
     for (let index = 0; index < 13; index += 1) {
       responses.push(await postJson("/api/recipe-images/resolve", recipeImagePayload));
+    }
+
+    expect(responses.slice(0, 12).every((response) => response.status === 200)).toBe(true);
+    expect(responses[12].status).toBe(429);
+    expect(await responses[12].json()).toEqual(expect.objectContaining({
+      code: "RATE_LIMITED",
+    }));
+  });
+
+  it("rate-limits repeated selected image generation starts per user", async () => {
+    mocks.resolveSelectedRecipeImageForRequest.mockImplementation(async (_payload, options) => {
+      const allowed = await options.consumeGenerationRateLimit();
+      return allowed ? { status: "pending" } : { status: "unavailable", reason: "rate_limited" };
+    });
+
+    const responses: TestResponse[] = [];
+    for (let index = 0; index < 13; index += 1) {
+      responses.push(await postJson("/api/recipe-images/selected/resolve", selectedRecipeImagePayload));
     }
 
     expect(responses.slice(0, 12).every((response) => response.status === 200)).toBe(true);

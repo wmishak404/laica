@@ -27,7 +27,11 @@ import {
   voiceUserDayLimit,
   voiceUserHourLimit,
 } from "./rate-limit";
-import { resolveRecipeImagesForRequest, serveRecipeImageCacheObject } from "./recipe-images";
+import {
+  resolveRecipeImagesForRequest,
+  resolveSelectedRecipeImageForRequest,
+  serveRecipeImageCacheObject,
+} from "./recipe-images";
 import { 
   updateUserProfileSchema, 
   insertUserSettingsSchema, 
@@ -523,6 +527,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.warn(
         "[recipe-images] Resolver unavailable:",
+        error instanceof Error ? error.message : error,
+      );
+      res.json({ status: "unavailable", reason: "resolver_error" });
+    }
+  });
+
+  app.post('/api/recipe-images/selected/resolve', isAuthenticated, async (req, res) => {
+    try {
+      const result = await resolveSelectedRecipeImageForRequest(req.body, {
+        consumeGenerationRateLimit: () => consumeRecipeImageGenerationRateLimits(req, res),
+      });
+      if (res.headersSent) {
+        return;
+      }
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return invalidRequestResponse(res, error, 'Invalid selected recipe image request');
+      }
+
+      console.warn(
+        "[recipe-images] Selected resolver unavailable:",
         error instanceof Error ? error.message : error,
       );
       res.json({ status: "unavailable", reason: "resolver_error" });

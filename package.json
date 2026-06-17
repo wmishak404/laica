@@ -24,6 +24,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --project=chromium",
     "test:e2e:sandbox": "tsx scripts/local-sandbox.ts -- npm run test:e2e",
+    "benchmark:recipe-images": "tsx scripts/recipe-image-benchmark.ts",
     "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {

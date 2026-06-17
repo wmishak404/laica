@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ToastAction } from '@/components/ui/toast';
-import { fetchPantryRecipes, resolveRecipeImages } from '@/lib/openai';
+import { fetchPantryRecipes, resolveSelectedRecipeImage } from '@/lib/openai';
 import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -103,11 +103,8 @@ const cuisineOptions = [
 ];
 
 const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
-const RECIPE_IMAGE_POLL_ATTEMPTS = 6;
-// Keep request count bounded while checking often enough to avoid stale late image pop-ins.
-const RECIPE_IMAGE_POLL_DELAY_MS = 10_000;
-const REFRESH_IMAGE_GATE_ATTEMPTS = 5;
-const REFRESH_IMAGE_GATE_DELAY_MS = 8_000;
+const SELECTED_RECIPE_IMAGE_POLL_ATTEMPTS = 4;
+const SELECTED_RECIPE_IMAGE_POLL_DELAY_MS = 5_000;
 
 const isPlanningStep = (value: unknown): value is PlanningStep =>
   value === 'time' || value === 'cuisine' || value === 'staples' || value === 'tickets' || value === 'prep-tray';
@@ -185,7 +182,6 @@ export default function MealPlanning({
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const imagePreviewRunIdRef = useRef(0);
   const activeImagePreviewRef = useRef<{ runId: number; controller: AbortController } | null>(null);
-  const suppressedImageHydrationBatchRef = useRef<string | null>(null);
   const { toast } = useToast();
   const mealPlanningStorageKey = useMemo(
     () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
@@ -474,29 +470,21 @@ export default function MealPlanning({
     };
   };
 
-  const enforceAllOrNoneRecipeImages = (recipes: RecipeRecommendation[]): RecipeRecommendation[] => {
-    const hasCompleteImageSet = recipes.length === 3 && recipes.every((recipe) => Boolean(recipe.imageUrl));
-    return hasCompleteImageSet
-      ? recipes
-      : recipes.map((recipe) => ({ ...recipe, imageUrl: undefined }));
-  };
+  const stripRecipeImages = (recipes: RecipeRecommendation[]): RecipeRecommendation[] =>
+    recipes.map((recipe) => ({ ...recipe, imageUrl: undefined }));
 
-  const getRecipeBatchKey = (recipes: RecipeRecommendation[]) =>
-    recipes.map((recipe) => recipe.id).join(':');
+  const buildRecipeImageResolverPayload = (recipe: RecipeRecommendation) => ({
+    recipeName: recipe.recipeName,
+    cuisine: recipe.cuisine,
+    pantryIngredientsUsed: recipe.ingredients || [],
+    ingredients: recipe.ingredients || [],
+    additionalIngredientsNeeded: recipe.missingIngredients,
+    missingIngredients: recipe.missingIngredients,
+    overview: recipe.overview,
+    description: recipe.description,
+  });
 
-  const buildRecipeImageResolverPayload = (recipes: RecipeRecommendation[]) =>
-    recipes.map((recipe) => ({
-      recipeName: recipe.recipeName,
-      cuisine: recipe.cuisine,
-      pantryIngredientsUsed: recipe.ingredients || [],
-      ingredients: recipe.ingredients || [],
-      additionalIngredientsNeeded: recipe.missingIngredients,
-      missingIngredients: recipe.missingIngredients,
-      overview: recipe.overview,
-      description: recipe.description,
-    }));
-
-  const waitForRecipeImagePoll = (signal: AbortSignal, delayMs = RECIPE_IMAGE_POLL_DELAY_MS) =>
+  const waitForRecipeImagePoll = (signal: AbortSignal, delayMs = SELECTED_RECIPE_IMAGE_POLL_DELAY_MS) =>
     new Promise<void>((resolve, reject) => {
       const timeout = window.setTimeout(() => {
         signal.removeEventListener('abort', abort);
@@ -510,20 +498,8 @@ export default function MealPlanning({
       signal.addEventListener('abort', abort, { once: true });
     });
 
-  const getCompleteResolvedImageSet = (
-    recipeSnapshot: RecipeRecommendation[],
-    images: Array<{ recipeIndex: number; imageUrl: string }>,
-  ) => {
-    if (recipeSnapshot.length !== 3 || images.length !== 3) return null;
-
-    const imageUrlByIndex = new Map(images.map((image) => [image.recipeIndex, image.imageUrl]));
-    if (!recipeSnapshot.every((_recipe, index) => Boolean(imageUrlByIndex.get(index)))) return null;
-
-    return imageUrlByIndex;
-  };
-
-  const waitForResolvedRecipeImages = async (
-    recipes: RecipeRecommendation[],
+  const waitForResolvedSelectedRecipeImage = async (
+    recipe: RecipeRecommendation,
     controller: AbortController,
     {
       attempts,
@@ -534,16 +510,14 @@ export default function MealPlanning({
       delayMs: number;
       isStillActive: () => boolean;
     },
-  ): Promise<Array<{ recipeIndex: number; imageUrl: string }> | null> => {
-    if (recipes.length !== 3) return null;
-
-    const resolverRecipes = buildRecipeImageResolverPayload(recipes);
+  ): Promise<{ imageUrl: string } | null> => {
+    const resolverRecipe = buildRecipeImageResolverPayload(recipe);
     for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const result = await resolveRecipeImages(resolverRecipes, { signal: controller.signal });
+      const result = await resolveSelectedRecipeImage(resolverRecipe, { signal: controller.signal });
       if (!isStillActive()) return null;
 
       if (result.status === 'ready') {
-        return getCompleteResolvedImageSet(recipes, result.images) ? result.images : null;
+        return { imageUrl: result.image.imageUrl };
       }
 
       if (result.status === 'unavailable' || attempt === attempts - 1) {
@@ -556,36 +530,25 @@ export default function MealPlanning({
     return null;
   };
 
-  const applyResolvedRecipeImages = (
-    recipeSnapshot: RecipeRecommendation[],
-    images: Array<{ recipeIndex: number; imageUrl: string }>,
+  const applyResolvedSelectedRecipeImage = (
+    recipeSnapshot: RecipeRecommendation,
+    image: { imageUrl: string },
   ) => {
-    const imageUrlByIndex = getCompleteResolvedImageSet(recipeSnapshot, images);
-    if (!imageUrlByIndex) return;
-
-    setRecommendations((currentRecommendations) => {
-      const sameRecipeBatch = recipeSnapshot.every((recipe, index) =>
-        currentRecommendations[index]?.id === recipe.id
-      );
-      if (!sameRecipeBatch) return currentRecommendations;
-
-      return currentRecommendations.map((recipe, index) => {
-        const imageUrl = imageUrlByIndex.get(index);
-        return imageUrl ? { ...recipe, imageUrl } : recipe;
-      });
-    });
+    setRecommendations((currentRecommendations) =>
+      currentRecommendations.map((recipe) =>
+        recipe.id === recipeSnapshot.id ? { ...recipe, imageUrl: image.imageUrl } : recipe
+      )
+    );
 
     setSelectedMeal((currentSelectedMeal) => {
       if (!currentSelectedMeal) return currentSelectedMeal;
-
-      const selectedIndex = recipeSnapshot.findIndex((recipe) => recipe.id === currentSelectedMeal.id);
-      const imageUrl = imageUrlByIndex.get(selectedIndex);
-      return imageUrl ? { ...currentSelectedMeal, imageUrl } : currentSelectedMeal;
+      if (currentSelectedMeal.id !== recipeSnapshot.id) return currentSelectedMeal;
+      return { ...currentSelectedMeal, imageUrl: image.imageUrl };
     });
   };
 
-  const hydrateRecipeImages = (recipes: RecipeRecommendation[]) => {
-    if (recipes.length !== 3) return;
+  const hydrateSelectedRecipeImage = (recipe: RecipeRecommendation) => {
+    if (recipe.imageUrl) return;
 
     cancelRecipeImageHydration();
     const controller = new AbortController();
@@ -595,17 +558,17 @@ export default function MealPlanning({
 
     void (async () => {
       try {
-        const images = await waitForResolvedRecipeImages(recipes, controller, {
-          attempts: RECIPE_IMAGE_POLL_ATTEMPTS,
-          delayMs: RECIPE_IMAGE_POLL_DELAY_MS,
+        const image = await waitForResolvedSelectedRecipeImage(recipe, controller, {
+          attempts: SELECTED_RECIPE_IMAGE_POLL_ATTEMPTS,
+          delayMs: SELECTED_RECIPE_IMAGE_POLL_DELAY_MS,
           isStillActive: () => isActiveImagePreview(runId, controller),
         });
-        if (images) {
-          applyResolvedRecipeImages(recipes, images);
+        if (image) {
+          applyResolvedSelectedRecipeImage(recipe, image);
         }
       } catch (error) {
         if (!controller.signal.aborted) {
-          console.warn('Recipe image previews unavailable:', error);
+          console.warn('Selected recipe image preview unavailable:', error);
         }
       } finally {
         if (activeImagePreviewRef.current?.runId === runId) {
@@ -616,13 +579,11 @@ export default function MealPlanning({
   };
 
   useEffect(() => {
-    if (currentStep !== 'tickets' && currentStep !== 'prep-tray') return;
-    if (recommendations.length !== 3) return;
-    if (recommendations.every((recipe) => Boolean(recipe.imageUrl))) return;
-    if (suppressedImageHydrationBatchRef.current === getRecipeBatchKey(recommendations)) return;
+    if (currentStep !== 'prep-tray') return;
+    if (!selectedMeal || selectedMeal.imageUrl) return;
 
-    hydrateRecipeImages(recommendations);
-  }, [currentStep, recommendations]);
+    hydrateSelectedRecipeImage(selectedMeal);
+  }, [currentStep, selectedMeal?.id, selectedMeal?.imageUrl]);
 
   const generateRecommendations = async ({
     confirmedStaples = [],
@@ -635,14 +596,11 @@ export default function MealPlanning({
   } = {}) => {
     if (activeGenerationRef.current) return;
     cancelRecipeImageHydration();
-    suppressedImageHydrationBatchRef.current = null;
 
     const requestMealPrefs = {
       timeAvailable: mealPrefs.timeAvailable,
       cuisinePreference: [...mealPrefs.cuisinePreference],
     };
-    const requestStep = currentStep;
-    const shouldGateImagesBeforeReveal = requestStep === 'tickets' || requestStep === 'prep-tray';
     const requestProfile = {
       ...userProfile,
       dietaryRestrictions: [...userProfile.dietaryRestrictions],
@@ -777,28 +735,7 @@ export default function MealPlanning({
 
         if (!isActiveGeneration(runId, controller)) return null;
 
-        if (shouldGateImagesBeforeReveal) {
-          const images = await waitForResolvedRecipeImages(recipes, controller, {
-            attempts: REFRESH_IMAGE_GATE_ATTEMPTS,
-            delayMs: REFRESH_IMAGE_GATE_DELAY_MS,
-            isStillActive: () => isActiveGeneration(runId, controller),
-          });
-          if (!isActiveGeneration(runId, controller)) return null;
-
-          const imageUrlByIndex = images ? getCompleteResolvedImageSet(recipes, images) : null;
-          if (imageUrlByIndex) {
-            return recipes.map((recipe, index) => {
-              const imageUrl = imageUrlByIndex.get(index);
-              return imageUrl ? { ...recipe, imageUrl } : recipe;
-            });
-          }
-        }
-
-        const fallbackRecipes = enforceAllOrNoneRecipeImages(recipes);
-        if (shouldGateImagesBeforeReveal) {
-          suppressedImageHydrationBatchRef.current = getRecipeBatchKey(fallbackRecipes);
-        }
-        return fallbackRecipes;
+        return stripRecipeImages(recipes);
       }, { context: 'meal recommendations' });
 
       if (result && isActiveGeneration(runId, controller)) {
