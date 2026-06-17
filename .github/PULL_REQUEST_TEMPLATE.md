@@ -24,12 +24,12 @@ Intentional UI deviations / notes:
 
 Automation evidence used as a merge gate:
 
-- Claim:
-- Command/check provenance:
-- Source provenance:
-- Observed result:
-- Reasoning:
-- Negative scope:
+- Value claim:
+- Evidence:
+  - Command/check provenance:
+  - Source provenance:
+  - Observed result:
+- Evidence limits:
 
 Local checks:
 

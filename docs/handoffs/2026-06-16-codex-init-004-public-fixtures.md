@@ -15,6 +15,8 @@ The operator value is safer AI-quality iteration: future prompt/eval work can pr
 
 Wilson clarified during review that the long-term value target is not "valid fixture data" by itself; evals must dig into how Laica's responses relate to the user. This branch now records that philosophy in the eval/testing docs: each future fixture, judge, report, and prompt comparison should name the user expectation it protects, while contract-only checks should be described as foundation work rather than broad output-quality proof.
 
+Wilson then clarified the smallest useful test-case rule for future enhancements: no claim without evidence, no evidence without a claim, and always name the limit. The workflow/PR template now use `Value claim`, `Evidence`, and `Evidence limits` so user-facing, docs-only, cleanup, system, and agent-coordination work can all describe value honestly without inventing a customer story.
+
 ## Changes
 
 - `docs/evals/fixtures/openai-max-time-25-to-30.json`: current-shape recipe-suggestions boundary pass for the accepted +15 minute max-time band.
@@ -25,6 +27,7 @@ Wilson clarified during review that the long-term value target is not "valid fix
 - `tests/unit/eval-fixtures.test.ts`: covers committed fixture loading, expected deterministic failures, and mismatched label rejection.
 - `docs/evals/README.md`, `docs/evals/fixtures/README.md`, and `docs/evals/registry.md`: index the public fixture set and command.
 - `docs/workflows/evaluations.md`, `docs/workflows/testing-and-acceptance.md`, and `docs/evals/README.md`: add the user-expectation verification rule so future evals connect back to user promises, not only data shape.
+- `.github/PULL_REQUEST_TEMPLATE.md`: collapses validation evidence around `Value claim`, `Evidence`, and `Evidence limits`.
 - `initiatives/INIT-004-ai-output-quality-evals.md` and `initiatives/registry.md`: mark the public fixture slice as active.
 
 ## Fixture Boundary
@@ -45,6 +48,7 @@ Local macOS validation on branch `codex/init-004-public-fixtures`:
 - After the user-expectation docs refresh, `npm audit --audit-level=high` passed: 0 vulnerabilities.
 - After the user-expectation docs refresh, `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
 - `git diff --check` passed before and after the user-expectation docs refresh.
+- After the future-test value rule update, `git diff --check`, `npx vitest run tests/unit/eval-fixtures.test.ts`, `npm run check`, `npm audit --audit-level=high`, and `npm run build` passed. Build warnings remained the existing Browserslist/Firebase dynamic-import/chunk-size warnings.
 
 ## Replit Validation
 

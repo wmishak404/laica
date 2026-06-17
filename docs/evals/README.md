@@ -23,6 +23,8 @@ Eval artifacts are offline evidence, not runtime memory. The live app must not r
 
 Eval artifacts should preserve the user's point of view. Each fixture, report, or judge run should say which user expectation it is testing, such as time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, privacy, or workflow continuity. Contract-only fixtures are useful, but label them as contract guards rather than broad output-quality proof.
 
+Future fixture batches should keep a compact value/evidence/limits note near the fixture or run record. The fixture file can stay focused on structured data; the PR, registry row, intake record, or fixture README should make clear whether the evidence proves a user expectation, operator confidence, future-agent coordination, or only foundation validity.
+
 ## What Does Not Live Here By Default
 
 Do not commit raw trace exports, raw prompts containing user-identifying data, images, audio, secrets, auth data, or full production payloads without a durable privacy/source decision. Prefer summarized, redacted, or synthetic fixtures until that decision exists.
@@ -73,6 +75,12 @@ npx vitest run tests/unit/eval-fixtures.test.ts
 This command validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
 Current limitation: most committed fixtures are foundation and contract guards. The max-time fixtures directly protect a user time expectation, while the Slop Bowl and cooking-step fixtures primarily protect current response usability. The next fixture batches should add Wilson-labeled user-expectation cases from Arize/EFF-022 seeds, especially food safety, skill fit, equipment fit, dietary compliance, pantry grounding, cuisine fit, and cooking-step sequence.
+
+Future fixture-batch evidence should summarize:
+
+- `Value claim`: the user expectation being protected.
+- `Evidence`: the fixture, label, deterministic check, human review, or judge result that proves it.
+- `Evidence limits`: what the fixture does not prove, especially live-provider quality or criteria not represented by the batch.
 
 Current committed public fixture set:
 

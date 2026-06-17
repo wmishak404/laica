@@ -10,6 +10,12 @@ Every eval should start from the user's request, constraints, and likely expecta
 
 An eval result that only says "valid JSON," "three recipes," or "judge passed" is incomplete unless it also identifies the user-facing promise it protects: time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, or another explicit expectation. When a fixture cannot yet evaluate user value, mark that as negative scope and name the smallest next fixture or label that would close the gap.
 
+Use the same minimal evidence shape for eval artifacts and reports:
+
+- **Value claim:** what user expectation or operator/agent confidence the eval protects.
+- **Evidence:** the fixture, judge, human label, deterministic check, sample, and observed result that support the claim.
+- **Evidence limits:** what the eval does not prove, such as live model quality, provider behavior, private gold coverage, taste, cuisine fit, or safety criteria not included in the fixture.
+
 ## Relationship To docs/evals
 
 `docs/workflows/evaluations.md` owns the repo-wide discipline: when evals are required, what evidence is acceptable, how calibration is reported, and what may gate merge or prompt activation.

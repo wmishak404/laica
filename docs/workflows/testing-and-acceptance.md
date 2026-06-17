@@ -12,6 +12,8 @@ Every change should say what it was expected to prove, what was actually checked
 
 For user-facing behavior, verification should also say which user expectation is being protected. Passing structure checks, snapshots, route contracts, or eval harness plumbing is not enough on its own; the evidence should connect back to what becomes better, safer, clearer, faster, less confusing, or more reliable for the user. If a test only proves infrastructure readiness, call it that and name the missing user-expectation check.
 
+The minimal evidence rule is: no claim without evidence, no evidence without a claim, and always name the limit. Use `Value claim`, `Evidence`, and `Evidence limits` for PR bodies, handoffs, eval reports, and future test-case summaries. For docs-only, process, cleanup, or system-maintenance work, the value claim may be operator, reviewer, future-agent, or risk-reduction value rather than direct customer behavior.
+
 For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
 
 ## Validation Flow At A Glance
@@ -55,13 +57,9 @@ When automated tests are used as a merge gate, the PR or handoff must include an
 
 Required evidence:
 
-- **Claim:** the exact behavior or risk the automation is meant to prove.
-- **Command/check provenance:** local command or GitHub workflow/job/step name, branch/head SHA, PR/check/run URLs when available, and the runtime environment (local macOS, GitHub Actions Ubuntu, Replit workspace/deploy, etc.).
-- **Source provenance:** test file, assertion, route/component/schema, fixture, selector, seed/reset script, or eval dataset that exercised the claim.
-- **Observed result:** pass/fail status, relevant log lines or artifact names, test counts, DB/schema-health output, screenshots/traces when useful, and external-resource cleanup when the test creates resources.
-- **Reasoning:** how the observed result connects to the claimed behavior, and what assumptions remain.
-- **User expectation:** for user-facing product or eval behavior, the specific user promise being protected, such as time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, privacy, or continuity through a workflow.
-- **Negative scope:** mocked providers, untested live-provider paths, skipped jobs, fork/draft/secret gates, Replit/human dependencies, stale validation, and deferred follow-up.
+- **Value claim:** who is better off and how. For user-facing product or eval behavior, name the protected user promise, such as time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, privacy, or continuity through a workflow.
+- **Evidence:** the checks or review that prove the claim, including command/check provenance, source provenance, observed result, and the reasoning that connects the result to the claim.
+- **Evidence limits:** what the evidence does not prove, including mocked providers, untested live-provider paths, skipped jobs, fork/draft/secret gates, Replit/human dependencies, stale validation, and deferred follow-up.
 
 Merge-readiness rule: if a PR relies on automated testing to replace or reduce a manual/Replit check, reviewers must be able to reconstruct the proof from the PR description, handoff, and linked logs/artifacts without replaying chat. If the evidence cannot be produced, the automation is not a merge gate yet.
 
@@ -102,6 +100,15 @@ Do not create a new Effort or broad durable doc for every risk note. Use PR bodi
 For every implementation change, test the happy path and then deliberately look for corner cases across the surfaces touched by the change. Do not stop at "works locally" when the acceptance criteria depend on auth, persistence, AI, speech, uploads, provider secrets, deployment domains, or Replit-only configuration.
 
 Start from documented specs. The acceptance criteria, INIT, PD, feature phase record, route schema, or component contract should tell the agent what "working" means. If the behavior has no durable spec, either update the smallest relevant source of truth first or mark the missing spec as a coverage gap; do not silently invent acceptance criteria from memory.
+
+For new or materially touched tests, use the same lightweight design habit before choosing assertions:
+
+1. What user, operator, future-agent, reviewer, or system value is this protecting?
+2. What behavior would break that value?
+3. What is the smallest deterministic test that proves the behavior?
+4. What does this test not prove?
+
+Do not rewrite existing tests only to add this language. Apply it when a test file is touched for real work, and keep test bodies readable. PR/handoff evidence can carry the full `Value claim` / `Evidence` / `Evidence limits` summary when putting all of that text in an `it(...)` name would make the test worse.
 
 Before closeout, classify the meaningful test cases:
 

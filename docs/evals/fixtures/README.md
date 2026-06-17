@@ -13,6 +13,12 @@ Committed public fixture set:
 
 Expected deterministic failures are allowed only when the matching resolved criterion label is also `fail`. Fixture schema, privacy class, privacy scan, output-required, and deterministic label expectation failures still make the artifact invalid.
 
+When adding or materially changing fixtures, keep the fixture data readable and put the value framing in the PR, registry/intake record, or this README:
+
+- `Value claim`: the user expectation, operator confidence, or future-agent coordination value protected.
+- `Evidence`: the fixture id, label/check, and observed result that support the claim.
+- `Evidence limits`: what this fixture does not prove, such as live model quality, taste, food safety, cuisine fit, or private-gold coverage.
+
 Current harness command:
 
 ```bash
