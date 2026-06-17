@@ -1,4 +1,4 @@
-import { inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../server/db";
 import {
   resolveRecipeImagesForRequest,
@@ -73,7 +73,25 @@ async function readCacheRows(cacheKeys: string[]) {
     .where(inArray(recipeImageCache.cacheKey, cacheKeys));
 }
 
-async function pollSelected(maxMs: number) {
+async function readLatestRowsForBenchmark(config: ReturnType<typeof configureBenchmarkEnv>) {
+  return db
+    .select()
+    .from(recipeImageCache)
+    .where(and(
+      eq(recipeImageCache.provider, config.provider),
+      eq(recipeImageCache.model, config.model),
+      eq(recipeImageCache.outputSize, config.outputSize),
+      eq(recipeImageCache.styleVersion, config.styleVersion),
+    ))
+    .orderBy(desc(recipeImageCache.createdAt))
+    .limit(5);
+}
+
+function getResultReason(result: Awaited<ReturnType<typeof resolveSelectedRecipeImageForRequest>>): string | undefined {
+  return result.status === "unavailable" ? result.reason : undefined;
+}
+
+async function pollSelected(maxMs: number, config: ReturnType<typeof configureBenchmarkEnv>) {
   const startedAt = Date.now();
   let lastResult = await resolveSelectedRecipeImageForRequest({ recipe: selectedFixture });
 
@@ -83,18 +101,21 @@ async function pollSelected(maxMs: number) {
   }
 
   const cacheKeys = lastResult.status === "ready" ? [lastResult.image.cacheKey] : [];
-  const rows = await readCacheRows(cacheKeys);
+  const rows = cacheKeys.length > 0
+    ? await readCacheRows(cacheKeys)
+    : await readLatestRowsForBenchmark(config);
 
   return {
     scope: "selected",
     status: lastResult.status,
+    reason: getResultReason(lastResult),
     elapsedMs: Date.now() - startedAt,
     cacheKeys,
     rows,
   };
 }
 
-async function pollBatch(maxMs: number) {
+async function pollBatch(maxMs: number, config: ReturnType<typeof configureBenchmarkEnv>) {
   const startedAt = Date.now();
   let lastResult = await resolveRecipeImagesForRequest({ recipes: batchFixtures });
 
@@ -106,11 +127,14 @@ async function pollBatch(maxMs: number) {
   const cacheKeys = lastResult.status === "ready"
     ? lastResult.images.map((image) => image.cacheKey)
     : [];
-  const rows = await readCacheRows(cacheKeys);
+  const rows = cacheKeys.length > 0
+    ? await readCacheRows(cacheKeys)
+    : await readLatestRowsForBenchmark(config);
 
   return {
     scope: "batch",
     status: lastResult.status,
+    reason: lastResult.status === "unavailable" ? lastResult.reason : undefined,
     elapsedMs: Date.now() - startedAt,
     cacheKeys,
     rows,
@@ -139,22 +163,24 @@ async function main() {
     maxBatchMs,
   }, null, 2));
 
-  const selectedResult = await pollSelected(maxSelectedMs);
+  const selectedResult = await pollSelected(maxSelectedMs, config);
   console.log(JSON.stringify({
     event: "recipe_image_benchmark_result",
     scope: selectedResult.scope,
     status: selectedResult.status,
+    reason: selectedResult.reason,
     elapsedMs: selectedResult.elapsedMs,
     rows: summarizeRows(selectedResult.rows),
   }, null, 2));
 
   const runBatch = getArg("batch") !== "false";
   if (runBatch) {
-    const batchResult = await pollBatch(maxBatchMs);
+    const batchResult = await pollBatch(maxBatchMs, config);
     console.log(JSON.stringify({
       event: "recipe_image_benchmark_result",
       scope: batchResult.scope,
       status: batchResult.status,
+      reason: batchResult.reason,
       elapsedMs: batchResult.elapsedMs,
       rows: summarizeRows(batchResult.rows),
     }, null, 2));
