@@ -24,7 +24,7 @@ Run these locally when the task does not depend on Replit-only services:
 - `npm ci`
 - `npm run check`
 - `npm run build`
-- `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` (full local dev with secrets)
+- `PORT=3000 npm run env:run -- npm run dev` (full local dev with secrets)
 
 ## Automated test evidence gate
 
@@ -96,7 +96,7 @@ initiatives/     # Living hubs for multi-phase initiatives
 
 Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to the repo). Decision documented in `product-decisions/pd-001-secrets-management.md`.
 
-- `.env` — encrypted, safe in git. Decrypted at runtime via `npx @dotenvx/dotenvx run`.
+- `.env` — encrypted, safe in git. Decrypted at runtime via `npm run env:run -- <command>`.
 - `.env.keys` — private decryption key, **never commit this**.
 - `.env.example` — lists all required vars (no values).
 - **On Replit:** secrets are injected via the Replit Secrets tab. No dotenvx needed.
@@ -110,6 +110,8 @@ ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
 ```
 
 The symlink stays untracked because `.env.*` is gitignored. Without this link, dotenvx cannot decrypt `.env` in the worktree and local OpenAI / ElevenLabs / database-backed validation will fail.
+
+Run dotenvx through the repo scripts after `npm ci`; avoid ad hoc `npx @dotenvx/dotenvx` fetches while decrypted secrets are in scope.
 
 ### Required env vars
 | Variable | Purpose | Required at startup? |

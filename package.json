@@ -8,6 +8,9 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
+    "env:run": "dotenvx run --",
+    "env:decrypt": "dotenvx decrypt",
+    "env:encrypt": "dotenvx encrypt",
     "dev:sandbox": "tsx scripts/local-sandbox.ts -- npm run dev",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
@@ -102,6 +105,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
+    "@dotenvx/dotenvx": "1.73.1",
     "@replit/vite-plugin-cartographer": "^0.2.0",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",

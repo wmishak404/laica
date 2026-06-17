@@ -236,7 +236,8 @@ Related Effort: EFF-022 remains related but unchanged. This work does not alter 
 Validation status:
 
 - Local checks passed: `npm run check`, focused `npx vitest run tests/unit/recipe-images.test.ts tests/unit/recipe-image-route.test.ts tests/unit/meal-planning.test.tsx`, full `npm run test:unit`, and `npm run build`.
-- Provider-light Playwright coverage was added for complete-set image reveal in `tests/e2e/cooking-workflow.test.ts`, but it was not executed locally in this worktree because `@dotenvx/dotenvx` is not installed and fetching it with decrypted secrets was rejected by the sandbox as an unacceptable secret-exfiltration risk.
+- Provider-light Playwright coverage was added for complete-set image reveal in `tests/e2e/cooking-workflow.test.ts`. A 2026-06-17 local workflow follow-up pinned `@dotenvx/dotenvx` in the repo and replaced ad hoc local `npx @dotenvx/dotenvx` commands with `npm run env:run -- ...`, removing the runtime package-fetch-while-secrets-are-decrypted blocker.
+- Provider-light Playwright still was not executed locally because this thread did not have a disposable `LAICA_LOCAL_SANDBOX_DATABASE_URL`, and the default decrypted `.env` database should not be schema-pushed from an arbitrary worktree. Use CI `e2e_guest_smoke` for repeatable provider-light E2E evidence, then Replit for live OpenAI/App Storage/domain validation.
 - Required before enabling/merge readiness: apply the `recipe_image_cache` schema in the Replit-authoritative environment, configure/confirm Replit App Storage, run one real three-recipe image smoke, inspect title/ingredient accuracy, confirm Ticket Pass and Prep Tray App Storage URLs load, and record model, quality, latency, cost, SHA, and negative scope in the PR or handoff.
 
 ## 2026-06-05 - Slop Bowl Generated-Result Button Typography Aligned

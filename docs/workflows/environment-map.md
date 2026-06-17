@@ -36,7 +36,7 @@ This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance
 
 ### Local browser with default `.env`
 
-- **Command:** `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev`.
+- **Command:** `PORT=3000 npm run env:run -- npm run dev`.
 - **Database:** the `DATABASE_URL` decrypted from committed `.env` using local `.env.keys`.
 - **Auth path:** real browser Firebase client credentials from dotenvx, backend Firebase Admin verification, and real `/api/auth/session`.
 - **Use when:** quick visual review or debugging after `npm run db:health` passes.
@@ -44,7 +44,7 @@ This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance
 
 ### Local diagnostics sandbox
 
-- **Command:** `npx @dotenvx/dotenvx run -- npm run dev:sandbox` with `LAICA_LOCAL_SANDBOX_DATABASE_URL` and `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true`.
+- **Command:** `npm run env:run -- npm run dev:sandbox` with `LAICA_LOCAL_SANDBOX_DATABASE_URL` and `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true`.
 - **Database:** disposable/non-production DB URL only; helper refuses to run when the sandbox URL equals the default `DATABASE_URL`.
 - **Auth path:** same local Firebase/dotenvx auth config as local browser, with only the child-process `DATABASE_URL` overridden.
 - **Use when:** interactive local browser review needs real auth/session and the default `.env` DB is stale.

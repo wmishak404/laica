@@ -133,12 +133,12 @@ Use the repo scripts instead of ad hoc `npx` commands so validation evidence sta
 - `npm run test` — runs unit + E2E.
 - `npm run db:health` — database schema preflight check for known drift vectors (required before DB-backed E2E).
 
-For dotenvx-backed local E2E in macOS worktrees, link `.env.keys` first and run the E2E server on a known-free port:
+For dotenvx-backed local E2E in macOS worktrees, link `.env.keys` first and run the E2E server on a known-free port. Use the repo-pinned `env:run` script instead of one-off `npx @dotenvx/dotenvx` commands so the dotenvx binary comes from `package-lock.json` / `node_modules` and is not fetched at the moment secrets are decrypted:
 
 ```bash
 ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
-PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npx @dotenvx/dotenvx run -- npm run db:health
-PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npx @dotenvx/dotenvx run -- npm run test:e2e
+PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm run env:run -- npm run db:health
+PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm run env:run -- npm run test:e2e
 ```
 
 If the decrypted `.env` database fails `db:health`, do not run `db:push` against it by default. Use the [Local Diagnostics Sandbox](local-diagnostics-sandbox.md) helper with a disposable/non-production database instead:
@@ -148,7 +148,7 @@ LAICA_LOCAL_SANDBOX_DATABASE_URL='postgresql://...' \
 LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true \
 PORT=3000 \
 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 \
-npx @dotenvx/dotenvx run -- npm run test:e2e:sandbox
+npm run env:run -- npm run test:e2e:sandbox
 ```
 
 Use a different free port if `3000` is already occupied. Avoid the default `5000` on macOS when AirPlay/Control Center is listening there; otherwise Playwright can target the wrong listener and produce misleading blank-page failures.

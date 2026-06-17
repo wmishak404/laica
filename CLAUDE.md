@@ -44,7 +44,7 @@ npm run build   # production build (works locally)
 npm run db:push # push Drizzle schema to database (needs DATABASE_URL)
 
 # Local macOS (port 5000 is taken by AirPlay)
-PORT=3000 npx @dotenvx/dotenvx run -- npm run dev
+PORT=3000 npm run env:run -- npm run dev
 ```
 
 ## Automated test evidence gate
@@ -116,8 +116,8 @@ Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to 
 - `.env` — encrypted, safe in git. Decrypted at runtime.
 - `.env.keys` — private decryption key, **never commit this**
 - `.env.example` — lists all required vars (no values)
-- To decrypt and run: `npx @dotenvx/dotenvx run -- <command>`
-- To edit secrets: `npx @dotenvx/dotenvx decrypt`, edit, then `npx @dotenvx/dotenvx encrypt`
+- To decrypt and run: `npm run env:run -- <command>`
+- To edit secrets: `npm run env:decrypt`, edit, then `npm run env:encrypt`
 - **On Replit:** secrets are injected via the Replit Secrets tab. No dotenvx needed.
 
 ### Worktrees and `.env.keys`
@@ -129,6 +129,8 @@ ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
 ```
 
 The symlink stays untracked because `.env.*` is gitignored. Without this link, dotenvx cannot decrypt `.env` in the worktree and local OpenAI / ElevenLabs / database-backed validation will fail.
+
+Run dotenvx through the repo scripts after `npm ci`; avoid ad hoc `npx @dotenvx/dotenvx` fetches while decrypted secrets are in scope.
 
 ### Required env vars
 - `DATABASE_URL` — Neon PostgreSQL connection string (crashes on startup if missing)

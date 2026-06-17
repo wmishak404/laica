@@ -111,7 +111,7 @@ Replit ports behavior and autoscale constraints are documented here:
 ### 2.4 Secrets + dotenvx
 
 - Secrets decision: encrypted `.env` is committed; `.env.keys` is not committed (`product-decisions/pd-001-secrets-management.md`, `.gitignore`).
-- Local full dev command is documented as `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` (`AGENTS.md`, `CLAUDE.md`).
+- Local full dev command is documented as `PORT=3000 npm run env:run -- npm run dev` (`AGENTS.md`, `CLAUDE.md`).
 - Replit secrets are documented as injected via Replit Secrets tab (`AGENTS.md`).
 - However, Replit workflow currently runs dotenvx anyway (`.replit` workflow task runs `npx --yes @dotenvx/dotenvx run -- npm run dev`).
 
@@ -402,7 +402,7 @@ Firebase provenance:
 
 **Current facts (provenance):**
 - Replit run uses `npm run dev` or dotenvx-wrapped `npm run dev` (depending on workflow path).
-- Local docs recommend `PORT=3000 npx @dotenvx/dotenvx run -- npm run dev` because macOS may have port 5000 conflicts (`CLAUDE.md`, `AGENTS.md`).
+- Local docs recommend `PORT=3000 npm run env:run -- npm run dev` because macOS may have port 5000 conflicts (`CLAUDE.md`, `AGENTS.md`).
 - The app defaults port 5000 if `PORT` not set (`server/index.ts`).
 
 **Options:**
@@ -846,11 +846,11 @@ Replit deploy environments can differ from dev workspaces (environment vars, dom
    - `npm ci` (not `npm install`)
 
 4. Start the dev server with secrets injected:
-   - `PORT=<chosen> npx @dotenvx/dotenvx run --strict -- npm run dev`
+   - `PORT=<chosen> npm run env:run -- npm run dev`
    - Rationale:
-     - `--strict` fails fast if `.env` cannot decrypt (prevents “half-working local”).
+     - The repo script uses the lockfile-installed dotenvx binary instead of fetching executable code while secrets are decrypted.
      - Avoid `--overload` unless explicitly deciding `.env` should override existing env vars.
-   - Provenance: dotenvx `--strict` docs: https://dotenvx.com/docs/advanced/run-strict
+   - Provenance: PD-001 local secrets command policy.
 
 5. Validate local DB per the chosen D3 strategy:
    - Before running service-backed flows, run schema health checks (see EFF-010).

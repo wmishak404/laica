@@ -28,7 +28,7 @@ ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
 LAICA_LOCAL_SANDBOX_DATABASE_URL='postgresql://...' \
 LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true \
 PORT=3000 \
-npx @dotenvx/dotenvx run -- npm run dev:sandbox
+npm run env:run -- npm run dev:sandbox
 ```
 
 Then open `http://127.0.0.1:3000`.
@@ -48,7 +48,7 @@ LAICA_LOCAL_SANDBOX_DATABASE_URL='postgresql://...' \
 LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true \
 PORT=3000 \
 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 \
-npx @dotenvx/dotenvx run -- npm run test:e2e:sandbox
+npm run env:run -- npm run test:e2e:sandbox
 ```
 
 This is still local diagnostic evidence unless the sandbox is equivalent to the accepted non-production CI lane and the result is recorded with exact command provenance.
@@ -58,7 +58,7 @@ This is still local diagnostic evidence unless the sandbox is equivalent to the 
 ```bash
 LAICA_LOCAL_SANDBOX_DATABASE_URL='postgresql://...' \
 LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true \
-npx @dotenvx/dotenvx run -- npm run db:sandbox:prepare
+npm run env:run -- npm run db:sandbox:prepare
 ```
 
 Use this when you only want to schema-push and health-check the sandbox before starting a server manually.
@@ -66,6 +66,7 @@ Use this when you only want to schema-push and health-check the sandbox before s
 ## Safety notes
 
 - Never commit sandbox URLs or copied secrets.
+- Use `npm run env:run -- ...` after `npm ci`; do not let ad hoc `npx @dotenvx/dotenvx` fetch code while decrypted secrets are in scope.
 - Prefer short-lived Neon branches for feature reviews.
 - Delete disposable branches/databases after the diagnostic session when your provider does not do that automatically.
 - Do not treat this as permission to run `db:push` against arbitrary shared databases; EFF-010 still owns the broader local database strategy.

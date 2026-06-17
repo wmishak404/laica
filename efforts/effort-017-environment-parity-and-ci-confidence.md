@@ -656,3 +656,14 @@ The same pass removed `server/localAuth.ts` after repo search showed no active i
 The branch also added focused `cooking-history.tsx` coverage for loading/empty states, expanding completed-session recipe details, delayed single-session delete, undo, and confirmed delete-all. The history menu/delete buttons now have accessible names, giving both tests and users stable control labels.
 
 This still does not close EFF-017. The broader dead-code sweep remains open for product-shaped dormant surfaces that need separate judgment before deletion, and live-but-thin surfaces such as broader `useAuth` and broader `live-cooking.tsx` still need targeted coverage rather than removal.
+
+## 2026-06-17 — Local dotenvx runner pinned for safer diagnostics
+
+INIT-001 recipe preview imagery exposed a local provider-light Playwright blocker: the old documented command used `npx @dotenvx/dotenvx run -- ...`, which can fetch and execute package code at the same moment decrypted secrets are injected into the child process. The mitigation is intentionally narrow:
+
+- `@dotenvx/dotenvx` is now a repo dependency pinned through `package-lock.json`.
+- Local secret-backed commands use `npm run env:run -- ...` after `npm ci` instead of one-off `npx` fetches.
+- Secret editing uses repo scripts (`npm run env:decrypt` / `npm run env:encrypt`).
+- Local browser/Playwright against a current schema still requires either a passing default `DATABASE_URL` `db:health` or the disposable local diagnostics sandbox.
+
+This improves local diagnostic hygiene but does not promote local Playwright to the routine merge gate. If a local run needs fresh schema, real Firebase-shaped auth, and remote DB setup, prefer GitHub CI `e2e_guest_smoke` for repeatable merge evidence, then Replit for live provider/storage/domain seams.
