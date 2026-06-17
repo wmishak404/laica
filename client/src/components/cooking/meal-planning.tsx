@@ -103,7 +103,6 @@ const cuisineOptions = [
 ];
 
 const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
-const SELECTED_RECIPE_IMAGE_POLL_ATTEMPTS = 4;
 const SELECTED_RECIPE_IMAGE_POLL_DELAY_MS = 5_000;
 
 const isPlanningStep = (value: unknown): value is PlanningStep =>
@@ -175,6 +174,7 @@ export default function MealPlanning({
   const [recommendations, setRecommendations] = useState<RecipeRecommendation[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSelectedRecipeImagePending, setIsSelectedRecipeImagePending] = useState(false);
   const [sessionRestored, setSessionRestored] = useState(false);
   const [lockedStapleView, setLockedStapleView] = useState<LockedStapleView | null>(null);
   const [savedStapleHint, setSavedStapleHint] = useState<string | null>(null);
@@ -347,13 +347,16 @@ export default function MealPlanning({
   const isActiveImagePreview = (runId: number, controller: AbortController) =>
     activeImagePreviewRef.current?.runId === runId && !controller.signal.aborted;
 
-  const cancelRecipeImageHydration = () => {
+  const cancelRecipeImageHydration = ({ resetUi = true }: { resetUi?: boolean } = {}) => {
     const activePreview = activeImagePreviewRef.current;
-    if (!activePreview) return;
-
-    activePreview.controller.abort();
-    activeImagePreviewRef.current = null;
-    imagePreviewRunIdRef.current += 1;
+    if (activePreview) {
+      activePreview.controller.abort();
+      activeImagePreviewRef.current = null;
+      imagePreviewRunIdRef.current += 1;
+    }
+    if (resetUi) {
+      setIsSelectedRecipeImagePending(false);
+    }
   };
 
   const cancelActiveGeneration = ({ resetUi = true }: { resetUi?: boolean } = {}) => {
@@ -373,7 +376,7 @@ export default function MealPlanning({
   useEffect(() => {
     return () => {
       cancelActiveGeneration({ resetUi: false });
-      cancelRecipeImageHydration();
+      cancelRecipeImageHydration({ resetUi: false });
     };
   }, []);
 
@@ -502,17 +505,15 @@ export default function MealPlanning({
     recipe: RecipeRecommendation,
     controller: AbortController,
     {
-      attempts,
       delayMs,
       isStillActive,
     }: {
-      attempts: number;
       delayMs: number;
       isStillActive: () => boolean;
     },
   ): Promise<{ imageUrl: string } | null> => {
     const resolverRecipe = buildRecipeImageResolverPayload(recipe);
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
+    while (isStillActive()) {
       const result = await resolveSelectedRecipeImage(resolverRecipe, { signal: controller.signal });
       if (!isStillActive()) return null;
 
@@ -520,7 +521,7 @@ export default function MealPlanning({
         return { imageUrl: result.image.imageUrl };
       }
 
-      if (result.status === 'unavailable' || attempt === attempts - 1) {
+      if (result.status === 'unavailable') {
         return null;
       }
 
@@ -555,11 +556,11 @@ export default function MealPlanning({
     const runId = imagePreviewRunIdRef.current + 1;
     imagePreviewRunIdRef.current = runId;
     activeImagePreviewRef.current = { runId, controller };
+    setIsSelectedRecipeImagePending(true);
 
     void (async () => {
       try {
         const image = await waitForResolvedSelectedRecipeImage(recipe, controller, {
-          attempts: SELECTED_RECIPE_IMAGE_POLL_ATTEMPTS,
           delayMs: SELECTED_RECIPE_IMAGE_POLL_DELAY_MS,
           isStillActive: () => isActiveImagePreview(runId, controller),
         });
@@ -573,6 +574,7 @@ export default function MealPlanning({
       } finally {
         if (activeImagePreviewRef.current?.runId === runId) {
           activeImagePreviewRef.current = null;
+          setIsSelectedRecipeImagePending(false);
         }
       }
     })();
@@ -1038,10 +1040,15 @@ export default function MealPlanning({
     </section>
   );
 
-  const renderRecipeImageSlot = (recipe: RecipeRecommendation, variant: 'ticket' | 'prep' = 'ticket') => (
+  const renderRecipeImageSlot = (
+    recipe: RecipeRecommendation,
+    variant: 'ticket' | 'prep' = 'ticket',
+    isGeneratingPreview = false,
+  ) => (
     <span
       className={`planning-recipe-image-slot ${variant === 'prep' ? 'planning-recipe-image-slot-prep' : ''}`}
       data-has-image={Boolean(recipe.imageUrl)}
+      data-image-state={recipe.imageUrl ? 'ready' : isGeneratingPreview ? 'pending' : 'placeholder'}
       aria-hidden="true"
     >
       {recipe.imageUrl ? (
@@ -1050,6 +1057,9 @@ export default function MealPlanning({
         <>
           <span className="planning-recipe-image-plate" />
           <Utensils className="planning-recipe-image-icon" />
+          {isGeneratingPreview && (
+            <span className="planning-recipe-image-spinner" />
+          )}
         </>
       )}
     </span>
@@ -1186,7 +1196,7 @@ export default function MealPlanning({
         {/* design:tone-override — Prep Tray is the Phase 3 tactile ticket-detail object, not a generic recipe card. */}
         <div className="planning-prep-tray">
           <div className="planning-prep-hero">
-            {renderRecipeImageSlot(selectedMeal, 'prep')}
+            {renderRecipeImageSlot(selectedMeal, 'prep', isSelectedRecipeImagePending)}
           </div>
           <div className="planning-prep-body">
             <h1 className="planning-display text-3xl font-extrabold leading-tight">{selectedMeal.recipeName}</h1>

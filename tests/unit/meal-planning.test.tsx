@@ -831,11 +831,14 @@ describe('MealPlanning recipe generation locking', () => {
 
       expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
       expect(container.querySelector('.planning-prep-hero .planning-recipe-image')).toBeNull();
+      expect(container.querySelector('.planning-prep-hero .planning-recipe-image-slot')?.getAttribute('data-image-state'))
+        .toBe('pending');
+      expect(container.querySelector('.planning-prep-hero .planning-recipe-image-spinner')).not.toBeNull();
       fireEvent.click(screen.getByRole('button', { name: /cook this/i }));
       expect(onMealSelected).toHaveBeenCalledTimes(1);
 
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(5_000);
+        await vi.advanceTimersByTimeAsync(15_000);
       });
 
       expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
@@ -845,9 +848,12 @@ describe('MealPlanning recipe generation locking', () => {
     }
   });
 
-  it('shows a selected Prep Tray image if it becomes ready within the 15 second window', async () => {
+  it('keeps showing Prep Tray progress and resolves an image after the old 15 second window', async () => {
     fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
     resolveSelectedRecipeImageMock
+      .mockResolvedValueOnce({ status: 'pending' })
+      .mockResolvedValueOnce({ status: 'pending' })
+      .mockResolvedValueOnce({ status: 'pending' })
       .mockResolvedValueOnce({ status: 'pending' })
       .mockResolvedValueOnce({
         status: 'ready',
@@ -869,13 +875,47 @@ describe('MealPlanning recipe generation locking', () => {
       });
       expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
       expect(container.querySelector('.planning-prep-hero .planning-recipe-image')).toBeNull();
+      expect(container.querySelector('.planning-prep-hero .planning-recipe-image-slot')?.getAttribute('data-image-state'))
+        .toBe('pending');
 
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(5_000);
+        await vi.advanceTimersByTimeAsync(20_000);
       });
-      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(2);
+      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(5);
       expect(container.querySelector<HTMLImageElement>('.planning-prep-hero .planning-recipe-image')?.src)
         .toContain('/api/recipe-images/selected-cache');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stops selected image polling when the user leaves Prep Tray', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveSelectedRecipeImageMock.mockResolvedValue({ status: 'pending' });
+    renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByLabelText(/back to recipe suggestions/i));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(15_000);
+      });
+
+      expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
     } finally {
       vi.useRealTimers();
     }

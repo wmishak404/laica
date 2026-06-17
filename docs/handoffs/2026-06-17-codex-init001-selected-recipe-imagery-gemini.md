@@ -2,7 +2,7 @@
 
 ## Summary
 
-PR #192 pivoted the Phase 3.1 recipe imagery UX after Replit testing showed late three-image Ticket Pass hydration felt wrong even when technically all-or-none. Ticket Pass is now a fast, fair text-choice surface with intentional placeholders only. Prep Tray hydrates one selected recipe image as a non-blocking enhancement with a 15-second visible SLA.
+PR #192 pivoted the Phase 3.1 recipe imagery UX after Replit testing showed late three-image Ticket Pass hydration felt wrong even when technically all-or-none. Ticket Pass is now a fast, fair text-choice surface with intentional placeholders only. Prep Tray hydrates one selected recipe image as a non-blocking enhancement and shows a subtle spinner in the placeholder while the preview is still being prepared.
 
 The branch also implements Gemini/Nano Banana image generation behind `RECIPE_IMAGE_PROVIDER=gemini` for benchmarking. OpenAI remains the default provider until Replit benchmark evidence supports a change.
 
@@ -11,7 +11,7 @@ The branch also implements Gemini/Nano Banana image generation behind `RECIPE_IM
 - Added `POST /api/recipe-images/selected/resolve` for one structured selected recipe.
 - Reused `recipe_image_cache`, strict title/core-ingredient fingerprints, opaque App Storage object keys, image-serving route, terminal failure handling, and generation-start rate-limit semantics.
 - MealPlanning strips all recipe `imageUrl`s before Ticket Pass, does not call an image resolver while showing choices, and starts selected-image polling only after `prep-tray`.
-- Selected-image polling stops quietly after four attempts spaced five seconds apart, or earlier on unavailable/rejected responses, back, refresh, unmount, or cooking start.
+- Selected-image polling continues while Prep Tray is visible and the server reports `pending`, then stops on ready, unavailable/rejected responses, back, refresh, unmount, or cooking start.
 - Gemini provider support uses REST/fetch with `GEMINI_API_KEY`; no SDK dependency was added.
 - Gemini defaults are provider-specific: `gemini-3.1-flash-image`, 512 square output, PNG storage. `gemini-2.5-flash-image` is benchmarkable by setting `RECIPE_IMAGE_MODEL`.
 - `accuracy_result.timingsMs` now records generation, judge, upload, and total timing for ready/rejected rows.
@@ -30,7 +30,7 @@ The branch also implements Gemini/Nano Banana image generation behind `RECIPE_IM
 
 1. Sync the final PR head into Replit and restart the app.
 2. Confirm Ticket Pass shows placeholders only and no `POST /api/recipe-images/selected/resolve` call before opening Prep Tray.
-3. Open Prep Tray and confirm one selected image appears if approved within 15 seconds, or the placeholder remains without blocking `Cook this`.
+3. Open Prep Tray and confirm one selected image appears if approved while Prep Tray stays visible, the placeholder shows the subtle spinner while pending, and `Cook this` remains immediately usable.
 4. Run Gemini benchmark:
 
 ```bash

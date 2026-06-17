@@ -318,7 +318,7 @@ test.describe('Laica Guest E2E Smoke', () => {
 
     await page.getByRole('button', { name: 'View prep tray' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Pantry Rice Bowl' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Soy Rice Breakfast Bowl' })).toBeVisible();
     await expect(page.locator('.planning-prep-hero .planning-recipe-image')).toHaveCount(1);
     expect(await page.locator('.planning-prep-hero .planning-recipe-image').evaluateAll((images) =>
       images.map((image) => image.getAttribute('src'))
