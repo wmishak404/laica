@@ -104,7 +104,8 @@ const cuisineOptions = [
 
 const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
 const RECIPE_IMAGE_POLL_ATTEMPTS = 6;
-const RECIPE_IMAGE_POLL_DELAY_MS = 2_000;
+// Keep the resolver request count low while giving live image generation and judging time to finish.
+const RECIPE_IMAGE_POLL_DELAY_MS = 20_000;
 
 const isPlanningStep = (value: unknown): value is PlanningStep =>
   value === 'time' || value === 'cuisine' || value === 'staples' || value === 'tickets' || value === 'prep-tray';
@@ -570,6 +571,14 @@ export default function MealPlanning({
     })();
   };
 
+  useEffect(() => {
+    if (currentStep !== 'tickets' && currentStep !== 'prep-tray') return;
+    if (recommendations.length !== 3) return;
+    if (recommendations.every((recipe) => Boolean(recipe.imageUrl))) return;
+
+    hydrateRecipeImages(recommendations);
+  }, [currentStep, recommendations]);
+
   const generateRecommendations = async ({
     confirmedStaples = [],
     askedStaples = [],
@@ -727,7 +736,6 @@ export default function MealPlanning({
         setRecommendations(result);
         setSelectedMeal(result[0]);
         setCurrentStep('tickets');
-        hydrateRecipeImages(result);
       }
     } finally {
       if (activeGenerationRef.current?.runId === runId) {
