@@ -73,6 +73,12 @@ suggestedTimer?: {
 - Back-to-planning, Finish, sign-out, route changes, and component unmounts must share the same cleanup path so audio cannot continue after the cooking surface exits.
 - This cleanup applies to linked and anonymous cooking sessions. Guest mode makes the flow easier to automate, but it should not get a weaker audio lifecycle than linked-account cooking.
 
+### 2026-06-17 - Audio lifecycle cleanup slice
+
+Branch `codex/init-001-cooking-audio-cleanup` implements the first narrow Phase 4 runtime slice for the Replit-observed speech-leak issue. Back to Planning, Finish, and unmount now share a cleanup path that clears delayed speech, clears mobile audio retry timers, stops current audio/browser speech synthesis, invalidates late ElevenLabs synthesis responses before playback, and cancels active voice recording without processing abandoned audio chunks.
+
+This slice intentionally does not implement the broader Phase 4 cooking redesign: Ready Check, Coach Feed, timer redesign, inline AI recovery, Finish/history semantics, provider prompts, schema changes, and Phase 5 cleanup remain future Phase 4/5 work.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
@@ -91,7 +97,7 @@ suggestedTimer?: {
 - Persistent live-cooking failures offer inline Feedback access.
 - No live-cooking failure hides the pinned current step or leaves the cook without a next action.
 - Live-cooking errors follow EFF-018 status classification and copy principles.
-- Pressing Back to Planning, Finish, sign-out, browser back, or otherwise leaving the cooking guide stops active voice playback, cancels queued synthesis/recording work, and prevents audio from continuing after the cooking UI has exited.
+- Pressing Back to Planning, Finish, sign-out, browser back, or otherwise leaving the cooking guide stops active voice playback, cancels queued synthesis/recording work, and prevents audio from continuing after the cooking UI has exited. The Back/late-synthesis path is covered in `tests/unit/live-cooking-guest-session.test.tsx`; Replit/mobile speech smoke remains useful before broader Phase 4 closeout.
 
 ## Effort Interactions
 

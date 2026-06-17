@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LiveCooking from '../../client/src/components/cooking/live-cooking';
 
@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   updateCookingSession: vi.fn(),
   completeCookingSession: vi.fn(),
   toast: vi.fn(),
+  synthesizeSpeech: vi.fn(),
 }));
 
 vi.mock('@/hooks/useAuth', () => ({
@@ -47,7 +48,7 @@ vi.mock('@/lib/rateLimitHandler', () => ({
 vi.mock('@/lib/elevenlabs', () => ({
   COOKING_VOICE_SETTINGS: {},
   elevenLabsClient: {
-    synthesizeSpeech: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
+    synthesizeSpeech: mocks.synthesizeSpeech,
   },
   browserTTSClient: {
     speak: vi.fn().mockResolvedValue(undefined),
@@ -110,10 +111,13 @@ describe('LiveCooking guest session boundary', () => {
       },
     });
     mocks.startCookingSession.mockResolvedValue({ id: 123 });
+    mocks.synthesizeSpeech.mockResolvedValue(new ArrayBuffer(8));
   });
 
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
     vi.clearAllMocks();
     window.localStorage.clear();
   });
@@ -285,5 +289,60 @@ describe('LiveCooking guest session boundary', () => {
     const rewrittenSession = JSON.parse(window.localStorage.getItem('laica_cooking_session:guest:guest-user-id') || '{}');
     expect(rewrittenSession.profileFingerprint).toBe('current-profile');
     expect(rewrittenSession.steps?.[0]?.instruction).toBe('Warm the rice and beans.');
+  });
+
+  it('stops queued cooking audio when leaving before speech playback starts', async () => {
+    vi.useFakeTimers();
+
+    let resolveSpeech: (buffer: ArrayBuffer) => void = () => undefined;
+    mocks.synthesizeSpeech.mockReturnValueOnce(new Promise<ArrayBuffer>((resolve) => {
+      resolveSpeech = resolve;
+    }));
+    const browserSpeechCancel = vi.fn();
+    vi.stubGlobal('speechSynthesis', {
+      speaking: true,
+      pending: true,
+      cancel: browserSpeechCancel,
+    });
+    const AudioContextMock = vi.fn();
+    vi.stubGlobal('AudioContext', AudioContextMock);
+    const onBackToPlanning = vi.fn();
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={onBackToPlanning}
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));
+
+    await act(async () => {
+      vi.advanceTimersByTime(900);
+      await Promise.resolve();
+    });
+
+    expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /back to planning/i }));
+    resolveSpeech(new ArrayBuffer(8));
+
+    await act(async () => {
+      await Promise.resolve();
+      vi.advanceTimersByTime(500);
+      await Promise.resolve();
+    });
+
+    expect(onBackToPlanning).toHaveBeenCalledTimes(1);
+    expect(browserSpeechCancel).toHaveBeenCalled();
+    expect(AudioContextMock).not.toHaveBeenCalled();
   });
 });
