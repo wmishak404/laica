@@ -17,6 +17,8 @@ const recipeImageConfig = {
   model: "gpt-image-2",
   quality: "low",
   outputSize: "1024x1024",
+  outputFormat: "png" as const,
+  outputCompression: 70,
   styleVersion: "phase-3-1-v1",
   mimeType: "image/png",
 };

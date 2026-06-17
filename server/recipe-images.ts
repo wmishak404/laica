@@ -10,8 +10,9 @@ const DEFAULT_PROVIDER = "openai";
 const DEFAULT_MODEL = "gpt-image-2";
 const DEFAULT_QUALITY = "low";
 const DEFAULT_OUTPUT_SIZE = "1024x1024";
+const DEFAULT_OUTPUT_FORMAT = "jpeg";
+const DEFAULT_OUTPUT_COMPRESSION = 70;
 const DEFAULT_STYLE_VERSION = "phase-3-1-v1";
-const DEFAULT_MIME_TYPE = "image/png";
 const IMAGE_OBJECT_PREFIX = "recipe-images";
 const PENDING_STALE_MS = 2 * 60 * 1000;
 const DEFAULT_IMAGE_GENERATION_TIMEOUT_MS = 115_000;
@@ -19,6 +20,7 @@ const DEFAULT_IMAGE_JUDGE_TIMEOUT_MS = 45_000;
 const CACHE_KEY_PATTERN = /^[a-f0-9]{64}$/;
 
 type RecipeImageProvider = "openai" | "gemini";
+type RecipeImageOutputFormat = "png" | "jpeg" | "webp";
 type RecipeImageStatus = "pending" | "ready" | "failed" | "rejected";
 
 export interface RecipeImageFingerprint {
@@ -34,6 +36,8 @@ interface RecipeImageConfig {
   model: string;
   quality: string;
   outputSize: string;
+  outputFormat: RecipeImageOutputFormat;
+  outputCompression: number;
   styleVersion: string;
   mimeType: string;
 }
@@ -111,12 +115,37 @@ function getPositiveIntegerEnv(name: string, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function getIntegerEnvInRange(name: string, fallback: number, min: number, max: number): number {
+  const parsed = Number.parseInt(process.env[name] || "", 10);
+  return Number.isFinite(parsed) && parsed >= min && parsed <= max ? parsed : fallback;
+}
+
 function isEnabledEnv(value: string | undefined): boolean {
   return value === "1" || value?.toLowerCase() === "true" || value?.toLowerCase() === "yes";
 }
 
+function getRecipeImageOutputFormat(value: string | undefined): RecipeImageOutputFormat {
+  const normalized = (value || DEFAULT_OUTPUT_FORMAT).toLowerCase();
+  if (normalized === "png" || normalized === "webp" || normalized === "jpeg") {
+    return normalized;
+  }
+
+  return DEFAULT_OUTPUT_FORMAT;
+}
+
+function getRecipeImageMimeType(outputFormat: RecipeImageOutputFormat): string {
+  if (outputFormat === "jpeg") return "image/jpeg";
+  if (outputFormat === "webp") return "image/webp";
+  return "image/png";
+}
+
+function getRecipeImageObjectExtension(outputFormat: RecipeImageOutputFormat): string {
+  return outputFormat === "jpeg" ? "jpg" : outputFormat;
+}
+
 function getRecipeImageConfig(): RecipeImageConfig {
   const provider = (process.env.RECIPE_IMAGE_PROVIDER || DEFAULT_PROVIDER).toLowerCase();
+  const outputFormat = getRecipeImageOutputFormat(process.env.RECIPE_IMAGE_OUTPUT_FORMAT);
 
   return {
     enabled: isEnabledEnv(process.env.RECIPE_IMAGE_GENERATION_ENABLED),
@@ -124,8 +153,15 @@ function getRecipeImageConfig(): RecipeImageConfig {
     model: process.env.RECIPE_IMAGE_MODEL || DEFAULT_MODEL,
     quality: process.env.RECIPE_IMAGE_QUALITY || DEFAULT_QUALITY,
     outputSize: process.env.RECIPE_IMAGE_OUTPUT_SIZE || DEFAULT_OUTPUT_SIZE,
+    outputFormat,
+    outputCompression: getIntegerEnvInRange(
+      "RECIPE_IMAGE_OUTPUT_COMPRESSION",
+      DEFAULT_OUTPUT_COMPRESSION,
+      0,
+      100,
+    ),
     styleVersion: process.env.RECIPE_IMAGE_STYLE_VERSION || DEFAULT_STYLE_VERSION,
-    mimeType: DEFAULT_MIME_TYPE,
+    mimeType: getRecipeImageMimeType(outputFormat),
   };
 }
 
@@ -222,7 +258,7 @@ export function recipeImageFingerprintsMatch(left: unknown, right: RecipeImageFi
 
 export function buildRecipeImageCacheKey(
   fingerprint: RecipeImageFingerprint,
-  config: Pick<RecipeImageConfig, "provider" | "model" | "quality" | "outputSize" | "styleVersion"> = getRecipeImageConfig(),
+  config: Pick<RecipeImageConfig, "provider" | "model" | "quality" | "outputSize" | "outputFormat" | "outputCompression" | "styleVersion"> = getRecipeImageConfig(),
 ): string {
   const payload = {
     cacheSchema: "recipe-image-cache-v1",
@@ -230,6 +266,8 @@ export function buildRecipeImageCacheKey(
     model: config.model,
     quality: config.quality,
     outputSize: config.outputSize,
+    outputFormat: config.outputFormat,
+    outputCompression: config.outputCompression,
     styleVersion: config.styleVersion,
     fingerprint,
   };
@@ -250,7 +288,7 @@ export function buildRecipeImageDescriptor(
     recipe,
     fingerprint,
     cacheKey,
-    objectKey: `${IMAGE_OBJECT_PREFIX}/${config.styleVersion}/${cacheKey}.png`,
+    objectKey: `${IMAGE_OBJECT_PREFIX}/${config.styleVersion}/${cacheKey}.${getRecipeImageObjectExtension(config.outputFormat)}`,
     imageUrl: `${IMAGE_ROUTE_PREFIX}/${cacheKey}`,
   };
 }
@@ -431,6 +469,8 @@ async function generateOpenAiRecipeImage(
         prompt: buildRecipeImagePrompt(descriptor),
         quality: config.quality,
         size: config.outputSize,
+        output_format: config.outputFormat,
+        ...(config.outputFormat === "png" ? {} : { output_compression: config.outputCompression }),
         n: 1,
       }),
     },
@@ -477,6 +517,7 @@ function parseAccuracyResult(rawContent: string | null | undefined): RecipeImage
 async function judgeRecipeImageAccuracy(
   descriptor: RecipeImageDescriptor,
   imageBytes: Buffer,
+  mimeType: string,
 ): Promise<RecipeImageAccuracyResult> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -531,7 +572,7 @@ async function judgeRecipeImageAccuracy(
               {
                 type: "image_url",
                 image_url: {
-                  url: `data:${DEFAULT_MIME_TYPE};base64,${imageBytes.toString("base64")}`,
+                  url: `data:${mimeType};base64,${imageBytes.toString("base64")}`,
                 },
               },
             ],
@@ -580,7 +621,7 @@ async function generateAndApproveDescriptor(
 ): Promise<void> {
   try {
     const imageBytes = await generateOpenAiRecipeImage(descriptor, config);
-    const accuracyResult = await judgeRecipeImageAccuracy(descriptor, imageBytes);
+    const accuracyResult = await judgeRecipeImageAccuracy(descriptor, imageBytes, config.mimeType);
     if (!accuracyResult.approved) {
       await updateRecipeImageRow(descriptor.cacheKey, {
         status: "rejected",
@@ -634,9 +675,7 @@ async function generateRecipeImageBatch(
     return !rowIsReadyForDescriptor(row, descriptor) && !rowIsTerminalFailure(row) && (!row || rowIsPendingStale(row));
   });
 
-  for (const descriptor of toGenerate) {
-    await generateAndApproveDescriptor(descriptor, config);
-  }
+  await Promise.all(toGenerate.map((descriptor) => generateAndApproveDescriptor(descriptor, config)));
 }
 
 function startRecipeImageBatch(
@@ -740,7 +779,7 @@ export async function serveRecipeImageCacheObject(req: Request, res: Response): 
     const imageBytes = await downloadRecipeImageObject(row.objectKey);
     res.set({
       "Cache-Control": "public, max-age=604800, immutable",
-      "Content-Type": row.mimeType || DEFAULT_MIME_TYPE,
+      "Content-Type": row.mimeType || getRecipeImageMimeType(DEFAULT_OUTPUT_FORMAT),
       "X-Content-Type-Options": "nosniff",
     });
     res.send(imageBytes);

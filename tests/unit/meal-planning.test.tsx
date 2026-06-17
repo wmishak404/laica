@@ -90,6 +90,44 @@ const recipeResponse = {
   ],
 };
 
+const refreshedRecipeResponse = {
+  recipes: [
+    {
+      recipeName: 'Leek Carrot Tofu Stir-Fry',
+      description: 'A quick stir-fry with tofu and pantry vegetables.',
+      cookTime: 30,
+      difficulty: 'Easy',
+      cuisine: 'Japanese',
+      pantryMatch: 94,
+      pantryIngredientsUsed: ['leeks', 'carrots', 'tofu', 'rice'],
+      additionalIngredientsNeeded: ['soy sauce'],
+      isFusion: false,
+    },
+    {
+      recipeName: 'Dashi Kimchi Vegetable Soup',
+      description: 'A brothy soup built around kimchi and vegetables.',
+      cookTime: 45,
+      difficulty: 'Medium',
+      cuisine: 'Korean',
+      pantryMatch: 90,
+      pantryIngredientsUsed: ['kimchi', 'dashi packets', 'spinach'],
+      additionalIngredientsNeeded: [],
+      isFusion: false,
+    },
+    {
+      recipeName: 'Curry Beef Donburi',
+      description: 'A warm curry rice bowl with beef and vegetables.',
+      cookTime: 45,
+      difficulty: 'Medium',
+      cuisine: 'Japanese',
+      pantryMatch: 88,
+      pantryIngredientsUsed: ['beef', 'rice', 'carrots'],
+      additionalIngredientsNeeded: [],
+      isFusion: false,
+    },
+  ],
+};
+
 interface RenderMealPlanningOptions {
   savePantryIngredients?: boolean;
   sessionScopeKey?: string;
@@ -812,7 +850,7 @@ describe('MealPlanning recipe generation locking', () => {
       expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
 
       await act(async () => {
-        vi.advanceTimersByTime(20_000);
+        vi.advanceTimersByTime(10_000);
         await Promise.resolve();
       });
 
@@ -820,12 +858,78 @@ describe('MealPlanning recipe generation locking', () => {
       expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
 
       await act(async () => {
-        vi.advanceTimersByTime(20_000);
+        vi.advanceTimersByTime(10_000);
         await Promise.resolve();
       });
 
       expect(resolveRecipeImagesMock).toHaveBeenCalledTimes(3);
       expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('keeps the previous image-backed tickets visible during refresh until the new image set is ready', async () => {
+    fetchPantryRecipesMock
+      .mockResolvedValueOnce(recipeResponse)
+      .mockResolvedValueOnce(refreshedRecipeResponse);
+    resolveRecipeImagesMock
+      .mockResolvedValueOnce({
+        status: 'ready',
+        images: [
+          { recipeIndex: 0, imageUrl: '/api/recipe-images/old-a', cacheKey: 'old-a' },
+          { recipeIndex: 1, imageUrl: '/api/recipe-images/old-b', cacheKey: 'old-b' },
+          { recipeIndex: 2, imageUrl: '/api/recipe-images/old-c', cacheKey: 'old-c' },
+        ],
+      })
+      .mockResolvedValueOnce({ status: 'pending' })
+      .mockResolvedValueOnce({
+        status: 'ready',
+        images: [
+          { recipeIndex: 0, imageUrl: '/api/recipe-images/new-a', cacheKey: 'new-a' },
+          { recipeIndex: 1, imageUrl: '/api/recipe-images/new-b', cacheKey: 'new-b' },
+          { recipeIndex: 2, imageUrl: '/api/recipe-images/new-c', cacheKey: 'new-c' },
+        ],
+      });
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    await waitFor(() => {
+      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+    });
+
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(screen.getByRole('button', { name: /refresh suggestions/i }));
+
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+      expect(fetchPantryRecipesMock).toHaveBeenCalledTimes(2);
+      expect(screen.getByText('Pantry Rice Bowl')).toBeTruthy();
+      expect(screen.queryByText('Leek Carrot Tofu Stir-Fry')).toBeNull();
+      expect(screen.getByRole('button', { name: /finding recipes/i })).toBeDisabled();
+      expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['true', 'true', 'true']);
+
+      await act(async () => {
+        vi.advanceTimersByTime(8_000);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      expect(screen.getByText('Leek Carrot Tofu Stir-Fry')).toBeTruthy();
+      expect(screen.queryByText('Pantry Rice Bowl')).toBeNull();
+      expect(Array.from(container.querySelectorAll<HTMLImageElement>('.planning-recipe-image')).map((image) =>
+        image.getAttribute('src')
+      )).toEqual([
+        '/api/recipe-images/new-a',
+        '/api/recipe-images/new-b',
+        '/api/recipe-images/new-c',
+      ]);
     } finally {
       vi.useRealTimers();
     }

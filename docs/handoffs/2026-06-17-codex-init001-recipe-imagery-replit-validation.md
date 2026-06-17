@@ -10,19 +10,24 @@
 
 Replit validation for PR #192 is no longer blocked on schema, storage, or provider setup. The branch generated one real three-image recipe set through OpenAI, stored approved objects in Replit App Storage, and confirmed cached all-or-none image loading in Ticket Pass plus selected-image carry-through into Prep Tray.
 
-The live smoke also found a real client timing gap: three-image generation and judging took about 80 seconds, while the original client polling stopped after roughly 10 seconds. The branch now keeps the request count low while widening the quiet polling window, and it hydrates restored Ticket Pass/Prep Tray batches from cache.
+The live smoke also found a real client timing gap: the original sequential PNG path took about 80 seconds for the slowest approved image, and Wilson's later Refresh Suggestions check showed that late image pop-in feels wrong even when the resolver is technically working. The branch now parallelizes the three image jobs, defaults runtime output to compressed JPEG, keeps restored/fresh background hydration bounded, and gates Refresh replacement so the old image-backed tickets remain visible while the new set is prepared.
 
 ## What Changed After Validation
 
 - `client/src/components/cooking/meal-planning.tsx`
   - Keeps `RECIPE_IMAGE_POLL_ATTEMPTS` at `6`.
-  - Changes the poll delay to `20_000ms`, giving live generation roughly 100 seconds without increasing resolver request count.
+  - Uses a `10_000ms` background poll delay for restored/fresh batches, preserving the six-request cap while checking sooner.
+  - Gates Refresh Suggestions replacement: current image-backed tickets stay visible under the existing loading state until the replacement set has all three approved images, or the refresh deliberately falls back without late pop-in.
   - Moves image hydration to an effect for active `tickets` / `prep-tray` batches so restored cached recommendations can hydrate after reload/back-forward.
+- `server/recipe-images.ts`
+  - Generates and judges the three independent recipe-image descriptors in parallel instead of sequentially.
+  - Defaults runtime output to `jpeg` with compression `70`; cache keys include output format/compression so old PNG rows do not collide.
 - `tests/unit/meal-planning.test.tsx`
   - Adds coverage for delayed pending-to-ready polling without partial reveal.
   - Adds coverage for restored Ticket Pass recipes hydrating from a ready cache set.
+  - Adds coverage that Refresh keeps the previous image-backed tickets visible until the new image set is ready.
 - `initiatives/INIT-001-mobile-refresh.md` and `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`
-  - Record the Replit evidence, timing lesson, and remaining PR-head CI requirement.
+  - Record the Replit evidence, timing lesson, refresh-latency follow-up, and remaining PR-head CI/Replit smoke requirement.
 
 ## Replit Evidence
 
@@ -40,7 +45,7 @@ The live smoke also found a real client timing gap: three-image generation and j
   - Recipes: `Hearty Leek, Beef & Spinach Rice Bowl`, `Curry Braised Tofu & Vegetables`, `Kimchi & Dashi Hotpot / Kimchi Nabe`
   - Cache rows: all `ready`, all had image URLs/object keys, no failure reasons.
   - Judge scores: `0.9`, `0.85`, `0.9`.
-  - Timing from row creation to generated timestamps: about 27s, 52s, and 80s.
+  - Timing from row creation to generated timestamps: about 27s, 52s, and 80s on the original sequential PNG path.
 - UI:
   - At runtime SHA `76b998d`, cached Ticket Pass showed all three images together.
   - Prep Tray loaded the selected recipe image from the same cache URL.
@@ -58,15 +63,27 @@ npm run build
 
 All passed.
 
+Local after the refresh-latency follow-up:
+
+```bash
+npx vitest run tests/unit/meal-planning.test.tsx tests/unit/recipe-images.test.ts
+npm run check
+npm run build
+npm run test:unit
+```
+
+Passed. The full unit suite covered 42 files / 280 tests.
+
 ## Negative Scope
 
-- A second paid live three-image generation was not run after changing the delay from 15s to 20s; the timing adjustment is based on the measured 80s live-generation evidence plus unit coverage.
+- A second paid live three-image generation has not yet been run after changing generation to parallel compressed JPEG output and adding Refresh gating; the latest follow-up is unit-tested locally but needs one focused Replit smoke before merge readiness.
 - Replit Preview showed its own artifact-crashed wrapper because validation used a manually launched flagged server; the direct `.replit.dev` app was the validated surface.
 - Production publish, broad image-accuracy evals, and Gemini/Nano Banana comparison are not covered by this validation.
 - Final PR-head CI still needs to pass after the latest pushes before merge readiness.
 
 ## Next Steps
 
-1. Let PR #192 CI finish on the latest head.
-2. Update the PR description with the Replit evidence above if it is not already present.
-3. Decide whether to keep the non-secret Replit image-generation configurations enabled before merging, or turn off `RECIPE_IMAGE_GENERATION_ENABLED` after validation and re-enable deliberately for rollout.
+1. Push the latest head and let PR #192 CI finish.
+2. Replit smoke the latest head once with `RECIPE_IMAGE_OUTPUT_FORMAT=jpeg` and `RECIPE_IMAGE_OUTPUT_COMPRESSION=70`, confirming Refresh Suggestions does not replace an image-backed set with a placeholder-only set while image prep is still pending.
+3. Update the PR description with the new refresh-latency evidence and keep the original `76b998d` schema/storage/provider smoke as historical evidence.
+4. Decide whether to keep the non-secret Replit image-generation configurations enabled before merging, or turn off `RECIPE_IMAGE_GENERATION_ENABLED` after validation and re-enable deliberately for rollout.
