@@ -147,7 +147,12 @@ describe("recipe image routes", () => {
         { recipeIndex: 2, imageUrl: "/api/recipe-images/c", cacheKey: "c" },
       ],
     });
-    expect(mocks.resolveRecipeImagesForRequest).toHaveBeenCalledWith(recipeImagePayload);
+    expect(mocks.resolveRecipeImagesForRequest).toHaveBeenCalledWith(
+      recipeImagePayload,
+      expect.objectContaining({
+        consumeGenerationRateLimit: expect.any(Function),
+      }),
+    );
   });
 
   it("returns a validation error for invalid resolver payloads", async () => {
@@ -168,7 +173,22 @@ describe("recipe image routes", () => {
     }));
   });
 
-  it("rate-limits repeated image resolve calls per user", async () => {
+  it("does not charge repeated pending polls against the generation limit", async () => {
+    const responses: TestResponse[] = [];
+    for (let index = 0; index < 13; index += 1) {
+      responses.push(await postJson("/api/recipe-images/resolve", recipeImagePayload));
+    }
+
+    expect(responses.every((response) => response.status === 200)).toBe(true);
+    expect(mocks.resolveRecipeImagesForRequest).toHaveBeenCalledTimes(13);
+  });
+
+  it("rate-limits repeated image generation starts per user", async () => {
+    mocks.resolveRecipeImagesForRequest.mockImplementation(async (_payload, options) => {
+      const allowed = await options.consumeGenerationRateLimit();
+      return allowed ? { status: "pending" } : { status: "unavailable", reason: "rate_limited" };
+    });
+
     const responses: TestResponse[] = [];
     for (let index = 0; index < 13; index += 1) {
       responses.push(await postJson("/api/recipe-images/resolve", recipeImagePayload));

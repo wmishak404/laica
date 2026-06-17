@@ -12,8 +12,7 @@ import {
   apiRequestLimit,
   aiIpHourLimit,
   feedbackIpLimit,
-  recipeImageIpHourLimit,
-  recipeImageUserHourLimit,
+  consumeRecipeImageGenerationRateLimits,
   recipeIpHourLimit,
   recipeUserBurstLimit,
   recipeUserDayLimit,
@@ -508,9 +507,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/recipe-images/resolve', isAuthenticated, recipeImageIpHourLimit, recipeImageUserHourLimit, async (req, res) => {
+  app.post('/api/recipe-images/resolve', isAuthenticated, async (req, res) => {
     try {
-      const result = await resolveRecipeImagesForRequest(req.body);
+      const result = await resolveRecipeImagesForRequest(req.body, {
+        consumeGenerationRateLimit: () => consumeRecipeImageGenerationRateLimits(req, res),
+      });
+      if (res.headersSent) {
+        return;
+      }
       res.json(result);
     } catch (error) {
       if (error instanceof z.ZodError) {

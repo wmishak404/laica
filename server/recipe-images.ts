@@ -76,6 +76,10 @@ export type RecipeImageResolveResponse =
       reason?: string;
     };
 
+interface RecipeImageResolveOptions {
+  consumeGenerationRateLimit?: () => boolean | Promise<boolean>;
+}
+
 const trimmedIngredientSchema = z.string().trim().min(1).max(120);
 
 export const recipeImageRecipeSchema = z
@@ -665,16 +669,22 @@ async function generateAndApproveDescriptor(
   }
 }
 
+function getDescriptorsNeedingGeneration(
+  descriptors: RecipeImageDescriptor[],
+  rowsBeforeStart: Map<string, RecipeImageCache>,
+): RecipeImageDescriptor[] {
+  return descriptors.filter((descriptor) => {
+    const row = rowsBeforeStart.get(descriptor.cacheKey);
+    return !rowIsReadyForDescriptor(row, descriptor) && !rowIsTerminalFailure(row) && (!row || rowIsPendingStale(row));
+  });
+}
+
 async function generateRecipeImageBatch(
   descriptors: RecipeImageDescriptor[],
   rowsBeforeStart: Map<string, RecipeImageCache>,
   config: RecipeImageConfig,
 ): Promise<void> {
-  const toGenerate = descriptors.filter((descriptor) => {
-    const row = rowsBeforeStart.get(descriptor.cacheKey);
-    return !rowIsReadyForDescriptor(row, descriptor) && !rowIsTerminalFailure(row) && (!row || rowIsPendingStale(row));
-  });
-
+  const toGenerate = getDescriptorsNeedingGeneration(descriptors, rowsBeforeStart);
   await Promise.all(toGenerate.map((descriptor) => generateAndApproveDescriptor(descriptor, config)));
 }
 
@@ -728,7 +738,10 @@ function readyResponseFromDescriptors(
   return null;
 }
 
-export async function resolveRecipeImagesForRequest(rawInput: unknown): Promise<RecipeImageResolveResponse> {
+export async function resolveRecipeImagesForRequest(
+  rawInput: unknown,
+  options: RecipeImageResolveOptions = {},
+): Promise<RecipeImageResolveResponse> {
   const input = recipeImageResolveRequestSchema.parse(rawInput);
   const config = getRecipeImageConfig();
   const descriptors = input.recipes.map((recipe, index) =>
@@ -749,6 +762,14 @@ export async function resolveRecipeImagesForRequest(rawInput: unknown): Promise<
   const unavailableReason = getGenerationUnavailableReason(config);
   if (unavailableReason) {
     return { status: "unavailable", reason: unavailableReason };
+  }
+
+  const descriptorsNeedingGeneration = getDescriptorsNeedingGeneration(descriptors, existingRows);
+  if (descriptorsNeedingGeneration.length > 0 && options.consumeGenerationRateLimit) {
+    const allowed = await options.consumeGenerationRateLimit();
+    if (!allowed) {
+      return { status: "unavailable", reason: "rate_limited" };
+    }
   }
 
   await touchOrCreatePendingRows(descriptors, config);

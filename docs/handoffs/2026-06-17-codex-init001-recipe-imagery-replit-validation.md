@@ -10,7 +10,7 @@
 
 Replit validation for PR #192 is no longer blocked on schema, storage, or provider setup. The branch generated one real three-image recipe set through OpenAI, stored approved objects in Replit App Storage, and confirmed cached all-or-none image loading in Ticket Pass plus selected-image carry-through into Prep Tray.
 
-The live smoke also found a real client timing gap: the original sequential PNG path took about 80 seconds for the slowest approved image, and Wilson's later Refresh Suggestions check showed that late image pop-in feels wrong even when the resolver is technically working. The branch now parallelizes the three image jobs, defaults runtime output to compressed JPEG, keeps restored/fresh background hydration bounded, and gates Refresh replacement so the old image-backed tickets remain visible while the new set is prepared.
+The live smoke also found a real client timing gap: the original sequential PNG path took about 80 seconds for the slowest approved image, and Wilson's later Refresh Suggestions check showed that late image pop-in feels wrong even when the resolver is technically working. The branch now parallelizes the three image jobs, defaults runtime output to compressed JPEG, keeps restored/fresh background hydration bounded, gates Refresh replacement so the old image-backed tickets remain visible while the new set is prepared, and charges the small recipe-image abuse budget only when generation is about to start or restart rather than on every pending poll.
 
 ## What Changed After Validation
 
@@ -22,10 +22,15 @@ The live smoke also found a real client timing gap: the original sequential PNG 
 - `server/recipe-images.ts`
   - Generates and judges the three independent recipe-image descriptors in parallel instead of sequentially.
   - Defaults runtime output to `jpeg` with compression `70`; cache keys include output format/compression so old PNG rows do not collide.
+  - Distinguishes status polls from generation starts so repeated `pending` resolver calls do not burn the same hourly user generation limit.
+- `server/routes.ts` and `server/rate-limit.ts`
+  - Move recipe-image IP/user hour limit consumption from route middleware to the resolver's generation-start point. Global API limits still cover request spam.
 - `tests/unit/meal-planning.test.tsx`
   - Adds coverage for delayed pending-to-ready polling without partial reveal.
   - Adds coverage for restored Ticket Pass recipes hydrating from a ready cache set.
   - Adds coverage that Refresh keeps the previous image-backed tickets visible until the new image set is ready.
+- `tests/unit/recipe-image-route.test.ts`
+  - Adds coverage that pending polls are not charged against the generation limit, while repeated generation starts still rate-limit per user.
 - `initiatives/INIT-001-mobile-refresh.md` and `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`
   - Record the Replit evidence, timing lesson, refresh-latency follow-up, and remaining PR-head CI/Replit smoke requirement.
 
@@ -67,6 +72,7 @@ Local after the refresh-latency follow-up:
 
 ```bash
 npx vitest run tests/unit/meal-planning.test.tsx tests/unit/recipe-images.test.ts
+npx vitest run tests/unit/recipe-image-route.test.ts tests/unit/recipe-images.test.ts tests/unit/meal-planning.test.tsx
 npm run check
 npm run build
 npm run test:unit
