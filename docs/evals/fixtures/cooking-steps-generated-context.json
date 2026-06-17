@@ -1,0 +1,38 @@
+{
+  "id": "cooking-steps-generated-context",
+  "surface": "cooking_steps",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "positive-guard"],
+  "sourceRefs": ["init004-phase-1-surface-audit"],
+  "request": {
+    "recipeName": "Crispy Egg and Pea Slop Bowl",
+    "ingredients": ["rice", "eggs", "frozen peas", "soy sauce", "scallions"],
+    "equipment": ["stovetop", "skillet"],
+    "description": "A pantry bowl with crisped rice, peas, soy sauce, and a soft egg."
+  },
+  "constraints": {
+    "maxTimeMinutes": null,
+    "cuisines": ["Pantry"],
+    "skill": "intermediate",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "skillet"]
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Crispy Egg and Pea Slop Bowl\",\"description\":\"A pantry bowl with crisped rice, peas, soy sauce, and a soft egg.\",\"ingredients\":[\"rice\",\"eggs\",\"frozen peas\",\"soy sauce\",\"scallions\"],\"equipment\":[\"stovetop\",\"skillet\"]},\"steps\":[{\"instruction\":\"Warm the skillet over medium heat, add the rice, and press it into an even layer until the bottom turns lightly crisp.\"},{\"instruction\":\"Stir in frozen peas and soy sauce until the peas are hot and the rice is evenly seasoned.\"},{\"instruction\":\"Push the rice to one side, cook the egg until the white is fully set, then slide it over the bowl with scallions.\"}],\"variations\":[\"For a firmer egg, flip it briefly until the yolk is set.\"]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-16"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "food_safety": "pending",
+    "skill_fit": "pending",
+    "equipment_fit": "pending",
+    "cooking_step_sequence": "pending"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex",
+    "labeledAt": "2026-06-16"
+  },
+  "notes": "Synthetic positive guard that evaluates cooking steps with generated recipe context, not only a recipe name."
+}

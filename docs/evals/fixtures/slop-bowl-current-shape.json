@@ -1,0 +1,38 @@
+{
+  "id": "slop-bowl-current-shape",
+  "surface": "slop_bowl",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "positive-guard"],
+  "sourceRefs": ["init004-phase-1-surface-audit"],
+  "request": {
+    "ingredients": ["rice", "eggs", "frozen peas", "soy sauce", "scallions"],
+    "cookingSkill": "intermediate",
+    "dietaryRestrictions": [],
+    "kitchenEquipment": ["stovetop", "skillet"],
+    "recentMeals": [],
+    "planningTimeAvailable": "25-min"
+  },
+  "constraints": {
+    "maxTimeMinutes": 25,
+    "cuisines": ["Pantry"],
+    "skill": "intermediate",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "skillet"]
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Crispy Egg and Pea Slop Bowl\",\"description\":\"A pantry bowl with crisped rice, peas, soy sauce, and a soft egg.\",\"difficulty\":\"Easy\",\"cookTime\":25,\"cuisine\":\"Pantry\",\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"frozen peas\",\"soy sauce\",\"scallions\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Crisp rice in a skillet, fold through peas, and top with an egg for a bowl-style meal.\",\"instructions\":[\"Crisp the rice in a skillet with peas and soy sauce, then cook the egg until the white is set and the yolk is still soft if desired.\"],\"isFusion\":false,\"pantryMatch\":94}}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "hardcoded-slop-bowl",
+    "capturedAt": "2026-06-16"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "pantry_grounding": "pending",
+    "recipe_usefulness": "pending"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex",
+    "labeledAt": "2026-06-16"
+  },
+  "notes": "Synthetic positive guard for the current Slop Bowl { recipe } response contract."
+}

@@ -4,6 +4,18 @@ This is the canonical operating model for Laica AI output-quality evaluations. I
 
 Use this workflow for recipe suggestions, pantry recipes, Slop Bowl outputs, cooking-step generation, future judge runs, human review batches, daily reports, prompt-candidate comparisons, and any other AI output-quality eval evidence.
 
+## User-Expectation Rule
+
+Every eval should start from the user's request, constraints, and likely expectation, then explain how the observed output does or does not satisfy that user. Structure, schema, privacy, and deterministic contract checks are necessary because they make outputs measurable and usable, but they are foundation checks, not the whole quality claim.
+
+An eval result that only says "valid JSON," "three recipes," or "judge passed" is incomplete unless it also identifies the user-facing promise it protects: time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, or another explicit expectation. When a fixture cannot yet evaluate user value, mark that as negative scope and name the smallest next fixture or label that would close the gap.
+
+Use the same minimal evidence shape for eval artifacts and reports:
+
+- **Value claim:** what user expectation or operator/agent confidence the eval protects.
+- **Evidence:** the fixture, judge, human label, deterministic check, sample, and observed result that support the claim.
+- **Evidence limits:** what the eval does not prove, such as live model quality, provider behavior, private gold coverage, taste, cuisine fit, or safety criteria not included in the fixture.
+
 ## Relationship To docs/evals
 
 `docs/workflows/evaluations.md` owns the repo-wide discipline: when evals are required, what evidence is acceptable, how calibration is reported, and what may gate merge or prompt activation.
@@ -15,13 +27,14 @@ Use this workflow for recipe suggestions, pantry recipes, Slop Bowl outputs, coo
 1. **Register the evidence.** Every eval run, open-coding import, human review batch, judge run, daily report, or production/staged sample gets a stable row in [docs/evals/registry.md](../evals/registry.md). If it affects rubric, fixtures, metrics, reporting, or prompts, it also gets a normalized record under [docs/evals/intakes/](../evals/intakes/) using [docs/evals/intakes/TEMPLATE.md](../evals/intakes/TEMPLATE.md).
 2. **Normalize before interpreting.** Each intake record captures source summary, input schema, prompt/model/evaluator versions, sample size, positive definition, trend tags, raw artifact handling, privacy posture, metrics, failure clusters, positive examples worth preserving, fixture candidates, and open questions. Raw exports stay local/external unless a privacy/source decision explicitly allows committing them.
 3. **Start with human-readable failure taxonomy.** Use Wilson-labeled examples, open-coding clusters, platform eval exports, active Effort fixtures, and current app traces to name failure modes before writing broad metrics.
-4. **Implement deterministic checks first.** Schema/JSON validity, current response-shape fit, max-time adherence, required field presence, suggestion count, and obvious equipment/ingredient contract checks should run before any LLM judge.
-5. **Create criterion-level human labels.** Wilson-first labels are acceptable for v1, but labels must be per criterion rather than only "good" or "bad." Positive examples stay in the dataset so fixes do not over-correct useful pantry-first behavior into unnecessary shopping-list behavior.
-6. **Use narrow LLM judges only after rubric shape is clear.** Each judge should evaluate one criterion or tightly related criterion family. Broad aggregate judge scores are triage at best and should not become product-quality truth.
-7. **Calibrate judges against human labels.** Report observed judge pass rate, human label pass rate when available, TPR, TNR, corrected pass rate when the denominator is valid, confidence interval, sample size, prompt/model/evaluator versions, and negative scope. Until TPR/TNR exist, mark LLM-judge metrics as uncalibrated.
-8. **Run two evidence lanes.** Golden/regression fixtures protect known contracts in CI or scheduled automation. Production/staged sampling estimates real output quality only after privacy handling, source fields, and raw artifact policy are explicit.
-9. **Report compactly and routinely.** V1 reporting should be daily automation, not an admin dashboard. Reports should include criterion rates, calibration status, sample size, trend deltas, top clusters, fixture/report ids, privacy posture, and negative scope, and should be indexed through [docs/evals/registry.md](../evals/registry.md).
-10. **Turn failures into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
+4. **Name the protected user expectation.** For each fixture, judge, or report row, state the user promise being tested and the criterion that represents it. Examples: "a 30-minute request should not produce a 60-minute recipe," "beginner steps should not assume advanced technique," or "halal/keto restrictions override cuisine preference." If the fixture is only a contract guard, say so and do not present it as output-quality proof.
+5. **Implement deterministic checks first.** Schema/JSON validity, current response-shape fit, max-time adherence, required field presence, suggestion count, and obvious equipment/ingredient contract checks should run before any LLM judge.
+6. **Create criterion-level human labels.** Wilson-first labels are acceptable for v1, but labels must be per criterion rather than only "good" or "bad." Labels should connect back to the user expectation, including positive examples worth preserving so fixes do not over-correct useful pantry-first behavior into unnecessary shopping-list behavior.
+7. **Use narrow LLM judges only after rubric shape is clear.** Each judge should evaluate one criterion or tightly related criterion family. Broad aggregate judge scores are triage at best and should not become product-quality truth.
+8. **Calibrate judges against human labels.** Report observed judge pass rate, human label pass rate when available, TPR, TNR, corrected pass rate when the denominator is valid, confidence interval, sample size, prompt/model/evaluator versions, and negative scope. Until TPR/TNR exist, mark LLM-judge metrics as uncalibrated.
+9. **Run two evidence lanes.** Golden/regression fixtures protect known contracts in CI or scheduled automation. Production/staged sampling estimates real output quality only after privacy handling, source fields, and raw artifact policy are explicit.
+10. **Report compactly and routinely.** V1 reporting should be daily automation, not an admin dashboard. Reports should include criterion rates, calibration status, sample size, trend deltas, top clusters, fixture/report ids, privacy posture, and negative scope, and should be indexed through [docs/evals/registry.md](../evals/registry.md).
+11. **Turn failures into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
 
 ## V1 Surfaces
 

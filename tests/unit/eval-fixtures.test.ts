@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  isEvalFixtureArtifactValid,
   loadPublicEvalFixtures,
   listEvalFeatureTypesForFixtures,
   validateEvalFixture,
@@ -89,7 +90,9 @@ describe("INIT-004 eval fixture foundation", () => {
       expect.objectContaining({ id: "structure_contract", status: "fail" }),
       expect.objectContaining({ id: "suggestion_count", status: "not_applicable" }),
       expect.objectContaining({ id: "max_time_adherence", status: "not_applicable" }),
+      expect.objectContaining({ id: "label_expectations", status: "pass" }),
     ]));
+    expect(isEvalFixtureArtifactValid(result)).toBe(true);
   });
 
   it("fails recipe fixtures with the wrong suggestion count", () => {
@@ -179,6 +182,29 @@ describe("INIT-004 eval fixture foundation", () => {
     const fixtures = await loadPublicEvalFixtures(dir);
 
     expect(fixtures.map((fixture) => fixture.id)).toEqual(["synthetic-a", "synthetic-b"]);
+  });
+
+  it("loads committed public synthetic fixtures, including expected deterministic failures", async () => {
+    const fixtures = await loadPublicEvalFixtures();
+
+    expect(fixtures.map((fixture) => fixture.id)).toEqual([
+      "cooking-steps-generated-context",
+      "openai-max-time-25-to-30",
+      "slop-bowl-current-shape",
+      "synthetic-max-time-30-to-60",
+    ]);
+    expect(fixtures.find((fixture) => fixture.id === "synthetic-max-time-30-to-60")?.labels.max_time_adherence).toBe("fail");
+  });
+
+  it("rejects public fixture artifacts when deterministic labels contradict observed checks", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "laica-eval-fixtures-"));
+    await fs.writeFile(path.join(dir, "mismatch.json"), JSON.stringify(baseFixture({
+      id: "synthetic-mismatch",
+      output: "{\"recipes\":[",
+      labels: { structure_contract: "pass" },
+    })));
+
+    await expect(loadPublicEvalFixtures(dir)).rejects.toThrow(/label_expectations/);
   });
 
   it("keeps fixture stores out of live generation runtime modules", async () => {
