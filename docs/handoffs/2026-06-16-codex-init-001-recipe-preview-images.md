@@ -37,7 +37,7 @@ The implementation adds a strict cache/fairness discipline: cache matches use no
 - Apply/confirm the `recipe_image_cache` table in the Replit-authoritative database.
 - Confirm Replit App Storage bucket availability and object serving.
 - Run one real three-recipe smoke with OpenAI low-quality thumbnails, inspect accuracy against title/core ingredients, and record model, quality, latency, cost, commit SHA, and negative scope.
-- Provider-light Playwright coverage was added but not executed locally because `@dotenvx/dotenvx` is not installed and fetching/executing it with decrypted secrets was rejected by the sandbox for secret-exfiltration risk.
+- Provider-light Playwright is now covered by PR #192 CI: `e2e_guest_smoke` passed at head `ab6b951`, including complete-set image reveal. Local Playwright was still not run because the default decrypted `.env` DB failed `db:health` with known stale-schema drift and no disposable sandbox DB URL was available.
 
 ## Verification
 
@@ -47,10 +47,17 @@ Passed locally:
 - `npx vitest run tests/unit/recipe-images.test.ts tests/unit/recipe-image-route.test.ts tests/unit/meal-planning.test.tsx`
 - `npm run test:unit` (42 files / 277 tests)
 - `npm run build`
+- `npm audit --audit-level=high`
 
-Attempted but not claimed:
+Attempted locally but not claimed:
 
-- `npx @dotenvx/dotenvx run -- npx playwright test tests/e2e/cooking-workflow.test.ts --project=chromium --reporter=line` did not reach Playwright because sandboxed `npx` could not resolve the registry. Escalation was rejected because fetching and executing dotenvx with decrypted secrets is a secret-exfiltration risk.
+- `PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm run env:run -- npm run db:health` first hit a sandbox `tsx` IPC restriction, then reached the decrypted `.env` DB with escalation and failed due known stale local schema. Per EFF-010, no local `db:push` was run against that DB.
+
+GitHub CI:
+
+- PR #192 `unit` passed at `ab6b951`.
+- PR #192 `e2e_guest_smoke` passed at `ab6b951`; this created a schema-only Neon branch, applied schema, ran `db:health`, ran Playwright, and covered complete-set recipe preview image reveal.
+- PR #192 `npm-audit`, `trufflehog_pr`, and CodeQL passed at `ab6b951`.
 
 ## Stack / base status
 

@@ -27,7 +27,7 @@ For browser review or Playwright that needs current schema, first try `npm run d
 
 ## Open items
 
-- Local provider-light Playwright for INIT-001 still needs a disposable/non-production DB URL if we want to run it locally with current schema.
+- Local provider-light Playwright still needs a disposable/non-production DB URL if someone specifically wants to rerun it locally with current schema, but PR #192 CI has now supplied the repeatable provider-light evidence.
 - `.replit` still has its own documented dotenvx ambiguity in `docs/workflows/environment-parity-spec.md`; this cleanup does not change Replit startup behavior.
 - Live OpenAI image generation and Replit App Storage persistence remain Replit/provider validation, not local evidence.
 
@@ -45,4 +45,5 @@ For browser review or Playwright that needs current schema, first try `npm run d
 - `npm run build` passed with existing Vite warnings about stale Browserslist data, Firebase dynamic/static import chunking, and large chunks.
 - `npm audit --audit-level=high` passed: 0 vulnerabilities found.
 - `npm run env:run -- node -e "console.log('dotenvx-run-ok')"` passed and confirmed the repo script invokes lockfile-installed dotenvx without printing secret values.
-- Local provider-light Playwright was not run because this thread does not have a disposable `LAICA_LOCAL_SANDBOX_DATABASE_URL`; CI `e2e_guest_smoke` remains the preferred repeatable E2E lane.
+- Local `db:health` against the default decrypted `.env` DB reached the database only after sandbox escalation and failed due known stale-schema drift: missing `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, and `cooking_sessions.recipe_snapshot`. No local `db:push` was run.
+- PR #192 CI passed `e2e_guest_smoke` at head `ab6b951`, supplying the repeatable provider-light Playwright evidence for complete-set image reveal.
