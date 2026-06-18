@@ -4,7 +4,7 @@ import { useFirebaseAuth } from '@/hooks/useFirebaseAuth';
 import { FirebaseAuthSetup } from './FirebaseAuthSetup';
 
 interface GoogleSignInButtonProps {
-  variant?: "default" | "outline";
+  variant?: "default" | "outline" | "landingSecondary";
   size?: "sm" | "lg";
   className?: string;
   onSuccess?: () => void;

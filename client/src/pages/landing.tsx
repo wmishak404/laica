@@ -37,6 +37,10 @@ export default function Landing() {
     hidden: { opacity: 0, y: motionEnabled ? 16 : 0 },
     show: { opacity: 1, y: 0 },
   };
+  const authReveal = {
+    hidden: { opacity: 1, y: motionEnabled ? 16 : 0 },
+    show: { opacity: 1, y: 0 },
+  };
 
   const updateActiveJourneyStep = () => {
     const container = journeyRef.current;
@@ -117,7 +121,7 @@ export default function Landing() {
               </p>
             </motion.div>
 
-            <motion.div className="max-w-md space-y-3" variants={reveal} transition={{ duration: 0.34, ease: "easeOut" }}>
+            <motion.div className="max-w-md space-y-3" variants={authReveal} transition={{ duration: 0.34, ease: "easeOut" }}>
               <div className="grid grid-cols-1 gap-3">
                 <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
                   {/* design:tone-override — Landing CTA uses a dark token-backed fill so auth entry passes contrast. */}
@@ -136,8 +140,9 @@ export default function Landing() {
                 </motion.div>
 
                 <motion.div whileTap={motionEnabled ? { scale: 0.98 } : undefined}>
+                  {/* design:tone-override — Landing secondary auth action keeps the Google control high-contrast while matching the rounded entry pair. */}
                   <GoogleSignInButton
-                    variant="outline"
+                    variant="landingSecondary"
                     className="h-14 w-full rounded-full border-2 px-5 text-base font-extrabold"
                   >
                     <GoogleIcon />
