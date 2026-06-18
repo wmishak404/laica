@@ -12,7 +12,11 @@ import MobileApp, {
   getRandomSlopItUpPlanningCopy,
   mergeProfilesForGuestPromotion,
 } from '../../client/src/pages/app';
-import { MEAL_PLANNING_STORAGE_KEY, createPlanningProfileFingerprint } from '../../client/src/lib/planningCache';
+import {
+  MEAL_PLANNING_SESSION_MAX_AGE_MS,
+  MEAL_PLANNING_STORAGE_KEY,
+  createPlanningProfileFingerprint,
+} from '../../client/src/lib/planningCache';
 
 const mocks = vi.hoisted(() => ({
   authUser: { id: 'user-1', email: 'tester@example.com' } as {
@@ -640,6 +644,23 @@ describe('MobileApp planning choice pantry status', () => {
     mocks.userProfileReturn.data = { user: currentProfile };
     writeMealPlanningSession('linked:user-1', currentProfile, {
       profileFingerprint: createPlanningProfileFingerprint(staleProfile),
+    });
+
+    render(<MobileApp />);
+
+    expect(await screen.findByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
+    expect(screen.queryByTestId('meal-planning')).toBeNull();
+    expect(window.localStorage.getItem(`${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`)).toBeNull();
+  });
+
+  it('does not restore Chef It Up planning after the short recovery window expires', async () => {
+    const profile = makeProfile({
+      pantryIngredients: ['rice', 'eggs', 'spinach'],
+      kitchenEquipment: ['skillet'],
+    });
+    mocks.userProfileReturn.data = { user: profile };
+    writeMealPlanningSession('linked:user-1', profile, {
+      savedAt: Date.now() - MEAL_PLANNING_SESSION_MAX_AGE_MS - 1,
     });
 
     render(<MobileApp />);

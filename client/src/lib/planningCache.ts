@@ -9,7 +9,7 @@ interface PlanningProfileFingerprintInput {
 export const ACTIVE_COOKING_PLAN_STORAGE_KEY = 'laica_active_cooking_plan';
 export const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
 export const COOKING_SESSION_STORAGE_KEY = 'laica_cooking_session';
-export const MEAL_PLANNING_SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+export const MEAL_PLANNING_SESSION_MAX_AGE_MS = 15 * 60 * 1000;
 
 export type MealPlanningStep = 'time' | 'cuisine' | 'staples' | 'tickets' | 'prep-tray';
 

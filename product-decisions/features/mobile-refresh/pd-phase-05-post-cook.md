@@ -78,6 +78,8 @@ updatedPantry =
 - Phase 2.2 separates History from Settings and refreshes the standalone History shell only.
 - Phase 5 owns the richer History purpose: users return after cooking to remember a meal, share it with friends/family, or cook it again because they liked it.
 - History detail should become the natural home for `Share`, `Cook again`, taste context, cleanup continuity, and any next-meal seed that follows the completed meal.
+- Future explicit recipe bookmarks should live as a **Saved** surface adjacent to History, not as a long-lived hidden planning-session restore. Saved is for recipe suggestions the user liked before cooking and may want to shop for or cook later; History is for meals actually cooked.
+- Future next-meal seed and taste work should consider Saved recipe signals because they are strong taste indicators, while still avoiding recommendations that become overly narrow or repetitive.
 - Do not treat History as account configuration or hide it inside Settings.
 - Optional post-cook rescans inherit [PD-011](../../pd-011-scan-upload-photo-limit-policy.md): 20 scanned images per inventory refresh and 40 scanned images per day per area unless Phase 5 explicitly documents a later exception.
 
@@ -124,6 +126,8 @@ flowchart TD
 - Taste signal persists as `yes`, `maybe`, or `nope`.
 - Next-meal seed is generated only when viewed.
 - History detail supports the Phase 5 memory intent: share and cook-again direction, without turning History back into Settings.
+- Saved recipe suggestions, if implemented, appear adjacent to History and remain distinct from completed-cook History records.
+- Any future recommendation tuning that uses Saved signals balances user taste learning with cuisine/meal diversity.
 - Pantry/session mutations require explicit user confirmation and session ownership.
 - In v1, only linked users create durable Phase 5 history, cleanup, and taste-memory records.
 - Public homepage guest traffic must not create Phase 5 durable memory side effects before Google linking.

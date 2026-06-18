@@ -46,10 +46,11 @@ This should not block PR #192 because production builds do not use Vite React Re
 - The current MealPlanning session cache can restore the recipe suggestions after the user re-enters Chef It Up, so the missing piece is app-shell active-flow restoration.
 - This follow-up should be handled after PR #192 rather than widening the recipe imagery PR, unless new evidence shows image code directly triggers the reset.
 - Because the observed pain interrupts an active user workflow, this Effort is high priority even though the immediate trigger was likely validation-environment specific.
+- Wilson chose a short **15-minute** MealPlanning recovery window for PR #201 because EFF-027 is reload resilience, not a hidden recipe-bookmark feature. Longer-term recipe saving belongs in future Saved/History memory work.
 
 ## Open questions
 
-- Should any valid saved MealPlanning session auto-enter Chef It Up on bootstrap, or only sessions newer than a short freshness window?
+- Should a future explicit "Saved recipes" surface let users keep recipe suggestions beyond the short recovery window?
 - Which substates should be restored directly, and which should fall back to the Planning choice screen with a visible resume affordance?
 - How should the app distinguish an intentional Back-to-Planning action from an unexpected reload while still in the workflow?
 - Should Slop Bowl receive the same active-flow restoration treatment, or should this first slice focus only on Chef It Up / MealPlanning?
@@ -94,6 +95,6 @@ PR #192 should stay focused on recipe imagery because the selected-image behavio
 
 ## 2026-06-18 - Active MealPlanning restore branch
 
-Branch `codex/eff-027-active-workflow-reload` implements the first reload-resilience slice: app bootstrap now checks the scoped MealPlanning session after the profile loads, validates the profile fingerprint and session freshness, and enters Chef It Up directly when the saved session is still active. Active Settings restore and active Live Cooking restore keep precedence, and explicit exits to the Planning choice clear the MealPlanning restore key so users are not trapped back inside Chef It Up after choosing to leave.
+Branch `codex/eff-027-active-workflow-reload` implements the first reload-resilience slice: app bootstrap now checks the scoped MealPlanning session after the profile loads, validates the profile fingerprint and 15-minute session freshness, and enters Chef It Up directly when the saved session is still active. Active Settings restore and active Live Cooking restore keep precedence, and explicit exits to the Planning choice clear the MealPlanning restore key so users are not trapped back inside Chef It Up after choosing to leave. Recipe suggestions that users want to keep longer should become explicit Saved/History memory work rather than stretching this transient recovery cache.
 
-Local regression coverage now includes linked and guest MealPlanning restore after remount, stale-profile invalidation, and Back-to-Planning cleanup. This does not resolve the Effort yet because exact-head Replit validation still needs to force a browser reload during Ticket Pass or Prep Tray and confirm the same active workflow returns.
+Local regression coverage now includes linked and guest MealPlanning restore after remount, expired-session cleanup, stale-profile invalidation, and Back-to-Planning cleanup. This does not resolve the Effort yet because exact-head Replit validation still needs to force a browser reload during Ticket Pass or Prep Tray and confirm the same active workflow returns.
