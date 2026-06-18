@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-05-29
+**Updated:** 2026-06-17
 
 ## One-line summary
 
