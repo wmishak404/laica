@@ -97,4 +97,12 @@ PR #192 should stay focused on recipe imagery because the selected-image behavio
 
 Branch `codex/eff-027-active-workflow-reload` implements the first reload-resilience slice: app bootstrap now checks the scoped MealPlanning session after the profile loads, validates the profile fingerprint and 15-minute session freshness, and enters Chef It Up directly when the saved session is still active. Active Settings restore and active Live Cooking restore keep precedence, and explicit exits to the Planning choice clear the MealPlanning restore key so users are not trapped back inside Chef It Up after choosing to leave. Recipe suggestions that users want to keep longer should become explicit Saved/History memory work rather than stretching this transient recovery cache.
 
-Local regression coverage now includes linked and guest MealPlanning restore after remount, expired-session cleanup, stale-profile invalidation, and Back-to-Planning cleanup. This does not resolve the Effort yet because exact-head Replit validation still needs to force a browser reload during Ticket Pass or Prep Tray and confirm the same active workflow returns.
+Local regression coverage now includes linked and guest MealPlanning restore after remount, expired-session cleanup, stale-profile invalidation, and Back-to-Planning cleanup.
+
+## 2026-06-18 - PR #201 Replit validation
+
+PR #201 was rebased onto `origin/main` at `d42e3d115ab2296909d94974b46442013ce483ad` after PR #200/#202 advanced `main`. The linked dev-auth browser smoke initially failed because its final reload assertion still expected the old behavior: returning to `What are we cooking today?` after reloading from recipe suggestions. That expectation is now aligned with EFF-027: reload should restore the active Ticket Pass, then explicit Back-to-Planning should clear the restore marker and keep later reloads on the Planning choice screen.
+
+Chrome/Replit validation was run without Replit Agent. The Replit workspace was switched non-destructively to `codex/eff-027-active-workflow-reload`; the pre-existing `.replit` local modification was left untouched. After pulling the current PR head, a live Chef It Up flow reached Ticket Pass and Prep Tray. Browser reload restored `Recipe suggestions from your pantry`, then restored the selected Prep Tray recipe. Explicitly backing out to Planning choices and reloading again stayed on `What are we cooking today?`.
+
+EFF-027 should remain open until PR #201 merges and the post-merge closeout flips the status to `Resolved`.

@@ -8,7 +8,7 @@
 
 ## Summary
 
-This branch starts from fresh `origin/main` at `0462db2b061ab9d8ecc942eaf284090b1b26b87d` and implements the first EFF-027 reload-resilience slice. A hard reload or app remount with a valid scoped Chef It Up / MealPlanning session from the last 15 minutes now returns directly into Chef It Up instead of landing on the Planning choice screen and making the user tap Chef It Up again.
+This branch implements the first EFF-027 reload-resilience slice. A hard reload or app remount with a valid scoped Chef It Up / MealPlanning session from the last 15 minutes now returns directly into Chef It Up instead of landing on the Planning choice screen and making the user tap Chef It Up again. The branch was later rebased onto `origin/main` at `d42e3d115ab2296909d94974b46442013ce483ad` after PR #200/#202 advanced `main`.
 
 ## Hygiene Result
 
@@ -35,6 +35,8 @@ EFF-027 was selected because it has explicit `Priority: High`, came from fresh R
   - Clears scoped MealPlanning restore state on explicit Back-to-Planning / Cook-choice exits.
 - `tests/unit/planning-choice.test.tsx`
   - Adds linked restore, guest restore, expired-session cleanup, stale-profile invalidation, and explicit Back cleanup regressions.
+- `tests/e2e/linked-dev-auth.test.ts`
+  - Updates the linked browser smoke so reload from recipe suggestions expects the new Ticket Pass restore behavior, then explicitly backs out and verifies a later reload remains on the Planning choice screen.
 - `efforts/effort-027-active-workflow-reload-resilience.md`
   - Records this branch signal, the 15-minute transient recovery decision, future Saved/History boundary, and remaining exact-head Replit reload validation.
 - `efforts/registry.md`
@@ -52,16 +54,16 @@ EFF-027 was selected because it has explicit `Priority: High`, came from fresh R
 
 ## Impact on other agents
 
-Future EFF-027 work should build on `readActiveMealPlanningSession` instead of adding another app-shell cache parser. Keep Settings restore and active Live Cooking restore ahead of MealPlanning restore. Do not stretch this transient 15-minute cache into a recipe bookmark feature; future explicit Saved recipes belong adjacent to History in Phase 5 work. Do not resolve EFF-027 until Replit validation forces a reload in Ticket Pass or Prep Tray on the final PR head.
+Future EFF-027 work should build on `readActiveMealPlanningSession` instead of adding another app-shell cache parser. Keep Settings restore and active Live Cooking restore ahead of MealPlanning restore. Do not stretch this transient 15-minute cache into a recipe bookmark feature; future explicit Saved recipes belong adjacent to History in Phase 5 work. Do not resolve EFF-027 until PR #201 merges and the post-merge closeout flips the Effort status.
 
 If PR #196 merges before this branch, rebase and drop any duplicate hygiene language from the PR body only; there should be no code conflict. If this branch is reviewed first, mention that #196 still owns the `AGENTS.md` / `CLAUDE.md` mirror fix.
 
 ## Open Items
 
-- Exact-head Replit validation still required before resolving EFF-027: enter Chef It Up, reach Ticket Pass or Prep Tray, force a browser reload/remount, and confirm the same active workflow returns directly.
+- EFF-027 remains open until PR #201 merges and closeout updates the Effort status/read lists.
 - This branch does not address Slop Bowl active-flow restore, Live Cooking audio arbitration in PR #191, recipe image provider benchmarking, Settings dirty-state warnings, or EFF-017 provider/OAuth/canary lanes.
 - Future Phase 5 Saved/History IA is documented but not implemented here.
-- Human Replit validation should be manual before merge because the user-visible issue was observed in Replit and depends on app remount/browser reload behavior.
+- Replit validation used Chrome/direct workspace shell only. Replit Agent was not used.
 
 ## Verification
 
@@ -70,13 +72,19 @@ If PR #196 merges before this branch, rebase and drop any duplicate hygiene lang
 - `npm run check` passed: `tsc` plus `lint:ui`.
 - `npm run test:unit` passed: 42 files / 297 tests.
 - `npm run build` passed with the existing Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
+- `npx playwright test tests/e2e/linked-dev-auth.test.ts --project=chromium --list` passed: 2 tests listed in 1 file.
 - `git diff --check` passed.
+- Chrome/Replit validation after switching the workspace to `codex/eff-027-active-workflow-reload` and pulling the PR head:
+  - Ticket Pass reload restored `Recipe suggestions from your pantry`.
+  - Prep Tray reload restored the selected recipe.
+  - Explicit Back-to-Planning followed by reload stayed on `What are we cooking today?`.
+  - Replit shell showed the workspace on the PR branch with only the pre-existing `.replit` modification left untouched.
 
-GitHub CI/E2E and Replit reload validation are still pending.
+GitHub `unit`, CodeQL, dependency audit, and TruffleHog checks passed on pushed head `c02550a9df5ec042237caafd87f52482267bf5dd`. The `e2e_guest_smoke` rerun for that head was still in progress at the time of this handoff update, stuck in the `Install Playwright Browsers (Chromium)` step before app tests began.
 
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `0462db2b061ab9d8ecc942eaf284090b1b26b87d`
-- Last Replit-validated at: not yet validated for this branch
+- Current base: `origin/main` at `d42e3d115ab2296909d94974b46442013ce483ad`
+- Last Replit-validated at: PR body should carry the final pushed head after this docs refresh; runtime validation was performed in Chrome/Replit on the PR branch after pulling `c02550a9df5ec042237caafd87f52482267bf5dd`.
 - Notes: PR #196 is an open docs/workflow PR touching Efforts hygiene mirrors; this implementation branch intentionally avoids duplicating those files.
