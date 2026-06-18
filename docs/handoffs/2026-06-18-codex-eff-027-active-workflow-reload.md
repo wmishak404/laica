@@ -39,8 +39,8 @@ EFF-027 was selected because it has explicit `Priority: High`, came from fresh R
 - `tests/unit/meal-planning.test.tsx`
   - Verifies Back-to-Planning clears the session and writes the dismissal marker instead of re-saving stale state.
 - `tests/e2e/linked-dev-auth.test.ts`
-  - Updates the linked browser smoke so reload from recipe suggestions expects the new Ticket Pass restore behavior, then explicitly backs out, waits for the dismissal marker, queues a fresh dev-auth token for the final reload, and verifies the page remains on the Planning choice screen.
-  - Seeds the browser custom token only once from `addInitScript`; the previous persistent init script could reinsert an already-consumed Firebase custom token on later reloads and mask the actual dismissal behavior behind CI auth bootstrap noise.
+  - Updates the linked browser smoke so reload from recipe suggestions expects the new Ticket Pass restore behavior, then explicitly backs out, waits for the dismissal marker, reloads again, and verifies the page remains on the Planning choice screen.
+  - Seeds the browser custom token only once from `addInitScript` and queues a fresh dev-auth token before each reload assertion. The previous persistent init script could reinsert an already-consumed Firebase custom token on later reloads, while tokenless reloads could mask MealPlanning behavior behind CI Firebase-persistence timing.
 - `efforts/effort-027-active-workflow-reload-resilience.md`
   - Records this branch signal, the 15-minute transient recovery decision, future Saved/History boundary, and remaining exact-head Replit reload validation.
 - `efforts/registry.md`
@@ -83,7 +83,7 @@ If PR #196 merges before this branch, rebase and drop any duplicate hygiene lang
   - Explicit Back-to-Planning followed by reload stayed on `What are we cooking today?`.
   - Replit shell showed the workspace on the PR branch with only the pre-existing `.replit` modification left untouched.
 
-GitHub `unit`, CodeQL, dependency audit, and TruffleHog checks passed on earlier pushed heads. GitHub's linked browser smoke first exposed the stale-session-after-Back edge that the dismissal marker now covers, then exposed a test harness issue where a persistent `addInitScript` kept reusing an already-consumed Firebase custom token on reload. Final CI evidence should be read from PR #201 after the last push.
+GitHub `unit`, CodeQL, dependency audit, and TruffleHog checks passed on earlier pushed heads. GitHub's linked browser smoke first exposed the stale-session-after-Back edge that the dismissal marker now covers, then exposed test harness issues where a persistent `addInitScript` kept reusing an already-consumed Firebase custom token and tokenless reloads depended on CI Firebase-persistence timing. Final CI evidence should be read from PR #201 after the last push.
 
 ## Stack / base status
 

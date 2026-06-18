@@ -246,6 +246,16 @@ async function queueDevAuthTokenForNextLoad(page: Page, customToken: string) {
   );
 }
 
+async function reloadLinkedBrowserSession(page: Page, request: APIRequestContext) {
+  const reloadTokenPayload = await createLinkedDevAuthToken(
+    request,
+    LINKED_DEV_AUTH_BROWSER_UID,
+    "Linked Browser Dev User",
+  );
+  await queueDevAuthTokenForNextLoad(page, reloadTokenPayload.customToken!);
+  await page.reload();
+}
+
 test.describe("linked dev auth smoke", () => {
   const missing = missingApiEnvNames();
   test.skip(missing.length > 0, `Missing linked dev-auth env: ${missing.join(", ")}`);
@@ -338,7 +348,7 @@ test.describe("linked dev auth browser smoke", () => {
     expect(savedPantry.filter((item) => item === "tortillas")).toHaveLength(1);
     expect(savedPantry.filter((item) => item === "lime")).toHaveLength(1);
 
-    await page.reload();
+    await reloadLinkedBrowserSession(page, request);
     await expect(page.getByRole("heading", { name: "Recipe suggestions from your pantry" })).toBeVisible({
       timeout: 30_000,
     });
@@ -365,9 +375,7 @@ test.describe("linked dev auth browser smoke", () => {
       { timeout: 30_000 },
     );
 
-    const reloadTokenPayload = await createLinkedDevAuthToken(request, LINKED_DEV_AUTH_BROWSER_UID, "Linked Browser Dev User");
-    await queueDevAuthTokenForNextLoad(page, reloadTokenPayload.customToken!);
-    await page.reload();
+    await reloadLinkedBrowserSession(page, request);
     await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
   });
 });
