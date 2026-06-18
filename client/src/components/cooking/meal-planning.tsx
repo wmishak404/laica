@@ -175,6 +175,7 @@ export default function MealPlanning({
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectedRecipeImagePending, setIsSelectedRecipeImagePending] = useState(false);
+  const [selectedRecipeImageUrlsByRecipeId, setSelectedRecipeImageUrlsByRecipeId] = useState<Record<string, string>>({});
   const [sessionRestored, setSessionRestored] = useState(false);
   const [lockedStapleView, setLockedStapleView] = useState<LockedStapleView | null>(null);
   const [savedStapleHint, setSavedStapleHint] = useState<string | null>(null);
@@ -204,13 +205,13 @@ export default function MealPlanning({
             typeof recipe === 'object' &&
             recipe !== null &&
             typeof recipe.recipeName === 'string'
-          ).slice(0, 3)
+          ).slice(0, 3).map((recipe: any) => ({ ...recipe, imageUrl: undefined, image_url: undefined }))
         : [];
       const selectedMeal = (
         data.selectedMeal &&
         typeof data.selectedMeal === 'object' &&
         typeof data.selectedMeal.recipeName === 'string'
-      ) ? data.selectedMeal : null;
+      ) ? { ...data.selectedMeal, imageUrl: undefined, image_url: undefined } : null;
 
       return {
         currentStep: data.currentStep,
@@ -535,21 +536,14 @@ export default function MealPlanning({
     recipeSnapshot: RecipeRecommendation,
     image: { imageUrl: string },
   ) => {
-    setRecommendations((currentRecommendations) =>
-      currentRecommendations.map((recipe) =>
-        recipe.id === recipeSnapshot.id ? { ...recipe, imageUrl: image.imageUrl } : recipe
-      )
-    );
-
-    setSelectedMeal((currentSelectedMeal) => {
-      if (!currentSelectedMeal) return currentSelectedMeal;
-      if (currentSelectedMeal.id !== recipeSnapshot.id) return currentSelectedMeal;
-      return { ...currentSelectedMeal, imageUrl: image.imageUrl };
-    });
+    setSelectedRecipeImageUrlsByRecipeId((currentImages) => ({
+      ...currentImages,
+      [recipeSnapshot.id]: image.imageUrl,
+    }));
   };
 
   const hydrateSelectedRecipeImage = (recipe: RecipeRecommendation) => {
-    if (recipe.imageUrl) return;
+    if (selectedRecipeImageUrlsByRecipeId[recipe.id]) return;
 
     cancelRecipeImageHydration();
     const controller = new AbortController();
@@ -582,10 +576,10 @@ export default function MealPlanning({
 
   useEffect(() => {
     if (currentStep !== 'prep-tray') return;
-    if (!selectedMeal || selectedMeal.imageUrl) return;
+    if (!selectedMeal || selectedRecipeImageUrlsByRecipeId[selectedMeal.id]) return;
 
     hydrateSelectedRecipeImage(selectedMeal);
-  }, [currentStep, selectedMeal?.id, selectedMeal?.imageUrl]);
+  }, [currentStep, selectedMeal?.id, selectedRecipeImageUrlsByRecipeId]);
 
   const generateRecommendations = async ({
     confirmedStaples = [],
@@ -741,6 +735,7 @@ export default function MealPlanning({
       }, { context: 'meal recommendations' });
 
       if (result && isActiveGeneration(runId, controller)) {
+        setSelectedRecipeImageUrlsByRecipeId({});
         setRecommendations(result);
         setSelectedMeal(result[0]);
         setCurrentStep('tickets');
@@ -1090,7 +1085,7 @@ export default function MealPlanning({
       >
         <span className="planning-ticket-rip" aria-hidden="true" />
         {renderRecipeTicketTitle(recipe.recipeName)}
-        {renderRecipeImageSlot(recipe)}
+        {renderRecipeImageSlot({ ...recipe, imageUrl: undefined })}
         <span className="planning-ticket-meta">
           <span><Clock className="h-4 w-4" /> {recipe.cookTime} min</span>
           <span>{recipe.difficulty}</span>
@@ -1187,6 +1182,11 @@ export default function MealPlanning({
       );
     }
 
+    const selectedPrepTrayImageUrl = selectedRecipeImageUrlsByRecipeId[selectedMeal.id];
+    const selectedMealWithPrepImage = selectedPrepTrayImageUrl
+      ? { ...selectedMeal, imageUrl: selectedPrepTrayImageUrl }
+      : selectedMeal;
+
     return (
       <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
         <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
@@ -1196,7 +1196,7 @@ export default function MealPlanning({
         {/* design:tone-override — Prep Tray is the Phase 3 tactile ticket-detail object, not a generic recipe card. */}
         <div className="planning-prep-tray">
           <div className="planning-prep-hero">
-            {renderRecipeImageSlot(selectedMeal, 'prep', isSelectedRecipeImagePending)}
+            {renderRecipeImageSlot(selectedMealWithPrepImage, 'prep', isSelectedRecipeImagePending)}
           </div>
           <div className="planning-prep-body">
             <h1 className="planning-display text-3xl font-extrabold leading-tight">{selectedMeal.recipeName}</h1>

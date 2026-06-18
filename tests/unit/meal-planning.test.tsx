@@ -799,6 +799,8 @@ describe('MealPlanning recipe generation locking', () => {
       expect(container.querySelector<HTMLImageElement>('.planning-prep-hero .planning-recipe-image')?.src)
         .toContain('/api/recipe-images/selected-cache');
     });
+    expect(container.querySelector<HTMLElement>('.planning-prep-hero .planning-recipe-image-slot')?.dataset.hasImage)
+      .toBe('true');
     expect(resolveSelectedRecipeImageMock).toHaveBeenCalledWith(
       expect.objectContaining({
         recipeName: 'Pantry Rice Bowl',
@@ -809,6 +811,19 @@ describe('MealPlanning recipe generation locking', () => {
         signal: expect.any(AbortSignal),
       }),
     );
+
+    fireEvent.click(screen.getByLabelText(/back to recipe suggestions/i));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
+    expect(container.querySelectorAll('.planning-ticket .planning-recipe-image')).toHaveLength(0);
+
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
+    expect(await screen.findByRole('heading', { name: /pantry rice bowl/i })).toBeTruthy();
+    expect(container.querySelector<HTMLImageElement>('.planning-prep-hero .planning-recipe-image')?.src)
+      .toContain('/api/recipe-images/selected-cache');
+    expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
   });
 
   it('keeps polling a pending selected Prep Tray image without blocking cooking', async () => {

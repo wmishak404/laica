@@ -256,6 +256,7 @@ Runtime rule:
 
 - Ticket Pass always renders intentional placeholders. MealPlanning strips any `imageUrl` values from `/api/recipes/pantry`, does not call the image resolver while showing the three choices, and Refresh Suggestions swaps to the next text set without waiting for imagery.
 - Prep Tray starts selected-recipe image hydration only after the user opens the tray. It calls `POST /api/recipe-images/selected/resolve` for one structured recipe and shows a subtle spinner inside the placeholder while the preview is still being prepared.
+- Approved selected-recipe images stay local to the Prep Tray session. Returning to Ticket Pass must keep all three choices placeholder-only so one generated image does not reveal implementation weakness or visually favor the selected recipe. Reopening the same Prep Tray in the same session may reuse its selected image without calling the resolver again.
 - Cooking is never blocked by imagery. The user can start cooking immediately; starting cooking, backing out, refreshing recipes, or unmounting the flow cancels the visible polling session and carries the selected meal as-is. Server-side generation/cache fill may still finish for a later visit.
 - The existing three-image resolver remains available for cache seeding and benchmark comparison, but it is no longer part of the user-visible Ticket Pass decision moment.
 
