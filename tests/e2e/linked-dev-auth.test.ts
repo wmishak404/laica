@@ -227,6 +227,15 @@ async function signBrowserInWithCustomToken(page: Page, customToken: string) {
   await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
 }
 
+async function queueDevAuthTokenForNextLoad(page: Page, customToken: string) {
+  await page.evaluate(
+    ({ key, token }) => {
+      window.sessionStorage.setItem(key, token);
+    },
+    { key: DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY, token: customToken },
+  );
+}
+
 test.describe("linked dev auth smoke", () => {
   const missing = missingApiEnvNames();
   test.skip(missing.length > 0, `Missing linked dev-auth env: ${missing.join(", ")}`);
@@ -346,6 +355,8 @@ test.describe("linked dev auth browser smoke", () => {
       { timeout: 30_000 },
     );
 
+    const reloadTokenPayload = await createLinkedDevAuthToken(request, LINKED_DEV_AUTH_BROWSER_UID, "Linked Browser Dev User");
+    await queueDevAuthTokenForNextLoad(page, reloadTokenPayload.customToken!);
     await page.reload();
     await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
   });
