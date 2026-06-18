@@ -5,7 +5,7 @@
 **Date:** 2026-06-18
 **Initiative:** INIT-004
 **INIT updated:** yes
-**PR:** [#200](https://github.com/wmishak404/laica/pull/200) (draft)
+**PR:** [#200](https://github.com/wmishak404/laica/pull/200) (ready for review)
 
 ## Summary
 
@@ -37,7 +37,7 @@ EFF-022 remains open. This branch does not change cuisine prompt behavior, cuisi
 
 ## Open items
 
-- Run exact-head GitHub checks before calling the PR ready.
+- Wilson explicit merge decision is required; this is a code/infrastructure PR.
 - Future INIT-004 work still needs the next small user-expectation fixture batch, `pantry_recipes` provenance work, private fixture workflow, Wilson review/judge calibration, daily reports, and prompt-candidate comparison before prompt activation.
 
 ## Verification
@@ -50,6 +50,7 @@ EFF-022 remains open. This branch does not change cuisine prompt behavior, cuisi
 - `npm audit --audit-level=high` passed with 0 vulnerabilities.
 - `npm run build` passed with existing Browserslist age, Firebase dynamic-import, and chunk-size warnings.
 - `git diff --check` and `git diff --cached --check` passed.
+- GitHub exact-head checks are tracked in PR #200's body so the branch handoff does not require a new commit every time CI re-runs.
 
 ## Stack / Base Status
 
