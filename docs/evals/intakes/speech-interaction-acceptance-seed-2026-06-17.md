@@ -22,8 +22,8 @@ This seed is intentionally **not** a new INIT-004 Phase 3 harness requirement. I
 
 | Metric | Value | Calibration status | Notes |
 |---|---|---|---|
-| Observed pass rate | Not run | n/a | Seed matrix only; no automated run yet. |
-| Item-level pass rate | Not run | n/a | TODO tests were added in `tests/unit/live-cooking-guest-session.test.tsx`. |
+| Observed pass rate | 12/12 deterministic scenarios passing | Automated interaction checks, not human listening labels | `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed 18/18 tests locally on 2026-06-18 after the PR #191 arbitration implementation. |
+| Item-level pass rate | 12/12 acceptance scenarios passing | Automated interaction checks, not human listening labels | The seeded acceptance list is now executable coverage in `tests/unit/live-cooking-guest-session.test.tsx`. |
 | Human label pass rate | Not run | n/a until human labels exist | Wilson's questions define expected behavior, not completed labels. |
 | TPR | Not run | n/a until human labels exist | No judge exists. |
 | TNR | Not run | n/a until human labels exist | No judge exists. |
@@ -63,6 +63,6 @@ This seed is intentionally **not** a new INIT-004 Phase 3 harness requirement. I
 
 ## Open Questions / Deferrals
 
-- Decide whether the speech-arbitration utility should live inside `LiveCooking` or be extracted behind a small hook when the TODO tests are converted to passing assertions. Owner: PR #191 implementer. Smallest next action: add one active speech request token and convert the interruption TODO tests.
+- PR #191 keeps the current arbitration utility inside `LiveCooking` because the slice is bounded to one component and the evidence does not yet justify a shared hook. Reconsider extraction only when another cooking or speech surface needs the same contract.
 - Decide whether real ElevenLabs pronunciation/audio quality belongs in a future live-provider canary or remains human release smoke. Owner: Wilson / future INIT-001 Phase 4 validation. Smallest next action: document a named Replit/mobile speech-smoke script or checklist after deterministic arbitration is covered.
 - Keep INIT-004 Phase 3 harness scope unchanged. Owner: future INIT-004 agent. Smallest next action: do not add speech synthesis/transcription to V1 eval harness unless Wilson explicitly opens a speech eval phase.

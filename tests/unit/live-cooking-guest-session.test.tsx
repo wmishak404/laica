@@ -91,6 +91,161 @@ const selectedMeal = {
   equipment: ['skillet'],
 };
 
+const multiStepResponse = {
+  steps: [
+    {
+      instruction: 'Warm the rice and beans.',
+      tips: 'Stir gently.',
+      visualCues: 'Steam rises.',
+      commonMistakes: 'Do not scorch the rice.',
+      safetyLevel: 'minor',
+      duration: 60,
+    },
+    {
+      instruction: 'Fold in salsa.',
+      tips: 'Keep the heat low.',
+      visualCues: 'Salsa coats the rice.',
+      commonMistakes: 'Do not boil the salsa.',
+      safetyLevel: 'minor',
+      duration: 60,
+    },
+    {
+      instruction: 'Finish with lime.',
+      tips: 'Taste before serving.',
+      visualCues: 'Rice looks glossy.',
+      commonMistakes: 'Do not overmix.',
+      safetyLevel: 'minor',
+      duration: 60,
+    },
+  ],
+  recipe: {
+    ingredients: [{ name: 'rice' }, { name: 'beans' }],
+  },
+};
+
+type Deferred<T> = {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (error: unknown) => void;
+};
+
+function createDeferred<T>(): Deferred<T> {
+  let resolve: (value: T) => void = () => undefined;
+  let reject: (error: unknown) => void = () => undefined;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+  return { promise, resolve, reject };
+}
+
+function installAudioMocks() {
+  const speechCancel = vi.fn();
+  const sources: Array<{
+    buffer: unknown;
+    connect: ReturnType<typeof vi.fn>;
+    start: ReturnType<typeof vi.fn>;
+    stop: ReturnType<typeof vi.fn>;
+    onended: (() => void) | null;
+  }> = [];
+  const tracks = [{ stop: vi.fn() }];
+  const stream = { getTracks: vi.fn(() => tracks) };
+  const audioContext = {
+    state: 'running',
+    destination: {},
+    resume: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
+    decodeAudioData: vi.fn().mockResolvedValue({}),
+    createBufferSource: vi.fn(() => {
+      const source = {
+        buffer: null as unknown,
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn(),
+        onended: null as (() => void) | null,
+      };
+      sources.push(source);
+      return source;
+    }),
+    createAnalyser: vi.fn(() => ({
+      fftSize: 0,
+      smoothingTimeConstant: 0,
+      frequencyBinCount: 1,
+      getByteTimeDomainData: vi.fn((array: Uint8Array) => {
+        array[0] = 128;
+      }),
+    })),
+    createMediaStreamSource: vi.fn(() => ({
+      connect: vi.fn(),
+    })),
+  };
+  const AudioContextMock = vi.fn(function AudioContextConstructor() {
+    return audioContext;
+  });
+
+  vi.stubGlobal('speechSynthesis', {
+    speaking: false,
+    pending: false,
+    cancel: speechCancel,
+  });
+  vi.stubGlobal('AudioContext', AudioContextMock);
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: {
+      getUserMedia: vi.fn().mockResolvedValue(stream),
+    },
+  });
+
+  class MockMediaRecorder {
+    public state: 'inactive' | 'recording' = 'inactive';
+    public ondataavailable: ((event: { data: Blob }) => void) | null = null;
+    public onstop: (() => void | Promise<void>) | null = null;
+
+    constructor(public readonly mediaStream: unknown) {}
+
+    start() {
+      this.state = 'recording';
+    }
+
+    stop() {
+      this.state = 'inactive';
+      this.onstop?.();
+    }
+  }
+
+  vi.stubGlobal('MediaRecorder', MockMediaRecorder);
+
+  return { speechCancel, sources, audioContext, AudioContextMock, stream, tracks };
+}
+
+async function flushPromises() {
+  await act(async () => {
+    for (let index = 0; index < 6; index += 1) {
+      await Promise.resolve();
+    }
+  });
+}
+
+async function renderCookingGuide() {
+  render(
+    <LiveCooking
+      selectedMeal={selectedMeal}
+      scheduledTime=""
+      onBackToPlanning={vi.fn()}
+    />,
+  );
+  await flushPromises();
+  expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
+}
+
+async function advanceSpeechDelay(milliseconds = 900) {
+  await flushPromises();
+  act(() => {
+    vi.advanceTimersByTime(milliseconds);
+  });
+  await flushPromises();
+}
+
 describe('LiveCooking guest session boundary', () => {
   beforeEach(() => {
     mocks.authUser = {
@@ -347,17 +502,275 @@ describe('LiveCooking guest session boundary', () => {
   });
 
   describe('speech arbitration acceptance', () => {
-    it.todo('plays the first step audio after the welcome/setup transcript without skipping Step 1 speech');
-    it.todo('interrupts current step audio on Next and speaks the next step transcript instead');
-    it.todo('interrupts current step audio on Previous and speaks the previous step transcript instead');
-    it.todo('cancels active and pending audio when another speech-bearing action starts');
-    it.todo('stops active and pending step audio before Ask for Help begins recording');
-    it.todo('stops active and pending audio immediately when Mute is pressed');
-    it.todo('keeps Muted state across step navigation and prevents automatic step audio');
-    it.todo('does not auto-play after unmuting until the user presses Repeat Step');
-    it.todo('speaks exactly the visible transcript text for step, repeat, timer, and assistant responses');
-    it.todo('ignores late-resolving synthesis from an interrupted step or action');
-    it.todo('handles rapid Next/Previous/Repeat taps with only the final requested transcript spoken');
-    it.todo('lets timer completion audio interrupt step audio without leaving stale playback queued');
+    beforeEach(() => {
+      vi.useFakeTimers();
+      mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+      mocks.synthesizeSpeech.mockResolvedValue(new ArrayBuffer(8));
+    });
+
+    it('plays the first step audio after the welcome/setup transcript without skipping Step 1 speech', async () => {
+      const audio = installAudioMocks();
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+      expect(transcript).toContain("Let's start with step 1: Warm the rice and beans.");
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+      expect(audio.sources[0].start).toHaveBeenCalledTimes(1);
+    });
+
+    it('interrupts current step audio on Next and speaks the next step transcript instead', async () => {
+      const audio = installAudioMocks();
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+
+      expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
+      expect(transcript).toBe('Step 2: Fold in salsa. Keep the heat low.');
+
+      await advanceSpeechDelay();
+
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(2);
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+      expect(audio.sources[1].start).toHaveBeenCalledTimes(1);
+    });
+
+    it('interrupts current step audio on Previous and speaks the previous step transcript instead', async () => {
+      const audio = installAudioMocks();
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      await advanceSpeechDelay();
+
+      fireEvent.click(screen.getByRole('button', { name: /previous/i }));
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+
+      expect(audio.sources[1].stop).toHaveBeenCalledTimes(1);
+      expect(transcript).toBe('Back to step 1: Warm the rice and beans.');
+
+      await advanceSpeechDelay();
+
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(3);
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+      expect(audio.sources[2].start).toHaveBeenCalledTimes(1);
+    });
+
+    it('cancels active and pending audio when another speech-bearing action starts', async () => {
+      const audio = installAudioMocks();
+      const staleRepeatSpeech = createDeferred<ArrayBuffer>();
+      const timerSpeech = createDeferred<ArrayBuffer>();
+      mocks.synthesizeSpeech
+        .mockReturnValueOnce(staleRepeatSpeech.promise)
+        .mockReturnValueOnce(timerSpeech.promise);
+
+      await renderCookingGuide();
+
+      fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));
+      await advanceSpeechDelay();
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+      staleRepeatSpeech.resolve(new ArrayBuffer(8));
+      await flushPromises();
+
+      expect(audio.sources).toHaveLength(0);
+
+      await advanceSpeechDelay();
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+      expect(transcript).toBe("Timer set for 1 minutes. I'll let you know when time is up!");
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(2);
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+
+      timerSpeech.resolve(new ArrayBuffer(8));
+      await flushPromises();
+      expect(audio.sources).toHaveLength(1);
+      expect(audio.sources[0].start).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops active and pending step audio before Ask for Help begins recording', async () => {
+      const audio = installAudioMocks();
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+
+      fireEvent.click(screen.getByRole('button', { name: /ask for help/i }));
+      await flushPromises();
+
+      expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
+      expect(audio.speechCancel).toHaveBeenCalled();
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ audio: true });
+      expect(screen.getByText(/listening/i)).toBeTruthy();
+    });
+
+    it('stops active and pending audio immediately when Mute is pressed', async () => {
+      const audio = installAudioMocks();
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+
+      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+
+      expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
+      expect(audio.speechCancel).toHaveBeenCalled();
+      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+    });
+
+    it('keeps Muted state across step navigation and prevents automatic step audio', async () => {
+      installAudioMocks();
+
+      await renderCookingGuide();
+      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      mocks.synthesizeSpeech.mockClear();
+
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      await advanceSpeechDelay();
+
+      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByTestId('text-transcription-full').textContent).toBe('Step 2: Fold in salsa. Keep the heat low.');
+      expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByRole('button', { name: /previous/i }));
+      await advanceSpeechDelay();
+
+      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByTestId('text-transcription-full').textContent).toBe('Back to step 1: Warm the rice and beans.');
+      expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
+    });
+
+    it('does not auto-play after unmuting until the user presses Repeat Step', async () => {
+      installAudioMocks();
+
+      await renderCookingGuide();
+      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      mocks.synthesizeSpeech.mockClear();
+
+      fireEvent.click(screen.getByRole('button', { name: /muted/i }));
+      await advanceSpeechDelay(1200);
+
+      expect(screen.getByRole('button', { name: /audio on/i })).toBeTruthy();
+      expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));
+      await advanceSpeechDelay();
+
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+      expect(transcript).toBe('Step 2: Fold in salsa. Keep the heat low.');
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+    });
+
+    it('speaks exactly the visible transcript text for step, repeat, timer, and assistant responses', async () => {
+      installAudioMocks();
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(
+        screen.getByTestId('text-transcription-full').textContent,
+        {},
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      await advanceSpeechDelay();
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(
+        screen.getByTestId('text-transcription-full').textContent,
+        {},
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));
+      await advanceSpeechDelay();
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(
+        screen.getByTestId('text-transcription-full').textContent,
+        {},
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+      await advanceSpeechDelay();
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(
+        screen.getByTestId('text-transcription-full').textContent,
+        {},
+      );
+    });
+
+    it('ignores late-resolving synthesis from an interrupted step or action', async () => {
+      const audio = installAudioMocks();
+      const staleSpeech = createDeferred<ArrayBuffer>();
+      const nextSpeech = createDeferred<ArrayBuffer>();
+      mocks.synthesizeSpeech
+        .mockReturnValueOnce(staleSpeech.promise)
+        .mockReturnValueOnce(nextSpeech.promise);
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      staleSpeech.resolve(new ArrayBuffer(8));
+      await flushPromises();
+
+      expect(audio.sources).toHaveLength(0);
+
+      await advanceSpeechDelay();
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(2);
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+
+      nextSpeech.resolve(new ArrayBuffer(8));
+      await flushPromises();
+      expect(audio.sources).toHaveLength(1);
+      expect(audio.sources[0].start).toHaveBeenCalledTimes(1);
+    });
+
+    it('handles rapid Next/Previous/Repeat taps with only the final requested transcript spoken', async () => {
+      installAudioMocks();
+
+      await renderCookingGuide();
+
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      fireEvent.click(screen.getByRole('button', { name: /previous/i }));
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));
+
+      await advanceSpeechDelay();
+
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+      expect(transcript).toBe('Step 2: Fold in salsa. Keep the heat low.');
+      expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+    });
+
+    it('lets timer completion audio interrupt step audio without leaving stale playback queued', async () => {
+      const audio = installAudioMocks();
+
+      await renderCookingGuide();
+      await advanceSpeechDelay();
+
+      fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+      await advanceSpeechDelay();
+
+      expect(audio.sources[1].start).toHaveBeenCalledTimes(1);
+
+      for (let index = 0; index < 60; index += 1) {
+        await act(async () => {
+          vi.advanceTimersByTime(1000);
+          await Promise.resolve();
+        });
+      }
+
+      expect(audio.sources[1].stop).toHaveBeenCalledTimes(1);
+
+      await advanceSpeechDelay();
+
+      const transcript = screen.getByTestId('text-transcription-full').textContent;
+      expect(transcript).toBe("Time's up! Check your cooking and let me know how it looks.");
+      expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+      expect(audio.sources.at(-1)?.start).toHaveBeenCalledTimes(1);
+    });
   });
 });

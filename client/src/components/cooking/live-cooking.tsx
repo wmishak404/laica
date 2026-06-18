@@ -67,6 +67,18 @@ interface RecipeRecommendation {
   overview?: string;           // short tagline from slop-bowl response
 }
 
+function formatInstructionWithTips(instruction: string, tips?: string) {
+  const trimmedInstruction = instruction.trim();
+  const trimmedTips = tips?.trim();
+
+  if (!trimmedTips) {
+    return trimmedInstruction;
+  }
+
+  const separator = /[.!?]$/.test(trimmedInstruction) ? ' ' : '. ';
+  return `${trimmedInstruction}${separator}${trimmedTips}`;
+}
+
 interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
@@ -141,12 +153,22 @@ export default function LiveCooking({
   const shouldProcessRecordingRef = useRef(true);
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const speechRetryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const speechRequestIdRef = useRef(0);
   const voiceProcessingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const sessionRestoredRef = useRef(false);
   const sessionStepsRestoredRef = useRef(false);
   const restoredCookingSessionRef = useRef(false);
   const initialMountRef = useRef(true);
+  const assistantResponseRef = useRef(assistantResponse);
+  const isAudioEnabledRef = useRef(isAudioEnabled);
+  const isVoiceRecordingRef = useRef(isVoiceRecording);
+  const voiceAvailableRef = useRef(voiceAvailable);
+
+  assistantResponseRef.current = assistantResponse;
+  isAudioEnabledRef.current = isAudioEnabled;
+  isVoiceRecordingRef.current = isVoiceRecording;
+  voiceAvailableRef.current = voiceAvailable;
 
   // Validate and sanitize a saved cooking session
   const validateCookingSession = (data: any): SavedCookingSession | null => {
@@ -569,7 +591,7 @@ export default function LiveCooking({
       }, 1000);
     } else if (timer === 0 && isTimerRunning) {
       setIsTimerRunning(false);
-      speakText("Time's up! Check your cooking and let me know how it looks.");
+      setSpokenAssistantResponse("Time's up! Check your cooking and let me know how it looks.");
     }
 
     return () => {
@@ -578,8 +600,21 @@ export default function LiveCooking({
   }, [timer, isTimerRunning]);
 
 
-  // Stop any current audio playback
-  const stopAudio = () => {
+  const clearSpeechTimeout = () => {
+    if (speechTimeoutRef.current) {
+      clearTimeout(speechTimeoutRef.current);
+      speechTimeoutRef.current = null;
+    }
+  };
+
+  const clearSpeechRetryTimeout = () => {
+    if (speechRetryTimeoutRef.current) {
+      clearTimeout(speechRetryTimeoutRef.current);
+      speechRetryTimeoutRef.current = null;
+    }
+  };
+
+  const stopSpeechAudioPlayback = () => {
     // Stop ElevenLabs audio
     if (currentAudioRef.current) {
       try {
@@ -598,18 +633,32 @@ export default function LiveCooking({
     setIsSpeaking(false);
   };
 
-  const clearSpeechTimeout = () => {
-    if (speechTimeoutRef.current) {
-      clearTimeout(speechTimeoutRef.current);
-      speechTimeoutRef.current = null;
-    }
+  const cancelSpeechQueue = () => {
+    speechRequestIdRef.current += 1;
+    clearSpeechTimeout();
+    clearSpeechRetryTimeout();
+    stopSpeechAudioPlayback();
   };
 
-  const clearSpeechRetryTimeout = () => {
-    if (speechRetryTimeoutRef.current) {
-      clearTimeout(speechRetryTimeoutRef.current);
-      speechRetryTimeoutRef.current = null;
-    }
+  const beginSpeechRequest = () => {
+    speechRequestIdRef.current += 1;
+    clearSpeechTimeout();
+    clearSpeechRetryTimeout();
+    stopSpeechAudioPlayback();
+    return speechRequestIdRef.current;
+  };
+
+  const canUseSpeechRequest = (requestId: number) => {
+    return audioLifecycleActiveRef.current &&
+      speechRequestIdRef.current === requestId &&
+      isAudioEnabledRef.current &&
+      !isVoiceRecordingRef.current &&
+      voiceAvailableRef.current;
+  };
+
+  // Stop current and queued cooking speech.
+  const stopAudio = () => {
+    cancelSpeechQueue();
   };
 
   const clearRecordingTimers = () => {
@@ -701,21 +750,17 @@ export default function LiveCooking({
   };
 
   // Enhanced text-to-speech using ElevenLabs with proper AudioContext management
-  const speakText = async (text: string, retryCount = 0) => {
-    if (!audioLifecycleActiveRef.current) return;
-    if (!isAudioEnabled || !text || isSpeaking || !voiceAvailable) return;
-    
-    // Prevent duplicate calls for the same text
-    if (text === lastSpokenResponse && isSpeaking) return;
+  const speakText = async (text: string, retryCount = 0, speechRequestId?: number) => {
+    if (!audioLifecycleActiveRef.current || !text) return;
     
     // Don't speak operational/system messages
     if (isOperationalMessage(text)) {
       console.log('Skipping TTS for operational message:', text);
       return;
     }
-    
-    // Stop any current audio before starting new one
-    stopAudio();
+
+    const requestId = speechRequestId ?? beginSpeechRequest();
+    if (!canUseSpeechRequest(requestId)) return;
     
     setIsSpeaking(true);
     
@@ -723,18 +768,19 @@ export default function LiveCooking({
       // Use ElevenLabs for high-quality voice
       console.log('🎵 Synthesizing speech:', text.substring(0, 50) + '...');
       const audioBuffer = await elevenLabsClient.synthesizeSpeech(text, voiceSettings);
-      if (!audioLifecycleActiveRef.current) return;
+      if (!canUseSpeechRequest(requestId)) return;
       console.log('✅ Speech synthesis successful');
       
       // Ensure AudioContext is ready
       const audioContext = await ensureAudioContextReady();
-      if (!audioLifecycleActiveRef.current) return;
+      if (!canUseSpeechRequest(requestId)) return;
       if (!audioContext) {
         throw new Error('AudioContext not available');
       }
       console.log('🔊 AudioContext state:', audioContext.state);
       
       const audioData = await audioContext.decodeAudioData(audioBuffer);
+      if (!canUseSpeechRequest(requestId)) return;
       const source = audioContext.createBufferSource();
       source.buffer = audioData;
       source.connect(audioContext.destination);
@@ -742,7 +788,7 @@ export default function LiveCooking({
       currentAudioRef.current = source;
       
       source.onended = () => {
-        if (!audioLifecycleActiveRef.current) return;
+        if (speechRequestIdRef.current !== requestId || currentAudioRef.current !== source) return;
         console.log('✅ Audio playback completed');
         setIsSpeaking(false);
         currentAudioRef.current = null;
@@ -761,7 +807,7 @@ export default function LiveCooking({
       }
       
     } catch (error) {
-      if (!audioLifecycleActiveRef.current) return;
+      if (!canUseSpeechRequest(requestId)) return;
       console.error('❌ Speech synthesis/playback error:', error);
       setIsSpeaking(false);
       
@@ -773,8 +819,8 @@ export default function LiveCooking({
         setAudioContextInitialized(false);
         speechRetryTimeoutRef.current = setTimeout(() => {
           speechRetryTimeoutRef.current = null;
-          if (audioLifecycleActiveRef.current) {
-            speakText(text, retryCount + 1);
+          if (canUseSpeechRequest(requestId)) {
+            speakText(text, retryCount + 1, requestId);
           }
         }, 100);
         return;
@@ -845,37 +891,46 @@ export default function LiveCooking({
   // Don't speak while voice recording to prevent contamination
   const [audioJustEnabled, setAudioJustEnabled] = useState(false);
   const [lastSpokenResponse, setLastSpokenResponse] = useState<string>('');
+  const [speechIntentRevision, setSpeechIntentRevision] = useState(0);
   const [isInitializing, setIsInitializing] = useState(true);
   
   useEffect(() => {
-    // Simple speech handling with basic duplicate prevention
-    if (assistantResponse && isAudioEnabled && !audioJustEnabled && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
-      // Clear any pending speech to prevent duplicates
-      clearSpeechTimeout();
-      
-      // Shorter delay for better responsiveness, longer only during loading
+    if (!isAudioEnabled) {
+      cancelSpeechQueue();
+      return;
+    }
+
+    if (audioJustEnabled) {
+      cancelSpeechQueue();
+      setAudioJustEnabled(false);
+      return;
+    }
+
+    if (assistantResponse && !isVoiceRecording && assistantResponse !== lastSpokenResponse) {
+      const textToSpeak = assistantResponse;
+      const speechRequestId = beginSpeechRequest();
       const delay = isLoadingSteps ? 1200 : 800;
-      const timeoutId = setTimeout(() => {
+
+      speechTimeoutRef.current = setTimeout(() => {
         speechTimeoutRef.current = null;
-        if (audioLifecycleActiveRef.current && !isVoiceRecording && assistantResponse) { // Double-check we're still not recording
-          speakText(assistantResponse);
-          setLastSpokenResponse(assistantResponse);
+        if (
+          canUseSpeechRequest(speechRequestId) &&
+          assistantResponseRef.current === textToSpeak
+        ) {
+          speakText(textToSpeak, 0, speechRequestId);
+          setLastSpokenResponse(textToSpeak);
         }
       }, delay);
-      
-      speechTimeoutRef.current = timeoutId;
     }
-    if (audioJustEnabled) {
-      setAudioJustEnabled(false);
-    }
-  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording, isLoadingSteps]);
+  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording, isLoadingSteps, speechIntentRevision]);
 
-  // Track when audio is enabled to prevent immediate replay
-  useEffect(() => {
-    if (isAudioEnabled) {
-      setAudioJustEnabled(true);
-    }
-  }, [isAudioEnabled]);
+  const setSpokenAssistantResponse = (text: string) => {
+    cancelSpeechQueue();
+    setAudioJustEnabled(false);
+    setLastSpokenResponse('');
+    setAssistantResponse(text);
+    setSpeechIntentRevision(revision => revision + 1);
+  };
 
   const nextStep = () => {
     if (currentStepIndex < currentRecipeSteps.length - 1) {
@@ -885,19 +940,13 @@ export default function LiveCooking({
       setTimer(nextStepData?.duration || 0);
       setIsTimerRunning(false);
       
-      // Reset the audioJustEnabled flag when moving to next step
-      setAudioJustEnabled(false);
-      setLastSpokenResponse(''); // Clear to allow new step message
-      
-      const stepText = `Step ${newStepIndex + 1}: ${nextStepData.instruction}. ${nextStepData.tips}`;
-      setAssistantResponse(stepText);
+      const stepText = `Step ${newStepIndex + 1}: ${formatInstructionWithTips(nextStepData.instruction, nextStepData.tips)}`;
+      setSpokenAssistantResponse(stepText);
       
       // Update cooking progress
       updateCookingProgress(newStepIndex + 1);
     } else {
-      setAudioJustEnabled(false);
-      setLastSpokenResponse(''); // Clear to allow completion message
-      setAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy! How did it turn out?");
+      setSpokenAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy! How did it turn out?");
       
       // Complete cooking session with default rating
       completeCookingSession(5, "Cooking completed successfully");
@@ -912,19 +961,15 @@ export default function LiveCooking({
       setTimer(prevStepData?.duration || 0);
       setIsTimerRunning(false);
       
-      // Reset the audioJustEnabled flag when moving to previous step
-      setAudioJustEnabled(false);
-      setLastSpokenResponse(''); // Clear to allow previous step message
-      
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
-      setAssistantResponse(stepText);
+      setSpokenAssistantResponse(stepText);
     }
   };
 
   const startTimer = (minutes: number) => {
     setTimer(minutes * 60);
     setIsTimerRunning(true);
-    setAssistantResponse(`Timer set for ${minutes} minutes. I'll let you know when time is up!`);
+    setSpokenAssistantResponse(`Timer set for ${minutes} minutes. I'll let you know when time is up!`);
   };
 
   // Clean up audio on component unmount or page navigation
@@ -937,11 +982,8 @@ export default function LiveCooking({
   const repeatStepInstructions = () => {
     if (!currentStep) return;
     
-    // Reset audioJustEnabled to ensure repeat step plays even if audio was just unmuted
-    setAudioJustEnabled(false);
-    setLastSpokenResponse(''); // Clear to force repeat step to play
-    const stepText = `Step ${currentStepIndex + 1}: ${currentStep.instruction}. ${currentStep.tips}`;
-    setAssistantResponse(stepText);
+    const stepText = `Step ${currentStepIndex + 1}: ${formatInstructionWithTips(currentStep.instruction, currentStep.tips)}`;
+    setSpokenAssistantResponse(stepText);
   };
 
   // Voice recording functionality with silence detection
@@ -956,6 +998,7 @@ export default function LiveCooking({
       const recordingRunId = recordingRunIdRef.current + 1;
       recordingRunIdRef.current = recordingRunId;
       shouldProcessRecordingRef.current = true;
+      isVoiceRecordingRef.current = true;
       setShouldProcessRecording(true);
 
       // IMMEDIATELY stop any playing audio to prevent conflicts
@@ -1149,6 +1192,7 @@ export default function LiveCooking({
     } catch (error) {
       console.error('Error accessing microphone:', error);
       setAssistantResponse("I couldn't access your microphone. Please check your browser permissions and try again.");
+      isVoiceRecordingRef.current = false;
       setIsVoiceRecording(false);
     }
   };
@@ -1159,6 +1203,7 @@ export default function LiveCooking({
       mediaRecorderRef.current.stop();
     }
     clearRecordingTimers();
+    isVoiceRecordingRef.current = false;
     setIsVoiceRecording(false);
   };
 
@@ -1179,6 +1224,7 @@ export default function LiveCooking({
     clearRecordingTimers();
     
     // Reset all states
+    isVoiceRecordingRef.current = false;
     setIsVoiceRecording(false);
     setIsProcessing(false);
     setRecordingDuration(0);
@@ -1276,18 +1322,15 @@ export default function LiveCooking({
       if (!audioLifecycleActiveRef.current) return;
       
       if (response) {
-        setLastSpokenResponse(''); // Clear to allow new response
-        setAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
+        setSpokenAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
       } else {
-        setLastSpokenResponse(''); // Clear to allow new response
-        setAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
+        setSpokenAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
       }
       
     } catch (error) {
       if (!audioLifecycleActiveRef.current) return;
       console.error('Error processing voice question:', error);
-      setLastSpokenResponse(''); // Clear to allow new response
-      setAssistantResponse("I didn't catch that. Could you try again?");
+      setSpokenAssistantResponse("I didn't catch that. Could you try again?");
     }
     
     if (audioLifecycleActiveRef.current) {
@@ -1296,6 +1339,8 @@ export default function LiveCooking({
   };
 
   const askForHelp = async () => {
+    stopAudio();
+
     // Initialize AudioContext on user interaction (required for mobile)
     await initializeAudioContext();
     
@@ -1524,15 +1569,22 @@ export default function LiveCooking({
             <Button
               onClick={async () => {
                 if (!voiceAvailable) return; // Don't allow interaction when voice is unavailable
-                
-                // Initialize AudioContext on user interaction (required for mobile)
-                await initializeAudioContext();
-                
+
                 if (isAudioEnabled) {
                   // When muting, stop any current audio
                   stopAudio();
+                  isAudioEnabledRef.current = false;
+                  setAudioJustEnabled(false);
+                  setIsAudioEnabled(false);
+                } else {
+                  cancelSpeechQueue();
+                  isAudioEnabledRef.current = true;
+                  setAudioJustEnabled(true);
+                  setLastSpokenResponse(assistantResponseRef.current);
+                  setIsAudioEnabled(true);
+                  // Initialize AudioContext on user interaction (required for mobile)
+                  await initializeAudioContext();
                 }
-                setIsAudioEnabled(!isAudioEnabled);
               }}
               disabled={!voiceAvailable}
               className={`w-full sm:w-auto px-6 py-3 font-medium ${
