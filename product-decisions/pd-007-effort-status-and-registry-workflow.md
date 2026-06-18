@@ -23,6 +23,8 @@ Use a two-surface Effort workflow:
 - Effort IDs use `EFF-NNN`. Renamed files keep `Former ID: EPIC-NNN` metadata for historical continuity.
 - Agents read active Efforts by default, not the full registry.
 - Agents consult `efforts/registry.md` only when a task references a resolved/deferred Effort or needs historical context.
+- `Open` and `In Progress` Efforts are the active implementation pool after hygiene checks. Status is not an ownership lock: agents must still check open PRs, recent handoffs, blocked handoffs, and active INIT ownership before choosing a slice.
+- `Blocked`, `Deferred`, and `Resolved` Efforts are not default implementation candidates. Work on them only when the task is to unblock, reclassify, close out, or deliberately reopen the area.
 - `Resolved` is the closed/completed state. Do not introduce a separate `Closed` status.
 
 ## When not to create an Effort
@@ -36,8 +38,8 @@ The approved status vocabulary is:
 
 | Status | Meaning |
 |---|---|
-| `Open` | Accepted standalone follow-up, not actively being implemented yet |
-| `In Progress` | Work, decisions, or validation are partially complete |
+| `Open` | Accepted standalone follow-up with no known active implementation owner |
+| `In Progress` | One or more decisions, implementation slices, or validation passes have landed or are active, but resolution criteria are not complete |
 | `Blocked` | Cannot progress without a human decision, external dependency, or environment action |
 | `Deferred` | Intentionally parked for later, with no current action expected |
 | `Resolved` | Closed/completed, superseded by a better home, or accepted as no longer needed |
@@ -73,3 +75,14 @@ The approved status vocabulary is:
 The former `epics/` system was renamed to `efforts/`. Wilson explicitly closed EFF-004, EFF-007, EFF-009, and EFF-016 because their remaining work is already owned by INIT-001 phases or resolved by Mobile Refresh enhancements. EFF-005, EFF-019, and EFF-020 closed because their durable content now belongs in workflow docs, INIT-002, or PD-010 rather than standalone Efforts.
 
 The inefficiencies that triggered the cleanup are recorded operationally in [`docs/workflows/effort-system-audit.md`](../docs/workflows/effort-system-audit.md) so future agents can audit stale Efforts without reopening this PD as a running work log.
+
+## 2026-06-18 Amendment — Hygiene plus implementation loop
+
+Wilson expanded the recurring Efforts automation from a hygiene-only audit into a daily hygiene-plus-implementation loop. The accepted interpretation is:
+
+- Hygiene comes first: reconcile active lists, registry rows, `AGENTS.md` / `CLAUDE.md` mirrors, recent handoffs, blocked reports, active INIT ownership, and open Effort/hygiene PRs before choosing new work.
+- Implementation comes second: after hygiene is clean, choose one unblocked `Open` or `In Progress` Effort for a PR-sized slice with clear acceptance criteria and no conflicting owner.
+- Priority is evidence-based, not just table order. Prefer work with explicit priority, recent user/validation pain, shared dependency value across INITs or Efforts, and a clear validation path. If the ranking depends on product direction or architecture, ask Wilson.
+- A recurring automation may open branches and PRs, update handoffs, and request peer review, but it does not gain merge authority for code, product-direction, security/privacy, deployment, dependency, or unresolved-review PRs.
+
+The operating details and automation prompt live in [`docs/workflows/effort-system-audit.md`](../docs/workflows/effort-system-audit.md).

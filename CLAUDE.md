@@ -102,10 +102,13 @@ Current active Efforts:
 - `efforts/effort-017-environment-parity-and-ci-confidence.md` — read before changing CI/auth smoke coverage, OAuth preflights, live-provider canaries, coverage thresholds, or validation-authority policy
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md` — read before changing recipe suggestion prompts, cuisine preference packaging, recipe eval criteria, cuisine picker options, or homepage/onboarding examples that name a cuisine tradition
 - `efforts/effort-025-settings-unsaved-inventory-reminder.md` — read before changing Settings Pantry/Kitchen add, delete, reset, save, dirty-state, or leave-warning behavior
+- `efforts/effort-027-active-workflow-reload-resilience.md` — read before changing app-shell bootstrap routing, MealPlanning session cache/restore, Chef It Up state transitions, or active workflow reload/remount recovery
 
 If work belongs to an active/future INIT phase, update the INIT or feature phase record instead of creating a new Effort. If work is governance/process, update a workflow doc, ADR, or PD instead of creating a new Effort.
 
 If your work intersects with an active Effort, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
+
+**Efforts hygiene and implementation loop.** Recurring Efforts runs must follow `docs/workflows/effort-system-audit.md`: start from fresh `origin/main`, check open Effort/hygiene PRs, recent handoffs, blocked handoffs, active INIT ownership, and active-list mirror parity before choosing work. After hygiene is clean, an agent may choose one unblocked `Open` or `In Progress` Effort for a PR-sized implementation slice; do not implement `Blocked`, `Deferred`, or `Resolved` Efforts unless the task is explicitly to unblock, close out, or reclassify them. Stop and ask Wilson when priority, product direction, architecture, secrets/security, Replit-side action, or merge authority is the real missing input.
 
 **Effort closeout after merge.** If a merged PR satisfies an Effort's resolution criteria, do a short docs closeout pass from fresh `main` instead of assuming the merged code will implicitly close the Effort. The closeout should flip the Effort status to `Resolved`, add a final dated resolution note with merged PR / handoff references, remove the Effort from `efforts/README.md`'s active read list, update `efforts/registry.md`, and push a handoff. If real follow-up scope remains, track it as a separate active Effort only when it is standalone; otherwise document it in the relevant INIT, phase record, workflow doc, ADR, or PD.
 
