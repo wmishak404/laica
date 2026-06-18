@@ -39,7 +39,7 @@ EFF-027 was selected because it has explicit `Priority: High`, came from fresh R
 - `tests/unit/meal-planning.test.tsx`
   - Verifies Back-to-Planning clears the session and writes the dismissal marker instead of re-saving stale state.
 - `tests/e2e/linked-dev-auth.test.ts`
-  - Updates the linked browser smoke so reload from recipe suggestions expects the new Ticket Pass restore behavior, then explicitly backs out and verifies a later reload remains on the Planning choice screen.
+  - Updates the linked browser smoke so reload from recipe suggestions expects the new Ticket Pass restore behavior, then explicitly backs out, waits for the dismissal marker, and verifies a later reload remains on the Planning choice screen.
 - `efforts/effort-027-active-workflow-reload-resilience.md`
   - Records this branch signal, the 15-minute transient recovery decision, future Saved/History boundary, and remaining exact-head Replit reload validation.
 - `efforts/registry.md`
