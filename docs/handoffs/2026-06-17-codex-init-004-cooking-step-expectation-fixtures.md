@@ -55,12 +55,14 @@ Final local validation on this branch:
 - Final exact-head `npm audit --audit-level=high` passed with 0 vulnerabilities.
 - Final exact-head `npm run build` passed with existing Browserslist age, Firebase dynamic-import, and chunk-size warnings.
 - Final exact-head `git diff --check` and `git diff --cached --check` passed.
+- Merge-readiness review found the original PR head was stale after PR #197 merged. The branch was rebased onto `origin/main` `7250016b762401476871b0f13b579a44905b90cd`.
+- Post-rebase local validation passed: `npx vitest run tests/unit/eval-fixtures.test.ts` (1 file / 11 tests), `npm run test:unit` (42 files / 292 tests), `npm run check`, `npm audit --audit-level=high` (0 vulnerabilities), and `npm run build` with the same existing Browserslist/Firebase/chunk warnings.
 
 Human Replit validation is not required before merge. This branch changes public offline fixture data, docs, and unit coverage only; it does not change auth, provider calls, DB schema, deployment config, UI, persistence, secrets, prompts, runtime generation behavior, private fixture ingestion, or daily reporting.
 
 ## Stack / Base Status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `3fac3c0a35109016b773b6cfa78459cf80a5035f`
+- Current base: `origin/main` at `7250016b762401476871b0f13b579a44905b90cd`
 - Last Replit-validated at: not required before merge
-- Notes: started from fresh `origin/main` after PR #190 had merged and no active INIT-004 PR owned this fixture milestone.
+- Notes: started from fresh `origin/main` after PR #190 had merged, then rebased onto current `origin/main` after PR #197 merged.
