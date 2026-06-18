@@ -59,10 +59,10 @@ If PR #196 merges before this branch, rebase and drop any duplicate hygiene lang
 
 ## Verification
 
-- `npx vitest run tests/unit/planning-choice.test.tsx` passed: 1 file / 26 tests.
+- `npx vitest run tests/unit/planning-choice.test.tsx` passed: 1 file / 27 tests.
 - `npx vitest run tests/unit/meal-planning.test.tsx` passed: 1 file / 23 tests.
 - `npm run check` passed: `tsc` plus `lint:ui`.
-- `npm run test:unit` passed: 42 files / 296 tests.
+- `npm run test:unit` passed: 42 files / 297 tests.
 - `npm run build` passed with the existing Browserslist age, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
 
