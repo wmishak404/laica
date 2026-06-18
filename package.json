@@ -20,6 +20,7 @@
     "db:health": "tsx scripts/db-schema-health.ts",
     "db:sandbox:prepare": "tsx scripts/local-sandbox.ts --prepare-only",
     "check:oauth": "tsx scripts/oauth-start-preflight.ts",
+    "eval:fixtures": "tsx scripts/validate-eval-fixtures.ts",
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --project=chromium",
