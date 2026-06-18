@@ -40,6 +40,7 @@ Implementation should match the planning mockups closely enough that the first p
 - Chef It Up / MealPlanning local session restore is a short-lived resilience affordance, not a recipe-saving feature.
 - Automatic app-shell restore should only re-enter Chef It Up for a valid scoped session from the last 15 minutes, for the same auth scope and same planning profile fingerprint.
 - Profile changes, expired sessions, invalid cache shapes, and explicit exits to the Planning choice should not auto-reopen Chef It Up.
+- Explicit exits set a scoped dismissal marker for the same short recovery window so a late stale session write cannot reopen Chef It Up after the user already backed out; choosing Chef It Up again from the Planning choice starts fresh and clears that marker.
 - Recipe suggestions that users want to keep longer than the recovery window should become an explicit Saved recipe feature adjacent to History in Phase 5, not a longer hidden localStorage restore.
 
 ### Slop Bowl flow

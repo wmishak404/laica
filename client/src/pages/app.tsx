@@ -34,8 +34,10 @@ import { mergeUniqueEntries } from '@/lib/entryParsing';
 import {
   ACTIVE_COOKING_PLAN_STORAGE_KEY,
   clearScopedCookingSession,
+  clearScopedMealPlanningDismissal,
   clearScopedMealPlanningSession,
   createPlanningProfileFingerprint,
+  dismissScopedMealPlanningSession,
   planningProfileFingerprintsMatch,
   readActiveMealPlanningSession,
 } from '@/lib/planningCache';
@@ -861,7 +863,7 @@ export default function MobileApp() {
   const handleBackToPlanning = () => {
     clearSettingsRestore();
     clearActiveCookingPlan(activeCookingPlanStorageKey);
-    clearScopedMealPlanningSession(planningStateScopeKey);
+    dismissScopedMealPlanningSession(planningStateScopeKey);
 
     // Check if profile is complete before allowing access to planning
     const isProfileComplete = hasCompletedCookingProfile(userProfile);
@@ -1023,6 +1025,8 @@ export default function MobileApp() {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
     clearSettingsRestore();
+    clearScopedMealPlanningSession(planningStateScopeKey);
+    clearScopedMealPlanningDismissal(planningStateScopeKey);
     setShowPlanningChoice(false);
   };
 
@@ -1286,7 +1290,7 @@ export default function MobileApp() {
             size="icon"
             onClick={() => {
               clearSettingsRestore();
-              clearScopedMealPlanningSession(planningStateScopeKey);
+              dismissScopedMealPlanningSession(planningStateScopeKey);
               setShowPlanningChoice(true);
               setCurrentPhase('planning');
             }}
@@ -1360,7 +1364,7 @@ export default function MobileApp() {
                 onBackToProfile={() => {
                   // Back from step 1 of manual planning returns to the
                   // Slop Bowl vs Chef it up choice screen, not the profile.
-                  clearScopedMealPlanningSession(planningStateScopeKey);
+                  dismissScopedMealPlanningSession(planningStateScopeKey);
                   setShowPlanningChoice(true);
                 }}
               />

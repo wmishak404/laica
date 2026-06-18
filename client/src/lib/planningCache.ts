@@ -8,6 +8,7 @@ interface PlanningProfileFingerprintInput {
 
 export const ACTIVE_COOKING_PLAN_STORAGE_KEY = 'laica_active_cooking_plan';
 export const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
+export const MEAL_PLANNING_DISMISSAL_STORAGE_KEY = 'laica_meal_planning_session_dismissed_v1';
 export const COOKING_SESSION_STORAGE_KEY = 'laica_cooking_session';
 export const MEAL_PLANNING_SESSION_MAX_AGE_MS = 15 * 60 * 1000;
 
@@ -55,6 +56,19 @@ export function clearScopedMealPlanningSession(scopeKey: string) {
   window.localStorage.removeItem(`${MEAL_PLANNING_STORAGE_KEY}:${scopeKey}`);
 }
 
+export function clearScopedMealPlanningDismissal(scopeKey: string) {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.removeItem(`${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:${scopeKey}`);
+}
+
+export function dismissScopedMealPlanningSession(scopeKey: string) {
+  if (typeof window === 'undefined') return;
+
+  clearScopedMealPlanningSession(scopeKey);
+  window.localStorage.setItem(`${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:${scopeKey}`, String(Date.now()));
+}
+
 export function readActiveMealPlanningSession(
   scopeKey: string,
   profileFingerprint: string,
@@ -62,9 +76,23 @@ export function readActiveMealPlanningSession(
   if (typeof window === 'undefined') return null;
 
   const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:${scopeKey}`;
+  const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:${scopeKey}`;
 
   try {
     window.localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+
+    const rawDismissal = window.localStorage.getItem(dismissalKey);
+    if (rawDismissal) {
+      const dismissedAt = Number(rawDismissal);
+      const hasRecentDismissal = Number.isFinite(dismissedAt)
+        && Date.now() - dismissedAt < MEAL_PLANNING_SESSION_MAX_AGE_MS;
+
+      window.localStorage.removeItem(storageKey);
+      if (hasRecentDismissal) return null;
+
+      window.localStorage.removeItem(dismissalKey);
+      return null;
+    }
 
     const rawSession = window.localStorage.getItem(storageKey);
     if (!rawSession) return null;

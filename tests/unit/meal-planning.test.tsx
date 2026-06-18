@@ -7,7 +7,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import MealPlanning from '../../client/src/components/cooking/meal-planning';
 import { mergeUniqueEntries } from '../../client/src/lib/entryParsing';
-import { MEAL_PLANNING_STORAGE_KEY, createPlanningProfileFingerprint } from '../../client/src/lib/planningCache';
+import {
+  MEAL_PLANNING_DISMISSAL_STORAGE_KEY,
+  MEAL_PLANNING_STORAGE_KEY,
+  createPlanningProfileFingerprint,
+} from '../../client/src/lib/planningCache';
 
 const fetchPantryRecipesMock = vi.hoisted(() => vi.fn());
 const resolveSelectedRecipeImageMock = vi.hoisted(() => vi.fn());
@@ -346,6 +350,7 @@ describe('MealPlanning recipe generation locking', () => {
   it('does not re-save a planning session while backing out to planning choices', async () => {
     const onBackToProfile = vi.fn();
     const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
     fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
 
     renderMealPlanning({ onBackToProfile });
@@ -368,6 +373,7 @@ describe('MealPlanning recipe generation locking', () => {
     await act(async () => {});
     expect(onBackToProfile).toHaveBeenCalledTimes(1);
     expect(window.localStorage.getItem(storageKey)).toBeNull();
+    expect(window.localStorage.getItem(dismissalKey)).toBeTruthy();
   });
 
   it('keeps restored Ticket Pass recipes placeholder-only until Prep Tray', async () => {

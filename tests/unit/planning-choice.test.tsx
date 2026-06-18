@@ -13,6 +13,7 @@ import MobileApp, {
   mergeProfilesForGuestPromotion,
 } from '../../client/src/pages/app';
 import {
+  MEAL_PLANNING_DISMISSAL_STORAGE_KEY,
   MEAL_PLANNING_SESSION_MAX_AGE_MS,
   MEAL_PLANNING_STORAGE_KEY,
   createPlanningProfileFingerprint,
@@ -589,12 +590,18 @@ describe('MobileApp planning choice pantry status', () => {
 
   it('lets users with pantry items enter Chef It Up', async () => {
     await renderPlanningChoice(makeProfile({ pantryIngredients: ['rice', 'eggs'] }));
+    const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
+    window.localStorage.setItem(storageKey, JSON.stringify({ savedAt: Date.now() }));
+    window.localStorage.setItem(dismissalKey, String(Date.now()));
 
     fireEvent.click(screen.getByRole('button', { name: /chef it up/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId('meal-planning')).toBeTruthy();
     });
+    expect(window.localStorage.getItem(storageKey)).toBeNull();
+    expect(window.localStorage.getItem(dismissalKey)).toBeNull();
   });
 
   it('restores an active linked Chef It Up planning session after a remount', async () => {
@@ -676,6 +683,8 @@ describe('MobileApp planning choice pantry status', () => {
       kitchenEquipment: ['skillet'],
     });
     mocks.userProfileReturn.data = { user: profile };
+    const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
     writeMealPlanningSession('linked:user-1', profile, { currentStep: 'cuisine' });
 
     render(<MobileApp />);
@@ -684,7 +693,46 @@ describe('MobileApp planning choice pantry status', () => {
     fireEvent.click(screen.getByRole('button', { name: /mock back to planning choices/i }));
 
     expect(await screen.findByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
-    expect(window.localStorage.getItem(`${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`)).toBeNull();
+    expect(window.localStorage.getItem(storageKey)).toBeNull();
+    expect(window.localStorage.getItem(dismissalKey)).toBeTruthy();
+  });
+
+  it('does not restore a recently dismissed Chef It Up planning session even if stale storage remains', async () => {
+    const profile = makeProfile({
+      pantryIngredients: ['rice', 'eggs', 'scallions'],
+      kitchenEquipment: ['skillet'],
+    });
+    mocks.userProfileReturn.data = { user: profile };
+    const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
+    writeMealPlanningSession('linked:user-1', profile, { currentStep: 'tickets' });
+    window.localStorage.setItem(dismissalKey, String(Date.now()));
+
+    render(<MobileApp />);
+
+    expect(await screen.findByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
+    expect(screen.queryByTestId('meal-planning')).toBeNull();
+    expect(window.localStorage.getItem(storageKey)).toBeNull();
+    expect(window.localStorage.getItem(dismissalKey)).toBeTruthy();
+  });
+
+  it('cleans up expired Chef It Up dismissal state without restoring the old session', async () => {
+    const profile = makeProfile({
+      pantryIngredients: ['rice', 'eggs', 'scallions'],
+      kitchenEquipment: ['skillet'],
+    });
+    mocks.userProfileReturn.data = { user: profile };
+    const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
+    writeMealPlanningSession('linked:user-1', profile, { currentStep: 'tickets' });
+    window.localStorage.setItem(dismissalKey, String(Date.now() - MEAL_PLANNING_SESSION_MAX_AGE_MS - 1));
+
+    render(<MobileApp />);
+
+    expect(await screen.findByRole('heading', { name: /what are we cooking today/i })).toBeTruthy();
+    expect(screen.queryByTestId('meal-planning')).toBeNull();
+    expect(window.localStorage.getItem(storageKey)).toBeNull();
+    expect(window.localStorage.getItem(dismissalKey)).toBeNull();
   });
 
   it('restores an active guest cooking plan after a remount', async () => {

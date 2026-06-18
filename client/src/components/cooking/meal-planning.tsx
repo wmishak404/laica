@@ -21,6 +21,7 @@ import {
   MEAL_PLANNING_SESSION_MAX_AGE_MS,
   MEAL_PLANNING_STORAGE_KEY,
   createPlanningProfileFingerprint,
+  dismissScopedMealPlanningSession,
   isMealPlanningStep,
 } from '@/lib/planningCache';
 import { ArrowLeft, ChefHat, CheckCircle2, Clock, Plus, RefreshCw, Sparkles, Utensils, X } from 'lucide-react';
@@ -781,13 +782,13 @@ export default function MealPlanning({
   const handleMealSelected = (meal: RecipeRecommendation) => {
     cancelRecipeImageHydration();
     suppressSessionPersistenceRef.current = true;
-    localStorage.removeItem(mealPlanningStorageKey);
+    dismissScopedMealPlanningSession(sessionScopeKey);
     onMealSelected(meal, 'now');
   };
 
   const exitToPlanningChoices = () => {
     suppressSessionPersistenceRef.current = true;
-    localStorage.removeItem(mealPlanningStorageKey);
+    dismissScopedMealPlanningSession(sessionScopeKey);
     onBackToProfile();
   };
 
