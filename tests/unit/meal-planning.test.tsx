@@ -7,7 +7,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import MealPlanning from '../../client/src/components/cooking/meal-planning';
 import { mergeUniqueEntries } from '../../client/src/lib/entryParsing';
-import { createPlanningProfileFingerprint } from '../../client/src/lib/planningCache';
+import {
+  MEAL_PLANNING_DISMISSAL_STORAGE_KEY,
+  MEAL_PLANNING_STORAGE_KEY,
+  createPlanningProfileFingerprint,
+} from '../../client/src/lib/planningCache';
 
 const fetchPantryRecipesMock = vi.hoisted(() => vi.fn());
 const resolveSelectedRecipeImageMock = vi.hoisted(() => vi.fn());
@@ -139,6 +143,7 @@ interface RenderMealPlanningOptions {
     favoriteChefs: string[];
   };
   onEditPantry?: () => void;
+  onBackToProfile?: () => void;
 }
 
 function makeMealPlanningProfile(overrides: Partial<{
@@ -163,6 +168,7 @@ function renderMealPlanning({
   sessionScopeKey = 'linked:user-1',
   initialProfile,
   onEditPantry,
+  onBackToProfile = vi.fn(),
 }: RenderMealPlanningOptions = {}) {
   const onMealSelected = vi.fn();
   const onPantryIngredientsAdded = vi.fn(async (ingredients: string[]) => true);
@@ -190,14 +196,14 @@ function renderMealPlanning({
         onPantryIngredientsAdded={onPantryIngredientsAdded}
         onMealSelected={onMealSelected}
         onEditPantry={onEditPantry}
-        onBackToProfile={vi.fn()}
+        onBackToProfile={onBackToProfile}
       />
     );
   }
 
   const renderResult = render(<Harness />);
 
-  return { onMealSelected, onPantryIngredientsAdded, ...renderResult };
+  return { onMealSelected, onPantryIngredientsAdded, onBackToProfile, ...renderResult };
 }
 
 function advanceToCuisine() {
@@ -339,6 +345,35 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.getByRole('heading', { name: /how much time do you have today/i })).toBeTruthy();
     expect(screen.queryByText(/keto chicken/i)).toBeNull();
     expect(window.localStorage.getItem('laica_meal_planning_session_v2:linked:user-1')).toBeNull();
+  });
+
+  it('does not re-save a planning session while backing out to planning choices', async () => {
+    const onBackToProfile = vi.fn();
+    const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+
+    renderMealPlanning({ onBackToProfile });
+    advanceToStaples();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    await waitFor(() => {
+      expect(window.localStorage.getItem(storageKey)).toContain('"currentStep":"tickets"');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /back to cuisines/i }));
+    expect(screen.getByRole('heading', { name: /anything else around/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /back to cuisines/i }));
+    expect(screen.getByRole('heading', { name: /what sounds good/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /back to time/i }));
+    expect(screen.getByRole('heading', { name: /how much time do you have today/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /back to planning choices/i }));
+
+    await act(async () => {});
+    expect(onBackToProfile).toHaveBeenCalledTimes(1);
+    expect(window.localStorage.getItem(storageKey)).toBeNull();
+    expect(window.localStorage.getItem(dismissalKey)).toBeTruthy();
   });
 
   it('keeps restored Ticket Pass recipes placeholder-only until Prep Tray', async () => {

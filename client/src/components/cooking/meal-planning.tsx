@@ -17,7 +17,13 @@ import {
   getAllStapleCandidatesForCuisines,
 } from '@shared/planning-staples';
 import { mergeUniqueEntries, normalizeEntryKey } from '@/lib/entryParsing';
-import { MEAL_PLANNING_STORAGE_KEY, createPlanningProfileFingerprint } from '@/lib/planningCache';
+import {
+  MEAL_PLANNING_SESSION_MAX_AGE_MS,
+  MEAL_PLANNING_STORAGE_KEY,
+  createPlanningProfileFingerprint,
+  dismissScopedMealPlanningSession,
+  isMealPlanningStep,
+} from '@/lib/planningCache';
 import { ArrowLeft, ChefHat, CheckCircle2, Clock, Plus, RefreshCw, Sparkles, Utensils, X } from 'lucide-react';
 
 const NO_PREFERENCE = 'No preference';
@@ -105,9 +111,6 @@ const cuisineOptions = [
 const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
 const SELECTED_RECIPE_IMAGE_POLL_DELAY_MS = 5_000;
 
-const isPlanningStep = (value: unknown): value is PlanningStep =>
-  value === 'time' || value === 'cuisine' || value === 'staples' || value === 'tickets' || value === 'prep-tray';
-
 const stringArray = (value: unknown): string[] =>
   Array.isArray(value)
     ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
@@ -183,6 +186,7 @@ export default function MealPlanning({
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const imagePreviewRunIdRef = useRef(0);
   const activeImagePreviewRef = useRef<{ runId: number; controller: AbortController } | null>(null);
+  const suppressSessionPersistenceRef = useRef(false);
   const { toast } = useToast();
   const mealPlanningStorageKey = useMemo(
     () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
@@ -196,7 +200,7 @@ export default function MealPlanning({
   const validateSession = (data: any): SavedMealPlanningSession | null => {
     try {
       if (typeof data !== 'object' || data === null) return null;
-      if (!isPlanningStep(data.currentStep)) return null;
+      if (!isMealPlanningStep(data.currentStep)) return null;
       if (typeof data.savedAt !== 'number') return null;
       if (data.profileFingerprint !== profileFingerprint) return null;
 
@@ -244,7 +248,7 @@ export default function MealPlanning({
         return;
       }
 
-      const isRecent = Date.now() - session.savedAt < 24 * 60 * 60 * 1000;
+      const isRecent = Date.now() - session.savedAt < MEAL_PLANNING_SESSION_MAX_AGE_MS;
       const hasProgress = session.currentStep !== 'time' || session.recommendations.length > 0;
 
       if (isRecent && hasProgress) {
@@ -266,6 +270,8 @@ export default function MealPlanning({
   }, [mealPlanningStorageKey, onPlanningTimeChange, profileFingerprint]);
 
   useEffect(() => {
+    if (suppressSessionPersistenceRef.current) return;
+
     if (sessionRestored) {
       setSessionRestored(false);
       return;
@@ -775,8 +781,15 @@ export default function MealPlanning({
 
   const handleMealSelected = (meal: RecipeRecommendation) => {
     cancelRecipeImageHydration();
-    localStorage.removeItem(mealPlanningStorageKey);
+    suppressSessionPersistenceRef.current = true;
+    dismissScopedMealPlanningSession(sessionScopeKey);
     onMealSelected(meal, 'now');
+  };
+
+  const exitToPlanningChoices = () => {
+    suppressSessionPersistenceRef.current = true;
+    dismissScopedMealPlanningSession(sessionScopeKey);
+    onBackToProfile();
   };
 
   const handleBack = () => {
@@ -784,7 +797,7 @@ export default function MealPlanning({
     cancelRecipeImageHydration();
 
     if (currentStep === 'time') {
-      onBackToProfile();
+      exitToPlanningChoices();
       return;
     }
     if (currentStep === 'cuisine') {

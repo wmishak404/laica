@@ -35,6 +35,14 @@ Implementation should match the planning mockups closely enough that the first p
 - Multiple cuisines can be selected.
 - `No preference` is an exclusive anchor option in the lower thumb zone.
 
+### Active planning recovery
+
+- Chef It Up / MealPlanning local session restore is a short-lived resilience affordance, not a recipe-saving feature.
+- Automatic app-shell restore should only re-enter Chef It Up for a valid scoped session from the last 15 minutes, for the same auth scope and same planning profile fingerprint.
+- Profile changes, expired sessions, invalid cache shapes, and explicit exits to the Planning choice should not auto-reopen Chef It Up.
+- Explicit exits set a scoped dismissal marker for the same short recovery window so a late stale session write cannot reopen Chef It Up after the user already backed out; choosing Chef It Up again from the Planning choice starts fresh and clears that marker.
+- Recipe suggestions that users want to keep longer than the recovery window should become an explicit Saved recipe feature adjacent to History in Phase 5, not a longer hidden localStorage restore.
+
 ### Slop Bowl flow
 
 - Keep the 3+ distinct ingredient requirement.
@@ -69,6 +77,8 @@ Implementation should match the planning mockups closely enough that the first p
 - Avoid/specify step is gone.
 - Time slider has exactly the four approved positions and sits in an easy thumb zone.
 - Cuisine chips support multi-select; `No preference` is exclusive.
+- A browser reload/remount during the short recovery window can restore a valid active Chef It Up session for the same profile without requiring another Chef It Up tap.
+- Expired, profile-mismatched, or intentionally exited Chef It Up sessions return to the Planning choice instead of auto-opening.
 - Recipe suggestions render as Ticket Pass tickets only.
 - Ticket Pass and Prep Tray reserve generated-image slots with polished placeholders, so Phase 3.1 can add imagery without reshaping the UI.
 - Exactly three suggestions are visible/available.

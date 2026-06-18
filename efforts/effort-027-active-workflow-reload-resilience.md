@@ -46,12 +46,14 @@ This should not block PR #192 because production builds do not use Vite React Re
 - The current MealPlanning session cache can restore the recipe suggestions after the user re-enters Chef It Up, so the missing piece is app-shell active-flow restoration.
 - This follow-up should be handled after PR #192 rather than widening the recipe imagery PR, unless new evidence shows image code directly triggers the reset.
 - Because the observed pain interrupts an active user workflow, this Effort is high priority even though the immediate trigger was likely validation-environment specific.
+- Wilson chose a short **15-minute** MealPlanning recovery window for PR #201 because EFF-027 is reload resilience, not a hidden recipe-bookmark feature. Longer-term recipe saving belongs in future Saved/History memory work.
+- Explicit exits should set a scoped dismissal marker, not only delete the active MealPlanning session, so a late stale write cannot reopen Chef It Up after the user already returned to Planning choices.
 
 ## Open questions
 
-- Should any valid saved MealPlanning session auto-enter Chef It Up on bootstrap, or only sessions newer than a short freshness window?
+- Should a future explicit "Saved recipes" surface let users keep recipe suggestions beyond the short recovery window?
 - Which substates should be restored directly, and which should fall back to the Planning choice screen with a visible resume affordance?
-- How should the app distinguish an intentional Back-to-Planning action from an unexpected reload while still in the workflow?
+- Should a future resume affordance exist for dismissed-but-recent Chef It Up sessions, or should explicit re-entry continue to start fresh?
 - Should Slop Bowl receive the same active-flow restoration treatment, or should this first slice focus only on Chef It Up / MealPlanning?
 - Should deployment refreshes preserve active workflow state the same way as local Replit/Vite reloads?
 
@@ -91,3 +93,27 @@ This Effort is `Resolved` when all of the following are true:
 Wilson's PR #192 Replit smoke showed the app return to the Planning choice screen during selected-image validation. The Network tab showed full Vite/React module reload markers (`@react-refresh`, `main.tsx?t=...`, `App.tsx?t=...`, `cooking-new.tsx?t=...`, and related modules), while the terminal showed branch sync/head movement. That evidence points to a validation-environment reload, but the user pain is product-relevant: the app should restore the active Chef It Up workflow directly when a valid session exists.
 
 PR #192 should stay focused on recipe imagery because the selected-image behavior passed: Prep Tray showed the selected image and Ticket Pass stayed placeholder-only. EFF-027 owns the next high-priority reload/remount resilience slice.
+
+## 2026-06-18 - Active MealPlanning restore branch
+
+Branch `codex/eff-027-active-workflow-reload` implements the first reload-resilience slice: app bootstrap now checks the scoped MealPlanning session after the profile loads, validates the profile fingerprint and 15-minute session freshness, and enters Chef It Up directly when the saved session is still active. Active Settings restore and active Live Cooking restore keep precedence, and explicit exits to the Planning choice set a scoped dismissal marker so users are not trapped back inside Chef It Up after choosing to leave. Choosing Chef It Up again from the Planning choice clears the dismissal marker and starts fresh. Recipe suggestions that users want to keep longer should become explicit Saved/History memory work rather than stretching this transient recovery cache.
+
+Local regression coverage now includes linked and guest MealPlanning restore after remount, expired-session cleanup, stale-profile invalidation, Back-to-Planning cleanup, and stale-session suppression after a recent explicit dismissal.
+
+## 2026-06-18 - PR #201 Replit validation
+
+PR #201 was rebased onto `origin/main` at `d42e3d115ab2296909d94974b46442013ce483ad` after PR #200/#202 advanced `main`. The linked dev-auth browser smoke initially failed because its final reload assertion still expected the old behavior: returning to `What are we cooking today?` after reloading from recipe suggestions. That expectation is now aligned with EFF-027: reload should restore the active Ticket Pass, then explicit Back-to-Planning should clear the restore marker and keep later reloads on the Planning choice screen.
+
+Chrome/Replit validation was run without Replit Agent. The Replit workspace was switched non-destructively to `codex/eff-027-active-workflow-reload`; the pre-existing `.replit` local modification was left untouched. After pulling the current PR head, a live Chef It Up flow reached Ticket Pass and Prep Tray. Browser reload restored `Recipe suggestions from your pantry`, then restored the selected Prep Tray recipe. Explicitly backing out to Planning choices and reloading again stayed on `What are we cooking today?`.
+
+EFF-027 should remain open until PR #201 merges and the post-merge closeout flips the status to `Resolved`.
+
+## 2026-06-18 - Explicit-exit dismissal guard
+
+GitHub's linked browser smoke exposed a sharper edge after the first Replit validation: after restoring Ticket Pass successfully, backing all the way out to Planning choices and reloading could still see a leftover recent MealPlanning session and reopen Chef It Up. The root cause was that session deletion alone was not an authoritative record of user intent if a stale write remained or reappeared after Back.
+
+PR #201 now writes a scoped MealPlanning dismissal marker on explicit Back-to-Planning / Cook-choice exits and when a recipe starts cooking. App bootstrap checks that marker before reading the saved MealPlanning session, removes any leftover session, and refuses auto-restore while the dismissal marker is recent. Expired dismissal markers clean themselves up along with the old session. Manual Chef It Up entry from the Planning choice clears both the stale session and the dismissal marker so the user starts a new planning flow.
+
+## 2026-06-18 - Linked smoke custom-token harness note
+
+The final PR #201 linked browser smoke failures after the dismissal marker were test harness issues, not new product restore edges. Playwright's `page.addInitScript` persists across reloads, so the initial dev-auth script could reinsert an already-consumed Firebase custom token on later reloads and overwrite the fresh token queued for the final reload. After that was fixed, tokenless reloads still depended on CI Firebase-persistence timing. The smoke now marks the initial bootstrap in `sessionStorage`, queues a fresh dev-auth token before the Ticket Pass reload assertion, and keeps automated browser coverage on restore plus dismissal/session cleanup. Final reload suppression after explicit Back remains covered by focused unit tests and Chrome/Replit validation rather than the CI linked-auth reload.

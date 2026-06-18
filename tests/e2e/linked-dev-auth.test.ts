@@ -1,8 +1,13 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import {
+  MEAL_PLANNING_DISMISSAL_STORAGE_KEY,
+  MEAL_PLANNING_STORAGE_KEY,
+} from "../../client/src/lib/planningCache";
 
 const LINKED_DEV_AUTH_UID = "dev-test-linked-ci";
 const LINKED_DEV_AUTH_BROWSER_UID = "dev-test-linked-browser-ci";
 const DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY = "__LAICA_DEV_AUTH_CUSTOM_TOKEN";
+const DEV_AUTH_BOOTSTRAPPED_STORAGE_KEY = "__LAICA_DEV_AUTH_CUSTOM_TOKEN_BOOTSTRAPPED";
 
 const pantryRecipesResponse = {
   recipes: [
@@ -189,10 +194,19 @@ async function stubPantryRecipes(page: Page) {
 
 async function signBrowserInWithCustomToken(page: Page, customToken: string) {
   await page.addInitScript(
-    ({ key, token }) => {
+    ({ key, token, bootstrappedKey }) => {
+      if (window.sessionStorage.getItem(bootstrappedKey) === "true") {
+        return;
+      }
+
       window.sessionStorage.setItem(key, token);
+      window.sessionStorage.setItem(bootstrappedKey, "true");
     },
-    { key: DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY, token: customToken },
+    {
+      key: DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY,
+      token: customToken,
+      bootstrappedKey: DEV_AUTH_BOOTSTRAPPED_STORAGE_KEY,
+    },
   );
 
   const sessionResponsePromise = page.waitForResponse((response) => response.url().includes("/api/auth/session"), {
@@ -222,6 +236,25 @@ async function signBrowserInWithCustomToken(page: Page, customToken: string) {
   });
 
   await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
+}
+
+async function queueDevAuthTokenForNextLoad(page: Page, customToken: string) {
+  await page.evaluate(
+    ({ key, token }) => {
+      window.sessionStorage.setItem(key, token);
+    },
+    { key: DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY, token: customToken },
+  );
+}
+
+async function reloadLinkedBrowserSession(page: Page, request: APIRequestContext) {
+  const reloadTokenPayload = await createLinkedDevAuthToken(
+    request,
+    LINKED_DEV_AUTH_BROWSER_UID,
+    "Linked Browser Dev User",
+  );
+  await queueDevAuthTokenForNextLoad(page, reloadTokenPayload.customToken!);
+  await page.reload();
 }
 
 test.describe("linked dev auth smoke", () => {
@@ -316,8 +349,34 @@ test.describe("linked dev auth browser smoke", () => {
     expect(savedPantry.filter((item) => item === "tortillas")).toHaveLength(1);
     expect(savedPantry.filter((item) => item === "lime")).toHaveLength(1);
 
-    await page.reload();
+    await reloadLinkedBrowserSession(page, request);
+    await expect(page.getByRole("heading", { name: "Recipe suggestions from your pantry" })).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
+
+    await page.getByRole("button", { name: "Back to cuisines" }).click();
+    await expect(page.getByRole("heading", { name: "Anything else around?" })).toBeVisible();
+    await page.getByRole("button", { name: "Back to cuisines" }).click();
+    await expect(page.getByRole("heading", { name: "What sounds good?" })).toBeVisible();
+    await page.getByRole("button", { name: "Back to time" }).click();
+    await expect(page.getByRole("heading", { name: "How much time do you have today?" })).toBeVisible();
+    await page.getByRole("button", { name: "Back to planning choices" }).click();
+
     await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/Right now I see/)).toContainText("5 pantry items");
+    await page.waitForFunction(
+      ({ dismissalKey, sessionKey }) => {
+        const dismissedAt = Number(window.localStorage.getItem(dismissalKey));
+        return Number.isFinite(dismissedAt)
+          && dismissedAt > 0
+          && window.localStorage.getItem(sessionKey) === null;
+      },
+      {
+        dismissalKey: `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:${LINKED_DEV_AUTH_BROWSER_UID}`,
+        sessionKey: `${MEAL_PLANNING_STORAGE_KEY}:linked:${LINKED_DEV_AUTH_BROWSER_UID}`,
+      },
+      { timeout: 30_000 },
+    );
   });
 });

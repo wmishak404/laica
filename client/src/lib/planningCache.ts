@@ -8,7 +8,20 @@ interface PlanningProfileFingerprintInput {
 
 export const ACTIVE_COOKING_PLAN_STORAGE_KEY = 'laica_active_cooking_plan';
 export const MEAL_PLANNING_STORAGE_KEY = 'laica_meal_planning_session_v2';
+export const MEAL_PLANNING_DISMISSAL_STORAGE_KEY = 'laica_meal_planning_session_dismissed_v1';
 export const COOKING_SESSION_STORAGE_KEY = 'laica_cooking_session';
+export const MEAL_PLANNING_SESSION_MAX_AGE_MS = 15 * 60 * 1000;
+
+export type MealPlanningStep = 'time' | 'cuisine' | 'staples' | 'tickets' | 'prep-tray';
+
+export interface ActiveMealPlanningSession {
+  currentStep: MealPlanningStep;
+  savedAt: number;
+  profileFingerprint: string;
+}
+
+export const isMealPlanningStep = (value: unknown): value is MealPlanningStep =>
+  value === 'time' || value === 'cuisine' || value === 'staples' || value === 'tickets' || value === 'prep-tray';
 
 const normalizeFingerprintValue = (value: string) =>
   value.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
@@ -41,6 +54,82 @@ export function clearScopedMealPlanningSession(scopeKey: string) {
   if (typeof window === 'undefined') return;
 
   window.localStorage.removeItem(`${MEAL_PLANNING_STORAGE_KEY}:${scopeKey}`);
+}
+
+export function clearScopedMealPlanningDismissal(scopeKey: string) {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.removeItem(`${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:${scopeKey}`);
+}
+
+export function dismissScopedMealPlanningSession(scopeKey: string) {
+  if (typeof window === 'undefined') return;
+
+  clearScopedMealPlanningSession(scopeKey);
+  window.localStorage.setItem(`${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:${scopeKey}`, String(Date.now()));
+}
+
+export function readActiveMealPlanningSession(
+  scopeKey: string,
+  profileFingerprint: string,
+): ActiveMealPlanningSession | null {
+  if (typeof window === 'undefined') return null;
+
+  const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:${scopeKey}`;
+  const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:${scopeKey}`;
+
+  try {
+    window.localStorage.removeItem(MEAL_PLANNING_STORAGE_KEY);
+
+    const rawDismissal = window.localStorage.getItem(dismissalKey);
+    if (rawDismissal) {
+      const dismissedAt = Number(rawDismissal);
+      const hasRecentDismissal = Number.isFinite(dismissedAt)
+        && Date.now() - dismissedAt < MEAL_PLANNING_SESSION_MAX_AGE_MS;
+
+      window.localStorage.removeItem(storageKey);
+      if (hasRecentDismissal) return null;
+
+      window.localStorage.removeItem(dismissalKey);
+      return null;
+    }
+
+    const rawSession = window.localStorage.getItem(storageKey);
+    if (!rawSession) return null;
+
+    const parsed = JSON.parse(rawSession) as Partial<{
+      currentStep: unknown;
+      recommendations: unknown;
+      savedAt: unknown;
+      profileFingerprint: unknown;
+    }>;
+    if (!isMealPlanningStep(parsed.currentStep)) {
+      window.localStorage.removeItem(storageKey);
+      return null;
+    }
+
+    const savedAt = typeof parsed.savedAt === 'number' && Number.isFinite(parsed.savedAt)
+      ? parsed.savedAt
+      : 0;
+    const isRecent = Date.now() - savedAt < MEAL_PLANNING_SESSION_MAX_AGE_MS;
+    const matchesProfile = parsed.profileFingerprint === profileFingerprint;
+    const recommendationCount = Array.isArray(parsed.recommendations) ? parsed.recommendations.length : 0;
+    const hasProgress = parsed.currentStep !== 'time' || recommendationCount > 0;
+
+    if (!isRecent || !matchesProfile || !hasProgress) {
+      window.localStorage.removeItem(storageKey);
+      return null;
+    }
+
+    return {
+      currentStep: parsed.currentStep,
+      savedAt,
+      profileFingerprint,
+    };
+  } catch {
+    window.localStorage.removeItem(storageKey);
+    return null;
+  }
 }
 
 export function clearScopedCookingSession(scopeKey: string) {

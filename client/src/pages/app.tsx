@@ -34,9 +34,12 @@ import { mergeUniqueEntries } from '@/lib/entryParsing';
 import {
   ACTIVE_COOKING_PLAN_STORAGE_KEY,
   clearScopedCookingSession,
+  clearScopedMealPlanningDismissal,
   clearScopedMealPlanningSession,
   createPlanningProfileFingerprint,
+  dismissScopedMealPlanningSession,
   planningProfileFingerprintsMatch,
+  readActiveMealPlanningSession,
 } from '@/lib/planningCache';
 import { hasAnySavedProfileSignal, hasCompletedCookingProfile } from '@/lib/profileReadiness';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -496,6 +499,9 @@ export default function MobileApp() {
         const activeCookingPlan = isProfileComplete
           ? readActiveCookingPlan(activeCookingPlanStorageKey, profileFingerprint)
           : null;
+        const activeMealPlanningSession = isProfileComplete
+          ? readActiveMealPlanningSession(planningStateScopeKey, profileFingerprint)
+          : null;
 
         if (activeSettingsSection) {
           setSettingsSection(activeSettingsSection);
@@ -506,7 +512,11 @@ export default function MobileApp() {
           setScheduledTime(activeCookingPlan.scheduledTime);
           setShowPlanningChoice(false);
           setCurrentPhase('cooking');
+        } else if (activeMealPlanningSession) {
+          setShowPlanningChoice(false);
+          setCurrentPhase('planning');
         } else {
+          setShowPlanningChoice(true);
           setCurrentPhase(isProfileComplete ? 'planning' : 'profiling');
         }
       }
@@ -544,6 +554,9 @@ export default function MobileApp() {
         const activeCookingPlan = isProfileComplete
           ? readActiveCookingPlan(activeCookingPlanStorageKey, profileFingerprint)
           : null;
+        const activeMealPlanningSession = isProfileComplete
+          ? readActiveMealPlanningSession(planningStateScopeKey, profileFingerprint)
+          : null;
 
         if (activeSettingsSection) {
           setSettingsSection(activeSettingsSection);
@@ -554,6 +567,9 @@ export default function MobileApp() {
           setScheduledTime(activeCookingPlan.scheduledTime);
           setShowPlanningChoice(false);
           setCurrentPhase('cooking');
+        } else if (activeMealPlanningSession) {
+          setShowPlanningChoice(false);
+          setCurrentPhase('planning');
         } else if (isProfileComplete) {
           setShowPlanningChoice(true);
           setCurrentPhase('planning');
@@ -573,7 +589,16 @@ export default function MobileApp() {
       setCurrentPhase('profiling');
     }
     setIsLoadingProfile(false);
-  }, [user?.id, isGuest, dbProfile, isLoadingDbProfile, hasLoadedFromDb, activeCookingPlanStorageKey, activeSettingsSectionStorageKey]);
+  }, [
+    user?.id,
+    isGuest,
+    dbProfile,
+    isLoadingDbProfile,
+    hasLoadedFromDb,
+    activeCookingPlanStorageKey,
+    activeSettingsSectionStorageKey,
+    planningStateScopeKey,
+  ]);
 
   const clearScopedRecipeState = useCallback(() => {
     clearActiveCookingPlan(activeCookingPlanStorageKey);
@@ -838,6 +863,7 @@ export default function MobileApp() {
   const handleBackToPlanning = () => {
     clearSettingsRestore();
     clearActiveCookingPlan(activeCookingPlanStorageKey);
+    dismissScopedMealPlanningSession(planningStateScopeKey);
 
     // Check if profile is complete before allowing access to planning
     const isProfileComplete = hasCompletedCookingProfile(userProfile);
@@ -999,6 +1025,8 @@ export default function MobileApp() {
     clearStoredGuestPromotionConfirmation();
     setGuestPromotionConfirmation(null);
     clearSettingsRestore();
+    clearScopedMealPlanningSession(planningStateScopeKey);
+    clearScopedMealPlanningDismissal(planningStateScopeKey);
     setShowPlanningChoice(false);
   };
 
@@ -1262,6 +1290,7 @@ export default function MobileApp() {
             size="icon"
             onClick={() => {
               clearSettingsRestore();
+              dismissScopedMealPlanningSession(planningStateScopeKey);
               setShowPlanningChoice(true);
               setCurrentPhase('planning');
             }}
@@ -1335,6 +1364,7 @@ export default function MobileApp() {
                 onBackToProfile={() => {
                   // Back from step 1 of manual planning returns to the
                   // Slop Bowl vs Chef it up choice screen, not the profile.
+                  dismissScopedMealPlanningSession(planningStateScopeKey);
                   setShowPlanningChoice(true);
                 }}
               />
