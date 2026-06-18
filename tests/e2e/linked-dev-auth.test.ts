@@ -317,7 +317,19 @@ test.describe("linked dev auth browser smoke", () => {
     expect(savedPantry.filter((item) => item === "lime")).toHaveLength(1);
 
     await page.reload();
+    await expect(page.getByRole("heading", { name: "Recipe suggestions from your pantry" })).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
+
+    await page.getByRole("button", { name: "Back to cuisines" }).click();
+    await page.getByRole("button", { name: "Back to time" }).click();
+    await page.getByRole("button", { name: "Back to planning choices" }).click();
+
     await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/Right now I see/)).toContainText("5 pantry items");
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
   });
 });
