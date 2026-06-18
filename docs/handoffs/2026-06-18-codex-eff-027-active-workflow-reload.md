@@ -39,8 +39,14 @@ EFF-027 was selected because it has explicit `Priority: High`, came from fresh R
   - Records this branch signal, the 15-minute transient recovery decision, future Saved/History boundary, and remaining exact-head Replit reload validation.
 - `efforts/registry.md`
   - Refreshes EFF-027's last-signal summary.
+- `product-decisions/features/mobile-refresh/pd-phase-03-planning.md`
+  - Records the 15-minute Chef It Up / MealPlanning recovery window as Phase 3 planning behavior and distinguishes it from recipe saving.
 - `product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md`
   - Records future Saved recipe suggestions as adjacent to History, distinct from completed-cook History, and usable later as taste signal input without over-narrowing recommendations.
+- `product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md`
+  - Records future Saved recipe bookmarks as a durable memory decision point under the guest/linked-account boundary.
+- `product-decisions/features/mobile-refresh/README.md`
+  - Adds the Saved recipe / History adjacency note to the Phase 5 sequence summary.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Adds the same Saved/History pointer to Phase 5 resume guidance.
 

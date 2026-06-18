@@ -119,6 +119,7 @@ Durable saves include:
 - durable cooking sessions and history
 - Phase 5 post-cook memory such as `pending_cleanup`, `taste_signal`, and related returning-user state
 - future explicit "save this recipe/history" features unless a later decision says otherwise
+- future Saved recipe bookmarks unless a later decision explicitly keeps them browser-local for guests
 
 ### User-journey messaging
 
@@ -167,6 +168,7 @@ Durable saves include:
 - Anonymous cooking may continue locally on the same browser/device, but it does not become durable returning-user state until the user links Google and chooses what to carry forward.
 - Completed anonymous post-cook history is not bulk- or background-retro-imported into durable history in v1.
 - A future conversion moment may let the user explicitly save the current guest cook, or a small selected set of guest cook state, into durable History after Google linking. That path must be designed as user-consented promotion/import work, not an automatic side effect of anonymous sign-in or normal Google sign-in.
+- Future Saved recipe bookmarks are also a durable memory decision point. If guest Saved support is considered, it must be designed explicitly as either same-browser local convenience or user-consented linked-account import, not inferred from transient planning-session recovery.
 
 ### Measurement and automation boundary
 
