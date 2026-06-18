@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 3 - Eval harness
-**Active PR:** Pending
+**Active PR:** [#200](https://github.com/wmishak404/laica/pull/200)
 **Active branch:** `codex/init-004-fixture-validation-script`
 
 ## Overview
@@ -202,7 +202,7 @@ INIT-004 should produce or coordinate:
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
 | Phase 2 - Rubric and dataset spec | Merged | [#181](https://github.com/wmishak404/laica/pull/181) / `codex/init-004-phase-2-spec` | Merged as `5c410e3`; accepted eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
-| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged / `codex/init-004-fixture-validation-script` active | PR #198 added the first public synthetic cooking-step user-expectation negative guards for food safety, skill fit, equipment fit, and step sequence; the active branch adds a focused public-fixture validation script; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
+| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged / [#200](https://github.com/wmishak404/laica/pull/200) active | PR #198 added the first public synthetic cooking-step user-expectation negative guards for food safety, skill fit, equipment fit, and step sequence; PR #200 adds a focused public-fixture validation script; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
@@ -218,7 +218,7 @@ INIT-004 should produce or coordinate:
 | [#188](https://github.com/wmishak404/laica/pull/188) | Merged as `2e1c693` | `codex/init-004-harness-foundation` | First Phase 3 harness foundation slice. Local `npm ci`, fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `b865864`; no Replit validation required. |
 | [#190](https://github.com/wmishak404/laica/pull/190) | Merged as `0027908` | `codex/init-004-public-fixtures` | First public synthetic fixture slice. Final-head local validation passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `e086691`; no Replit validation required. |
 | [#198](https://github.com/wmishak404/laica/pull/198) | Merged as `9588459` | `codex/init-004-phase-3-user-expectation-fixtures` | Cooking-step user-expectation fixture slice. Local focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed at final PR head `7271094`; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed before Wilson approved merge; no Replit validation required. |
-| Pending | Active branch | `codex/init-004-fixture-validation-script` | Focused public fixture validation script. Intended local evidence: `npm run eval:fixtures`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks. No Replit validation expected because the branch is offline eval tooling/docs only. |
+| [#200](https://github.com/wmishak404/laica/pull/200) | Draft | `codex/init-004-fixture-validation-script` | Focused public fixture validation script. Intended local evidence: `npm run eval:fixtures`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks. No Replit validation expected because the branch is offline eval tooling/docs only. |
 
 ## Validation State
 

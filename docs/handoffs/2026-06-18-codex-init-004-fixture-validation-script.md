@@ -5,7 +5,7 @@
 **Date:** 2026-06-18
 **Initiative:** INIT-004
 **INIT updated:** yes
-**PR:** pending
+**PR:** [#200](https://github.com/wmishak404/laica/pull/200) (draft)
 
 ## Summary
 
@@ -37,13 +37,19 @@ EFF-022 remains open. This branch does not change cuisine prompt behavior, cuisi
 
 ## Open items
 
-- Open a PR and update this handoff/INIT references with the PR number.
-- Run exact-head local validation and GitHub checks before calling the PR ready.
+- Run exact-head GitHub checks before calling the PR ready.
 - Future INIT-004 work still needs the next small user-expectation fixture batch, `pantry_recipes` provenance work, private fixture workflow, Wilson review/judge calibration, daily reports, and prompt-candidate comparison before prompt activation.
 
 ## Verification
 
-Pending at initial handoff write.
+- `npm ci` passed with 0 vulnerabilities.
+- First `npm run eval:fixtures` attempt failed inside the sandbox because `tsx` could not create its local IPC pipe. Rerunning the same command with the narrow approved escalation passed and validated 7 public fixtures.
+- `npx vitest run tests/unit/eval-fixtures.test.ts` passed: 1 file / 11 tests.
+- `npm run test:unit` passed: 42 files / 292 tests.
+- `npm run check` passed.
+- `npm audit --audit-level=high` passed with 0 vulnerabilities.
+- `npm run build` passed with existing Browserslist age, Firebase dynamic-import, and chunk-size warnings.
+- `git diff --check` and `git diff --cached --check` passed.
 
 ## Stack / Base Status
 
