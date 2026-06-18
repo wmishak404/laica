@@ -188,12 +188,17 @@ describe("INIT-004 eval fixture foundation", () => {
     const fixtures = await loadPublicEvalFixtures();
 
     expect(fixtures.map((fixture) => fixture.id)).toEqual([
+      "cooking-steps-chicken-doneness",
       "cooking-steps-generated-context",
+      "cooking-steps-missing-lid-alternative",
+      "cooking-steps-raw-beef-doneness",
       "openai-max-time-25-to-30",
       "slop-bowl-current-shape",
       "synthetic-max-time-30-to-60",
     ]);
     expect(fixtures.find((fixture) => fixture.id === "synthetic-max-time-30-to-60")?.labels.max_time_adherence).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "cooking-steps-raw-beef-doneness")?.labels.food_safety).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "cooking-steps-missing-lid-alternative")?.labels.equipment_fit).toBe("fail");
   });
 
   it("rejects public fixture artifacts when deterministic labels contradict observed checks", async () => {

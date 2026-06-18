@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 3 - Eval harness
-**Active PR:** None
-**Active branch:** None
+**Active PR:** [#198](https://github.com/wmishak404/laica/pull/198) (draft)
+**Active branch:** `codex/init-004-phase-3-user-expectation-fixtures`
 
 ## Overview
 
@@ -33,6 +33,8 @@ Phase 2 merged in [PR #181](https://github.com/wmishak404/laica/pull/181) as `5c
 The first Phase 3 harness foundation slice merged in [PR #188](https://github.com/wmishak404/laica/pull/188) as `2e1c693` on 2026-06-16 after Wilson approved the merge and exact-head checks passed at PR head `b865864`. The slice adds canonical eval-vs-prompt feature IDs, first-class `pantry_recipes` and `slop_bowl` eval criteria, public fixture schema/loading, deterministic contract checks for recipe suggestions, Slop Bowl, and cooking steps, public-fixture privacy checks, and a source-level cross-user bleed guard. It intentionally does not run provider judges, ingest private fixtures, change prompts, add DB migrations, activate prompt versions, start daily reports, or resolve EFF-022 cuisine fallback behavior.
 
 The first public synthetic fixture slice merged in [PR #190](https://github.com/wmishak404/laica/pull/190) as `0027908` on 2026-06-17 after Wilson approved the merge and exact-head checks passed at PR head `e086691`. It adds four CI-visible synthetic fixtures across V1 surfaces: a recipe-suggestions max-time boundary pass, a pantry-recipes max-time true negative, a Slop Bowl shape guard, and a cooking-steps generated-context guard. The slice also teaches the loader to accept expected deterministic failures only when the resolved criterion label says `fail`; privacy/schema failures and label mismatches still invalidate the artifact.
+
+The cooking-step user-expectation fixture slice is open in draft [PR #198](https://github.com/wmishak404/laica/pull/198) on `codex/init-004-phase-3-user-expectation-fixtures`. It adds three public synthetic fixtures from the accepted Arize/Wilson-label target set: raw beef doneness, chicken doneness, and missing-lid alternative. This protects the fixture corpus against structurally valid but unsafe, too-complex, or equipment-dependent cooking steps without changing prompts, provider calls, DB schema, runtime generation, private fixture ingestion, daily reports, or EFF-022 cuisine fallback behavior.
 
 Wilson's 2026-06-16 verification direction is now part of INIT-004's evaluation philosophy: every future fixture, judge, report, or prompt comparison should name the user expectation it protects. Structure and schema checks are still required because broken output cannot help a user, but they should be presented as foundation checks unless they also prove time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, privacy, or another explicit user-facing promise.
 
@@ -198,7 +200,7 @@ INIT-004 should produce or coordinate:
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
 | Phase 2 - Rubric and dataset spec | Merged | [#181](https://github.com/wmishak404/laica/pull/181) / `codex/init-004-phase-2-spec` | Merged as `5c410e3`; accepted eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
-| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged | Public synthetic fixture slice added the first CI-visible fixtures for recipe suggestions, pantry recipes, Slop Bowl, and cooking steps, plus expected deterministic failure handling and the lightweight `Value claim` / `Evidence` / `Evidence limits` verification standard; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
+| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) draft | Draft PR #198 adds the first public synthetic cooking-step user-expectation negative guards for food safety, skill fit, equipment fit, and step sequence; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
@@ -213,6 +215,7 @@ INIT-004 should produce or coordinate:
 | [#181](https://github.com/wmishak404/laica/pull/181) | Merged as `5c410e3` | `codex/init-004-phase-2-spec` | Docs-only Phase 2 spec. GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at PR head `d9a17d7`; no Replit validation required. |
 | [#188](https://github.com/wmishak404/laica/pull/188) | Merged as `2e1c693` | `codex/init-004-harness-foundation` | First Phase 3 harness foundation slice. Local `npm ci`, fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `b865864`; no Replit validation required. |
 | [#190](https://github.com/wmishak404/laica/pull/190) | Merged as `0027908` | `codex/init-004-public-fixtures` | First public synthetic fixture slice. Final-head local validation passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `e086691`; no Replit validation required. |
+| [#198](https://github.com/wmishak404/laica/pull/198) | Draft | `codex/init-004-phase-3-user-expectation-fixtures` | Adds three public synthetic cooking-step user-expectation fixtures for raw beef doneness, chicken doneness, and missing-lid alternatives. Local validation is required on the final pushed head; GitHub required checks may remain pending or skipped while the PR is draft and are not merge evidence until the PR is ready/non-draft. |
 
 ## Validation State
 
@@ -226,14 +229,18 @@ Phase 3 first harness foundation slice is a local/offline implementation change.
 
 Phase 3 public synthetic fixture slice is a local/offline implementation change. It adds public synthetic fixtures, expected deterministic failure semantics, and the lightweight value/evidence/limits verification standard but does not call providers, ingest private fixture paths, write eval data, change DB schema, change prompts, or expose new product UI. PR #190 passed local `npm ci`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, whitespace checks, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL at final PR head `e086691` before Wilson approved the merge. Human Replit validation was not required because no provider, auth, schema, deployment, or user-facing runtime behavior changed. The squash merge commit is `0027908`.
 
+Phase 3 cooking-step user-expectation fixture slice is a local/offline fixture-corpus change in draft PR #198. It adds public synthetic negative guards for food-safety, skill-fit, equipment-fit, and cooking-step-sequence labels. It does not call providers, ingest private fixture paths, write eval data, change DB schema, change prompts, or expose new product UI. Human Replit validation is not required before merge because no provider, auth, schema, deployment, or user-facing runtime behavior changes. Exact-head local validation and PR evidence are recorded in the PR/handoff; GitHub required checks are not merge evidence while the PR remains draft.
+
 Future implementation phases that use eval results as merge evidence must follow [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). Future DB or production-sampling work must coordinate with [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) and Replit as the primary runtime.
 
 ## Current Resume Point
 
-After [PR #190](https://github.com/wmishak404/laica/pull/190), the next bounded Phase 3 candidates are:
+While draft [PR #198](https://github.com/wmishak404/laica/pull/198) is open, the immediate resume point is review and exact-head validation for the three public cooking-step user-expectation fixtures. Cuisine-fit fixtures remain deferred in this slice because the EFF-022 product fallback rule is still unresolved and this milestone can protect cooking-step safety/equipment expectations without deciding that rule.
+
+After PR #198 merges or is closed, the next bounded Phase 3 candidates are:
 
 1. Wire deterministic fixture validation into a script or routine unit lane that can be cited by future PRs.
-2. Add another small fixture batch from the accepted Wilson-label target set that explicitly tests user-expectation fit, preferably Arize-derived food-safety, skill-fit, equipment-fit, dietary-compliance, pantry-grounding, or cuisine-fit cases, with `Value claim`, `Evidence`, and `Evidence limits` summarized in the PR/registry record.
+2. Add another small fixture batch from the accepted Wilson-label target set, such as beginner-complexity, dietary-compliance, pantry-grounding, or cuisine-fit cases, with `Value claim`, `Evidence`, and `Evidence limits` summarized in the PR/registry record.
 3. Add criteria-aware queue behavior and logging provenance work for `pantry_recipes`, while preserving prompt reuse.
 4. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
 
@@ -257,3 +264,5 @@ Do not start live-provider judge runs, private fixture ingestion, DB migrations,
 - **2026-06-16** - PR #188 merged as `2e1c693` after Wilson approved the merge and exact-head GitHub checks passed at PR head `b865864`. Phase 3 remains open for the next bounded harness slice; no active PR is assigned after the merge closeout.
 - **2026-06-16** - Started the first public synthetic fixture slice on `codex/init-004-public-fixtures` from fresh `origin/main` `34f3613`. The slice adds four synthetic public fixtures and expected deterministic failure handling without provider judges, private fixture ingestion, prompt changes, DB writes, or product-rule changes.
 - **2026-06-17** - PR #190 merged as `0027908` after Wilson approved the merge and the required approving-review branch-protection gate was removed because Wilson's merge instruction in the working thread is the accepted review authority for this workflow. Strict required status checks remain on `main`. The merged slice adds public synthetic fixtures, expected deterministic failure handling, and the lightweight `Value claim` / `Evidence` / `Evidence limits` verification standard.
+- **2026-06-17** - Opened draft PR #198 on `codex/init-004-phase-3-user-expectation-fixtures` from fresh `origin/main` `3fac3c0`. The bounded milestone adds three public synthetic cooking-step user-expectation fixtures from the accepted Arize/Wilson-label target set and defers cuisine-fit fixtures because the EFF-022 fallback rule remains unresolved.
+- **2026-06-17** - Rebased PR #198 onto current `origin/main` `7250016` after PR #197 merged, preserving the same bounded fixture scope.
