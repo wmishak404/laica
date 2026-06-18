@@ -323,6 +323,9 @@ test.describe("linked dev auth browser smoke", () => {
     await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
 
     await page.getByRole("button", { name: "Back to cuisines" }).click();
+    await expect(page.getByRole("heading", { name: "Anything else around?" })).toBeVisible();
+    await page.getByRole("button", { name: "Back to cuisines" }).click();
+    await expect(page.getByRole("heading", { name: "What sounds good?" })).toBeVisible();
     await page.getByRole("button", { name: "Back to time" }).click();
     await page.getByRole("button", { name: "Back to planning choices" }).click();
 
