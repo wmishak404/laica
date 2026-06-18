@@ -73,11 +73,31 @@ suggestedTimer?: {
 - Back-to-planning, Finish, sign-out, route changes, and component unmounts must share the same cleanup path so audio cannot continue after the cooking surface exits.
 - This cleanup applies to linked and anonymous cooking sessions. Guest mode makes the flow easier to automate, but it should not get a weaker audio lifecycle than linked-account cooking.
 
+### Speech arbitration and transcript fidelity
+
+Speech behavior is part of the cooking guide's user value, not a background implementation detail. The user goal is calm hands-busy guidance: the cook hears the thing they are currently looking at or asking for, and stale audio never competes with the current step, mute state, or recording.
+
+Before any Phase 4 speech/audio branch is merge-ready, it must classify and test the speech action matrix below. Locally deterministic cases should become Vitest or Playwright assertions; real-device/provider confidence can remain a named Replit/mobile speech-smoke lane when browser permissions, device audio, or live provider quality matter.
+
+| Case | User value protected | Expected behavior | Minimum evidence before merge |
+|---|---|---|---|
+| Initial step after welcome/setup | The cook starts with the actual first instruction, not only a generic welcome. | After guide setup, Step 1 audio plays once and matches the visible transcript. | Local unit/component test for Step 1 speech request payload; Replit/mobile smoke when changing autoplay/permission behavior. |
+| Next / Previous while audio is playing | The cook can advance without old guidance talking over the current step. | Navigation stops active and pending old audio, then speaks the new step transcript. | Unit test that interrupts active playback and late synthesis, plus transcript payload assertion. |
+| Another speech-bearing action starts | Only the current requested guidance should be heard. | Repeat Step, timer completion, assistance response, or any future speech action cancels earlier active/pending speech before starting its own. | Unit tests for one shared speech-arbitration path, not one-off button fixes. |
+| Ask for Help | Voice input should not be contaminated by Laica talking. | Starting recording stops current/pending speech before microphone capture begins; late synthesis from the interrupted speech is ignored. | Unit test for stop-before-recording and late response invalidation; Replit smoke for real microphone permission/audio as needed. |
+| Back / Finish / unmount / route exit | Audio must not continue after leaving the cooking surface. | Exit stops playback, queued synthesis, retry timers, recording, and late async responses. | Existing PR #191 Back/late-synthesis regression plus equivalent coverage for Finish/unmount when those paths change. |
+| Mute pressed | Mute means quiet now, not after the current request finishes. | Muting stops active and pending speech immediately, blocks late synthesis playback, and leaves recording state explicit. | Unit test for active playback, scheduled speech, and in-flight synthesis cancellation. |
+| Mute persists across steps | The user stays in control after muting. | Navigating steps while muted updates transcript/UI but does not auto-start audio. | Unit/component test for muted step navigation. |
+| Unmute | Turning audio back on should not surprise the cook. | Unmuting does not auto-play stale or current text; speech resumes only after an explicit action such as Repeat Step or new step action. | Unit/component test for unmute-no-autoplay and Repeat Step opt-in. |
+| Transcript fidelity | The cook should be able to read and hear the same guidance. | The exact visible transcript text is what speech synthesis receives, after any intentional normalization documented in the component contract. | Unit assertion on synthesized text for step, repeat, timer, and assistance response. |
+| Rapid repeated actions | Fast taps should settle on one current instruction. | Rapid Next/Previous/Repeat actions cancel older speech requests and only the last requested transcript can play. | Unit test using fake timers and late promise resolution. |
+| Timer completion during speech | Time-sensitive alerts should not layer over stale step audio. | Timer completion interrupts current guidance and speaks the timer alert once, or records an explicit no-audio decision if muted. | Unit test for timer alert arbitration. |
+
 ### 2026-06-17 - Audio lifecycle cleanup slice
 
 [PR #191](https://github.com/wmishak404/laica/pull/191) / `codex/init-001-cooking-audio-cleanup` implements the first narrow Phase 4 runtime slice for the Replit-observed speech-leak issue. Back to Planning, Finish, and unmount now share a cleanup path that clears delayed speech, clears mobile audio retry timers, stops current audio/browser speech synthesis, invalidates late ElevenLabs synthesis responses before playback, and cancels active voice recording without processing abandoned audio chunks.
 
-This slice intentionally does not implement the broader Phase 4 cooking redesign: Ready Check, Coach Feed, timer redesign, inline AI recovery, Finish/history semantics, provider prompts, schema changes, and Phase 5 cleanup remain future Phase 4/5 work.
+Wilson's follow-up review expanded the merge acceptance surface from the original exit bug to the full speech-arbitration matrix above. PR #191 should remain draft until the matrix cases needed for current Live Cooking speech behavior are implemented as real tests and passing code, then rebased/revalidated at the exact head. This does not widen PR #191 into Ready Check, Coach Feed, timer redesign, inline AI recovery, Finish/history semantics, provider prompts, schema changes, or Phase 5 cleanup; it clarifies what "speech works" means for the existing Live Cooking controls.
 
 ## Acceptance Criteria
 
@@ -98,6 +118,7 @@ This slice intentionally does not implement the broader Phase 4 cooking redesign
 - No live-cooking failure hides the pinned current step or leaves the cook without a next action.
 - Live-cooking errors follow EFF-018 status classification and copy principles.
 - Pressing Back to Planning, Finish, sign-out, browser back, or otherwise leaving the cooking guide stops active voice playback, cancels queued synthesis/recording work, and prevents audio from continuing after the cooking UI has exited. The Back/late-synthesis path is covered in `tests/unit/live-cooking-guest-session.test.tsx`; Replit/mobile speech smoke remains useful before broader Phase 4 closeout.
+- Live Cooking speech arbitration follows the matrix above: the currently visible or requested transcript owns audio playback, new speech-bearing actions interrupt old active/pending speech, mute is immediate and persistent across steps, unmute does not auto-play until an explicit speech action, and synthesized speech receives the exact visible transcript text unless a documented normalization rule says otherwise.
 
 ## Effort Interactions
 

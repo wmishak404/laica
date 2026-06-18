@@ -13,6 +13,8 @@ This branch closes the narrow Phase 4 audio lifecycle gap found during earlier R
 
 This is not the full Phase 4 cooking-guidance redesign. Ready Check, Coach Feed, timer redesign, inline AI recovery, Finish/history semantics, provider prompt changes, schema work, and Phase 5 cleanup remain future work.
 
+2026-06-17 follow-up: Wilson clarified that this PR's merge bar is the existing Live Cooking speech-arbitration matrix, not only the Back-to-Planning bug. PR #191 is draft until the TODO cases in `tests/unit/live-cooking-guest-session.test.tsx` become passing assertions for Step 1 speech after welcome, Next/Previous interruption, competing speech actions, Ask for Help stop-before-recording, exit cleanup, mute persistence, unmute-no-autoplay, transcript fidelity, rapid actions, and timer interruption. This is still bounded to current Live Cooking speech controls and should not widen into Ready Check, Coach Feed, prompts, schema, or Phase 5 semantics.
+
 ## Triage
 
 - INIT-004 Phase 3 is active in PR #190 (`codex/init-004-public-fixtures`), so this run treated that phase/branch as owned and did not revise, rebase, comment on, or extend it.
@@ -31,10 +33,15 @@ This is not the full Phase 4 cooking-guidance redesign. Ready Check, Coach Feed,
   - Cancels active voice recording runs and prevents abandoned chunks from being processed after exit.
 - `tests/unit/live-cooking-guest-session.test.tsx`
   - Adds a regression where speech synthesis is already in flight, Back is pressed, the provider response resolves late, and no audio playback is started.
+  - Adds TODO speech-arbitration acceptance tests seeded from Wilson's review questions; these are not completed coverage yet.
 - `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`
-  - Records the audio lifecycle cleanup slice and keeps broader Phase 4 scope out of this branch.
+  - Records the audio lifecycle cleanup slice, the speech-arbitration acceptance matrix, and the scope boundary that keeps broader Phase 4 out of this branch.
 - `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md`
   - Mark the active branch and current INIT-001 resume state.
+- `docs/evals/intakes/speech-interaction-acceptance-seed-2026-06-17.md` and `docs/evals/registry.md`
+  - Register the speech-interaction eval seed as INIT-001 Phase 4 acceptance input, not current INIT-004 Phase 3 harness scope.
+- `docs/workflows/testing-and-acceptance.md` and `docs/workflows/evaluations.md`
+  - Add the goal/value acceptance discipline Wilson requested: start from the user's goal, protected value, bad experience, and observable proof before implementation mechanics.
 
 ## Impact on other agents
 
@@ -44,8 +51,10 @@ The active `codex/init-001-recipe-preview-images` branch remains untouched and l
 
 ## Open items
 
-- Run exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL after PR #191 is ready for review.
-- Human Replit validation is not required before merge for this narrow local lifecycle fix if CI/E2E passes, but a later Phase 4 closeout should still include Replit/mobile speech smoke for the full cooking-guide experience.
+- Implement the speech-arbitration layer for current Live Cooking controls, then convert the TODO tests into passing assertions.
+- Rebase/reconcile PR #191 with current `origin/main`; GitHub currently reports the PR as dirty.
+- Run exact-head local and GitHub validation after the arbitration implementation and rebase.
+- Human Replit validation may remain batched for the deterministic arbitration layer, but a later Phase 4 closeout should include Replit/mobile speech smoke for real device audio, microphone permission, and ElevenLabs/browser playback confidence.
 
 ## Verification
 
@@ -55,13 +64,11 @@ Completed before this handoff:
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed: 1 file / 6 tests.
 - `npm run check` passed: TypeScript and UI ESLint.
 
-Pending before merge readiness:
+Pending before merge readiness after the 2026-06-17 acceptance expansion:
 
-- `npm run test:unit`
-- `npm audit --audit-level=high`
-- `npm run build`
-- `git diff --check origin/main...HEAD`
-- GitHub exact-head required checks after PR creation.
+- Convert TODO speech-arbitration tests into passing assertions.
+- Rebase or otherwise resolve the dirty merge state.
+- Rerun `npm run test:unit`, `npm run check`, `npm audit --audit-level=high`, `npm run build`, `git diff --check origin/main...HEAD`, and GitHub exact-head required checks.
 
 ## Stack / base status
 

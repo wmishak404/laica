@@ -12,7 +12,7 @@ Wilson's Replit validation of PR #102 found that voice playback can continue aft
 
 ## 2026-06-17 status update
 
-[PR #191](https://github.com/wmishak404/laica/pull/191) implements the narrow runtime fix for this reported bug on `codex/init-001-cooking-audio-cleanup`: Back to Planning, Finish, and unmount now share audio lifecycle cleanup; delayed speech, late synthesis responses, browser speech synthesis, retry timers, and abandoned recording work are cancelled or ignored after exit. Exact-head local and GitHub automated evidence is recorded in the PR body and follow-up handoff. The bug should be treated as implemented in PR #191 and pending Wilson review/merge, not resolved on `main` until the PR lands.
+[PR #191](https://github.com/wmishak404/laica/pull/191) implements the narrow runtime fix for this reported exit bug on `codex/init-001-cooking-audio-cleanup`: Back to Planning, Finish, and unmount now share audio lifecycle cleanup; delayed speech, late synthesis responses, browser speech synthesis, retry timers, and abandoned recording work are cancelled or ignored after exit. Wilson's 2026-06-17 follow-up expanded the merge bar from this single exit bug to the broader Live Cooking speech-arbitration matrix, so the PR is draft until that matrix has passing tests. The exit bug should be treated as implemented in PR #191, but not resolved on `main` until the PR lands.
 
 ## Changes
 
@@ -29,5 +29,5 @@ Wilson's Replit validation of PR #102 found that voice playback can continue aft
 
 ## Open items
 
-- PR #191 adds the actual audio cleanup behavior and regression coverage. Remaining action: Wilson review/merge decision, then post-merge INIT closeout from fresh `origin/main`.
+- PR #191 adds the exit audio cleanup behavior and regression coverage. Remaining action before merge readiness: implement and pass the expanded speech-arbitration tests documented in `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`, rebase/revalidate exact head, then Wilson review/merge decision and post-merge INIT closeout from fresh `origin/main`.
 - PR #102 Replit validation passed the reported happy paths at `a55ae46`; this docs-only follow-up moves the branch head if pushed and therefore needs the PR validation SHA refreshed before merge under the current workflow rules.

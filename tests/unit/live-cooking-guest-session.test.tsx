@@ -345,4 +345,19 @@ describe('LiveCooking guest session boundary', () => {
     expect(browserSpeechCancel).toHaveBeenCalled();
     expect(AudioContextMock).not.toHaveBeenCalled();
   });
+
+  describe('speech arbitration acceptance', () => {
+    it.todo('plays the first step audio after the welcome/setup transcript without skipping Step 1 speech');
+    it.todo('interrupts current step audio on Next and speaks the next step transcript instead');
+    it.todo('interrupts current step audio on Previous and speaks the previous step transcript instead');
+    it.todo('cancels active and pending audio when another speech-bearing action starts');
+    it.todo('stops active and pending step audio before Ask for Help begins recording');
+    it.todo('stops active and pending audio immediately when Mute is pressed');
+    it.todo('keeps Muted state across step navigation and prevents automatic step audio');
+    it.todo('does not auto-play after unmuting until the user presses Repeat Step');
+    it.todo('speaks exactly the visible transcript text for step, repeat, timer, and assistant responses');
+    it.todo('ignores late-resolving synthesis from an interrupted step or action');
+    it.todo('handles rapid Next/Previous/Repeat taps with only the final requested transcript spoken');
+    it.todo('lets timer completion audio interrupt step audio without leaving stale playback queued');
+  });
 });
