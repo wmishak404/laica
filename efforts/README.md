@@ -20,6 +20,12 @@ They are **agent-coordination artifacts**, not GitHub Issues and not bug reports
 - If a merged PR satisfies an Effort, do the docs closeout immediately from fresh `origin/main`: flip status, append the final dated note, remove it from this active list, update the registry, and push a handoff.
 - Use [`../docs/workflows/documentation-routing.md`](../docs/workflows/documentation-routing.md) before creating or closing an Effort so standalone follow-up work does not duplicate INIT phases, PDs, workflow docs, or handoffs.
 
+## Active work loop
+
+`Open` and `In Progress` Efforts are the active work pool for standalone follow-up. A recurring Efforts hygiene or implementation run should first verify that the active list, registry, agent mirrors, open PRs, recent handoffs, and blocked handoffs agree about ownership and status. After that hygiene pass is clean, the agent may choose one unblocked active Effort for a PR-sized implementation slice.
+
+Do not treat the active read list as a blind queue. Before implementation, confirm the Effort has a clear next action, no conflicting open owner/branch, and no unresolved product, architecture, security, secrets, or Replit-side decision. If the next move needs Wilson, write the smallest blocking report instead of inventing scope.
+
 ## Convention
 
 - Filename: `effort-NNN-<kebab-name>.md` so the file is self-describing in diffs, search results, and chat windows.
@@ -33,8 +39,8 @@ They are **agent-coordination artifacts**, not GitHub Issues and not bug reports
 
 | Status | Meaning | Agent behavior |
 |---|---|---|
-| `Open` | Accepted standalone follow-up, not actively being implemented yet | Read before touching its domain |
-| `In Progress` | Work, decisions, or validation are partially complete | Read and cite before adjacent work; avoid duplicating active work |
+| `Open` | Accepted standalone follow-up with no known active implementation owner | Read before touching its domain; eligible for a PR-sized implementation slice after ownership/blocker checks |
+| `In Progress` | One or more decisions, implementation slices, or validation passes have landed or are active, but resolution criteria are not complete | Read, cite, and inspect open PRs/handoffs before adjacent work; continue only with a clear non-conflicting next slice |
 | `Blocked` | Cannot progress without a human decision, external dependency, or environment action | Document new evidence, then ask Wilson before forcing a direction |
 | `Deferred` | Intentionally parked for later, with no current action expected | Do not treat as active unless the work directly reopens the area |
 | `Resolved` | Closed/completed, superseded by a better home, or accepted as no longer needed | Use as history; do not include in the active read list |
