@@ -12,6 +12,8 @@ Replit validation for PR #192 is no longer blocked on schema, storage, or provid
 
 The live smoke also found a real client timing gap: the original sequential PNG path took about 80 seconds for the slowest approved image, and Wilson's later Refresh Suggestions check showed that late image pop-in feels wrong even when the resolver is technically working. The branch now parallelizes the three image jobs, defaults runtime output to compressed JPEG, keeps restored/fresh background hydration bounded, gates Refresh replacement so the old image-backed tickets remain visible while the new set is prepared, and charges the small recipe-image abuse budget only when generation is about to start or restart rather than on every pending poll.
 
+2026-06-18 update: the product direction has since pivoted again for the user-visible runtime. Ticket Pass is placeholder-only and no longer hydrates generated images, while Prep Tray resolves one selected recipe image. Wilson's Replit smoke at PR head `9e62f0f` confirmed that selected-image behavior: the selected resolver was enabled, Prep Tray showed the pending spinner and then the selected image, returning to Ticket Pass kept all choices placeholder-only, and session restore recovered the same suggestions after a separate main-menu reset/remount. The three-image validation below should be treated as historical schema/storage/provider/cache evidence, not the current Ticket Pass UX.
+
 ## What Changed After Validation
 
 - `client/src/components/cooking/meal-planning.tsx`
@@ -82,14 +84,14 @@ Passed. The full unit suite covered 42 files / 280 tests.
 
 ## Negative Scope
 
-- A second paid live three-image generation has not yet been run after changing generation to parallel compressed JPEG output and adding Refresh gating; the latest follow-up is unit-tested locally but needs one focused Replit smoke before merge readiness.
+- A second paid live three-image generation has not been rerun after changing generation to parallel compressed JPEG output and adding Refresh gating because the user-visible runtime no longer uses three-image Ticket Pass hydration. Keep the old three-image resolver for cache seeding and benchmark comparison, not the PR #192 decision moment.
 - Replit Preview showed its own artifact-crashed wrapper because validation used a manually launched flagged server; the direct `.replit.dev` app was the validated surface.
 - Production publish, broad image-accuracy evals, and Gemini/Nano Banana comparison are not covered by this validation.
 - Final PR-head CI still needs to pass after the latest pushes before merge readiness.
+- The separate reset/remount to the main menu observed during the 2026-06-18 selected-image smoke remains outside this handoff's image-pipeline scope unless it becomes imagery-specific.
 
 ## Next Steps
 
 1. Push the latest head and let PR #192 CI finish.
-2. Replit smoke the latest head once with `RECIPE_IMAGE_OUTPUT_FORMAT=jpeg` and `RECIPE_IMAGE_OUTPUT_COMPRESSION=70`, confirming Refresh Suggestions does not replace an image-backed set with a placeholder-only set while image prep is still pending.
-3. Update the PR description with the new refresh-latency evidence and keep the original `76b998d` schema/storage/provider smoke as historical evidence.
-4. Decide whether to keep the non-secret Replit image-generation configurations enabled before merging, or turn off `RECIPE_IMAGE_GENERATION_ENABLED` after validation and re-enable deliberately for rollout.
+2. Update the PR description with the 2026-06-18 selected-image evidence at `9e62f0f`, while keeping the original `76b998d` schema/storage/provider smoke as historical evidence.
+3. Decide whether to keep the non-secret Replit image-generation configurations enabled before merging, or turn off `RECIPE_IMAGE_GENERATION_ENABLED` after validation and re-enable deliberately for rollout.

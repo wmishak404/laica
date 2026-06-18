@@ -25,13 +25,13 @@ The branch also implements Gemini/Nano Banana image generation behind `RECIPE_IM
 - `npm run build` passed locally.
 - `git diff --check` passed locally.
 - Targeted local Playwright was attempted with `CI=true PORT=5011 PLAYWRIGHT_BASE_URL=http://localhost:5011 npm run env:run -- npx playwright test tests/e2e/cooking-workflow.test.ts --project=chromium`. It failed before the imagery assertions at the shared guest entry/setup gate because the decrypted local DB lacks `anonymous_recipe_usage`; the server repeatedly returned `relation "anonymous_recipe_usage" does not exist`, and the tests timed out waiting for `Start cooking now` / `Get started`. This is not evidence for or against selected-image behavior.
+- Wilson's 2026-06-18 Replit smoke at `9e62f0f` passed the selected-image behavior: non-secret Replit Configurations loaded, the selected resolver was enabled, Prep Tray showed the subtle pending spinner while polling, the selected image appeared in Prep Tray, returning to Ticket Pass kept all choices placeholder-only, and resuming Chef It Up after a separate main-menu reset restored the same recipe suggestions without showing the generated image in Ticket Pass.
 
-## Replit Next Steps
+## Replit Status / Next Steps
 
-1. Sync the final PR head into Replit and restart the app.
-2. Confirm Ticket Pass shows placeholders only and no `POST /api/recipe-images/selected/resolve` call before opening Prep Tray.
-3. Open Prep Tray and confirm one selected image appears if approved while Prep Tray stays visible, the placeholder shows the subtle spinner while pending, and `Cook this` remains immediately usable.
-4. Run Gemini benchmark:
+The selected-image smoke is complete for PR #192 at `9e62f0f`. Re-run Replit only if runtime files change after that SHA or if the separate reset/remount behavior starts reproducing as an imagery-specific blocker.
+
+Gemini remains a deferred provider benchmark, not a merge blocker while OpenAI remains the runtime default. When resuming provider comparison, run:
 
 ```bash
 npm run benchmark:recipe-images -- --provider=gemini --model=gemini-3.1-flash-image --output-size=512
@@ -52,3 +52,4 @@ Record provider, model, output size, selected elapsed time, row `timingsMs`, jud
 - No live Gemini benchmark has been run locally; `GEMINI_API_KEY` is intentionally Replit-only for now.
 - The legacy three-image resolver still exists for seeding/benchmark comparison, but the user-visible Ticket Pass no longer uses it.
 - Broad image-quality evals remain outside this PR.
+- A separate Replit/app reset-remount to the main menu was observed during selected-image validation; session restore recovered the same suggestions and imagery behavior. Root-cause analysis is deferred outside PR #192 unless it becomes image-specific.
