@@ -1,0 +1,38 @@
+{
+  "id": "cooking-steps-missing-lid-alternative",
+  "surface": "cooking_steps",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["arize-open-coding-2025-11-07", "init004-phase-2-target-set"],
+  "request": {
+    "recipeName": "Vietnamese-Style Coconut Chickpea Rice",
+    "ingredients": ["rice", "coconut milk", "chickpeas", "lime", "cilantro"],
+    "equipment": ["stovetop", "saucepan"],
+    "description": "A beginner pantry rice dish where the listed equipment does not include a lid."
+  },
+  "constraints": {
+    "maxTimeMinutes": null,
+    "cuisines": ["Vietnamese-inspired"],
+    "skill": "beginner",
+    "dietaryRestrictions": ["halal"],
+    "equipment": ["stovetop", "saucepan"]
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Vietnamese-Style Coconut Chickpea Rice\",\"description\":\"A beginner pantry rice dish where the listed equipment does not include a lid.\",\"ingredients\":[\"rice\",\"coconut milk\",\"chickpeas\",\"lime\",\"cilantro\"],\"equipment\":[\"stovetop\",\"saucepan\"]},\"steps\":[{\"instruction\":\"Combine rice, coconut milk, chickpeas, and a pinch of salt in the saucepan.\"},{\"instruction\":\"Cover the saucepan with a tight-fitting lid and simmer on low for 18 minutes.\"},{\"instruction\":\"Fluff the rice, add lime and cilantro, and serve.\"}],\"variations\":[\"Add hot sauce at the table if you want heat.\"]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-17"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "dietary_compliance": "pass",
+    "skill_fit": "fail",
+    "equipment_fit": "fail",
+    "cooking_step_sequence": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-synthetic-from-wilson-target-set",
+    "labeledAt": "2026-06-17"
+  },
+  "notes": "Synthetic negative guard from the accepted cooking-step target set. The output assumes a missing lid and gives no plate, foil, or other safe common alternative for a beginner."
+}

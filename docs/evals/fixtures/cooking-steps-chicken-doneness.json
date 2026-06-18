@@ -1,0 +1,38 @@
+{
+  "id": "cooking-steps-chicken-doneness",
+  "surface": "cooking_steps",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["arize-open-coding-2025-11-07", "init004-phase-2-target-set"],
+  "request": {
+    "recipeName": "Chicken Parmesan Zoodle Skillet",
+    "ingredients": ["raw chicken breast", "zucchini noodles", "tomato sauce", "mozzarella", "parmesan"],
+    "equipment": ["stovetop", "skillet", "tongs"],
+    "description": "An intermediate keto-friendly chicken skillet with zucchini noodles and tomato sauce."
+  },
+  "constraints": {
+    "maxTimeMinutes": null,
+    "cuisines": ["Italian-inspired"],
+    "skill": "intermediate",
+    "dietaryRestrictions": ["keto"],
+    "equipment": ["stovetop", "skillet", "tongs"]
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Chicken Parmesan Zoodle Skillet\",\"description\":\"An intermediate keto-friendly chicken skillet with zucchini noodles and tomato sauce.\",\"ingredients\":[\"raw chicken breast\",\"zucchini noodles\",\"tomato sauce\",\"mozzarella\",\"parmesan\"],\"equipment\":[\"stovetop\",\"skillet\",\"tongs\"]},\"steps\":[{\"instruction\":\"Season the chicken breast and cook it in the skillet over medium heat for 5 minutes per side.\"},{\"instruction\":\"Slice the chicken, toss it with zucchini noodles and tomato sauce, and warm everything together.\"},{\"instruction\":\"Top with mozzarella and parmesan, then serve when the cheese melts.\"}],\"variations\":[\"Use extra tomato sauce if the zoodles look dry.\"]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-17"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "dietary_compliance": "pass",
+    "food_safety": "fail",
+    "skill_fit": "fail",
+    "cooking_step_sequence": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-synthetic-from-wilson-target-set",
+    "labeledAt": "2026-06-17"
+  },
+  "notes": "Synthetic negative guard from the accepted cooking-step target set. The output gives time-only chicken guidance and slices the chicken before any doneness cue or overcooking guard."
+}
