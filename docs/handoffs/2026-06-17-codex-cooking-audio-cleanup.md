@@ -53,8 +53,9 @@ The active `codex/init-001-recipe-preview-images` branch remains untouched and l
 
 ## Open items
 
-- Resolve the automated E2E validation lane before marking PR #191 ready. The exact-head local E2E attempt on 2026-06-18 failed outside the Live Cooking patch: local DB schema drift (`anonymous_recipe_usage` missing) blocked guest auth setup, and the existing landing accessibility guardrail reported auth-control color contrast failures.
-- After the E2E lane is resolved or Wilson explicitly chooses a different validation lane, mark PR #191 ready and wait for non-draft GitHub unit/E2E/security checks.
+- PR #203 (`codex/e2e-release-blockers`) merged to `main` as `b6ba180b0e97300b1d299cb9df1c686a5e5dff7d` and cleared the unrelated landing auth-control contrast blocker that affected the earlier local E2E attempt.
+- The default local dotenvx database drift remains an EFF-010 / EFF-017 evidence-environment issue, not a PR #191 product bug. Do not run `npm run db:push` against the decrypted `.env` DB; use GitHub's schema-only `e2e_guest_smoke` lane or a guarded local diagnostics sandbox if local reproduction is needed.
+- Mark PR #191 ready after rebasing/pushing so non-draft GitHub unit/E2E/security checks run on the exact head, then update the PR evidence with observed results.
 - Human Replit validation may remain batched for the deterministic arbitration layer, but a later Phase 4 closeout should include Replit/mobile speech smoke for real device audio, microphone permission, and ElevenLabs/browser playback confidence unless Wilson requires PR-level manual smoke.
 
 ## Verification
@@ -73,14 +74,15 @@ Completed before this handoff:
 - 2026-06-18 production build: `npm run build` passed; Vite emitted existing Browserslist/chunk-size warnings.
 - 2026-06-18 diff hygiene: `git diff --check origin/main...HEAD` passed.
 - 2026-06-18 automated E2E attempt: first `CI=true npm run env:run -- npm run test:e2e` failed before tests due sandbox EPERM on the local `tsx` IPC pipe; escalated rerun on port 5000 failed because the port was occupied; escalated rerun on `PORT=5019 PLAYWRIGHT_BASE_URL=http://localhost:5019` started and completed with 6 failures / 2 skipped. Observed blockers: local decrypted DB is missing `anonymous_recipe_usage`, causing guest auth/session setup failures in `tests/e2e/cooking-workflow.test.ts`, and `tests/e2e/accessibility-guardrail.test.ts` reports existing landing auth-control color contrast failures.
+- 2026-06-18 rebase after PR #203: fetched `origin`, confirmed `origin/main` includes `b6ba180b0e97300b1d299cb9df1c686a5e5dff7d`, and rebased `codex/init-001-cooking-audio-cleanup` onto that base. The rebase was clean. PR #203's merge resolves the landing contrast blocker for PR #191's downstream validation lane; default local DB drift remains routed to GitHub `e2e_guest_smoke` or guarded local sandbox per EFF-010.
 
 Pending before merge readiness after the 2026-06-17 acceptance expansion:
 
-- Resolve or explicitly defer the E2E validation blockers, then rerun or trigger exact-head automated E2E and GitHub required checks.
+- Trigger and record exact-head GitHub required checks after marking PR #191 ready for review. If `e2e_guest_smoke` passes, the two known E2E blockers from the earlier local run are cleared for PR #191's merge-evidence lane.
 
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `34f361342d7793e21a187290b7df575bc6f5a1b8`
+- Current base: `origin/main` at `b6ba180b0e97300b1d299cb9df1c686a5e5dff7d`
 - Last Replit-validated at: not required before merge for this narrow lifecycle slice
-- Notes: Started after PR #188/#189 landed on `main`; skipped open/owned PR #190 and the checked-out INIT-001 imagery branch.
+- Notes: Started after PR #188/#189 landed on `main`; skipped open/owned PR #190 and the checked-out INIT-001 imagery branch. Rebased again after PR #203 merged the shared landing contrast release-blocker fix.
