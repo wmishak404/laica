@@ -667,3 +667,11 @@ INIT-001 recipe preview imagery exposed a local provider-light Playwright blocke
 - Local browser/Playwright against a current schema still requires either a passing default `DATABASE_URL` `db:health` or the disposable local diagnostics sandbox.
 
 This improves local diagnostic hygiene but does not promote local Playwright to the routine merge gate. If a local run needs fresh schema, real Firebase-shaped auth, and remote DB setup, prefer GitHub CI `e2e_guest_smoke` for repeatable merge evidence, then Replit for live provider/storage/domain seams.
+
+## 2026-06-18 — Landing accessibility guardrail caught a real release blocker
+
+PR #191 release-blocker triage ran `tests/e2e/accessibility-guardrail.test.ts` from current `origin/main` `d42e3d1` and reproduced a serious axe `color-contrast` failure on the public landing auth controls. The root cause was the auth CTA pair inheriting opacity from the entrance reveal animation and, during auth-loading/disabled states, rendering below WCAG AA contrast.
+
+Follow-up branch `codex/e2e-release-blockers` fixes the landing auth controls by keeping their entrance motion full-opacity and adding high-contrast landing Button variants for the guest and Google actions. The targeted guardrail then passed locally.
+
+EFF-017 implication: the accessibility guardrail is useful release evidence because it caught an actual user-visible regression on the public entry surface. It should remain part of the routine E2E gate, but a passing targeted a11y guardrail does not replace the exact-head full `e2e_guest_smoke` requirement for implementation PRs.

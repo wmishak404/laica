@@ -202,3 +202,14 @@ The INIT-001 provider-light Playwright path should not be unblocked by pushing s
 - Keep `DATABASE_URL` from the decrypted `.env` as read-only unless `db:health` already passes.
 
 This note does not resolve EFF-010. The repo still needs a broader accepted ownership model for routine local service-backed validation.
+
+## 2026-06-18 — PR #191 E2E blocker triage confirms default local DB drift
+
+Release-blocker triage for PR #191 reproduced the current default decrypted `.env` database drift from fresh `origin/main` `d42e3d1`: `npm run env:run -- npm run db:health` failed with missing `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, and `cooking_sessions.recipe_snapshot`.
+
+Classification:
+
+- This is a local evidence-environment blocker for default dotenvx Playwright, not evidence that PR #191's Live Cooking speech patch or current `main` product behavior is broken.
+- A missing `anonymous_recipe_usage` table is still required-schema drift for guest auth/session setup; do not weaken `/api/auth/session` or run `npm run db:push` against an unknown/shared local database to hide it.
+- The smallest safe merge-evidence path remains the existing GitHub `e2e_guest_smoke` lane, which provisions a schema-only Neon branch, applies the current Drizzle schema, runs `db:health`, runs Playwright, and deletes the branch.
+- If local reproduction is needed before CI, use the guarded local diagnostics sandbox with an explicit disposable/non-production database URL and `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true`.
