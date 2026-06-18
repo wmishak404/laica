@@ -6,6 +6,7 @@ import {
 const LINKED_DEV_AUTH_UID = "dev-test-linked-ci";
 const LINKED_DEV_AUTH_BROWSER_UID = "dev-test-linked-browser-ci";
 const DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY = "__LAICA_DEV_AUTH_CUSTOM_TOKEN";
+const DEV_AUTH_BOOTSTRAPPED_STORAGE_KEY = "__LAICA_DEV_AUTH_CUSTOM_TOKEN_BOOTSTRAPPED";
 
 const pantryRecipesResponse = {
   recipes: [
@@ -192,10 +193,19 @@ async function stubPantryRecipes(page: Page) {
 
 async function signBrowserInWithCustomToken(page: Page, customToken: string) {
   await page.addInitScript(
-    ({ key, token }) => {
+    ({ key, token, bootstrappedKey }) => {
+      if (window.sessionStorage.getItem(bootstrappedKey) === "true") {
+        return;
+      }
+
       window.sessionStorage.setItem(key, token);
+      window.sessionStorage.setItem(bootstrappedKey, "true");
     },
-    { key: DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY, token: customToken },
+    {
+      key: DEV_AUTH_CUSTOM_TOKEN_STORAGE_KEY,
+      token: customToken,
+      bootstrappedKey: DEV_AUTH_BOOTSTRAPPED_STORAGE_KEY,
+    },
   );
 
   const sessionResponsePromise = page.waitForResponse((response) => response.url().includes("/api/auth/session"), {
