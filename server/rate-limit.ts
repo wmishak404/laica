@@ -8,6 +8,7 @@ type RateLimitKey =
   | "api"
   | "vision"
   | "recipe"
+  | "recipeImage"
   | "slopBowl"
   | "ai"
   | "voice"
@@ -393,6 +394,38 @@ export const recipeUserDayLimit = createRateLimit({
   max: getConfiguredRateLimit("recipe", "day", 30),
   keyGenerator: getUserRateLimitKey,
 });
+
+const recipeImageIpHourOptions = {
+  name: "recipe-image:ip:hour",
+  windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("recipeImage", "hour", 60),
+  keyGenerator: getClientIp,
+};
+
+export const recipeImageIpHourLimit = createRateLimit(recipeImageIpHourOptions);
+
+const recipeImageUserHourOptions = {
+  name: "recipe-image:user:hour",
+  windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("recipeImage", "hour", 12),
+  keyGenerator: getUserRateLimitKey,
+};
+
+export const recipeImageUserHourLimit = createRateLimit(recipeImageUserHourOptions);
+
+export async function consumeRecipeImageGenerationRateLimits(req: Request, res: Response): Promise<boolean> {
+  if (isDistributedRateLimitEnabled()) {
+    return (
+      (await consumeRateLimitDistributed(recipeImageIpHourOptions, req, res)) &&
+      (await consumeRateLimitDistributed(recipeImageUserHourOptions, req, res))
+    );
+  }
+
+  return (
+    consumeRateLimit(recipeImageIpHourOptions, req, res) &&
+    consumeRateLimit(recipeImageUserHourOptions, req, res)
+  );
+}
 
 export const slopBowlUserHourLimit = createRateLimit({
   name: "slop-bowl:user:hour",

@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { ToastAction } from '@/components/ui/toast';
-import { fetchPantryRecipes } from '@/lib/openai';
+import { fetchPantryRecipes, resolveSelectedRecipeImage } from '@/lib/openai';
 import { withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -103,6 +103,7 @@ const cuisineOptions = [
 ];
 
 const cuisineNames = new Set(cuisineOptions.map((option) => option.name));
+const SELECTED_RECIPE_IMAGE_POLL_DELAY_MS = 5_000;
 
 const isPlanningStep = (value: unknown): value is PlanningStep =>
   value === 'time' || value === 'cuisine' || value === 'staples' || value === 'tickets' || value === 'prep-tray';
@@ -173,11 +174,15 @@ export default function MealPlanning({
   const [recommendations, setRecommendations] = useState<RecipeRecommendation[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<RecipeRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSelectedRecipeImagePending, setIsSelectedRecipeImagePending] = useState(false);
+  const [selectedRecipeImageUrlsByRecipeId, setSelectedRecipeImageUrlsByRecipeId] = useState<Record<string, string>>({});
   const [sessionRestored, setSessionRestored] = useState(false);
   const [lockedStapleView, setLockedStapleView] = useState<LockedStapleView | null>(null);
   const [savedStapleHint, setSavedStapleHint] = useState<string | null>(null);
   const generationRunIdRef = useRef(0);
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
+  const imagePreviewRunIdRef = useRef(0);
+  const activeImagePreviewRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const { toast } = useToast();
   const mealPlanningStorageKey = useMemo(
     () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
@@ -200,13 +205,13 @@ export default function MealPlanning({
             typeof recipe === 'object' &&
             recipe !== null &&
             typeof recipe.recipeName === 'string'
-          ).slice(0, 3)
+          ).slice(0, 3).map((recipe: any) => ({ ...recipe, imageUrl: undefined, image_url: undefined }))
         : [];
       const selectedMeal = (
         data.selectedMeal &&
         typeof data.selectedMeal === 'object' &&
         typeof data.selectedMeal.recipeName === 'string'
-      ) ? data.selectedMeal : null;
+      ) ? { ...data.selectedMeal, imageUrl: undefined, image_url: undefined } : null;
 
       return {
         currentStep: data.currentStep,
@@ -340,6 +345,21 @@ export default function MealPlanning({
   const isActiveGeneration = (runId: number, controller: AbortController) =>
     activeGenerationRef.current?.runId === runId && !controller.signal.aborted;
 
+  const isActiveImagePreview = (runId: number, controller: AbortController) =>
+    activeImagePreviewRef.current?.runId === runId && !controller.signal.aborted;
+
+  const cancelRecipeImageHydration = ({ resetUi = true }: { resetUi?: boolean } = {}) => {
+    const activePreview = activeImagePreviewRef.current;
+    if (activePreview) {
+      activePreview.controller.abort();
+      activeImagePreviewRef.current = null;
+      imagePreviewRunIdRef.current += 1;
+    }
+    if (resetUi) {
+      setIsSelectedRecipeImagePending(false);
+    }
+  };
+
   const cancelActiveGeneration = ({ resetUi = true }: { resetUi?: boolean } = {}) => {
     const activeGeneration = activeGenerationRef.current;
     if (!activeGeneration) return;
@@ -357,6 +377,7 @@ export default function MealPlanning({
   useEffect(() => {
     return () => {
       cancelActiveGeneration({ resetUi: false });
+      cancelRecipeImageHydration({ resetUi: false });
     };
   }, []);
 
@@ -453,6 +474,113 @@ export default function MealPlanning({
     };
   };
 
+  const stripRecipeImages = (recipes: RecipeRecommendation[]): RecipeRecommendation[] =>
+    recipes.map((recipe) => ({ ...recipe, imageUrl: undefined }));
+
+  const buildRecipeImageResolverPayload = (recipe: RecipeRecommendation) => ({
+    recipeName: recipe.recipeName,
+    cuisine: recipe.cuisine,
+    pantryIngredientsUsed: recipe.ingredients || [],
+    ingredients: recipe.ingredients || [],
+    additionalIngredientsNeeded: recipe.missingIngredients,
+    missingIngredients: recipe.missingIngredients,
+    overview: recipe.overview,
+    description: recipe.description,
+  });
+
+  const waitForRecipeImagePoll = (signal: AbortSignal, delayMs = SELECTED_RECIPE_IMAGE_POLL_DELAY_MS) =>
+    new Promise<void>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        signal.removeEventListener('abort', abort);
+        resolve();
+      }, delayMs);
+      const abort = () => {
+        window.clearTimeout(timeout);
+        reject(new DOMException('Recipe image hydration canceled', 'AbortError'));
+      };
+
+      signal.addEventListener('abort', abort, { once: true });
+    });
+
+  const waitForResolvedSelectedRecipeImage = async (
+    recipe: RecipeRecommendation,
+    controller: AbortController,
+    {
+      delayMs,
+      isStillActive,
+    }: {
+      delayMs: number;
+      isStillActive: () => boolean;
+    },
+  ): Promise<{ imageUrl: string } | null> => {
+    const resolverRecipe = buildRecipeImageResolverPayload(recipe);
+    while (isStillActive()) {
+      const result = await resolveSelectedRecipeImage(resolverRecipe, { signal: controller.signal });
+      if (!isStillActive()) return null;
+
+      if (result.status === 'ready') {
+        return { imageUrl: result.image.imageUrl };
+      }
+
+      if (result.status === 'unavailable') {
+        return null;
+      }
+
+      await waitForRecipeImagePoll(controller.signal, delayMs);
+    }
+
+    return null;
+  };
+
+  const applyResolvedSelectedRecipeImage = (
+    recipeSnapshot: RecipeRecommendation,
+    image: { imageUrl: string },
+  ) => {
+    setSelectedRecipeImageUrlsByRecipeId((currentImages) => ({
+      ...currentImages,
+      [recipeSnapshot.id]: image.imageUrl,
+    }));
+  };
+
+  const hydrateSelectedRecipeImage = (recipe: RecipeRecommendation) => {
+    if (selectedRecipeImageUrlsByRecipeId[recipe.id]) return;
+
+    cancelRecipeImageHydration();
+    const controller = new AbortController();
+    const runId = imagePreviewRunIdRef.current + 1;
+    imagePreviewRunIdRef.current = runId;
+    activeImagePreviewRef.current = { runId, controller };
+    setIsSelectedRecipeImagePending(true);
+
+    void (async () => {
+      try {
+        const image = await waitForResolvedSelectedRecipeImage(recipe, controller, {
+          delayMs: SELECTED_RECIPE_IMAGE_POLL_DELAY_MS,
+          isStillActive: () => isActiveImagePreview(runId, controller),
+        });
+        if (image) {
+          applyResolvedSelectedRecipeImage(recipe, image);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.warn('Selected recipe image preview unavailable:', error);
+        }
+      } finally {
+        if (activeImagePreviewRef.current?.runId === runId) {
+          activeImagePreviewRef.current = null;
+          setIsSelectedRecipeImagePending(false);
+        }
+      }
+    })();
+  };
+
+  useEffect(() => {
+    if (currentStep !== 'prep-tray') return;
+    if (!selectedMeal || selectedRecipeImageUrlsByRecipeId[selectedMeal.id]) return;
+
+    hydrateSelectedRecipeImage(selectedMeal);
+  }, [currentStep, selectedMeal?.id, selectedRecipeImageUrlsByRecipeId]);
+
   const generateRecommendations = async ({
     confirmedStaples = [],
     askedStaples = [],
@@ -463,6 +591,7 @@ export default function MealPlanning({
     visibleStaples?: string[];
   } = {}) => {
     if (activeGenerationRef.current) return;
+    cancelRecipeImageHydration();
 
     const requestMealPrefs = {
       timeAvailable: mealPrefs.timeAvailable,
@@ -587,7 +716,7 @@ export default function MealPlanning({
 
         if (!isActiveGeneration(runId, controller)) return null;
 
-        const recipes = Array.isArray(recipeResponse.recipes)
+        const recipes: RecipeRecommendation[] = Array.isArray(recipeResponse.recipes)
           ? recipeResponse.recipes.slice(0, 3).map((recipe: any, index: number) =>
               transformRecipe(recipe, index, {
                 pantryIngredients: pantryIngredientsForRequest,
@@ -602,10 +731,11 @@ export default function MealPlanning({
 
         if (!isActiveGeneration(runId, controller)) return null;
 
-        return recipes;
+        return stripRecipeImages(recipes);
       }, { context: 'meal recommendations' });
 
       if (result && isActiveGeneration(runId, controller)) {
+        setSelectedRecipeImageUrlsByRecipeId({});
         setRecommendations(result);
         setSelectedMeal(result[0]);
         setCurrentStep('tickets');
@@ -644,12 +774,14 @@ export default function MealPlanning({
   };
 
   const handleMealSelected = (meal: RecipeRecommendation) => {
+    cancelRecipeImageHydration();
     localStorage.removeItem(mealPlanningStorageKey);
     onMealSelected(meal, 'now');
   };
 
   const handleBack = () => {
     cancelActiveGeneration();
+    cancelRecipeImageHydration();
 
     if (currentStep === 'time') {
       onBackToProfile();
@@ -903,10 +1035,15 @@ export default function MealPlanning({
     </section>
   );
 
-  const renderRecipeImageSlot = (recipe: RecipeRecommendation, variant: 'ticket' | 'prep' = 'ticket') => (
+  const renderRecipeImageSlot = (
+    recipe: RecipeRecommendation,
+    variant: 'ticket' | 'prep' = 'ticket',
+    isGeneratingPreview = false,
+  ) => (
     <span
       className={`planning-recipe-image-slot ${variant === 'prep' ? 'planning-recipe-image-slot-prep' : ''}`}
       data-has-image={Boolean(recipe.imageUrl)}
+      data-image-state={recipe.imageUrl ? 'ready' : isGeneratingPreview ? 'pending' : 'placeholder'}
       aria-hidden="true"
     >
       {recipe.imageUrl ? (
@@ -915,6 +1052,9 @@ export default function MealPlanning({
         <>
           <span className="planning-recipe-image-plate" />
           <Utensils className="planning-recipe-image-icon" />
+          {isGeneratingPreview && (
+            <span className="planning-recipe-image-spinner" />
+          )}
         </>
       )}
     </span>
@@ -945,7 +1085,7 @@ export default function MealPlanning({
       >
         <span className="planning-ticket-rip" aria-hidden="true" />
         {renderRecipeTicketTitle(recipe.recipeName)}
-        {renderRecipeImageSlot(recipe)}
+        {renderRecipeImageSlot({ ...recipe, imageUrl: undefined })}
         <span className="planning-ticket-meta">
           <span><Clock className="h-4 w-4" /> {recipe.cookTime} min</span>
           <span>{recipe.difficulty}</span>
@@ -998,7 +1138,7 @@ export default function MealPlanning({
         <div className="mt-6 space-y-3">
           <Button
             className="h-12 w-full rounded-xl font-extrabold"
-            disabled={!selectedMeal}
+            disabled={!selectedMeal || isLoading}
             onClick={() => setCurrentStep('prep-tray')}
           >
             <ChefHat className="h-5 w-5" />
@@ -1042,6 +1182,11 @@ export default function MealPlanning({
       );
     }
 
+    const selectedPrepTrayImageUrl = selectedRecipeImageUrlsByRecipeId[selectedMeal.id];
+    const selectedMealWithPrepImage = selectedPrepTrayImageUrl
+      ? { ...selectedMeal, imageUrl: selectedPrepTrayImageUrl }
+      : selectedMeal;
+
     return (
       <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
         <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
@@ -1051,7 +1196,7 @@ export default function MealPlanning({
         {/* design:tone-override — Prep Tray is the Phase 3 tactile ticket-detail object, not a generic recipe card. */}
         <div className="planning-prep-tray">
           <div className="planning-prep-hero">
-            {renderRecipeImageSlot(selectedMeal, 'prep')}
+            {renderRecipeImageSlot(selectedMealWithPrepImage, 'prep', isSelectedRecipeImagePending)}
           </div>
           <div className="planning-prep-body">
             <h1 className="planning-display text-3xl font-extrabold leading-tight">{selectedMeal.recipeName}</h1>

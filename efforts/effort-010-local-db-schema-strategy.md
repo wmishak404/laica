@@ -182,3 +182,23 @@ Follow-up added a guarded local helper rather than mutating the drifted `.env` d
 - `docs/workflows/environment-map.md` records the broader human-review map of environments, databases, auth paths, and when local sandbox is worth using versus CI/Replit.
 
 This improves the local diagnostic path but does not resolve this Effort. The unresolved ownership question remains: which database or Neon project/branch agents should use routinely, and when schema mutation is allowed without Wilson intervention.
+
+## 2026-06-16 — INIT-001 recipe imagery adds cache schema
+
+`codex/init-001-recipe-preview-images` adds a required Drizzle table, `recipe_image_cache`, for async recipe preview image metadata. The branch intentionally did not run `npm run db:push` locally. Replit remains the authoritative environment for applying and validating this schema before live App Storage-backed image generation is enabled.
+
+New EFF-010 signal:
+
+- Future schema-health checks should include `recipe_image_cache` once the branch lands.
+- A missing `recipe_image_cache` table is environment/schema drift for the imagery resolver, not evidence that recipe text generation is broken.
+- The same unresolved local ownership rule applies: do not mutate an arbitrary local/shared DB from a Codex worktree just to clear this drift class.
+
+## 2026-06-17 — Local imagery Playwright remains sandbox-or-CI
+
+The INIT-001 provider-light Playwright path should not be unblocked by pushing schema into the default decrypted `.env` database. The safer local path is still the diagnostics sandbox:
+
+- Require `LAICA_LOCAL_SANDBOX_DATABASE_URL` to point at a disposable/non-production database.
+- Require `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true` before `drizzle-kit push --force` runs.
+- Keep `DATABASE_URL` from the decrypted `.env` as read-only unless `db:health` already passes.
+
+This note does not resolve EFF-010. The repo still needs a broader accepted ownership model for routine local service-backed validation.

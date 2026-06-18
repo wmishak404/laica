@@ -70,6 +70,35 @@ export const rateLimitBuckets = pgTable(
   ],
 );
 
+export const recipeImageCache = pgTable(
+  "recipe_image_cache",
+  {
+    id: serial("id").primaryKey(),
+    cacheKey: varchar("cache_key", { length: 64 }).notNull(),
+    recipeFingerprint: jsonb("recipe_fingerprint").notNull(),
+    provider: varchar("provider", { length: 32 }).notNull(),
+    model: varchar("model", { length: 80 }).notNull(),
+    quality: varchar("quality", { length: 24 }).notNull(),
+    outputSize: varchar("output_size", { length: 24 }).notNull(),
+    styleVersion: varchar("style_version", { length: 48 }).notNull(),
+    status: varchar("status", { length: 24 }).notNull().default("pending"),
+    objectKey: text("object_key"),
+    imageUrl: text("image_url"),
+    mimeType: varchar("mime_type", { length: 80 }),
+    accuracyResult: jsonb("accuracy_result"),
+    failureReason: text("failure_reason"),
+    generatedAt: timestamp("generated_at"),
+    lastRequestedAt: timestamp("last_requested_at").defaultNow(),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("UQ_recipe_image_cache_key").on(table.cacheKey),
+    index("IDX_recipe_image_cache_status").on(table.status),
+    index("IDX_recipe_image_cache_requested").on(table.lastRequestedAt),
+  ],
+);
+
 export const recipes = pgTable("recipes", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -336,6 +365,8 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type AuthUser = typeof authUsers.$inferSelect;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type AnonymousRecipeUsage = typeof anonymousRecipeUsage.$inferSelect;
+export type RecipeImageCache = typeof recipeImageCache.$inferSelect;
+export type InsertRecipeImageCache = typeof recipeImageCache.$inferInsert;
 
 export type Recipe = typeof recipes.$inferSelect;
 export type InsertRecipe = z.infer<typeof insertRecipeSchema>;

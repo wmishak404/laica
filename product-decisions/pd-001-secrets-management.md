@@ -33,16 +33,19 @@ We needed a solution that:
 - The `.env` file is AES-256-GCM encrypted in place and committed to the repo
 - The `DOTENV_KEY` / `.env.keys` file is **never committed** (excluded via `.gitignore`)
 - Each developer stores the `DOTENV_KEY` on their machine or in a password manager
-- The dev server loads secrets via `npx @dotenvx/dotenvx run -- <command>`
+- The dev server loads secrets through the repo-pinned dotenvx dependency via `npm run env:run -- <command>`
 
 ## How It Works
 
 ```bash
 # Encrypt after editing secrets
-npx @dotenvx/dotenvx encrypt
+npm run env:encrypt
+
+# Decrypt before editing secrets
+npm run env:decrypt
 
 # Run the app (decrypts at runtime)
-npx @dotenvx/dotenvx run -- npm run dev
+npm run env:run -- npm run dev
 
 # A new contributor needs the DOTENV_PRIVATE_KEY value from .env.keys
 # shared securely (password manager, encrypted message — never Slack/email plaintext)
@@ -61,6 +64,8 @@ When the project outgrows dotenvx (multiple environments, team rotation, audit r
 
 | Risk | Mitigation |
 |------|-----------|
-| `DOTENV_PRIVATE_KEY` leaked | Rotate: re-run `npx @dotenvx/dotenvx encrypt`, distribute new key |
+| `DOTENV_PRIVATE_KEY` leaked | Rotate: run `npm run env:encrypt`, distribute new key |
 | Contributor commits `.env.keys` | `.gitignore` excludes it; add a pre-commit hook if team grows |
 | Encrypted `.env` brute-forced | AES-256-GCM is computationally infeasible to crack; repo is private |
+| One-off `npx` fetch executes code while secrets are decrypted | `@dotenvx/dotenvx` is pinned in `package-lock.json`; run it through `npm run env:run -- ...` after `npm ci` instead of ad hoc package fetches |
+| Process environment dump exposes injected secrets | Never use full environment dumps (`ps eww`, `env`, `printenv`, `set`, `/proc/*/environ`) in Replit or dotenvx shells; use masked `set` / `MISSING` checks for named variables |

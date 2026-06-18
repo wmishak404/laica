@@ -12,6 +12,7 @@ import {
   apiRequestLimit,
   aiIpHourLimit,
   feedbackIpLimit,
+  consumeRecipeImageGenerationRateLimits,
   recipeIpHourLimit,
   recipeUserBurstLimit,
   recipeUserDayLimit,
@@ -26,6 +27,11 @@ import {
   voiceUserDayLimit,
   voiceUserHourLimit,
 } from "./rate-limit";
+import {
+  resolveRecipeImagesForRequest,
+  resolveSelectedRecipeImageForRequest,
+  serveRecipeImageCacheObject,
+} from "./recipe-images";
 import { 
   updateUserProfileSchema, 
   insertUserSettingsSchema, 
@@ -502,6 +508,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return invalidRequestResponse(res, error, 'Invalid pantry recipe request');
       }
       aiServiceErrorResponse(res, 'Failed to get pantry-based recipe suggestions', error);
+    }
+  });
+
+  app.post('/api/recipe-images/resolve', isAuthenticated, async (req, res) => {
+    try {
+      const result = await resolveRecipeImagesForRequest(req.body, {
+        consumeGenerationRateLimit: () => consumeRecipeImageGenerationRateLimits(req, res),
+      });
+      if (res.headersSent) {
+        return;
+      }
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return invalidRequestResponse(res, error, 'Invalid recipe image request');
+      }
+
+      console.warn(
+        "[recipe-images] Resolver unavailable:",
+        error instanceof Error ? error.message : error,
+      );
+      res.json({ status: "unavailable", reason: "resolver_error" });
+    }
+  });
+
+  app.post('/api/recipe-images/selected/resolve', isAuthenticated, async (req, res) => {
+    try {
+      const result = await resolveSelectedRecipeImageForRequest(req.body, {
+        consumeGenerationRateLimit: () => consumeRecipeImageGenerationRateLimits(req, res),
+      });
+      if (res.headersSent) {
+        return;
+      }
+      res.json(result);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return invalidRequestResponse(res, error, 'Invalid selected recipe image request');
+      }
+
+      console.warn(
+        "[recipe-images] Selected resolver unavailable:",
+        error instanceof Error ? error.message : error,
+      );
+      res.json({ status: "unavailable", reason: "resolver_error" });
+    }
+  });
+
+  app.get('/api/recipe-images/:cacheKey', async (req, res) => {
+    try {
+      await serveRecipeImageCacheObject(req, res);
+    } catch (error) {
+      console.warn(
+        "[recipe-images] Image object route unavailable:",
+        error instanceof Error ? error.message : error,
+      );
+      res.status(503).json({ message: "Recipe image unavailable" });
     }
   });
 

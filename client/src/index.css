@@ -2097,9 +2097,16 @@ html, body {
     }
   }
 
+  @keyframes recipe-image-spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .planning-added-chip,
-    .planning-staple-row {
+    .planning-staple-row,
+    .planning-recipe-image-spinner {
       animation: none;
     }
   }
@@ -2300,6 +2307,17 @@ html, body {
     stroke-width: 2.15;
   }
 
+  .planning-recipe-image-spinner {
+    position: absolute;
+    z-index: 2;
+    height: 3.65rem;
+    width: 3.65rem;
+    border: 0.18rem solid hsl(var(--planning-coral) / 0.16);
+    border-top-color: hsl(var(--planning-coral) / 0.68);
+    border-radius: 999px;
+    animation: recipe-image-spinner 1s linear infinite;
+  }
+
   .planning-ticket-meta {
     display: flex;
     flex-direction: column;
@@ -2464,6 +2482,11 @@ html, body {
   .planning-recipe-image-slot-prep .planning-recipe-image-icon {
     height: 2.8rem;
     width: 2.8rem;
+  }
+
+  .planning-recipe-image-slot-prep .planning-recipe-image-spinner {
+    height: 4.7rem;
+    width: 4.7rem;
   }
 
   .planning-prep-body {
