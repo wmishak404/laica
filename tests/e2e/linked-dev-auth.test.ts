@@ -1,6 +1,7 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import {
   MEAL_PLANNING_DISMISSAL_STORAGE_KEY,
+  MEAL_PLANNING_STORAGE_KEY,
 } from "../../client/src/lib/planningCache";
 
 const LINKED_DEV_AUTH_UID = "dev-test-linked-ci";
@@ -365,17 +366,17 @@ test.describe("linked dev auth browser smoke", () => {
     await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/Right now I see/)).toContainText("5 pantry items");
     await page.waitForFunction(
-      ({ dismissalKey }) => {
+      ({ dismissalKey, sessionKey }) => {
         const dismissedAt = Number(window.localStorage.getItem(dismissalKey));
-        return Number.isFinite(dismissedAt) && dismissedAt > 0;
+        return Number.isFinite(dismissedAt)
+          && dismissedAt > 0
+          && window.localStorage.getItem(sessionKey) === null;
       },
       {
         dismissalKey: `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:${LINKED_DEV_AUTH_BROWSER_UID}`,
+        sessionKey: `${MEAL_PLANNING_STORAGE_KEY}:linked:${LINKED_DEV_AUTH_BROWSER_UID}`,
       },
       { timeout: 30_000 },
     );
-
-    await reloadLinkedBrowserSession(page, request);
-    await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
   });
 });
