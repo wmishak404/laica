@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 3 - Eval harness
-**Active PR:** None
-**Active branch:** None
+**Active PR:** [#200](https://github.com/wmishak404/laica/pull/200)
+**Active branch:** `codex/init-004-fixture-validation-script`
 
 ## Overview
 
@@ -35,6 +35,8 @@ The first Phase 3 harness foundation slice merged in [PR #188](https://github.co
 The first public synthetic fixture slice merged in [PR #190](https://github.com/wmishak404/laica/pull/190) as `0027908` on 2026-06-17 after Wilson approved the merge and exact-head checks passed at PR head `e086691`. It adds four CI-visible synthetic fixtures across V1 surfaces: a recipe-suggestions max-time boundary pass, a pantry-recipes max-time true negative, a Slop Bowl shape guard, and a cooking-steps generated-context guard. The slice also teaches the loader to accept expected deterministic failures only when the resolved criterion label says `fail`; privacy/schema failures and label mismatches still invalidate the artifact.
 
 The cooking-step user-expectation fixture slice merged in [PR #198](https://github.com/wmishak404/laica/pull/198) as `9588459` on 2026-06-18 after Wilson approved merge and exact-head local/GitHub checks passed at PR head `7271094`. It adds three public synthetic fixtures from the accepted Arize/Wilson-label target set: raw beef doneness, chicken doneness, and missing-lid alternative. This protects the fixture corpus against structurally valid but unsafe, too-complex, or equipment-dependent cooking steps without changing prompts, provider calls, DB schema, runtime generation, private fixture ingestion, daily reports, or EFF-022 cuisine fallback behavior.
+
+The current Phase 3 branch, `codex/init-004-fixture-validation-script`, wires the existing public fixture validation into a focused `npm run eval:fixtures` script so future PRs can cite fixture-corpus validity directly instead of relying only on the broader unit suite. This is an offline harness usability slice; it does not add fixtures, change labels, run provider judges, ingest private fixtures, change prompts, write eval data, change DB schema, expose runtime behavior, or resolve EFF-022 cuisine fallback behavior.
 
 Wilson's 2026-06-16 verification direction is now part of INIT-004's evaluation philosophy: every future fixture, judge, report, or prompt comparison should name the user expectation it protects. Structure and schema checks are still required because broken output cannot help a user, but they should be presented as foundation checks unless they also prove time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, privacy, or another explicit user-facing promise.
 
@@ -200,7 +202,7 @@ INIT-004 should produce or coordinate:
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
 | Phase 2 - Rubric and dataset spec | Merged | [#181](https://github.com/wmishak404/laica/pull/181) / `codex/init-004-phase-2-spec` | Merged as `5c410e3`; accepted eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
-| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged | PR #198 added the first public synthetic cooking-step user-expectation negative guards for food safety, skill fit, equipment fit, and step sequence; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
+| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged / [#200](https://github.com/wmishak404/laica/pull/200) active | PR #198 added the first public synthetic cooking-step user-expectation negative guards for food safety, skill fit, equipment fit, and step sequence; PR #200 adds a focused public-fixture validation script; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
@@ -216,6 +218,7 @@ INIT-004 should produce or coordinate:
 | [#188](https://github.com/wmishak404/laica/pull/188) | Merged as `2e1c693` | `codex/init-004-harness-foundation` | First Phase 3 harness foundation slice. Local `npm ci`, fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `b865864`; no Replit validation required. |
 | [#190](https://github.com/wmishak404/laica/pull/190) | Merged as `0027908` | `codex/init-004-public-fixtures` | First public synthetic fixture slice. Final-head local validation passed; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at final PR head `e086691`; no Replit validation required. |
 | [#198](https://github.com/wmishak404/laica/pull/198) | Merged as `9588459` | `codex/init-004-phase-3-user-expectation-fixtures` | Cooking-step user-expectation fixture slice. Local focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed at final PR head `7271094`; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed before Wilson approved merge; no Replit validation required. |
+| [#200](https://github.com/wmishak404/laica/pull/200) | Ready for review | `codex/init-004-fixture-validation-script` | Focused public fixture validation script. Local evidence: `npm run eval:fixtures`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks. No Replit validation expected because the branch is offline eval tooling/docs only. |
 
 ## Validation State
 
@@ -231,18 +234,19 @@ Phase 3 public synthetic fixture slice is a local/offline implementation change.
 
 Phase 3 cooking-step user-expectation fixture slice is a local/offline fixture-corpus change merged in PR #198. It adds public synthetic negative guards for food-safety, skill-fit, equipment-fit, and cooking-step-sequence labels. It does not call providers, ingest private fixture paths, write eval data, change DB schema, change prompts, or expose new product UI. PR #198 passed local focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, whitespace checks, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL at final PR head `7271094` before Wilson approved merge. Human Replit validation was not required because no provider, auth, schema, deployment, or user-facing runtime behavior changed. The squash merge commit is `9588459`.
 
+The active fixture-validation script branch is a local/offline harness usability change. It makes the existing public fixture corpus directly callable with `npm run eval:fixtures` but does not add fixtures, run providers, ingest private fixture paths, write eval data, change DB schema, change prompts, or expose new product UI. Replit validation is not required because no provider, auth, schema, deployment, or user-facing runtime behavior changes.
+
 Future implementation phases that use eval results as merge evidence must follow [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). Future DB or production-sampling work must coordinate with [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) and Replit as the primary runtime.
 
 ## Current Resume Point
 
-No INIT-004 Phase 3 PR is active after [PR #198](https://github.com/wmishak404/laica/pull/198) merged. The merged work sits in Phase 3 after the harness foundation and first public fixture slice: it expands the public fixture corpus from contract/current-shape guards into user-expectation negative guards for cooking-step safety, skill fit, equipment fit, and step sequence.
+The current INIT-004 Phase 3 work is `codex/init-004-fixture-validation-script`. It sits after [PR #198](https://github.com/wmishak404/laica/pull/198) and makes public fixture validation a dedicated scriptable evidence lane. The merged PR #198 work expanded the public fixture corpus from contract/current-shape guards into user-expectation negative guards for cooking-step safety, skill fit, equipment fit, and step sequence.
 
-The next bounded Phase 3 candidates are:
+After this branch lands, the next bounded Phase 3 candidates are:
 
-1. Wire deterministic fixture validation into a script or routine unit lane that can be cited by future PRs.
-2. Add another small fixture batch from the accepted Wilson-label target set, such as beginner-complexity, dietary-compliance, pantry-grounding, or cuisine-fit cases, with `Value claim`, `Evidence`, and `Evidence limits` summarized in the PR/registry record.
-3. Add criteria-aware queue behavior and logging provenance work for `pantry_recipes`, while preserving prompt reuse.
-4. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
+1. Add another small fixture batch from the accepted Wilson-label target set, such as beginner-complexity, dietary-compliance, pantry-grounding, or cuisine-fit cases, with `Value claim`, `Evidence`, and `Evidence limits` summarized in the PR/registry record.
+2. Add criteria-aware queue behavior and logging provenance work for `pantry_recipes`, while preserving prompt reuse.
+3. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
 
 Cuisine-fit fixtures remain deferred unless they can be labeled without deciding the unresolved EFF-022 product fallback rule. Do not start live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, or EFF-022 cuisine-fallback product changes without a separate documented milestone and any required Wilson decision.
 
@@ -267,3 +271,4 @@ Cuisine-fit fixtures remain deferred unless they can be labeled without deciding
 - **2026-06-17** - Opened draft PR #198 on `codex/init-004-phase-3-user-expectation-fixtures` from fresh `origin/main` `3fac3c0`. The bounded milestone adds three public synthetic cooking-step user-expectation fixtures from the accepted Arize/Wilson-label target set and defers cuisine-fit fixtures because the EFF-022 fallback rule remains unresolved.
 - **2026-06-17** - Rebased PR #198 onto current `origin/main` `7250016` after PR #197 merged, preserving the same bounded fixture scope.
 - **2026-06-18** - PR #198 merged as `9588459` after Wilson approved merge and exact-head local/GitHub checks passed at PR head `7271094`. The merged Phase 3 milestone protects the public eval corpus against cooking-step outputs that are structurally valid but unsafe for raw proteins, mismatched to skill, dependent on unlisted equipment, or missing practical sequence guidance; it leaves providers, prompts, DB/schema, private fixture ingestion, daily reports, and EFF-022 cuisine fallback unchanged.
+- **2026-06-18** - Started `codex/init-004-fixture-validation-script` from fresh `origin/main` `0462db2`. The bounded milestone adds a dedicated public fixture validation script so future PRs can cite `npm run eval:fixtures` as fixture-corpus evidence without starting provider judges, private fixture ingestion, prompt changes, DB/schema work, daily reports, or EFF-022 cuisine fallback decisions.

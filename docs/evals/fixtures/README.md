@@ -28,12 +28,15 @@ When adding or materially changing fixtures, keep the fixture data readable and 
 - `Evidence`: `cooking-steps-raw-beef-doneness`, `cooking-steps-chicken-doneness`, and `cooking-steps-missing-lid-alternative` load as public synthetic fixtures and preserve resolved `food_safety`, `skill_fit`, `equipment_fit`, and `cooking_step_sequence` labels from the accepted target set.
 - `Evidence limits`: The current Vitest lane validates schema, privacy posture, structure, and label preservation only. It does not prove live model behavior, judge calibration, Wilson re-labeling of these exact synthetic outputs, taste, cuisine fit, or production cooking safety.
 
-Current harness command:
+Current harness commands:
 
 ```bash
+npm run eval:fixtures
 npx vitest run tests/unit/eval-fixtures.test.ts
 ```
 
-This command validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
+`npm run eval:fixtures` is the focused fixture-corpus validation lane for PR evidence. It loads committed public fixtures, applies the canonical schema/privacy/surface checks, allows only labeled expected deterministic failures, and prints a compact fixture/surface summary.
+
+`npx vitest run tests/unit/eval-fixtures.test.ts` remains the validator behavior coverage lane. It validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
 These fixtures are offline regression artifacts only. They do not run provider judges, change prompts, activate prompt versions, ingest private fixtures, write eval rows, or represent production-quality rates.
