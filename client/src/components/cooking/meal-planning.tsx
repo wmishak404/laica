@@ -185,6 +185,7 @@ export default function MealPlanning({
   const activeGenerationRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const imagePreviewRunIdRef = useRef(0);
   const activeImagePreviewRef = useRef<{ runId: number; controller: AbortController } | null>(null);
+  const suppressSessionPersistenceRef = useRef(false);
   const { toast } = useToast();
   const mealPlanningStorageKey = useMemo(
     () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
@@ -268,6 +269,8 @@ export default function MealPlanning({
   }, [mealPlanningStorageKey, onPlanningTimeChange, profileFingerprint]);
 
   useEffect(() => {
+    if (suppressSessionPersistenceRef.current) return;
+
     if (sessionRestored) {
       setSessionRestored(false);
       return;
@@ -777,8 +780,15 @@ export default function MealPlanning({
 
   const handleMealSelected = (meal: RecipeRecommendation) => {
     cancelRecipeImageHydration();
+    suppressSessionPersistenceRef.current = true;
     localStorage.removeItem(mealPlanningStorageKey);
     onMealSelected(meal, 'now');
+  };
+
+  const exitToPlanningChoices = () => {
+    suppressSessionPersistenceRef.current = true;
+    localStorage.removeItem(mealPlanningStorageKey);
+    onBackToProfile();
   };
 
   const handleBack = () => {
@@ -786,7 +796,7 @@ export default function MealPlanning({
     cancelRecipeImageHydration();
 
     if (currentStep === 'time') {
-      onBackToProfile();
+      exitToPlanningChoices();
       return;
     }
     if (currentStep === 'cuisine') {
