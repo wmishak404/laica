@@ -29,7 +29,7 @@ The branch also implements Gemini/Nano Banana image generation behind `RECIPE_IM
 
 ## Replit Status / Next Steps
 
-The selected-image smoke is complete for PR #192 at `9e62f0f`. Re-run Replit only if runtime files change after that SHA or if the separate reset/remount behavior starts reproducing as an imagery-specific blocker.
+The selected-image smoke is complete for PR #192 at `9e62f0f`. Re-run Replit only if runtime files change after that SHA or if the separate reset/remount behavior starts reproducing as an imagery-specific blocker. High-priority EFF-027 now owns the broader active-flow reload resilience follow-up.
 
 Gemini remains a deferred provider benchmark, not a merge blocker while OpenAI remains the runtime default. When resuming provider comparison, run:
 
@@ -52,4 +52,4 @@ Record provider, model, output size, selected elapsed time, row `timingsMs`, jud
 - No live Gemini benchmark has been run locally; `GEMINI_API_KEY` is intentionally Replit-only for now.
 - The legacy three-image resolver still exists for seeding/benchmark comparison, but the user-visible Ticket Pass no longer uses it.
 - Broad image-quality evals remain outside this PR.
-- A separate Replit/app reset-remount to the main menu was observed during selected-image validation; session restore recovered the same suggestions and imagery behavior. Root-cause analysis is deferred outside PR #192 unless it becomes image-specific.
+- A separate Replit/app reset-remount to the main menu was observed during selected-image validation; session restore recovered the same suggestions and imagery behavior. Root-cause analysis and direct active-flow restoration are filed as high-priority EFF-027 unless the behavior becomes image-specific.

@@ -12,7 +12,7 @@ Replit validation for PR #192 is no longer blocked on schema, storage, or provid
 
 The live smoke also found a real client timing gap: the original sequential PNG path took about 80 seconds for the slowest approved image, and Wilson's later Refresh Suggestions check showed that late image pop-in feels wrong even when the resolver is technically working. The branch now parallelizes the three image jobs, defaults runtime output to compressed JPEG, keeps restored/fresh background hydration bounded, gates Refresh replacement so the old image-backed tickets remain visible while the new set is prepared, and charges the small recipe-image abuse budget only when generation is about to start or restart rather than on every pending poll.
 
-2026-06-18 update: the product direction has since pivoted again for the user-visible runtime. Ticket Pass is placeholder-only and no longer hydrates generated images, while Prep Tray resolves one selected recipe image. Wilson's Replit smoke at PR head `9e62f0f` confirmed that selected-image behavior: the selected resolver was enabled, Prep Tray showed the pending spinner and then the selected image, returning to Ticket Pass kept all choices placeholder-only, and session restore recovered the same suggestions after a separate main-menu reset/remount. The three-image validation below should be treated as historical schema/storage/provider/cache evidence, not the current Ticket Pass UX.
+2026-06-18 update: the product direction has since pivoted again for the user-visible runtime. Ticket Pass is placeholder-only and no longer hydrates generated images, while Prep Tray resolves one selected recipe image. Wilson's Replit smoke at PR head `9e62f0f` confirmed that selected-image behavior: the selected resolver was enabled, Prep Tray showed the pending spinner and then the selected image, returning to Ticket Pass kept all choices placeholder-only, and session restore recovered the same suggestions after a separate main-menu reset/remount. The three-image validation below should be treated as historical schema/storage/provider/cache evidence, not the current Ticket Pass UX. EFF-027 owns the separate high-priority active-flow reload resilience follow-up.
 
 ## What Changed After Validation
 
@@ -88,7 +88,7 @@ Passed. The full unit suite covered 42 files / 280 tests.
 - Replit Preview showed its own artifact-crashed wrapper because validation used a manually launched flagged server; the direct `.replit.dev` app was the validated surface.
 - Production publish, broad image-accuracy evals, and Gemini/Nano Banana comparison are not covered by this validation.
 - Final PR-head CI still needs to pass after the latest pushes before merge readiness.
-- The separate reset/remount to the main menu observed during the 2026-06-18 selected-image smoke remains outside this handoff's image-pipeline scope unless it becomes imagery-specific.
+- The separate reset/remount to the main menu observed during the 2026-06-18 selected-image smoke remains outside this handoff's image-pipeline scope unless it becomes imagery-specific; active-flow restoration is filed as high-priority EFF-027.
 
 ## Next Steps
 
