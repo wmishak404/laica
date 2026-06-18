@@ -91,3 +91,9 @@ This Effort is `Resolved` when all of the following are true:
 Wilson's PR #192 Replit smoke showed the app return to the Planning choice screen during selected-image validation. The Network tab showed full Vite/React module reload markers (`@react-refresh`, `main.tsx?t=...`, `App.tsx?t=...`, `cooking-new.tsx?t=...`, and related modules), while the terminal showed branch sync/head movement. That evidence points to a validation-environment reload, but the user pain is product-relevant: the app should restore the active Chef It Up workflow directly when a valid session exists.
 
 PR #192 should stay focused on recipe imagery because the selected-image behavior passed: Prep Tray showed the selected image and Ticket Pass stayed placeholder-only. EFF-027 owns the next high-priority reload/remount resilience slice.
+
+## 2026-06-18 - Active MealPlanning restore branch
+
+Branch `codex/eff-027-active-workflow-reload` implements the first reload-resilience slice: app bootstrap now checks the scoped MealPlanning session after the profile loads, validates the profile fingerprint and session freshness, and enters Chef It Up directly when the saved session is still active. Active Settings restore and active Live Cooking restore keep precedence, and explicit exits to the Planning choice clear the MealPlanning restore key so users are not trapped back inside Chef It Up after choosing to leave.
+
+Local regression coverage now includes linked and guest MealPlanning restore after remount, stale-profile invalidation, and Back-to-Planning cleanup. This does not resolve the Effort yet because exact-head Replit validation still needs to force a browser reload during Ticket Pass or Prep Tray and confirm the same active workflow returns.
