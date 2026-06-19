@@ -75,6 +75,9 @@ Completed before this handoff:
 - 2026-06-18 diff hygiene: `git diff --check origin/main...HEAD` passed.
 - 2026-06-18 automated E2E attempt: first `CI=true npm run env:run -- npm run test:e2e` failed before tests due sandbox EPERM on the local `tsx` IPC pipe; escalated rerun on port 5000 failed because the port was occupied; escalated rerun on `PORT=5019 PLAYWRIGHT_BASE_URL=http://localhost:5019` started and completed with 6 failures / 2 skipped. Observed blockers: local decrypted DB is missing `anonymous_recipe_usage`, causing guest auth/session setup failures in `tests/e2e/cooking-workflow.test.ts`, and `tests/e2e/accessibility-guardrail.test.ts` reports existing landing auth-control color contrast failures.
 - 2026-06-18 rebase after PR #203: fetched `origin`, confirmed `origin/main` includes `b6ba180b0e97300b1d299cb9df1c686a5e5dff7d`, and rebased `codex/init-001-cooking-audio-cleanup` onto that base. The rebase was clean. PR #203's merge resolves the landing contrast blocker for PR #191's downstream validation lane; default local DB drift remains routed to GitHub `e2e_guest_smoke` or guarded local sandbox per EFF-010.
+- 2026-06-19 current-main rebase: Wilson reported that Replit build `7274a62e63c933c6f41bdde0035d47cce5e8b7d3` still played audio after Back to Planning. Fresh `origin` showed that SHA is current `main`, does not contain PR #191 head `d3e1a41228b893002c9f73c1de3a6d3a7358107f`, and therefore is not evidence against the PR #191 fix. The branch was rebased onto `origin/main` at `7274a62e63c933c6f41bdde0035d47cce5e8b7d3`; focused `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed 1 file / 18 tests before the status-doc refresh.
+- 2026-06-19 Replit manual validation: Wilson loaded PR head `1bc9221398883064d9876e690e58f8cf75f1950d` and reported all 12 requested speech cases passed: first cooking step audio, Back to Planning stop, Next/Previous interruption, conflicting speech actions including hard refresh/mute/Ask Question, Ask for Help stop, Mute stop, mute persistence through steps, unmute-no-autoplay, Repeat Step after unmute, rapid action settling, and transcript fidelity.
+- 2026-06-19 docs/workflow-only rebase: after manual validation, `origin/main` advanced to `12ce5230be924dd8d6841423f2e1c034cc76e651` through PR #204/#206 docs/workflow changes. PR #191 was rebased again to clear INIT/status conflicts without changing the Live Cooking runtime implementation; exact-head GitHub checks must be rerun after the force-push.
 
 Pending before merge readiness after the 2026-06-17 acceptance expansion:
 
@@ -83,6 +86,6 @@ Pending before merge readiness after the 2026-06-17 acceptance expansion:
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `b6ba180b0e97300b1d299cb9df1c686a5e5dff7d`
-- Last Replit-validated at: not required before merge for this narrow lifecycle slice
-- Notes: Started after PR #188/#189 landed on `main`; skipped open/owned PR #190 and the checked-out INIT-001 imagery branch. Rebased again after PR #203 merged the shared landing contrast release-blocker fix.
+- Current base: `origin/main` at `12ce5230be924dd8d6841423f2e1c034cc76e651`
+- Last Replit-validated at: `1bc9221398883064d9876e690e58f8cf75f1950d`
+- Notes: Started after PR #188/#189 landed on `main`; skipped open/owned PR #190 and the checked-out INIT-001 imagery branch. Rebased after PR #203 merged the shared landing contrast release-blocker fix, then again after current `main` reached `7274a62`, then again after docs/workflow-only `main` reached `12ce523`.
