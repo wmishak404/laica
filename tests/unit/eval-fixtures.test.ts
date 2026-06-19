@@ -193,12 +193,18 @@ describe("INIT-004 eval fixture foundation", () => {
       "cooking-steps-missing-lid-alternative",
       "cooking-steps-raw-beef-doneness",
       "openai-max-time-25-to-30",
+      "pantry-recipes-beginner-complexity",
+      "pantry-recipes-dietary-halal-pork",
+      "pantry-recipes-optional-extras-required",
       "slop-bowl-current-shape",
       "synthetic-max-time-30-to-60",
     ]);
     expect(fixtures.find((fixture) => fixture.id === "synthetic-max-time-30-to-60")?.labels.max_time_adherence).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "cooking-steps-raw-beef-doneness")?.labels.food_safety).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "cooking-steps-missing-lid-alternative")?.labels.equipment_fit).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "pantry-recipes-dietary-halal-pork")?.labels.dietary_compliance).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "pantry-recipes-optional-extras-required")?.labels.optional_ingredient_contract).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "pantry-recipes-beginner-complexity")?.labels.skill_fit).toBe("fail");
   });
 
   it("rejects public fixture artifacts when deterministic labels contradict observed checks", async () => {

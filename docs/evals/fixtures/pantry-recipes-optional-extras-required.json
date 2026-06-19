@@ -1,0 +1,37 @@
+{
+  "id": "pantry-recipes-optional-extras-required",
+  "surface": "pantry_recipes",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["init004-phase-2-target-set"],
+  "request": {
+    "preferences": "Time available: 30 minutes or less. Cooking skill: beginner. Use pantry ingredients first. Additional ingredients should be optional enhancements, not required shopping-list ingredients.",
+    "ingredients": ["rice", "lentils", "carrots", "eggs", "soy sauce"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 30,
+    "cuisines": ["Flexible pantry"],
+    "skill": "beginner",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "skillet", "pot"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Chicken Lentil Rice Skillet\",\"description\":\"A rice and lentil skillet that depends on chicken thighs for the main protein.\",\"difficulty\":\"Easy\",\"cookTime\":35,\"pantryIngredientsUsed\":[\"rice\",\"lentils\",\"carrots\",\"soy sauce\"],\"additionalIngredientsNeeded\":[\"chicken thighs\"],\"overview\":\"Sear chicken thighs, then simmer lentils, rice, carrots, and soy sauce around them.\",\"instructions\":[\"Sear chicken thighs until browned, add lentils, rice, carrots, and soy sauce, then simmer until the chicken is cooked.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Cheesy Carrot Rice Frittata\",\"description\":\"Eggs, rice, and carrots baked into a frittata that needs cheddar to hold together.\",\"difficulty\":\"Easy\",\"cookTime\":40,\"pantryIngredientsUsed\":[\"rice\",\"carrots\",\"eggs\"],\"additionalIngredientsNeeded\":[\"cheddar cheese\"],\"overview\":\"Mix cheddar into eggs, rice, and carrots before baking until firm.\",\"instructions\":[\"Stir cheddar into beaten eggs, rice, and carrots, then bake until the cheese sets the frittata.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Coconut Lentil Rice Bowl\",\"description\":\"A lentil rice bowl that needs coconut milk for the sauce.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"rice\",\"lentils\",\"carrots\",\"soy sauce\"],\"additionalIngredientsNeeded\":[\"coconut milk\"],\"overview\":\"Simmer lentils and carrots in coconut milk, then serve over rice.\",\"instructions\":[\"Pour in coconut milk, simmer lentils and carrots until creamy, and spoon over rice.\"],\"cuisine\":\"Pantry\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-19"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "pantry_grounding": "fail",
+    "optional_ingredient_contract": "fail",
+    "recipe_usefulness": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-synthetic-from-wilson-target-set",
+    "labeledAt": "2026-06-19"
+  },
+  "notes": "Synthetic negative guard for pantry grounding and optional extras. The output is intentionally bad because each suggestion depends on an unavailable additional ingredient as a required component."
+}

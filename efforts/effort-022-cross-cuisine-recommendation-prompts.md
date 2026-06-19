@@ -165,3 +165,9 @@ PR #181 merged INIT-004 Phase 2 as `5c410e3`. The accepted eval spec keeps EFF-0
 PR #188 merged INIT-004 Phase 3 foundation work as `2e1c693`. The new public fixture schema supports `pantry_recipes` as a first-class eval surface, preserves `blocked_on_product_rule` labels, validates deterministic structure/count/max-time checks, and adds privacy guards so EFF-022 examples can become synthetic/redacted fixtures later without committing raw user examples.
 
 EFF-022 remains open. This slice does not change recipe prompts, cuisine picker options, card display, fallback copy, or the decision about when Laica should stay literal to selected cuisines versus explain a pantry-flexible fallback.
+
+## 2026-06-19 - Pantry user-expectation fixtures started
+
+`codex/init-004-pantry-expectation-fixtures` adds public synthetic `pantry_recipes` fixtures for dietary compliance, pantry grounding / optional extras, and beginner skill fit. This is measurement scaffolding for INIT-004 and does not change recipe prompts, cuisine picker options, card display, fallback copy, or the EFF-022 product decision about selected-cuisine strictness versus pantry-flexible fallback explanation.
+
+EFF-022 remains open. Cuisine-fit fixtures are still deferred unless they can be labeled without deciding the unresolved fallback rule.
