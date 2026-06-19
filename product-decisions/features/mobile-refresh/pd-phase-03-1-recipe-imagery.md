@@ -280,6 +280,18 @@ Validation update:
 - Targeted local Playwright was attempted on 2026-06-17 with dotenvx and an alternate port, but the flow failed before image-specific assertions because the decrypted local DB was missing `anonymous_recipe_usage`. The server returned `relation "anonymous_recipe_usage" does not exist`, so guest setup never reached the Ticket Pass / Prep Tray steps. This remains environment-parity negative scope, not selected-image evidence.
 - Replit selected-image smoke passed at `9e62f0f` with OpenAI as the default provider: Ticket Pass remained placeholder-only, Prep Tray hydrated one selected image, and returning to Ticket Pass did not surface the generated image. Gemini/OpenAI benchmark runs remain deferred provider-comparison evidence, not a PR #192 merge blocker unless the runtime default changes.
 - PR #192 merged as `efd1f88` on 2026-06-18. The accepted v1 runtime is OpenAI default, Ticket Pass placeholder-only, selected Prep Tray imagery only, and non-blocking cooking. Resume Gemini benchmarking under INIT-001 Phase 3.1 before any provider-default change.
+- Replit post-merge validation on 2026-06-19 at `main` head `7274a62` confirmed the selected-image route after a full server restart: unauthenticated `POST /api/recipe-images/selected/resolve` returned JSON `401` instead of the Vite HTML shell, authenticated Prep Tray requests progressed from `pending` to `ready`, and the generated `Leek, Carrot, and Tofu Stir Fry Over Rice` image matched the title/core ingredients closely enough for smoke. Wilson also validated: leaving Prep Tray while generation was pending and returning later can use the completed cached image, Ticket Pass still stays placeholder-only after returning, Refresh Suggestions does not call the image resolver on Ticket Pass, hard refresh with cached/generated images does not hydrate Ticket Pass, `Cook this` remains available while imagery is pending, reopening the same selected recipe reuses the generated image without another resolver call, and extensive testing eventually hit `429 RATE_LIMITED` with the spinner stopped at that terminal state.
+
+Future automated coverage candidates from the 2026-06-19 Replit smoke:
+
+- Selected-image route returns JSON for API requests after current-main restart, not Vite HTML fallback.
+- Selected Prep Tray image progresses `pending` to `ready` and renders the approved image.
+- Leaving Prep Tray before generation completes and returning later can display the completed cached image.
+- Ticket Pass remains placeholder-only after Prep Tray image completion, Back navigation, Refresh Suggestions, and hard refresh with cached images available.
+- Refresh Suggestions does not call either image resolver on Ticket Pass.
+- `Cook this` remains non-blocking while selected imagery is pending.
+- Reopening the same selected Prep Tray recipe reuses the generated/session image without another selected resolver call.
+- Selected resolver `429 RATE_LIMITED` is terminal for the visible spinner and leaves the placeholder quietly.
 
 ## 2026-06-05 - Slop Bowl Generated-Result Button Typography Aligned
 
