@@ -32,6 +32,10 @@ When automated tests, CI, Playwright, `db:health`, or future eval runs are used 
 
 Every pushed implementation build/head intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human manual Replit smoke is complementary deployment/release validation, not a substitute for a missing, skipped, or failed automated E2E gate. Future automated Replit-environment checks may become PR gates when their evidence lane is documented and accepted.
 
+## Bug investigation evidence
+
+Before fixing a reported bug, follow the bug investigation evidence protocol in [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md). Collect the relevant browser, Replit, server, DB/cache, and env-presence evidence; separate observed facts from inference; and ask Wilson for the exact missing logs, screenshots, or Network Response bodies when the initial report is incomplete. Do not prescribe a fix from screenshots alone when route responses, server logs, environment presence, cache rows, or current branch/SHA are needed.
+
 ## Human Replit validation policy
 
 Human manual Replit validation is no longer the default PR merge gate for every deployment-bound change. Use [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md) to classify the validation lane.

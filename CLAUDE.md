@@ -51,6 +51,10 @@ PORT=3000 npm run env:run -- npm run dev
 
 When automated tests, CI, Playwright, `db:health`, or future eval runs are used as merge-readiness evidence, the PR or handoff must include the evidence report required by [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md): claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope. Do not conclude a code PR is correct from "tests passed" or "CI green" alone.
 
+## Bug investigation evidence
+
+Before fixing a reported bug, follow the bug investigation evidence protocol in [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md). Collect the relevant browser, Replit, server, DB/cache, and env-presence evidence; separate observed facts from inference; and ask Wilson for the exact missing logs, screenshots, or Network Response bodies when the initial report is incomplete. Do not prescribe a fix from screenshots alone when route responses, server logs, environment presence, cache rows, or current branch/SHA are needed.
+
 ## Project structure
 
 ```
