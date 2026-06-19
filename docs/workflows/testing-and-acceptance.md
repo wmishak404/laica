@@ -181,6 +181,7 @@ E2E note: browser automation depends on service-backed env (at minimum a `DATABA
 
 When testing or user validation finds a bug, close the loop before merge readiness:
 
+- Start with investigation evidence before prescribing a fix. Do not treat the initial bug report, screenshot, or first plausible clue as complete when the affected surface can expose better evidence.
 - Reproduce or document the exact evidence: observed behavior, expected behavior, environment, branch/SHA, and affected user flow.
 - Classify the bug as product behavior, implementation defect, environment/schema drift, stale test coverage, missing acceptance criteria, or workflow/process gap.
 - Add a regression test when the bug is locally deterministic. If it depends on Replit-only services, secrets, provider state, Firebase Console settings, speech/audio, or human judgement, record the exact Replit re-test instead.
@@ -188,6 +189,20 @@ When testing or user validation finds a bug, close the loop before merge readine
 - Update the smallest durable doc that future agents need: PD or phase record for product/security policy, INIT for initiative status and validation state, workflow doc for repeatable testing discipline, Effort only for standalone follow-up, and handoff/PR for point-in-time evidence.
 
 A bug fix is not done when only the code changes. It is done when the fix, coverage or validation gap, stale-validation status, and reusable lesson are discoverable from the repo and PR without replaying chat.
+
+### Bug Investigation Evidence Protocol
+
+Use the smallest evidence set that can distinguish root causes before changing code or declaring the issue environmental. Label each note as evidence, inference, or missing input. If the next useful fact is in Wilson's browser or Replit UI, ask for that exact screenshot, response body, log excerpt, or command output instead of guessing.
+
+For browser/UI bugs, collect the relevant route or screen, exact reproduction steps, observed and expected behavior, browser Console errors, and Network request status, content type, and **Response** bodies for the affected calls. Payload-only screenshots are not enough when the server can return terminal states such as `disabled`, `unavailable`, `pending`, `image_not_approved`, `RATE_LIMITED`, or provider/storage errors. Inspect DOM or client state when the bug is about a transient visual state, stale render, reload, cache, or auth-scoped data.
+
+For Replit/runtime bugs, verify the running code and environment separately because git state, deployed runtime, secrets, database, and browser session can drift independently. Capture `git status --short --branch`, `git rev-parse HEAD`, and the relevant remote ref such as `git rev-parse origin/main` or the PR branch. Preserve local Replit commits on a side branch before any destructive sync. Capture server logs around the failing route, route status/response body, and relevant DB/cache rows or failure reasons when the feature uses persisted state. If an API route returns an HTML shell, prove whether the current server has restarted and whether the route is registered by checking the expected JSON status for an authenticated or deliberately unauthenticated request.
+
+For env and secret-backed bugs, never ask for or print secret values. Do not use full environment dumps such as `ps eww`, `env`, `printenv`, `set`, or `/proc/*/environ`. Use targeted masked presence checks that print only `set` or `MISSING`, and include only non-secret config values when needed for diagnosis. Replit Secrets/Configurations are external runtime state and may differ from git or previous validation; record which values were verified present without exposing their contents.
+
+For provider-backed or generated-media bugs, separate the user-facing symptom from the provider/cache pipeline. Capture the app route response, provider-disabled or unconfigured reasons, moderation/judge rejection reasons, storage/upload status, rate-limit state when relevant, and recent cache rows. A UI spinner that appears briefly and then stops may be correct client behavior for a terminal `unavailable` response; that observation does not by itself identify why the route returned `unavailable`.
+
+If evidence contradicts an earlier theory, update the theory. If evidence remains missing, write the blocking report with the exact missing input and the smallest next action, then stop short of a root-cause claim.
 
 ## Auth-Scoped Client State
 
