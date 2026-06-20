@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-06-16
+**Updated:** 2026-06-19
 
 ## One-line summary
 
@@ -171,3 +171,7 @@ EFF-022 remains open. This slice does not change recipe prompts, cuisine picker 
 `codex/init-004-pantry-expectation-fixtures` adds public synthetic `pantry_recipes` fixtures for dietary compliance, pantry grounding / optional extras, and beginner skill fit. This is measurement scaffolding for INIT-004 and does not change recipe prompts, cuisine picker options, card display, fallback copy, or the EFF-022 product decision about selected-cuisine strictness versus pantry-flexible fallback explanation.
 
 EFF-022 remains open. Cuisine-fit fixtures are still deferred unless they can be labeled without deciding the unresolved fallback rule.
+
+## 2026-06-19 - Pantry user-expectation fixtures merged
+
+PR #205 merged as `762488e` after PR #191. The merged INIT-004 fixture batch adds pantry-recipe measurement coverage for dietary compliance, pantry grounding / optional extras, and beginner skill fit only. It does not satisfy EFF-022 resolution criteria because it does not audit cuisine picker behavior, change recipe prompts, add multi-cuisine prompt guidance, add cuisine-fit/fusion fixtures, or decide the selected-cuisine fallback product rule.
