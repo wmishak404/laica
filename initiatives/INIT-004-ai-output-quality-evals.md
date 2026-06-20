@@ -183,6 +183,12 @@ V1 does not cover:
 - Full dashboard UX
 - Automated prompt activation without Wilson review
 
+### Speech interaction eval boundary
+
+Wilson's 2026-06-17 Live Cooking speech questions are registered as [speech-interaction-acceptance-seed-2026-06-17](../docs/evals/intakes/speech-interaction-acceptance-seed-2026-06-17.md) so the goal/value acceptance criteria survive outside chat. This is **not** current INIT-004 Phase 3 harness scope. The seed belongs to INIT-001 Phase 4 until Wilson explicitly opens a later speech/transcription/synthesis eval phase.
+
+Future speech eval work should start from deterministic interaction checks before provider-quality claims: transcript-to-synthesis payload fidelity, speech request arbitration, mute persistence, late-response invalidation, stop-before-recording behavior, and only then real-device/provider pronunciation or audio-quality smoke. Do not mix those checks into recipe/Slop Bowl/cooking-step output-quality pass rates.
+
 ## INIT-004 Build Outputs
 
 INIT-004 should produce or coordinate:

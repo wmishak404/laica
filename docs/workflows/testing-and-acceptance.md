@@ -110,6 +110,8 @@ For new or materially touched tests, use the same lightweight design habit befor
 
 Do not rewrite existing tests only to add this language. Apply it when a test file is touched for real work, and keep test bodies readable. PR/handoff evidence can carry the full `Value claim` / `Evidence` / `Evidence limits` summary when putting all of that text in an `it(...)` name would make the test worse.
 
+For speech/audio work, "button clicked" is not enough. The acceptance case must state what the cook should or should not hear, which visible transcript owns the audio, how mute/recording/navigation changes ownership, and which late async responses must be ignored.
+
 Before closeout, classify the meaningful test cases:
 
 - **Local automated**: covered by Vitest, Playwright, static checks, or deterministic scripts in the local worktree. Cite the command and the specific test file, assertion, route, component, or schema that proves it.

@@ -1,6 +1,6 @@
 # AI Eval System
 
-This directory is the practical home for AI output-quality eval indexes, intake records, fixture candidates, report references, and future harness instructions.
+This directory is the practical home for AI output-quality eval indexes, intake records, fixture candidates, report references, future harness instructions, and narrowly registered interaction-eval seeds when a user-facing behavior needs durable acceptance criteria before an automated harness exists.
 
 The canonical eval discipline lives in [docs/workflows/evaluations.md](../workflows/evaluations.md). INIT files are initiative hubs and can close; eval evidence that should remain discoverable after an INIT closes belongs here.
 
@@ -11,6 +11,7 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 - `intakes/TEMPLATE.md` - required structure for future intake records.
 - `fixtures/` - canonical home for public synthetic or reviewed redacted regression fixtures. Raw private fixtures stay outside git under `LAICA_PRIVATE_EVAL_DIR`.
 - `init-004-phase-2-rubric-dataset-spec.md` - INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec revised from Wilson's architecture decisions.
+- Non-V1 interaction seeds, such as Live Cooking speech arbitration, may be registered here when they need the same intake/registry discipline. These records do not automatically expand INIT-004's active V1 scope.
 
 Future implementation work may add:
 
@@ -54,6 +55,7 @@ When raw artifacts remain local or external, the registry and intake record shou
 - Link active initiative hubs, such as `INIT-004`, back to this registry instead of treating the INIT as the permanent dataset ledger.
 - Use PR descriptions and `docs/handoffs/` for point-in-time command output, branch status, local-only file paths, and review context.
 - Use feature phase docs, product decisions, or active Efforts when an eval finding changes product behavior, not only measurement.
+- Keep scope labels explicit. A speech or interaction eval seed can inform INIT-001 Phase 4 acceptance without becoming part of the active INIT-004 recipe/cooking-step eval harness.
 
 ## Practical Eval Loop
 

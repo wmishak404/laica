@@ -1,8 +1,8 @@
 # Evaluation Workflow
 
-This is the canonical operating model for Laica AI output-quality evaluations. It is intentionally outside any INIT so the discipline can evolve after individual initiatives close.
+This is the canonical operating model for Laica AI output-quality evaluations. It is intentionally outside any INIT so the discipline can evolve after individual initiatives close. The same registry/intake discipline can also hold explicitly scoped interaction-eval seeds, such as Live Cooking speech arbitration, when Wilson identifies a user-facing acceptance matrix before a formal harness exists.
 
-Use this workflow for recipe suggestions, pantry recipes, Slop Bowl outputs, cooking-step generation, future judge runs, human review batches, daily reports, prompt-candidate comparisons, and any other AI output-quality eval evidence.
+Use this workflow for recipe suggestions, pantry recipes, Slop Bowl outputs, cooking-step generation, future judge runs, human review batches, daily reports, prompt-candidate comparisons, and any other AI output-quality eval evidence. For non-AI interaction seeds, keep the surface and owning INIT explicit so the record does not silently expand an active eval phase.
 
 ## User-Expectation Rule
 
@@ -26,15 +26,16 @@ Use the same minimal evidence shape for eval artifacts and reports:
 
 1. **Register the evidence.** Every eval run, open-coding import, human review batch, judge run, daily report, or production/staged sample gets a stable row in [docs/evals/registry.md](../evals/registry.md). If it affects rubric, fixtures, metrics, reporting, or prompts, it also gets a normalized record under [docs/evals/intakes/](../evals/intakes/) using [docs/evals/intakes/TEMPLATE.md](../evals/intakes/TEMPLATE.md).
 2. **Normalize before interpreting.** Each intake record captures source summary, input schema, prompt/model/evaluator versions, sample size, positive definition, trend tags, raw artifact handling, privacy posture, metrics, failure clusters, positive examples worth preserving, fixture candidates, and open questions. Raw exports stay local/external unless a privacy/source decision explicitly allows committing them.
-3. **Start with human-readable failure taxonomy.** Use Wilson-labeled examples, open-coding clusters, platform eval exports, active Effort fixtures, and current app traces to name failure modes before writing broad metrics.
-4. **Name the protected user expectation.** For each fixture, judge, or report row, state the user promise being tested and the criterion that represents it. Examples: "a 30-minute request should not produce a 60-minute recipe," "beginner steps should not assume advanced technique," or "halal/keto restrictions override cuisine preference." If the fixture is only a contract guard, say so and do not present it as output-quality proof.
-5. **Implement deterministic checks first.** Schema/JSON validity, current response-shape fit, max-time adherence, required field presence, suggestion count, and obvious equipment/ingredient contract checks should run before any LLM judge.
-6. **Create criterion-level human labels.** Wilson-first labels are acceptable for v1, but labels must be per criterion rather than only "good" or "bad." Labels should connect back to the user expectation, including positive examples worth preserving so fixes do not over-correct useful pantry-first behavior into unnecessary shopping-list behavior.
-7. **Use narrow LLM judges only after rubric shape is clear.** Each judge should evaluate one criterion or tightly related criterion family. Broad aggregate judge scores are triage at best and should not become product-quality truth.
-8. **Calibrate judges against human labels.** Report observed judge pass rate, human label pass rate when available, TPR, TNR, corrected pass rate when the denominator is valid, confidence interval, sample size, prompt/model/evaluator versions, and negative scope. Until TPR/TNR exist, mark LLM-judge metrics as uncalibrated.
-9. **Run two evidence lanes.** Golden/regression fixtures protect known contracts in CI or scheduled automation. Production/staged sampling estimates real output quality only after privacy handling, source fields, and raw artifact policy are explicit.
-10. **Report compactly and routinely.** V1 reporting should be daily automation, not an admin dashboard. Reports should include criterion rates, calibration status, sample size, trend deltas, top clusters, fixture/report ids, privacy posture, and negative scope, and should be indexed through [docs/evals/registry.md](../evals/registry.md).
-11. **Turn failures into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
+3. **Start with user goal and value.** Name the user's goal, the value protected, the bad experience being prevented, and the smallest observable behavior that would prove the value is met. Do this before naming implementation hooks, mocks, or metric labels.
+4. **Start with human-readable failure taxonomy.** Use Wilson-labeled examples, open-coding clusters, platform eval exports, active Effort fixtures, and current app traces to name failure modes before writing broad metrics.
+5. **Name the protected user expectation.** For each fixture, judge, report row, or interaction seed, state the user promise being tested and the criterion that represents it. Examples: "a 30-minute request should not produce a 60-minute recipe," "beginner steps should not assume advanced technique," "halal/keto restrictions override cuisine preference," or "the cook hears only the currently visible step after pressing Next." If the fixture is only a contract guard, say so and do not present it as output-quality proof.
+6. **Implement deterministic checks first.** Schema/JSON validity, current response-shape fit, max-time adherence, required field presence, suggestion count, transcript/payload fidelity, action-state arbitration, and obvious equipment/ingredient contract checks should run before any LLM judge or subjective quality claim.
+7. **Create criterion-level human labels.** Wilson-first labels are acceptable for v1, but labels must be per criterion rather than only "good" or "bad." Labels should connect back to the user expectation, including positive examples worth preserving so fixes do not over-correct useful pantry-first behavior into unnecessary shopping-list behavior.
+8. **Use narrow LLM judges only after rubric shape is clear.** Each judge should evaluate one criterion or tightly related criterion family. Broad aggregate judge scores are triage at best and should not become product-quality truth.
+9. **Calibrate judges against human labels.** Report observed judge pass rate, human label pass rate when available, TPR, TNR, corrected pass rate when the denominator is valid, confidence interval, sample size, prompt/model/evaluator versions, and negative scope. Until TPR/TNR exist, mark LLM-judge metrics as uncalibrated.
+10. **Run two evidence lanes.** Golden/regression fixtures protect known contracts in CI or scheduled automation. Production/staged sampling estimates real output quality only after privacy handling, source fields, and raw artifact policy are explicit.
+11. **Report compactly and routinely.** V1 reporting should be daily automation, not an admin dashboard. Reports should include criterion rates, calibration status, sample size, trend deltas, top clusters, fixture/report ids, privacy posture, and negative scope, and should be indexed through [docs/evals/registry.md](../evals/registry.md).
+12. **Turn failures into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
 
 ## V1 Surfaces
 
@@ -44,6 +45,8 @@ Use the same minimal evidence shape for eval artifacts and reports:
 - Cooking-step generation for accepted recipes
 
 V1 does not cover provider outage handling, image generation quality, speech transcription/synthesis quality, dashboard UX, or automatic prompt activation.
+
+Speech or other interaction-eval records may still be registered outside INIT-004 V1 when they protect a concrete product acceptance boundary. Those records must name the owning INIT/phase and must not be treated as active INIT-004 harness scope unless Wilson explicitly opens that phase.
 
 ## Core Criteria Families
 
