@@ -2457,10 +2457,17 @@ html, body {
     min-height: 9.5rem;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     background:
       radial-gradient(circle at 50% 48%, hsl(0 0% 100% / 0.24), transparent 5rem),
       linear-gradient(180deg, hsl(31 61% 78%), hsl(30 54% 86%));
     padding: 1rem;
+  }
+
+  .planning-prep-hero[data-image-state='ready'] {
+    align-items: stretch;
+    height: 9.5rem;
+    padding: 0;
   }
 
   .planning-recipe-image-slot-prep {
@@ -2471,6 +2478,13 @@ html, body {
     background:
       radial-gradient(circle at 50% 24%, hsl(0 0% 100% / 0.66), transparent 4.8rem),
       hsl(var(--planning-ticket) / 0.72);
+  }
+
+  .planning-prep-hero[data-image-state='ready'] .planning-recipe-image-slot-prep {
+    flex: 1 1 100%;
+    height: auto;
+    width: 100%;
+    border-radius: 0;
   }
 
   .planning-recipe-image-slot-prep .planning-recipe-image-plate {

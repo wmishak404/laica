@@ -319,10 +319,24 @@ test.describe('Laica Guest E2E Smoke', () => {
     await page.getByRole('button', { name: 'View prep tray' }).click();
 
     await expect(page.getByRole('heading', { name: 'Soy Rice Breakfast Bowl' })).toBeVisible();
-    await expect(page.locator('.planning-prep-hero .planning-recipe-image')).toHaveCount(1);
-    expect(await page.locator('.planning-prep-hero .planning-recipe-image').evaluateAll((images) =>
+    const prepHero = page.locator('.planning-prep-hero');
+    const prepImageSlot = page.locator('.planning-prep-hero .planning-recipe-image-slot');
+    const prepImage = page.locator('.planning-prep-hero .planning-recipe-image');
+    await expect(prepHero).toHaveAttribute('data-image-state', 'ready');
+    await expect(prepImage).toHaveCount(1);
+    await expect(prepImage).toHaveCSS('object-fit', 'cover');
+    expect(await prepImage.evaluateAll((images) =>
       images.map((image) => image.getAttribute('src'))
     )).toEqual([imageUrl]);
+    const heroBox = await prepHero.boundingBox();
+    const imageSlotBox = await prepImageSlot.boundingBox();
+    expect(heroBox).not.toBeNull();
+    expect(imageSlotBox).not.toBeNull();
+    if (!heroBox || !imageSlotBox) throw new Error('Prep Tray preview image bounds were unavailable');
+    expect(Math.abs(imageSlotBox.x - heroBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(imageSlotBox.y - heroBox.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs(imageSlotBox.width - heroBox.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(imageSlotBox.height - heroBox.height)).toBeLessThanOrEqual(1);
     expect(pantryRoutes.getRequestCount()).toBe(1);
     expect(pantryRoutes.getImageResolverRequestCount()).toBe(1);
   });
