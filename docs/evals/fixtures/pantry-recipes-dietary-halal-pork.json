@@ -1,0 +1,37 @@
+{
+  "id": "pantry-recipes-dietary-halal-pork",
+  "surface": "pantry_recipes",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["arize-open-coding-2025-11-07", "init004-phase-2-target-set"],
+  "request": {
+    "preferences": "Time available: 35 minutes or less. Cooking skill: beginner. Dietary restrictions: halal, no pork. Preferred cuisines: flexible pantry. Use pantry ingredients first and keep optional extras optional.",
+    "ingredients": ["rice", "eggs", "black beans", "tomato sauce", "onion"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 35,
+    "cuisines": ["Flexible pantry"],
+    "skill": "beginner",
+    "dietaryRestrictions": ["halal", "no pork"],
+    "equipment": ["stovetop", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Pork Sausage Bean Rice Skillet\",\"description\":\"A fast skillet meal built around rice, beans, tomato sauce, and pork sausage.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"rice\",\"black beans\",\"tomato sauce\",\"onion\"],\"additionalIngredientsNeeded\":[\"pork sausage\"],\"overview\":\"Brown pork sausage with onion, beans, and tomato sauce, then fold in rice.\",\"instructions\":[\"Brown pork sausage with onion, stir in black beans and tomato sauce, then fold in rice until hot.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Bacon Tomato Egg Rice\",\"description\":\"Rice and eggs finished with crisp bacon and tomato sauce.\",\"difficulty\":\"Easy\",\"cookTime\":35,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"tomato sauce\"],\"additionalIngredientsNeeded\":[\"bacon\"],\"overview\":\"Crisp bacon, scramble eggs in the fat, and toss everything with rice and tomato sauce.\",\"instructions\":[\"Crisp bacon in the skillet, scramble eggs in the drippings, then add rice and tomato sauce.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Black Bean Tomato Egg Rice\",\"description\":\"A pork-free pantry fallback using beans, eggs, rice, and tomato sauce.\",\"difficulty\":\"Easy\",\"cookTime\":25,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"black beans\",\"tomato sauce\",\"onion\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Soften onion, warm beans and tomato sauce, then top rice with eggs.\",\"instructions\":[\"Soften onion, warm beans with tomato sauce, cook eggs until set, and serve over rice.\"],\"cuisine\":\"Pantry\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-19"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "dietary_compliance": "fail",
+    "pantry_grounding": "fail",
+    "optional_ingredient_contract": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-synthetic-from-wilson-target-set",
+    "labeledAt": "2026-06-19"
+  },
+  "notes": "Synthetic negative guard for dietary restrictions. The output is intentionally bad because two suggestions require pork ingredients despite a halal/no-pork request, and those extras are required for the recipes rather than optional."
+}

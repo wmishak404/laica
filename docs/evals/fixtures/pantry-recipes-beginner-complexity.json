@@ -1,0 +1,36 @@
+{
+  "id": "pantry-recipes-beginner-complexity",
+  "surface": "pantry_recipes",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["arize-open-coding-2025-11-07", "init004-phase-2-target-set"],
+  "request": {
+    "preferences": "Time available: 30 minutes or less. Cooking skill: beginner. Keep preparation simple and practical for a weeknight cook.",
+    "ingredients": ["rice", "eggs", "spinach", "soy sauce", "frozen peas"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 30,
+    "cuisines": ["Flexible pantry"],
+    "skill": "beginner",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Spinach Egg Rice Roulade\",\"description\":\"A thin egg sheet rolled around rice and spinach, then sliced cleanly.\",\"difficulty\":\"Easy\",\"cookTime\":35,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"spinach\",\"soy sauce\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Make a delicate omelet sheet, spread rice and spinach across it, then roll and slice into a roulade.\",\"instructions\":[\"Whisk eggs until foamy, cook a paper-thin sheet without browning, spread seasoned rice and spinach, roll tightly, and slice into even rounds.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Crisped Rice Egg Dumplings\",\"description\":\"Rice and egg dumplings shaped by hand and pan-crisped without falling apart.\",\"difficulty\":\"Easy\",\"cookTime\":40,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"frozen peas\",\"soy sauce\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Bind rice with egg, shape compact dumplings, and crisp each side while keeping the centers tender.\",\"instructions\":[\"Beat eggs into rice, fold in peas, form compact dumplings, sear each side, and adjust heat so the dumplings hold together without burning.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Silky Spinach Egg Custard Rice\",\"description\":\"A soft egg custard over rice that requires careful heat control.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"rice\",\"eggs\",\"spinach\",\"soy sauce\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Steam a smooth egg custard with spinach, then spoon it over rice.\",\"instructions\":[\"Temper beaten eggs with hot water, strain until smooth, steam gently until barely set, wilt spinach separately, and serve over rice.\"],\"cuisine\":\"Pantry\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-06-19"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "skill_fit": "fail",
+    "recipe_usefulness": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-synthetic-from-wilson-target-set",
+    "labeledAt": "2026-06-19"
+  },
+  "notes": "Synthetic negative guard for beginner skill fit. The output is intentionally too technique-heavy for a beginner request even though the shape and time checks pass."
+}

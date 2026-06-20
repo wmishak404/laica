@@ -11,6 +11,9 @@ Committed public fixture set:
 - `cooking-steps-missing-lid-alternative.json` - synthetic negative guard for cooking steps that assume a missing lid without an alternative.
 - `cooking-steps-raw-beef-doneness.json` - synthetic negative guard for raw-beef cooking steps that omit safe doneness cues.
 - `openai-max-time-25-to-30.json` - synthetic current-shape recipe-suggestion boundary pass for the accepted +15 minute max-time band.
+- `pantry-recipes-beginner-complexity.json` - synthetic negative guard for pantry recipe suggestions that are too technique-heavy for a beginner request.
+- `pantry-recipes-dietary-halal-pork.json` - synthetic negative guard for pantry recipe suggestions that violate halal / no-pork constraints.
+- `pantry-recipes-optional-extras-required.json` - synthetic negative guard for pantry recipe suggestions that make unavailable extras required instead of optional.
 - `slop-bowl-current-shape.json` - synthetic positive guard for the current Slop Bowl `{ recipe }` response contract.
 - `synthetic-max-time-30-to-60.json` - synthetic pantry-recipes true negative where one 60-minute suggestion exceeds a 30-minute request plus the +15 minute band.
 
@@ -27,6 +30,12 @@ When adding or materially changing fixtures, keep the fixture data readable and 
 - `Value claim`: Cooking-step evals should protect users from instructions that are structurally valid but unsafe, over-complex for the stated skill level, or dependent on unavailable equipment.
 - `Evidence`: `cooking-steps-raw-beef-doneness`, `cooking-steps-chicken-doneness`, and `cooking-steps-missing-lid-alternative` load as public synthetic fixtures and preserve resolved `food_safety`, `skill_fit`, `equipment_fit`, and `cooking_step_sequence` labels from the accepted target set.
 - `Evidence limits`: The current Vitest lane validates schema, privacy posture, structure, and label preservation only. It does not prove live model behavior, judge calibration, Wilson re-labeling of these exact synthetic outputs, taste, cuisine fit, or production cooking safety.
+
+2026-06-19 pantry-recipes user-expectation batch:
+
+- `Value claim`: Pantry recipe evals should protect users from suggestions that ignore dietary restrictions, depend on unavailable shopping-list ingredients, or ask for technique beyond the user's stated skill.
+- `Evidence`: `pantry-recipes-dietary-halal-pork`, `pantry-recipes-optional-extras-required`, and `pantry-recipes-beginner-complexity` load as public synthetic fixtures and preserve resolved `dietary_compliance`, `pantry_grounding`, `optional_ingredient_contract`, `skill_fit`, and `recipe_usefulness` labels from the accepted target-set direction.
+- `Evidence limits`: The current validation lane proves the public artifacts are schema-valid, privacy-safe, current-shape pantry recipe fixtures with preserved labels. It does not prove live model behavior, Wilson re-labeling of these exact synthetic outputs, LLM judge calibration, taste, cuisine fit, provider behavior, or private-gold coverage.
 
 Current harness commands:
 
