@@ -1,6 +1,6 @@
 # EFF-027 - Active workflow reload resilience
 
-**Status:** Open
+**Status:** Resolved
 **Priority:** High
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-06-18
@@ -106,7 +106,7 @@ PR #201 was rebased onto `origin/main` at `d42e3d115ab2296909d94974b46442013ce48
 
 Chrome/Replit validation was run without Replit Agent. The Replit workspace was switched non-destructively to `codex/eff-027-active-workflow-reload`; the pre-existing `.replit` local modification was left untouched. After pulling the current PR head, a live Chef It Up flow reached Ticket Pass and Prep Tray. Browser reload restored `Recipe suggestions from your pantry`, then restored the selected Prep Tray recipe. Explicitly backing out to Planning choices and reloading again stayed on `What are we cooking today?`.
 
-EFF-027 should remain open until PR #201 merges and the post-merge closeout flips the status to `Resolved`.
+PR #201 merged on 2026-06-18 as squash commit `d37a4dfd7e1b5456b6f76e75e2d2c5165aafcbd8`; this closeout flips EFF-027 to `Resolved`.
 
 ## 2026-06-18 - Explicit-exit dismissal guard
 
@@ -117,3 +117,11 @@ PR #201 now writes a scoped MealPlanning dismissal marker on explicit Back-to-Pl
 ## 2026-06-18 - Linked smoke custom-token harness note
 
 The final PR #201 linked browser smoke failures after the dismissal marker were test harness issues, not new product restore edges. Playwright's `page.addInitScript` persists across reloads, so the initial dev-auth script could reinsert an already-consumed Firebase custom token on later reloads and overwrite the fresh token queued for the final reload. After that was fixed, tokenless reloads still depended on CI Firebase-persistence timing. The smoke now marks the initial bootstrap in `sessionStorage`, queues a fresh dev-auth token before the Ticket Pass reload assertion, and keeps automated browser coverage on restore plus dismissal/session cleanup. Final reload suppression after explicit Back remains covered by focused unit tests and Chrome/Replit validation rather than the CI linked-auth reload.
+
+## 2026-06-18 - Resolved by PR #201 merge
+
+PR #201 merged into `main` on 2026-06-18 as squash commit `d37a4dfd7e1b5456b6f76e75e2d2c5165aafcbd8`. The merged slice satisfies EFF-027's resolution criteria for Chef It Up / MealPlanning: hard reloads restore valid active sessions within Wilson's 15-minute recovery window, explicit exits and cooking start write a scoped dismissal marker, stale-profile and expired sessions are rejected, and guest/linked paths have focused regression coverage.
+
+Validation evidence for the merged PR included local linked/guest/expiry/stale-profile/dismissal unit coverage, GitHub `unit`, `e2e_guest_smoke`, CodeQL, dependency audit, and TruffleHog checks on the final head `d598174b8c7b0e40c1aff127d4c47d5c7e289b30`, plus direct Chrome/Replit validation without Replit Agent at runtime head `2ee2ad95e1f27ac6ecc32e5993f6a81992ace73`. That Replit smoke restored Ticket Pass and Prep Tray after reload, then stayed on the Planning choice screen after explicit Back + reload.
+
+Remaining related product work is no longer EFF-027 follow-up. Future explicit Saved recipes belong in INIT-001 Phase 5 as a pre-cook bookmark surface adjacent to History, and any Slop Bowl or other active-flow restoration should be scoped as new INIT/phase work if Wilson pulls it forward.
