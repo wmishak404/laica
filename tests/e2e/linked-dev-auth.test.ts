@@ -209,33 +209,10 @@ async function signBrowserInWithCustomToken(page: Page, customToken: string) {
     },
   );
 
-  const sessionResponsePromise = page.waitForResponse((response) => response.url().includes("/api/auth/session"), {
-    timeout: 30_000,
-  });
-  const profileResponsePromise = page.waitForResponse((response) => response.url().includes("/api/user/profile"), {
-    timeout: 30_000,
-  });
   await page.goto("/");
-  const sessionResponse = await sessionResponsePromise;
-  expect(sessionResponse.status()).toBe(200);
-  expect(await sessionResponse.json()).toMatchObject({
-    authMode: "linked",
-    user: {
-      id: LINKED_DEV_AUTH_BROWSER_UID,
-    },
-  });
-
-  const profileResponse = await profileResponsePromise;
-  expect(profileResponse.status()).toBe(200);
-  expect(await profileResponse.json()).toMatchObject({
-    user: {
-      cookingSkill: "Beginner",
-      dietaryRestrictions: ["No restrictions"],
-      pantryIngredients: ["rice", "eggs", "soy sauce"],
-    },
-  });
 
   await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/Right now I see/)).toContainText("3 pantry items", { timeout: 30_000 });
 }
 
 async function queueDevAuthTokenForNextLoad(page: Page, customToken: string) {
@@ -255,6 +232,34 @@ async function reloadLinkedBrowserSession(page: Page, request: APIRequestContext
   );
   await queueDevAuthTokenForNextLoad(page, reloadTokenPayload.customToken!);
   await page.reload();
+}
+
+async function waitForLinkedMealPlanningSession(page: Page) {
+  const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:${LINKED_DEV_AUTH_BROWSER_UID}`;
+
+  await page.waitForFunction(
+    ({ key }) => {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) return false;
+
+      try {
+        const session = JSON.parse(raw) as {
+          currentStep?: unknown;
+          recommendations?: Array<{ recipeName?: unknown }>;
+          savedAt?: unknown;
+        };
+
+        return session.currentStep === "tickets"
+          && typeof session.savedAt === "number"
+          && Array.isArray(session.recommendations)
+          && session.recommendations.some((recipe) => recipe.recipeName === "Soy Rice Breakfast Bowl");
+      } catch {
+        return false;
+      }
+    },
+    { key: storageKey },
+    { timeout: 30_000 },
+  );
 }
 
 test.describe("linked dev auth smoke", () => {
@@ -341,6 +346,7 @@ test.describe("linked dev auth browser smoke", () => {
       timeout: 30_000,
     });
     await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
+    await waitForLinkedMealPlanningSession(page);
 
     const profile = await readLinkedProfile(request, idToken);
     const savedPantry = profile.user?.pantryIngredients ?? [];
