@@ -1199,6 +1199,12 @@ export default function MealPlanning({
     const selectedMealWithPrepImage = selectedPrepTrayImageUrl
       ? { ...selectedMeal, imageUrl: selectedPrepTrayImageUrl }
       : selectedMeal;
+    let prepTrayImageState: 'ready' | 'pending' | 'placeholder' = 'placeholder';
+    if (selectedMealWithPrepImage.imageUrl) {
+      prepTrayImageState = 'ready';
+    } else if (isSelectedRecipeImagePending) {
+      prepTrayImageState = 'pending';
+    }
 
     return (
       <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
@@ -1208,7 +1214,7 @@ export default function MealPlanning({
 
         {/* design:tone-override — Prep Tray is the Phase 3 tactile ticket-detail object, not a generic recipe card. */}
         <div className="planning-prep-tray">
-          <div className="planning-prep-hero">
+          <div className="planning-prep-hero" data-image-state={prepTrayImageState}>
             {renderRecipeImageSlot(selectedMealWithPrepImage, 'prep', isSelectedRecipeImagePending)}
           </div>
           <div className="planning-prep-body">
