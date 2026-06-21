@@ -352,8 +352,8 @@ test.describe('Laica Guest E2E Smoke', () => {
     await page.getByRole('button', { name: 'View recipe suggestions' }).click();
     const pantryResponse = await pantryResponsePromise;
 
-    await expect(page.getByText('Sign up to unlock more recipes')).toBeVisible();
-    await expect(page.getByText('Sign up before making more recipes.')).toBeVisible();
+    await expect(page.getByText('Sign up to unlock more recipes', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Sign up before making more recipes.', { exact: true }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: 'View recipe suggestions' })).toBeVisible();
 
     expect(await pantryResponse.json()).toEqual(expect.objectContaining({
