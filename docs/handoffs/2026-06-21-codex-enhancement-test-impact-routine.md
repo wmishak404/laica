@@ -30,7 +30,8 @@ This branch does not touch production deployment, Replit publish, production sec
 
 ## Verification
 
-- Pending: `git diff --check`.
+- `git diff --check` passed locally before commit.
+- PR #215 GitHub checks passed on initial head `912992aaf34ca2ea544a285b04c3edc25cb5c656`: `unit`, `e2e_guest_smoke`, CodeQL, npm audit, and TruffleHog.
 - Replit validation: not required; docs/process-only change with no runtime, provider, deployment, schema, product, or secret changes.
 
 ## Stack / base status
