@@ -14,6 +14,10 @@ Wilson reported that production failed to recognize an oyster photo and returned
 
 - `docs/handoffs/2026-06-21-codex-prod-vision-scan-investigation-blocked.md`
   - Records the production/development discrepancy, public prod artifact evidence, local source analysis, and the smallest Replit-side checks needed to confirm root cause.
+- `docs/workflows/replit-validation-focus.md`
+  - Adds the repeatable production publish validation routine with exact-head automation, Replit workspace checks, live-provider canaries, post-publish smoke, and confidence reporting.
+- `docs/workflows/testing-and-acceptance.md`
+  - Links the production publish routine from the release validation flow.
 
 No app code was changed in this investigation pass.
 
@@ -72,7 +76,7 @@ This was an investigation-only branch. Verification was limited to public produc
 
 ## Stack / base status
 
-- Base refreshed: yes
-- Current base: `origin/main` at `762488e`
+- Base refreshed: yes, rebased onto fresh `origin/main` during merge prep and again after PR #208 merged
+- Current base: `origin/main` at `3c73ddad128c583344e46e65fd89dbbb96a51374`
 - Last Replit-validated at: not applicable; investigation blocked on Replit/prod evidence
-- Notes: Production public assets appear to be from a June 6 deployment window, while current `origin/main` is June 19.
+- Notes: Production public assets appear to be from a June 6 deployment window, while current `origin/main` is materially newer. A separate production-validation thread was started from fresh `origin/main` to run the pre-publish checks; production publish still requires Wilson's explicit release action.
