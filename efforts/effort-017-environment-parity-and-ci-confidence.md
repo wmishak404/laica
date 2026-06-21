@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-10
+**Updated:** 2026-06-21
 
 ## One-line summary
 
@@ -675,3 +675,16 @@ PR #191 release-blocker triage ran `tests/e2e/accessibility-guardrail.test.ts` f
 Follow-up branch `codex/e2e-release-blockers` fixes the landing auth controls by keeping their entrance motion full-opacity and adding high-contrast landing Button variants for the guest and Google actions. The targeted guardrail then passed locally.
 
 EFF-017 implication: the accessibility guardrail is useful release evidence because it caught an actual user-visible regression on the public entry surface. It should remain part of the routine E2E gate, but a passing targeted a11y guardrail does not replace the exact-head full `e2e_guest_smoke` requirement for implementation PRs.
+
+## 2026-06-21 — PR #212 release-gate hardening followed the exact-head rule
+
+PR #212 merged as `103f26cfd6087631d0591fe191739c6c8b3c8af9` after documenting the production vision-scan incident, adding the production publish validation routine, and hardening the E2E harness that blocked the release-gate docs PR.
+
+Useful EFF-017 signal:
+
+- The oyster/vision incident reinforced that provider and deployment-secret checks need a production/release lane. Routine CI should keep provider-heavy work out of the default gate, while release validation should include masked env-presence checks and a live OpenAI vision canary when production vision behavior is in scope.
+- A docs-only workflow PR can still be blocked by the exact-head E2E gate when the protected base changes. PR #212 first passed on head `aed34ebfd58e39c6e5a88a5fda0e8e5ab10ce246`, then became stale when PR #213 moved `origin/main` to `8a4e263f10b3e1174a9756c8112fba227daff0d0`.
+- The first merge attempt failed with required checks still expected because the branch was no longer current with the protected base. Rebasing onto fresh `origin/main`, pushing `d83068e2038a6abcacd4eea40af0c77bea382f8f`, and waiting for CI/typecheck/unit/E2E, TruffleHog, and dependency audit to pass made the evidence current again.
+- The harness fix stayed in PR #212 because the observed failures were release-gate reliability issues in the same required lane: linked dev-auth reload/session timing and a quota-toast selector matching both visible toast copy and the Radix live-region mirror. Keeping that fix with the release-routine PR preserved one evidence chain instead of splitting the blocker into a separate PR with stale context.
+
+This does not close EFF-017. It adds confidence in the current exact-head CI/E2E merge gate and gives future agents a concrete example of why rebasing after lower-stack or closeout merges is not bookkeeping; it changes which commit the automated evidence actually covers.
