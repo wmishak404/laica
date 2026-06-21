@@ -32,6 +32,13 @@ Public production fetches run locally on 2026-06-21:
 - `curl -i -X POST https://cookwithlaica.com/api/vision/analyze -H 'Content-Type: application/json' --data '{"image":"not-image"}'` without auth returned `401 {"message":"Unauthorized"}`, proving unauthenticated access is rejected as an access-control response, not as the observed `500`.
 - The production JS bundle contains the client paths for `X-Firebase-AppCheck`, `X-Laica-Scan-Type`, `TEXT_ONLY_DOCUMENT`, and `/api/vision/analyze`, so the deployed client has the expected request plumbing for this era.
 
+Wilson HAR attachment received after the first pass:
+
+- Entry 0: `POST https://cookwithlaica.com/api/vision/analyze` started `2026-06-21T06:50:40.592Z`, body size `157143`, `x-firebase-appcheck` present, `x-laica-scan-type: pantry`, status `500`, response content length `35`, `x-ratelimit-limit: 40`, `x-ratelimit-remaining: 37`, `x-cloud-trace-context: a5ff347c1d942ac9d975ceca13a915c3;o=1`.
+- Entry 1: `POST https://cookwithlaica.com/api/vision/analyze` started `2026-06-21T06:53:57.624Z`, body size `220899`, `x-firebase-appcheck` present, `x-laica-scan-type: pantry`, status `500`, response content length `35`, `x-ratelimit-limit: 40`, `x-ratelimit-remaining: 39`, `x-cloud-trace-context: bcb4366d7854cbc5758f8a0e3dca729a;o=1`.
+- The HAR export did not include an `Authorization` request header. Do not treat that absence alone as proof the browser omitted auth: the response was `500`, while a local unauthenticated production probe returned `401`, so Chrome/WebInspector may have omitted or redacted the auth header from the pasted export.
+- The two body sizes are far below the route's JSON/parser and decoded-image limits. Rate-limit headers show the vision quota path allowed the requests and left quota remaining.
+
 Source evidence at likely production-era `ba924d6`:
 
 - `server/routes.ts` routes `/api/vision/analyze` through `isAuthenticated`, body/base64 validation, image size validation, `consumeVisionImageRateLimits`, optional HEIC conversion, then `analyzeIngredientImage`.
@@ -51,6 +58,7 @@ Because Replit dev recognized the same image correctly, the image itself and the
 Blocked on one of these Replit/production-side facts:
 
 - Production deployment logs around the failed `POST /api/vision/analyze`, especially lines beginning `Error analyzing ingredient image:` or `Error in image analysis:`.
+- Search by the HAR trace contexts if available: `a5ff347c1d942ac9d975ceca13a915c3` and `bcb4366d7854cbc5758f8a0e3dca729a`. If trace search is unavailable, search the UTC windows around `2026-06-21T06:50:40Z` and `2026-06-21T06:53:57Z`.
 - Masked secret presence check in the production Deployment environment: print only whether `OPENAI_API_KEY` is `set` or `MISSING`; never print the value.
 - Confirm the exact production deployment code SHA/release corresponding to the June 6 asset.
 - After any secret fix or redeploy, rerun the same oyster scan in production and confirm the endpoint returns `200` with detected ingredients.
