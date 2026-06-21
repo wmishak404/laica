@@ -6,16 +6,6 @@ Follow [operating-principles.md](operating-principles.md): evidence first, no un
 
 This workflow defines how agents decide whether a Laica change is ready to merge, where acceptance criteria live, and how validation evidence is recorded.
 
-## Plain-English Rule
-
-Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether human manual Replit validation is required before merge, deferred to a release/batch pass, or replaced by an accepted automated Replit-environment lane.
-
-For user-facing behavior, verification should also say which user expectation is being protected. Passing structure checks, snapshots, route contracts, or eval harness plumbing is not enough on its own; the evidence should connect back to what becomes better, safer, clearer, faster, less confusing, or more reliable for the user. If a test only proves infrastructure readiness, call it that and name the missing user-expectation check.
-
-The minimal evidence rule is: no claim without evidence, no evidence without a claim, and always name the limit. Use `Value claim`, `Evidence`, and `Evidence limits` for PR bodies, handoffs, eval reports, and future test-case summaries. For docs-only, process, cleanup, or system-maintenance work, the value claim may be operator, reviewer, future-agent, or risk-reduction value rather than direct customer behavior.
-
-For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
-
 ## Validation Flow At A Glance
 
 ```mermaid
@@ -53,6 +43,29 @@ For a plain-English inventory of each environment, database, auth path, and best
 
 For the repeatable pre-production and post-publish checklist, including confidence-level reporting by automation, Replit, live-provider, and production-smoke lane, use [replit-validation-focus.md](replit-validation-focus.md#production-publish-validation-routine).
 
+## Default Validation Matrix
+
+Use this as the quick-start summary for routine validation scope. The detailed sections below define the evidence, risk-lane, and Replit/prod rules behind each row.
+
+| Change type | Minimum local checks | Replit validation |
+|---|---|---|
+| Docs-only | `git diff --check` | Not required |
+| Pure frontend copy/layout with no service behavior | `npm run check`, `npm run build` when practical; targeted visual/manual review | Human Replit only if deployment-bound visuals/auth-gated flows need live inspection; otherwise record visual negative scope |
+| Client logic or shared user-flow state | `npm run check`, `npm run build`, targeted Vitest/Playwright when existing coverage matches | Human Replit before merge only when the risk lane requires real auth, persistence, AI, speech, mobile/browser, or human judgement; otherwise defer to release/batch if relevant |
+| Server route, shared schema, auth, DB, AI, speech, or feedback writes | `npm run check`, `npm run build`, targeted tests plus automated E2E gate when applicable | Human Replit before merge only for high-risk or uncovered service seams; low-risk route-boundary patches may use automation-primary or batched release validation with risk notes |
+| DB schema or migration workflow | Local static/build checks plus schema review | Usually manual or automated Replit-environment validation before merge/release; coordinate schema push through the Replit-authoritative path unless disposable CI schema evidence fully covers the PR claim |
+| Workflow/process docs | `git diff --check` and link/reference search | Not required |
+
+## Plain-English Rule
+
+Every change should say what it was expected to prove, what was actually checked, what remains unvalidated, and whether human manual Replit validation is required before merge, deferred to a release/batch pass, or replaced by an accepted automated Replit-environment lane.
+
+For user-facing behavior, verification should also say which user expectation is being protected. Passing structure checks, snapshots, route contracts, or eval harness plumbing is not enough on its own; the evidence should connect back to what becomes better, safer, clearer, faster, less confusing, or more reliable for the user. If a test only proves infrastructure readiness, call it that and name the missing user-expectation check.
+
+The minimal evidence rule is: no claim without evidence, no evidence without a claim, and always name the limit. Use `Value claim`, `Evidence`, and `Evidence limits` for PR bodies, handoffs, eval reports, and future test-case summaries. For docs-only, process, cleanup, or system-maintenance work, the value claim may be operator, reviewer, future-agent, or risk-reduction value rather than direct customer behavior.
+
+For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
+
 ## Automation Evidence Gate
 
 When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."
@@ -86,10 +99,11 @@ Minimum routine:
 
 1. **Name the changed behavior surface.** Identify the user, operator, provider, auth, persistence, workflow, or reviewer promise that changed. Do not use a file list as the behavior description.
 2. **Map the surface to existing coverage.** Cite the exact unit, Playwright, route-contract, CI, eval, canary, Replit, or manual lane that already exercises it. If the current tests only cover an adjacent path, say so.
-3. **Update tests in the same PR when behavior changed and deterministic automation is practical.** Prefer the smallest stable assertion that proves the new or corrected contract. For bugs, add regression coverage when the failure is locally deterministic.
+3. **Update tests in the same PR when behavior changed and deterministic automation is practical.** Prefer the smallest stable assertion that proves the new or corrected contract. For bugs, add regression coverage when the failure is locally deterministic. For enhancements, update the affected test case, fixture, smoke checklist, or release validation note in the same PR unless the change is explicitly docs-only or the behavior is intentionally human/Replit-only.
 4. **Choose the honest lane for anything not automated.** Use the smallest named lane: mocked unit/component coverage, forced-response Playwright smoke, exact-head GitHub `e2e_guest_smoke`, OAuth-start/config preflight, live-provider canary, automated Replit-environment gate, Replit human validation, release/batch validation, or explicit deferral. Provider/Replit/prod-only behavior should become a canary or release check rather than an overclaimed local test.
 5. **Keep harness changes durable.** E2E fixes should prefer user-visible state or durable app state over response timing, use role-based exact/scoped selectors, wait for persistence before reload/navigation, and classify flakes as app bug, harness timing, data/env drift, or provider issue.
 6. **Refresh exact-head evidence.** After the final push intended for review or merge, ensure the required CI/E2E gate has passed for that head. If `origin/main` moves in a way that makes the branch non-current, or any new commit lands after validation, rebase or merge the current base as appropriate, push, and rerun the relevant checks before merge.
+7. **Prune obsolete coverage instead of carrying test bloat.** When a feature, route, screen, fixture, or workflow is removed or no longer user-visible, remove or rewrite tests that only preserve the obsolete path. Do not keep deprecated behavior as a release smoke item unless the product still supports it.
 
 Record the result in the PR body and handoff, not in a new durable doc for every feature. Update this workflow, an Effort, INIT, PD, or phase record only when the work changes future validation rules, exposes a reusable bug lesson, or adds/removes a validation lane.
 
@@ -144,6 +158,11 @@ Use visible reasoning and provenance. A good validation note says: "This case is
 When asked for an app-wide test pass, separate "all existing automated tests" from "all app functions mapped to documented specs." The first is a command; the second is a coverage audit. A true app-wide coverage audit should enumerate the documented product functions, cite their source docs, map each function to local/Replit/human checks, and identify missing specs or stale tests.
 
 If a case is important enough to list and can be automated safely in the current branch, add the test. If it cannot be automated safely, mark the human/Replit dependency explicitly instead of implying confidence.
+
+Test inventory hygiene:
+- Keep recurring smoke lists aligned with supported, user-visible product surfaces. Do not keep validating hidden, deprecated, or removed flows because an old checklist mentions them.
+- When an enhancement changes a supported surface, update the relevant local test, fixture, manual smoke case, or release checklist in the same branch. If no update is practical, name the exact deferral and the smallest future validation lane.
+- When a feature is removed, retired, hidden from users, or folded into another workflow, remove its stale test cases or relabel them as historical notes. Release smoke should protect current product promises, not old implementation paths.
 
 ## Standard Local Automation Commands
 
@@ -252,17 +271,6 @@ When a change touches browser-local state, client caches, or persisted in-progre
 | Docs-only workflow PR auto-merge authority | [`docs/workflows/agent-merge-authority.md`](agent-merge-authority.md) |
 
 Do not use an Effort file as the long-term ledger for every feature's validation history.
-
-## Default Validation Matrix
-
-| Change type | Minimum local checks | Replit validation |
-|---|---|---|
-| Docs-only | `git diff --check` | Not required |
-| Pure frontend copy/layout with no service behavior | `npm run check`, `npm run build` when practical; targeted visual/manual review | Human Replit only if deployment-bound visuals/auth-gated flows need live inspection; otherwise record visual negative scope |
-| Client logic or shared user-flow state | `npm run check`, `npm run build`, targeted Vitest/Playwright when existing coverage matches | Human Replit before merge only when the risk lane requires real auth, persistence, AI, speech, mobile/browser, or human judgement; otherwise defer to release/batch if relevant |
-| Server route, shared schema, auth, DB, AI, speech, or feedback writes | `npm run check`, `npm run build`, targeted tests plus automated E2E gate when applicable | Human Replit before merge only for high-risk or uncovered service seams; low-risk route-boundary patches may use automation-primary or batched release validation with risk notes |
-| DB schema or migration workflow | Local static/build checks plus schema review | Usually manual or automated Replit-environment validation before merge/release; coordinate schema push through the Replit-authoritative path unless disposable CI schema evidence fully covers the PR claim |
-| Workflow/process docs | `git diff --check` and link/reference search | Not required |
 
 ## Feature Impact Review
 

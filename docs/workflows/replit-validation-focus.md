@@ -84,7 +84,32 @@ Do not use Replit Agent for this routine unless Wilson explicitly approves it. P
 - Confirm no release-relevant PR, docs closeout, or migration branch is still expected to merge first.
 - If any commit lands after validation starts, mark previous validation stale for the affected surfaces and rerun the relevant checks.
 
-### 2) Automated Evidence To Trust First
+### 2) Select The Smoke Scope
+
+Production readiness is not "test everything under the sun" by default. Use **baseline core smoke + focused smoke + explicit gaps**.
+
+Baseline core smoke runs for every production publish because these are core user/provider surfaces:
+
+- Production app load on the custom domain.
+- Firebase sign-in/profile load.
+- Pantry image scan.
+- Chef It Up recipe suggestions.
+- Slop It Up / Slop Bowl generation.
+- Prep Tray open and selected image render.
+- `Cook this` into cooking steps/session start.
+- ElevenLabs-backed speech.
+- Feedback write.
+
+Focused smoke adds the release-specific cases that are most likely to fail:
+
+1. **Changed since the last production push.** Review the commits/PRs merged after the last production-smoked SHA, or after the last known production publish if the smoked SHA is unknown. Select every user-visible, provider, auth, DB, deployment, or workflow surface those changes touched. Name these as `changed-since-last-prod focused smoke` in the validation summary.
+2. **Risk-triggered seams.** Add any route or flow affected by secrets, provider keys, deployment config, DB/schema, auth/session, file uploads, caching, workflow restore, speech/audio, generated media, security headers, or prior weak/skipped evidence.
+3. **Recent production failures or Wilson concerns.** Add the exact failed surface even if the current code change is adjacent rather than direct. The June 2026 production vision failure means production publish validation should include a live vision pantry scan until the secret-propagation lesson is no longer active risk.
+4. **Enhancement test-impact review output.** If a PR records a deferred manual/release check, include that case in the next release batch unless a later PR replaced it with accepted automation.
+
+If Wilson asks for a **full regression**, do not imply the baseline smoke is full coverage. A full regression should deliberately enumerate supported user-visible product areas and then run or assign them, including at minimum: setup/onboarding, guest path, Google sign-in/linking, Settings inventory/profile edits, pantry/kitchen scan and manual entry, Chef It Up, Slop Bowl, Prep Tray image generation, Live Cooking, speech ask/repeat/mute behavior, History, feedback, auth/session reload/restore, and relevant mobile/desktop viewport checks. Remove hidden, retired, or unsupported flows from this list rather than preserving checklist bloat.
+
+### 3) Automated Evidence To Trust First
 
 Run or confirm these against the exact SHA. If a check is already green on GitHub for that SHA, use the GitHub run as evidence instead of repeating it manually unless debugging is needed.
 
@@ -100,7 +125,7 @@ Run or confirm these against the exact SHA. If a check is already green on GitHu
 
 If an automated lane is skipped, pending, stale, or unavailable, report it as `Blocked` or `Low confidence`; do not convert it into a pass through a manual smoke.
 
-### 3) Replit Workspace Pre-Publish Validation
+### 4) Replit Workspace Pre-Publish Validation
 
 Run this after automation is green or after recording the exact automation gap. The goal is to prove Replit-specific runtime seams before publishing.
 
@@ -121,6 +146,7 @@ Run this after automation is green or after recording the exact automation gap. 
    - Pantry/Settings persistence: add, delete, save, reload, and verify state only if Settings/profile/inventory changed or was recently risky.
    - Vision pantry scan: upload a known food image and confirm the server returns recognized ingredients. After the June 2026 production incident, include a live OpenAI-backed image canary whenever provider secrets or production publish readiness are in scope.
    - Recipe suggestion flow: pantry -> Chef It Up -> recipe suggestions -> Ticket Pass/Prep Tray -> Live Cooking entry.
+   - Slop Bowl flow: Slop It Up -> generated bowl -> any supported feedback/regenerate path -> handoff into cooking when it is part of the selected baseline or focused smoke scope.
    - Cooking persistence: reload/remount during Ticket Pass or Live Cooking and confirm the active workflow restores when the release batch touched workflow state, auth bootstrap, persistence, or routing.
    - ElevenLabs speech: generate or play speech on Replit when speech routes, provider config, or release-critical cooking assistance are in scope.
    - Feedback write: submit feedback and confirm success when feedback, auth, DB writes, or admin review surfaces changed.
@@ -128,17 +154,19 @@ Run this after automation is green or after recording the exact automation gap. 
 
 For each selected flow, record the user-visible result, route status/response body where relevant, and console/server-log errors. Do not preserve raw images, audio, auth tokens, provider payloads, or secret diagnostics in public docs.
 
-### 4) Publish And Post-Publish Smoke
+### 5) Publish And Post-Publish Smoke
 
 Only publish after Wilson explicitly instructs production publish or confirms the release action. After publishing:
 
 1. Open the production custom domain and confirm it serves the new build, not the previous snapshot. Use a non-secret build marker, asset hash, response header, or `last-modified` evidence.
 2. Confirm production auth can start on the custom domain and that the browser origin is accepted by Firebase.
-3. Run one release-critical live provider canary. For current production readiness, prioritize the vision pantry scan with the known food image because it proves the rotated OpenAI key reached the deployed environment.
-4. If the release batch touched speech, run one ElevenLabs-backed speech route.
-5. If the release batch touched DB/schema/persistence, complete one production-safe create/read/update path using synthetic or disposable data and verify no schema/runtime errors appear.
-6. Check production browser console and server logs around the smoke window for new errors.
-7. Record `Last Replit-validated at: <sha>` and `Last production-smoked at: <sha>` in the handoff or release note.
+3. Run the baseline core smoke selected above unless Wilson explicitly narrows the smoke and accepts the named gaps.
+4. Run every `changed-since-last-prod focused smoke` case selected above.
+5. Run one release-critical live provider canary. For current production readiness, prioritize the vision pantry scan with the known food image because it proves the rotated OpenAI key reached the deployed environment.
+6. If the release batch touched speech, run one ElevenLabs-backed speech route.
+7. If the release batch touched DB/schema/persistence, complete one production-safe create/read/update path using synthetic or disposable data and verify no schema/runtime errors appear.
+8. Check production browser console and server logs around the smoke window for new errors.
+9. Record `Last Replit-validated at: <sha>` and `Last production-smoked at: <sha>` in the handoff or release note.
 
 ### Confidence Report
 
@@ -149,7 +177,8 @@ Every production-push validation summary should include this table. Assign confi
 | Exact-head automation | High / Medium / Low / Blocked | Commands or GitHub checks with SHA. | Name skipped, stale, mocked, provider-light, or environment-light coverage. |
 | Replit workspace smoke | High / Medium / Low / Blocked | Shell/browser steps, SHA, selected flows, observed route/UI results. | Name flows not selected and seams still only proved in prod. |
 | Live provider canaries | High / Medium / Low / Blocked | Vision/OpenAI, ElevenLabs, OAuth, or other live-provider evidence. | Name provider quality limits, sample size, and any secrets not verified present. |
-| Post-publish production smoke | High / Medium / Low / Blocked | Production domain, build marker, selected live flows, logs. | Name any smoke skipped because publish was not yet approved or because a dependency was unavailable. |
+| Smoke scope selection | High / Medium / Low / Blocked | Baseline core smoke, changed-since-last-prod focused smoke, risk adds, full-regression request status. | Name any core flow intentionally skipped, any stale/deprecated case removed, and any unsupported flow kept out of scope. |
+| Post-publish production smoke | High / Medium / Low / Blocked | Production domain, build marker, selected live flows, logs. | Name any smoke skipped because publish was not yet approved, because a dependency was unavailable, or because Wilson narrowed the smoke. |
 | Overall release confidence | High / Medium / Low / Blocked | Short rationale from the lane results. | Smallest next action to raise confidence. |
 
 Use these meanings consistently:
