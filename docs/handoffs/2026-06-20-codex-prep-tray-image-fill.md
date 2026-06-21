@@ -27,7 +27,7 @@ PD-005 / `design_guidelines.md` interaction: conforms. The existing Prep Tray to
 ## Open items
 
 - Replit or CI Playwright should still exercise the new geometry assertion in an environment with a current schema. Local Playwright did not reach the changed code because the decrypted local DB is missing `anonymous_recipe_usage`.
-- Human/Replit visual smoke can compare the ready Prep Tray image against Wilson's screenshot target: the image should occupy the full upper hero panel above details.
+- Full PR merge readiness still needs the branch rebased onto current `origin/main`, then ready-for-review CI. The primary Replit visual ask passed before that rebase.
 
 ## Verification
 
@@ -39,6 +39,7 @@ Passed locally:
 - `npm run build`
 - `git diff --check`
 - Database-free rendered-CSS Chromium geometry check against built CSS — ready Prep Tray hero and image slot both measured `390 x 152` with `object-fit: cover`
+- Wilson Replit visual smoke on 2026-06-21 at `fb14852bc50a7028a011d24b9135109e0bc0f151` accepted the primary ask: the ready selected recipe image occupies the full upper Prep Tray panel above the details, with readable recipe details and CTA below.
 
 Attempted but not claimed:
 
@@ -49,6 +50,6 @@ Attempted but not claimed:
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `104ee0cfc2ecb77bc7129cc64c91b1a08e8f06d1`
-- Last Replit-validated at: not yet validated
-- Notes: branch starts from current `origin/main`; no lower-stack branch dependency.
+- Current base: `origin/main` at `1148533fe42b52da266bd09b4772ed0e76743638`
+- Last Replit-validated at: `fb14852bc50a7028a011d24b9135109e0bc0f151` for the primary visual ask
+- Notes: branch starts from `origin/main`; no lower-stack branch dependency. `origin/main` advanced after this validation, so exact-head merge readiness still needs a rebase and CI. If the rebase is docs-only/runtime-identical for this surface, use the validation as targeted visual signal rather than broad release validation.

@@ -307,6 +307,7 @@ Validation:
 - `npm run build`
 - `git diff --check`
 - Database-free rendered-CSS Chromium geometry check against the built CSS: ready Prep Tray hero and image slot both measured `390 x 152` with `object-fit: cover`.
+- Wilson Replit visual smoke on 2026-06-21 at `fb14852bc50a7028a011d24b9135109e0bc0f151` accepted the primary visual ask: the ready selected recipe image fills the upper Prep Tray panel above the recipe details, with the details and Cook CTA still readable below.
 
 Targeted local Playwright was attempted with `CI=true PORT=5012 PLAYWRIGHT_BASE_URL=http://127.0.0.1:5012 npm run env:run -- npx playwright test tests/e2e/cooking-workflow.test.ts --project=chromium -g "selected recipe preview imagery"`. The first sandboxed run failed before the app started because `tsx` could not create its IPC socket. The escalated rerun started the app but still failed before image-specific assertions because the decrypted local DB lacks `anonymous_recipe_usage`; guest setup never reached Ticket Pass or Prep Tray. No shared local schema push was run. The added Playwright assertion remains useful for CI/sandbox DB lanes because it checks the ready Prep Tray image slot bounds against the hero bounds.
 
