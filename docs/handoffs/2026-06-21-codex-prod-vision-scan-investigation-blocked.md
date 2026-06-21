@@ -8,7 +8,7 @@
 
 ## Summary
 
-Wilson reported that production failed to recognize an oyster photo and returned `POST https://cookwithlaica.com/api/vision/analyze 500`, while Replit dev recognized the same image as oysters, garlic butter, and herbs. Local/public evidence points away from client-side food recognition and away from access-control denial. The production request reached the server and failed inside or after the vision analysis route, most likely at the OpenAI/provider/config boundary, but the exact cause is blocked on production server logs or a masked production Deployment secret check.
+Wilson reported that production failed to recognize an oyster photo and returned `POST https://cookwithlaica.com/api/vision/analyze 500`, while Replit dev recognized the same image as oysters, garlic butter, and herbs. Local/public evidence points away from client-side food recognition and away from access-control denial. The production request reached the server and failed inside or after the vision analysis route, most likely at the OpenAI/provider/config boundary. Wilson then identified the likely operational cause: the OpenAI API key had been rotated after a prior shell exposure during image-generation work, but production Deployment secrets were not updated with the replacement key.
 
 ## Changes
 
@@ -38,6 +38,7 @@ Wilson HAR attachment received after the first pass:
 - Entry 1: `POST https://cookwithlaica.com/api/vision/analyze` started `2026-06-21T06:53:57.624Z`, body size `220899`, `x-firebase-appcheck` present, `x-laica-scan-type: pantry`, status `500`, response content length `35`, `x-ratelimit-limit: 40`, `x-ratelimit-remaining: 39`, `x-cloud-trace-context: bcb4366d7854cbc5758f8a0e3dca729a;o=1`.
 - The HAR export did not include an `Authorization` request header. Do not treat that absence alone as proof the browser omitted auth: the response was `500`, while a local unauthenticated production probe returned `401`, so Chrome/WebInspector may have omitted or redacted the auth header from the pasted export.
 - The two body sizes are far below the route's JSON/parser and decoded-image limits. Rate-limit headers show the vision quota path allowed the requests and left quota remaining.
+- Wilson follow-up on 2026-06-21: the OpenAI API key had changed after a key-exposure event during image-generation enhancement work. Future similar events must include an explicit reminder/check to update production environment secrets, not only dev/local/Replit workspace state.
 
 Source evidence at likely production-era `ba924d6`:
 
@@ -49,7 +50,7 @@ Source evidence at likely production-era `ba924d6`:
 
 ## Inference
 
-The production screenshot is not consistent with App Check/auth/access-control blocking, because those paths return typed `401`/`403` JSON before image analysis. The strongest current explanation is a production-only provider/config failure after auth passed: missing/invalid `OPENAI_API_KEY` in the Replit Deployment environment, OpenAI model/key/project access mismatch, or a provider error class not recognized as `insufficient_quota`.
+The production screenshot is not consistent with App Check/auth/access-control blocking, because those paths return typed `401`/`403` JSON before image analysis. The strongest current explanation is a production-only provider/config failure after auth passed: the rotated OpenAI API key was not present/current in the Replit Deployment environment.
 
 Because Replit dev recognized the same image correctly, the image itself and the current vision prompt/model path are not the primary suspects.
 
@@ -59,11 +60,11 @@ Blocked on one of these Replit/production-side facts:
 
 - Production deployment logs around the failed `POST /api/vision/analyze`, especially lines beginning `Error analyzing ingredient image:` or `Error in image analysis:`.
 - Search by the HAR trace contexts if available: `a5ff347c1d942ac9d975ceca13a915c3` and `bcb4366d7854cbc5758f8a0e3dca729a`. If trace search is unavailable, search the UTC windows around `2026-06-21T06:50:40Z` and `2026-06-21T06:53:57Z`.
-- Masked secret presence check in the production Deployment environment: print only whether `OPENAI_API_KEY` is `set` or `MISSING`; never print the value.
+- Masked secret presence check in the production Deployment environment: print only whether `OPENAI_API_KEY` is `set` or `MISSING`; never print the value. If possible, compare only a non-secret rotation label/date from private notes, not the key value.
 - Confirm the exact production deployment code SHA/release corresponding to the June 6 asset.
 - After any secret fix or redeploy, rerun the same oyster scan in production and confirm the endpoint returns `200` with detected ingredients.
 
-Smallest next action: in Replit Deployment logs, inspect the failed request window for the vision route error. If logs show missing/invalid OpenAI credentials, add/fix `OPENAI_API_KEY` in Deployment secrets and redeploy current `origin/main`. If logs show a different OpenAI/provider error, classify it and decide whether the current telemetry/error handling should be shipped first.
+Smallest next action: update/confirm `OPENAI_API_KEY` in production Deployment secrets, redeploy current `origin/main`, and rerun the oyster scan in production. If it still fails, inspect the failed request window for the vision route error and classify the provider response.
 
 ## Verification
 

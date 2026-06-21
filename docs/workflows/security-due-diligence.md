@@ -50,6 +50,20 @@ When a future feature touches one of the focus areas, prefer adding a targeted r
 
 If the behavior depends on Replit-only services, real Firebase Google sign-in, Replit deployment secrets, production DB schema, ElevenLabs, OpenAI, or autoscale behavior, record the missing live-service proof instead of pretending local mocks fully prove it. That proof can be human Replit validation, accepted automated Replit-environment CI, a provider canary, or a deferred release-batch check depending on the risk lane in [`testing-and-acceptance.md`](testing-and-acceptance.md).
 
+## Secret Rotation After Exposure
+
+When a secret is exposed, suspected exposed, or rotated because a command, shell log, screenshot, CI log, provider console, or chat may have revealed it, the closeout must include an environment-propagation reminder. Do not stop after rotating the key in the place where the exposure was noticed.
+
+For provider keys such as OpenAI, ElevenLabs, Firebase service credentials, storage credentials, and admin secrets:
+
+- Rotate or revoke the exposed credential in the provider console or owning secret manager.
+- Remind Wilson to update every active runtime that consumes the secret: Replit workspace secrets, Replit Deployment/production secrets, GitHub Actions/CI secrets, dotenvx encrypted local `.env` when applicable, and any private automation environment.
+- Use masked checks only. Print `set` / `MISSING` for named variables or a non-secret rotation label/date from private notes; never print secret values, prefixes, suffixes, token lengths, or full process environments.
+- Rerun the smallest live-provider smoke for each affected deployed environment. A dev/Replit workspace pass does not prove production Deployment picked up the rotated key.
+- Record the affected secret name, environments checked or still needing human update, validation performed, and remaining production retest in the PR/handoff. Keep private values, provider console screenshots, and exact diagnostics out of public docs.
+
+The 2026-06-21 production vision-scan failure is the reference lesson: Replit dev recognized the oyster photo with the current OpenAI key, but production returned `/api/vision/analyze` `500` after an earlier key rotation was not propagated to the production Deployment environment.
+
 ## Low-Risk Security Patch Batching
 
 For low-risk security hardening, prefer a small PR risk note over a standalone process document:
