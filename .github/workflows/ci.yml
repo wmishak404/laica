@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -57,7 +57,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -131,7 +131,7 @@ jobs:
         run: npm run test:e2e
 
       - name: Delete Neon Branch
-        if: ${{ always() }}
+        if: ${{ always() && steps.neon.outputs.branch_id != '' }}
         uses: neondatabase/delete-branch-action@v3
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
