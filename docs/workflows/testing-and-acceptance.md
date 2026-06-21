@@ -51,6 +51,8 @@ Use this as the default order of evidence. Local checks are the fastest implemen
 
 For a plain-English inventory of each environment, database, auth path, and best use case, see [environment-map.md](environment-map.md).
 
+For the repeatable pre-production and post-publish checklist, including confidence-level reporting by automation, Replit, live-provider, and production-smoke lane, use [replit-validation-focus.md](replit-validation-focus.md#production-publish-validation-routine).
+
 ## Automation Evidence Gate
 
 When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."
