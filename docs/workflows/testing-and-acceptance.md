@@ -76,6 +76,23 @@ Full E2E gate on pushed builds:
 
 Future eval gates follow the same rule. Eval evidence must also identify the fixture/dataset, evaluator version or prompt/model version when relevant, metric/threshold, sample size, failure examples or cluster summaries, privacy/redaction posture, artifact location, and the user expectation each criterion protects. Eval artifacts must follow the applicable privacy and telemetry rules; do not preserve raw prompts, images, audio, tokens, secrets, or user-identifying payloads unless a durable policy explicitly allows that data. Use [evaluations.md](evaluations.md) for the canonical eval discipline and dataset/result routing.
 
+## Enhancement Test Impact Review
+
+Every implementation PR should include a lightweight test-impact review before it is called ready. This is the routine answer to "how do we keep automation from going stale": tie each changed behavior to current coverage, update that coverage in the same PR when practical, and keep exact-head validation current after the final push.
+
+Use this review for product enhancements, bug fixes, workflow-affecting runtime changes, and harness changes. Keep it proportional; docs-only edits and narrow non-runtime cleanups can say that no behavior surface changed and use the docs-only validation lane.
+
+Minimum routine:
+
+1. **Name the changed behavior surface.** Identify the user, operator, provider, auth, persistence, workflow, or reviewer promise that changed. Do not use a file list as the behavior description.
+2. **Map the surface to existing coverage.** Cite the exact unit, Playwright, route-contract, CI, eval, canary, Replit, or manual lane that already exercises it. If the current tests only cover an adjacent path, say so.
+3. **Update tests in the same PR when behavior changed and deterministic automation is practical.** Prefer the smallest stable assertion that proves the new or corrected contract. For bugs, add regression coverage when the failure is locally deterministic.
+4. **Choose the honest lane for anything not automated.** Use the smallest named lane: mocked unit/component coverage, forced-response Playwright smoke, exact-head GitHub `e2e_guest_smoke`, OAuth-start/config preflight, live-provider canary, automated Replit-environment gate, Replit human validation, release/batch validation, or explicit deferral. Provider/Replit/prod-only behavior should become a canary or release check rather than an overclaimed local test.
+5. **Keep harness changes durable.** E2E fixes should prefer user-visible state or durable app state over response timing, use role-based exact/scoped selectors, wait for persistence before reload/navigation, and classify flakes as app bug, harness timing, data/env drift, or provider issue.
+6. **Refresh exact-head evidence.** After the final push intended for review or merge, ensure the required CI/E2E gate has passed for that head. If `origin/main` moves in a way that makes the branch non-current, or any new commit lands after validation, rebase or merge the current base as appropriate, push, and rerun the relevant checks before merge.
+
+Record the result in the PR body and handoff, not in a new durable doc for every feature. Update this workflow, an Effort, INIT, PD, or phase record only when the work changes future validation rules, exposes a reusable bug lesson, or adds/removes a validation lane.
+
 ## Risk Lanes And Human Replit Gates
 
 Human manual Replit validation is no longer the default PR merge gate. Classify the branch before closeout:

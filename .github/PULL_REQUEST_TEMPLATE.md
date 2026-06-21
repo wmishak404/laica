@@ -22,6 +22,14 @@ Intentional UI deviations / notes:
 
 ## Validation
 
+Test impact review:
+
+- Changed behavior surface:
+- Existing coverage mapped:
+- Tests added/updated in this PR, or why not:
+- Remaining unautomated lane:
+- Exact-head status after final push:
+
 Automation evidence used as a merge gate:
 
 - Value claim:

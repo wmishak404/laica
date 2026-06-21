@@ -688,3 +688,16 @@ Useful EFF-017 signal:
 - The harness fix stayed in PR #212 because the observed failures were release-gate reliability issues in the same required lane: linked dev-auth reload/session timing and a quota-toast selector matching both visible toast copy and the Radix live-region mirror. Keeping that fix with the release-routine PR preserved one evidence chain instead of splitting the blocker into a separate PR with stale context.
 
 This does not close EFF-017. It adds confidence in the current exact-head CI/E2E merge gate and gives future agents a concrete example of why rebasing after lower-stack or closeout merges is not bookkeeping; it changes which commit the automated evidence actually covers.
+
+## 2026-06-21 — Enhancement test-impact routine proposed from PR #212 stale-head signal
+
+Wilson asked how LAICA should keep automation tests and validation routines from becoming stale for every enhancement, after the PR #212 merge showed that green checks on `aed34ebfd58e39c6e5a88a5fda0e8e5ab10ce246` no longer proved the branch once PR #213 moved `origin/main` and the final merge required fresh `d83068e2038a6abcacd4eea40af0c77bea382f8f` evidence.
+
+The follow-up branch `codex/enhancement-test-impact-routine` keeps the answer lightweight and proportional:
+
+- Every implementation PR should name the changed behavior surface, map it to existing coverage, add or update deterministic tests in the same PR when practical, and state the honest lane for any unautomated gap.
+- Exact-head CI/E2E remains the routine merge-gate discipline for implementation heads; if `origin/main` moves or a new commit lands after validation, the evidence is stale until the relevant checks rerun on the new head.
+- Provider, Replit, OAuth, and production-only behavior should stay in named canary, Replit, or release/batch lanes instead of being overclaimed by local or provider-light CI.
+- The PR template now nudges agents to record this review without creating a new Effort or broad durable doc for every feature.
+
+This does not change EFF-017's status or claim that provider/release canaries are solved. It documents the per-enhancement operating habit that keeps existing automation connected to the behavior being changed.
