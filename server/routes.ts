@@ -493,7 +493,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return;
       }
         
-      const suggestions = await getRecipeSuggestions(enhancedPreferences, ingredients);
+      const suggestions = await getRecipeSuggestions(enhancedPreferences, ingredients, {
+        evalFeatureType: "pantry_recipes",
+      });
       res.json(withAnonymousQuota(suggestions, quotaReservation));
     } catch (error) {
       await refundAnonymousRecipeQuota(firebaseUser, quotaReservation, "pantry-recipes");

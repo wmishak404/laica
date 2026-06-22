@@ -4,8 +4,8 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 3 - Eval harness
-**Active PR:** None
-**Active branch:** None
+**Active PR:** Pending
+**Active branch:** `codex/init-004-eval-provenance`
 
 ## Overview
 
@@ -39,6 +39,8 @@ The cooking-step user-expectation fixture slice merged in [PR #198](https://gith
 The focused public-fixture validation script slice merged in [PR #200](https://github.com/wmishak404/laica/pull/200) as `bb5604f` on 2026-06-18 after Wilson approved merge and exact-head local/GitHub checks passed at PR head `da12f44`. It wires the existing public fixture validation into `npm run eval:fixtures` so future PRs can cite fixture-corpus validity directly instead of relying only on the broader unit suite. This is an offline harness usability slice; it does not add fixtures, change labels, run provider judges, ingest private fixtures, change prompts, write eval data, change DB schema, expose runtime behavior, or resolve EFF-022 cuisine fallback behavior.
 
 The pantry recipe user-expectation fixture slice merged in [PR #205](https://github.com/wmishak404/laica/pull/205) as `762488e` on 2026-06-20T01:21:23Z after [PR #191](https://github.com/wmishak404/laica/pull/191) merged first. It adds three public synthetic `pantry_recipes` calibration probes for halal/no-pork dietary compliance, required shopping-list extras, and beginner skill fit. This slice changed offline fixture data, focused fixture tests, and documentation only; it did not change prompts, run providers, ingest private fixtures, write eval data, change DB schema, expose runtime behavior, or resolve EFF-022 cuisine fallback behavior.
+
+The active `codex/init-004-eval-provenance` branch starts the next bounded Phase 3 harness slice after PR #205: criteria-aware eval queue selection plus `pantry_recipes` interaction logging provenance. The implementation keeps Chef It Up pantry generation on the existing `recipe_suggestions` prompt path, but logs `/api/recipes/pantry` outputs under the `pantry_recipes` eval surface and records the active `recipe_suggestions` prompt version id when one exists. This is measurement plumbing only; it does not change prompts, run providers beyond the existing user request path, ingest private fixtures, write eval results, change schema, expose UI, start LLM judges, or decide EFF-022 cuisine fallback behavior.
 
 Wilson's 2026-06-16 verification direction is now part of INIT-004's evaluation philosophy: every future fixture, judge, report, or prompt comparison should name the user expectation it protects. Structure and schema checks are still required because broken output cannot help a user, but they should be presented as foundation checks unless they also prove time fit, dietary safety, pantry usefulness, skill fit, equipment fit, cuisine fit, cooking-step clarity, food safety, privacy, or another explicit user-facing promise.
 
@@ -210,7 +212,7 @@ INIT-004 should produce or coordinate:
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
 | Phase 2 - Rubric and dataset spec | Merged | [#181](https://github.com/wmishak404/laica/pull/181) / `codex/init-004-phase-2-spec` | Merged as `5c410e3`; accepted eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
-| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged / [#200](https://github.com/wmishak404/laica/pull/200) merged / [#205](https://github.com/wmishak404/laica/pull/205) merged | PR #205 merged pantry recipe user-expectation fixtures for dietary compliance, pantry grounding, optional extras, and beginner skill fit; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
+| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged / [#200](https://github.com/wmishak404/laica/pull/200) merged / [#205](https://github.com/wmishak404/laica/pull/205) merged / `codex/init-004-eval-provenance` active | Active branch adds criteria-aware eval queue selection and `pantry_recipes` prompt provenance while preserving prompt reuse; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes remain out of scope |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
@@ -228,6 +230,7 @@ INIT-004 should produce or coordinate:
 | [#198](https://github.com/wmishak404/laica/pull/198) | Merged as `9588459` | `codex/init-004-phase-3-user-expectation-fixtures` | Cooking-step user-expectation fixture slice. Local focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed at final PR head `7271094`; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed before Wilson approved merge; no Replit validation required. |
 | [#200](https://github.com/wmishak404/laica/pull/200) | Merged as `bb5604f` | `codex/init-004-fixture-validation-script` | Focused public fixture validation script. Final head `da12f44` passed local `npm run eval:fixtures`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, whitespace checks, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL; no Replit validation required. |
 | [#205](https://github.com/wmishak404/laica/pull/205) | Merged as `762488e` | `codex/init-004-pantry-expectation-fixtures` | Pantry recipe user-expectation fixture slice. Final PR head `b64486a` passed local `npm run eval:fixtures`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, whitespace checks, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL before Wilson's merge instruction was applied after PR #191 merged; no Replit validation required. |
+| Pending | Active | `codex/init-004-eval-provenance` | Criteria-aware queue selection plus `pantry_recipes` eval-surface and prompt-version provenance. Local final-head validation passed: `npm ci`, `npm run eval:fixtures` after the known local `tsx` IPC sandbox rerun with escalation, focused eval/logging/route Vitest, full `npm run test:unit`, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and `git diff --check`. GitHub exact-head checks are pending until PR open. No Replit validation expected because this is offline eval/logging infrastructure with no schema, prompt, provider, UI, auth, persistence, private-fixture, or live runtime generation behavior change beyond metadata on existing eval logs. |
 
 ## Validation State
 
@@ -251,13 +254,13 @@ Future implementation phases that use eval results as merge evidence must follow
 
 ## Current Resume Point
 
-No active INIT-004 PR is assigned after [PR #205](https://github.com/wmishak404/laica/pull/205) merged as `762488e`. The latest merged Phase 3 slice added a small public synthetic pantry-recipe user-expectation fixture batch after [PR #200](https://github.com/wmishak404/laica/pull/200) made fixture validation directly scriptable through `npm run eval:fixtures`.
+The active `codex/init-004-eval-provenance` branch owns the next bounded Phase 3 slice after [PR #205](https://github.com/wmishak404/laica/pull/205) merged as `762488e`: criteria-aware queue behavior and `pantry_recipes` logging provenance while preserving prompt reuse.
 
-After PR #205, the next bounded Phase 3 candidates remain:
+After this branch lands, the next bounded Phase 3 candidates are:
 
-1. Add criteria-aware queue behavior and logging provenance work for `pantry_recipes`, while preserving prompt reuse.
-2. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
-3. Add more fixtures only when they cover a new accepted label gap rather than duplicating dietary/pantry/skill probes.
+1. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
+2. Add more fixtures only when they cover a new accepted label gap rather than duplicating dietary/pantry/skill probes.
+3. Add queue/reporting summaries that use the separated eval surface and prompt-version provenance without running live providers or changing prompts.
 
 Cuisine-fit fixtures remain deferred unless they can be labeled without deciding the unresolved EFF-022 product fallback rule. Do not start live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, or EFF-022 cuisine-fallback product changes without a separate documented milestone and any required Wilson decision.
 
@@ -286,3 +289,4 @@ Cuisine-fit fixtures remain deferred unless they can be labeled without deciding
 - **2026-06-18** - PR #200 merged as `bb5604f` after Wilson approved merge and exact-head local/GitHub checks passed at PR head `da12f44`. The merged Phase 3 milestone adds the dedicated public fixture validation script and keeps providers, prompts, DB/schema, private fixture ingestion, daily reports, and EFF-022 cuisine fallback unchanged.
 - **2026-06-19** - Started [PR #205](https://github.com/wmishak404/laica/pull/205) on `codex/init-004-pantry-expectation-fixtures` from fresh `origin/main` `7274a62`. The bounded milestone adds public synthetic pantry-recipe user-expectation fixtures for dietary compliance, pantry grounding / optional extras, and beginner skill fit without changing prompts, providers, schema, private fixtures, daily reports, or EFF-022 cuisine fallback behavior.
 - **2026-06-19** - After Wilson instructed that [PR #191](https://github.com/wmishak404/laica/pull/191) merge first, PR #191 merged as `104ee0c`, PR #205 was rebased onto that updated `origin/main`, and PR #205 merged as `762488e` at 2026-06-20T01:21:23Z. The merged slice kept the same offline fixture/docs/test scope and left providers, prompts, DB/schema, private fixture ingestion, daily reports, and EFF-022 cuisine fallback unchanged.
+- **2026-06-22** - Started `codex/init-004-eval-provenance` from fresh `origin/main` `ecf1cdb` after triage found no active INIT-004 PR. The bounded milestone implements criteria-aware eval queue selection and logs `/api/recipes/pantry` outputs as `pantry_recipes` while preserving the reused `recipe_suggestions` prompt source and prompt-version provenance. Cuisine-fit fixtures and fallback behavior remain deferred to EFF-022/product-rule decisions.

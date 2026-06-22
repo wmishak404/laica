@@ -135,7 +135,9 @@ describe("Phase 0 protected routes", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"]);
+    expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"], {
+      evalFeatureType: "pantry_recipes",
+    });
   });
 
   it("blocks pantry recipe generation when the pantry ingredient list is empty", async () => {

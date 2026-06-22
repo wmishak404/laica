@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { compositions } from "./prompts/composer";
-import { getActivePrompt } from "./prompt-manager";
+import { getActivePrompt, getActivePromptVersion } from "./prompt-manager";
 import { normalizeVisionAnalysisResult } from "./vision/analysis-result";
 import { filterDetectedEquipment } from "./vision/equipment-filter";
 import { db } from "./db";
@@ -20,6 +20,7 @@ import { slopBowlRecipeSchema } from "./ai-response-schemas";
 import { lt } from "drizzle-orm";
 import { redactAiOutput, redactForAiLog, sanitizePromptInput } from "./ai-privacy";
 import { throwOpenAIProviderError } from "./ai-errors";
+import type { EvalFeatureType } from "./ai-feature-types";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 const MODEL_COMPLEX = "gpt-4.1";
@@ -44,6 +45,16 @@ interface SlopBowlInput {
   previousRecipe?: string;
 }
 
+type RecipeSuggestionEvalFeature = Extract<EvalFeatureType, "recipe_suggestions" | "pantry_recipes">;
+
+interface RecipeSuggestionOptions {
+  evalFeatureType?: RecipeSuggestionEvalFeature;
+}
+
+interface InteractionLogOptions {
+  promptVersionId?: number | null;
+}
+
 let lastAiInteractionPruneAt = 0;
 const AI_INTERACTION_RETENTION_DAYS = 90;
 const AI_INTERACTION_PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
@@ -64,13 +75,19 @@ function pruneOldAiInteractions(): void {
 // ─────────────────────────────────────────────────────────────────────────────
 // Interaction logger — fire-and-forget, never blocks the user response.
 // ─────────────────────────────────────────────────────────────────────────────
-function logInteraction(featureType: string, inputData: object, outputData: string): void {
+function logInteraction(
+  featureType: EvalFeatureType,
+  inputData: object,
+  outputData: string,
+  options: InteractionLogOptions = {},
+): void {
   pruneOldAiInteractions();
   db.insert(aiInteractions)
     .values({
       featureType,
       inputData: redactForAiLog(inputData),
       outputData: redactAiOutput(outputData),
+      promptVersionId: options.promptVersionId ?? null,
       evalStatus: 'pending',
     })
     .catch(err => console.error(`[eval-log] Failed to log ${featureType} interaction:`, err));
@@ -285,9 +302,14 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
   }
 }
 
-export async function getRecipeSuggestions(preferences: string, ingredients?: string[]) {
+export async function getRecipeSuggestions(
+  preferences: string,
+  ingredients?: string[],
+  options: RecipeSuggestionOptions = {},
+) {
   try {
-    const systemPrompt = await getActivePrompt('recipe_suggestions') || DEFAULT_RECIPE_SUGGESTIONS_PROMPT;
+    const activePrompt = await getActivePromptVersion('recipe_suggestions');
+    const systemPrompt = activePrompt?.systemPrompt || DEFAULT_RECIPE_SUGGESTIONS_PROMPT;
     const sanitizedPreferences = sanitizePromptInput(preferences);
     const sanitizedIngredients = sanitizePromptInput(ingredients || []);
     const inputData = { preferences: sanitizedPreferences, ingredients: sanitizedIngredients };
@@ -311,7 +333,9 @@ export async function getRecipeSuggestions(preferences: string, ingredients?: st
     });
 
     const result = normalizeRecipeSuggestionsResponse(JSON.parse(response.choices[0].message.content || "{}"));
-    logInteraction('recipe_suggestions', inputData, JSON.stringify(result));
+    logInteraction(options.evalFeatureType ?? 'recipe_suggestions', inputData, JSON.stringify(result), {
+      promptVersionId: activePrompt?.id ?? null,
+    });
     return result;
   } catch (error) {
     console.error("Error getting recipe suggestions:", error);
