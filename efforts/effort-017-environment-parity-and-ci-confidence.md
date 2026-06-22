@@ -701,3 +701,12 @@ The follow-up branch `codex/enhancement-test-impact-routine` keeps the answer li
 - The PR template now nudges agents to record this review without creating a new Effort or broad durable doc for every feature.
 
 This does not change EFF-017's status or claim that provider/release canaries are solved. It documents the per-enhancement operating habit that keeps existing automation connected to the behavior being changed.
+
+## 2026-06-21 — Dependabot PR #210/#211 triage preserved strict E2E evidence
+
+Dependabot PR #210 updated GitHub Actions dependencies (`actions/checkout` and TruffleHog) and PR #211 proposed an 81-package npm version-update bundle. Triage found two separate validation lessons:
+
+- Dependabot-triggered pull request workflows do not receive the repository Actions secrets used by `e2e_guest_smoke`, so the job failed before app tests with missing Neon, CI Firebase, and ElevenLabs secrets. That is expected GitHub security behavior, not proof that the action bump broke the app. The workflow should still avoid noisy cleanup failures when no Neon branch was created, but the missing E2E evidence must remain a blocker rather than being converted to a skipped/pass state.
+- The npm version-update bundle combined too much risk: React 19, Express 5, Tailwind 4, TypeScript 6, Vite 8, OpenAI 6, Firebase Admin 14, and other major or provider/runtime-impacting upgrades. It also failed `npm ci` because the manifest and lockfile were out of sync. Future routine npm version updates should group patch and minor updates, while major updates open individually for planned review and targeted validation.
+
+Follow-up branch `codex/dependabot-risk-split` supersedes PR #210 with the same action bumps from fresh `origin/main`, adds a Neon cleanup guard, and narrows Dependabot grouping so future major npm and GitHub Actions version updates are not hidden inside broad bundles. This does not grant Dependabot access to the E2E secret set; giving dependency PRs Neon/Firebase/ElevenLabs credentials remains a separate security tradeoff and is not accepted by this slice.
