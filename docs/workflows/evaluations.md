@@ -48,6 +48,23 @@ V1 does not cover provider outage handling, image generation quality, speech tra
 
 Speech or other interaction-eval records may still be registered outside INIT-004 V1 when they protect a concrete product acceptance boundary. Those records must name the owning INIT/phase and must not be treated as active INIT-004 harness scope unless Wilson explicitly opens that phase.
 
+## Future INIT-004 Image Quality Calibration Phase
+
+Generated recipe images are accepted as a later INIT-004 phase once the core INIT-004 human-review, judge-calibration, reporting, and action-routing machinery exists. Do not fold image quality into the recipe-text V1 pass rates early: image generation has different artifacts, privacy handling, provider/style variables, and human-review needs.
+
+The first image-quality lane should be a blind human-review queue over `recipe_image_cache` samples, not another model-only dashboard. It should:
+
+- sample recent image rows with emphasis on near-threshold approvals/rejections, repeated rejection clusters, provider/style-version comparisons, and policy/safety failures;
+- show Wilson the generated image and recipe facts before revealing the model judge verdict;
+- collect a human verdict: acceptable, not acceptable, or needs product decision;
+- collect structured failure labels such as wrong main ingredient, wrong dish form, missing key ingredient, optional ingredient dominates, dietary/safety contradiction, visible text/logos/people/packaging, low visual quality, unclear recipe input, judge too strict, or judge too lenient;
+- reveal the judge result only after the human label is saved, including approval state, score, reasons, observed ingredients, observed dish form, provider/model, and style version;
+- compare judge candidates against frozen human labels before changing the production judge model, prompt, or threshold;
+- report false approvals, false rejections, agreement near threshold, common failure clusters, latency, and cost by provider/model/style version;
+- route clusters to concrete actions: generator prompt fix, judge prompt fix, threshold change, provider/model/style comparison, recipe fingerprint/core-ingredient extraction fix, product-rule decision, or fixture/gold-set addition.
+
+Human labels are the source of truth for this lane. Model judges are triage until their TPR/TNR against human labels is known, and a stronger or cheaper judge model should only replace the current production judge after it improves the frozen calibration set with acceptable cost/latency tradeoffs.
+
 ## Core Criteria Families
 
 | Criterion family | What to measure | First check type |
