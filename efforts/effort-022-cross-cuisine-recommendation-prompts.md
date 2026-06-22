@@ -181,3 +181,9 @@ PR #205 merged as `762488e` after PR #191. The merged INIT-004 fixture batch add
 `codex/init-004-eval-provenance` starts the INIT-004 Phase 3 queue/provenance slice that makes Chef It Up pantry recipe outputs measurable under the `pantry_recipes` eval surface while preserving the existing `recipe_suggestions` prompt source. The branch records active recipe prompt-version provenance on eval logs when a DB prompt is active and keeps unsupported/non-criteria feature rows out of eval batches.
 
 This helps future EFF-022 cuisine-fit work because pantry recipe rows can be separated from general recipe suggestions before Wilson-labeling or judge calibration. It still does not satisfy EFF-022 resolution criteria: no cuisine picker audit, prompt guidance, cuisine-fit/fusion fixture, card display guidance, or selected-cuisine fallback decision changes in this slice.
+
+## 2026-06-22 - Pantry eval provenance merged
+
+PR #219 merged as `68985f1`. Future cuisine-fit work can now query Chef It Up pantry recipe logs separately from generic recipe suggestions and still know which reused `recipe_suggestions` prompt version produced the row.
+
+EFF-022 remains open. The merge adds measurement plumbing only; it does not audit cuisine picker behavior, change prompts, add multi-cuisine prompt guidance, add cuisine-fit/fusion fixtures, change card display guidance, or decide selected-cuisine fallback behavior.
