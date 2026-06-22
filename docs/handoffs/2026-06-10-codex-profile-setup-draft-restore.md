@@ -42,4 +42,4 @@ The profile setup flow now survives React remounts and Replit Preview iframe ref
 - Base refreshed: yes
 - Current base: `origin/main` at `2abccc7a88ac`
 - Last Replit-validated at: not yet validated after this follow-up commit
-- Notes: PR #170 remains open; this follow-up should be pulled into Replit before the next visual validation pass.
+- Notes: At the time of this handoff, PR #170 was still under review. Current PR state now lives in GitHub, and current feature state lives in [`INIT-001`](../../initiatives/INIT-001-mobile-refresh.md).

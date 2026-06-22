@@ -12,9 +12,9 @@ PR #200 is merged into `main` as `bb5604f958d472b41528d7c3c061d932925e267f`, clo
 
 ## Changes
 
-- `initiatives/INIT-004-ai-output-quality-evals.md`: clears the active PR/branch, records PR #200 as merged, updates the Phase 3 row, PR table, validation state, resume point, and chronology.
-- `initiatives/registry.md`: marks INIT-004 with no active PR and records the merged fixture-validation signal.
-- `docs/evals/registry.md`: updates `public-fixtures-2026-06-16` from active PR status to merged script status.
+- `initiatives/INIT-004-ai-output-quality-evals.md`: records PR #200 as merged, updates the Phase 3 row, PR table, validation state, resume point, and chronology.
+- `initiatives/registry.md`: records the merged fixture-validation signal in the initiative index.
+- `docs/evals/registry.md`: updates `public-fixtures-2026-06-16` from in-flight to merged script status.
 - `docs/handoffs/2026-06-18-codex-pr200-merge-closeout.md`: captures this merge closeout for future agents.
 
 ## Impact on other agents

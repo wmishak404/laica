@@ -17,6 +17,8 @@ An INIT is a current-state map for an initiative. It should answer:
 
 INITs are living documents. Update them as the initiative changes.
 
+Use live GitHub state for in-flight PR questions. INITs should record the initiative's durable current phase, resume point, merged history, and important validation state; they should not compete with `gh pr list` as the authority for which PR is currently open.
+
 ## Relationship to Other Docs
 
 | Artifact | Purpose | INIT relationship |
@@ -69,7 +71,7 @@ Each INIT should include:
 Update the relevant INIT whenever initiative context changes:
 
 - a phase starts, changes scope, validates, merges, blocks, or defers
-- a PR opens, rebases, validates, merges, or blocks
+- a PR materially changes initiative direction, validates, merges, or blocks
 - assets, mockups, or design references are added or revised
 - a product decision, Effort, ADR, handoff, or workflow rule materially changes initiative direction
 - Replit validation status changes, including `Last Replit-validated at` SHA
@@ -87,7 +89,7 @@ Required closeout updates:
 - initiative registry
 - related feature phase/product-decision docs
 - active Effort files and `efforts/registry.md` when the merge adds standalone follow-up signal
-- a `docs/handoffs/YYYY-MM-DD-<agent>-<phase>-merge-closeout.md` file with merge commit, validation SHA, impact, open items, and verification
+- a concise `docs/handoffs/YYYY-MM-DD-<agent>-<phase>-merge-closeout.md` evidence stub with merge commit, validation SHA, docs updated, next resume point, and any explicit deferrals
 
 If closeout cannot happen immediately, the agent must document the deferral in the final response or handoff with owner, branch/PR, merge commit, validation SHA, and the next exact action.
 

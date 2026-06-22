@@ -18,15 +18,20 @@ Status statements are high-churn and are the easiest way for docs to become stal
 
 Authoritative homes:
 
-- **Initiative status (current phase, active PR, resume point):** the relevant `initiatives/INIT-NNN-*.md` header plus its `## Current Resume Point`. `initiatives/registry.md` is an index only.
+- **Initiative status (current phase, resume point, durable direction):** the relevant `initiatives/INIT-NNN-*.md` header plus its `## Current Resume Point`. `initiatives/registry.md` is an index only.
 - **Effort status:** the Effort file header (`**Status:** ...`) is authoritative. `efforts/README.md` is the active read list; `efforts/registry.md` is historical/searchable context. If the registry ever drifts, trust the Effort file.
+- **In-flight PR state:** live GitHub PR state is authoritative for what is currently open, draft, merged, or superseded. Use `gh pr list` / `gh pr view` rather than hand-maintained `Active PR` notes.
 - **Phase scope and acceptance criteria:** the phase record in `product-decisions/features/<feature>/` is the canonical scope/criteria home. The INIT should summarize only what is needed for current resume, not repeat the whole phase record.
+- **One-off blocked/interrupted task state:** when work is not promoted to an INIT or Effort, a `docs/handoffs/*-blocked.md` file is the durable resume carrier until a later handoff explicitly resolves it.
+- **Automation memory:** cache or consumer only. It may summarize or index current state, but it is never authoritative over the docs above or live GitHub state.
 
 Avoid status mirroring:
 
 - Avoid sentences like “`EFF-015 remains open`”, “`EFF-014 is the active Effort`”, “`Keep EFF-017 deferred…`”, or “`The current active Effort read list is…`” in unrelated docs. Those go stale unless maintained continuously.
+- Avoid hand-maintained `Active PR:` fields or branch-status summaries when GitHub already answers the question.
 - Prefer linking: “See `EFF-015` (status in header)” or “See INIT-001 `## Current Resume Point` for current status.”
 - If a status statement must appear in a chronology or resolved-history record, **time-qualify it** (“As of 2026-05-13…”) so it cannot be misread as current truth later.
+- Current state should not live only in a handoff when an INIT, Effort, or live PR already owns the work. Use handoffs for historical evidence, transfer, and one-off blocked/resume state.
 
 ## Consult Before Filing
 
@@ -40,6 +45,30 @@ Use this order:
 4. Only then choose the primary home from the routing matrix.
 
 For example, a request to combine Pantry and Kitchen scanning should not route only from the setup screen where the complaint appeared. First identify the changed capability, such as inventory capture flow, scan-session policy, duplicate handling, setup completeness, or ongoing ingredient management, then consult the governing INIT/PD/Effort/workflow before filing.
+
+## Chat Objectives And Promotion
+
+Not every chat objective should become a planning artifact. Use the smallest state carrier that matches the work.
+
+Default progression:
+
+1. **Current thread only** when the work is active in the current session and does not need cross-session discovery yet.
+2. **Open PR** when the work is reviewable and the current task state is best represented by the branch/PR itself.
+3. **Handoff** when the work is blocked, interrupted, transferred, or needs point-in-time evidence that must survive the current thread.
+4. **Effort** only when unresolved follow-up must remain discoverable beyond the current PR/thread and the work is standalone rather than phase-owned.
+5. **INIT** only when the work is clearly multi-phase, will span multiple PRs/validations/decisions, and phase tracking matters.
+
+Promotion tests:
+
+- Promote to a **handoff** when another agent or a later session would otherwise have to reconstruct what happened from chat.
+- Promote to an **Effort** when the remaining work is concrete, important, and not already owned by an active INIT, feature phase, PD, ADR, or workflow doc.
+- Promote to an **INIT** when the work has multiple planned slices or phases, cross-PR validation state, reusable source-doc links, and a meaningful resume point.
+- Do **not** promote a one-off completed task into an Effort or INIT just to preserve history. Use the PR and, when needed, a handoff.
+
+Practical rule:
+
+- If the work can finish inside the current branch/PR with no important unresolved follow-up, keep it out of Efforts and INITs.
+- If unresolved work must survive beyond the branch/PR, promote it exactly once to the smallest durable home.
 
 ## Closed Phase Boundary
 
@@ -60,7 +89,7 @@ Closed phase records may receive a historical note or link when needed, but they
 |---|---|---|
 | Durable product, UX, architecture, privacy, or process decision | Top-level `product-decisions/pd-NNN-*.md` | The decision should outlive one branch or phase and future agents would make worse choices without the rationale |
 | Feature- or phase-scoped specs, acceptance criteria, open questions, and final outcomes | `product-decisions/features/<feature>/pd-phase-NN-*.md` or another feature-scoped `pd-*.md` | The signal belongs to an active feature and is not durable enough for a top-level PD |
-| Multi-phase initiative state, source docs, validation status, PR status, assets, and current resume point | `initiatives/INIT-NNN-*.md` plus `initiatives/registry.md` | A change affects the initiative timeline, phase status, validation state, or next resume point |
+| Multi-phase initiative state, source docs, validation status, assets, and current resume point | `initiatives/INIT-NNN-*.md` plus `initiatives/registry.md` | A change affects the initiative timeline, phase status, validation state, or next resume point |
 | Standalone follow-up not owned by an active INIT, phase, PD, ADR, or workflow | `efforts/effort-NNN-*.md` plus active Effort read lists | Work is concrete, important, and not naturally owned elsewhere yet |
 | Repeatable operating procedure | `docs/workflows/*.md` | Agents should follow the rule across multiple future tasks |
 | Visual standard | `design_guidelines.md` with PD-005 for governance | The change affects palette, typography, surface posture, mockup conformance, or visual acceptance |
@@ -81,6 +110,7 @@ Before closing a branch or PR, run this short loop:
 5. If the change adds or revises a repeatable workflow, update the workflow doc and link it from `AGENTS.md` / `CLAUDE.md` only when it changes global agent behavior.
 6. If the change depends on volatile external facts, mark the owning PD with volatility metadata and verify those facts before implementation or merge.
 7. Record validation, deferrals, blockers, and remaining unvalidated scope in the handoff/PR rather than duplicating them into every source doc.
+7a. If a blocked handoff was cleared, write a resolving handoff or release note that explicitly references the blocked file instead of leaving automation to infer the resolution from chat or scattered status notes.
 8. If a bug was found, make the learning durable: update the owning source doc or workflow when the bug changes future expectations, add regression coverage or an explicit validation gap, and mark any previous validation stale for the affected surface.
 9. Run `git diff --check` and a targeted reference search for renamed IDs, moved files, or old source-of-truth names.
 10. Open the final response, handoff, and PR summary with a concise overall summary when useful, then keep the concrete changelog and validation details.

@@ -14,8 +14,8 @@ Wilson's current sequencing call is to continue INIT-002 implementation first, t
 
 ## Changes
 
-- `initiatives/INIT-004-ai-output-quality-evals.md` - marked Phase 0 as merged, cleared the active PR/branch, set Phase 1 as the next phase, recorded PR #160 merge SHA, and updated the resume point.
-- `initiatives/registry.md` - updated INIT-004's current phase, active PR state, and last signal.
+- `initiatives/INIT-004-ai-output-quality-evals.md` - marked Phase 0 as merged, set Phase 1 as the next phase, recorded PR #160 merge SHA, and updated the resume point.
+- `initiatives/registry.md` - updated INIT-004's current phase and latest merged signal.
 - `docs/handoffs/2026-06-09-codex-init-004-phase-0-merge-closeout.md` - this merge-closeout handoff.
 
 ## Impact on other agents

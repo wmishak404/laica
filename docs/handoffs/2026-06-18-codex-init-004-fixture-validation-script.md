@@ -19,7 +19,7 @@ The branch does not add fixtures, change prompts, call providers, ingest private
 - `package.json`: adds `npm run eval:fixtures`.
 - `docs/evals/fixtures/README.md`: documents the new focused fixture validation lane and keeps focused Vitest as validator behavior coverage.
 - `docs/evals/registry.md`: records that fixture-validation scripting is now active on this branch.
-- `initiatives/INIT-004-ai-output-quality-evals.md` and `initiatives/registry.md`: mark the active branch and update the Phase 3 resume point.
+- `initiatives/INIT-004-ai-output-quality-evals.md` and `initiatives/registry.md`: record the validation-script slice and update the Phase 3 resume point.
 
 ## Value / Evidence / Limits
 
@@ -33,7 +33,7 @@ Evidence limits: The new command proves committed public fixture artifacts load 
 
 Use `npm run eval:fixtures` as the focused artifact-validity command when adding or reviewing public fixture changes. Keep `npx vitest run tests/unit/eval-fixtures.test.ts` when changing validator behavior, deterministic checks, privacy scanning, or runtime-source guards.
 
-EFF-022 remains open. This branch does not change cuisine prompt behavior, cuisine-fit criteria, cuisine picker options, or pantry-constrained fallback rules.
+See [`EFF-022`](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for the current cuisine-fallback product-rule status. This branch does not change cuisine prompt behavior, cuisine-fit criteria, cuisine picker options, or pantry-constrained fallback rules.
 
 ## Open items
 

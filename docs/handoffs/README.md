@@ -41,7 +41,7 @@ How to confirm the changes work — local checks, Replit validation steps, or ma
 
 If the task changes a multi-phase initiative, cite the relevant INIT and state whether it was updated. If `INIT updated: no`, explain why when the handoff changes initiative state. Initiative changes include phase status, PR status, validation status, assets/mockups, major decisions, and current resume point.
 
-For INIT-bound merge closeouts, create a dedicated handoff named like `YYYY-MM-DD-<agent>-<phase>-merge-closeout.md`. Include the merged PR number, merge commit, last validated SHA, docs updated, next resume point, and any explicit deferrals. This handoff must be pushed to `origin`; otherwise future agents cannot rely on it.
+For INIT-bound merge closeouts, create a dedicated handoff named like `YYYY-MM-DD-<agent>-<phase>-merge-closeout.md`. Keep it concise: include the merged PR number, merge commit, last validated SHA, docs updated, next resume point, and any explicit deferrals. Treat this as an evidence stub, not a second status report. The current initiative state should live in the INIT itself. This handoff must be pushed to `origin`; otherwise future agents cannot rely on it.
 
 ## Blocked handoffs
 
@@ -54,6 +54,14 @@ rg --files docs/handoffs | rg -- '-blocked\.md$'
 ```
 
 Read matching blocked handoffs before continuing. If you can safely unblock the work, do it, then record the resolution in your own handoff and PR description. Keep the original blocked handoff as history; do not delete or silently rewrite it. Update an INIT, Effort, phase record, PD, ADR, or workflow doc only when the blocker changed durable state.
+
+When a later task resolves a blocked handoff, make that resolution queryable. Add this exact metadata line near the top of the resolving handoff:
+
+```markdown
+**Resolves blocked handoff:** docs/handoffs/YYYY-MM-DD-<agent>-<short-name>-blocked.md
+```
+
+Use `none` when the handoff does not resolve a prior blocker. This keeps the blocked file as historical evidence while giving agents and automation one unambiguous place to look for the resolution.
 
 ## Stacked PR note
 

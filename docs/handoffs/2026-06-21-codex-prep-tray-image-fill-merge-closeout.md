@@ -24,7 +24,7 @@ The merge did not change recipe image resolver behavior, providers, schema, prom
 
 ## Docs Closeout
 
-- `initiatives/INIT-001-mobile-refresh.md` now marks PR #208 merged, clears the active branch, records validation, and moves the Phase 3.1 resume point past light Prep Tray image alignment.
+- `initiatives/INIT-001-mobile-refresh.md` now marks PR #208 merged, records validation, and moves the Phase 3.1 resume point past light Prep Tray image alignment.
 - `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md` now marks the Prep Tray hero-fill drift row as merged in PR #208.
 - `product-decisions/features/mobile-refresh/README.md` and `initiatives/registry.md` now include PR #208 in the Phase 3.1 merged signal.
 

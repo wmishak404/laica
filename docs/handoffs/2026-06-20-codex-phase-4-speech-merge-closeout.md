@@ -14,8 +14,8 @@ This closeout moves durable docs from "PR #191 pending" to "PR #191 merged basel
 
 ## Changes
 
-- `initiatives/INIT-001-mobile-refresh.md`: clears PR #191 as the active branch, records the merge, and makes PR #191 the speech-arbitration baseline for future Phase 4 work.
-- `initiatives/registry.md`: updates INIT-001 active PRs to none and records PR #191's merge/validation signal.
+- `initiatives/INIT-001-mobile-refresh.md`: records the merge and makes PR #191 the speech-arbitration baseline for future Phase 4 work.
+- `initiatives/registry.md`: records PR #191's merge/validation signal in the initiative index.
 - `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`: changes the audio lifecycle slice from pending merge to merged behavior and records the validation evidence.
 - `docs/evals/registry.md`: marks the speech-interaction acceptance seed as merged through PR #191.
 - `docs/evals/intakes/speech-interaction-acceptance-seed-2026-06-17.md`: adds Wilson's 12/12 manual Replit pass to the metrics summary and keeps live-provider quality canary work deferred.
@@ -31,7 +31,7 @@ The default local dotenvx DB drift remains an EFF-010 / EFF-017 evidence-environ
 
 - Full Phase 4 still needs Ready Check, Coach Feed, timer redesign, live-cooking inline AI error recovery, and Finish/history semantics.
 - Future speech work that changes real device audio, microphone permission, ElevenLabs pronunciation, or live provider quality should add a named Replit/mobile speech-smoke lane or canary.
-- No active Effort is closed by this PR. EFF-010 and EFF-017 remain active and unchanged.
+- No active Effort status changed in this PR. See [`EFF-010`](../../efforts/effort-010-local-db-schema-strategy.md) and [`EFF-017`](../../efforts/effort-017-environment-parity-and-ci-confidence.md) for their current state.
 
 ## Verification
 

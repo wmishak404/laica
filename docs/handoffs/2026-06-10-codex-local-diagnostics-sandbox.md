@@ -28,7 +28,7 @@ Local browser review hit known `.env` database drift: `/api/auth/session` failed
 ## Open items
 
 - This does not create Neon branches automatically. Someone still needs to provide a disposable sandbox database URL.
-- EFF-010 remains open for the broader ownership model: which local DB agents should use routinely, how branch cleanup works, and when schema mutation is allowed without Wilson intervention.
+- See [`EFF-010`](../../efforts/effort-010-local-db-schema-strategy.md) for the broader ownership model: which local DB agents should use routinely, how branch cleanup works, and when schema mutation is allowed without Wilson intervention.
 
 ## Verification
 

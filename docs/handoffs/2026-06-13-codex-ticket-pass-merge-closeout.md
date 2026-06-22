@@ -17,7 +17,7 @@ PR #175 squash-merged into `main` as `6510860e5b3a8645c3682848a583a13e8588c91d` 
 ## Changes
 
 - `initiatives/INIT-001-mobile-refresh.md`: marks PR #175 merged, records the accepted Ticket Pass hierarchy baseline, updates validation evidence, and moves the resume point to the next Phase 3.1 slice instead of another hierarchy retry.
-- `initiatives/registry.md`: clears INIT-001's active PR and records the merged Ticket Pass signal.
+- `initiatives/registry.md`: records the merged Ticket Pass signal in the initiative index.
 - `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`: marks the Ticket Pass generic-card drift accepted for now in PR #175 and updates recommendations to treat PR #175 as the current baseline.
 - `docs/handoffs/2026-06-13-codex-ticket-pass-merge-closeout.md`: this merge-closeout handoff.
 
@@ -31,7 +31,7 @@ Next Phase 3.1 work should choose a different documented slice from fresh `origi
 
 - This closeout branch still needs a docs-only PR and merge to make the closeout visible on `origin/main`.
 - No runtime Replit retest is needed for this closeout branch because it changes docs only. PR #175 itself already has targeted Replit acceptance at head `100cbd66`.
-- Phase 3.1 remains open; this closeout only closes the Ticket Pass hierarchy retry slice.
+- This closeout only covers the Ticket Pass hierarchy retry slice. See [`INIT-001`](../../initiatives/INIT-001-mobile-refresh.md) `## Current Resume Point` for the current Phase 3.1 follow-up.
 
 ## Verification
 

@@ -22,9 +22,9 @@ The operator value is safer AI-quality iteration: future agents can add syntheti
 
 ## Closeout Changes
 
-- `initiatives/INIT-004-ai-output-quality-evals.md`: clears the active PR/branch, records PR #188 as merged, updates validation state, and sets the next Phase 3 resume point.
-- `initiatives/registry.md`: marks INIT-004 as having no active PR after the merge and records the merged harness foundation signal.
-- `efforts/effort-022-cross-cuisine-recommendation-prompts.md`: records that PR #188 merged measurement scaffolding only; the cuisine-fallback product rule remains open.
+- `initiatives/INIT-004-ai-output-quality-evals.md`: records PR #188 as merged, updates validation state, and sets the next Phase 3 resume point.
+- `initiatives/registry.md`: records the merged harness foundation signal in the initiative index.
+- `efforts/effort-022-cross-cuisine-recommendation-prompts.md`: records that PR #188 merged measurement scaffolding only; see the Effort header for the current cuisine-fallback product-rule status.
 - `efforts/registry.md`: updates EFF-022's last signal to the merged Phase 3 fixture foundation.
 
 ## Validation

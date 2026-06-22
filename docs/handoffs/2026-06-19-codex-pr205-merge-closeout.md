@@ -15,8 +15,8 @@ This closeout is documentation-only. It records facts from the merged branch; it
 
 ## Changes
 
-- `initiatives/INIT-004-ai-output-quality-evals.md`: clears PR #205 as the active PR, records merge commit `762488e`, exact-head validation at `b64486a`, negative scope, and the unchanged next Phase 3 resume candidates.
-- `initiatives/registry.md`: updates INIT-004's active PR column to `None` and records PR #205 as the latest signal.
+- `initiatives/INIT-004-ai-output-quality-evals.md`: records merge commit `762488e`, exact-head validation at `b64486a`, negative scope, and the unchanged next Phase 3 resume candidates.
+- `initiatives/registry.md`: records PR #205 as the latest INIT-004 update.
 - `docs/evals/registry.md`: marks `public-pantry-recipe-user-expectation-fixtures-2026-06-19` as merged in PR #205.
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md`: records that PR #205 added measurement scaffolding only and did not resolve EFF-022.
 - `docs/handoffs/2026-06-19-codex-pr205-merge-closeout.md`: records this post-merge closeout and next resume point.
@@ -32,11 +32,11 @@ This closeout is documentation-only. It records facts from the merged branch; it
 
 ## Impact on other agents
 
-No INIT-004 PR is active after this closeout. Future agents should resume Phase 3 from the same bounded candidates already documented in INIT-004: `pantry_recipes` criteria-aware queue/provenance behavior, narrow judges after deterministic labels exist, or additional fixtures only when they cover a new accepted label gap.
+Future agents should resume Phase 3 from the same bounded candidates already documented in INIT-004: `pantry_recipes` criteria-aware queue/provenance behavior, narrow judges after deterministic labels exist, or additional fixtures only when they cover a new accepted label gap.
 
 Do not treat the merged PR #205 fixture validation as proof of live model recipe quality. It proves the public fixture artifacts are schema-valid, privacy-safe, current-shape pantry recipe examples with preserved labels.
 
-EFF-022 remains open. Cuisine-fit fixtures remain deferred unless they can be labeled without deciding whether Laica should stay literal to selected cuisines, ask for staples, or explain a pantry-flexible fallback.
+See [`EFF-022`](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for the current cuisine-fallback product-rule status. This PR did not change that decision surface.
 
 ## Open items
 

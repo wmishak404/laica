@@ -4,8 +4,6 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 3 - Eval harness
-**Active PR:** None
-**Active branch:** None
 
 ## Overview
 
@@ -256,7 +254,7 @@ Future implementation phases that use eval results as merge evidence must follow
 
 ## Current Resume Point
 
-No active INIT-004 branch or PR remains after [PR #219](https://github.com/wmishak404/laica/pull/219) merged as `68985f1`.
+The latest merged Phase 3 slice was [PR #219](https://github.com/wmishak404/laica/pull/219), merged as `68985f1`. It added eval-surface/prompt-version provenance separation for `pantry_recipes` after [PR #205](https://github.com/wmishak404/laica/pull/205) expanded the public pantry-recipe fixture corpus.
 
 The next bounded Phase 3 candidates are:
 
@@ -281,7 +279,7 @@ Cuisine-fit fixtures remain deferred unless they can be labeled without deciding
 - **2026-06-13** - Wilson accepted the Phase 2 architecture decisions captured in Claude's decision handoff: +15-minute max-time band, output-attached request/constraints fixture format, `dietary_compliance`, nutrition exclusion, two-tier public/private fixture storage with `LAICA_PRIVATE_EVAL_DIR`, cross-user bleed prevention, `cooking_assistance` infrastructure-only V1 status, and the Phase 3 implementation-risk checklist. Codex revised the Phase 2 spec from that handoff. PR #168 closed unmerged and stopped tracking the branch head, so PR #181 was opened as the clean review surface and marked ready for review.
 - **2026-06-13** - PR #181 merged as `5c410e3` after Wilson approved the accepted Phase 2 spec and GitHub checks passed at final PR head `d9a17d7`. Phase 3 eval harness work is now unblocked from the merged spec, with EFF-022 cuisine fallback still open as a product decision and no runtime/eval execution changes shipped in Phase 2.
 - **2026-06-16** - Phase 3 foundation implementation opened as PR #188 on `codex/init-004-harness-foundation` from fresh `origin/main` `27affa18`. The slice implements the offline fixture/contract foundation and feature-id split without provider judges, private fixtures, DB migrations, prompt activation, daily reports, or EFF-022 product-rule changes.
-- **2026-06-16** - PR #188 merged as `2e1c693` after Wilson approved the merge and exact-head GitHub checks passed at PR head `b865864`. Phase 3 remains open for the next bounded harness slice; no active PR is assigned after the merge closeout.
+- **2026-06-16** - PR #188 merged as `2e1c693` after Wilson approved the merge and exact-head GitHub checks passed at PR head `b865864`. Phase 3 continues from this merged harness foundation toward the next bounded slice.
 - **2026-06-16** - Started the first public synthetic fixture slice on `codex/init-004-public-fixtures` from fresh `origin/main` `34f3613`. The slice adds four synthetic public fixtures and expected deterministic failure handling without provider judges, private fixture ingestion, prompt changes, DB writes, or product-rule changes.
 - **2026-06-17** - PR #190 merged as `0027908` after Wilson approved the merge and the required approving-review branch-protection gate was removed because Wilson's merge instruction in the working thread is the accepted review authority for this workflow. Strict required status checks remain on `main`. The merged slice adds public synthetic fixtures, expected deterministic failure handling, and the lightweight `Value claim` / `Evidence` / `Evidence limits` verification standard.
 - **2026-06-17** - Opened draft PR #198 on `codex/init-004-phase-3-user-expectation-fixtures` from fresh `origin/main` `3fac3c0`. The bounded milestone adds three public synthetic cooking-step user-expectation fixtures from the accepted Arize/Wilson-label target set and defers cuisine-fit fixtures because the EFF-022 fallback rule remains unresolved.
@@ -293,4 +291,4 @@ Cuisine-fit fixtures remain deferred unless they can be labeled without deciding
 - **2026-06-19** - After Wilson instructed that [PR #191](https://github.com/wmishak404/laica/pull/191) merge first, PR #191 merged as `104ee0c`, PR #205 was rebased onto that updated `origin/main`, and PR #205 merged as `762488e` at 2026-06-20T01:21:23Z. The merged slice kept the same offline fixture/docs/test scope and left providers, prompts, DB/schema, private fixture ingestion, daily reports, and EFF-022 cuisine fallback unchanged.
 - **2026-06-22** - Started `codex/init-004-eval-provenance` from fresh `origin/main` `ecf1cdb` after triage found no active INIT-004 PR. The bounded milestone implements criteria-aware eval queue selection and logs `/api/recipes/pantry` outputs as `pantry_recipes` while preserving the reused `recipe_suggestions` prompt source and prompt-version provenance. Cuisine-fit fixtures and fallback behavior remain deferred to EFF-022/product-rule decisions.
 - **2026-06-22** - After unrelated PR #218 merged, PR #219 was rebased onto fresh `origin/main` `659b361` before Wilson's merge instruction could be applied. This preserved the same eval-provenance scope and avoided merging a stale `BEHIND` head.
-- **2026-06-22** - PR #219 merged as `68985f1` after Wilson approved the merge and exact-head local/GitHub checks passed at final PR head `fbb01d5`. Phase 3 remains open for the next bounded eval harness slice; no active INIT-004 PR is assigned after this closeout.
+- **2026-06-22** - PR #219 merged as `68985f1` after Wilson approved the merge and exact-head local/GitHub checks passed at final PR head `fbb01d5`. Phase 3 continues from this merged eval-provenance slice toward the next bounded harness milestone.
