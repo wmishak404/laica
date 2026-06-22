@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-06-19
+**Updated:** 2026-06-22
 
 ## One-line summary
 
@@ -175,3 +175,9 @@ EFF-022 remains open. Cuisine-fit fixtures are still deferred unless they can be
 ## 2026-06-19 - Pantry user-expectation fixtures merged
 
 PR #205 merged as `762488e` after PR #191. The merged INIT-004 fixture batch adds pantry-recipe measurement coverage for dietary compliance, pantry grounding / optional extras, and beginner skill fit only. It does not satisfy EFF-022 resolution criteria because it does not audit cuisine picker behavior, change recipe prompts, add multi-cuisine prompt guidance, add cuisine-fit/fusion fixtures, or decide the selected-cuisine fallback product rule.
+
+## 2026-06-22 - Pantry eval provenance branch started
+
+`codex/init-004-eval-provenance` starts the INIT-004 Phase 3 queue/provenance slice that makes Chef It Up pantry recipe outputs measurable under the `pantry_recipes` eval surface while preserving the existing `recipe_suggestions` prompt source. The branch records active recipe prompt-version provenance on eval logs when a DB prompt is active and keeps unsupported/non-criteria feature rows out of eval batches.
+
+This helps future EFF-022 cuisine-fit work because pantry recipe rows can be separated from general recipe suggestions before Wilson-labeling or judge calibration. It still does not satisfy EFF-022 resolution criteria: no cuisine picker audit, prompt guidance, cuisine-fit/fusion fixture, card display guidance, or selected-cuisine fallback decision changes in this slice.

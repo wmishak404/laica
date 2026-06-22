@@ -7,14 +7,19 @@ import { isPromptFeatureType, type PromptFeatureType } from "./ai-feature-types"
 // In-memory cache — avoids a DB hit on every single AI call.
 // Invalidated when a prompt is activated or created.
 // ─────────────────────────────────────────────────────────────────────────────
-const cache: Record<string, { prompt: string; cachedAt: number }> = {};
+const cache: Record<string, { id: number; prompt: string; cachedAt: number }> = {};
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-export async function getActivePrompt(featureType: PromptFeatureType): Promise<string | null> {
+export type ActivePromptVersion = {
+  id: number;
+  systemPrompt: string;
+};
+
+export async function getActivePromptVersion(featureType: PromptFeatureType): Promise<ActivePromptVersion | null> {
   const now = Date.now();
   const cached = cache[featureType];
   if (cached && now - cached.cachedAt < CACHE_TTL_MS) {
-    return cached.prompt;
+    return { id: cached.id, systemPrompt: cached.prompt };
   }
 
   try {
@@ -26,13 +31,22 @@ export async function getActivePrompt(featureType: PromptFeatureType): Promise<s
 
     if (versions.length === 0) return null;
 
-    const prompt = versions[0].systemPrompt;
-    cache[featureType] = { prompt, cachedAt: now };
-    return prompt;
+    const version = versions[0];
+    cache[featureType] = {
+      id: version.id,
+      prompt: version.systemPrompt,
+      cachedAt: now,
+    };
+    return { id: version.id, systemPrompt: version.systemPrompt };
   } catch (err) {
     console.error(`[prompt-manager] Failed to load active prompt for ${featureType}:`, err);
     return null;
   }
+}
+
+export async function getActivePrompt(featureType: PromptFeatureType): Promise<string | null> {
+  const version = await getActivePromptVersion(featureType);
+  return version?.systemPrompt ?? null;
 }
 
 export async function createPromptVersion(

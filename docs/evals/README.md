@@ -16,7 +16,7 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 Future implementation work may add:
 
 - `reports/` - generated summaries or durable references to generated summaries when committing the report itself is appropriate.
-- Additional harness command notes once INIT-004 adds executable eval tooling beyond unit-level fixture checks.
+- Additional harness command notes as INIT-004 adds executable eval tooling beyond fixture validation.
 
 Private raw-real gold fixtures do not live in this repo. INIT-004 Phase 2 reserves `LAICA_PRIVATE_EVAL_DIR` for a gitignored local directory outside worktrees when Wilson-labeled raw or staged outputs need to outlive normal interaction retention for calibration.
 
@@ -68,15 +68,16 @@ See [docs/workflows/evaluations.md](../workflows/evaluations.md) for the full du
 5. Link prompt-candidate comparisons and daily reports back through this directory.
 6. When executable tooling lands, document the exact command, required environment, output paths, and artifact-retention policy here.
 
-Current fixture foundation command:
+Current fixture foundation commands:
 
 ```bash
+npm run eval:fixtures
 npx vitest run tests/unit/eval-fixtures.test.ts
 ```
 
-This command validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
+`npm run eval:fixtures` is the focused public-fixture validation lane for PR evidence. `npx vitest run tests/unit/eval-fixtures.test.ts` validates the fixture validator behavior, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
-Current limitation: most committed fixtures are foundation and contract guards. The max-time fixtures directly protect a user time expectation, while the Slop Bowl and cooking-step fixtures primarily protect current response usability. The next fixture batches should add Wilson-labeled user-expectation cases from Arize/EFF-022 seeds, especially food safety, skill fit, equipment fit, dietary compliance, pantry grounding, cuisine fit, and cooking-step sequence.
+Current limitation: committed fixtures now include foundation contract guards plus first user-expectation probes for max-time, cooking-step safety/skill/equipment/sequence, and pantry recipe dietary/pantry/skill fit. They still do not prove live model quality, judge calibration, taste, broad cuisine fit, private-gold coverage, provider behavior, or prompt-candidate quality.
 
 Future fixture-batch evidence should summarize:
 
@@ -86,10 +87,16 @@ Future fixture-batch evidence should summarize:
 
 Current committed public fixture set:
 
+- `cooking-steps-chicken-doneness`
+- `cooking-steps-missing-lid-alternative`
+- `cooking-steps-raw-beef-doneness`
+- `cooking-steps-generated-context`
 - `openai-max-time-25-to-30`
+- `pantry-recipes-beginner-complexity`
+- `pantry-recipes-dietary-halal-pork`
+- `pantry-recipes-optional-extras-required`
 - `synthetic-max-time-30-to-60`
 - `slop-bowl-current-shape`
-- `cooking-steps-generated-context`
 
 ## Current Related Initiative
 

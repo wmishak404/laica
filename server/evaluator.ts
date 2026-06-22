@@ -2,11 +2,29 @@ import OpenAI, { toFile } from "openai";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
 import { eq, inArray, and, isNull } from "drizzle-orm";
-import { isEvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
+import { isEvalFeatureType, type EvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
 import { EVAL_CRITERIA } from "./eval-criteria";
 import { sanitizePromptInput, stripPromptMarkers } from "./ai-privacy";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
+
+type EvalBatchCandidate = {
+  featureType: string;
+};
+
+export function hasEvalCriteria(featureType: string): featureType is EvalFeatureType {
+  return isEvalFeatureType(featureType) && Object.prototype.hasOwnProperty.call(EVAL_CRITERIA, featureType);
+}
+
+export function selectEvaluableInteractionsForBatch<T extends EvalBatchCandidate>(
+  interactions: T[],
+): { evaluableInteractions: T[]; skipped: number } {
+  const evaluableInteractions = interactions.filter((interaction) => hasEvalCriteria(interaction.featureType));
+  return {
+    evaluableInteractions,
+    skipped: interactions.length - evaluableInteractions.length,
+  };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Build the evaluation prompt for a single interaction.
@@ -17,11 +35,10 @@ function buildEvalPrompt(interaction: {
   inputData: unknown;
   outputData: string;
 }): string {
-  if (!isEvalFeatureType(interaction.featureType)) {
+  if (!hasEvalCriteria(interaction.featureType)) {
     throw new Error(`Unknown feature type: ${interaction.featureType}`);
   }
   const criteria = EVAL_CRITERIA[interaction.featureType];
-  if (!criteria) throw new Error(`Unknown feature type: ${interaction.featureType}`);
 
   const errorModeList = criteria.errorModes
     .map(e => `- **${e.id}** [${e.severity}]: ${e.description}`)
@@ -67,8 +84,7 @@ export async function submitEvalBatch(interactionIds?: number[]): Promise<{ batc
       .where(eq(aiInteractions.evalStatus, 'pending'));
   }
 
-  const evaluableInteractions = interactions.filter(interaction => isEvalFeatureType(interaction.featureType));
-  const skipped = interactions.length - evaluableInteractions.length;
+  const { evaluableInteractions, skipped } = selectEvaluableInteractionsForBatch(interactions);
 
   if (evaluableInteractions.length === 0) {
     throw new Error("No pending interactions with eval criteria found to evaluate.");

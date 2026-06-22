@@ -131,7 +131,9 @@ describe('anonymous production gates', () => {
       },
     });
     expect(mocks.storage.reserveAnonymousRecipeGeneration).toHaveBeenCalledWith('guest-user-id', 10);
-    expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith('quick dinner', ['rice', 'eggs']);
+    expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith('quick dinner', ['rice', 'eggs'], {
+      evalFeatureType: 'pantry_recipes',
+    });
     expect(mocks.storage.refundAnonymousRecipeGeneration).not.toHaveBeenCalled();
   });
 
