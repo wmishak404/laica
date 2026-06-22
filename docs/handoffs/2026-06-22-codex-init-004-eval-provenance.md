@@ -5,6 +5,7 @@
 **Date:** 2026-06-22
 **Initiative:** INIT-004
 **INIT updated:** yes
+**PR:** [#219](https://github.com/wmishak404/laica/pull/219)
 
 ## Summary
 
@@ -38,7 +39,6 @@ EFF-022 remains open. This branch does not decide selected-cuisine fallback beha
 
 ## Open Items
 
-- Open a PR and update this handoff/INIT registry with the PR number.
 - Wait for GitHub `unit`, `e2e_guest_smoke`, audit/security, and CodeQL checks on the pushed head.
 - Wilson still owns the explicit merge decision because this is code/infrastructure work.
 

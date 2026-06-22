@@ -4,7 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-06-09
 **Current phase:** Phase 3 - Eval harness
-**Active PR:** Pending
+**Active PR:** [#219](https://github.com/wmishak404/laica/pull/219)
 **Active branch:** `codex/init-004-eval-provenance`
 
 ## Overview
@@ -230,7 +230,7 @@ INIT-004 should produce or coordinate:
 | [#198](https://github.com/wmishak404/laica/pull/198) | Merged as `9588459` | `codex/init-004-phase-3-user-expectation-fixtures` | Cooking-step user-expectation fixture slice. Local focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and whitespace checks passed at final PR head `7271094`; GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed before Wilson approved merge; no Replit validation required. |
 | [#200](https://github.com/wmishak404/laica/pull/200) | Merged as `bb5604f` | `codex/init-004-fixture-validation-script` | Focused public fixture validation script. Final head `da12f44` passed local `npm run eval:fixtures`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, whitespace checks, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL; no Replit validation required. |
 | [#205](https://github.com/wmishak404/laica/pull/205) | Merged as `762488e` | `codex/init-004-pantry-expectation-fixtures` | Pantry recipe user-expectation fixture slice. Final PR head `b64486a` passed local `npm run eval:fixtures`, focused fixture Vitest, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, whitespace checks, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL before Wilson's merge instruction was applied after PR #191 merged; no Replit validation required. |
-| Pending | Active | `codex/init-004-eval-provenance` | Criteria-aware queue selection plus `pantry_recipes` eval-surface and prompt-version provenance. Local final-head validation passed: `npm ci`, `npm run eval:fixtures` after the known local `tsx` IPC sandbox rerun with escalation, focused eval/logging/route Vitest, full `npm run test:unit`, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and `git diff --check`. GitHub exact-head checks are pending until PR open. No Replit validation expected because this is offline eval/logging infrastructure with no schema, prompt, provider, UI, auth, persistence, private-fixture, or live runtime generation behavior change beyond metadata on existing eval logs. |
+| [#219](https://github.com/wmishak404/laica/pull/219) | Active | `codex/init-004-eval-provenance` | Criteria-aware queue selection plus `pantry_recipes` eval-surface and prompt-version provenance. Local final-head validation passed: `npm ci`, `npm run eval:fixtures` after the known local `tsx` IPC sandbox rerun with escalation, focused eval/logging/route Vitest, full `npm run test:unit`, `npm run check`, `npm audit --audit-level=high`, `npm run build`, and `git diff --check`. GitHub exact-head checks are pending. No Replit validation expected because this is offline eval/logging infrastructure with no schema, prompt, provider, UI, auth, persistence, private-fixture, or live runtime generation behavior change beyond metadata on existing eval logs. |
 
 ## Validation State
 
