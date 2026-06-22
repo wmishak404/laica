@@ -12,6 +12,7 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 - `fixtures/` - canonical home for public synthetic or reviewed redacted regression fixtures. Raw private fixtures stay outside git under `LAICA_PRIVATE_EVAL_DIR`.
 - `init-004-phase-2-rubric-dataset-spec.md` - INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec revised from Wilson's architecture decisions.
 - Non-V1 interaction seeds, such as Live Cooking speech arbitration, may be registered here when they need the same intake/registry discipline. These records do not automatically expand INIT-004's active V1 scope.
+- INIT-004 Phase 7 generated-image quality calibration may also be registered here once the human-review workflow exists. Image review batches should stay separate from recipe-text eval pass rates, use blind Wilson labels over `recipe_image_cache` samples, compare model judges against frozen human-labeled sets, and route repeated disagreement clusters to generator, judge, threshold, provider/style, fingerprinting, product-rule, or fixture actions.
 
 Future implementation work may add:
 

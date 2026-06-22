@@ -185,6 +185,21 @@ V1 does not cover:
 - Full dashboard UX
 - Automated prompt activation without Wilson review
 
+### Phase 7 image-quality calibration lane
+
+Wilson accepted generated recipe-image quality as a later INIT-004 phase, not a separate INIT and not a loose follow-up. Start it only after INIT-004 has the core human-review queue, judge-calibration reports, daily/reporting loop, and action-routing machinery needed to make human labels useful.
+
+The future lane should:
+
+- sample `recipe_image_cache` rows for blind human review, especially near-threshold approvals/rejections, repeated failure clusters, provider/model/style-version comparisons, and policy/safety failures;
+- hide the model judge result until Wilson labels the image as acceptable, not acceptable, or needing a product decision;
+- record structured human failure labels so model-judge disagreements become actionable instead of only "right/wrong";
+- compare multiple judge models/prompts/thresholds against a frozen human-labeled image set before changing production gating;
+- report false approvals, false rejections, agreement near threshold, common clusters, latency, and cost;
+- route findings into concrete fixes: generator prompt, judge prompt, threshold, provider/model/style, recipe fingerprint/core-ingredient extraction, product decision, or fixture/gold-set addition.
+
+This lane is Phase 7 in INIT-004 so it stays part of the first eval-system buildout instead of getting lost after recipe-text evals. Until Phase 7 starts, `recipe_image_cache.accuracy_result` remains runtime quality telemetry and should not be treated as calibrated product truth.
+
 ### Speech interaction eval boundary
 
 Wilson's 2026-06-17 Live Cooking speech questions are registered as [speech-interaction-acceptance-seed-2026-06-17](../docs/evals/intakes/speech-interaction-acceptance-seed-2026-06-17.md) so the goal/value acceptance criteria survive outside chat. This is **not** current INIT-004 Phase 3 harness scope. The seed belongs to INIT-001 Phase 4 until Wilson explicitly opens a later speech/transcription/synthesis eval phase.
@@ -214,7 +229,8 @@ INIT-004 should produce or coordinate:
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
-| Phase 7 - Closeout | Planned | TBD | Durable metric definitions, reporting cadence, prompt workflow, validation evidence, and remaining product decisions recorded |
+| Phase 7 - Image quality calibration | Planned | TBD | Blind human review of `recipe_image_cache`, judge-model/prompt/threshold comparison, frozen image gold set, calibration reports, and action routing |
+| Phase 8 - Closeout | Planned | TBD | Durable metric definitions, reporting cadence, prompt workflow, image-calibration status, validation evidence, and remaining product decisions recorded |
 
 ## PRs And Branches
 
@@ -263,6 +279,8 @@ The next bounded Phase 3 candidates are:
 3. Add queue/reporting summaries that use the separated eval surface and prompt-version provenance without running live providers or changing prompts.
 
 Cuisine-fit fixtures remain deferred unless they can be labeled without deciding the unresolved EFF-022 product fallback rule. Do not start live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, or EFF-022 cuisine-fallback product changes without a separate documented milestone and any required Wilson decision.
+
+Future image-quality calibration is accepted as INIT-004 Phase 7, not current Phase 3 scope. Do not start the recurring human image-eval automation until the human-review queue and calibration-report workflow exist; when Phase 7 starts, it should sample `recipe_image_cache`, use blind Wilson labels, compare judge models against a frozen human-labeled image set, and route disagreement clusters to concrete generator/judge/provider/product fixes.
 
 ## Chronology
 
