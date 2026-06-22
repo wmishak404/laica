@@ -58,6 +58,6 @@ GitHub exact-head checks are pending until the PR is opened.
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `ecf1cdbb6128095e0f5e9812116ea5167f962ab6`
+- Current base: `origin/main` at `659b361b9985fc072e9a17d216e18626f889fda6`
 - Last Replit-validated at: not yet validated; not expected for this offline eval/logging metadata slice
-- Notes: no lower INIT-004 PR was open; open PR #218 is unrelated CI/dependency-lane work and was left untouched.
+- Notes: no lower INIT-004 PR was open. PR #219 was rebased onto current `origin/main` after unrelated PR #218 merged.
