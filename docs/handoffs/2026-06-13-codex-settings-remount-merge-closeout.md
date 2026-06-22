@@ -16,19 +16,19 @@ PR #173 merged the Settings active-section restore mitigation after the shared d
 - PR #173 was rebased onto that base and pushed as `b81a0c78d2c711e0263396e6db77dd983100db39`.
 - PR #173 merged into `main` as `4ee5c27df2ec9dc9ed127d18c3e3a02c81995b3a`.
 - `initiatives/INIT-001-mobile-refresh.md` now records PR #173 as a merged Settings restore mitigation with validation and negative scope.
-- `efforts/effort-025-settings-unsaved-inventory-reminder.md` now records that PR #173 landed the remount mitigation while EFF-025 remains open.
+- `efforts/effort-025-settings-unsaved-inventory-reminder.md` now records that PR #173 landed the remount mitigation without changing the broader dirty-state reminder follow-up.
 
 ## Impact on other agents
 
 Future Settings work should preserve the active-section marker contract when changing Settings section names, Pantry/Tools/Profile navigation, or save behavior. If the unexpected refresh itself returns, treat it as a separate root-cause investigation around Replit preview reloads, auth/profile cache invalidation, and browser/session lifecycle.
 
-EFF-025 remains open for dirty-state reminders, save affordance clarity, and unsaved-leave handling. Do not treat PR #173 as satisfying those resolution criteria.
+See [`EFF-025`](../../efforts/effort-025-settings-unsaved-inventory-reminder.md) for the current dirty-state reminder follow-up. Do not treat PR #173 as satisfying those resolution criteria.
 
 ## Open items
 
 - The intermittent refresh/remount trigger remains unidentified.
 - Final production release smoke should still run on the selected production candidate.
-- Broader EFF-025 dirty-state reminder work remains open.
+- Broader dirty-state reminder work stays with [`EFF-025`](../../efforts/effort-025-settings-unsaved-inventory-reminder.md).
 
 ## Verification
 

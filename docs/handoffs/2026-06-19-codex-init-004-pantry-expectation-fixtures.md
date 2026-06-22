@@ -19,7 +19,7 @@ Fresh `origin/main` was `7274a62e63c933c6f41bdde0035d47cce5e8b7d3`. Open PRs at 
 
 Architecture ranking:
 
-- INIT-004 Phase 3 ranked first because its current resume point explicitly allowed another small accepted target-set fixture batch, no INIT-004 PR was active, and the work is offline fixture/docs/test scope with no Replit, provider, privacy, schema, prompt, deployment, or product fallback decision.
+- INIT-004 Phase 3 ranked first because its resume point explicitly allowed another small accepted target-set fixture batch, and the work is offline fixture/docs/test scope with no Replit, provider, privacy, schema, prompt, deployment, or product fallback decision.
 - INIT-001 ranked lower because #191 is active/conflicting Live Cooking work and remaining Phase 3.1/4 options are UI/provider/runtime validation heavier.
 - INIT-002 remains in Phase 2 Replit observation; Phase 3 schema work is blocked until observation signal exists.
 - INIT-003 remains waiting on later Phase 5 / promotion semantics after INIT-001 Phase 5.
@@ -48,7 +48,7 @@ Evidence limits: Current automation proves artifact validity, privacy posture, r
 
 Use these fixtures as calibration probes for future `pantry_recipes` judges or Wilson review batches. Do not treat the current passing fixture validation as proof that Laica generates diet-safe, pantry-grounded, beginner-fit recipes in production.
 
-EFF-022 remains open. Cuisine-fit fixtures remain deferred unless they can be labeled without deciding whether Laica should stay literal to selected cuisines, ask for staples, or explain pantry-flexible fallback.
+See [`EFF-022`](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for the current cuisine-fallback product-rule status. Cuisine-fit fixtures remain deferred unless they can be labeled without deciding whether Laica should stay literal to selected cuisines, ask for staples, or explain pantry-flexible fallback.
 
 ## Open items
 

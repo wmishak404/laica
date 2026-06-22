@@ -150,6 +150,8 @@ When completing a task, write a handoff file in `docs/handoffs/` so the other ag
 3. Stop the automatic update process and ask Wilson to review when the next step needs human judgment, changes product direction, affects secrets/security, requires Replit-side intervention, or remains ambiguous after the agents have documented the tradeoff.
 4. For active features, record phase-by-phase decisions in `product-decisions/features/<feature>/` and promote only the durable accepted outcomes to top-level `PD-NNN` files.
 
+**Promotion-path rule.** Use [`docs/workflows/documentation-routing.md`](docs/workflows/documentation-routing.md) for the promotion ladder from current thread -> open PR -> handoff -> Effort -> INIT. Do not create an Effort or INIT for a one-off task unless unresolved follow-up must survive beyond the current branch/PR/thread.
+
 **INIT rule.** The `initiatives/` directory tracks living hubs for multi-phase work. Read the relevant INIT before starting or resuming initiative work, and update it when phase status, PR status, validation status, assets, major decisions, or the current resume point changes. Handoffs and PR descriptions for initiative work must cite the INIT and state whether it was updated.
 
 **INIT sequencing rule.** Do not treat INIT phase order as a hard dependency unless the INIT or phase record says so. Before recommending or starting out-of-order INIT work, classify the relationship: hard dependency, soft sequence, parallel-safe, shared-surface conflict, or product priority call. If work skips the listed resume order, state the classification, why the override is reasonable, and what debt or handoff must be recorded.

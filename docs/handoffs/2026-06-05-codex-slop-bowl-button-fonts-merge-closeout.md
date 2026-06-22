@@ -38,8 +38,7 @@ Computed-style and screenshot comparison are required when aligning these surfac
 
 ## Open Items
 
-- Phase 3.1 still owes the narrower Ticket Pass layout-only retry, light Prep Tray alignment after Ticket Pass is accepted, async imagery, and closeout visual review.
-- Planning setup-toast copy/persistence polish remains open in Phase 3.1.
+- See [`INIT-001`](../../initiatives/INIT-001-mobile-refresh.md) `## Current Resume Point` for the current Phase 3.1 follow-up slices after this merge.
 - PR #141 did not change recipe generation behavior, Slop Bowl behavior, backend routes, database schema, secrets, or deployment configuration.
 
 ## Verification

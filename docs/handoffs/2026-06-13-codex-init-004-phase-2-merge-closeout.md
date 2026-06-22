@@ -18,7 +18,7 @@ PR #181 merged the accepted INIT-004 Phase 2 eval spec as `5c410e3`, closing the
   - Adds the Phase 3 resume point: start with canonical public fixture schema/loading, deterministic contract validation, feature-id typing, privacy/leak checks, and cross-user bleed guards.
   - Keeps live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, and EFF-022 product-rule changes out of the first Phase 3 slice.
 - `initiatives/registry.md`
-  - Updates INIT-004 index status to Phase 3 with no active implementation PR.
+  - Updates INIT-004 index status to Phase 3 and records the merged spec as the latest update.
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md`
   - Records that PR #181 merged measurement scaffolding for cuisine-fit examples without resolving the cuisine fallback product rule.
 - `efforts/registry.md`
@@ -38,7 +38,7 @@ Phase 3 can now start from fresh `origin/main` after this closeout merges. Befor
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md` before changing cuisine eval criteria, prompt behavior, or fixture interpretation
 - `efforts/effort-010-local-db-schema-strategy.md` before any schema or database-backed eval work
 
-EFF-022 remains open. Phase 3 may label cuisine examples and use `blocked_on_product_rule`, but it must not decide whether Laica should stay literal to selected cuisines, ask for staples, or explain a pantry-flexible fallback unless Wilson makes that product decision.
+See [`EFF-022`](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for the current cuisine-fallback product-rule status. Phase 3 may label cuisine examples and use `blocked_on_product_rule`, but it must not decide whether Laica should stay literal to selected cuisines, ask for staples, or explain a pantry-flexible fallback unless Wilson makes that product decision.
 
 ## Open items
 

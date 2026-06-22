@@ -32,7 +32,7 @@ Use `docs/evals/fixtures/` as the canonical public fixture home. Commit only syn
 
 Do not treat `pantry_recipes` or `slop_bowl` as prompt-managed features. They are eval/reporting surfaces in this slice; prompt reuse remains conservative.
 
-EFF-022 remains open. This branch measures cuisine-fit/fallback cases later, but does not decide whether Laica should stay literal to selected cuisine, ask for staples, or explain a pantry-flexible fallback.
+See [`EFF-022`](../../efforts/effort-022-cross-cuisine-recommendation-prompts.md) for the current cuisine-fallback product-rule status. This branch measures cuisine-fit/fallback cases later, but does not decide whether Laica should stay literal to selected cuisine, ask for staples, or explain a pantry-flexible fallback.
 
 ## Open items
 

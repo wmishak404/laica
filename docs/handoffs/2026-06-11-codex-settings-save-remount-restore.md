@@ -27,7 +27,7 @@ This conforms with EFF-025 by preserving explicit save behavior; it does not imp
 ## Open items
 
 - The root cause of the intermittent browser/app refresh remains unconfirmed. If the refresh itself needs to be eliminated later, open a separate investigation around Replit preview reloads, auth/profile cache invalidation, and browser/session lifecycle.
-- Broader EFF-025 dirty-state reminder work remains open.
+- See [`EFF-025`](../../efforts/effort-025-settings-unsaved-inventory-reminder.md) for the broader dirty-state reminder follow-up.
 
 ## Verification
 

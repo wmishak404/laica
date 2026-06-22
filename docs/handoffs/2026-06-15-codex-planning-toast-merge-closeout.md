@@ -17,7 +17,7 @@ PR #184 also cleared its required audit blocker after Wilson explicitly approved
 ## Changes
 
 - `initiatives/INIT-001-mobile-refresh.md`: marks PR #184 merged, records the accepted Planning toast behavior, captures audit/validation evidence, and moves the resume point to the next Phase 3.1 slice.
-- `initiatives/registry.md`: clears INIT-001's active PR and records the merged Planning toast/audit signal.
+- `initiatives/registry.md`: records the merged Planning toast/audit signal in the initiative index.
 - `product-decisions/features/mobile-refresh/pd-phase-03-1-recipe-imagery.md`: records PR #184 as merged and preserves the title-only 2.5-second toast guardrail.
 - `docs/handoffs/2026-06-15-codex-planning-toast-merge-closeout.md`: this merge-closeout handoff.
 
@@ -31,7 +31,7 @@ Next Phase 3.1 work should choose a different documented slice from fresh `origi
 
 - This closeout branch still needs a docs-only PR and merge to make the closeout visible on `origin/main`.
 - No runtime Replit retest is needed for this closeout branch because it changes docs only. PR #184 itself deferred Replit visual validation under the automation-primary risk lane because the product slice was narrow client copy/duration cleanup and the audit slice was package-lock-only.
-- Phase 3.1 remains open; this closeout only closes the Planning-ready toast cleanup slice.
+- This closeout only covers the Planning-ready toast cleanup slice. See [`INIT-001`](../../initiatives/INIT-001-mobile-refresh.md) `## Current Resume Point` for the current Phase 3.1 follow-up.
 
 ## Verification
 

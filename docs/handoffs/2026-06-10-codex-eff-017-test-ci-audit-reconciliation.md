@@ -8,7 +8,7 @@
 
 ## Summary
 
-This docs pass records the reconciled Codex/Claude audit of Laica's automated test and CI posture after PR #159 merged. The active test suite is current and useful, but EFF-017 remains open because the strongest remaining gaps are enforcement and lane discipline: routine correctness checks should be mechanically required, coverage measurement should include all intended source before thresholds, OAuth preflight still needs configuration, and PR #159's direct Replit shell/browser validation is proven manual evidence rather than an accepted automated Replit-environment gate.
+This docs pass records the reconciled Codex/Claude audit of Laica's automated test and CI posture after PR #159 merged. The active test suite was useful at this point in time, and the strongest remaining 2026-06-10 gaps were enforcement and lane discipline: routine correctness checks should be mechanically required, coverage measurement should include all intended source before thresholds, OAuth preflight still needed configuration, and PR #159's direct Replit shell/browser validation was proven manual evidence rather than an accepted automated Replit-environment gate. See [`EFF-017`](../../efforts/effort-017-environment-parity-and-ci-confidence.md) for the current status.
 
 ## Changes
 

@@ -14,9 +14,9 @@ This branch implements the first EFF-027 reload-resilience slice. A hard reload 
 
 - Active Efforts audited: EFF-010, EFF-017, EFF-022, EFF-025, and EFF-027.
 - No Effort should be closed, deferred, moved into an INIT, or graduated into a PD/workflow from current `main`.
-- Open PR #196 already owns the actionable hygiene drift: EFF-027 is missing from `AGENTS.md` and `CLAUDE.md` on `main`, and #196 adds that mirror plus Efforts implementation-loop workflow language. This branch does not duplicate those docs changes.
-- Open PR #191 is draft INIT-001 Phase 4 Live Cooking audio work and does not own EFF-027's app-shell/MealPlanning restore slice.
-- Open PR #195 is a broad Dependabot dependency update and is unrelated to this active Effort implementation.
+- At 2026-06-18 branch selection time, PR #196 already owned the actionable hygiene drift: EFF-027 was missing from `AGENTS.md` and `CLAUDE.md` on `main`, and #196 added that mirror plus Efforts implementation-loop workflow language. This branch did not duplicate those docs changes.
+- At the same intake point, draft PR #191 owned INIT-001 Phase 4 Live Cooking audio work and did not own EFF-027's app-shell/MealPlanning restore slice.
+- The contemporaneous PR #195 Dependabot update was unrelated to this EFF-027 implementation slice.
 - Blocked handoff discovery found the known EFF-017 OAuth-preflight blocker; it does not block EFF-027.
 
 ## Effort Implementation Choice
@@ -64,7 +64,7 @@ If PR #196 merges before this branch, rebase and drop any duplicate hygiene lang
 
 ## Open Items
 
-- EFF-027 remains open until PR #201 merges and closeout updates the Effort status/read lists.
+- See [`EFF-027`](../../efforts/effort-027-active-workflow-reload-resilience.md) for the current reload-resilience status after PR #201 and closeout.
 - This branch does not address Slop Bowl active-flow restore, Live Cooking audio arbitration in PR #191, recipe image provider benchmarking, Settings dirty-state warnings, or EFF-017 provider/OAuth/canary lanes.
 - Future Phase 5 Saved/History IA is documented but not implemented here.
 - Replit validation used Chrome/direct workspace shell only. Replit Agent was not used.

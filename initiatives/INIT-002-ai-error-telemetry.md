@@ -4,8 +4,6 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-05-07
 **Current phase:** Phase 2 — Replit observation week
-**Active PR:** None
-**Active branch:** None
 
 ## Overview
 

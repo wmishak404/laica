@@ -12,8 +12,8 @@ PR #198 is merged into `main` as `958845909a3e31b2a47149dc5fafaa1724184bc3`, clo
 
 ## Changes
 
-- `initiatives/INIT-004-ai-output-quality-evals.md`: clears the active PR/branch, records PR #198 as merged, updates the Phase 3 row, PR table, validation state, resume point, and chronology.
-- `initiatives/registry.md`: marks INIT-004 with no active PR and records the merged Phase 3 fixture signal.
+- `initiatives/INIT-004-ai-output-quality-evals.md`: records PR #198 as merged, updates the Phase 3 row, PR table, validation state, resume point, and chronology.
+- `initiatives/registry.md`: records the merged Phase 3 fixture signal in the initiative index.
 - `docs/evals/registry.md`: updates `public-cooking-step-user-expectation-fixtures-2026-06-17` from draft PR status to merged status.
 - `docs/handoffs/2026-06-18-codex-pr198-merge-closeout.md`: captures this merge closeout for future agents.
 

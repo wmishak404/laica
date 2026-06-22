@@ -17,11 +17,11 @@ Last validated SHA: `fa636bdad619e7b8bee45902148c8f8c1e505f54`
 ## Changes
 
 - `initiatives/INIT-004-ai-output-quality-evals.md`
-  - Clears the active PR/branch fields.
+  - Removes no-longer-needed in-flight branch notes and records the merged state.
   - Records PR #166 as merged and adds its validation signal.
   - Updates Phase 1, PR table, validation state, resume point, and chronology for Phase 2.
 - `initiatives/registry.md`
-  - Clears INIT-004 active PR state and points the next work at Phase 2.
+  - Points the next work at Phase 2 and records the merged audit as the latest initiative update.
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md`
   - Records that PR #166 merged the audit signal but did not resolve EFF-022's product decision.
 - `docs/handoffs/2026-06-10-codex-init-004-phase-1-merge-closeout.md`
