@@ -69,6 +69,13 @@ See [docs/workflows/evaluations.md](../workflows/evaluations.md) for the full du
 5. Link prompt-candidate comparisons and daily reports back through this directory.
 6. When executable tooling lands, document the exact command, required environment, output paths, and artifact-retention policy here.
 
+Current admin summary surfaces:
+
+- `GET /api/admin/eval/pending` returns pending row totals, counts by feature, and the split between rows eligible for current eval criteria and rows skipped because they are operational or unsupported feature ids.
+- `GET /api/admin/eval/summary` keeps the existing total/pass/fail/error-mode summary and adds `featureReports` plus `promptVersionReports` so future reports can group results by eval surface and prompt-version provenance.
+
+These admin summaries are internal reporting helpers. They do not run provider judges, submit batches, process results, change prompts, write eval rows, ingest private fixtures, or create daily reports by themselves.
+
 Current fixture foundation commands:
 
 ```bash

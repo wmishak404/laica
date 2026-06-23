@@ -4,7 +4,7 @@ import http from 'node:http';
 import { requestHttp } from './http-test-client';
 
 const mocks = vi.hoisted(() => ({
-  getPendingCount: vi.fn(),
+  getPendingQueueSummary: vi.fn(),
 }));
 
 vi.mock('../../server/evaluator', () => ({
@@ -13,7 +13,7 @@ vi.mock('../../server/evaluator', () => ({
   processBatchResults: vi.fn(),
   getEvalSummary: vi.fn(),
   generateImprovedPrompt: vi.fn(),
-  getPendingCount: mocks.getPendingCount,
+  getPendingQueueSummary: mocks.getPendingQueueSummary,
 }));
 
 vi.mock('../../server/prompt-manager', () => ({
@@ -48,7 +48,14 @@ describe('Admin caching headers', () => {
 
   it('marks successful admin responses as non-cacheable', async () => {
     process.env.ADMIN_SECRET = 'test-secret';
-    mocks.getPendingCount.mockResolvedValueOnce({});
+    mocks.getPendingQueueSummary.mockResolvedValueOnce({
+      total: 0,
+      eligibleTotal: 0,
+      skippedTotal: 0,
+      byFeature: {},
+      eligibleByFeature: {},
+      skippedByFeature: {},
+    });
 
     const server = await startAdminServer();
 

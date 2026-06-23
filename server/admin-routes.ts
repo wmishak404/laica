@@ -8,7 +8,7 @@ import {
   processBatchResults,
   getEvalSummary,
   generateImprovedPrompt,
-  getPendingCount,
+  getPendingQueueSummary,
 } from "./evaluator";
 import {
   createPromptVersion,
@@ -53,9 +53,8 @@ export function registerAdminRoutes(app: Express): void {
   // Returns count of interactions waiting to be evaluated, broken down by feature.
   app.get('/api/admin/eval/pending', async (_req, res) => {
     try {
-      const counts = await getPendingCount();
-      const total = Object.values(counts).reduce((a, b) => a + b, 0);
-      res.json({ total, byFeature: counts });
+      const summary = await getPendingQueueSummary();
+      res.json(summary);
     } catch (err) {
       console.error('[admin] Error getting pending count:', err);
       res.status(500).json({ message: "Failed to get pending count." });
