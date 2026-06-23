@@ -97,8 +97,8 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
     expect(summary.total).toBe(3);
     expect(summary.passed).toBe(2);
     expect(summary.failed).toBe(1);
-    expect(summary.passRate).toBe(2 / 3);
-    expect(summary.averageScore).toBe(65);
+    expect(summary).not.toHaveProperty("passRate");
+    expect(summary).not.toHaveProperty("averageScore");
     expect(summary.errorModeBreakdown).toEqual({
       dietary_violation: 1,
       pantry_mismatch: 1,

@@ -127,6 +127,14 @@ function finalizeMetricSummary<T extends EvalMetricSummary & { scoreTotal: numbe
   };
 }
 
+function finalizeCountSummary<T extends EvalCountSummary>(summary: T): EvalCountSummary {
+  return {
+    total: summary.total,
+    passed: summary.passed,
+    failed: summary.failed,
+  };
+}
+
 export function buildEvalReportSummary(interactions: EvalReportCandidate[]) {
   const overall = createMetricAccumulator();
   const byFeature: Record<string, EvalCountSummary> = {};
@@ -196,7 +204,7 @@ export function buildEvalReportSummary(interactions: EvalReportCandidate[]) {
   }
 
   return {
-    ...finalizeMetricSummary(overall),
+    ...finalizeCountSummary(overall),
     errorModeBreakdown,
     byFeature,
     featureReports,
