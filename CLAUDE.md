@@ -83,12 +83,7 @@ The `initiatives/` directory tracks living hubs for multi-phase projects. INITs 
 
 **INIT post-merge closeout.** When an INIT-bound PR merges, the agent who performed or confirmed the merge must automatically do an immediate docs closeout from fresh `origin/main` before treating the work as finished. Do not wait for Wilson to ask. Update the INIT, initiative registry, related feature phase/product-decision docs, active Effort notes/registry entries when the merge adds signal, and a merge-closeout handoff. Push the closeout to `origin` through a docs-only PR, or explicitly record why it is deferred, who owns it, and the exact branch/PR/SHA it must reference. A final response after merging INIT work should mention the closeout PR or the documented deferral.
 
-Current active INITs:
-
-- `initiatives/INIT-001-mobile-refresh.md` — read before Mobile Refresh Phase 0-5 work, PR reviews, Replit validation, or design/validation/process updates tied to the mobile-refresh initiative.
-- `initiatives/INIT-002-ai-error-telemetry.md` — read before adding AI error logging/telemetry, creating or migrating an `ai_error_events` schema, adding admin APIs for AI error summaries/lists/details, correlating Feedback with AI failures, or extending the eval pipeline to consume operational error clusters.
-- `initiatives/INIT-003-anonymous-trial-and-account-upgrade.md` — read before changing guest entry, anonymous quota, Google linking, account upgrade boundaries, guest persistence, App Check launch gates, or Phase 5 linked-only memory behavior.
-- `initiatives/INIT-004-ai-output-quality-evals.md` — read before changing AI output-quality eval rubrics, importing eval/open-coding data, human review labels, LLM-as-judge calibration, golden datasets, daily eval reports, prompt-candidate workflow, or recipe/Slop Bowl/cooking-step eval criteria. Durable eval discipline belongs in `docs/workflows/evaluations.md`; practical eval records and artifacts belong in `docs/evals/registry.md` and `docs/evals/intakes/`, with INIT-004 linking to the current build context while active.
+For the current active INIT read list and read-before-work triggers, use `initiatives/README.md`. Do not mirror active INIT IDs in this file.
 
 ## UI governance — check before any UI work
 
@@ -98,21 +93,13 @@ Ask Wilson before adding, removing, reordering, renaming, or changing auth-mode 
 
 ## Active Efforts — check before starting work in a governed domain
 
-The `efforts/` directory tracks standalone follow-up work that does not currently belong inside an active INIT, feature phase record, PD, ADR, or workflow doc. These are **not** GitHub Issues and **not** bug reports. See `efforts/README.md` for the convention, status model, and current active read list. Use `efforts/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/pd-007-effort-status-and-registry-workflow.md`.
-
-Current active Efforts:
-
-- `efforts/effort-010-local-db-schema-strategy.md` — read before changing local DB bootstrap, schema sync, or Neon drift workflow
-- `efforts/effort-017-environment-parity-and-ci-confidence.md` — read before changing CI/auth smoke coverage, OAuth preflights, live-provider canaries, coverage thresholds, or validation-authority policy
-- `efforts/effort-022-cross-cuisine-recommendation-prompts.md` — read before changing recipe suggestion prompts, cuisine preference packaging, recipe eval criteria, cuisine picker options, or homepage/onboarding examples that name a cuisine tradition
-- `efforts/effort-025-settings-unsaved-inventory-reminder.md` — read before changing Settings Pantry/Kitchen add, delete, reset, save, dirty-state, or leave-warning behavior
-- `efforts/effort-027-active-workflow-reload-resilience.md` — read before changing app-shell bootstrap routing, MealPlanning session cache/restore, Chef It Up state transitions, or active workflow reload/remount recovery
+The `efforts/` directory tracks standalone follow-up work that does not currently belong inside an active INIT, feature phase record, PD, ADR, or workflow doc. These are **not** GitHub Issues and **not** bug reports. See `efforts/README.md` for the convention, status model, active read list, and read-before-work triggers. Use `efforts/registry.md` only when historical context is directly relevant. This workflow is durable in `product-decisions/pd-007-effort-status-and-registry-workflow.md`. Do not mirror active Effort IDs in this file.
 
 If work belongs to an active/future INIT phase, update the INIT or feature phase record instead of creating a new Effort. If work is governance/process, update a workflow doc, ADR, or PD instead of creating a new Effort.
 
 If your work intersects with an active Effort, cite it in your handoff and state how the change interacts with it (conforms / defers / adds new evidence).
 
-**Efforts hygiene and implementation loop.** Recurring Efforts runs must follow `docs/workflows/effort-system-audit.md`: start from fresh `origin/main`, check open Effort/hygiene PRs, recent handoffs, blocked handoffs, active INIT ownership, and active-list mirror parity before choosing work. After hygiene is clean, an agent may choose one unblocked `Open` or `In Progress` Effort for a PR-sized implementation slice; do not implement `Blocked`, `Deferred`, or `Resolved` Efforts unless the task is explicitly to unblock, close out, or reclassify them. Stop and ask Wilson when priority, product direction, architecture, secrets/security, Replit-side action, or merge authority is the real missing input.
+**Efforts hygiene and implementation loop.** Recurring Efforts runs must follow `docs/workflows/effort-system-audit.md`: start from fresh `origin/main`, check open Effort/hygiene PRs, recent handoffs, blocked handoffs, active INIT ownership, and agent entrypoint links before choosing work. After hygiene is clean, an agent may choose one unblocked `Open` or `In Progress` Effort for a PR-sized implementation slice; do not implement `Blocked`, `Deferred`, or `Resolved` Efforts unless the task is explicitly to unblock, close out, or reclassify them. Stop and ask Wilson when priority, product direction, architecture, secrets/security, Replit-side action, or merge authority is the real missing input.
 
 **Effort closeout after merge.** If a merged PR satisfies an Effort's resolution criteria, do a short docs closeout pass from fresh `main` instead of assuming the merged code will implicitly close the Effort. The closeout should flip the Effort status to `Resolved`, add a final dated resolution note with merged PR / handoff references, remove the Effort from `efforts/README.md`'s active read list, update `efforts/registry.md`, and push a handoff. If real follow-up scope remains, track it as a separate active Effort only when it is standalone; otherwise document it in the relevant INIT, phase record, workflow doc, ADR, or PD.
 

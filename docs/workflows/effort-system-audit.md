@@ -27,7 +27,7 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
 | `In Progress` ownership confusion | Agents treated `In Progress` as either "already handled" or "free to pile onto" | Inspect open PRs, recent handoffs, and blocked reports; continue only with a clear non-conflicting next slice |
 | Confusing technical summaries | File titles and one-line summaries required too much context to understand | Keep `effort-###` filenames and plain-English one-line summaries |
 | Active-list bloat | Resolved, governance, and initiative-owned items stayed in the active read list | Keep `efforts/README.md` limited to active standalone Efforts; put history in `registry.md` |
-| Agent mirror drift | `AGENTS.md` or `CLAUDE.md` missed an active Effort that was added to `efforts/README.md` | Compare the active Effort mirrors directly any time an Effort is created, resolved, or audited |
+| Agent entrypoint drift | `AGENTS.md` or `CLAUDE.md` duplicated active Effort IDs instead of linking to `efforts/README.md`, then one copy drifted | Verify agent files link to the authoritative Efforts entrypoint and do not carry concrete active Effort ID lists |
 
 ## Audit Steps
 
@@ -43,11 +43,11 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
    - Replace cross-doc status claims with links to the authoritative home (Effort header or INIT resume point), or time-qualify the statement if it is truly historical chronology.
    - Suggested command (tune the phrase list as needed when new drift patterns are discovered):
      - `rg -n "remains open|still active|active Effort|current active|active Effort read list|keep EFF-|keeps EFF-" initiatives product-decisions docs/workflows efforts`
-6. Compare **agent read-list mirrors** directly.
-   - `efforts/README.md` is authoritative for the active Effort read list, but `AGENTS.md` and `CLAUDE.md` mirror it for first-contact agent instructions.
-   - When an Effort is created, resolved, deferred, or audited, verify every active Effort ID in `efforts/README.md` appears in both `AGENTS.md` and `CLAUDE.md` with an accurate read-before-work trigger.
-   - Also verify removed/resolved Effort IDs are not still listed as active in either agent file.
-   - Do not rely only on broad `rg` hits. A missing mirror entry can be hidden when the Effort appears correctly in INITs, registry rows, or handoffs.
+6. Check **agent entrypoint links** instead of active-list mirrors.
+   - `efforts/README.md` is authoritative for the active Effort read list and read-before-work triggers.
+   - `AGENTS.md` and `CLAUDE.md` should link to `efforts/README.md`; they should not duplicate concrete active Effort IDs.
+   - When an Effort is created, resolved, deferred, or audited, verify the active list changed only in the Efforts source docs and that agent files still point to the Efforts entrypoint.
+   - Use a targeted search for active-ID duplication in agent files rather than maintaining a third and fourth copy of the active list.
 7. For each active Effort, ask:
    - Has merged work already satisfied it?
    - Does it naturally belong to a specific unclosed phase inside an active INIT?
@@ -61,7 +61,7 @@ The rename to Efforts narrows the system: Efforts are standalone follow-up recor
    - If the work is already done, resolve it and document the accepted outcome in the appropriate closed INIT phase / chronology location.
    - If the work is not done but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch, then resolve the Effort into that phase-owned work.
    - If the work does not clearly belong to a specific unclosed INIT phase, keep it as an Effort even when it is adjacent to initiative work. Add cross-references instead of forcing it into the INIT.
-9. Update `AGENTS.md`, `CLAUDE.md`, `initiatives/registry.md`, relevant INITs, relevant PDs/workflow docs, the Efforts README, and the Effort registry if the source of truth changes.
+9. Update `initiatives/registry.md`, relevant INITs, relevant PDs/workflow docs, the Efforts README, and the Effort registry if the source of truth changes. Update `AGENTS.md` and `CLAUDE.md` only when their entrypoint instructions or links change, not for routine active-list membership changes.
 10. If hygiene changes active status, ownership, routing, or taxonomy in a non-trivial way, open the docs PR and stop unless the implementation work is directly dependent on that hygiene decision and still has a clear validation path.
 11. If hygiene is clean and the task or automation asks to advance Efforts, use the implementation loop below.
 12. Write a handoff with what changed, why it changed, remaining active Efforts, implementation choice if any, and verification.
@@ -94,7 +94,7 @@ Implementation rules:
 - Use a fresh feature branch with clear ownership, normally `codex/<effort-short-name>` for Codex work.
 - Keep the implementation slice scoped to one Effort unless another source doc explicitly owns the shared change.
 - Update the Effort only when the work adds durable signal: a new decision, validation result, blocker, status change, or resolution evidence.
-- If status or active-list membership changes, update `efforts/README.md`, `efforts/registry.md`, `AGENTS.md`, and `CLAUDE.md` in the same branch.
+- If status or active-list membership changes, update `efforts/README.md` and `efforts/registry.md` in the same branch. Update `AGENTS.md` and `CLAUDE.md` only when the entrypoint rule itself changes.
 - PR descriptions and handoffs should include a short **Hygiene result** and **Effort implementation choice** so reviewers can see why this Effort was selected.
 - Do not merge implementation PRs without explicit human merge instruction or a separate workflow rule that grants authority for that exact PR type.
 
@@ -110,7 +110,7 @@ Use these docs deliberately during the audit instead of relying on a generic fol
 - [`../../product-decisions/pd-007-effort-status-and-registry-workflow.md`](../../product-decisions/pd-007-effort-status-and-registry-workflow.md) when deciding whether something should remain an Effort at all or graduate into a PD/workflow/INIT.
 - [`../../product-decisions/README.md`](../../product-decisions/README.md) when the likely durable home is a top-level PD or feature-phase record rather than an Effort.
 - [`../../initiatives/registry.md`](../../initiatives/registry.md) plus the relevant active INIT file when initiative phase ownership, current phase, or last-signal text may need to change.
-- [`../../AGENTS.md`](../../AGENTS.md) and [`../../CLAUDE.md`](../../CLAUDE.md) when the active Effort read list or planning-doc workflow rules need to stay in sync.
+- [`../../AGENTS.md`](../../AGENTS.md) and [`../../CLAUDE.md`](../../CLAUDE.md) when planning-doc workflow rules or entrypoint links need to stay in sync. Active Effort membership should live in `efforts/README.md`, not in the agent instruction files.
 - Domain-specific source docs already linked from the Effort or INIT when those are the likely durable home for the remaining signal.
 
 ## Closure Acceptance Criteria
@@ -144,13 +144,13 @@ Before closing or repointing an Effort, use this checklist:
 Use this in the Codex Automations menu for the recurring Efforts hygiene and implementation loop:
 
 ```text
-Daily Efforts hygiene and implementation: start from fresh origin/main. First run hygiene. Review efforts/README.md, efforts/registry.md, initiatives/registry.md, active INITs, product-decisions/README.md, product-decisions/pd-007-effort-status-and-registry-workflow.md, docs/workflows/effort-system-audit.md, docs/workflows/documentation-routing.md, docs/workflows/testing-and-acceptance.md, docs/workflows/agent-merge-authority.md, and docs/handoffs/README.md. Check open GitHub PRs for prior Efforts hygiene or implementation branches and for branches touching active Effort domains; inspect any still-open prior run before creating new work. Check docs/handoffs/*-blocked.md and recent handoffs for blockers or active ownership.
+Daily Efforts hygiene and implementation: start from fresh origin/main. First run hygiene. Review efforts/README.md, efforts/registry.md, initiatives/README.md, initiatives/registry.md, active INITs, product-decisions/README.md, product-decisions/pd-007-effort-status-and-registry-workflow.md, docs/workflows/effort-system-audit.md, docs/workflows/documentation-routing.md, docs/workflows/testing-and-acceptance.md, docs/workflows/agent-merge-authority.md, and docs/handoffs/README.md. Check open GitHub PRs for prior Efforts hygiene or implementation branches and for branches touching active Effort domains; inspect any still-open prior run before creating new work. Check docs/handoffs/*-blocked.md and recent handoffs for blockers or active ownership. Verify AGENTS.md and CLAUDE.md link to the authoritative INIT/Effort entrypoints instead of duplicating active ID lists.
 
-For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, naturally belongs to a specific unclosed phase inside an active INIT, or should graduate into a PD/workflow doc. When testing INIT ownership, use the INIT phase table, current phase, and current resume point rather than the phase-record Status line alone. Check whether the work has actually been addressed in the past before closing it. Apply the closure acceptance criteria in docs/workflows/effort-system-audit.md. If the work is already shipped, resolve it and document the accepted outcome in the appropriate closed INIT phase/chronology location. If the work is not shipped but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch and resolve the Effort into that phase-owned work. If no specific unclosed INIT phase naturally owns it, keep it as an Effort even if the initiative is adjacent. Add or refresh plain-English summaries, update the registry/read lists, and sync AGENTS.md / CLAUDE.md when the active list changes.
+For every active Effort, determine whether it is still a standalone to-do, has been resolved by merged work, naturally belongs to a specific unclosed phase inside an active INIT, or should graduate into a PD/workflow doc. When testing INIT ownership, use the INIT phase table, current phase, and current resume point rather than the phase-record Status line alone. Check whether the work has actually been addressed in the past before closing it. Apply the closure acceptance criteria in docs/workflows/effort-system-audit.md. If the work is already shipped, resolve it and document the accepted outcome in the appropriate closed INIT phase/chronology location. If the work is not shipped but a specific unclosed INIT phase clearly owns it, update that phase and the INIT in the same branch and resolve the Effort into that phase-owned work. If no specific unclosed INIT phase naturally owns it, keep it as an Effort even if the initiative is adjacent. Add or refresh plain-English summaries and update the registry/read lists.
 
 If hygiene finds non-trivial status, taxonomy, ownership, or stale-open-PR work, handle that first with a docs/handoff PR and stop unless the implementation slice is clearly safe and directly depends on the hygiene change. If hygiene is clean, choose one unblocked Open or In Progress Effort for a PR-sized implementation slice. Prefer explicit Priority metadata, recent user or validation pain, work that unlocks multiple Efforts/INITs, a clear validation lane, and the smallest useful slice. Do not implement Blocked, Deferred, or Resolved Efforts unless the task is explicitly to unblock, close out, reclassify, or reopen them. Stop and ask Wilson if the next step needs product direction, architecture, secrets/security, Replit-side action, or merge authority.
 
-For the chosen Effort, read the Effort, linked INITs/phase records/PDs/workflows, related active Efforts, recent handoffs, and applicable validation workflow before editing code. Keep changes scoped to one Effort and one PR-sized slice. Update the Effort only when the work adds durable signal, and update README/registry/AGENTS/CLAUDE if status or active-list membership changes. Run the checks required by docs/workflows/testing-and-acceptance.md for the changed surface. Write a handoff and open a PR with Hygiene result, Effort implementation choice, files changed, validation evidence, negative scope, and open items. Request Claude peer review when taxonomy, closeout rationale, or implementation risk is non-trivial. Do not merge PRs without explicit Wilson approval or a separate workflow rule that grants authority for that exact PR type. Rename the thread after selecting the Effort so recurring runs are distinguishable.
+For the chosen Effort, read the Effort, linked INITs/phase records/PDs/workflows, related active Efforts, recent handoffs, and applicable validation workflow before editing code. Keep changes scoped to one Effort and one PR-sized slice. Update the Effort only when the work adds durable signal, and update README/registry if status or active-list membership changes. Run the checks required by docs/workflows/testing-and-acceptance.md for the changed surface. Write a handoff and open a PR with Hygiene result, Effort implementation choice, files changed, validation evidence, negative scope, and open items. Request Claude peer review when taxonomy, closeout rationale, or implementation risk is non-trivial. Do not merge PRs without explicit Wilson approval or a separate workflow rule that grants authority for that exact PR type. Rename the thread after selecting the Effort so recurring runs are distinguishable.
 ```
 
 ## 2026-05-09 Cleanup Record
