@@ -49,6 +49,6 @@ Do not call this branch security remediation unless a future advisory or Dependa
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `89ce14ff169ff9a2a721a615b42cd46c28fc1bf0`
+- Current base: `origin/main` at `13c4982f9ae9e122e47573dd3481affb65893763`
 - Last Replit-validated at: not applicable for routine dependency metadata update
-- Notes: branch started from current `origin/main`, then cherry-picked Dependabot commit `007001ca06e19ca884b2ae7a7f95ee5a1c7d32b4`.
+- Notes: branch started from `origin/main` at `89ce14ff169ff9a2a721a615b42cd46c28fc1bf0`, cherry-picked Dependabot commit `007001ca06e19ca884b2ae7a7f95ee5a1c7d32b4`, then rebased after PR #220 moved `main` to `13c4982f9ae9e122e47573dd3481affb65893763`.
