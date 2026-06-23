@@ -6,6 +6,7 @@
 **Initiative:** INIT-004
 **INIT updated:** yes
 **Resolves blocked handoff:** none
+**PR:** [#232](https://github.com/wmishak404/laica/pull/232)
 
 ## Summary
 
@@ -37,8 +38,7 @@ This branch does not start LLM judges, submit batches, process new eval results,
 
 ## Open items
 
-- Open the PR, add `codex` and `codex-automation` labels, and refresh this handoff/INIT PR placeholders with the PR number.
-- Run the full local validation lane and exact-head GitHub checks after the PR is pushed.
+- Mark PR #232 ready for review and wait for exact-head GitHub checks.
 - Wilson still owns the explicit merge decision because this is code/infrastructure work.
 
 ## Verification
@@ -47,15 +47,16 @@ Completed so far:
 
 - `npm ci` passed after the fresh worktree lacked installed dependencies.
 - `npx vitest run tests/unit/evaluator.test.ts tests/unit/admin-cache-headers.test.ts` passed: 2 files / 4 tests.
+- `npm run eval:fixtures` initially failed before script execution because local sandboxing blocked the `tsx` IPC pipe with `listen EPERM`; the same command passed after narrow escalation and validated 10 public fixtures across `cooking_steps`, `pantry_recipes`, `recipe_suggestions`, and `slop_bowl`.
+- `npm run test:unit` passed: 44 files / 317 tests.
+- `npm run check` passed.
+- `npm audit --audit-level=high` passed with 0 vulnerabilities.
+- `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
+- `git diff --check origin/main...HEAD` passed.
+- `git diff --check` passed.
 
 Pending before review:
 
-- `npm run eval:fixtures`
-- `npm run test:unit`
-- `npm run check`
-- `npm audit --audit-level=high`
-- `npm run build`
-- `git diff --check origin/main...HEAD`
 - GitHub exact-head `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL checks after PR open.
 
 ## Stack / base status
