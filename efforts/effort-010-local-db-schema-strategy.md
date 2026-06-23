@@ -4,7 +4,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-06-17
+**Updated:** 2026-06-22
 
 ## One-line summary
 
@@ -213,3 +213,13 @@ Classification:
 - A missing `anonymous_recipe_usage` table is still required-schema drift for guest auth/session setup; do not weaken `/api/auth/session` or run `npm run db:push` against an unknown/shared local database to hide it.
 - The smallest safe merge-evidence path remains the existing GitHub `e2e_guest_smoke` lane, which provisions a schema-only Neon branch, applies the current Drizzle schema, runs `db:health`, runs Playwright, and deletes the branch.
 - If local reproduction is needed before CI, use the guarded local diagnostics sandbox with an explicit disposable/non-production database URL and `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true`.
+
+## 2026-06-22 — Recipe image cache added to schema health
+
+PR #192's `recipe_image_cache` table is now merged runtime schema for selected-recipe imagery, and PR #208 depends on the same selected-image cache path for the Prep Tray ready-image fill. The schema-health tripwire now checks for `recipe_image_cache` alongside the older drift vectors.
+
+This is a narrow drift-detection improvement, not a local DB ownership decision:
+
+- A missing `recipe_image_cache` table should fail `npm run db:health` before DB-backed browser validation so agents do not misclassify selected-image failures as UI or provider bugs.
+- GitHub `e2e_guest_smoke` and guarded local diagnostics sandboxes that apply the current Drizzle schema should pass this check.
+- Agents still should not run `npm run db:push` against the default decrypted `.env` database just to satisfy this table; use CI's schema-only Neon branch or an explicit disposable sandbox unless Wilson authorizes another database target.

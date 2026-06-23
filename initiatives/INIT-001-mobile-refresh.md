@@ -337,7 +337,7 @@ The weekly Effort hygiene audit initially tried to close EFF-013 and EFF-014 out
 
 ### 2026-05-11 - Follow-up ownership rule corrected
 
-Wilson clarified that adjacent initiative work should only move out of the Effort system when a specific unclosed INIT phase naturally owns it or the work is already shipped. Pantry spell correction and richer scan-review cleanup do not yet meet that bar, so they remain active Efforts even though INIT-001 should stay aware of them during future phase work.
+Wilson clarified that adjacent initiative work should only move out of the Effort system when a specific unclosed INIT phase naturally owns it or the work is already shipped. At that point, pantry spell correction and richer scan-review cleanup did not yet meet that bar, so they stayed active Efforts even though INIT-001 needed to stay aware of them during future phase work.
 
 ### 2026-05-11 - Effort hygiene closeout merged
 
