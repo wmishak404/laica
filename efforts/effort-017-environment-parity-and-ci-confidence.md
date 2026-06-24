@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-21
+**Updated:** 2026-06-24
 
 ## One-line summary
 
@@ -710,3 +710,16 @@ Dependabot PR #210 updated GitHub Actions dependencies (`actions/checkout` and T
 - The npm version-update bundle combined too much risk: React 19, Express 5, Tailwind 4, TypeScript 6, Vite 8, OpenAI 6, Firebase Admin 14, and other major or provider/runtime-impacting upgrades. It also failed `npm ci` because the manifest and lockfile were out of sync. Future routine npm version updates should group patch and minor updates, while major updates open individually for planned review and targeted validation.
 
 Follow-up branch `codex/dependabot-risk-split` supersedes PR #210 with the same action bumps from fresh `origin/main`, adds a Neon cleanup guard, and narrows Dependabot grouping so future major npm and GitHub Actions version updates are not hidden inside broad bundles. This does not grant Dependabot access to the E2E secret set; giving dependency PRs Neon/Firebase/ElevenLabs credentials remains a separate security tradeoff and is not accepted by this slice.
+
+## 2026-06-24 — `useAuth` session-contract coverage added
+
+The daily Efforts hygiene pass kept EFF-017 as the highest-leverage implementation lane because auth/session confidence, exact-head CI, and live-surface coverage affect INIT-001, INIT-003, future linked dev-auth E2E, and release validation. No active Effort needed closeout or routing changes before implementation.
+
+Branch `codex/eff-017-auth-session-coverage` adds focused unit coverage for the generic `useAuth` hook. The tests prove that:
+
+- no Firebase ID token avoids a backend session call and leaves the app signed out;
+- successful `/api/auth/session` envelopes become linked or anonymous/guest auth state as appropriate;
+- the session request carries the fresh Firebase bearer token;
+- `401` and non-OK session responses do not mark the app authenticated.
+
+This closes one live-but-thin client auth coverage gap noted in the 2026-06-10 audit, but it does not resolve EFF-017. Remaining scope still includes provider canary decisions, automated Replit-environment work, coverage ratcheting, broader live-cooking/useAuth-adjacent coverage, and any future validation-authority changes Wilson explicitly accepts.
