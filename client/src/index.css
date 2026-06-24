@@ -2424,10 +2424,29 @@ html, body {
   }
 
   .planning-use-chip {
-    border-color: hsl(var(--planning-herb) / 0.18);
+    display: inline-flex;
+    min-height: 2.05rem;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.36rem;
+    border: 1px solid hsl(var(--planning-herb) / 0.28);
+    border-radius: 999px;
     background: hsl(var(--planning-herb-soft) / 0.82);
-    color: hsl(112 28% 24%);
-    font-weight: 800;
+    color: hsl(var(--planning-herb));
+    font-size: 0.78rem;
+    font-weight: 950;
+    line-height: 1.05;
+    padding: 0.38rem 0.62rem;
+  }
+
+  .planning-use-chip-status {
+    flex-shrink: 0;
+    stroke-width: 3;
+  }
+
+  .planning-use-chip-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .planning-optional-chip {
