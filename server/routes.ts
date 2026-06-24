@@ -494,7 +494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
         
       const suggestions = await getRecipeSuggestions(enhancedPreferences, ingredients, {
-        evalFeatureType: "pantry_recipes",
+        evalFeatureType: "chef_it_up_suggestions",
       });
       res.json(withAnonymousQuota(suggestions, quotaReservation));
     } catch (error) {
@@ -503,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error,
         req,
         route: "/api/recipes/pantry",
-        feature: "pantry_recipes",
+        feature: "chef_it_up_suggestions",
         vendor: "openai",
       });
       if (error instanceof z.ZodError) {
@@ -630,7 +630,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error,
         req,
         route: "/api/recipes/slop-bowl",
-        feature: "slop_bowl",
+        feature: "slop_bowl_suggestions",
         vendor: "openai",
       });
       if (error instanceof z.ZodError) {

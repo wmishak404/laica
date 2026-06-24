@@ -1,6 +1,6 @@
 {
-  "id": "pantry-recipes-optional-extras-required",
-  "surface": "pantry_recipes",
+  "id": "chef-it-up-suggestions-optional-extras-required",
+  "surface": "chef_it_up_suggestions",
   "privacyClass": "synthetic",
   "roles": ["regression", "calibration-probe"],
   "sourceRefs": ["init004-phase-2-target-set"],

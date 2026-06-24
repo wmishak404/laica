@@ -188,7 +188,7 @@ export const feedback = pgTable("feedback", {
 // AI interaction logging for evaluation framework
 export const aiInteractions = pgTable("ai_interactions", {
   id: serial("id").primaryKey(),
-  featureType: varchar("feature_type").notNull(), // Eval feature id such as 'recipe_suggestions' | 'pantry_recipes' | 'slop_bowl' | 'cooking_steps' | 'cooking_assistance'
+  featureType: varchar("feature_type").notNull(), // Eval feature id such as 'recipe_suggestions' | 'chef_it_up_suggestions' | 'slop_bowl_suggestions' | 'cooking_steps' | 'cooking_assistance'
   inputData: jsonb("input_data").notNull(),
   outputData: text("output_data").notNull(),
   authUserId: varchar("auth_user_id"),

@@ -1,6 +1,6 @@
 {
-  "id": "slop-bowl-current-shape",
-  "surface": "slop_bowl",
+  "id": "slop-bowl-suggestions-current-shape",
+  "surface": "slop_bowl_suggestions",
   "privacyClass": "synthetic",
   "roles": ["regression", "positive-guard"],
   "sourceRefs": ["init004-phase-1-surface-audit"],

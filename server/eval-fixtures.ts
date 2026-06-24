@@ -6,7 +6,12 @@ import {
   recipeSuggestionsResponseSchema,
   slopBowlResponseSchema,
 } from "./ai-response-schemas";
-import { evalFeatureTypeSchema, type EvalFeatureType } from "./ai-feature-types";
+import {
+  evalFeatureTypeSchema,
+  LEGACY_EVAL_FEATURE_TYPES,
+  normalizeEvalFeatureType,
+  type EvalFeatureType,
+} from "./ai-feature-types";
 
 export const PUBLIC_EVAL_FIXTURE_DIR = path.resolve(process.cwd(), "docs/evals/fixtures");
 
@@ -35,10 +40,14 @@ const criterionLabelSchema = z.enum([
 ]);
 type CriterionLabel = z.infer<typeof criterionLabelSchema>;
 const criterionCheckIds = new Set<string>(criterionLabelSchema.options);
+const legacyEvalFeatureTypeSchema = z.enum(LEGACY_EVAL_FEATURE_TYPES);
+const evalFixtureSurfaceSchema = z
+  .union([evalFeatureTypeSchema, legacyEvalFeatureTypeSchema])
+  .transform((surface) => normalizeEvalFeatureType(surface) ?? (surface as EvalFeatureType));
 
 export const evalFixtureSchema = z.object({
   id: fixtureIdSchema,
-  surface: evalFeatureTypeSchema,
+  surface: evalFixtureSurfaceSchema,
   privacyClass: z.enum(["synthetic", "redacted", "raw_private"]),
   roles: z.array(z.enum(["regression", "calibration-probe", "positive-guard"])).default([]),
   sourceRefs: z.array(fixtureIdSchema).default([]),
@@ -232,9 +241,9 @@ function validateSurfaceContract(fixture: EvalFixture): EvalFixtureCheck[] {
 
   switch (fixture.surface) {
     case "recipe_suggestions":
-    case "pantry_recipes":
+    case "chef_it_up_suggestions":
       return validateRecipeSurface(fixture);
-    case "slop_bowl":
+    case "slop_bowl_suggestions":
       return validateSlopBowlSurface(fixture);
     case "cooking_steps":
       return validateCookingStepsSurface(fixture);

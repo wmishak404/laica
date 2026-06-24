@@ -100,11 +100,11 @@ Current committed public fixture set:
 - `cooking-steps-raw-beef-doneness`
 - `cooking-steps-generated-context`
 - `openai-max-time-25-to-30`
-- `pantry-recipes-beginner-complexity`
-- `pantry-recipes-dietary-halal-pork`
-- `pantry-recipes-optional-extras-required`
-- `synthetic-max-time-30-to-60`
-- `slop-bowl-current-shape`
+- `chef-it-up-suggestions-beginner-complexity`
+- `chef-it-up-suggestions-dietary-halal-pork`
+- `chef-it-up-suggestions-optional-extras-required`
+- `chef-it-up-suggestions-max-time-30-to-60`
+- `slop-bowl-suggestions-current-shape`
 
 ## Current Related Initiative
 

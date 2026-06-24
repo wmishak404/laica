@@ -28,7 +28,7 @@ function recipe(name: string, cookTime = 30) {
 function baseFixture(overrides: Record<string, unknown> = {}) {
   return {
     id: "synthetic-pantry-pass",
-    surface: "pantry_recipes",
+    surface: "chef_it_up_suggestions",
     privacyClass: "synthetic",
     roles: ["regression"],
     sourceRefs: ["eff022-thai-korean-broth-anchor"],
@@ -61,10 +61,35 @@ function baseFixture(overrides: Record<string, unknown> = {}) {
 
 describe("INIT-004 eval fixture foundation", () => {
   it("separates eval/reporting feature ids from prompt-managed feature ids", () => {
-    expect(listEvalFeatureTypesForFixtures()).toContain("pantry_recipes");
-    expect(listEvalFeatureTypesForFixtures()).toContain("slop_bowl");
-    expect(promptFeatureTypeSchema.safeParse("slop_bowl").success).toBe(false);
+    expect(listEvalFeatureTypesForFixtures()).toContain("chef_it_up_suggestions");
+    expect(listEvalFeatureTypesForFixtures()).toContain("slop_bowl_suggestions");
+    expect(listEvalFeatureTypesForFixtures()).not.toContain("pantry_recipes");
+    expect(listEvalFeatureTypesForFixtures()).not.toContain("slop_bowl");
+    expect(promptFeatureTypeSchema.safeParse("slop_bowl_suggestions").success).toBe(false);
     expect(promptFeatureTypeSchema.safeParse("recipe_suggestions").success).toBe(true);
+  });
+
+  it("accepts legacy fixture surface ids and normalizes them to canonical ids", () => {
+    const pantryResult = validateEvalFixture(baseFixture({ surface: "pantry_recipes" }));
+    const slopBowlResult = validateEvalFixture({
+      ...baseFixture({
+        id: "legacy-slop-bowl-pass",
+        surface: "slop_bowl",
+        output: JSON.stringify({
+          recipe: {
+            ...recipe("Rice Bowl"),
+            cuisine: "Pantry",
+            pantryMatch: 95,
+          },
+        }),
+        labels: { structure_contract: "pass" },
+      }),
+    });
+
+    expect(pantryResult.fixture?.surface).toBe("chef_it_up_suggestions");
+    expect(slopBowlResult.fixture?.surface).toBe("slop_bowl_suggestions");
+    expect(pantryResult.passed).toBe(true);
+    expect(slopBowlResult.passed).toBe(true);
   });
 
   it("accepts a public pantry recipe fixture with valid current recipes[] output", () => {
@@ -148,7 +173,7 @@ describe("INIT-004 eval fixture foundation", () => {
   it("validates Slop Bowl and cooking-step response contracts", () => {
     const slopResult = validateEvalFixture(baseFixture({
       id: "synthetic-slop-bowl",
-      surface: "slop_bowl",
+      surface: "slop_bowl_suggestions",
       request: { ingredients: ["rice", "eggs", "soy sauce"] },
       output: JSON.stringify({
         recipe: {
@@ -188,23 +213,23 @@ describe("INIT-004 eval fixture foundation", () => {
     const fixtures = await loadPublicEvalFixtures();
 
     expect(fixtures.map((fixture) => fixture.id)).toEqual([
+      "chef-it-up-suggestions-beginner-complexity",
+      "chef-it-up-suggestions-dietary-halal-pork",
+      "chef-it-up-suggestions-max-time-30-to-60",
+      "chef-it-up-suggestions-optional-extras-required",
       "cooking-steps-chicken-doneness",
       "cooking-steps-generated-context",
       "cooking-steps-missing-lid-alternative",
       "cooking-steps-raw-beef-doneness",
       "openai-max-time-25-to-30",
-      "pantry-recipes-beginner-complexity",
-      "pantry-recipes-dietary-halal-pork",
-      "pantry-recipes-optional-extras-required",
-      "slop-bowl-current-shape",
-      "synthetic-max-time-30-to-60",
+      "slop-bowl-suggestions-current-shape",
     ]);
-    expect(fixtures.find((fixture) => fixture.id === "synthetic-max-time-30-to-60")?.labels.max_time_adherence).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-max-time-30-to-60")?.labels.max_time_adherence).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "cooking-steps-raw-beef-doneness")?.labels.food_safety).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "cooking-steps-missing-lid-alternative")?.labels.equipment_fit).toBe("fail");
-    expect(fixtures.find((fixture) => fixture.id === "pantry-recipes-dietary-halal-pork")?.labels.dietary_compliance).toBe("fail");
-    expect(fixtures.find((fixture) => fixture.id === "pantry-recipes-optional-extras-required")?.labels.optional_ingredient_contract).toBe("fail");
-    expect(fixtures.find((fixture) => fixture.id === "pantry-recipes-beginner-complexity")?.labels.skill_fit).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-dietary-halal-pork")?.labels.dietary_compliance).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-optional-extras-required")?.labels.optional_ingredient_contract).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-beginner-complexity")?.labels.skill_fit).toBe("fail");
   });
 
   it("rejects public fixture artifacts when deterministic labels contradict observed checks", async () => {

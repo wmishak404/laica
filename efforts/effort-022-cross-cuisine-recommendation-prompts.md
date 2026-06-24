@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-06-22
+**Updated:** 2026-06-23
 
 ## One-line summary
 
@@ -187,3 +187,7 @@ This helps future EFF-022 cuisine-fit work because pantry recipe rows can be sep
 PR #219 merged as `68985f1`. Future cuisine-fit work can now query Chef It Up pantry recipe logs separately from generic recipe suggestions and still know which reused `recipe_suggestions` prompt version produced the row.
 
 EFF-022 remains open. The merge adds measurement plumbing only; it does not audit cuisine picker behavior, change prompts, add multi-cuisine prompt guidance, add cuisine-fit/fusion fixtures, change card display guidance, or decide selected-cuisine fallback behavior.
+
+## 2026-06-23 - Chef It Up eval taxonomy clarified
+
+Wilson accepted renaming the active Chef It Up eval/reporting surface from legacy `pantry_recipes` to canonical `chef_it_up_suggestions` before daily reports launch. Existing legacy rows and older fixture artifacts should normalize into the canonical id. This keeps future EFF-022 cuisine-fit work pointed at the product surface users recognize while preserving the same unresolved product-rule boundary: no prompt guidance, cuisine picker audit, fusion fixture, card display guidance, or selected-cuisine fallback decision changes in this rename.

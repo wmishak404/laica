@@ -61,8 +61,8 @@ export const EVAL_CRITERIA: Record<EvalFeatureType, EvalCriteria> = {
     ],
   },
 
-  pantry_recipes: {
-    featureType: 'pantry_recipes',
+  chef_it_up_suggestions: {
+    featureType: 'chef_it_up_suggestions',
     description: 'Evaluates Chef It Up pantry recipe suggestions for current response shape, pantry grounding, cuisine fit, optional ingredients, and user constraints.',
     evaluatorInstructions: `You are a culinary AI quality evaluator. Assess whether Chef It Up produced three pantry-first recipe suggestions that satisfy the user's packed preferences, selected cuisines, skill, time, dietary restrictions, confirmed staples, and pantry ingredients. Be strict on dietary and structure failures. Keep EFF-022 cuisine fallback cases separate from deterministic pantry grounding until the product rule is resolved.`,
     errorModes: [
@@ -99,8 +99,8 @@ export const EVAL_CRITERIA: Record<EvalFeatureType, EvalCriteria> = {
     ],
   },
 
-  slop_bowl: {
-    featureType: 'slop_bowl',
+  slop_bowl_suggestions: {
+    featureType: 'slop_bowl_suggestions',
     description: 'Evaluates Slop Bowl generation for one coherent bowl-style meal, current shape, pantry grounding, optional extras, equipment fit, safety, and usefulness.',
     evaluatorInstructions: `You are evaluating Laica's Slop Bowl output: one bowl-style meal generated from a user's pantry, skill, restrictions, equipment, recent meals, planning time, and optional feedback. The output must be coherent, safe, pantry-grounded, and honest about fusion or cuisine direction.`,
     errorModes: [

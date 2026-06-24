@@ -2,7 +2,7 @@ import OpenAI, { toFile } from "openai";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
 import { eq, inArray, and, isNull } from "drizzle-orm";
-import { isEvalFeatureType, type EvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
+import { normalizeEvalFeatureType, type EvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
 import { EVAL_CRITERIA } from "./eval-criteria";
 import { sanitizePromptInput, stripPromptMarkers } from "./ai-privacy";
 
@@ -41,8 +41,16 @@ type EvalFeatureReport = EvalMetricSummary & {
   promptVersions: EvalPromptVersionSummary[];
 };
 
-export function hasEvalCriteria(featureType: string): featureType is EvalFeatureType {
-  return isEvalFeatureType(featureType) && Object.prototype.hasOwnProperty.call(EVAL_CRITERIA, featureType);
+function getEvalCriteriaFeatureType(featureType: string): EvalFeatureType | null {
+  const normalizedFeatureType = normalizeEvalFeatureType(featureType);
+  if (!normalizedFeatureType) {
+    return null;
+  }
+  return Object.prototype.hasOwnProperty.call(EVAL_CRITERIA, normalizedFeatureType) ? normalizedFeatureType : null;
+}
+
+export function hasEvalCriteria(featureType: string): boolean {
+  return getEvalCriteriaFeatureType(featureType) !== null;
 }
 
 export function selectEvaluableInteractionsForBatch<T extends EvalBatchCandidate>(
@@ -65,11 +73,12 @@ export function buildPendingEvalQueueSummary<T extends EvalBatchCandidate>(inter
   const skippedByFeature: Record<string, number> = {};
 
   for (const interaction of interactions) {
-    incrementCount(byFeature, interaction.featureType);
+    const featureType = normalizeEvalFeatureType(interaction.featureType) ?? interaction.featureType;
+    incrementCount(byFeature, featureType);
     if (hasEvalCriteria(interaction.featureType)) {
-      incrementCount(eligibleByFeature, interaction.featureType);
+      incrementCount(eligibleByFeature, featureType);
     } else {
-      incrementCount(skippedByFeature, interaction.featureType);
+      incrementCount(skippedByFeature, featureType);
     }
   }
 
@@ -148,23 +157,24 @@ export function buildEvalReportSummary(interactions: EvalReportCandidate[]) {
   > = {};
 
   for (const interaction of interactions) {
+    const featureType = normalizeEvalFeatureType(interaction.featureType) ?? interaction.featureType;
     addEvalMetrics(overall, interaction);
 
-    if (!byFeature[interaction.featureType]) {
-      byFeature[interaction.featureType] = { total: 0, passed: 0, failed: 0 };
+    if (!byFeature[featureType]) {
+      byFeature[featureType] = { total: 0, passed: 0, failed: 0 };
     }
-    byFeature[interaction.featureType].total++;
-    if (interaction.evalPassed) byFeature[interaction.featureType].passed++;
-    else byFeature[interaction.featureType].failed++;
+    byFeature[featureType].total++;
+    if (interaction.evalPassed) byFeature[featureType].passed++;
+    else byFeature[featureType].failed++;
 
-    if (!featureAccumulators[interaction.featureType]) {
-      featureAccumulators[interaction.featureType] = {
+    if (!featureAccumulators[featureType]) {
+      featureAccumulators[featureType] = {
         ...createMetricAccumulator(),
         errorModes: {},
         promptVersions: {},
       };
     }
-    const featureSummary = featureAccumulators[interaction.featureType];
+    const featureSummary = featureAccumulators[featureType];
     addEvalMetrics(featureSummary, interaction);
 
     const promptVersionId = interaction.promptVersionId ?? null;
@@ -221,10 +231,11 @@ function buildEvalPrompt(interaction: {
   inputData: unknown;
   outputData: string;
 }): string {
-  if (!hasEvalCriteria(interaction.featureType)) {
+  const criteriaFeatureType = getEvalCriteriaFeatureType(interaction.featureType);
+  if (!criteriaFeatureType) {
     throw new Error(`Unknown feature type: ${interaction.featureType}`);
   }
-  const criteria = EVAL_CRITERIA[interaction.featureType];
+  const criteria = EVAL_CRITERIA[criteriaFeatureType];
 
   const errorModeList = criteria.errorModes
     .map(e => `- **${e.id}** [${e.severity}]: ${e.description}`)
@@ -403,7 +414,7 @@ export async function getEvalSummary() {
     .filter(i => !i.evalPassed)
     .map(i => ({
       id: i.id,
-      featureType: i.featureType,
+      featureType: normalizeEvalFeatureType(i.featureType) ?? i.featureType,
       inputData: i.inputData,
       outputData: i.outputData,
       errorModes: i.evalErrorModes,

@@ -136,7 +136,7 @@ describe("Phase 0 protected routes", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"], {
-      evalFeatureType: "pantry_recipes",
+      evalFeatureType: "chef_it_up_suggestions",
     });
   });
 

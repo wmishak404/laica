@@ -80,9 +80,9 @@ describe("INIT-004 recipe eval logging provenance", () => {
     });
   });
 
-  it("logs pantry recipe outputs under the pantry_recipes eval surface with recipe prompt provenance", async () => {
+  it("logs pantry recipe outputs under the chef_it_up_suggestions eval surface with recipe prompt provenance", async () => {
     await getRecipeSuggestions("quick dinner", ["rice", "eggs"], {
-      evalFeatureType: "pantry_recipes",
+      evalFeatureType: "chef_it_up_suggestions",
     });
 
     expect(mocks.getActivePromptVersion).toHaveBeenCalledWith("recipe_suggestions");
@@ -95,7 +95,7 @@ describe("INIT-004 recipe eval logging provenance", () => {
       ]),
     }));
     expect(mocks.insertValues).toHaveBeenCalledWith(expect.objectContaining({
-      featureType: "pantry_recipes",
+      featureType: "chef_it_up_suggestions",
       inputData: {
         preferences: "quick dinner",
         ingredients: ["rice", "eggs"],
