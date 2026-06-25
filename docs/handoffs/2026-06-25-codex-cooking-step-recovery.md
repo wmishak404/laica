@@ -3,6 +3,7 @@
 **Date:** 2026-06-25
 **Branch:** `codex/init-001-cooking-step-recovery`
 **Base:** `origin/main` at `0c94f76ab69ded678fd4cfff067f97e458bd80ac`
+**PR:** [#236](https://github.com/wmishak404/laica/pull/236)
 **Initiative:** [INIT-001 — Mobile Refresh](../../initiatives/INIT-001-mobile-refresh.md)
 **Phase:** [Mobile Refresh Phase 4 — Cooking Guidance](../../product-decisions/features/mobile-refresh/pd-phase-04-cooking.md)
 **INIT updated:** yes
@@ -40,19 +41,17 @@ User value: a cook stays in control during the most fragile part of the cooking 
 
 ## Validation
 
-Local validation run before this handoff:
+Local validation run before the first PR push:
 
 - `npm ci` — passed; `found 0 vulnerabilities`.
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` — passed, 1 file / 21 tests.
+- `npm run test:unit` — passed, 44 files / 318 tests.
+- `npm run check` — passed (`tsc && npm run lint:ui`).
+- `npm audit --audit-level=high` — passed; `found 0 vulnerabilities`.
+- `npm run build` — passed; existing Vite warnings remain for stale Browserslist data, Firebase mixed dynamic/static import chunking, and a >500 kB bundle.
+- `git diff --cached --check` — passed before the implementation commit.
 
-Validation still required before review/merge:
-
-- `npm run test:unit`
-- `npm run check`
-- `npm audit --audit-level=high`
-- `npm run build`
-- `git diff --check origin/main...HEAD`
-- Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL after the PR is opened or marked ready.
+Validation still required before ready/merge decision: exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL on the final pushed head after the PR-number backfill commit.
 
 ## Evidence Report
 
@@ -91,4 +90,4 @@ Rationale: the branch is a narrow client/state correction with focused determini
 
 ## Resume Point
 
-Open a PR from `codex/init-001-cooking-step-recovery`, refresh validation on the final head, and update this handoff/PR body with the PR number plus exact-head GitHub checks. Do not merge without Wilson instruction because this is runtime/UI behavior work.
+PR #236 is open as a draft. After the PR-number backfill commit is pushed, wait for exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL. If they pass, the smallest next action is Wilson deciding whether to mark ready for review or keep it draft while broader Phase 4 work continues. Do not merge without Wilson instruction because this is runtime/UI behavior work.

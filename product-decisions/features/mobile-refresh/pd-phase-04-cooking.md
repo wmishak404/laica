@@ -101,7 +101,7 @@ Wilson's follow-up review expanded the merge acceptance surface from the origina
 
 ### 2026-06-25 - Inline recovery and Finish contract slice
 
-Codex opened `codex/init-001-cooking-step-recovery` as the next bounded Phase 4 runtime slice. The branch makes Live Cooking honest when cooking-step generation fails: a failed or empty `/api/cooking/steps` response now keeps the cook in an inline recovery panel with `Try again`, `Use basic steps`, and `Back to Planning` instead of silently dropping them into generic fallback instructions. The backup path remains available, but only after the cook chooses it and sees that it is intentionally generic.
+Codex opened PR #236 (`codex/init-001-cooking-step-recovery`) as the next bounded Phase 4 runtime slice. The branch makes Live Cooking honest when cooking-step generation fails: a failed or empty `/api/cooking/steps` response now keeps the cook in an inline recovery panel with `Try again`, `Use basic steps`, and `Back to Planning` instead of silently dropping them into generic fallback instructions. The backup path remains available, but only after the cook chooses it and sees that it is intentionally generic.
 
 The same slice corrects the existing Finish contract for current Live Cooking controls. The final-step action is reachable as `Finish`; linked completion sends no hidden default `5` rating or invented `userNotes`; linked success copy uses the accepted Phase 4 language (`Nice, dinner's ready.`, `Saved to your cooking history.`, `Pantry cleanup comes next.`); and guest completion continues to avoid durable history. This does not implement Ready Check, Coach Feed redesign, timer redesign, provider prompt changes, schema changes, pantry cleanup state, taste memory, or full Phase 5 post-cook flow.
 
