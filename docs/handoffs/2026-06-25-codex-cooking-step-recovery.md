@@ -51,7 +51,7 @@ Local validation run before the first PR push:
 - `npm run build` — passed; existing Vite warnings remain for stale Browserslist data, Firebase mixed dynamic/static import chunking, and a >500 kB bundle.
 - `git diff --cached --check` — passed before the implementation commit.
 
-Validation still required before ready/merge decision: exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL on the final pushed head after the PR-number backfill commit.
+Validation still required before merge decision: exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL on the final pushed head after the ready-state docs refresh.
 
 ## Evidence Report
 
@@ -90,4 +90,4 @@ Rationale: the branch is a narrow client/state correction with focused determini
 
 ## Resume Point
 
-PR #236 is open as a draft. After the PR-number backfill commit is pushed, wait for exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL. If they pass, the smallest next action is Wilson deciding whether to mark ready for review or keep it draft while broader Phase 4 work continues. Do not merge without Wilson instruction because this is runtime/UI behavior work.
+PR #236 is ready for review. After the ready-state docs refresh is pushed, wait for exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL. If they pass, the smallest next action is Wilson deciding whether to merge now or keep it open while broader Phase 4 work continues. Do not merge without Wilson instruction because this is runtime/UI behavior work.
