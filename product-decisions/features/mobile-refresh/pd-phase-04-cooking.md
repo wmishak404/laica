@@ -99,6 +99,14 @@ Before any Phase 4 speech/audio branch is merge-ready, it must classify and test
 
 Wilson's follow-up review expanded the merge acceptance surface from the original exit bug to the full speech-arbitration matrix above. PR #191 converted those matrix cases for current Live Cooking speech behavior into passing deterministic assertions in `tests/unit/live-cooking-guest-session.test.tsx`. Wilson manually passed the 12-case Replit speech matrix at PR head `1bc9221`, including Back to Planning cleanup, step interruption, competing speech actions, hard refresh/mute/help coverage, mute persistence, unmute-no-autoplay, Repeat Step restart, rapid actions, and transcript fidelity. After a docs/workflow-only rebase, exact-head GitHub `unit` and `e2e_guest_smoke` passed at `b2e6f54` before merge. The default local dotenvx DB drift remains routed through EFF-010 / EFF-017 rather than a PR #191 product bug. This merged slice does not widen Phase 4 into Ready Check, Coach Feed, timer redesign, inline AI recovery, Finish/history semantics, provider prompts, schema changes, or Phase 5 cleanup; it clarifies what "speech works" means for the existing Live Cooking controls.
 
+### 2026-06-25 - Inline recovery and Finish contract slice
+
+Codex opened `codex/init-001-cooking-step-recovery` as the next bounded Phase 4 runtime slice. The branch makes Live Cooking honest when cooking-step generation fails: a failed or empty `/api/cooking/steps` response now keeps the cook in an inline recovery panel with `Try again`, `Use basic steps`, and `Back to Planning` instead of silently dropping them into generic fallback instructions. The backup path remains available, but only after the cook chooses it and sees that it is intentionally generic.
+
+The same slice corrects the existing Finish contract for current Live Cooking controls. The final-step action is reachable as `Finish`; linked completion sends no hidden default `5` rating or invented `userNotes`; linked success copy uses the accepted Phase 4 language (`Nice, dinner's ready.`, `Saved to your cooking history.`, `Pantry cleanup comes next.`); and guest completion continues to avoid durable history. This does not implement Ready Check, Coach Feed redesign, timer redesign, provider prompt changes, schema changes, pantry cleanup state, taste memory, or full Phase 5 post-cook flow.
+
+Focused local coverage in `tests/unit/live-cooking-guest-session.test.tsx` now proves failed step generation stays inline and retryable, generic backup steps require explicit user choice, and linked Finish omits invented rating/notes while using the accepted history/cleanup copy. Replit/manual validation remains useful before broader Phase 4 closeout if later work changes real provider behavior, device audio, microphone permissions, cooking-session persistence, or Finish-to-Phase-5 semantics.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
