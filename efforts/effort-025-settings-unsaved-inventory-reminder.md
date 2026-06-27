@@ -1,9 +1,9 @@
 # EFF-025 - Settings unsaved inventory reminder
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-06-13
+**Updated:** 2026-06-26
 
 ## One-line summary
 
@@ -41,12 +41,13 @@ This is larger than the current INIT-003 production-gates scope. It should be ta
 - The current explicit Save model can be confusing after chip add/delete actions because the list updates visually before it is committed.
 - This is not a blocker for INIT-003 production gates, but it is important enough to preserve as a follow-up.
 - The eventual fix should work for anonymous guests and linked users because both can now edit Settings inventory.
+- The 2026-06-26 implementation keeps the explicit Save model rather than introducing autosave. Pantry/Tools edits show an inline dirty-state reminder, Save copy changes while dirty, and leaving or switching away from a dirty inventory list asks for confirmation.
 
 ## Open questions
 
 - Should Settings inventory remain explicit-save with a dirty-state warning, or should specific chip add/delete actions autosave?
-- What is the least noisy reminder that still prevents accidental unsaved changes?
-- Should Back, Menu, and section switching all warn, or only leaving Settings entirely?
+- Does the inline reminder feel visible but not noisy on Replit/mobile?
+- Should reset remain an immediate saved destructive action, or should a future product pass make reset a dirty local edit?
 - Should recent unsaved chips visually differ from saved chips until Save succeeds?
 
 ## Agent checklist
@@ -99,3 +100,17 @@ This should be treated as a user-experience remedy for route loss after an inter
 PR #173 merged as `4ee5c27df2ec9dc9ed127d18c3e3a02c81995b3a` after PR #176 cleared the shared dependency audit blocker and PR #173 was rebased onto `origin/main` at `e1c4d4ab5f147ef556d6200e09b4972e5b417fc6`. GitHub CI passed on exact head `b81a0c78d2c711e0263396e6db77dd983100db39`, and Wilson's focused Replit smoke on that head confirmed refresh restored to the previously active page/section. The original unexpected refresh could not be reproduced during final smoke.
 
 EFF-025 remains open. PR #173 landed an active-section restore mitigation for route loss after remount; it did not add dirty-state reminders, save affordance changes, or unsaved-leave warnings.
+
+## 2026-06-26 - Dirty-state reminder implementation branch started
+
+Branch `codex/eff-025-settings-unsaved-reminder` adds the first direct EFF-025 implementation slice for Settings inventory edits. The branch keeps the existing explicit Save model and avoids autosave or persistence architecture changes.
+
+Implemented behavior:
+
+- Pantry and Tools compare the current local list against the last saved list.
+- Manual add, chip remove, and scan-added items surface an inline `Unsaved pantry changes` or `Unsaved tools changes` reminder before Save.
+- Save button copy changes to `Save pantry changes` / `Save tools changes` while dirty, then returns to the normal saved state after a successful linked or session-local save.
+- Back from Settings and switching away from a dirty Pantry/Tools list ask for confirmation before discarding unsaved local edits.
+- Existing saved/recent/found-again chip grammar remains unchanged and still clears to saved on successful Save.
+
+Validation so far: focused local `npx vitest run tests/unit/user-settings-scan-policy.test.tsx` passed with linked and guest/session assertions. Remaining before closing EFF-025: Replit/mobile visual validation that the reminder is noticeable without being noisy.

@@ -13,7 +13,7 @@ import { InventoryReviewChip } from '@/components/cooking/inventory-review-chip'
 import { NativeCamera } from '@/components/ui/native-camera';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import { Trash2, Package, User, Check, ImagePlus, Loader2 } from 'lucide-react';
+import { AlertTriangle, Trash2, Package, User, Check, ImagePlus, Loader2 } from 'lucide-react';
 import { processWithBoundedConcurrency } from '@/lib/boundedConcurrency';
 import {
   clearInventoryReviewType,
@@ -68,6 +68,8 @@ export type SettingsSection = 'hub' | 'inventory' | 'pantry' | 'kitchen' | 'prof
 type ActiveSettingsSection = 'hub' | 'inventory' | 'profile';
 type ScanProgress = { completed: number; total: number } | null;
 
+type SavedInventorySnapshot = Record<InventoryScanType, string[]>;
+
 function resolveSettingsSection(section: SettingsSection): {
   activeSection: ActiveSettingsSection;
   activeInventoryType: InventoryScanType;
@@ -96,6 +98,25 @@ function isAbortError(error: unknown) {
   return /abort|cancelled|canceled/i.test(message);
 }
 
+function inventorySnapshotFromProfile(profile: UserProfile): SavedInventorySnapshot {
+  return {
+    pantry: [...profile.pantryIngredients],
+    kitchen: [...profile.kitchenEquipment],
+  };
+}
+
+function areInventoryListsEqual(current: string[], saved: string[]) {
+  if (current.length !== saved.length) {
+    return false;
+  }
+
+  return current.every((item, index) => item === saved[index]);
+}
+
+function inventoryLabel(type: InventoryScanType) {
+  return type === 'pantry' ? 'pantry' : 'tools';
+}
+
 export default function UserSettings({
   userProfile,
   onProfileUpdate,
@@ -106,6 +127,9 @@ export default function UserSettings({
 }: UserSettingsProps) {
   const initialSettingsState = resolveSettingsSection(initialSection);
   const [profile, setProfile] = useState<UserProfile>(userProfile);
+  const [savedInventorySnapshot, setSavedInventorySnapshot] = useState<SavedInventorySnapshot>(() =>
+    inventorySnapshotFromProfile(userProfile)
+  );
   const [activeSection, setActiveSection] = useState<ActiveSettingsSection>(initialSettingsState.activeSection);
   const [activeInventoryType, setActiveInventoryType] = useState<InventoryScanType>(initialSettingsState.activeInventoryType);
   const isSessionOnly = persistenceMode === 'session';
@@ -113,6 +137,7 @@ export default function UserSettings({
   // Sync local state with prop changes (e.g., after profile reset)
   useEffect(() => {
     setProfile(userProfile);
+    setSavedInventorySnapshot(inventorySnapshotFromProfile(userProfile));
   }, [userProfile]);
 
   useEffect(() => {
@@ -236,6 +261,74 @@ export default function UserSettings({
       ? ` ${count} saved item${count === 1 ? ' was' : 's were'} found again.`
       : '';
 
+  const getInventoryItems = (type: InventoryScanType) =>
+    type === 'pantry' ? profile.pantryIngredients : profile.kitchenEquipment;
+
+  const hasUnsavedInventoryChanges = (type: InventoryScanType) =>
+    !areInventoryListsEqual(getInventoryItems(type), savedInventorySnapshot[type]);
+
+  const dirtyInventoryTypes = (['pantry', 'kitchen'] as InventoryScanType[]).filter(hasUnsavedInventoryChanges);
+
+  const hasAnyUnsavedInventoryChanges = dirtyInventoryTypes.length > 0;
+
+  const markInventorySaved = (type: InventoryScanType, items = getInventoryItems(type)) => {
+    setSavedInventorySnapshot(prev => ({
+      ...prev,
+      [type]: [...items],
+    }));
+  };
+
+  const dirtyInventoryCopy = (types = dirtyInventoryTypes) => {
+    if (types.length === 2) {
+      return 'pantry and tools';
+    }
+
+    return inventoryLabel(types[0] ?? 'pantry');
+  };
+
+  const confirmUnsavedInventoryLeave = (message: string, types = dirtyInventoryTypes) => {
+    if (types.length === 0) {
+      return true;
+    }
+
+    return window.confirm(message);
+  };
+
+  const handleInventoryTabChange = (nextType: InventoryScanType) => {
+    if (nextType === activeInventoryType) {
+      return;
+    }
+
+    if (
+      activeSection === 'inventory'
+      && hasUnsavedInventoryChanges(activeInventoryType)
+      && !confirmUnsavedInventoryLeave(
+        `You have unsaved ${inventoryLabel(activeInventoryType)} changes. Switch to ${nextType === 'pantry' ? 'Pantry' : 'Tools'} without saving them?`,
+        [activeInventoryType],
+      )
+    ) {
+      return;
+    }
+
+    setActiveInventoryType(nextType);
+  };
+
+  const handleSectionChange = (section: ActiveSettingsSection) => {
+    if (
+      activeSection === 'inventory'
+      && section !== 'inventory'
+      && hasUnsavedInventoryChanges(activeInventoryType)
+      && !confirmUnsavedInventoryLeave(
+        `You have unsaved ${inventoryLabel(activeInventoryType)} changes. Leave this list without saving them?`,
+        [activeInventoryType],
+      )
+    ) {
+      return;
+    }
+
+    setActiveSection(section);
+  };
+
   const flashCorrectedPantryEntries = (entries: string[]) => {
     const keys = entries.map(normalizeEntryDuplicateKey).filter(Boolean);
     if (keys.length === 0) {
@@ -304,6 +397,15 @@ export default function UserSettings({
   };
 
   const handleBack = () => {
+    if (
+      hasAnyUnsavedInventoryChanges
+      && !confirmUnsavedInventoryLeave(
+        `You have unsaved ${dirtyInventoryCopy()} changes. Leave Settings without saving them?`,
+      )
+    ) {
+      return;
+    }
+
     if (hasActiveScan) {
       const shouldLeave = window.confirm('Leave Settings and cancel the active scan? Items found so far may not be saved.');
       if (!shouldLeave) {
@@ -361,6 +463,7 @@ export default function UserSettings({
           "Your pantry has been cleared.",
         );
         clearReviewEntries('pantry');
+        markInventorySaved('pantry', []);
         return;
       }
 
@@ -369,6 +472,7 @@ export default function UserSettings({
         const updatedProfile = { ...profile, pantryIngredients: [] };
         updateInventoryItems('pantry', []);
         clearReviewEntries('pantry');
+        markInventorySaved('pantry', []);
         onProfileUpdate(updatedProfile);
         toast({
           title: "Pantry Reset",
@@ -399,6 +503,7 @@ export default function UserSettings({
           "Your tools list has been cleared.",
         );
         clearReviewEntries('kitchen');
+        markInventorySaved('kitchen', []);
         return;
       }
 
@@ -409,6 +514,7 @@ export default function UserSettings({
         });
         updateInventoryItems('kitchen', []);
         clearReviewEntries('kitchen');
+        markInventorySaved('kitchen', []);
         onProfileUpdate(updatedProfile);
         toast({
           title: "Tools reset",
@@ -437,6 +543,7 @@ export default function UserSettings({
         "Your pantry is updated.",
       );
       clearReviewEntries('pantry');
+      markInventorySaved('pantry');
       return;
     }
 
@@ -446,6 +553,7 @@ export default function UserSettings({
         pantryIngredients: profile.pantryIngredients 
       });
       clearReviewEntries('pantry');
+      markInventorySaved('pantry');
       onProfileUpdate(profile);
       toast({
         title: "Pantry saved!",
@@ -473,6 +581,7 @@ export default function UserSettings({
         "Your tools are updated.",
       );
       clearReviewEntries('kitchen');
+      markInventorySaved('kitchen');
       return;
     }
 
@@ -482,6 +591,7 @@ export default function UserSettings({
         kitchenEquipment: profile.kitchenEquipment 
       });
       clearReviewEntries('kitchen');
+      markInventorySaved('kitchen');
       onProfileUpdate(profile);
       toast({
         title: "Tools saved!",
@@ -1017,7 +1127,7 @@ export default function UserSettings({
         aria-selected={activeInventoryType === 'pantry'}
         className="returning-section-tab"
         data-active={activeInventoryType === 'pantry'}
-        onClick={() => setActiveInventoryType('pantry')}
+        onClick={() => handleInventoryTabChange('pantry')}
       >
         <span>Pantry</span>
       </button>
@@ -1027,7 +1137,7 @@ export default function UserSettings({
         aria-selected={activeInventoryType === 'kitchen'}
         className="returning-section-tab"
         data-active={activeInventoryType === 'kitchen'}
-        onClick={() => setActiveInventoryType('kitchen')}
+        onClick={() => handleInventoryTabChange('kitchen')}
       >
         <span>Tools</span>
       </button>
@@ -1055,7 +1165,7 @@ export default function UserSettings({
               type="button"
               className="returning-hub-card"
               data-tone={section.tone}
-              onClick={() => setActiveSection(section.id)}
+              onClick={() => handleSectionChange(section.id)}
             >
               <span className="returning-hub-icon" data-tone={section.tone}>
                 <Icon className="h-5 w-5" />
@@ -1087,6 +1197,7 @@ export default function UserSettings({
     const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
     const handleReset = isPantry ? handleResetPantry : handleResetEquipment;
     const progress = scanProgress[type];
+    const hasUnsavedChanges = hasUnsavedInventoryChanges(type);
 
     return (
       <div className={`returning-setup-anchor space-y-4 ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}>
@@ -1272,10 +1383,20 @@ export default function UserSettings({
                 </div>
               )}
             </div>
+
+            {hasUnsavedChanges && (
+              <div className="returning-unsaved-reminder" role="status" aria-live="polite">
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                <div>
+                  <p>{isPantry ? 'Unsaved pantry changes' : 'Unsaved tools changes'}</p>
+                  <span>{isPantry ? 'Save pantry before leaving this list.' : 'Save tools before leaving this list.'}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="returning-actions">
-            <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => setActiveSection('hub')}>
+            <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => handleSectionChange('hub')}>
               Settings
             </Button>
             <Button
@@ -1283,8 +1404,11 @@ export default function UserSettings({
               className={`setup-primary-button h-12 ${isPantry ? '' : 'setup-kitchen-primary-button'}`}
               onClick={handleSave}
               disabled={isInventoryLocked}
+              data-dirty={hasUnsavedChanges ? 'true' : undefined}
             >
-              {isPantry ? 'Save pantry' : 'Save tools'}
+              {hasUnsavedChanges
+                ? isPantry ? 'Save pantry changes' : 'Save tools changes'
+                : isPantry ? 'Save pantry' : 'Save tools'}
             </Button>
           </div>
         </section>
@@ -1384,7 +1508,7 @@ export default function UserSettings({
           </div>
 
           <div className="returning-actions">
-            <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => setActiveSection('hub')}>
+            <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => handleSectionChange('hub')}>
               Settings
             </Button>
             <Button variant="ghost" className="setup-primary-button h-12" onClick={handleSaveProfile}>

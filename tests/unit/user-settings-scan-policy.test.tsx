@@ -259,6 +259,8 @@ describe('UserSettings scan upload policy', () => {
     fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
 
     expect(screen.getByText('miso').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
+    expect(screen.getByText('Unsaved pantry changes')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /save pantry changes/i }).getAttribute('data-dirty')).toBe('true');
 
     fireEvent.click(screen.getByRole('button', { name: /save pantry/i }));
 
@@ -268,6 +270,7 @@ describe('UserSettings scan upload policy', () => {
       }));
     });
     expect(screen.getByText('miso').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+    expect(screen.queryByText('Unsaved pantry changes')).toBeNull();
 
     pantryRender.unmount();
 
@@ -289,6 +292,8 @@ describe('UserSettings scan upload policy', () => {
     fireEvent.click(screen.getByRole('button', { name: /add tools/i }));
 
     expect(screen.getByText('blender').closest('.setup-chip')?.getAttribute('data-state')).toBe('recent');
+    expect(screen.getByText('Unsaved tools changes')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /save tools changes/i }).getAttribute('data-dirty')).toBe('true');
 
     fireEvent.click(screen.getByRole('button', { name: /save tools/i }));
 
@@ -298,6 +303,45 @@ describe('UserSettings scan upload policy', () => {
       }));
     });
     expect(screen.getByText('blender').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+    expect(screen.queryByText('Unsaved tools changes')).toBeNull();
+  });
+
+  it('warns before leaving or switching away from unsaved Settings inventory edits', () => {
+    const onBackToPlanning = vi.fn();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={onBackToPlanning}
+        initialSection="pantry"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'miso' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+
+    expect(screen.getByText('Unsaved pantry changes')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /^back$/i }));
+
+    expect(confirmSpy).toHaveBeenCalledWith('You have unsaved pantry changes. Leave Settings without saving them?');
+    expect(onBackToPlanning).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
+
+    expect(confirmSpy).toHaveBeenCalledWith('You have unsaved pantry changes. Switch to Tools without saving them?');
+    expect(screen.getByRole('heading', { name: /^pantry$/i })).toBeTruthy();
+
+    confirmSpy.mockReturnValue(true);
+    fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
+
+    expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
+    confirmSpy.mockRestore();
   });
 
   it('saves guest pantry add and delete edits through the session callback without durable API calls', async () => {
@@ -472,6 +516,7 @@ describe('UserSettings scan upload policy', () => {
     await waitFor(() => {
       expect(screen.getByText('settings item 1')).toBeTruthy();
     });
+    expect(screen.getByText('Unsaved pantry changes')).toBeTruthy();
   });
 
   it('cancels an active Settings scan before leaving', async () => {
