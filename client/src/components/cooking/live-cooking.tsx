@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
 import { apiFetch } from '@/lib/queryClient';
-import { withAiErrorHandling } from '@/lib/rateLimitHandler';
+import { classifyAiRequestError, withAiErrorHandling } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 import { AudioProcessor } from '@/lib/audioUtils';
 import { UsageTracker } from '@/lib/usageTracker';
@@ -51,6 +51,11 @@ interface RecipeIngredient {
   forSteps?: number[];
 }
 
+interface StepLoadIssue {
+  title: string;
+  description: string;
+}
+
 interface RecipeRecommendation {
   id: string;
   recipeName: string;
@@ -77,6 +82,27 @@ function formatInstructionWithTips(instruction: string, tips?: string) {
 
   const separator = /[.!?]$/.test(trimmedInstruction) ? ' ' : '. ';
   return `${trimmedInstruction}${separator}${trimmedTips}`;
+}
+
+function createBasicCookingSteps(recipeName: string): RecipeStep[] {
+  return [
+    {
+      id: 1,
+      instruction: `Prepare ingredients for ${recipeName}`,
+      tips: 'Gather all ingredients and prep workspace',
+      visualCues: 'All ingredients should be within reach',
+      commonMistakes: 'Not having everything ready before starting',
+      safetyLevel: 'important',
+    },
+    {
+      id: 2,
+      instruction: `Begin cooking ${recipeName}`,
+      tips: 'Follow the recipe step by step',
+      visualCues: 'Start with the base ingredients',
+      commonMistakes: 'Rushing the cooking process',
+      safetyLevel: 'important',
+    },
+  ];
 }
 
 interface LiveCookingProps {
@@ -117,6 +143,8 @@ export default function LiveCooking({
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
   const [loadedRecipeIngredients, setLoadedRecipeIngredients] = useState<Array<{ name: string; quantity?: string; forSteps?: number[] }>>([]);
   const [isLoadingSteps, setIsLoadingSteps] = useState(true);
+  const [stepLoadIssue, setStepLoadIssue] = useState<StepLoadIssue | null>(null);
+  const [stepLoadAttempt, setStepLoadAttempt] = useState(0);
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -368,8 +396,11 @@ export default function LiveCooking({
       }
 
       setIsLoadingSteps(true);
-      
-      const stepsResult = await withAiErrorHandling(async () => {
+      setStepLoadIssue(null);
+      setLoadedRecipeSteps([]);
+      setLoadedRecipeIngredients([]);
+
+      try {
         const response = await fetchCookingSteps(selectedMeal.recipeName, {
           ingredients: selectedMeal.ingredients,
           equipment: selectedMeal.equipment,
@@ -403,55 +434,38 @@ export default function LiveCooking({
           quantity: ing.quantity,
           forSteps: ing.forSteps,
         })) || [];
-        return { steps: parsedSteps, ingredients: parsedIngredients };
-      }, { context: 'cooking steps', feedbackLink: false });
-      
-      const steps = stepsResult?.steps;
-      if (stepsResult?.ingredients) {
-        setLoadedRecipeIngredients(stepsResult.ingredients);
-      }
-      
-      if (steps && steps.length > 0) {
-        setLoadedRecipeSteps(steps);
+
+        if (parsedIngredients.length > 0) {
+          setLoadedRecipeIngredients(parsedIngredients);
+        }
+
+        if (parsedSteps.length === 0) {
+          setStepLoadIssue({
+            title: 'Cooking guide needs another try',
+            description: "I couldn't turn this recipe into usable cooking steps. Try again, or use a basic backup guide if you're ready to cook now.",
+          });
+          setIsLoadingSteps(false);
+          return;
+        }
+
+        setLoadedRecipeSteps(parsedSteps);
         // Reset audio state and set initial welcome message - but only once
         setAudioJustEnabled(false);
         setLastSpokenResponse(''); // Clear last spoken to allow new message
         
         // Only set welcome message if we don't already have one to prevent duplicates
         if (assistantResponse === 'Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.') {
-          const welcomeMessage = `Great! I've prepared ${steps.length} steps for cooking ${selectedMeal.recipeName}. Are you ready to begin? Let's start with step 1: ${steps[0].instruction}`;
+          const welcomeMessage = `Great! I've prepared ${parsedSteps.length} steps for cooking ${selectedMeal.recipeName}. Are you ready to begin? Let's start with step 1: ${parsedSteps[0].instruction}`;
           setAssistantResponse(welcomeMessage);
         }
         
         // Note: cooking session will be started when component mounts
-      } else {
-        // Fallback to basic steps
-        setLoadedRecipeSteps([
-          {
-            id: 1,
-            instruction: `Prepare ingredients for ${selectedMeal.recipeName}`,
-            tips: 'Gather all ingredients and prep workspace',
-            visualCues: 'All ingredients should be within reach',
-            commonMistakes: 'Not having everything ready before starting',
-            safetyLevel: 'important'
-          },
-          {
-            id: 2,
-            instruction: `Begin cooking ${selectedMeal.recipeName}`,
-            tips: 'Follow the recipe step by step',
-            visualCues: 'Start with the base ingredients',
-            commonMistakes: 'Rushing the cooking process',
-            safetyLevel: 'important'
-          }
-        ]);
-        setAudioJustEnabled(false);
-        setLastSpokenResponse(''); // Clear last spoken to allow new message
-        
-        // Only set fallback message if we don't already have a custom welcome message
-        if (assistantResponse === 'Welcome! Let\'s start cooking your delicious meal together. I\'m here to guide you through each step.') {
-          const fallbackMessage = `I've prepared basic steps for ${selectedMeal.recipeName}. Let's start cooking together!`;
-          setAssistantResponse(fallbackMessage);
-        }
+      } catch (error) {
+        const feedback = classifyAiRequestError(error, { context: 'cooking steps', feedbackLink: false });
+        setStepLoadIssue({
+          title: 'Cooking guide needs another try',
+          description: feedback.description || "I couldn't prepare cooking steps right now. Try again, or use a basic backup guide if you're ready to cook now.",
+        });
       }
       
       setIsLoadingSteps(false);
@@ -463,7 +477,21 @@ export default function LiveCooking({
     if ('speechSynthesis' in window) {
       speechSynthesisRef.current = window.speechSynthesis;
     }
-  }, [selectedMeal.recipeName]);
+  }, [selectedMeal.recipeName, stepLoadAttempt]);
+
+  const useBasicCookingSteps = () => {
+    const basicSteps = createBasicCookingSteps(selectedMeal.recipeName);
+
+    setStepLoadIssue(null);
+    setCurrentStepIndex(0);
+    setTimer(0);
+    setIsTimerRunning(false);
+    setLoadedRecipeIngredients((selectedMeal.ingredients || []).map(name => ({ name })));
+    setLoadedRecipeSteps(basicSteps);
+    setAudioJustEnabled(false);
+    setLastSpokenResponse('');
+    setAssistantResponse(`I made a basic backup guide for ${selectedMeal.recipeName}. Start with step 1: ${basicSteps[0].instruction}`);
+  };
 
   // Cooking session management functions
   const startCookingSession = async (totalSteps: number, steps?: RecipeStep[], ingredients?: Array<{ name: string; quantity?: string; forSteps?: number[] }>) => {
@@ -523,7 +551,7 @@ export default function LiveCooking({
     }
   };
 
-  const completeCookingSession = async (rating?: number, notes?: string) => {
+  const completeCookingSession = async () => {
     stopCookingAudioLifecycle();
     // Clear saved cooking session on completion
     clearCookingSession();
@@ -545,16 +573,14 @@ export default function LiveCooking({
           sessionId: cookingSessionId,
           completionData: {
             ingredientsRemaining: [], // This could be enhanced to ask user for remaining ingredients
-            userRating: rating || 5,
-            userNotes: notes || '',
             cookingDuration: duration,
             completedSteps: loadedRecipeSteps.length,
           }
         });
         
         toast({
-          title: "Cooking Session Complete!",
-          description: `Great job cooking ${selectedMeal.recipeName}! Your pantry has been updated.`,
+          title: "Nice, dinner's ready.",
+          description: "Saved to your cooking history. Pantry cleanup comes next.",
         });
       } catch (error) {
         console.error('Failed to complete cooking session:', error);
@@ -576,6 +602,7 @@ export default function LiveCooking({
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
   const progress = currentRecipeSteps.length > 0 ? ((displayedStepIndex + 1) / currentRecipeSteps.length) * 100 : 0;
+  const isFinalStep = currentRecipeSteps.length > 0 && displayedStepIndex >= currentRecipeSteps.length - 1;
 
   useEffect(() => {
     if (currentRecipeSteps.length > 0 && currentStepIndex >= currentRecipeSteps.length) {
@@ -946,10 +973,9 @@ export default function LiveCooking({
       // Update cooking progress
       updateCookingProgress(newStepIndex + 1);
     } else {
-      setSpokenAssistantResponse("Congratulations! You've completed all the cooking steps. Your meal should be ready to enjoy! How did it turn out?");
+      setSpokenAssistantResponse("Nice, dinner's ready. Saved to your cooking history. Pantry cleanup comes next.");
       
-      // Complete cooking session with default rating
-      completeCookingSession(5, "Cooking completed successfully");
+      completeCookingSession();
     }
   };
 
@@ -1386,6 +1412,53 @@ export default function LiveCooking({
     );
   }
 
+  if (stepLoadIssue && currentRecipeSteps.length === 0) {
+    return (
+      <div className="w-full max-w-4xl mx-auto p-4 min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <Card className="w-full max-w-md bg-black/80 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-400" />
+              {stepLoadIssue.title}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-200">{stepLoadIssue.description}</p>
+            <Alert className="bg-blue-950/60 border-blue-500">
+              <Info className="h-4 w-4" />
+              <AlertDescription className="text-blue-100">
+                The backup guide is intentionally generic. Use it only if you can cook safely from the recipe details you already reviewed.
+              </AlertDescription>
+            </Alert>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <Button
+                onClick={() => setStepLoadAttempt(attempt => attempt + 1)}
+                className="bg-white hover:bg-gray-100 text-black"
+              >
+                Try again
+              </Button>
+              <Button
+                onClick={useBasicCookingSteps}
+                variant="outline"
+                className="border-gray-500 bg-transparent text-white hover:bg-white/10"
+              >
+                Use basic steps
+              </Button>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={handleBackToPlanning}
+              className="w-full text-gray-200 hover:bg-white/10 hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Planning
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4 min-h-screen bg-gray-900 text-white relative">
       {/* Header */}
@@ -1509,11 +1582,11 @@ export default function LiveCooking({
             </Button>
             <Button
               onClick={nextStep}
-              disabled={currentStepIndex >= currentRecipeSteps.length - 1}
+              disabled={currentRecipeSteps.length === 0}
               className="flex-1 bg-white hover:bg-gray-100 text-black"
             >
-              Next
-              <SkipForward className="h-4 w-4 ml-1" />
+              {isFinalStep ? 'Finish' : 'Next'}
+              {!isFinalStep && <SkipForward className="h-4 w-4 ml-1" />}
             </Button>
           </div>
 

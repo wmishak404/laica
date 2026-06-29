@@ -42,6 +42,10 @@ vi.mock('@/lib/openai', () => ({
 }));
 
 vi.mock('@/lib/rateLimitHandler', () => ({
+  classifyAiRequestError: () => ({
+    title: 'Request did not finish',
+    description: "I couldn't finish that request right now. Try again shortly.",
+  }),
   withAiErrorHandling: async (callback: () => Promise<unknown>) => callback(),
 }));
 
@@ -266,6 +270,7 @@ describe('LiveCooking guest session boundary', () => {
       },
     });
     mocks.startCookingSession.mockResolvedValue({ id: 123 });
+    mocks.completeCookingSession.mockResolvedValue({ id: 123 });
     mocks.synthesizeSpeech.mockResolvedValue(new ArrayBuffer(8));
   });
 
@@ -444,6 +449,88 @@ describe('LiveCooking guest session boundary', () => {
     const rewrittenSession = JSON.parse(window.localStorage.getItem('laica_cooking_session:guest:guest-user-id') || '{}');
     expect(rewrittenSession.profileFingerprint).toBe('current-profile');
     expect(rewrittenSession.steps?.[0]?.instruction).toBe('Warm the rice and beans.');
+  });
+
+  it('keeps failed cooking-step generation inline and retries without using generic steps first', async () => {
+    mocks.fetchCookingSteps
+      .mockRejectedValueOnce(new Error('provider unavailable'))
+      .mockResolvedValueOnce(multiStepResponse);
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Cooking guide needs another try')).toBeTruthy();
+    expect(screen.getByText(/try again shortly/i)).toBeTruthy();
+    expect(screen.queryByText('Prepare ingredients for Guest Rice Bowl')).toBeNull();
+    expect(mocks.toast).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /try again/i }));
+
+    expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
+    expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(2);
+  });
+
+  it('uses the basic backup guide only after the cook chooses it', async () => {
+    mocks.fetchCookingSteps.mockResolvedValueOnce({
+      steps: [],
+      recipe: { ingredients: [] },
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Cooking guide needs another try')).toBeTruthy();
+    expect(screen.queryByText('Prepare ingredients for Guest Rice Bowl')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /use basic steps/i }));
+
+    expect(await screen.findByText('Prepare ingredients for Guest Rice Bowl')).toBeTruthy();
+    expect(screen.getByTestId('text-transcription-full').textContent).toContain('basic backup guide');
+    expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(1);
+  });
+
+  it('finishes linked cooking sessions without inventing a rating or pantry update', async () => {
+    mocks.authUser = {
+      id: 'linked-user-id',
+      email: 'cook@example.com',
+    };
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
+    await waitFor(() => expect(mocks.startCookingSession).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByRole('button', { name: /finish/i }));
+
+    await waitFor(() => expect(mocks.completeCookingSession).toHaveBeenCalledTimes(1));
+    const completionPayload = mocks.completeCookingSession.mock.calls[0][0].completionData;
+    expect(completionPayload).toEqual(expect.objectContaining({
+      ingredientsRemaining: [],
+      completedSteps: 1,
+      cookingDuration: expect.any(Number),
+    }));
+    expect(completionPayload).not.toHaveProperty('userRating');
+    expect(completionPayload).not.toHaveProperty('userNotes');
+    expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
+      title: "Nice, dinner's ready.",
+      description: "Saved to your cooking history. Pantry cleanup comes next.",
+    }));
   });
 
   it('stops queued cooking audio when leaving before speech playback starts', async () => {
