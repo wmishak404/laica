@@ -1,9 +1,9 @@
 # EFF-025 - Settings unsaved inventory reminder
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-27
-**Updated:** 2026-06-26
+**Updated:** 2026-06-29
 
 ## One-line summary
 
@@ -42,13 +42,16 @@ This is larger than the current INIT-003 production-gates scope. It should be ta
 - This is not a blocker for INIT-003 production gates, but it is important enough to preserve as a follow-up.
 - The eventual fix should work for anonymous guests and linked users because both can now edit Settings inventory.
 - The 2026-06-26 implementation keeps the explicit Save model rather than introducing autosave. Pantry/Tools edits show an inline dirty-state reminder, Save copy changes while dirty, and leaving or switching away from a dirty inventory list asks for confirmation.
+- PR #237 merged the direct dirty-state reminder slice on 2026-06-29. Wilson accepted local before/after screenshot evidence for the reminder; human Replit validation is deferred to release/batch validation rather than active Effort scope.
 
 ## Open questions
 
-- Should Settings inventory remain explicit-save with a dirty-state warning, or should specific chip add/delete actions autosave?
-- Does the inline reminder feel visible but not noisy on Replit/mobile?
-- Should reset remain an immediate saved destructive action, or should a future product pass make reset a dirty local edit?
-- Should recent unsaved chips visually differ from saved chips until Save succeeds?
+No active questions remain for this Effort.
+
+- Settings inventory remains explicit-save with a dirty-state warning; autosave was not introduced.
+- The inline reminder was accepted through local before/after screenshot review in the Codex thread. Replit/mobile validation remains deferred to the next release/batch pass.
+- Reset remains an immediate confirmed reset/save action. A future reset-as-dirty-edit change would need a new product pass.
+- Recent unsaved chips do not get a separate visual state beyond the dirty reminder and Save copy; the existing saved/recent/found-again chip grammar is preserved.
 
 ## Agent checklist
 
@@ -69,7 +72,7 @@ This Effort is `Resolved` when all of the following are true:
 3. Save success clears the reminder and preserves the existing saved/recent chip-state grammar.
 4. Leaving with unsaved changes is handled intentionally, with tests for the chosen behavior where practical.
 5. Linked-user and anonymous guest session-local Settings paths are both covered.
-6. Replit/mobile validation confirms the reminder is visible and not overly noisy.
+6. Visual acceptance is recorded through Wilson-approved before/after screenshots, with human Replit/mobile validation deferred to release/batch validation.
 
 ## Linked artifacts
 
@@ -77,6 +80,7 @@ This Effort is `Resolved` when all of the following are true:
 - [`PD-012: Public anonymous trial and account upgrade`](../product-decisions/pd-012-public-anonymous-trial-and-account-upgrade.md)
 - [`INIT-001: Mobile Refresh`](../initiatives/INIT-001-mobile-refresh.md)
 - `client/src/components/cooking/user-settings.tsx`
+- PR #237
 - PR #107, INIT-003 production gates
 
 ## 2026-05-27 - Created from Settings save-reminder observation
@@ -114,3 +118,16 @@ Implemented behavior:
 - Existing saved/recent/found-again chip grammar remains unchanged and still clears to saved on successful Save.
 
 Validation so far: focused local `npx vitest run tests/unit/user-settings-scan-policy.test.tsx` passed with linked and guest/session assertions. Remaining before closing EFF-025: Replit/mobile visual validation that the reminder is noticeable without being noisy.
+
+## 2026-06-29 - Resolved by PR #237 merge
+
+PR #237 merged as `18446db04303f68119d63c9559e94075681f19c8` from head `4c24c4f709d499a7c65f25acad0a1b9e9bb8e68a` after rebasing onto `origin/main` at `7c0d5b75cf743447d15f72b75e987f2b2dd0e531`. The implementation keeps the explicit Save model and adds Pantry/Tools dirty-state reminders, dirty Save copy, dirty-state clearing after successful linked or session-local save, scan-added dirty state coverage, and confirmation before Back or inventory-section switches would discard unsaved local edits.
+
+Final exact-head evidence on `4c24c4f709d499a7c65f25acad0a1b9e9bb8e68a`:
+
+- Local `npx vitest run tests/unit/user-settings-scan-policy.test.tsx` passed: 1 file / 13 tests.
+- Local `npm run check`, `npm run test:unit`, `npm run build`, and `git diff --check` passed. Build warnings were existing Browserslist, Firebase dynamic/static import, and chunk-size warnings.
+- GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, Analyze (actions), and Analyze (javascript-typescript) passed.
+- Codex rendered local before/after screenshots for the dirty Pantry state on 2026-06-29, and Wilson confirmed the change looked good.
+
+EFF-025 is resolved because the product accepted the explicit-save dirty-reminder model, the linked and anonymous/session-local paths have focused coverage, and visual acceptance was recorded from local screenshots. Human Replit validation remains deferred to release/batch validation, with a targeted Settings Pantry/Tools dirty-reminder smoke recommended if that batch includes this change.

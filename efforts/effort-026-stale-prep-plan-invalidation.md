@@ -198,4 +198,4 @@ Resolution references:
 - Local validation: focused Vitest, full unit, `npm run check`, and `npm run build`
 - Replit validation provenance: Wilson-reported Replit UI smoke in chat on 2026-06-08
 
-EFF-026 is marked `Resolved` because the stale prep tray/session no longer resumes after material pantry changes or hard refresh, unchanged-profile Live Cooking restore remains reliable, and History only records after cooking starts. Future refinements to Settings dirty-state reminders remain owned by [`EFF-025`](effort-025-settings-unsaved-inventory-reminder.md).
+EFF-026 is marked `Resolved` because the stale prep tray/session no longer resumes after material pantry changes or hard refresh, unchanged-profile Live Cooking restore remains reliable, and History only records after cooking starts. Settings dirty-state reminders later shipped through [`EFF-025`](effort-025-settings-unsaved-inventory-reminder.md) / PR #237; future Settings save or autosave refinements should start from that resolved behavior.

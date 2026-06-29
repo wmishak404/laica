@@ -50,16 +50,16 @@ Accepted behavior:
 - The final first-time setup confirmation hero should use a simple completion checkmark rather than repeating the chef-hat motif.
 - User-facing copy should avoid `track` / `tracked` / `tracking` language for inventory capture. Prefer `save`, `add`, `use for suggestions`, `editable`, and `optional`.
 
-## 2026-06-26 Branch Signal - Inventory Unsaved Reminder
+## 2026-06-29 Merge Signal - Inventory Unsaved Reminder
 
-Branch `codex/eff-025-settings-unsaved-reminder` starts the direct [EFF-025](../../../efforts/effort-025-settings-unsaved-inventory-reminder.md) implementation slice for returning Settings inventory edits. It keeps the accepted explicit Save model rather than introducing autosave:
+PR #237 merged the direct [EFF-025](../../../efforts/effort-025-settings-unsaved-inventory-reminder.md) implementation slice for returning Settings inventory edits as `18446db04303f68119d63c9559e94075681f19c8`. It keeps the accepted explicit Save model rather than introducing autosave:
 
 - Pantry and Tools edits compare the current local list with the last saved list.
 - Dirty Pantry/Tools lists show a small inline unsaved reminder and switch Save copy to `Save pantry changes` / `Save tools changes`.
 - Back from Settings and switching away from a dirty inventory list ask before discarding unsaved local edits.
 - Reset remains an immediate confirmed save/reset action in this slice; changing reset into a dirty local edit would be a future product pass.
 
-Focused local coverage proves linked and session-local save behavior, dirty reminders, scan-added dirty state, and leave/switch prompts. EFF-025 should not close until Replit/mobile validation confirms the reminder is visible without being noisy.
+Focused local coverage proves linked and session-local save behavior, dirty reminders, scan-added dirty state, and leave/switch prompts. Exact-head GitHub checks passed at `4c24c4f709d499a7c65f25acad0a1b9e9bb8e68a`, and Wilson accepted local before/after screenshot evidence in the Codex thread. EFF-025 is resolved with human Replit validation deferred to release/batch validation.
 
 ## Design and UX Gate
 
