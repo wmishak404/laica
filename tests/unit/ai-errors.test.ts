@@ -37,7 +37,7 @@ describe("logAiError", () => {
       error,
       req: req as any,
       route: "/api/recipes/pantry",
-      feature: "pantry_recipes",
+      feature: "chef_it_up_suggestions",
       vendor: "openai",
     });
 
@@ -48,7 +48,7 @@ describe("logAiError", () => {
       event: "ai_error",
       request_id: "11111111-1111-4111-8111-111111111111",
       route: "/api/recipes/pantry",
-      feature: "pantry_recipes",
+      feature: "chef_it_up_suggestions",
       vendor: "openai",
       http_status: 429,
       error_class: "rate_limit",

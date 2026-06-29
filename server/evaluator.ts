@@ -2,7 +2,7 @@ import OpenAI, { toFile } from "openai";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
 import { eq, inArray, and, isNull } from "drizzle-orm";
-import { isEvalFeatureType, type EvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
+import { normalizeEvalFeatureType, type EvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
 import { EVAL_CRITERIA } from "./eval-criteria";
 import { sanitizePromptInput, stripPromptMarkers } from "./ai-privacy";
 
@@ -12,8 +12,45 @@ type EvalBatchCandidate = {
   featureType: string;
 };
 
-export function hasEvalCriteria(featureType: string): featureType is EvalFeatureType {
-  return isEvalFeatureType(featureType) && Object.prototype.hasOwnProperty.call(EVAL_CRITERIA, featureType);
+type EvalReportCandidate = {
+  featureType: string;
+  promptVersionId?: number | null;
+  evalPassed?: boolean | null;
+  evalScore?: number | null;
+  evalErrorModes?: string[] | null;
+};
+
+type EvalCountSummary = {
+  total: number;
+  passed: number;
+  failed: number;
+};
+
+type EvalMetricSummary = EvalCountSummary & {
+  passRate: number | null;
+  averageScore: number | null;
+};
+
+type EvalPromptVersionSummary = EvalMetricSummary & {
+  featureType: string;
+  promptVersionId: number | null;
+};
+
+type EvalFeatureReport = EvalMetricSummary & {
+  errorModes: Record<string, number>;
+  promptVersions: EvalPromptVersionSummary[];
+};
+
+function getEvalCriteriaFeatureType(featureType: string): EvalFeatureType | null {
+  const normalizedFeatureType = normalizeEvalFeatureType(featureType);
+  if (!normalizedFeatureType) {
+    return null;
+  }
+  return Object.prototype.hasOwnProperty.call(EVAL_CRITERIA, normalizedFeatureType) ? normalizedFeatureType : null;
+}
+
+export function hasEvalCriteria(featureType: string): boolean {
+  return getEvalCriteriaFeatureType(featureType) !== null;
 }
 
 export function selectEvaluableInteractionsForBatch<T extends EvalBatchCandidate>(
@@ -26,6 +63,165 @@ export function selectEvaluableInteractionsForBatch<T extends EvalBatchCandidate
   };
 }
 
+function incrementCount(counts: Record<string, number>, key: string): void {
+  counts[key] = (counts[key] || 0) + 1;
+}
+
+export function buildPendingEvalQueueSummary<T extends EvalBatchCandidate>(interactions: T[]) {
+  const byFeature: Record<string, number> = {};
+  const eligibleByFeature: Record<string, number> = {};
+  const skippedByFeature: Record<string, number> = {};
+
+  for (const interaction of interactions) {
+    const featureType = normalizeEvalFeatureType(interaction.featureType) ?? interaction.featureType;
+    incrementCount(byFeature, featureType);
+    if (hasEvalCriteria(interaction.featureType)) {
+      incrementCount(eligibleByFeature, featureType);
+    } else {
+      incrementCount(skippedByFeature, featureType);
+    }
+  }
+
+  const eligibleTotal = Object.values(eligibleByFeature).reduce((sum, count) => sum + count, 0);
+  const skippedTotal = interactions.length - eligibleTotal;
+
+  return {
+    total: interactions.length,
+    eligibleTotal,
+    skippedTotal,
+    byFeature,
+    eligibleByFeature,
+    skippedByFeature,
+  };
+}
+
+function createMetricAccumulator(): EvalMetricSummary & { scoreTotal: number; scored: number } {
+  return {
+    total: 0,
+    passed: 0,
+    failed: 0,
+    passRate: null,
+    averageScore: null,
+    scoreTotal: 0,
+    scored: 0,
+  };
+}
+
+function addEvalMetrics(
+  summary: EvalMetricSummary & { scoreTotal: number; scored: number },
+  interaction: EvalReportCandidate,
+): void {
+  summary.total++;
+  if (interaction.evalPassed) {
+    summary.passed++;
+  } else {
+    summary.failed++;
+  }
+
+  if (typeof interaction.evalScore === "number") {
+    summary.scoreTotal += interaction.evalScore;
+    summary.scored++;
+  }
+}
+
+function finalizeMetricSummary<T extends EvalMetricSummary & { scoreTotal: number; scored: number }>(
+  summary: T,
+): EvalMetricSummary {
+  return {
+    total: summary.total,
+    passed: summary.passed,
+    failed: summary.failed,
+    passRate: summary.total > 0 ? summary.passed / summary.total : null,
+    averageScore: summary.scored > 0 ? summary.scoreTotal / summary.scored : null,
+  };
+}
+
+function finalizeCountSummary<T extends EvalCountSummary>(summary: T): EvalCountSummary {
+  return {
+    total: summary.total,
+    passed: summary.passed,
+    failed: summary.failed,
+  };
+}
+
+export function buildEvalReportSummary(interactions: EvalReportCandidate[]) {
+  const overall = createMetricAccumulator();
+  const byFeature: Record<string, EvalCountSummary> = {};
+  const errorModeBreakdown: Record<string, number> = {};
+  const featureAccumulators: Record<
+    string,
+    ReturnType<typeof createMetricAccumulator> & {
+      errorModes: Record<string, number>;
+      promptVersions: Record<string, ReturnType<typeof createMetricAccumulator> & { promptVersionId: number | null }>;
+    }
+  > = {};
+
+  for (const interaction of interactions) {
+    const featureType = normalizeEvalFeatureType(interaction.featureType) ?? interaction.featureType;
+    addEvalMetrics(overall, interaction);
+
+    if (!byFeature[featureType]) {
+      byFeature[featureType] = { total: 0, passed: 0, failed: 0 };
+    }
+    byFeature[featureType].total++;
+    if (interaction.evalPassed) byFeature[featureType].passed++;
+    else byFeature[featureType].failed++;
+
+    if (!featureAccumulators[featureType]) {
+      featureAccumulators[featureType] = {
+        ...createMetricAccumulator(),
+        errorModes: {},
+        promptVersions: {},
+      };
+    }
+    const featureSummary = featureAccumulators[featureType];
+    addEvalMetrics(featureSummary, interaction);
+
+    const promptVersionId = interaction.promptVersionId ?? null;
+    const promptKey = promptVersionId === null ? "default" : String(promptVersionId);
+    if (!featureSummary.promptVersions[promptKey]) {
+      featureSummary.promptVersions[promptKey] = {
+        ...createMetricAccumulator(),
+        promptVersionId,
+      };
+    }
+    addEvalMetrics(featureSummary.promptVersions[promptKey], interaction);
+
+    for (const mode of interaction.evalErrorModes || []) {
+      incrementCount(errorModeBreakdown, mode);
+      incrementCount(featureSummary.errorModes, mode);
+    }
+  }
+
+  const featureReports: Record<string, EvalFeatureReport> = {};
+  const promptVersionReports: EvalPromptVersionSummary[] = [];
+  for (const featureType of Object.keys(featureAccumulators).sort()) {
+    const featureSummary = featureAccumulators[featureType];
+    const promptVersions = Object.values(featureSummary.promptVersions)
+      .sort((a, b) => (a.promptVersionId ?? -1) - (b.promptVersionId ?? -1))
+      .map((promptSummary) => ({
+        featureType,
+        promptVersionId: promptSummary.promptVersionId,
+        ...finalizeMetricSummary(promptSummary),
+      }));
+
+    featureReports[featureType] = {
+      ...finalizeMetricSummary(featureSummary),
+      errorModes: featureSummary.errorModes,
+      promptVersions,
+    };
+    promptVersionReports.push(...promptVersions);
+  }
+
+  return {
+    ...finalizeCountSummary(overall),
+    errorModeBreakdown,
+    byFeature,
+    featureReports,
+    promptVersionReports,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Build the evaluation prompt for a single interaction.
 // o4-mini will receive this and return a structured JSON verdict.
@@ -35,10 +231,11 @@ function buildEvalPrompt(interaction: {
   inputData: unknown;
   outputData: string;
 }): string {
-  if (!hasEvalCriteria(interaction.featureType)) {
+  const criteriaFeatureType = getEvalCriteriaFeatureType(interaction.featureType);
+  if (!criteriaFeatureType) {
     throw new Error(`Unknown feature type: ${interaction.featureType}`);
   }
-  const criteria = EVAL_CRITERIA[interaction.featureType];
+  const criteria = EVAL_CRITERIA[criteriaFeatureType];
 
   const errorModeList = criteria.errorModes
     .map(e => `- **${e.id}** [${e.severity}]: ${e.description}`)
@@ -211,27 +408,13 @@ export async function getEvalSummary() {
     .from(aiInteractions)
     .where(eq(aiInteractions.evalStatus, 'completed'));
 
-  const errorModeBreakdown: Record<string, number> = {};
-  const byFeature: Record<string, { total: number; passed: number; failed: number }> = {};
-
-  for (const i of interactions) {
-    if (!byFeature[i.featureType]) {
-      byFeature[i.featureType] = { total: 0, passed: 0, failed: 0 };
-    }
-    byFeature[i.featureType].total++;
-    if (i.evalPassed) byFeature[i.featureType].passed++;
-    else byFeature[i.featureType].failed++;
-
-    for (const mode of (i.evalErrorModes || [])) {
-      errorModeBreakdown[mode] = (errorModeBreakdown[mode] || 0) + 1;
-    }
-  }
+  const reportSummary = buildEvalReportSummary(interactions);
 
   const failedInteractions = interactions
     .filter(i => !i.evalPassed)
     .map(i => ({
       id: i.id,
-      featureType: i.featureType,
+      featureType: normalizeEvalFeatureType(i.featureType) ?? i.featureType,
       inputData: i.inputData,
       outputData: i.outputData,
       errorModes: i.evalErrorModes,
@@ -241,11 +424,7 @@ export async function getEvalSummary() {
     }));
 
   return {
-    total: interactions.length,
-    passed: interactions.filter(i => i.evalPassed).length,
-    failed: interactions.filter(i => !i.evalPassed).length,
-    errorModeBreakdown,
-    byFeature,
+    ...reportSummary,
     failedInteractions,
   };
 }
@@ -323,9 +502,14 @@ export async function getPendingCount(): Promise<Record<string, number>> {
     .from(aiInteractions)
     .where(eq(aiInteractions.evalStatus, 'pending'));
 
-  const counts: Record<string, number> = {};
-  for (const i of pending) {
-    counts[i.featureType] = (counts[i.featureType] || 0) + 1;
-  }
-  return counts;
+  return buildPendingEvalQueueSummary(pending).byFeature;
+}
+
+export async function getPendingQueueSummary() {
+  const pending = await db
+    .select()
+    .from(aiInteractions)
+    .where(eq(aiInteractions.evalStatus, 'pending'));
+
+  return buildPendingEvalQueueSummary(pending);
 }

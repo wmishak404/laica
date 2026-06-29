@@ -1,6 +1,6 @@
 {
-  "id": "synthetic-max-time-30-to-60",
-  "surface": "pantry_recipes",
+  "id": "chef-it-up-suggestions-max-time-30-to-60",
+  "surface": "chef_it_up_suggestions",
   "privacyClass": "synthetic",
   "roles": ["regression"],
   "sourceRefs": ["init004-phase-2-target-set"],

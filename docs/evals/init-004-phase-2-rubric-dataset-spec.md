@@ -3,7 +3,7 @@
 **Status:** Draft revised from Wilson decisions
 **Initiative:** [INIT-004](../../initiatives/INIT-004-ai-output-quality-evals.md)
 **Date:** 2026-06-10
-**Last updated:** 2026-06-13
+**Last updated:** 2026-06-23
 **Owner:** Wilson / Codex / Claude / Replit
 **Applies to:** Recipe suggestions, Chef It Up pantry recipes, Slop Bowl, and cooking-step generation
 
@@ -18,8 +18,8 @@ The core architecture rule is separation of concerns: fixtures preserve the exac
 Accepted Phase 2 decisions:
 
 1. Split eval/reporting feature IDs from prompt-management feature IDs.
-2. Treat `pantry_recipes` and `slop_bowl` as first-class eval/reporting surfaces.
-3. Keep prompt activation conservative: do not add automatic or immediate DB prompt activation for `pantry_recipes` or `slop_bowl` in the Phase 3 harness slice.
+2. Treat `chef_it_up_suggestions` and `slop_bowl_suggestions` as first-class eval/reporting surfaces.
+3. Keep prompt activation conservative: do not add automatic or immediate DB prompt activation for `chef_it_up_suggestions` or `slop_bowl_suggestions` in the Phase 3 harness slice.
 4. Use a deterministic max-time band, not a hard ceiling: `max_time_adherence` passes when `cookTime <= selectedMax + 15` minutes. "Got all the time" has no bound.
 5. Add `dietary_compliance`; dietary restrictions override preferences when labels conflict.
 6. Drop nutrition-preference fit from the rubric because nutrition is not a current product input.
@@ -28,13 +28,15 @@ Accepted Phase 2 decisions:
 9. Keep EFF-022 cuisine fallback behavior explicitly open. The eval harness measures pantry grounding, cuisine fit, and inspired/fusion labeling; it does not decide the product fallback rule.
 10. Treat eval artifacts as offline evidence only. Real user input/output may teach a pattern, but must never become live runtime memory, production prompt material, another user's context, user-facing records, or GitHub-visible fixture content.
 
+2026-06-23 taxonomy clarification: Wilson accepted renaming the recipe-generation eval surfaces before daily reports launch. The canonical eval/reporting ids are now `chef_it_up_suggestions` for `/api/recipes/pantry` and `slop_bowl_suggestions` for `/api/recipes/slop-bowl`. Legacy rows or fixtures with `pantry_recipes` and `slop_bowl` must normalize into those canonical ids so historical eval data remains readable without a DB migration.
+
 ## Feature Taxonomy
 
 Current code couples `FeatureType` to both eval criteria and prompt management. Phase 3 should split that into two concepts before expanding coverage:
 
 | Type | Purpose | Phase 2 values |
 |---|---|---|
-| `EvalFeatureType` | Eval queueing, deterministic checks, criterion labels, reporting, fixture routing | `recipe_suggestions`, `pantry_recipes`, `slop_bowl`, `cooking_steps`, `cooking_assistance` |
+| `EvalFeatureType` | Eval queueing, deterministic checks, criterion labels, reporting, fixture routing | `recipe_suggestions`, `chef_it_up_suggestions`, `slop_bowl_suggestions`, `cooking_steps`, `cooking_assistance` |
 | `PromptFeatureType` | DB-backed prompt lookup, prompt history, prompt generation/save/activation | Keep current prompt-managed set unless a later prompt-candidate phase explicitly adds more: `recipe_suggestions`, `cooking_steps`, `cooking_assistance` |
 
 Phase 3 should derive `AiErrorFeature`, `EvalFeatureType`, and `PromptFeatureType` from a canonical feature-id module instead of copying hand-written literal arrays into admin Zod schemas, evaluator code, and prompt-management code.
@@ -44,8 +46,8 @@ Phase 3 should derive `AiErrorFeature`, `EvalFeatureType`, and `PromptFeatureTyp
 | Product surface | Canonical eval feature | Prompt source in Phase 3 | Reporting scope |
 |---|---|---|---|
 | General recipe suggestions from `/api/recipes/suggestions` | `recipe_suggestions` | Existing `recipe_suggestions` prompt | V1 |
-| Chef It Up pantry recipes from `/api/recipes/pantry` | `pantry_recipes` | Existing `recipe_suggestions` prompt until a later prompt split is accepted | V1 |
-| Slop Bowl from `/api/recipes/slop-bowl` | `slop_bowl` | Existing hardcoded Slop Bowl prompt per accepted Slop Bowl v1 direction | V1 |
+| Chef It Up pantry recipes from `/api/recipes/pantry` | `chef_it_up_suggestions` | Existing `recipe_suggestions` prompt until a later prompt split is accepted | V1 |
+| Slop Bowl from `/api/recipes/slop-bowl` | `slop_bowl_suggestions` | Existing hardcoded Slop Bowl prompt per accepted Slop Bowl v1 direction | V1 |
 | Cooking steps from `/api/cooking/steps` | `cooking_steps` | Existing `cooking_steps` prompt | V1 |
 | Cooking assistance from `/api/cooking/assistance` | `cooking_assistance` | Existing `cooking_assistance` prompt | Infrastructure only in V1 |
 
@@ -141,7 +143,7 @@ Recommended fixture shape:
 ```jsonc
 {
   "id": "eff022-thai-korean-broth-anchor",
-  "surface": "pantry_recipes",
+  "surface": "chef_it_up_suggestions",
   "privacyClass": "synthetic",
   "roles": ["regression", "calibration-probe"],
   "sourceRefs": ["eff-022-thai-request"],
@@ -184,8 +186,8 @@ Required fixture semantics:
 - `request` is byte-faithful to what the generation surface receives. For pantry recipes, the real route receives `ingredients` and packed free-text `preferences`; skill, cuisines, dietary restrictions, and time are embedded in that string.
 - `constraints` is structured ground truth for deterministic checks. It may duplicate facts from the packed request because the checker needs stable data without re-parsing prose.
 - Per-surface request schemas differ:
-  - `recipe_suggestions` / `pantry_recipes`: packed `preferences` plus `ingredients`.
-  - `slop_bowl`: `SlopBowlInput`.
+  - `recipe_suggestions` / `chef_it_up_suggestions`: packed `preferences` plus `ingredients`.
+  - `slop_bowl_suggestions`: `SlopBowlInput`.
   - `cooking_steps`: `{ recipeName, ingredients?, equipment?, description? }`.
 - `outputProvenance.kind` should distinguish `captured`, `synthetic`, `redacted`, or `authored-regression` so future reviewers do not confuse synthetic examples with real captured model evidence.
 - `roles` may include `regression`, `calibration-probe`, and `positive-guard`. Calibration status belongs to eval reports, not to a criterion label.
@@ -210,7 +212,7 @@ Phase 2 uses criterion-level labels rather than one aggregate "good/bad" label.
 | Label | Applies to | Definition | First check type |
 |---|---|---|---|
 | `structure_contract` | All V1 surfaces | Output is valid JSON where required, matches the current response shape, includes required fields, and can render in the app. | Deterministic |
-| `suggestion_count` | `recipe_suggestions`, `pantry_recipes` | Response contains exactly three recipe suggestions. | Deterministic |
+| `suggestion_count` | `recipe_suggestions`, `chef_it_up_suggestions` | Response contains exactly three recipe suggestions. | Deterministic |
 | `max_time_adherence` | Recipe surfaces with a time bound | Returned `cookTime` is less than or equal to `constraints.maxTimeMinutes + 15`. "Got all the time" is unbounded. Cooking steps are `not_applicable` unless a later contract carries a time bound. | Deterministic |
 | `dietary_compliance` | Recipe and cooking-step surfaces with a stated restriction | Output does not violate stated dietary restrictions. Dietary violations fail even if other preference labels pass. | Human/judge plus deterministic flags for detectable terms |
 | `pantry_grounding` | Recipe surfaces | The core recipe works from pantry/confirmed-staple ingredients and does not invent required items. | Deterministic ingredient-contract checks plus human/judge |
@@ -220,7 +222,7 @@ Phase 2 uses criterion-level labels rather than one aggregate "good/bad" label.
 | `recipe_usefulness` | Recipe surfaces | Dish is coherent, practical, appropriately ranked/diverse, and worth presenting to the user. | Human/judge |
 | `food_safety` | Recipe and cooking-step surfaces | Raw meat, poultry, egg, leftovers, allergen, and storage risks include safe handling and doneness cues appropriate to the context. | Human/judge plus targeted deterministic flags |
 | `skill_fit` | Recipe and cooking-step surfaces | Complexity, technique, detail, and assumptions match the user's cooking proficiency. | Human/judge |
-| `equipment_fit` | `slop_bowl`, `cooking_steps` | Required equipment is available or a safe common alternative is provided. V1 does not score equipment fit for pantry/generic recipe suggestions because those surfaces do not currently receive structured equipment context. | Deterministic equipment-term flags plus human/judge |
+| `equipment_fit` | `slop_bowl_suggestions`, `cooking_steps` | Required equipment is available or a safe common alternative is provided. V1 does not score equipment fit for pantry/generic recipe suggestions because those surfaces do not currently receive structured equipment context. | Deterministic equipment-term flags plus human/judge |
 | `cooking_step_sequence` | `cooking_steps` | Steps are ordered logically, align with the accepted recipe, and include visual/sensory cues where judgment is required. | Human/judge with deterministic flags |
 
 Nutrition-preference fit is excluded, not deferred. Current client UI, routes, and `shared/schema.ts` have no nutrition field. The stale `DEFAULT_RECIPE_SUGGESTIONS_PROMPT` line claiming a nutritional preference, plus stale equipment language for surfaces that do not send equipment, are Phase 6 / EFF-022 prompt-cleanup notes rather than Phase 3 harness fixes.
@@ -236,26 +238,26 @@ The first human-label batch should stay small and targeted. Public fixtures shou
 | `openai-max-time-25-to-30` | OpenAI Platform seed | `recipe_suggestions` | Former max-time miss; now a boundary-pass guard under the +15 band. | `max_time_adherence`, `structure_contract` | Re-express in current `recipes[]` shape or mark legacy-only. |
 | `openai-invalid-json-pass` | OpenAI Platform seed | `recipe_suggestions` | Known invalid JSON that still passed LLM judges. | `structure_contract` | Keep raw malformed `output` string. Re-express or tag legacy-only. |
 | `openai-representative-pass` | OpenAI Platform seed | `recipe_suggestions` | Positive fixture so prompt fixes do not over-correct. | `pantry_grounding`, `recipe_usefulness` | Re-express in current `recipes[]` shape or mark legacy-only. |
-| `synthetic-max-time-30-to-60` | Synthetic | `pantry_recipes` | True negative under the +15 band: a 30-minute selection returns a 60-minute recipe. | `max_time_adherence`, `structure_contract` | Synthetic required because the 25->30 seeds now pass. |
+| `chef-it-up-suggestions-max-time-30-to-60` | Synthetic | `chef_it_up_suggestions` | True negative under the +15 band: a 30-minute selection returns a 60-minute recipe. | `max_time_adherence`, `structure_contract` | Synthetic required because the 25->30 seeds now pass. |
 | `arize-beef-doneness` | Arize seed | `cooking_steps` | Raw beef guidance was too weak. | `food_safety`, `skill_fit`, `cooking_step_sequence` | Use generated recipe context, not only a recipe name. |
 | `arize-chicken-doneness` | Arize seed | `cooking_steps` | Chicken recipe needed clearer doneness and overcooking guidance. | `food_safety`, `skill_fit`, `cooking_step_sequence` | Use generated recipe context. |
 | `arize-equipment-lid` | Arize seed | `cooking_steps` | Recipe assumed an unavailable lid without alternative. | `equipment_fit`, `cooking_step_sequence` | Cooking-step surface only in V1. |
 | `arize-beginner-complexity` | Arize seed | `cooking_steps` | Beginner instructions were too complex. | `skill_fit`, `recipe_usefulness`, `cooking_step_sequence` | Resolve as cooking-step complexity, not recipe-surface ranking. |
-| `arize-dietary-halal-or-keto` | Arize seed | `pantry_recipes` | Adds dietary-compliance coverage with the dietary-overrides-preferences rule. | `dietary_compliance`, `recipe_usefulness`, `pantry_grounding` | Use one current-shape synthetic/redacted seed. |
-| `eff022-chinese-weak-fit` | EFF-022 | `pantry_recipes` | Selected Chinese preference produced mostly off-cuisine suggestions. | `cuisine_fit`, `pantry_grounding` | Product fallback remains open. |
-| `eff022-indian-weak-fit` | EFF-022 | `pantry_recipes` | Selected Indian preference produced only one weakly Indian-ish option. | `cuisine_fit`, `inspired_or_fusion_labeling` | Product fallback remains open. |
-| `eff022-thai-korean-broth-anchor` | EFF-022 | `pantry_recipes` | Strong Korean-labeled pantry item overrode selected Thai preference. | `cuisine_fit`, `pantry_grounding`, `inspired_or_fusion_labeling` | Good calibration probe for request/constraints/output split. |
-| `eff022-loco-moco-style-positive` | EFF-022 | `pantry_recipes` | Positive cross-cuisine/adapted pantry transformation candidate. | `inspired_or_fusion_labeling`, `recipe_usefulness`, `pantry_grounding` | Positive guard. |
-| `slop-bowl-current-shape` | Phase 1 audit | `slop_bowl` | Slop Bowl needs one `{ recipe }` contract fixture before judge work. | `structure_contract`, `pantry_grounding`, `recipe_usefulness` | Await capture or synthetic authoring. |
-| `synthetic-negative-slop-bowl-shape` | Synthetic | `slop_bowl` | Negative contract fixture for malformed Slop Bowl shape. | `structure_contract` | Synthetic. |
+| `arize-dietary-halal-or-keto` | Arize seed | `chef_it_up_suggestions` | Adds dietary-compliance coverage with the dietary-overrides-preferences rule. | `dietary_compliance`, `recipe_usefulness`, `pantry_grounding` | Use one current-shape synthetic/redacted seed. |
+| `eff022-chinese-weak-fit` | EFF-022 | `chef_it_up_suggestions` | Selected Chinese preference produced mostly off-cuisine suggestions. | `cuisine_fit`, `pantry_grounding` | Product fallback remains open. |
+| `eff022-indian-weak-fit` | EFF-022 | `chef_it_up_suggestions` | Selected Indian preference produced only one weakly Indian-ish option. | `cuisine_fit`, `inspired_or_fusion_labeling` | Product fallback remains open. |
+| `eff022-thai-korean-broth-anchor` | EFF-022 | `chef_it_up_suggestions` | Strong Korean-labeled pantry item overrode selected Thai preference. | `cuisine_fit`, `pantry_grounding`, `inspired_or_fusion_labeling` | Good calibration probe for request/constraints/output split. |
+| `eff022-loco-moco-style-positive` | EFF-022 | `chef_it_up_suggestions` | Positive cross-cuisine/adapted pantry transformation candidate. | `inspired_or_fusion_labeling`, `recipe_usefulness`, `pantry_grounding` | Positive guard. |
+| `slop-bowl-suggestions-current-shape` | Phase 1 audit | `slop_bowl_suggestions` | Slop Bowl needs one `{ recipe }` contract fixture before judge work. | `structure_contract`, `pantry_grounding`, `recipe_usefulness` | Await capture or synthetic authoring. |
+| `synthetic-negative-slop-bowl-shape` | Synthetic | `slop_bowl_suggestions` | Negative contract fixture for malformed Slop Bowl shape. | `structure_contract` | Synthetic. |
 | `cooking-steps-generated-context` | Phase 1 audit / PR #144 context | `cooking_steps` | Cooking steps must be evaluated using generated recipe context, not only recipe names. | `structure_contract`, `equipment_fit`, `food_safety`, `cooking_step_sequence` | Requires authored cooking-steps response schema. |
 
 ## Implementation Implications For Phase 3
 
-- Add first-class eval criteria for `pantry_recipes` and `slop_bowl`.
-- Log `/api/recipes/pantry` interactions as `pantry_recipes` instead of folding them into `recipe_suggestions`, or record a separate eval surface while preserving prompt reuse.
+- Add first-class eval criteria for `chef_it_up_suggestions` and `slop_bowl_suggestions`.
+- Log `/api/recipes/pantry` interactions as `chef_it_up_suggestions` instead of folding them into `recipe_suggestions`, or record a separate eval surface while preserving prompt reuse.
 - Populate `ai_interactions.prompt_version_id` when touching the logging path so eval evidence can connect outputs to prompt provenance.
-- Keep `slop_bowl` eval/reporting support separate from prompt activation. Phase 3 can evaluate Slop Bowl output quality without adding DB prompt overrides.
+- Keep `slop_bowl_suggestions` eval/reporting support separate from prompt activation. Phase 3 can evaluate Slop Bowl output quality without adding DB prompt overrides.
 - Feature taxonomy work needs no DB migration because `feature_type` is a free `varchar`; update stale `shared/schema.ts` comments and TypeScript unions instead.
 - Admin prompt endpoints should validate `PromptFeatureType`, not `EvalFeatureType`, so expanding eval coverage does not accidentally expand immediate prompt activation.
 - Make eval-queue selection criteria-aware. The current submit-all-pending path can be poisoned by any pending feature row without criteria, because `buildEvalPrompt` throws for unsupported feature types. Phase 3 should select only rows whose feature has criteria or route unsupported rows to a clear skipped state.

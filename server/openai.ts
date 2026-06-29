@@ -45,7 +45,7 @@ interface SlopBowlInput {
   previousRecipe?: string;
 }
 
-type RecipeSuggestionEvalFeature = Extract<EvalFeatureType, "recipe_suggestions" | "pantry_recipes">;
+type RecipeSuggestionEvalFeature = Extract<EvalFeatureType, "recipe_suggestions" | "chef_it_up_suggestions">;
 
 interface RecipeSuggestionOptions {
   evalFeatureType?: RecipeSuggestionEvalFeature;
@@ -294,7 +294,7 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
       ...parsedResult,
       additionalIngredientsNeeded: normalizeAdditionalIngredientsNeeded(parsedResult.additionalIngredientsNeeded),
     };
-    logInteraction("slop_bowl", inputData, JSON.stringify(result));
+    logInteraction("slop_bowl_suggestions", inputData, JSON.stringify(result));
     return result;
   } catch (error) {
     console.error("Error getting Slop Bowl recipe:", error);

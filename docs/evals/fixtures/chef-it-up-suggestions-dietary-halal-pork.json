@@ -1,6 +1,6 @@
 {
-  "id": "pantry-recipes-dietary-halal-pork",
-  "surface": "pantry_recipes",
+  "id": "chef-it-up-suggestions-dietary-halal-pork",
+  "surface": "chef_it_up_suggestions",
   "privacyClass": "synthetic",
   "roles": ["regression", "calibration-probe"],
   "sourceRefs": ["arize-open-coding-2025-11-07", "init004-phase-2-target-set"],
