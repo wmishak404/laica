@@ -1084,6 +1084,14 @@ export default function MealPlanning({
     );
   };
 
+  const renderPantryFactChips = (ingredients: string[], limit?: number) =>
+    ingredients.slice(0, limit ?? ingredients.length).map((ingredient) => (
+      <span key={ingredient} className="planning-use-chip" data-state="saved">
+        <CheckCircle2 className="planning-use-chip-status h-3.5 w-3.5" aria-hidden="true" />
+        <span className="planning-use-chip-text">{ingredient}</span>
+      </span>
+    ));
+
   const renderTicket = (recipe: RecipeRecommendation, isLarge = false) => {
     const selected = selectedMeal?.id === recipe.id;
 
@@ -1109,11 +1117,7 @@ export default function MealPlanning({
             <span className="planning-ticket-section">
               <span className="planning-ticket-section-label">Uses</span>
               <span className="planning-ticket-chip-row">
-                {(recipe.ingredients || []).slice(0, 5).map((ingredient) => (
-                  <Badge key={ingredient} variant="outline" className="planning-use-chip">
-                    {ingredient}
-                  </Badge>
-                ))}
+                {renderPantryFactChips(recipe.ingredients || [], 5)}
               </span>
             </span>
             {recipe.missingIngredients.length > 0 && (
@@ -1231,11 +1235,7 @@ export default function MealPlanning({
             <div className="planning-prep-section mt-5">
               <p className="planning-prep-label">Use these</p>
               <div className="planning-ticket-chip-row mt-2">
-                {(selectedMeal.ingredients || []).map((ingredient) => (
-                  <Badge key={ingredient} variant="outline" className="planning-use-chip">
-                    {ingredient}
-                  </Badge>
-                ))}
+                {renderPantryFactChips(selectedMeal.ingredients || [])}
               </div>
             </div>
 

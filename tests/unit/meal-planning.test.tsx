@@ -781,6 +781,42 @@ describe('MealPlanning recipe generation locking', () => {
     expect(screen.getByText('Rice Frittata')).toBeTruthy();
   });
 
+  it('renders known recipe ingredients as checked pantry fact chips in Ticket Pass and Prep Tray', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    const spinachTicket = screen.getByRole('button', { name: /spinach egg skillet/i });
+    fireEvent.click(spinachTicket);
+
+    const selectedSpinachTicket = screen.getByRole('button', { name: /spinach egg skillet/i });
+    expect(selectedSpinachTicket).toHaveClass('planning-ticket-large');
+    const ticketUseChips = Array.from(selectedSpinachTicket.querySelectorAll<HTMLElement>('.planning-use-chip'));
+    expect(ticketUseChips.map((chip) => chip.textContent)).toEqual(['eggs', 'spinach']);
+    expect(ticketUseChips.every((chip) => chip.dataset.state === 'saved')).toBe(true);
+    expect(ticketUseChips.every((chip) => chip.querySelector('.planning-use-chip-status'))).toBe(true);
+
+    const ticketOptional = selectedSpinachTicket.querySelector<HTMLElement>('.planning-ticket-optional');
+    expect(ticketOptional?.textContent).toContain('Optional: lemon');
+    expect(ticketOptional?.querySelector('.planning-use-chip-status')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
+    expect(await screen.findByRole('heading', { name: /spinach egg skillet/i })).toBeTruthy();
+    const prepUseChips = Array.from(container.querySelectorAll<HTMLElement>('.planning-prep-section .planning-use-chip'));
+    expect(prepUseChips.map((chip) => chip.textContent)).toEqual(['eggs', 'spinach']);
+    expect(prepUseChips.every((chip) => chip.dataset.state === 'saved')).toBe(true);
+    expect(prepUseChips.every((chip) => chip.querySelector('.planning-use-chip-status'))).toBe(true);
+
+    const prepOptionalChip = container.querySelector<HTMLElement>('.planning-prep-optional .planning-optional-chip');
+    expect(prepOptionalChip?.textContent).toBe('lemon');
+    expect(prepOptionalChip?.querySelector('.planning-use-chip-status')).toBeNull();
+  });
+
   it('keeps placeholders when the recipe response contains only a partial image set', async () => {
     fetchPantryRecipesMock.mockResolvedValue({
       recipes: recipeResponse.recipes.map((recipe, index) => (
