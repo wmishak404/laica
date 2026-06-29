@@ -652,15 +652,15 @@ Required enforcement mechanisms (choose one; document which is adopted):
 ### 7.2 Secrets
 
 Local must have access to dotenvx private key:
-- `.env.keys` must exist in each worktree (symlink allowed).
+- `.env.keys` must exist in each worktree (symlink allowed). Run `npm run setup:worktree` after `npm ci` to create or verify the standard symlink without printing secret values.
 
 Provenance:
-- Worktree symlink instructions: `AGENTS.md`
+- Worktree setup instructions: `AGENTS.md`
 - dotenvx private key: https://dotenvx.com/docs/quickstart/encryption
 
 ### 7.3 Database
 
-Local must have a DB strategy chosen in Decision D3 and must include a schema health check before any service-backed testing.
+Decision D3 is accepted for local agent work: the default decrypted `.env` database is diagnostic only; GitHub `e2e_guest_smoke` is the preferred routine DB-backed merge-evidence lane; local schema pushes are allowed only through the guarded diagnostics sandbox against an explicit disposable/non-production database. Run `npm run db:health` before any service-backed local testing, and treat a failure on the default `.env` database as local environment drift rather than permission to run `db:push`.
 
 ### 7.4 Ports
 
@@ -735,7 +735,7 @@ Parity is not “set and forget”. This spec requires explicit drift detection.
 ### 9.2 Where to record drift findings
 
 - Short term: `docs/handoffs/YYYY-MM-DD-<agent>-env-parity.md`
-- Durable: append dated sections to this workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), or EFF-010/EFF-017 as appropriate.
+- Durable: append dated sections to this workflow, [`testing-and-acceptance.md`](testing-and-acceptance.md), or EFF-017 as appropriate. Resolved EFF-010 remains historical context for the local DB decision.
 
 ---
 
@@ -752,8 +752,8 @@ This is the explicit “what it would take” list. Each item has an owner and a
 3. Decide D2 (dotenvx on Replit) and remove ambiguity.
    - Output: `.replit` workflow and docs match.
 
-4. Decide D3 (local DB strategy) and implement the workflow.
-   - Output: a documented, repeatable local DB setup; EFF-010 advances toward resolution.
+4. D3 (local DB strategy) is accepted for current agent work.
+   - Output: ADR-0001, `testing-and-acceptance.md`, `environment-map.md`, `local-diagnostics-sandbox.md`, `npm run setup:worktree`, `npm run db:health`, and the guarded sandbox define the repeatable local DB setup. Reopen with a new narrow Effort only if agent-created Neon branches per worktree become an actual implementation priority.
 
 5. Decide D4 (Firebase domain strategy) and implement stable auth domain if chosen.
    - Output: documented Firebase config; local + Replit sign-in works reliably.
@@ -839,7 +839,7 @@ Replit deploy environments can differ from dev workspaces (environment vars, dom
    - Enforce by running `node -v` and comparing to the chosen parity target (Decision D1).
 
 2. Confirm dotenvx private key availability:
-   - Each worktree must have `.env.keys` present (symlink is acceptable).
+   - Run `npm run setup:worktree`; each worktree must have `.env.keys` present (symlink is acceptable).
    - Provenance: `AGENTS.md` “Worktrees and .env.keys”; dotenvx key docs: https://dotenvx.com/docs/quickstart/encryption
 
 3. Install dependencies reproducibly:
@@ -853,8 +853,9 @@ Replit deploy environments can differ from dev workspaces (environment vars, dom
    - Provenance: PD-001 local secrets command policy.
 
 5. Validate local DB per the chosen D3 strategy:
-   - Before running service-backed flows, run schema health checks (see EFF-010).
-   - Provenance: `efforts/effort-010-local-db-schema-strategy.md`
+   - Before running service-backed flows, run `npm run env:run -- npm run db:health`.
+   - If the default decrypted `.env` DB fails, use GitHub `e2e_guest_smoke` for merge evidence or the guarded local diagnostics sandbox for interactive debugging. Do not run `db:push` against the default `.env` DB.
+   - Provenance: `docs/adr/0001-replit-primary-local-agents.md`, `docs/workflows/testing-and-acceptance.md`, and `docs/workflows/local-diagnostics-sandbox.md`
 
 6. Auth parity:
    - Ensure Firebase authorized domains include `localhost` (Firebase no longer guarantees it by default after 2025-04-28).

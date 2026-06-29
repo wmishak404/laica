@@ -36,7 +36,7 @@ The final Phase 1 head `76b536170c5c47d7cb04016b3c4cae451544da3b` was rebased on
 - [PD-010 — AI error telemetry allowlist](../product-decisions/pd-010-ai-error-telemetry-allowlist.md)
 - [AI error handling and telemetry workflow](../docs/workflows/ai-error-handling-and-telemetry.md)
 - [EFF-018 — Authenticated AI error handling](../efforts/effort-018-authenticated-ai-error-handling.md) — `Resolved` 2026-05-07. Owns the **client-side** classifier (`ApiRequestError` in [`client/src/lib/rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts)) and the typed-error route payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 mirrors its taxonomy in a new server-side `classifyAiError` function
-- [EFF-010 — Local DB schema strategy](../efforts/effort-010-local-db-schema-strategy.md) — Replit-authoritative `db:push`; local agents do not push
+- [EFF-010 — Local DB schema strategy](../efforts/effort-010-local-db-schema-strategy.md) — resolved policy history; ADR-0001 and the testing/local-sandbox workflows now govern Replit-authoritative schema work and local sandbox-only pushes
 - [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md) — 90-day retention, redaction guidance, denylist
 - [PD-007 — Effort status and registry workflow](../product-decisions/pd-007-effort-status-and-registry-workflow.md) — Effort status vocabulary and closeout workflow
 - [Replit Validation Focus Guide](../docs/workflows/replit-validation-focus.md) — targeted Replit validation by drift vector; INIT-002 phases pick rows from its matrix instead of re-testing everything
@@ -53,7 +53,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 | Phase 0 — INIT hub + PD-010 | Merged | [#41](https://github.com/wmishak404/laica/pull/41) (`cb94f28`) | EFF-019, INIT-002, PD-010, active-list updates landed on `main` 2026-05-08; EFF-019 later resolved into this INIT |
 | Phase 1 — stdout logger + 9 routes | Merged | [#159](https://github.com/wmishak404/laica/pull/159) / `382ebd0` | Server-side classifier, `/api/*` request IDs, and JSON stdout logger wired into 9 AI route catch blocks. Final head `76b5361` passed local checks, GitHub unit/E2E/security, and direct Replit shell/browser validation before merge |
 | Phase 2 — Replit observation week | Current | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix |
-| Phase 3 — DB schema + writer | Planned | TBD | `ai_error_events` schema + bounded writer + Replit `db:push` per EFF-010 |
+| Phase 3 — DB schema + writer | Planned | TBD | `ai_error_events` schema + bounded writer + Replit-authoritative schema handling per ADR-0001 and the testing/local-sandbox workflows |
 | Phase 4 — admin APIs | Planned | TBD | `/api/admin/ai-errors/{summary,list,detail,clusters}` mirroring existing admin pattern |
 | Phase 5 — closeout + worked examples | Planned | TBD | Four cluster→action examples from real Replit data; INIT flipped to Complete |
 
@@ -71,7 +71,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 | [AI error handling and telemetry workflow](../docs/workflows/ai-error-handling-and-telemetry.md) | Agent entrypoint for telemetry workflow, privacy boundaries, and source-of-truth routing |
 | [EFF-019](../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md) | Resolved historical filing; active telemetry implementation now lives in this INIT |
 | [EFF-018](../efforts/effort-018-authenticated-ai-error-handling.md) | `Resolved` 2026-05-07. Owns the client-side classifier and typed-error route payloads. INIT-002 Phase 1 mirrors its taxonomy in a server-side classifier |
-| [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) | Replit-authoritative schema migration; gates Phase 3 `db:push` |
+| [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) | Resolved local DB policy history; current schema-push boundaries live in ADR-0001 and the testing/local-sandbox workflows |
 | [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) | Acceptance criteria and validation evidence routing for merge readiness |
 | [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) | Redaction allowlist enforced at writer boundary |
 | [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md) | Retention and denylist baseline INIT-002 inherits |

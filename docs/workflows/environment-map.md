@@ -2,7 +2,7 @@
 
 Use this as the quick human-review map for LAICA environments: what each environment proves, which database it uses, which auth path it exercises, and when it is worth paying the setup/cost/bandwidth overhead.
 
-This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance.md), [environment-parity-spec.md](environment-parity-spec.md), or [EFF-010](../../efforts/effort-010-local-db-schema-strategy.md). It is the short lookup table for targeted environment questions.
+This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance.md) or [environment-parity-spec.md](environment-parity-spec.md). It is the short lookup table for targeted environment questions.
 
 ## Summary Table
 
@@ -36,7 +36,7 @@ This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance
 
 ### Local browser with default `.env`
 
-- **Command:** `PORT=3000 npm run env:run -- npm run dev`.
+- **Command:** `npm run setup:worktree`, then `PORT=3000 npm run env:run -- npm run dev`.
 - **Database:** the `DATABASE_URL` decrypted from committed `.env` using local `.env.keys`.
 - **Auth path:** real browser Firebase client credentials from dotenvx, backend Firebase Admin verification, and real `/api/auth/session`.
 - **Use when:** quick visual review or debugging after `npm run db:health` passes.

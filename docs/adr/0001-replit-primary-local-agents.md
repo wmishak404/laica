@@ -33,6 +33,9 @@ Both agents run on macOS against a local clone of the repo. They are approved sp
 4. **Then sync Replit.** After merge, pull into Replit, validate with live services, and deploy from Replit.
 5. **Local checks are allowed.** `npm ci`, `npm run check`, `npm run build` can run on macOS for fast feedback.
 6. **Service-backed release validation requires Replit.** Any test that needs the Replit runtime, deployment secrets, Firebase Google auth, live provider behavior, or production deployment posture must be validated in Replit before production publish. PR-level human Replit validation is targeted by risk, not automatic for every deployment-bound code change. Automated Replit-environment checks can become PR gates once their setup, evidence, and negative scope are documented and accepted.
+7. **Local database mutation is restricted.** The default decrypted `.env` database in local worktrees is a diagnostic target only. If `npm run db:health` fails there, classify it as local schema drift and use GitHub `e2e_guest_smoke` or the guarded local diagnostics sandbox; do not run `npm run db:push` against the default database to make a branch pass.
+8. **Disposable local sandboxes are allowed.** Agents may run schema push only when `LAICA_LOCAL_SANDBOX_DATABASE_URL` points at an explicit disposable/non-production database and `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true` is set. The sandbox helper must refuse to run when the sandbox URL equals the default `DATABASE_URL`.
+9. **Worktree secrets use the setup helper.** New Codex/Claude worktrees should run `npm run setup:worktree` to create or verify the ignored `.env.keys` symlink without printing secret values.
 
 ### Stacked PRs and Replit validation
 
@@ -47,6 +50,7 @@ Branch scope and validation reports should use `origin/main...HEAD` as the compa
 ## Consequences
 
 - Local dev can now run the full app using dotenvx for encrypted secrets (see `product-decisions/pd-001-secrets-management.md`). Replit remains the authoritative deployment and validation environment.
+- DB-backed local browser validation is useful only when the default `.env` database passes `db:health` or when the guarded sandbox prepares a disposable database. The preferred routine DB-backed merge evidence is GitHub `e2e_guest_smoke`, which creates a schema-only Neon branch, applies the current schema, runs `db:health`, runs Playwright, and deletes the branch.
 - PRs from agent branches need automated merge-gate evidence before merge, and Replit validation before production shipping unless the release owner explicitly accepts a narrower deployment risk.
 - The `.codex` and `.claude/` directories are checked in for reproducibility across worktrees.
 - `ADMIN_SECRET` has been rotated. Keep the current value in Replit Secrets only.

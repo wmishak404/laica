@@ -176,7 +176,7 @@ Use the repo scripts instead of ad hoc `npx` commands so validation evidence sta
 For dotenvx-backed local E2E in macOS worktrees, link `.env.keys` first and run the E2E server on a known-free port. Use the repo-pinned `env:run` script instead of one-off `npx @dotenvx/dotenvx` commands so the dotenvx binary comes from `package-lock.json` / `node_modules` and is not fetched at the moment secrets are decrypted:
 
 ```bash
-ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
+npm run setup:worktree
 PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm run env:run -- npm run db:health
 PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm run env:run -- npm run test:e2e
 ```

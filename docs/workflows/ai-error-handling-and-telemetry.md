@@ -17,7 +17,7 @@ User-facing AI error handling belongs with the feature or route being changed. O
 | Active telemetry implementation phases | [`INIT-002`](../../initiatives/INIT-002-ai-error-telemetry.md) |
 | Redaction allowlist and forbidden fields | [`PD-010`](../../product-decisions/pd-010-ai-error-telemetry-allowlist.md) |
 | Resolved authenticated-app error UX history | [`EFF-018`](../../efforts/effort-018-authenticated-ai-error-handling.md) |
-| Local DB/schema push boundaries | [`EFF-010`](../../efforts/effort-010-local-db-schema-strategy.md) |
+| Local DB/schema push boundaries | [`ADR-0001`](../adr/0001-replit-primary-local-agents.md) and [`local-diagnostics-sandbox.md`](local-diagnostics-sandbox.md) |
 | Replit validation focus | [`replit-validation-focus.md`](replit-validation-focus.md) |
 | Mobile Refresh AI privacy baseline | [`pd-cross-phase-ai-privacy.md`](../../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md) |
 
@@ -28,7 +28,7 @@ Before adding AI error logging, admin APIs, eval-cluster handling, or Feedback c
 1. Read INIT-002 for the current phase and resume point.
 2. Read PD-010 and confirm the intended fields are allowlisted.
 3. Confirm no raw prompts, preferences, model messages, headers, images, audio, cookies, tokens, stack traces with bodies, or arbitrary JSON blobs will be logged or persisted.
-4. If schema work is involved, read EFF-010 and coordinate Replit-authoritative `db:push` instead of pushing casually from a local worktree.
+4. If schema work is involved, follow ADR-0001 and the local diagnostics sandbox workflow: coordinate Replit-authoritative schema work for runtime environments, and never push schema from a local worktree unless the target is an explicit disposable sandbox database.
 5. Record local checks, Replit validation focus, and redaction evidence in the handoff and PR description.
 
 ## Taxonomy Boundary

@@ -82,7 +82,7 @@ Out of scope for this launch path:
 - [Mobile Refresh Phase 5 — Post-Cook Cleanup and Retention](../product-decisions/features/mobile-refresh/pd-phase-05-post-cook.md)
 - [Mobile Refresh Dev-Test Harness](../product-decisions/features/mobile-refresh/pd-dev-test-harness.md)
 - [EFF-017 — Environment parity and CI confidence](../efforts/effort-017-environment-parity-and-ci-confidence.md)
-- [EFF-010 — Local DB schema strategy](../efforts/effort-010-local-db-schema-strategy.md)
+- [EFF-010 — Local DB schema strategy](../efforts/effort-010-local-db-schema-strategy.md) — resolved policy history; current DB validation boundaries live in ADR-0001 and the testing/local-sandbox workflows
 - [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md)
 
 ## Assets
@@ -124,7 +124,7 @@ PD-012 is the source of truth for the image-generation approach: public product-
 | [INIT-001](INIT-001-mobile-refresh.md) | Phase 1 landing and Phase 5 returning-user behavior both intersect with this initiative |
 | [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md) | Future auth/browser smoke work should adapt to guest mode without replacing linked-account Replit validation |
 | [EFF-024](../efforts/effort-024-guest-privacy-trust-messaging.md) | Resolved by PR #126's restrained menu-level browser-local cue plus concise Settings copy; use as history for future guest trust messaging |
-| [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) | Any schema work for quota accounting or promotion must still follow Replit-authoritative DB workflow |
+| [EFF-010](../efforts/effort-010-local-db-schema-strategy.md) | Resolved local DB policy history; quota/promotion schema work must still follow ADR-0001 and the testing/local-sandbox workflows |
 | [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) | Merge readiness and Replit validation evidence remain required for runtime phases |
 
 Analytics work is intentionally separate. If measurement implementation begins, file a standalone effort rather than expanding INIT-003 to own both runtime auth changes and product analytics.

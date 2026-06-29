@@ -24,7 +24,7 @@ The helper refuses to run when `LAICA_LOCAL_SANDBOX_DATABASE_URL` equals `DATABA
 ## Visual review
 
 ```bash
-ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
+npm run setup:worktree
 LAICA_LOCAL_SANDBOX_DATABASE_URL='postgresql://...' \
 LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true \
 PORT=3000 \
@@ -43,7 +43,7 @@ What the helper does:
 ## Local Playwright
 
 ```bash
-ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
+npm run setup:worktree
 LAICA_LOCAL_SANDBOX_DATABASE_URL='postgresql://...' \
 LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true \
 PORT=3000 \
@@ -66,7 +66,8 @@ Use this when you only want to schema-push and health-check the sandbox before s
 ## Safety notes
 
 - Never commit sandbox URLs or copied secrets.
+- Run `npm run setup:worktree` first when a Codex/Claude worktree does not already have `.env.keys`; the helper creates or verifies the symlink without printing secret values.
 - Use `npm run env:run -- ...` after `npm ci`; do not let ad hoc `npx @dotenvx/dotenvx` fetch code while decrypted secrets are in scope.
 - Prefer short-lived Neon branches for feature reviews.
 - Delete disposable branches/databases after the diagnostic session when your provider does not do that automatically.
-- Do not treat this as permission to run `db:push` against arbitrary shared databases; EFF-010 still owns the broader local database strategy.
+- Do not treat this as permission to run `db:push` against arbitrary shared databases; schema pushes are allowed only for the explicit disposable sandbox target named by `LAICA_LOCAL_SANDBOX_DATABASE_URL`.

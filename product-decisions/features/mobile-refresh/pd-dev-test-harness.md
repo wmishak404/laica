@@ -89,5 +89,5 @@ This is not a backend auth bypass and does not complete Google popup sign-in or 
 ## Effort Interactions
 
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Adds concrete evidence for the app-wide testing strategy and local-vs-Replit validation matrix.
-- EFF-010: Reinforces that schema pushes and database drift handling remain separate from feature smoke tooling.
+- ADR-0001 and the testing/local-sandbox workflows: Reinforces that schema pushes and database drift handling remain separate from feature smoke tooling.
 - EFF-017: Owns the broader environment parity and CI confidence work that would let this harness reduce manual Replit browser validation later.
