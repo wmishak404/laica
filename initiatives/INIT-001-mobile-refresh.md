@@ -174,6 +174,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | [EFF-017](../efforts/effort-017-environment-parity-and-ci-confidence.md) | Active validation-lane owner for CI confidence, OAuth preflight, provider canaries, and automated Replit-environment follow-up |
 | [EFF-018](../efforts/effort-018-authenticated-ai-error-handling.md) | Resolved authenticated AI error handling and pantry recipe 400 follow-up; Phase 4 still owns live-cooking inline recovery |
 | [EFF-021](../efforts/effort-021-scan-upload-photo-limit-policy.md) | Resolved mobile-refresh scan-capacity policy; retained as historical reference for Pantry/Kitchen upload limits and scan-specific messaging |
+| [EFF-025](../efforts/effort-025-settings-unsaved-inventory-reminder.md) | Active standalone Settings dirty-state follow-up for Pantry/Tools explicit-save UX; status lives in the Effort header |
 
 ## Changes Added After Initial Plan
 
@@ -212,6 +213,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 - PR #170 consolidated the Profile/Settings inventory language into Kitchen Inventory with Pantry and Tools, kept Pantry/Tools scans separate, kept backend `pantryIngredients` / `kitchenEquipment` / scan type `kitchen` contracts unchanged, removed tracking-framed inventory copy, and made setup draft restore browser-local so Replit preview refreshes/remounts preserve in-progress Pantry/Tools entries while Start Over clears the draft.
 - PR #171 completed the Kitchen Inventory profile UI polish: optional Tools copy now reassures users that skipped Tools still use common kitchen basics, setup completion uses a simple checkmark hero, returning Settings uses connected Pantry/Tools tabs beside a subordinate Back chip, the inventory panel has a rectangular top edge with rounded bottom corners to avoid tab/card-radius artifacts, and the inert top-right Settings chip plus duplicate inner Pantry/Tools selector stay removed.
 - PR #173 added a Settings active-section restore mitigation for signed-in save/remount route loss. This is a route-preservation remedy after remount, not a root-cause fix for the intermittent refresh trigger.
+- EFF-025 implementation began on 2026-06-26 in branch `codex/eff-025-settings-unsaved-reminder`: Pantry/Tools keep explicit Save while dirty inventory edits show inline reminders, dirty Save copy, and confirmation before leaving or switching away from the dirty list. Replit/mobile validation remains the closeout gate for whether the reminder is visible without being noisy.
 - PR #175 completed the PR #81 Ticket Pass retry brief as a layout-only runtime slice: shared ticket-pass backing, clearer selected ticket depth, readable compact rows, and a regression test that keeps generated order stable while selection expands in place. It intentionally leaves recipe imagery, Prep Tray redesign, prompts/providers, Settings, navigation, and backend behavior untouched.
 
 ## Validation State

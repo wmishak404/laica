@@ -1511,6 +1511,40 @@ html, body {
     font-weight: 900;
   }
 
+  .returning-unsaved-reminder {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    border: 1px solid hsl(var(--returning-coral) / 0.26);
+    border-radius: 1rem;
+    background: hsl(var(--returning-coral-soft) / 0.58);
+    color: hsl(var(--returning-ink));
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .returning-unsaved-reminder svg {
+    flex-shrink: 0;
+    margin-top: 0.12rem;
+    color: hsl(var(--returning-coral));
+  }
+
+  .returning-unsaved-reminder p {
+    margin: 0;
+    font-size: 0.86rem;
+    font-weight: 950;
+    line-height: 1.1;
+  }
+
+  .returning-unsaved-reminder span {
+    display: block;
+    margin-top: 0.18rem;
+    color: hsl(var(--returning-ink) / 0.68);
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
   .history-meta-pill {
     display: inline-flex;
     align-items: center;
