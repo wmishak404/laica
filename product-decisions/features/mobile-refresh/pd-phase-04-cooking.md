@@ -30,6 +30,8 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 
 - Active cooking errors render inline inside the cooking surface, not as transient toasts.
 - If cooking-step generation fails, show a calm inline recovery state with retry and a practical fallback path.
+- Generated cooking steps are usable only when at least one step has a non-empty, cookable instruction. Empty arrays, blank instructions, whitespace-only instructions, or placeholder text must stay in recovery rather than rendering Step 1.
+- The new Phase 4 cooking flow must not start, restore as ready, or save a cooking session from invalid generated steps. Recovery into the live guide may happen after a user-invoked retry or another validated regeneration path, but not by silently substituting an unverified or generic step list.
 - If cooking assistance fails mid-step, keep the current step visible and show the failure in the Coach Feed area.
 - Feedback appears as an inline action in the cooking display when the issue persists, not as a toaster CTA.
 - Error copy follows EFF-018 principles: first person, plain English, no user blame, and `Laica` casing.
@@ -101,11 +103,11 @@ Wilson's follow-up review expanded the merge acceptance surface from the origina
 
 ### 2026-06-25 - Inline recovery and Finish contract slice
 
-Codex opened PR #236 (`codex/init-001-cooking-step-recovery`) as the next bounded Phase 4 runtime slice. The branch makes Live Cooking honest when cooking-step generation fails: a failed or empty `/api/cooking/steps` response now keeps the cook in an inline recovery panel with `Try again`, `Use basic steps`, and `Back to Planning` instead of silently dropping them into generic fallback instructions. The backup path remains available, but only after the cook chooses it and sees that it is intentionally generic.
+Codex opened PR #236 (`codex/init-001-cooking-step-recovery`) as the next bounded Phase 4 runtime slice. The branch makes current Live Cooking more honest when cooking-step generation fails or returns an empty step array: the cook stays in an inline recovery panel with `Try again`, `Use basic steps`, and `Back to Planning` instead of silently dropping into generic fallback instructions. The backup path remains available, but only after the cook chooses it and sees that it is intentionally generic.
 
 The same slice corrects the existing Finish contract for current Live Cooking controls. The final-step action is reachable as `Finish`; linked completion sends no hidden default `5` rating or invented `userNotes`; linked success copy uses the accepted Phase 4 language (`Nice, dinner's ready.`, `Saved to your cooking history.`, `Pantry cleanup comes next.`); and guest completion continues to avoid durable history. This does not implement Ready Check, Coach Feed redesign, timer redesign, provider prompt changes, schema changes, pantry cleanup state, taste memory, or full Phase 5 post-cook flow.
 
-Focused local coverage in `tests/unit/live-cooking-guest-session.test.tsx` now proves failed step generation stays inline and retryable, generic backup steps require explicit user choice, and linked Finish omits invented rating/notes while using the accepted history/cleanup copy. Replit/manual validation remains useful before broader Phase 4 closeout if later work changes real provider behavior, device audio, microphone permissions, cooking-session persistence, or Finish-to-Phase-5 semantics.
+Focused local coverage in `tests/unit/live-cooking-guest-session.test.tsx` now proves failed step generation stays inline and retryable, generic backup steps require explicit user choice, and linked Finish omits invented rating/notes while using the accepted history/cleanup copy. The full Phase 4 revamp must tighten this further by treating blank, whitespace-only, or otherwise non-cookable generated instructions as failed generation before any live guide/session state is created. Replit/manual validation remains useful before broader Phase 4 closeout if later work changes real provider behavior, device audio, microphone permissions, cooking-session persistence, or Finish-to-Phase-5 semantics.
 
 ## Acceptance Criteria
 
@@ -121,6 +123,8 @@ Focused local coverage in `tests/unit/live-cooking-guest-session.test.tsx` now p
 - Completion sends no hidden `5` rating when the user has not rated.
 - Cooking assistance route is authenticated, rate-limited, and prompt-injection guarded.
 - Cooking-step generation failure has an inline retry/recovery state.
+- Cooking-step generation validates output before entering the live guide: empty arrays, blank instructions, whitespace-only instructions, and non-cookable placeholder text are treated as recovery states, not as usable steps.
+- Step-generation recovery into Live Cooking is explicit and evidence-backed: retry or regeneration must produce a validated usable guide before the app starts/saves a cooking session; the generic backup guide remains a clearly labeled user choice, not silent self-recovery.
 - Cooking-assistance failure appears in Coach Feed or the relevant inline guidance area, not only in a toast.
 - Persistent live-cooking failures offer inline Feedback access.
 - No live-cooking failure hides the pinned current step or leaves the cook without a next action.
