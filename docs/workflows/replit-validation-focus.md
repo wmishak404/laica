@@ -75,6 +75,8 @@ Replit runs on Linux; local dev is usually macOS (often ARM64). Native modules a
 
 Use this routine before pushing a merged `main` build to production. It is intentionally split between checks that should be trusted from automation and checks that still need Replit or the deployed production runtime because they depend on secrets, provider network access, deployment domains, or human judgment.
 
+Use `docs/production-validation-registry.md` as the current ledger for the last recorded production smoke, known build-marker gaps, and the next changed-since-last-prod focused smoke list. Update that registry after each production publish or post-publish smoke instead of scattering release state across unrelated handoffs.
+
 Do not use Replit Agent for this routine unless Wilson explicitly approves it. Prefer direct Replit shell, the workspace UI, Chrome, GitHub checks, and app/API evidence. Never print secret values; use masked presence checks that print only `set` or `MISSING`.
 
 ### 1) Select The Exact Build
