@@ -37,7 +37,7 @@ This should not block PR #192 because production builds do not use Vite React Re
 - Preventing Replit, Vite, or browser dev tools from triggering reloads while code changes are being pulled or reset.
 - Changing recipe image generation, selected-image polling, App Storage, provider selection, or Gemini benchmark behavior.
 - Broad router/app-shell rewrite beyond what is needed for active workflow restoration.
-- Changing Settings active-section restore; see EFF-025 for Settings dirty-state/remount work.
+- Changing Settings active-section restore; see resolved EFF-025 history for Settings dirty-state/remount work.
 - Persisting completed cooking sessions or History behavior; those remain in their owning phases.
 
 ## Decisions made so far
