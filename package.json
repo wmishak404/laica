@@ -11,6 +11,7 @@
     "env:run": "dotenvx run --",
     "env:decrypt": "dotenvx decrypt",
     "env:encrypt": "dotenvx encrypt",
+    "setup:worktree": "node scripts/setup-worktree.mjs",
     "dev:sandbox": "tsx scripts/local-sandbox.ts -- npm run dev",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",

@@ -119,10 +119,10 @@ Secrets are managed with **dotenvx** (AES-256-GCM encrypted `.env` committed to 
 `git worktree add` does not copy gitignored files. After creating a new worktree, link the key from the main repo:
 
 ```bash
-ln -sf /Users/wilsonishak-macbookpro/src/laica/.env.keys .env.keys
+npm run setup:worktree
 ```
 
-The symlink stays untracked because `.env.*` is gitignored. Without this link, dotenvx cannot decrypt `.env` in the worktree and local OpenAI / ElevenLabs / database-backed validation will fail.
+The helper creates or verifies the untracked `.env.keys` symlink without printing secret values. The symlink stays untracked because `.env.*` is gitignored. Without this link, dotenvx cannot decrypt `.env` in the worktree and local OpenAI / ElevenLabs / database-backed validation will fail.
 
 Run dotenvx through the repo scripts after `npm ci`; avoid ad hoc `npx @dotenvx/dotenvx` fetches while decrypted secrets are in scope.
 

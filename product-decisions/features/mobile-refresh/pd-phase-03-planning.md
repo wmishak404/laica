@@ -93,7 +93,7 @@ Implementation should match the planning mockups closely enough that the first p
 - PD-005 / `design_guidelines.md`: Ticket Pass establishes the distinctive mobile-refresh recipe-suggestion pattern.
 - Full-row selection pattern: Cuisine chips and Slop Bowl confirmation controls must have mobile-appropriate tap targets.
 - Shared manual-entry parser: Slop Bowl quick-add uses the shared comma parser.
-- EFF-010: Last planning time setting must follow the repo's DB-change policy if persisted server-side.
+- ADR-0001 and the testing/local-sandbox workflows: Last planning time setting must follow the repo's DB-change policy if persisted server-side.
 
 ## Backend Notes
 
@@ -111,7 +111,7 @@ Implemented locally:
 
 - Planning entry now prioritizes Chef It Up as the primary route and places Slop Bowl below it as the scrappy secondary route.
 - Chef It Up removes the avoid/specify step and uses the approved four-stop planning time control: `30m`, `1hr`, `1.5hrs`, and `Got all the time`.
-- Last planning time is stored as a client-side planning preference for this phase, then passed into Slop Bowl generation. This avoids repurposing the legacy `weekly_time` column or adding a schema change before [EFF-010](../../../efforts/effort-010-local-db-schema-strategy.md) resolves the DB workflow.
+- Last planning time is stored as a client-side planning preference for this phase, then passed into Slop Bowl generation. This avoids repurposing the legacy `weekly_time` column or adding a schema change before the DB workflow was settled in [EFF-010](../../../efforts/effort-010-local-db-schema-strategy.md), ADR-0001, and the testing/local-sandbox workflows.
 - Cuisine selection uses full-row illustrated multi-select chips. `No preference` is exclusive.
 - Suggestions now render as exactly three Ticket Pass tickets, with no visible percentage match and no mandatory grocery-list copy. Internal `pantryMatch`, `missingIngredients`, and `additionalIngredientsNeeded` fields remain available for compatibility/history/cooking-session paths.
 - Ticket Pass now uses image-slot placeholders and a featured-ticket/compact-stack structure so suggestions do not read as generic vertical recipe cards and can accept generated imagery in Phase 3.1.

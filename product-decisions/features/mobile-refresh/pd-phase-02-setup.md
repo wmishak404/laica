@@ -103,7 +103,7 @@ This means PR #23's merge bar is functional correctness plus the recorded Replit
 - EFF-006: Kitchen/equipment scan excludes non-kitchen items.
 - Scan feedback: Empty scan feedback applies to Pantry and Kitchen.
 - Shared manual-entry parser: Comma-separated manual ingredient entry expands beyond Slop Bowl into Setup.
-- EFF-010: No local DB pushes for schema changes; Replit remains the DB authority.
+- ADR-0001 and the testing/local-sandbox workflows: No local DB pushes against shared/default databases for schema changes; Replit remains the DB authority.
 - `design_guidelines.md`: Phase 2 setup is the first active pilot for Laica's target design language and visual mockup conformance.
 
 ## Backend Notes

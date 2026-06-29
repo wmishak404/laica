@@ -84,7 +84,8 @@ Read EFF-017 before:
 
 Also read:
 - `efforts/effort-005-testing-strategy-and-acceptance-criteria.md`
-- `efforts/effort-010-local-db-schema-strategy.md`
+- `docs/adr/0001-replit-primary-local-agents.md`
+- `docs/workflows/local-diagnostics-sandbox.md`
 
 ## Resolution criteria — what "done" looks like
 
@@ -96,7 +97,7 @@ This Effort can be `Resolved` when all of the following are true:
 2. Local + CI run a repeatable authenticated smoke path (emulator-based) and DB schema health checks.
 3. A production identity-provider preflight gate exists and prevents authorized-domain regressions.
 4. At least one high-value authenticated browser flow is automated end to end with deterministic test data, UI assertions, persistence/no-duplicate checks, and clear handling for provider calls.
-5. `AGENTS.md` + ADR-0001 + testing/security workflows are updated so policy is consistent everywhere; EFF-010 remains the local DB/schema strategy companion.
+5. `AGENTS.md` + ADR-0001 + testing/security workflows are updated so policy is consistent everywhere; resolved EFF-010 remains history for the local DB/schema decision.
 
 ## 2026-05-05 — Parked
 

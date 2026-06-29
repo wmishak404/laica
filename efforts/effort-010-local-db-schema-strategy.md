@@ -1,14 +1,14 @@
 # EFF-010 — Local database schema strategy
 
 **Former ID:** EPIC-010
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-04-27
-**Updated:** 2026-06-22
+**Updated:** 2026-06-29
 
 ## One-line summary
 
-Define and implement a reliable local database workflow so macOS agent worktrees can validate service-backed features without stale Neon schema drift getting mixed up with product bugs.
+Resolved: macOS agent worktrees use explicit local DB boundaries so stale default `.env` Neon schema drift is not mistaken for product bugs.
 
 ## Context — why this exists
 
@@ -49,20 +49,22 @@ Until this is resolved, local agents can waste time debugging environment drift 
 
 - **Replit remains authoritative for deployment-bound validation.** Local DB work should support faster iteration, not replace the Replit validation gate.
 - **Local schema drift is an environment problem.** Feature code can gracefully degrade around optional context, but required persistence and schema correctness still need a reliable local workflow.
-- **Agents should not run `db:push` casually against an unknown shared DB.** The workflow needs ownership boundaries before schema mutation becomes routine.
-- **Mobile refresh interim policy:** Phase 5 schema changes are documented, but local agents should not run `npm run db:push` against shared dev or Replit databases. Schema pushes for this feature happen through the Replit-authoritative path until this Effort resolves.
+- **Agents do not mutate the default decrypted `.env` database.** If `npm run env:run -- npm run db:health` fails against the default local database, that is environment drift, not permission to run `db:push`.
+- **GitHub `e2e_guest_smoke` is the preferred routine DB-backed merge-evidence lane.** It provisions a disposable schema-only Neon branch, pushes the current schema, runs `db:health`, runs Playwright, and deletes the branch.
+- **Local schema push is limited to explicit disposable sandboxes.** Agents may run schema push only when `LAICA_LOCAL_SANDBOX_DATABASE_URL` points at a disposable/non-production database and `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true` is set.
+- **Worktree dotenvx setup is scripted.** `npm run setup:worktree` creates or verifies the ignored `.env.keys` symlink without printing secret values.
 
-## Open questions
+## Resolved questions
 
-- Should each feature branch/worktree use a dedicated Neon branch/database, or should there be one shared local dev database?
-- Should `npm run db:push` be allowed by agents when `DATABASE_URL` points to an explicitly named local/dev database?
-- What command should agents run to verify schema health before local service-backed testing?
-- Should schema drift warnings become part of app startup in local development?
-- How should `.env.keys` be provisioned for new Codex worktrees so dotenvx local dev starts without manual repair?
+- Routine local work does not get a shared mutable agent database. Use GitHub `e2e_guest_smoke` for routine DB-backed merge evidence.
+- Per-worktree or agent-created Neon branches are not part of the current workflow. File a new narrow Effort only if that becomes an implementation priority.
+- `npm run db:push` is not allowed against the default decrypted `.env` database. It is allowed through `scripts/local-sandbox.ts` only for explicit disposable/non-production sandbox targets.
+- `npm run db:health` is the schema-health preflight before local DB-backed testing. Table additions belong in the PR that adds required schema, not in a long-lived EFF-010 monitoring loop.
+- `.env.keys` provisioning is `npm run setup:worktree`.
 
 ## Agent checklist — when to read this Effort
 
-Read EFF-010 before starting any of the following:
+Use this resolved Effort as history before starting any of the following:
 
 - [ ] Running or recommending `npm run db:push`
 - [ ] Changing Drizzle schemas or DB-backed persistence paths
@@ -73,9 +75,9 @@ Read EFF-010 before starting any of the following:
 
 When this applies, also cite the [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md) if the work changes validation expectations, and cite PD-008 if the work distinguishes required data from optional context.
 
-## Resolution criteria — what "done" looks like
+## Resolution criteria — closed 2026-06-29
 
-This Effort is `Resolved` when all of the following are true:
+This Effort is `Resolved` because all of the following are true:
 
 1. A durable local database workflow is documented in an ADR or product decision.
 2. Agents know which database a Codex worktree should use for local service-backed validation.
@@ -223,3 +225,13 @@ This is a narrow drift-detection improvement, not a local DB ownership decision:
 - A missing `recipe_image_cache` table should fail `npm run db:health` before DB-backed browser validation so agents do not misclassify selected-image failures as UI or provider bugs.
 - GitHub `e2e_guest_smoke` and guarded local diagnostics sandboxes that apply the current Drizzle schema should pass this check.
 - Agents still should not run `npm run db:push` against the default decrypted `.env` database just to satisfy this table; use CI's schema-only Neon branch or an explicit disposable sandbox unless Wilson authorizes another database target.
+
+## 2026-06-29 — Resolved into ADR and workflow policy
+
+Wilson clarified that Efforts should close when the concrete task is complete rather than remain as standing verification files. EFF-010 is now resolved by the accepted local DB strategy:
+
+- ADR-0001 records the final local DB boundary: the default decrypted `.env` database is diagnostic only, and `db:health` failure there is schema drift rather than permission to run `db:push`.
+- GitHub `e2e_guest_smoke` remains the preferred routine DB-backed merge-evidence lane because it provisions a disposable schema-only Neon branch, applies the current Drizzle schema, runs `db:health`, runs Playwright, and deletes the branch.
+- The guarded local diagnostics sandbox remains available for interactive local debugging that needs real auth/session behavior with current schema; schema push is allowed only against an explicit disposable/non-production `LAICA_LOCAL_SANDBOX_DATABASE_URL` with `LAICA_LOCAL_SANDBOX_CONFIRM_SCHEMA_PUSH=true`.
+- `npm run setup:worktree` now creates or verifies the ignored `.env.keys` symlink without printing secret values, so new Codex/Claude worktrees no longer need to rediscover the manual symlink command.
+- Routine future schema-health additions belong in the PR that adds required schema. Future automated Replit-environment DB validation belongs in EFF-017. Agent-created Neon branches per worktree should become a new narrow Effort only if Wilson makes that an actual implementation priority.
