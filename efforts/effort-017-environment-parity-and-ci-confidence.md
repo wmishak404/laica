@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-24
+**Updated:** 2026-06-30
 
 ## One-line summary
 
@@ -724,3 +724,13 @@ Branch `codex/eff-017-auth-session-coverage` adds focused unit coverage for the 
 - `401` and non-OK session responses do not mark the app authenticated.
 
 This closes one live-but-thin client auth coverage gap noted in the 2026-06-10 audit, but it does not resolve EFF-017. Remaining scope still includes provider canary decisions, automated Replit-environment work, coverage ratcheting, broader live-cooking/useAuth-adjacent coverage, and any future validation-authority changes Wilson explicitly accepts.
+
+## 2026-06-30 — Live Cooking transcript preference coverage added
+
+The daily Efforts hygiene pass again kept EFF-017 as the highest-leverage active Effort. EFF-022 remains active, but its next prompt behavior still depends on Wilson's unresolved cuisine-fallback product rule. EFF-017 had an unblocked deterministic slice in live-surface coverage, so this branch avoided provider canaries, Replit-side automation, OAuth configuration, and validation-authority policy.
+
+Branch `codex/eff-017-live-surface-coverage` hardens the Live Cooking transcript pin preference. The component now falls back to the default pinned transcript if the saved `laica_transcription_pinned` localStorage value is malformed, and it clears the malformed value instead of crashing the cooking guide during render.
+
+The same branch extends `tests/unit/live-cooking-guest-session.test.tsx` with visible transcript-pin assertions: default pinned state, toggle persistence to localStorage, restored unpinned/pinned button labels, and malformed-preference recovery. This closes a small live-cooking coverage gap around user-visible transcript state, not the broader provider, Replit, or policy lanes.
+
+EFF-017 remains `In Progress`. Remaining scope still includes provider canary decisions, automated Replit-environment work, coverage ratcheting, future policy alignment only when Wilson accepts it, and any broader live-surface coverage that is not already protected by the current unit/E2E gates.

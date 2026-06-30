@@ -105,6 +105,19 @@ function createBasicCookingSteps(recipeName: string): RecipeStep[] {
   ];
 }
 
+function getInitialTranscriptionPinned() {
+  const saved = localStorage.getItem('laica_transcription_pinned');
+  if (saved === null) return true;
+
+  try {
+    const parsed = JSON.parse(saved);
+    return typeof parsed === 'boolean' ? parsed : true;
+  } catch {
+    localStorage.removeItem('laica_transcription_pinned');
+    return true;
+  }
+}
+
 interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
@@ -158,10 +171,7 @@ export default function LiveCooking({
   const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
-  const [isTranscriptionPinned, setIsTranscriptionPinned] = useState(() => {
-    const saved = localStorage.getItem('laica_transcription_pinned');
-    return saved !== null ? JSON.parse(saved) : true; // Default: pinned
-  });
+  const [isTranscriptionPinned, setIsTranscriptionPinned] = useState(getInitialTranscriptionPinned);
   const transcriptionRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number>(0);
 
