@@ -22,6 +22,7 @@ The implementation adds a route-specific admin throttle, compares the admin shar
 - `tests/unit/provider-boundary-happy-paths.test.ts` covers the transcription provider path using the randomized temp-file prefix rather than the old timestamp form.
 - `tests/unit/phase0-security-routes.test.ts` covers same-IP requests from distinct authenticated users so shared networks do not exhaust app-runtime buckets through source IP.
 - `tests/unit/rate-limit.test.ts` covers the admin rate-limit env key mapping.
+- `docs/workflows/replit-validation-focus.md` adds shared-network smoke to production-publish focused validation when a release changes runtime rate-limit policy.
 
 ## Impact on other agents
 
