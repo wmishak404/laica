@@ -3,6 +3,8 @@ import type { Request } from 'express';
 import {
   RATE_LIMIT_BUCKET_CAP,
   consumeRateLimit,
+  consumeRecipeImageGenerationRateLimits,
+  consumeVisionImageRateLimits,
   createRateLimit,
   getClientIp,
   getConfiguredRateLimit,
@@ -195,6 +197,37 @@ describe('vision rate-limit keys', () => {
       code: 'RATE_LIMITED',
       message: 'Too many requests. Try again later.',
     });
+  });
+
+  it('does not consume the retained Vision IP bucket while app runtime limits are user-scoped', async () => {
+    for (let index = 0; index < 61; index += 1) {
+      const { res } = makeResponse();
+      const allowed = await consumeVisionImageRateLimits(
+        makeRequest({
+          ip: '203.0.113.44',
+          firebaseUser: { uid: `user-${index}` },
+          scanType: 'pantry',
+        }),
+        res as any,
+      );
+
+      expect(allowed).toBe(true);
+    }
+  });
+
+  it('does not consume the retained recipe-image IP bucket while app runtime limits are user-scoped', async () => {
+    for (let index = 0; index < 61; index += 1) {
+      const { res } = makeResponse();
+      const allowed = await consumeRecipeImageGenerationRateLimits(
+        makeRequest({
+          ip: '203.0.113.44',
+          firebaseUser: { uid: `user-${index}` },
+        }),
+        res as any,
+      );
+
+      expect(allowed).toBe(true);
+    }
   });
 
   it('prunes expired buckets during periodic cleanup', () => {

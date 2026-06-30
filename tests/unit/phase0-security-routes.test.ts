@@ -25,7 +25,9 @@ vi.mock("../../server/firebaseAuth", () => ({
     const token = typeof rawAuthorization === "string"
       ? rawAuthorization.replace(/^Bearer\s+/i, "")
       : "";
-    const uid = token.startsWith("transcription-user-") ? token : "owner-user";
+    const uid = token.startsWith("same-ip-user-") || token.startsWith("transcription-user-")
+      ? token
+      : "owner-user";
 
     req.firebaseUser = {
       uid,
@@ -148,6 +150,30 @@ describe("Phase 0 protected routes", () => {
     expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"], {
       evalFeatureType: "chef_it_up_suggestions",
     });
+  });
+
+  it("keeps normal recipe generation scoped to per-user limits instead of shared IP limits", async () => {
+    mocks.getRecipeSuggestions.mockResolvedValue({ recipes: [] });
+    const server = await startTestServer();
+
+    for (let index = 0; index < 101; index += 1) {
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/recipes/suggestions",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer same-ip-user-${index}`,
+        },
+        body: JSON.stringify({
+          preferences: "quick dinner",
+          ingredients: ["rice", "eggs"],
+        }),
+      });
+
+      expect(response.status).toBe(200);
+    }
+
+    expect(mocks.getRecipeSuggestions).toHaveBeenCalledTimes(101);
   });
 
   it("blocks pantry recipe generation when the pantry ingredient list is empty", async () => {
