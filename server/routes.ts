@@ -864,7 +864,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Speech transcription route using OpenAI Whisper
-  app.post('/api/speech/transcribe', isAuthenticated, speechIpHourLimit, speechUserHourLimit, speechUserDayLimit, upload.single('audio'), async (req, res) => {
+  app.post('/api/speech/transcribe', isAuthenticated, speechUserHourLimit, speechUserDayLimit, upload.single('audio'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'Audio file is required' });

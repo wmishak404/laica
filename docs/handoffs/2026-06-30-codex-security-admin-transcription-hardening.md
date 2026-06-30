@@ -11,22 +11,23 @@
 
 This branch handles the low-risk security hardening follow-up from the 2026-06-30 automation pass while keeping public text at the remediation and validation level. The live triage found no open Dependabot security PRs, no open Dependabot alerts, no open code-scanning alerts, and no open security-labeled remediation PRs. Current `main` branch protection remains strict with the expected required CI/security checks.
 
-The implementation adds a route-specific admin throttle, compares the admin shared secret through fixed-length digests, and moves speech transcription temp-file handling from timestamp-derived paths to randomized exclusive temp directories. No schema, dependency, client contract, or navigation behavior changed.
+The implementation adds a route-specific admin throttle, compares the admin shared secret through fixed-length digests, moves speech transcription temp-file handling from timestamp-derived paths to randomized exclusive temp directories, and keeps transcription throttling user-scoped rather than shared by source IP. No schema, dependency, client contract, or navigation behavior changed.
 
 ## Changes
 
 - `server/admin-routes.ts` adds the admin-specific limiter before admin auth and switches secret validation to fixed-length digest comparison.
 - `server/rate-limit.ts` adds an `admin` rate-limit key and `adminIpLimit`, configurable with `RATE_LIMIT_ADMIN_HOUR`.
-- `server/routes.ts` creates speech transcription temp files in randomized exclusive temp directories and removes the directory after provider handoff.
+- `server/routes.ts` creates speech transcription temp files in randomized exclusive temp directories, removes the directory after provider handoff, and leaves `/api/speech/transcribe` on per-user hourly/daily speech limits without the shared IP speech limiter.
 - `tests/unit/admin-cache-headers.test.ts` covers admin no-cache headers plus repeated invalid-attempt throttling before admin handlers run.
 - `tests/unit/provider-boundary-happy-paths.test.ts` covers the transcription provider path using the randomized temp-file prefix rather than the old timestamp form.
+- `tests/unit/phase0-security-routes.test.ts` covers same-IP transcription requests from distinct authenticated users so shared networks do not exhaust transcription through an IP bucket.
 - `tests/unit/rate-limit.test.ts` covers the admin rate-limit env key mapping.
 
 ## Impact on other agents
 
 Treat this as a small automation-primary security patch. The admin route now has its own IP-hour limiter in addition to the global API limiter; if a future admin workflow legitimately needs more than the default, use the `RATE_LIMIT_ADMIN_HOUR` override rather than removing the route-specific limiter.
 
-The transcription path still writes the uploaded memory buffer to disk because the provider client expects a readable file stream. Future work should preserve randomized/exclusive temp-file allocation and cleanup if this route changes.
+The transcription path still writes the uploaded memory buffer to disk because the provider client expects a readable file stream. Future work should preserve randomized/exclusive temp-file allocation and cleanup if this route changes. Do not add an IP bucket back to `/api/speech/transcribe` without revisiting shared-network usage; it is intentionally limited by authenticated user hour/day buckets after Wilson's 2026-06-30 review.
 
 ## Open items
 
@@ -36,7 +37,7 @@ The transcription path still writes the uploaded memory buffer to disk because t
 
 Deferred release-batch checks:
 
-- Signed-in live cooking transcription still works with the real provider.
+- Signed-in live cooking transcription still works with the real provider, including normal repeated voice-question usage from a shared network.
 - Admin route returns expected `403`, `429`, and valid-secret behavior from Replit without caching sensitive responses.
 
 ## Stack / base status
@@ -53,8 +54,8 @@ Value claim: admin and speech boundary handling is more resistant to abuse/colli
 Evidence:
 
 - `npm ci` passed and reported `found 0 vulnerabilities`.
-- `npx vitest run tests/unit/admin-cache-headers.test.ts tests/unit/provider-boundary-happy-paths.test.ts tests/unit/phase0-security-routes.test.ts tests/unit/rate-limit.test.ts` passed: 5 files / 40 tests.
-- `npm run test:unit` passed: 45 files / 331 tests.
+- `npx vitest run tests/unit/admin-cache-headers.test.ts tests/unit/provider-boundary-happy-paths.test.ts tests/unit/phase0-security-routes.test.ts tests/unit/rate-limit.test.ts` passed: 5 files / 41 tests.
+- `npm run test:unit` passed: 45 files / 332 tests.
 - `npm run check` passed: TypeScript plus UI lint.
 - `npm run build` passed with the existing Vite chunk/Browserslist warnings.
 - `npm audit --audit-level=high` passed with `found 0 vulnerabilities`.
