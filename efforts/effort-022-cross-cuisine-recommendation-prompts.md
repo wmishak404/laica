@@ -227,4 +227,6 @@ Wilson accepted transparent pantry fallback as the preferred product direction f
 
 The fallback must not silently replace the user's cuisine preference, and it must not guide the user by default to `No preference`. If Laica can see that the pantry strongly supports another cuisine or dish direction, it may offer one clearly framed alternate suggestion or a specific change-cuisine path, while leaving the user in control.
 
+PR #247 merged this decision record as `203e621` on 2026-06-30 after Wilson approved merge, the branch was rebased onto fresh `origin/main`, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and CodeQL action / JavaScript-TypeScript analyses passed at final PR head `cd4bbca`.
+
 Implementation is intentionally deferred until after higher-priority INIT-001 work. The remaining EFF-022 design task is the activation threshold: deciding, with evidence, when pantry support is weak enough to turn on transparent fallback mode instead of staying cuisine-literal or asking for staples first.
