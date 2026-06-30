@@ -17,14 +17,18 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 ## Current Main Candidate
 
 - Registry updated: 2026-06-30.
-- Current `origin/main`: `f9909af7cbc7104f9eb4da7b3a8642215fce461e`.
-- Current latest merge: PR #238, `Close EFF-010 local DB strategy`.
-- Current latest user-visible/runtime merge: PR #237, `Add Settings unsaved inventory reminder`.
+- Current `origin/main`: `a4450a60ca4767f0250b3c28b6999bd88dab25e3`.
+- Current latest merge: PR #248, `Close out EFF-022 fallback merge`.
+- Current latest user-visible/runtime merge: PR #244, `Harden admin and transcription boundaries`.
 
 Merged work after the 2026-06-22 production-smoke evidence that should be reviewed for the next production push:
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
+| 2026-06-30 | `a4450a6` / PR #248 | EFF-022 fallback merge closeout docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
+| 2026-06-30 | `203e621` / PR #247 | EFF-022 fallback direction and INIT-004 eval planning docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
+| 2026-06-30 | `3976a63` / PR #244 | Admin route hardening, transcription temp-file isolation, and runtime rate-limit policy | Focused security/provider smoke: signed-in Live Cooking transcription with the real provider, ordinary repeated voice-question usage from a shared network/browser, shared-network recipe/cooking assistance, and admin valid/invalid/throttled/no-cache behavior in Replit. |
+| 2026-06-30 | `142ea9b` / PR #245 | Live Cooking transcript pin preference hardening | Focused Live Cooking smoke: transcript panel appears during normal cooking and the pin/unpin toggle remains usable. Rely on exact-head unit coverage for malformed saved-state recovery unless the production smoke deliberately includes safe browser-storage manipulation. |
 | 2026-06-29 | `f9909af` / PR #238 | EFF-010 local DB strategy closeout and worktree setup policy | No user-visible production smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
 | 2026-06-29 | `41a657c` / PR #243 | EFF-025 Settings reminder merge closeout docs | No extra production smoke beyond the PR #237 Settings focused check below. |
 | 2026-06-29 | `b056d91` / PR #241 | PR #234 ingredient-chip merge closeout docs | No extra production smoke beyond the PR #234 ingredient-chip focused check below. |
@@ -58,6 +62,14 @@ Run the baseline core smoke from `docs/workflows/replit-validation-focus.md`:
 
 Run these changed-since-last-prod focused checks for the current candidate:
 
+- PR #244 admin/transcription boundary hardening:
+  - In signed-in Live Cooking, use the real transcription or voice-question path and confirm the provider-backed flow works without temp-file or cleanup errors.
+  - Repeat normal recipe and cooking-assistance requests from the same network/browser enough to confirm ordinary shared-network use is not blocked by the rate-limit policy.
+  - Exercise admin valid-secret, invalid-secret, and throttled attempts in Replit and confirm admin responses remain non-cacheable without exposing secret values.
+- PR #245 Live Cooking transcript pin preference:
+  - During normal Live Cooking, confirm the transcript panel appears.
+  - Toggle pin/unpin and confirm the control remains usable through the cooking flow.
+  - If safe for the smoke lane, reload or re-enter Live Cooking and confirm the saved pin preference does not break guide load. If not, record the gap and rely on PR #245 exact-head unit coverage for malformed saved-state recovery.
 - PR #234 ingredient chips:
   - Open a recipe through Ticket Pass and Prep Tray with known pantry ingredients.
   - Confirm `Uses` and `Use these` chips read as checked pantry facts.
