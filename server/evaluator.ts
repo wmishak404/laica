@@ -20,25 +20,51 @@ type EvalReportCandidate = {
   evalErrorModes?: string[] | null;
 };
 
-type EvalCountSummary = {
+export type EvalCountSummary = {
   total: number;
   passed: number;
   failed: number;
 };
 
-type EvalMetricSummary = EvalCountSummary & {
+export type EvalMetricSummary = EvalCountSummary & {
   passRate: number | null;
   averageScore: number | null;
 };
 
-type EvalPromptVersionSummary = EvalMetricSummary & {
+export type EvalPromptVersionSummary = EvalMetricSummary & {
   featureType: string;
   promptVersionId: number | null;
 };
 
-type EvalFeatureReport = EvalMetricSummary & {
+export type EvalFeatureReport = EvalMetricSummary & {
   errorModes: Record<string, number>;
   promptVersions: EvalPromptVersionSummary[];
+};
+
+export type EvalReportSummary = EvalCountSummary & {
+  errorModeBreakdown: Record<string, number>;
+  byFeature: Record<string, EvalCountSummary>;
+  featureReports: Record<string, EvalFeatureReport>;
+  promptVersionReports: EvalPromptVersionSummary[];
+};
+
+export type EvalReportArtifactFeature = EvalMetricSummary & {
+  featureType: string;
+  errorModes: Record<string, number>;
+  promptVersions: EvalPromptVersionSummary[];
+};
+
+export type EvalReportArtifact = {
+  reportType: "eval_summary";
+  generatedAt: string;
+  valueClaim: string;
+  evidence: string[];
+  evidenceLimits: string[];
+  totals: EvalCountSummary;
+  failedInteractionCount: number | null;
+  featureReports: EvalReportArtifactFeature[];
+  promptVersionReports: EvalPromptVersionSummary[];
+  errorModeBreakdown: Record<string, number>;
 };
 
 function getEvalCriteriaFeatureType(featureType: string): EvalFeatureType | null {
@@ -144,7 +170,7 @@ function finalizeCountSummary<T extends EvalCountSummary>(summary: T): EvalCount
   };
 }
 
-export function buildEvalReportSummary(interactions: EvalReportCandidate[]) {
+export function buildEvalReportSummary(interactions: EvalReportCandidate[]): EvalReportSummary {
   const overall = createMetricAccumulator();
   const byFeature: Record<string, EvalCountSummary> = {};
   const errorModeBreakdown: Record<string, number> = {};
@@ -220,6 +246,150 @@ export function buildEvalReportSummary(interactions: EvalReportCandidate[]) {
     featureReports,
     promptVersionReports,
   };
+}
+
+function sortRecordByKey<T>(record: Record<string, T>): Record<string, T> {
+  return Object.fromEntries(Object.entries(record).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function formatPercent(value: number | null): string {
+  return value === null ? "n/a" : `${Math.round(value * 1000) / 10}%`;
+}
+
+function formatScore(value: number | null): string {
+  return value === null ? "n/a" : String(Math.round(value * 10) / 10);
+}
+
+function formatErrorModes(errorModes: Record<string, number>): string {
+  const entries = Object.entries(sortRecordByKey(errorModes));
+  if (entries.length === 0) {
+    return "none";
+  }
+  return entries.map(([mode, count]) => `${mode}: ${count}`).join("; ");
+}
+
+export function buildEvalReportArtifact(
+  summary: EvalReportSummary & { failedInteractions?: unknown[] },
+  options: { generatedAt?: Date | string } = {},
+): EvalReportArtifact {
+  const generatedAt =
+    options.generatedAt instanceof Date
+      ? options.generatedAt.toISOString()
+      : options.generatedAt ?? new Date().toISOString();
+
+  const featureReports = Object.entries(summary.featureReports)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([featureType, report]) => ({
+      featureType,
+      total: report.total,
+      passed: report.passed,
+      failed: report.failed,
+      passRate: report.passRate,
+      averageScore: report.averageScore,
+      errorModes: sortRecordByKey(report.errorModes),
+      promptVersions: [...report.promptVersions].sort(
+        (left, right) =>
+          left.featureType.localeCompare(right.featureType) ||
+          (left.promptVersionId ?? -1) - (right.promptVersionId ?? -1),
+      ),
+    }));
+
+  const promptVersionReports = [...summary.promptVersionReports].sort(
+    (left, right) =>
+      left.featureType.localeCompare(right.featureType) ||
+      (left.promptVersionId ?? -1) - (right.promptVersionId ?? -1),
+  );
+
+  return {
+    reportType: "eval_summary",
+    generatedAt,
+    valueClaim:
+      "Operators can inspect eval coverage and failure clusters by product surface and prompt-version provenance without copying raw user interaction payloads.",
+    evidence: [
+      "Completed eval rows are grouped by canonical eval feature report keys.",
+      "Prompt-version provenance is reported separately so candidate prompt comparisons do not rely on mixed aggregate rates.",
+      "Top-level totals remain counts only; pass rates and average scores stay scoped to feature and prompt-version reports.",
+    ],
+    evidenceLimits: [
+      "This report does not run provider judges, submit eval batches, process new eval results, or change prompts.",
+      "This report omits raw request and model-response payloads; use the protected raw interaction endpoint only for manual admin review when privacy posture allows it.",
+      "Uncalibrated judge results remain triage signal, not product-quality truth.",
+    ],
+    totals: {
+      total: summary.total,
+      passed: summary.passed,
+      failed: summary.failed,
+    },
+    failedInteractionCount: Array.isArray(summary.failedInteractions) ? summary.failedInteractions.length : null,
+    featureReports,
+    promptVersionReports,
+    errorModeBreakdown: sortRecordByKey(summary.errorModeBreakdown),
+  };
+}
+
+export function formatEvalReportArtifactMarkdown(artifact: EvalReportArtifact): string {
+  const featureRows = artifact.featureReports
+    .map(
+      (report) =>
+        `| \`${report.featureType}\` | ${report.total} | ${report.passed} | ${report.failed} | ${formatPercent(report.passRate)} | ${formatScore(report.averageScore)} | ${formatErrorModes(report.errorModes)} |`,
+    )
+    .join("\n");
+
+  const promptRows = artifact.promptVersionReports
+    .map((report) => {
+      const promptVersion = report.promptVersionId === null ? "default" : String(report.promptVersionId);
+      return `| \`${report.featureType}\` | ${promptVersion} | ${report.total} | ${report.passed} | ${report.failed} | ${formatPercent(report.passRate)} | ${formatScore(report.averageScore)} |`;
+    })
+    .join("\n");
+
+  const errorRows = Object.entries(artifact.errorModeBreakdown)
+    .map(([mode, count]) => `| \`${mode}\` | ${count} |`)
+    .join("\n");
+
+  const evidence = artifact.evidence.map((item) => `- ${item}`).join("\n");
+  const limits = artifact.evidenceLimits.map((item) => `- ${item}`).join("\n");
+
+  return `# AI Eval Summary Report
+
+Generated: ${artifact.generatedAt}
+
+## Value Claim
+
+${artifact.valueClaim}
+
+## Evidence
+
+${evidence}
+
+## Totals
+
+- Completed evals: ${artifact.totals.total}
+- Passed: ${artifact.totals.passed}
+- Failed: ${artifact.totals.failed}
+- Failed interaction payloads omitted: ${artifact.failedInteractionCount === null ? "unknown" : artifact.failedInteractionCount}
+
+## Feature Reports
+
+| Feature | Total | Passed | Failed | Pass rate | Average score | Error modes |
+|---|---:|---:|---:|---:|---:|---|
+${featureRows || "| n/a | 0 | 0 | 0 | n/a | n/a | none |"}
+
+## Prompt Version Reports
+
+| Feature | Prompt version | Total | Passed | Failed | Pass rate | Average score |
+|---|---:|---:|---:|---:|---:|---:|
+${promptRows || "| n/a | n/a | 0 | 0 | 0 | n/a | n/a |"}
+
+## Error Mode Breakdown
+
+| Error mode | Count |
+|---|---:|
+${errorRows || "| n/a | 0 |"}
+
+## Evidence Limits
+
+${limits}
+`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

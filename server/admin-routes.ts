@@ -8,6 +8,8 @@ import {
   checkBatchStatus,
   processBatchResults,
   getEvalSummary,
+  buildEvalReportArtifact,
+  formatEvalReportArtifactMarkdown,
   generateImprovedPrompt,
   getPendingQueueSummary,
 } from "./evaluator";
@@ -127,6 +129,32 @@ export function registerAdminRoutes(app: Express): void {
     } catch (err) {
       console.error('[admin] Error getting eval summary:', err);
       res.status(500).json({ message: "Failed to get eval summary." });
+    }
+  });
+
+  // GET /api/admin/eval/report?format=json|markdown
+  // Returns a redacted summary artifact for eval reports without raw interaction payloads.
+  app.get('/api/admin/eval/report', async (req, res) => {
+    const querySchema = z.object({
+      format: z.enum(["json", "markdown"]).optional().default("json"),
+    });
+    const parsedQuery = querySchema.safeParse(req.query);
+    if (!parsedQuery.success) {
+      return res.status(400).json({ message: "Unsupported eval report format." });
+    }
+
+    try {
+      const summary = await getEvalSummary();
+      const artifact = buildEvalReportArtifact(summary);
+      if (parsedQuery.data.format === "markdown") {
+        res.type("text/markdown");
+        res.setHeader("Content-Disposition", 'attachment; filename="laica-eval-summary-report.md"');
+        return res.send(formatEvalReportArtifactMarkdown(artifact));
+      }
+      res.json(artifact);
+    } catch (err) {
+      console.error('[admin] Error getting eval report:', err);
+      res.status(500).json({ message: "Failed to get eval report." });
     }
   });
 

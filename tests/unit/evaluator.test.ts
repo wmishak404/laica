@@ -12,8 +12,10 @@ vi.mock("openai", () => ({
 }));
 
 import {
+  buildEvalReportArtifact,
   buildEvalReportSummary,
   buildPendingEvalQueueSummary,
+  formatEvalReportArtifactMarkdown,
   hasEvalCriteria,
   selectEvaluableInteractionsForBatch,
 } from "../../server/evaluator";
@@ -203,5 +205,73 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
       "chef_it_up_suggestions",
       "slop_bowl_suggestions",
     ]);
+  });
+
+  it("builds a redacted eval report artifact from completed eval summaries", () => {
+    const summary = buildEvalReportSummary([
+      {
+        featureType: "slop_bowl_suggestions",
+        promptVersionId: null,
+        evalPassed: true,
+        evalScore: 92,
+        evalErrorModes: [],
+      },
+      {
+        featureType: "chef_it_up_suggestions",
+        promptVersionId: 7,
+        evalPassed: false,
+        evalScore: 45,
+        evalErrorModes: ["pantry_mismatch"],
+      },
+    ]);
+
+    const artifact = buildEvalReportArtifact(
+      {
+        ...summary,
+        failedInteractions: [
+          {
+            id: 12,
+            inputData: { pantry: ["private pantry item"] },
+            outputData: "private generated output",
+          },
+        ],
+      },
+      { generatedAt: "2026-06-30T12:00:00.000Z" },
+    );
+
+    expect(artifact.generatedAt).toBe("2026-06-30T12:00:00.000Z");
+    expect(artifact.totals).toEqual({ total: 2, passed: 1, failed: 1 });
+    expect(artifact.failedInteractionCount).toBe(1);
+    expect(artifact.featureReports.map((report) => report.featureType)).toEqual([
+      "chef_it_up_suggestions",
+      "slop_bowl_suggestions",
+    ]);
+    expect(artifact.errorModeBreakdown).toEqual({ pantry_mismatch: 1 });
+    expect(JSON.stringify(artifact)).not.toContain("private pantry item");
+    expect(JSON.stringify(artifact)).not.toContain("private generated output");
+  });
+
+  it("formats eval report artifacts as compact markdown evidence", () => {
+    const artifact = buildEvalReportArtifact(
+      buildEvalReportSummary([
+        {
+          featureType: "chef_it_up_suggestions",
+          promptVersionId: 7,
+          evalPassed: false,
+          evalScore: 45,
+          evalErrorModes: ["pantry_mismatch"],
+        },
+      ]),
+      { generatedAt: "2026-06-30T12:00:00.000Z" },
+    );
+
+    const markdown = formatEvalReportArtifactMarkdown(artifact);
+
+    expect(markdown).toContain("# AI Eval Summary Report");
+    expect(markdown).toContain("Operators can inspect eval coverage");
+    expect(markdown).toContain("| `chef_it_up_suggestions` | 1 | 0 | 1 | 0% | 45 | pantry_mismatch: 1 |");
+    expect(markdown).toContain("This report does not run provider judges");
+    expect(markdown).not.toContain("inputData");
+    expect(markdown).not.toContain("outputData");
   });
 });

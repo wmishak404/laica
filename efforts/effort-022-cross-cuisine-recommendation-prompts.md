@@ -230,3 +230,7 @@ The fallback must not silently replace the user's cuisine preference, and it mus
 PR #247 merged this decision record as `203e621` on 2026-06-30 after Wilson approved merge, the branch was rebased onto fresh `origin/main`, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and CodeQL action / JavaScript-TypeScript analyses passed at final PR head `cd4bbca`.
 
 Implementation is intentionally deferred until after higher-priority INIT-001 work. The remaining EFF-022 design task is the activation threshold: deciding, with evidence, when pantry support is weak enough to turn on transparent fallback mode instead of staying cuisine-literal or asking for staples first.
+
+## 2026-06-30 - Eval report export slice started
+
+`codex/init-004-eval-export` adds a redacted JSON/Markdown admin report artifact over completed eval feature and prompt-version summaries. This helps future EFF-022 work carry Chef It Up cuisine-fit evidence into PRs or handoffs without copying raw request/model-response payloads. It still does not satisfy EFF-022 resolution criteria because it does not audit cuisine picker behavior, change prompts, add multi-cuisine prompt guidance, add cuisine-fit/fusion fixtures, change card display guidance, or decide selected-cuisine fallback behavior.
