@@ -588,6 +588,49 @@ describe('LiveCooking guest session boundary', () => {
     expect(AudioContextMock).not.toHaveBeenCalled();
   });
 
+  it('persists the live transcript pin state from the visible toggle', async () => {
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
+    const transcriptionBox = screen.getByTestId('transcription-box');
+    expect(transcriptionBox.className).toContain('sticky');
+    expect(screen.getByRole('button', { name: /unpin transcription/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /unpin transcription/i }));
+
+    expect(transcriptionBox.className).not.toContain('sticky');
+    expect(window.localStorage.getItem('laica_transcription_pinned')).toBe('false');
+    expect(screen.getByRole('button', { name: /pin transcription/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /pin transcription/i }));
+
+    expect(transcriptionBox.className).toContain('sticky');
+    expect(window.localStorage.getItem('laica_transcription_pinned')).toBe('true');
+  });
+
+  it('falls back to a pinned transcript when the saved pin preference is malformed', async () => {
+    window.localStorage.setItem('laica_transcription_pinned', 'not-json');
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
+    expect(screen.getByTestId('transcription-box').className).toContain('sticky');
+    expect(screen.getByRole('button', { name: /unpin transcription/i })).toBeTruthy();
+    expect(window.localStorage.getItem('laica_transcription_pinned')).toBeNull();
+  });
+
   describe('speech arbitration acceptance', () => {
     beforeEach(() => {
       vi.useFakeTimers();
