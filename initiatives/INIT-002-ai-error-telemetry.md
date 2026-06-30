@@ -35,6 +35,7 @@ The final Phase 1 head `76b536170c5c47d7cb04016b3c4cae451544da3b` was rebased on
 - [INIT-004 — AI output quality evals and prompt improvement](INIT-004-ai-output-quality-evals.md) — successful/partial output-quality evals; receives safe operational cluster handoffs from INIT-002 when a cluster becomes a quality fixture candidate
 - [PD-010 — AI error telemetry allowlist](../product-decisions/pd-010-ai-error-telemetry-allowlist.md)
 - [AI error handling and telemetry workflow](../docs/workflows/ai-error-handling-and-telemetry.md)
+- [2026-06-30 Phase 2 observation prep handoff](../docs/handoffs/2026-06-30-codex-init-002-phase-2-observation-prep.md)
 - [EFF-018 — Authenticated AI error handling](../efforts/effort-018-authenticated-ai-error-handling.md) — `Resolved` 2026-05-07. Owns the **client-side** classifier (`ApiRequestError` in [`client/src/lib/rateLimitHandler.ts`](../client/src/lib/rateLimitHandler.ts)) and the typed-error route payloads in [`server/routes.ts`](../server/routes.ts). INIT-002 Phase 1 mirrors its taxonomy in a new server-side `classifyAiError` function
 - [EFF-010 — Local DB schema strategy](../efforts/effort-010-local-db-schema-strategy.md) — resolved policy history; ADR-0001 and the testing/local-sandbox workflows now govern Replit-authoritative schema work and local sandbox-only pushes
 - [Mobile Refresh AI privacy rules](../product-decisions/features/mobile-refresh/pd-cross-phase-ai-privacy.md) — 90-day retention, redaction guidance, denylist
@@ -52,7 +53,7 @@ None for v1. Telemetry is operational, not visual; admin APIs return JSON, not U
 |---|---|---|---|
 | Phase 0 — INIT hub + PD-010 | Merged | [#41](https://github.com/wmishak404/laica/pull/41) (`cb94f28`) | EFF-019, INIT-002, PD-010, active-list updates landed on `main` 2026-05-08; EFF-019 later resolved into this INIT |
 | Phase 1 — stdout logger + 9 routes | Merged | [#159](https://github.com/wmishak404/laica/pull/159) / `382ebd0` | Server-side classifier, `/api/*` request IDs, and JSON stdout logger wired into 9 AI route catch blocks. Final head `76b5361` passed local checks, GitHub unit/E2E/security, and direct Replit shell/browser validation before merge |
-| Phase 2 — Replit observation week | Current | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix |
+| Phase 2 — Replit observation week | Current | n/a (validation pass) | One week of real traffic; document classifier gaps and field nullability in PD-010 appendix. 2026-06-30 prep found no committed Phase 2 stdout observation evidence yet, so DB/admin telemetry remains blocked until Wilson chooses whether to spend Replit/runtime observation effort now |
 | Phase 3 — DB schema + writer | Planned | TBD | `ai_error_events` schema + bounded writer + Replit-authoritative schema handling per ADR-0001 and the testing/local-sandbox workflows |
 | Phase 4 — admin APIs | Planned | TBD | `/api/admin/ai-errors/{summary,list,detail,clusters}` mirroring existing admin pattern |
 | Phase 5 — closeout + worked examples | Planned | TBD | Four cluster→action examples from real Replit data; INIT flipped to Complete |
@@ -97,7 +98,7 @@ Any local, CI, Replit automation, or future eval result used as a merge gate mus
 |---|---|---|---|
 | Phase 0 | n/a (docs only) | n/a (no runtime change) | n/a — merged at `cb94f28` |
 | Phase 1 | Final head `76b5361`: `git diff --check origin/main...HEAD`, `npm ci`, focused Vitest classifier/logger/auth route coverage, `npm run check`, `npm run build`, `npm run test:unit`, GitHub unit + E2E guest smoke | Direct Replit shell/browser validation passed without Replit Agent: exact-head `npm ci`, `npm run check`, `npm run build`, `npm run test:unit`, Replit startup, `X-Request-Id` on `/api/*` 401 responses, and Google sign-out/sign-in with `wilson@ishak.net`. This was PR-level merge evidence only; Phase 2 still handles the longer observation pass across **AI provider routes** + **ElevenLabs speech routes** + **Secrets** rows. | `76b536170c5c47d7cb04016b3c4cae451544da3b` |
-| Phase 2 | n/a (observation) | One week of production traffic; Replit log inspection daily. Capture classifier gaps and field nullability for PD-010 appendix. | not yet validated |
+| Phase 2 | n/a (observation) | One week of production traffic; Replit log inspection daily. Capture classifier gaps and field nullability for PD-010 appendix. As of 2026-06-30, no repo-visible Phase 2 observation evidence has been recorded. | not yet validated |
 | Phase 3 | `npm run check`, `npm run build`, writer tests with mocked DB | **DB schema / migrations / Drizzle / persistence** row (the big one). After Replit `db:push`, trigger one error per class on each AI route. **Manual row inspection to confirm no raw payloads**. Verify deployed app uses the intended DB and the new table is present in both workspace and deployment runtimes. | not yet validated |
 | Phase 4 | `npm run check`, `npm run build` | **Auth UI / Firebase** row is unaffected; pick the **AI provider routes** row only to confirm admin endpoints respect `X-Admin-Secret` rejection on Replit. Hit `/api/admin/ai-errors/summary` with the secret; verify exemplars contain only allowlist fields. | not yet validated |
 | Phase 5 | n/a (closeout) | n/a (docs-only) | n/a |
@@ -113,6 +114,19 @@ Minimum Phase 2 focus:
 4. Record any classifier gaps, unexpected `unknown` clusters, missing or noisy fields, and field-nullability decisions in this INIT and [PD-010](../product-decisions/pd-010-ai-error-telemetry-allowlist.md) before Phase 3.
 5. Do not use Replit Agent unless Wilson explicitly approves it; direct shell/browser validation is now proven viable for targeted PR evidence but is still manual, not an accepted automated Replit-environment gate.
 
+2026-06-30 observation prep clarifies the immediate decision point: the next move requires Wilson to choose whether to spend effort now on Replit/runtime observation collection. If yes, collect the missing evidence in the 2026-06-30 handoff before Phase 3 starts. If no, keep INIT-002 in Phase 2 and do not start DB persistence or admin telemetry APIs.
+
+Evidence still missing before DB/admin telemetry work can continue:
+
+- Exact observation target and SHA: Replit workspace and/or deployment, branch/ref, `git rev-parse HEAD`, runtime status, and log window.
+- `X-Request-Id` proof on normal Replit `/api/*` traffic, plus at least one failure log where `request_id` can be correlated with the response header or server-side request window.
+- Safe `event: "ai_error"` stdout examples for reachable operational failure classes across the Phase 1 wired routes, especially OpenAI-backed recipe/cooking/vision routes, ElevenLabs `tts` / `tts_voices`, Whisper transcription, provider auth/rate/network classes when safely observable, and any naturally occurring `unknown` class.
+- Field-nullability and schema-shape decisions for the future table: `error_code`, `auth_user_id`, `prompt_version_id` (currently logged as `null`), `retry_after_secs`, preference/ingredient/image counts, `latency_ms`, `attempt_number`, and `input_shape_hash`.
+- Privacy inspection proving the stdout line contains only PD-010 allowlist fields and no raw prompts, preferences, ingredient labels, images, audio, transcripts, headers, tokens, provider messages, stack traces, or arbitrary payload JSON.
+- Masked Replit workspace/deployment secret posture for the in-scope provider routes, printing only `set` / `MISSING` for required variables and never secret values.
+- A scope decision for `/api/ingredients/alternatives`: current source shows it is still an authenticated OpenAI-backed route, but it is not part of the Phase 1 "9 routes" telemetry set or `AI_ERROR_FEATURE_TYPES`. Before Phase 3 claims broad AI error persistence/admin coverage, either include it intentionally or document why it remains outside v1 telemetry.
+- Replit-authoritative DB plan for Phase 3: target database lane, schema push owner, table-presence proof in the intended workspace/deployment runtime, and row inspection path. Do not use the default decrypted local `.env` database as the schema-authoritative target.
+
 ## Chronology
 
 - **2026-05-07** — Wilson asked for parallel persistent-error-logging design while EFF-018 ships authenticated AI error UX. Claude reviewed EFF-019, ran exploration agents over the AI route surface, admin pattern, and sibling docs (EFF-018, EFF-010, mobile-refresh AI privacy), and produced a phased implementation plan.
@@ -126,3 +140,4 @@ Minimum Phase 2 focus:
 - **2026-06-09** — Wilson split output-quality evals into [INIT-004](INIT-004-ai-output-quality-evals.md). INIT-002 remains the operational error telemetry home and may hand safe clusters into INIT-004 later.
 - **2026-06-10** — PR #163 merged the Replit Agent approval guard, then PR #162 merged the legacy Replit auth dependency cleanup that removed the blocked `es5-ext@0.10.64` path. PR #159 was rebased onto the new `origin/main` at `02c1166`; local validation was refreshed before final GitHub CI/E2E plus direct Replit shell/browser validation.
 - **2026-06-10** — PR #159 merged as `382ebd0` after final head `76b5361` passed local checks, GitHub unit/E2E/security checks, and direct Replit shell/browser validation. Phase 2 Replit observation is now the next planned milestone; Phase 3 DB persistence remains blocked on Phase 2 signal.
+- **2026-06-30** — Codex refreshed to `origin/main` at `f9909af` and documented Phase 2 observation prep. No repo-visible Phase 2 stdout observation evidence exists yet. DB/admin telemetry remains blocked until Wilson chooses whether to spend Replit/runtime observation effort now and the missing evidence in the current resume point is collected.
