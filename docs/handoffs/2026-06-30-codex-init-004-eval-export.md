@@ -17,15 +17,19 @@ The user/operator value is safer eval review: future PRs, handoffs, and release 
 
 Fresh evidence gathered before choosing work:
 
-- Fetched `origin/main`; current base was `f9909af`.
-- Open PRs: #244 (`codex/security-admin-transcription-hardening`) is open, green, and owned by the security automation lane; #242 (`codex/production-validation-registry`) is draft/behind and owned elsewhere. Neither was touched.
+- Fetched `origin/main`; initial base was `f9909af`.
+- After PR #245 landed during closeout, rebased cleanly onto `origin/main` `142ea9b`.
+- After PR #244 landed during closeout, rebased again onto `origin/main` `3976a63`. The only conflict was in `tests/unit/admin-cache-headers.test.ts`; the resolution keeps both PR #244's invalid-admin rate-limit coverage and this branch's Markdown report/no-cache coverage.
+- After PR #247 landed during closeout, rebased again onto `origin/main` `203e621`. The conflicts were docs-only in EFF-022, Effort registry, and INIT-004; the resolution preserves the accepted transparent-fallback direction while keeping this branch scoped to report-export evidence plumbing.
+- After PR #248 landed during closeout, rebased again onto `origin/main` `a4450a6`. The conflicts were docs-only in the same EFF-022/INIT registry summaries; the resolution preserves the EFF-022 merge-closeout state and keeps PR #246 as the active INIT-004 report-export slice.
+- Open PRs at initial triage: #244 (`codex/security-admin-transcription-hardening`) was open, green, and owned by the security automation lane; #242 (`codex/production-validation-registry`) was draft/behind and owned elsewhere. Neither was touched during triage.
 - INIT-001 current resume point has remaining Phase 3.1 provider benchmark/visual-review choices and Phase 4 future redesign work, both higher product/Replit judgment than this automation's small-slice target.
 - INIT-002 remains in Phase 2 Replit observation; Phase 3 DB/admin telemetry work should not start before observation evidence.
 - INIT-003 remains later Phase 5/promotion planning and waits on INIT-001 Phase 5 semantics.
 - INIT-004 had no active open PR and explicitly listed a small report artifact/export path using the PR #232 summary fields as a bounded Phase 3 candidate.
-- EFF-022 is adjacent, but cuisine fallback remains a product decision. This branch only adds reporting infrastructure that future EFF-022 work can use.
+- EFF-022 is adjacent. PR #247 accepted the transparent-fallback direction, while activation thresholds and implementation remain EFF-022 work. This branch only adds reporting infrastructure that future EFF-022 work can use.
 
-Decision: INIT-004 report export was the clear best milestone because it is documented, unowned, builds on the latest merged eval-summary architecture, and avoids provider calls, schema, prompt changes, private fixtures, Replit validation, secrets, and EFF-022 product-rule decisions.
+Decision: INIT-004 report export was the clear best milestone because it is documented, unowned, builds on the latest merged eval-summary architecture, and avoids provider calls, schema, prompt changes, private fixtures, Replit validation, secrets, and EFF-022 fallback implementation.
 
 ## What Changed
 
@@ -54,20 +58,18 @@ Decision: INIT-004 report export was the clear best milestone because it is docu
 
 ## Validation
 
-Completed before PR creation:
+Completed after the PR #244 code rebase; the later PR #247 and #248 rebases were docs-only for this branch:
 
-- `npm ci` passed; installed dependencies and reported `found 0 vulnerabilities`.
-- `npx vitest run tests/unit/evaluator.test.ts tests/unit/admin-cache-headers.test.ts` passed: 2 files / 9 tests.
+- `npm ci` passed earlier in the run; package manifests were unchanged by the later rebase.
+- `npx vitest run tests/unit/evaluator.test.ts tests/unit/admin-cache-headers.test.ts` passed after rebase: 2 files / 10 tests.
 - Initial `npm run eval:fixtures` failed because the local sandbox blocked `tsx` from opening its IPC pipe under `/var/folders/.../T/tsx-501/*.pipe` (`listen EPERM`). The same command passed after narrow sandbox escalation: 10 public fixtures validated.
-- `npm run test:unit` passed: 45 files / 333 tests.
-- `npm run check` passed: TypeScript plus UI lint.
-- `npm audit --audit-level=high` passed: `found 0 vulnerabilities`.
-- `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
-- `git diff --check origin/main...HEAD` passed.
+- `npm run test:unit` passed after rebase: 45 files / 340 tests.
+- `npm run check` passed after rebase: TypeScript plus UI lint.
+- `npm audit --audit-level=high` passed after rebase: `found 0 vulnerabilities`.
+- `npm run build` passed after rebase with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
+- `git diff --check origin/main...HEAD` passed after rebase.
 
-Pending after PR opens:
-
-- GitHub exact-head required checks.
+The PR body is the source for the final pushed head and GitHub exact-head check readback because this handoff is itself part of the PR branch.
 
 ## Replit Validation
 
@@ -77,4 +79,4 @@ Human Replit validation is not required before merge for this slice because it i
 
 ## Resume Point
 
-Finish validation, open the PR, apply `codex` and `codex-automation` labels, and update this handoff plus the PR body with exact final-head evidence. After this branch is reviewed/merged, the next INIT-004 Phase 3 candidates remain narrow LLM-judge work after labels/checks, non-duplicative fixtures for accepted label gaps, or additional small reporting increments that still avoid live providers and prompt changes.
+PR #246 is open, non-draft, and labeled `codex` and `codex-automation`; use the PR body and GitHub check readback for the final pushed head, mergeability, and exact-head CI state. Codex must not merge it without Wilson's explicit instruction because it is code/infrastructure work. After this branch is reviewed/merged, the next INIT-004 Phase 3 candidates remain narrow LLM-judge work after labels/checks, non-duplicative fixtures for accepted label gaps, or additional small reporting increments that still avoid live providers and prompt changes.
