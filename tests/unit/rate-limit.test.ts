@@ -66,6 +66,7 @@ describe('vision rate-limit keys', () => {
   });
 
   afterEach(() => {
+    delete process.env.RATE_LIMIT_ADMIN_HOUR;
     delete process.env.RATE_LIMIT_RECIPE_BURST;
     vi.useRealTimers();
     resetRateLimitBucketsForTest();
@@ -89,12 +90,16 @@ describe('vision rate-limit keys', () => {
   });
 
   it('maps rate-limit override names to RATE_LIMIT_<KEY>_<WINDOW>', () => {
+    expect(getRateLimitEnvKey('admin', 'hour')).toBe('RATE_LIMIT_ADMIN_HOUR');
     expect(getRateLimitEnvKey('recipe', 'burst')).toBe('RATE_LIMIT_RECIPE_BURST');
     expect(getRateLimitEnvKey('slopBowl', 'hour')).toBe('RATE_LIMIT_SLOP_BOWL_HOUR');
     expect(getRateLimitEnvKey('app', 'short')).toBe('RATE_LIMIT_APP_SHORT');
   });
 
   it('reads positive integer rate-limit overrides and ignores invalid values', () => {
+    process.env.RATE_LIMIT_ADMIN_HOUR = '12';
+    expect(getConfiguredRateLimit('admin', 'hour', 60)).toBe(12);
+
     process.env.RATE_LIMIT_RECIPE_BURST = '7';
     expect(getConfiguredRateLimit('recipe', 'burst', 20)).toBe(7);
 

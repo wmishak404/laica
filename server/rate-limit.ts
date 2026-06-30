@@ -4,6 +4,7 @@ import { SCAN_IMAGES_PER_DAY } from "@shared/scan-policy";
 import { lt, sql } from "drizzle-orm";
 
 type RateLimitKey =
+  | "admin"
   | "app"
   | "api"
   | "vision"
@@ -319,6 +320,13 @@ export const apiRequestLimit: RequestHandler = isTestEnv
       legacyHeaders: false,
       message: standardRateLimitResponse,
     });
+
+export const adminIpLimit = createRateLimit({
+  name: "admin:ip:hour",
+  windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("admin", "hour", 60),
+  keyGenerator: getClientIp,
+});
 
 export const feedbackIpLimit = createRateLimit({
   name: "feedback:ip",

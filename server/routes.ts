@@ -46,6 +46,8 @@ import heicConvert from "heic-convert";
 import multer from "multer";
 import fs from "fs/promises";
 import fsSync from "fs";
+import os from "node:os";
+import path from "node:path";
 import OpenAI from "openai";
 import { AI_PROVIDER_QUOTA_EXHAUSTED, AIProviderQuotaError } from "./ai-errors";
 import { logAiError } from "./aiErrors";
@@ -885,11 +887,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         size: req.file.size
       });
 
-      // Create a temporary file from the uploaded audio
-      const tempFilePath = `/tmp/audio_${Date.now()}.wav`;
-      await fs.writeFile(tempFilePath, req.file.buffer);
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "laica-transcribe-"));
+      const tempFilePath = path.join(tempDir, "audio.wav");
 
       try {
+        await fs.writeFile(tempFilePath, req.file.buffer, { flag: "wx" });
+
         // Use OpenAI Whisper API for transcription
         const transcription = await transcriptionClient.audio.transcriptions.create({
           file: fsSync.createReadStream(tempFilePath) as any,
@@ -906,6 +909,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } finally {
         // Clean up temp file
         await fs.unlink(tempFilePath).catch(console.warn);
+        await fs.rmdir(tempDir).catch(console.warn);
       }
 
     } catch (error) {
