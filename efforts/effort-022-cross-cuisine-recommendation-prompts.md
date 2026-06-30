@@ -3,7 +3,7 @@
 **Status:** Open
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-23
-**Updated:** 2026-06-29
+**Updated:** 2026-06-30
 
 ## One-line summary
 
@@ -25,6 +25,7 @@ Existing prompt guidance in `server/openai.ts` already says cuisine preference i
 - Audit `DEFAULT_RECIPE_SUGGESTIONS_PROMPT`, any active database-backed recipe prompt versions, and recipe suggestion eval criteria.
 - Define prompt language for multi-cuisine selections: when selected cuisines may combine, when adjacent culinary traditions may be suggested, and when the model should stay literal.
 - Define recipe naming and labeling guardrails for inspired or adapted dishes, especially when the product does not expose the exact cuisine as a picker option.
+- Define the transparent pantry-fallback activation rule: when selected-cuisine support is weak enough to explain the constraint, when to ask for missing staples first, and when to offer an alternate cuisine path.
 - Add prompt fixtures, unit tests, or eval cases for at least one pantry-supported cross-cuisine scenario, including rice + beef patties + eggs + BBQ sauce with American + Asian preferences.
 - Preserve the pantry-first boundary: optional extras stay optional, and a recipe must work from available pantry or confirmed-staple ingredients.
 
@@ -33,6 +34,7 @@ Existing prompt guidance in `server/openai.ts` already says cuisine preference i
 - Adding new cuisine picker options such as Hawaiian without a separate product decision.
 - Changing the INIT-003 homepage to advertise unavailable cuisine categories.
 - Making recipe suggestions ignore dietary restrictions, user-selected cuisines, pantry evidence, or the three-suggestion planning contract.
+- Defaulting pantry-constrained cuisine requests to `No preference` or nudging users away from their selected cuisine without clear reason.
 - Redesigning the live cooking guide or cooking-history flow.
 
 ## Decisions made so far
@@ -41,6 +43,10 @@ Existing prompt guidance in `server/openai.ts` already says cuisine preference i
 - Cross-cuisine recommendations are acceptable future prompt behavior when they emerge from selected preferences plus pantry evidence.
 - Adapted or non-classic recommendations should be labeled honestly, for example as `Loco Moco-style` or `pantry-inspired`, rather than overclaiming authenticity.
 - This is standalone prompt/recommendation-quality work, not part of the current INIT-003 anonymous-auth gate.
+- Wilson prefers transparent pantry fallback as the default product direction when a selected cuisine is weakly supported by the pantry: Laica should keep the flow moving, explain that the current pantry does not strongly support the selected cuisine, and avoid silently mixing off-cuisine suggestions into a cuisine-requested result set.
+- Missing cuisine staples are a helper path, not a hard gate. Laica may ask for or suggest a few concrete staples that would materially improve cuisine fit; if the user does not add them, Laica should continue transparently rather than forcing shopping or silently pretending the cuisine fit is strong.
+- When the pantry strongly supports another cuisine or dish direction, Laica may offer one clearly framed alternate suggestion, but it should not bias the user by defaulting them to `No preference` or making Laica's alternate preference feel like the user's choice.
+- Runtime implementation is deferred until after higher-priority INIT-001 work. This Effort now owns the remaining design/implementation threshold for deciding when transparent fallback mode turns on.
 
 ## Open questions
 
@@ -49,6 +55,24 @@ Existing prompt guidance in `server/openai.ts` already says cuisine preference i
 - How should recipe cards display `isFusion` or inspired labels, if at all?
 - What eval wording should distinguish a useful inspired recommendation from a culturally sloppy or unsupported one?
 - Should public landing examples avoid naming exact cuisine traditions entirely until the recommendation prompt rules are validated?
+- What concrete ingredient/staple threshold should turn transparent pantry-fallback mode on for each cuisine without overfitting to a small hardcoded checklist?
+- How should the UI phrase the fallback so it is helpful without steering users away from the cuisine they selected?
+
+## Transparent fallback decision framework
+
+Wilson's 2026-06-30 direction makes the product promise explicit: selected cuisine is still the user's preference, but pantry truth is allowed to change how Laica presents the result. The desired default is transparent pantry fallback, with optional staple help, not silent off-cuisine suggestions and not a default push to `No preference`.
+
+Use this framework for the future implementation slice:
+
+1. Stay cuisine-literal when the pantry or confirmed staples contain enough selected-cuisine anchors for the model to make most suggestions visibly honor the chosen cuisine without required missing ingredients.
+2. Ask about missing staples when a small number of concrete, pantry-saveable staples would materially improve cuisine fit and the user has not already declined or skipped them. The question should preserve the selected cuisine and keep generation available.
+3. Turn on transparent pantry fallback when selected-cuisine anchors are weak after the staple check, when the strongest pantry identity points elsewhere, or when only one weak `-style` / `-ish` option can honor the selected cuisine without inventing required ingredients.
+4. In fallback mode, tell the user the selected cuisine is not strongly supported by the current pantry, then offer pantry-first ideas with the best honest cuisine-leaning option Laica can make. Do not make the fallback invisible.
+5. If another cuisine or dish direction is much better supported, offer it as an optional alternate such as "Your pantry also looks ready for..." with one recipe suggestion or a change-cuisine action. Do not automatically switch the user's cuisine selection.
+6. Do not route users to `No preference` as the default recovery. If changing preferences is useful, offer specific cuisine choices or a clear back-to-cuisine path.
+7. Preserve dietary restrictions, time, skill, pantry grounding, and the three-suggestion Ticket Pass contract ahead of cuisine creativity.
+
+The exact implementation threshold is still open. Future work should start with the existing `CUISINE_STAPLE_CANDIDATES`, confirmed-staple context, pantry ingredient names, and EFF-022 negative fixtures, then validate that the threshold catches the Chinese, Indian, and Thai misses without suppressing useful pantry-supported adapted dishes such as Loco Moco-style bowls.
 
 ## Agent checklist
 
@@ -69,7 +93,8 @@ This Effort is `Resolved` when all of the following are true:
 2. Recipe recommendation prompt guidance explicitly covers multi-cuisine selections and inspired/adapted dishes.
 3. At least one test, fixture, or eval case covers a pantry-supported cross-cuisine recommendation such as rice + beef patties + eggs + BBQ sauce with American + Asian preferences.
 4. Recipe naming or display guidance avoids implying unavailable cuisine picker options.
-5. Validation evidence is recorded in the implementation PR or handoff, including any Replit or eval-run results that matter.
+5. The transparent pantry-fallback activation threshold and user-facing copy are implemented or explicitly accepted as deferred with an owner.
+6. Validation evidence is recorded in the implementation PR or handoff, including any Replit or eval-run results that matter.
 
 ## Linked artifacts
 
@@ -195,3 +220,11 @@ Wilson accepted renaming the active Chef It Up eval/reporting surface from legac
 ## 2026-06-29 - Eval taxonomy and summary reporting merged
 
 PR #232 merged as `5b8e7ed` after Wilson approved merge and final-head checks passed. Future cuisine-fit work can use `chef_it_up_suggestions` reports to inspect Chef It Up behavior separately from generic `recipe_suggestions`, with legacy `pantry_recipes` rows normalized into the canonical report key. EFF-022 remains open because this merge does not audit cuisine picker behavior, change prompts, add multi-cuisine prompt guidance, add cuisine-fit/fusion fixtures, change card display guidance, or decide selected-cuisine fallback behavior.
+
+## 2026-06-30 - Transparent pantry fallback direction accepted
+
+Wilson accepted transparent pantry fallback as the preferred product direction for selected-cuisine requests when the pantry does not strongly support that cuisine. The intended behavior is: explain the pantry limitation, keep the user's selected cuisine visible, optionally ask about a few missing staples that would help, and continue with honest pantry-first suggestions if the user does not add those staples.
+
+The fallback must not silently replace the user's cuisine preference, and it must not guide the user by default to `No preference`. If Laica can see that the pantry strongly supports another cuisine or dish direction, it may offer one clearly framed alternate suggestion or a specific change-cuisine path, while leaving the user in control.
+
+Implementation is intentionally deferred until after higher-priority INIT-001 work. The remaining EFF-022 design task is the activation threshold: deciding, with evidence, when pantry support is weak enough to turn on transparent fallback mode instead of staying cuisine-literal or asking for staples first.
