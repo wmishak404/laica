@@ -3,6 +3,8 @@ import type { Request } from 'express';
 import {
   RATE_LIMIT_BUCKET_CAP,
   consumeRateLimit,
+  consumeRecipeImageGenerationRateLimits,
+  consumeVisionImageRateLimits,
   createRateLimit,
   getClientIp,
   getConfiguredRateLimit,
@@ -66,6 +68,7 @@ describe('vision rate-limit keys', () => {
   });
 
   afterEach(() => {
+    delete process.env.RATE_LIMIT_ADMIN_HOUR;
     delete process.env.RATE_LIMIT_RECIPE_BURST;
     vi.useRealTimers();
     resetRateLimitBucketsForTest();
@@ -89,12 +92,16 @@ describe('vision rate-limit keys', () => {
   });
 
   it('maps rate-limit override names to RATE_LIMIT_<KEY>_<WINDOW>', () => {
+    expect(getRateLimitEnvKey('admin', 'hour')).toBe('RATE_LIMIT_ADMIN_HOUR');
     expect(getRateLimitEnvKey('recipe', 'burst')).toBe('RATE_LIMIT_RECIPE_BURST');
     expect(getRateLimitEnvKey('slopBowl', 'hour')).toBe('RATE_LIMIT_SLOP_BOWL_HOUR');
     expect(getRateLimitEnvKey('app', 'short')).toBe('RATE_LIMIT_APP_SHORT');
   });
 
   it('reads positive integer rate-limit overrides and ignores invalid values', () => {
+    process.env.RATE_LIMIT_ADMIN_HOUR = '12';
+    expect(getConfiguredRateLimit('admin', 'hour', 60)).toBe(12);
+
     process.env.RATE_LIMIT_RECIPE_BURST = '7';
     expect(getConfiguredRateLimit('recipe', 'burst', 20)).toBe(7);
 
@@ -190,6 +197,37 @@ describe('vision rate-limit keys', () => {
       code: 'RATE_LIMITED',
       message: 'Too many requests. Try again later.',
     });
+  });
+
+  it('does not consume the retained Vision IP bucket while app runtime limits are user-scoped', async () => {
+    for (let index = 0; index < 61; index += 1) {
+      const { res } = makeResponse();
+      const allowed = await consumeVisionImageRateLimits(
+        makeRequest({
+          ip: '203.0.113.44',
+          firebaseUser: { uid: `user-${index}` },
+          scanType: 'pantry',
+        }),
+        res as any,
+      );
+
+      expect(allowed).toBe(true);
+    }
+  });
+
+  it('does not consume the retained recipe-image IP bucket while app runtime limits are user-scoped', async () => {
+    for (let index = 0; index < 61; index += 1) {
+      const { res } = makeResponse();
+      const allowed = await consumeRecipeImageGenerationRateLimits(
+        makeRequest({
+          ip: '203.0.113.44',
+          firebaseUser: { uid: `user-${index}` },
+        }),
+        res as any,
+      );
+
+      expect(allowed).toBe(true);
+    }
   });
 
   it('prunes expired buckets during periodic cleanup', () => {

@@ -4,6 +4,7 @@ import { SCAN_IMAGES_PER_DAY } from "@shared/scan-policy";
 import { lt, sql } from "drizzle-orm";
 
 type RateLimitKey =
+  | "admin"
   | "app"
   | "api"
   | "vision"
@@ -320,6 +321,16 @@ export const apiRequestLimit: RequestHandler = isTestEnv
       message: standardRateLimitResponse,
     });
 
+export const adminIpLimit = createRateLimit({
+  name: "admin:ip:hour",
+  windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("admin", "hour", 60),
+  keyGenerator: getClientIp,
+});
+
+// Runtime app routes currently rely on authenticated user-scoped limits.
+// Keep these IP limiter exports available so shared-source caps can be
+// re-enabled deliberately when product scale warrants the tradeoff.
 export const feedbackIpLimit = createRateLimit({
   name: "feedback:ip",
   windowMs: ONE_HOUR,
@@ -361,14 +372,12 @@ export async function consumeVisionImageRateLimits(
 ): Promise<boolean> {
   if (isDistributedRateLimitEnabled()) {
     return (
-      (await consumeRateLimitDistributed(visionIpShortOptions, req, res, imageCount)) &&
       (await consumeRateLimitDistributed(visionUserShortOptions, req, res, imageCount)) &&
       (await consumeRateLimitDistributed(visionUserDayOptions, req, res, imageCount))
     );
   }
 
   return (
-    consumeRateLimit(visionIpShortOptions, req, res, imageCount) &&
     consumeRateLimit(visionUserShortOptions, req, res, imageCount) &&
     consumeRateLimit(visionUserDayOptions, req, res, imageCount)
   );
@@ -415,16 +424,10 @@ export const recipeImageUserHourLimit = createRateLimit(recipeImageUserHourOptio
 
 export async function consumeRecipeImageGenerationRateLimits(req: Request, res: Response): Promise<boolean> {
   if (isDistributedRateLimitEnabled()) {
-    return (
-      (await consumeRateLimitDistributed(recipeImageIpHourOptions, req, res)) &&
-      (await consumeRateLimitDistributed(recipeImageUserHourOptions, req, res))
-    );
+    return consumeRateLimitDistributed(recipeImageUserHourOptions, req, res);
   }
 
-  return (
-    consumeRateLimit(recipeImageIpHourOptions, req, res) &&
-    consumeRateLimit(recipeImageUserHourOptions, req, res)
-  );
+  return consumeRateLimit(recipeImageUserHourOptions, req, res);
 }
 
 export const slopBowlUserHourLimit = createRateLimit({

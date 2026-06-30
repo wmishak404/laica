@@ -1,4 +1,5 @@
 import type { Express, RequestHandler } from "express";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { db } from "./db";
 import { aiInteractions, promptVersions } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
@@ -18,19 +19,32 @@ import {
 } from "./prompt-manager";
 import { getPublicErrorMessage } from "./security";
 import { promptFeatureTypeSchema } from "./ai-feature-types";
+import { adminIpLimit } from "./rate-limit";
 import { z } from "zod";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Admin auth middleware — requires X-Admin-Secret header matching ADMIN_SECRET env var.
 // Set ADMIN_SECRET in Replit environment secrets before using these endpoints.
 // ─────────────────────────────────────────────────────────────────────────────
+function hashAdminSecret(secret: string): Buffer {
+  return createHash("sha256").update(secret).digest();
+}
+
+function adminSecretMatches(providedSecret: string | undefined, expectedSecret: string): boolean {
+  return timingSafeEqual(
+    hashAdminSecret(providedSecret ?? ""),
+    hashAdminSecret(expectedSecret),
+  );
+}
+
 const adminAuth: RequestHandler = (req, res, next) => {
-  const secret = req.headers['x-admin-secret'];
-  if (!process.env.ADMIN_SECRET) {
+  const expectedSecret = process.env.ADMIN_SECRET;
+  if (!expectedSecret) {
     console.error('[admin] ADMIN_SECRET environment variable not set.');
     return res.status(500).json({ message: getPublicErrorMessage(500) });
   }
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
+
+  if (!adminSecretMatches(req.get("X-Admin-Secret"), expectedSecret)) {
     return res.status(403).json({ message: "Forbidden: invalid admin secret." });
   }
   next();
@@ -45,7 +59,7 @@ const adminNoCache: RequestHandler = (_req, res, next) => {
 };
 
 export function registerAdminRoutes(app: Express): void {
-  app.use('/api/admin', adminNoCache, adminAuth);
+  app.use('/api/admin', adminNoCache, adminIpLimit, adminAuth);
 
   // ── STATUS ─────────────────────────────────────────────────────────────────
 

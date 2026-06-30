@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import express from "express";
+import { resetRateLimitBucketsForTest } from "../../server/rate-limit";
 import { requestHttp } from "./http-test-client";
 
 const mocks = vi.hoisted(() => ({
@@ -18,8 +19,18 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("../../server/firebaseAuth", () => ({
   verifyFirebaseToken: vi.fn((req, _res, next) => {
+    const rawAuthorization = Array.isArray(req.headers.authorization)
+      ? req.headers.authorization[0]
+      : req.headers.authorization;
+    const token = typeof rawAuthorization === "string"
+      ? rawAuthorization.replace(/^Bearer\s+/i, "")
+      : "";
+    const uid = token.startsWith("same-ip-user-") || token.startsWith("transcription-user-")
+      ? token
+      : "owner-user";
+
     req.firebaseUser = {
-      uid: "owner-user",
+      uid,
       email: "owner@example.com",
       displayName: "Owner User",
       photoURL: null,
@@ -79,6 +90,7 @@ async function startTestServer() {
 
 describe("Phase 0 protected routes", () => {
   afterEach(() => {
+    resetRateLimitBucketsForTest();
     vi.clearAllMocks();
   });
 
@@ -138,6 +150,30 @@ describe("Phase 0 protected routes", () => {
     expect(mocks.getRecipeSuggestions).toHaveBeenCalledWith("x".repeat(750), ["rice", "eggs"], {
       evalFeatureType: "chef_it_up_suggestions",
     });
+  });
+
+  it("keeps normal recipe generation scoped to per-user limits instead of shared IP limits", async () => {
+    mocks.getRecipeSuggestions.mockResolvedValue({ recipes: [] });
+    const server = await startTestServer();
+
+    for (let index = 0; index < 101; index += 1) {
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/recipes/suggestions",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer same-ip-user-${index}`,
+        },
+        body: JSON.stringify({
+          preferences: "quick dinner",
+          ingredients: ["rice", "eggs"],
+        }),
+      });
+
+      expect(response.status).toBe(200);
+    }
+
+    expect(mocks.getRecipeSuggestions).toHaveBeenCalledTimes(101);
   });
 
   it("blocks pantry recipe generation when the pantry ingredient list is empty", async () => {
@@ -391,6 +427,48 @@ describe("Phase 0 protected routes", () => {
       expect(response.status).toBe(400);
       expect(await response.json()).toEqual({ error: "Unsupported audio file type" });
       expect(mocks.createTranscription).not.toHaveBeenCalled();
+    } finally {
+      if (typeof originalOpenAIKey === "string") {
+        process.env.OPENAI_API_KEY = originalOpenAIKey;
+      } else {
+        delete process.env.OPENAI_API_KEY;
+      }
+    }
+  });
+
+  it("keeps transcription scoped to per-user limits instead of shared IP limits", async () => {
+    const originalOpenAIKey = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+
+    try {
+      const server = await startTestServer();
+      const boundary = "laica-test-boundary";
+      const body = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="audio"; filename="audio.wav"',
+        "Content-Type: audio/wav",
+        "",
+        "fake audio bytes",
+        `--${boundary}--`,
+        "",
+      ].join("\r\n");
+
+      for (let index = 0; index < 201; index += 1) {
+        const response = await requestHttp(server, {
+          method: "POST",
+          path: "/api/speech/transcribe",
+          headers: {
+            "Content-Type": `multipart/form-data; boundary=${boundary}`,
+            Authorization: `Bearer transcription-user-${index}`,
+          },
+          body,
+        });
+
+        expect(response.status).toBe(503);
+        expect(await response.json()).toEqual({
+          error: "Speech transcription is unavailable",
+        });
+      }
     } finally {
       if (typeof originalOpenAIKey === "string") {
         process.env.OPENAI_API_KEY = originalOpenAIKey;

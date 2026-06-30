@@ -10,20 +10,14 @@ import {
   aiUserDayLimit,
   aiUserHourLimit,
   apiRequestLimit,
-  aiIpHourLimit,
-  feedbackIpLimit,
   consumeRecipeImageGenerationRateLimits,
-  recipeIpHourLimit,
   recipeUserBurstLimit,
   recipeUserDayLimit,
-  slopBowlIpHourLimit,
   slopBowlUserDayLimit,
   slopBowlUserHourLimit,
-  speechIpHourLimit,
   speechUserDayLimit,
   speechUserHourLimit,
   consumeVisionImageRateLimits,
-  voiceIpHourLimit,
   voiceUserDayLimit,
   voiceUserHourLimit,
 } from "./rate-limit";
@@ -46,6 +40,8 @@ import heicConvert from "heic-convert";
 import multer from "multer";
 import fs from "fs/promises";
 import fsSync from "fs";
+import os from "node:os";
+import path from "node:path";
 import OpenAI from "openai";
 import { AI_PROVIDER_QUOTA_EXHAUSTED, AIProviderQuotaError } from "./ai-errors";
 import { logAiError } from "./aiErrors";
@@ -425,7 +421,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Recipe suggestions endpoint
-  app.post('/api/recipes/suggestions', isAuthenticated, recipeIpHourLimit, recipeUserBurstLimit, recipeUserDayLimit, async (req: any, res) => {
+  app.post('/api/recipes/suggestions', isAuthenticated, recipeUserBurstLimit, recipeUserDayLimit, async (req: any, res) => {
     let quotaReservation: AnonymousRecipeQuotaReservation | null = null;
     const firebaseUser: FirebaseUser = req.firebaseUser;
 
@@ -461,7 +457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Pantry-based recipe suggestions endpoint
-  app.post('/api/recipes/pantry', isAuthenticated, recipeIpHourLimit, recipeUserBurstLimit, recipeUserDayLimit, async (req: any, res) => {
+  app.post('/api/recipes/pantry', isAuthenticated, recipeUserBurstLimit, recipeUserDayLimit, async (req: any, res) => {
     let quotaReservation: AnonymousRecipeQuotaReservation | null = null;
     const firebaseUser: FirebaseUser = req.firebaseUser;
 
@@ -569,7 +565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/recipes/slop-bowl', isAuthenticated, requireLinkedAccount, slopBowlIpHourLimit, slopBowlUserHourLimit, slopBowlUserDayLimit, async (req: any, res) => {
+  app.post('/api/recipes/slop-bowl', isAuthenticated, requireLinkedAccount, slopBowlUserHourLimit, slopBowlUserDayLimit, async (req: any, res) => {
     try {
       const firebaseUser: FirebaseUser = req.firebaseUser;
       const userId = firebaseUser.uid;
@@ -641,7 +637,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cooking steps endpoint
-  app.post('/api/cooking/steps', isAuthenticated, aiIpHourLimit, aiUserHourLimit, aiUserDayLimit, async (req, res) => {
+  app.post('/api/cooking/steps', isAuthenticated, aiUserHourLimit, aiUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
         recipeName: z.string().trim().min(1).max(200),
@@ -687,7 +683,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   */
 
   // Ingredient alternatives endpoint
-  app.post('/api/ingredients/alternatives', isAuthenticated, aiIpHourLimit, aiUserHourLimit, aiUserDayLimit, async (req, res) => {
+  app.post('/api/ingredients/alternatives', isAuthenticated, aiUserHourLimit, aiUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
         ingredient: pantryItemSchema,
@@ -707,7 +703,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cooking assistance endpoint
-  app.post('/api/cooking/assistance', isAuthenticated, voiceIpHourLimit, voiceUserHourLimit, voiceUserDayLimit, async (req, res) => {
+  app.post('/api/cooking/assistance', isAuthenticated, voiceUserHourLimit, voiceUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
         step: z.string().trim().min(1).max(4000),
@@ -797,7 +793,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ElevenLabs voice synthesis routes
-  app.post('/api/speech/synthesize', isAuthenticated, speechIpHourLimit, speechUserHourLimit, speechUserDayLimit, async (req, res) => {
+  app.post('/api/speech/synthesize', isAuthenticated, speechUserHourLimit, speechUserDayLimit, async (req, res) => {
     try {
       const schema = z.object({
         text: z.string().min(1).max(4000),
@@ -843,7 +839,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get available voices
-  app.get('/api/speech/voices', isAuthenticated, speechIpHourLimit, speechUserHourLimit, speechUserDayLimit, async (req, res) => {
+  app.get('/api/speech/voices', isAuthenticated, speechUserHourLimit, speechUserDayLimit, async (req, res) => {
     try {
       res.json({
         cookingVoices: COOKING_VOICES,
@@ -862,7 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Speech transcription route using OpenAI Whisper
-  app.post('/api/speech/transcribe', isAuthenticated, speechIpHourLimit, speechUserHourLimit, speechUserDayLimit, upload.single('audio'), async (req, res) => {
+  app.post('/api/speech/transcribe', isAuthenticated, speechUserHourLimit, speechUserDayLimit, upload.single('audio'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'Audio file is required' });
@@ -885,11 +881,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         size: req.file.size
       });
 
-      // Create a temporary file from the uploaded audio
-      const tempFilePath = `/tmp/audio_${Date.now()}.wav`;
-      await fs.writeFile(tempFilePath, req.file.buffer);
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "laica-transcribe-"));
+      const tempFilePath = path.join(tempDir, "audio.wav");
 
       try {
+        await fs.writeFile(tempFilePath, req.file.buffer, { flag: "wx" });
+
         // Use OpenAI Whisper API for transcription
         const transcription = await transcriptionClient.audio.transcriptions.create({
           file: fsSync.createReadStream(tempFilePath) as any,
@@ -906,6 +903,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } finally {
         // Clean up temp file
         await fs.unlink(tempFilePath).catch(console.warn);
+        await fs.rmdir(tempDir).catch(console.warn);
       }
 
     } catch (error) {
@@ -1195,7 +1193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Feedback submission endpoint
-  app.post('/api/feedback', feedbackIpLimit, async (req, res) => {
+  app.post('/api/feedback', async (req, res) => {
     try {
       if (req.headers.authorization) {
         setPrivateResponseHeaders(res);

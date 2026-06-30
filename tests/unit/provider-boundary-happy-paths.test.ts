@@ -252,7 +252,7 @@ describe("provider-boundary route happy paths", () => {
     const server = await startTestServer();
     const boundary = "laica-provider-boundary";
     const fakeAudioStream = { path: "/tmp/audio_provider_boundary.wav" };
-    vi.spyOn(fsSync, "createReadStream").mockReturnValue(fakeAudioStream as any);
+    const readStreamSpy = vi.spyOn(fsSync, "createReadStream").mockReturnValue(fakeAudioStream as any);
 
     const response = await requestHttp(server, {
       method: "POST",
@@ -270,6 +270,9 @@ describe("provider-boundary route happy paths", () => {
       success: true,
     });
     expect(mocks.openaiConstructor).toHaveBeenCalledWith({ apiKey: "test-openai-key" });
+    expect(String(readStreamSpy.mock.calls[0]?.[0])).toContain("laica-transcribe-");
+    expect(String(readStreamSpy.mock.calls[0]?.[0])).toMatch(/audio\.wav$/);
+    expect(String(readStreamSpy.mock.calls[0]?.[0])).not.toMatch(/audio_\d+\.wav$/);
     expect(mocks.createTranscription).toHaveBeenCalledWith(expect.objectContaining({
       file: fakeAudioStream,
       model: "whisper-1",
