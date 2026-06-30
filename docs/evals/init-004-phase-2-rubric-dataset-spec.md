@@ -30,6 +30,8 @@ Accepted Phase 2 decisions:
 
 2026-06-23 taxonomy clarification: Wilson accepted renaming the recipe-generation eval surfaces before daily reports launch. The canonical eval/reporting ids are now `chef_it_up_suggestions` for `/api/recipes/pantry` and `slop_bowl_suggestions` for `/api/recipes/slop-bowl`. Legacy rows or fixtures with `pantry_recipes` and `slop_bowl` must normalize into those canonical ids so historical eval data remains readable without a DB migration.
 
+2026-06-30 EFF-022 fallback direction: Wilson accepted transparent pantry fallback as the preferred behavior when a selected cuisine is weakly supported by the user's pantry. Laica may ask about a few missing staples first, but if the user does not add them, the product should explain the pantry limitation and continue with honest pantry-first suggestions instead of silently replacing the selected cuisine or defaulting to `No preference`. The exact activation threshold and copy remain EFF-022 implementation work, deferred until after higher-priority INIT-001 work.
+
 ## Feature Taxonomy
 
 Current code couples `FeatureType` to both eval criteria and prompt management. Phase 3 should split that into two concepts before expanding coverage:
@@ -217,7 +219,7 @@ Phase 2 uses criterion-level labels rather than one aggregate "good/bad" label.
 | `dietary_compliance` | Recipe and cooking-step surfaces with a stated restriction | Output does not violate stated dietary restrictions. Dietary violations fail even if other preference labels pass. | Human/judge plus deterministic flags for detectable terms |
 | `pantry_grounding` | Recipe surfaces | The core recipe works from pantry/confirmed-staple ingredients and does not invent required items. | Deterministic ingredient-contract checks plus human/judge |
 | `optional_ingredient_contract` | Recipe surfaces | `additionalIngredientsNeeded` contains only optional enhancements, is minimal, uses bare ingredient names, and is not required by instructions. | Deterministic plus focused human/judge |
-| `cuisine_fit` | Recipe surfaces with cuisine preferences | Output visibly honors selected cuisine direction. Pantry-flexible fallback cases use `blocked_on_product_rule` until EFF-022 resolves the product behavior. | Human/judge |
+| `cuisine_fit` | Recipe surfaces with cuisine preferences | Output visibly honors selected cuisine direction. Transparent pantry fallback can satisfy the product direction only when the fallback is explicit; use `blocked_on_product_rule` for cases whose verdict depends on the still-deferred activation threshold or copy. | Human/judge |
 | `inspired_or_fusion_labeling` | Recipe surfaces | Inspired/adapted/fusion dishes are named honestly without implying unavailable cuisine picker options or overclaiming authenticity. | Human/judge |
 | `recipe_usefulness` | Recipe surfaces | Dish is coherent, practical, appropriately ranked/diverse, and worth presenting to the user. | Human/judge |
 | `food_safety` | Recipe and cooking-step surfaces | Raw meat, poultry, egg, leftovers, allergen, and storage risks include safe handling and doneness cues appropriate to the context. | Human/judge plus targeted deterministic flags |
@@ -244,9 +246,9 @@ The first human-label batch should stay small and targeted. Public fixtures shou
 | `arize-equipment-lid` | Arize seed | `cooking_steps` | Recipe assumed an unavailable lid without alternative. | `equipment_fit`, `cooking_step_sequence` | Cooking-step surface only in V1. |
 | `arize-beginner-complexity` | Arize seed | `cooking_steps` | Beginner instructions were too complex. | `skill_fit`, `recipe_usefulness`, `cooking_step_sequence` | Resolve as cooking-step complexity, not recipe-surface ranking. |
 | `arize-dietary-halal-or-keto` | Arize seed | `chef_it_up_suggestions` | Adds dietary-compliance coverage with the dietary-overrides-preferences rule. | `dietary_compliance`, `recipe_usefulness`, `pantry_grounding` | Use one current-shape synthetic/redacted seed. |
-| `eff022-chinese-weak-fit` | EFF-022 | `chef_it_up_suggestions` | Selected Chinese preference produced mostly off-cuisine suggestions. | `cuisine_fit`, `pantry_grounding` | Product fallback remains open. |
-| `eff022-indian-weak-fit` | EFF-022 | `chef_it_up_suggestions` | Selected Indian preference produced only one weakly Indian-ish option. | `cuisine_fit`, `inspired_or_fusion_labeling` | Product fallback remains open. |
-| `eff022-thai-korean-broth-anchor` | EFF-022 | `chef_it_up_suggestions` | Strong Korean-labeled pantry item overrode selected Thai preference. | `cuisine_fit`, `pantry_grounding`, `inspired_or_fusion_labeling` | Good calibration probe for request/constraints/output split. |
+| `eff022-chinese-weak-fit` | EFF-022 | `chef_it_up_suggestions` | Selected Chinese preference produced mostly off-cuisine suggestions. | `cuisine_fit`, `pantry_grounding` | Fallback direction accepted; activation threshold and copy deferred. |
+| `eff022-indian-weak-fit` | EFF-022 | `chef_it_up_suggestions` | Selected Indian preference produced only one weakly Indian-ish option. | `cuisine_fit`, `inspired_or_fusion_labeling` | Fallback direction accepted; activation threshold and copy deferred. |
+| `eff022-thai-korean-broth-anchor` | EFF-022 | `chef_it_up_suggestions` | Strong Korean-labeled pantry item overrode selected Thai preference. | `cuisine_fit`, `pantry_grounding`, `inspired_or_fusion_labeling` | Fallback direction accepted; good calibration probe for request/constraints/output split. |
 | `eff022-loco-moco-style-positive` | EFF-022 | `chef_it_up_suggestions` | Positive cross-cuisine/adapted pantry transformation candidate. | `inspired_or_fusion_labeling`, `recipe_usefulness`, `pantry_grounding` | Positive guard. |
 | `slop-bowl-suggestions-current-shape` | Phase 1 audit | `slop_bowl_suggestions` | Slop Bowl needs one `{ recipe }` contract fixture before judge work. | `structure_contract`, `pantry_grounding`, `recipe_usefulness` | Await capture or synthetic authoring. |
 | `synthetic-negative-slop-bowl-shape` | Synthetic | `slop_bowl_suggestions` | Negative contract fixture for malformed Slop Bowl shape. | `structure_contract` | Synthetic. |
@@ -276,7 +278,7 @@ Do not start Phase 3 harness code until this revised Phase 2 spec is accepted an
 - accepted criterion labels;
 - accepted first Wilson-label target set;
 - accepted +15-minute max-time band;
-- explicit note that EFF-022 product fallback behavior remains unresolved unless Wilson resolves it separately.
+- explicit note that EFF-022 fallback direction is accepted but the activation threshold and copy remain deferred unless a separate EFF-022 milestone resolves them.
 
 Recommended Phase 3 validation plan:
 
@@ -297,5 +299,5 @@ This spec does not:
 - add DB schema or migrations;
 - commit fixture data;
 - run evals;
-- resolve EFF-022 cuisine fallback product behavior;
+- implement the accepted EFF-022 fallback direction, activation threshold, or user-facing copy;
 - activate prompt candidates.
