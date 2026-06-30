@@ -45,7 +45,7 @@ Deferred release-batch checks:
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `f9909af7cbc7104f9eb4da7b3a8642215fce461e`
+- Current base: `origin/main` at `142ea9bf8109fb68a38e1bb3887420b568cb508c`
 - Last Replit-validated at: not yet validated
 - Human Replit validation: deferred to release/batch validation
 
@@ -57,7 +57,7 @@ Evidence:
 
 - `npm ci` passed and reported `found 0 vulnerabilities`.
 - `npx vitest run tests/unit/admin-cache-headers.test.ts tests/unit/provider-boundary-happy-paths.test.ts tests/unit/phase0-security-routes.test.ts tests/unit/rate-limit.test.ts` passed: 5 files / 44 tests.
-- `npm run test:unit` passed: 45 files / 335 tests.
+- `npm run test:unit` passed: 45 files / 337 tests.
 - `npm run check` passed: TypeScript plus UI lint.
 - `npm run build` passed with the existing Vite chunk/Browserslist warnings.
 - `npm audit --audit-level=high` passed with `found 0 vulnerabilities`.
