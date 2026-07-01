@@ -22,6 +22,7 @@ Fresh evidence gathered before choosing work:
 - After PR #244 landed during closeout, rebased again onto `origin/main` `3976a63`. The only conflict was in `tests/unit/admin-cache-headers.test.ts`; the resolution keeps both PR #244's invalid-admin rate-limit coverage and this branch's Markdown report/no-cache coverage.
 - After PR #247 landed during closeout, rebased again onto `origin/main` `203e621`. The conflicts were docs-only in EFF-022, Effort registry, and INIT-004; the resolution preserves the accepted transparent-fallback direction while keeping this branch scoped to report-export evidence plumbing.
 - After PR #248 landed during closeout, rebased again onto `origin/main` `a4450a6`. The conflicts were docs-only in the same EFF-022/INIT registry summaries; the resolution preserves the EFF-022 merge-closeout state and keeps PR #246 as the active INIT-004 report-export slice.
+- On 2026-07-01, PR #246 was still the only open PR but GitHub reported it `BEHIND` after PR #242 merged the production-validation registry. This automation-owned branch was rebased cleanly onto `origin/main` `4608609`; no conflicts or product-code changes were needed beyond refreshing this evidence.
 - Open PRs at initial triage: #244 (`codex/security-admin-transcription-hardening`) was open, green, and owned by the security automation lane; #242 (`codex/production-validation-registry`) was draft/behind and owned elsewhere. Neither was touched during triage.
 - INIT-001 current resume point has remaining Phase 3.1 provider benchmark/visual-review choices and Phase 4 future redesign work, both higher product/Replit judgment than this automation's small-slice target.
 - INIT-002 remains in Phase 2 Replit observation; Phase 3 DB/admin telemetry work should not start before observation evidence.
@@ -58,16 +59,16 @@ Decision: INIT-004 report export was the clear best milestone because it is docu
 
 ## Validation
 
-Completed after the PR #244 code rebase; the later PR #247 and #248 rebases were docs-only for this branch:
+Completed after rebasing onto current `origin/main` `4608609`:
 
-- `npm ci` passed earlier in the run; package manifests were unchanged by the later rebase.
-- `npx vitest run tests/unit/evaluator.test.ts tests/unit/admin-cache-headers.test.ts` passed after rebase: 2 files / 10 tests.
+- `npm ci` passed.
+- `npx vitest run tests/unit/evaluator.test.ts tests/unit/admin-cache-headers.test.ts` passed: 2 files / 10 tests.
 - Initial `npm run eval:fixtures` failed because the local sandbox blocked `tsx` from opening its IPC pipe under `/var/folders/.../T/tsx-501/*.pipe` (`listen EPERM`). The same command passed after narrow sandbox escalation: 10 public fixtures validated.
-- `npm run test:unit` passed after rebase: 45 files / 340 tests.
-- `npm run check` passed after rebase: TypeScript plus UI lint.
-- `npm audit --audit-level=high` passed after rebase: `found 0 vulnerabilities`.
-- `npm run build` passed after rebase with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
-- `git diff --check origin/main...HEAD` passed after rebase.
+- `npm run test:unit` passed: 45 files / 340 tests.
+- `npm run check` passed: TypeScript plus UI lint.
+- `npm audit --audit-level=high` passed: `found 0 vulnerabilities`.
+- `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
+- `git diff --check origin/main...HEAD` passed.
 
 The PR body is the source for the final pushed head and GitHub exact-head check readback because this handoff is itself part of the PR branch.
 

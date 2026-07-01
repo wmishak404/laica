@@ -234,3 +234,7 @@ Implementation is intentionally deferred until after higher-priority INIT-001 wo
 ## 2026-06-30 - Eval report export slice started
 
 PR #246 on `codex/init-004-eval-export` adds a redacted JSON/Markdown admin report artifact over completed eval feature and prompt-version summaries. This helps future EFF-022 work carry Chef It Up cuisine-fit evidence into PRs or handoffs without copying raw request/model-response payloads. It still does not satisfy EFF-022 resolution criteria because it does not audit cuisine picker behavior, change prompts, add multi-cuisine prompt guidance, add cuisine-fit/fusion fixtures, change card display guidance, or decide selected-cuisine fallback behavior.
+
+## 2026-07-01 - Eval report export refreshed
+
+PR #246 was rebased cleanly onto `origin/main` `4608609` after PR #242 merged. The scope is unchanged: portable redacted report artifacts for future cuisine-fit evidence, not runtime prompt/fallback implementation or the transparent-fallback activation threshold.
