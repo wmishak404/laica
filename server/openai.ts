@@ -377,7 +377,10 @@ export async function getCookingSteps(
       "Please provide detailed home cooking instructions with visual cues I can look for at each step.",
       "For Live Cooking, each step must be one glanceable cookable action or milestone, not a paragraph. Split prep, heating, adding, cooking, draining, and serving into separate steps when they are distinct actions.",
       "Keep each instruction to one short sentence when possible. If an action needs sub-detail, keep it concise and do not combine unrelated actions into one step.",
-      "For each step include actionLabel: a 2-4 word verb-first label for the step rail and mobile headline. Name the real cooking action, not just the first setup phrase. For example: Boil Water, Prep Leek, Cook Leek & Spinach, Reduce Heat, Serve Rice.",
+      "For each step include actionLabel: a 2-4 word verb-first label for the step rail and mobile headline; use 5 words only if needed to complete the meaning. It should fit in a small preview card and work as a quick recall card for a cook mid-step.",
+      "Name the real cooking action, not measurements or the first setup phrase. Use grammatical plain-English kitchen phrasing with needed nouns, prepositions, and adverbs. Good examples: Boil Water, Prep Leek, Cook Leek & Spinach, Push Vegetables Aside, Add Cold Rice, Mix Fried Rice, Reduce Heat, Serve Rice. Bad examples: Bring 4 Cups, Heat Oil Butter, Push Vegetables Side, Add Cold Cooked.",
+      "Do not repeat the same actionLabel for different steps in one recipe. If multiple steps involve the same ingredient group, distinguish the milestone or result, such as Cook Vegetables, Add Cold Rice, Mix Fried Rice, Season Fried Rice, and Serve Fried Rice.",
+      "For fried rice or similar dishes, if cold cooked rice is best but the cook may only have warm rice, give a practical workaround such as spreading warm rice out to steam off and cool briefly before frying. Do not imply cold rice is a missing required ingredient unless the recipe truly cannot work.",
       "Focus on practical techniques for a home kitchen, not professional chef methods.",
     ]
       .filter(Boolean)

@@ -156,11 +156,54 @@ function isPlaceholderInstruction(instruction: string) {
   ].includes(compact);
 }
 
-function normalizeStepActionLabel(label: unknown) {
+const STEP_ACTION_LABEL_MAX_WORDS = 5;
+const STEP_ACTION_LABEL_MAX_CHARS = 24;
+
+function normalizeActionLabelForComparison(label: string) {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function getActionLabelWords(label: string) {
+  return label.match(/[A-Za-z0-9']+/g) || [];
+}
+
+function hasMeasurementInActionLabel(label: string) {
+  return /\d|[¼½¾⅓⅔⅛⅜⅝⅞]/.test(label) ||
+    /\b(cups?|tablespoons?|tbsp|teaspoons?|tsp|ounces?|oz|grams?|g|milliliters?|ml|pounds?|lbs?|minutes?|mins?|seconds?|degrees?|fahrenheit|celsius|inches?|cm)\b/i.test(label);
+}
+
+function actionLabelFitsPreview(label: string) {
+  return getActionLabelWords(label).length <= STEP_ACTION_LABEL_MAX_WORDS &&
+    label.length <= STEP_ACTION_LABEL_MAX_CHARS &&
+    !hasMeasurementInActionLabel(label);
+}
+
+function normalizeStepActionLabel(label: unknown, instruction = '') {
   if (typeof label !== 'string') return undefined;
 
   const normalized = normalizeInstructionText(label);
   if (isPlaceholderInstruction(normalized)) return undefined;
+
+  const compact = normalizeActionLabelForComparison(normalized);
+  const lowerInstruction = instruction.toLowerCase();
+  if (compact === 'push vegetables side') {
+    return 'Push Vegetables Aside';
+  }
+  if ((compact === 'add cold cooked' || compact === 'add cold cooked rice') && /\brice\b/.test(`${compact} ${lowerInstruction}`)) {
+    return 'Add Cold Rice';
+  }
+  if (compact === 'bring 4 cups') {
+    return 'Boil Water';
+  }
+  if (compact === 'heat oil butter') {
+    return undefined;
+  }
+  if (compact === 'cook vegetables' && /\brice\b/.test(lowerInstruction)) {
+    return undefined;
+  }
+  if (!actionLabelFitsPreview(normalized)) {
+    return undefined;
+  }
 
   return normalized;
 }
@@ -196,7 +239,7 @@ function toRecipeStep(step: unknown, index: number): RecipeStep | null {
 
   return {
     id: index + 1,
-    actionLabel: normalizeStepActionLabel(candidate.actionLabel ?? candidate.label ?? candidate.title),
+    actionLabel: normalizeStepActionLabel(candidate.actionLabel ?? candidate.label ?? candidate.title, instruction),
     instruction,
     duration: parsedDuration,
     tips: typeof candidate.tips === 'string' ? candidate.tips : '',
@@ -243,6 +286,50 @@ const STEP_PREVIEW_STOP_WORDS = new Set([
   'your',
 ]);
 
+const STEP_PREVIEW_MEASUREMENT_WORDS = new Set([
+  'cup',
+  'cups',
+  'tablespoon',
+  'tablespoons',
+  'tbsp',
+  'teaspoon',
+  'teaspoons',
+  'tsp',
+  'ounce',
+  'ounces',
+  'oz',
+  'gram',
+  'grams',
+  'g',
+  'milliliter',
+  'milliliters',
+  'ml',
+  'pound',
+  'pounds',
+  'lb',
+  'lbs',
+  'minute',
+  'minutes',
+  'min',
+  'mins',
+  'second',
+  'seconds',
+  'degree',
+  'degrees',
+  'fahrenheit',
+  'celsius',
+  'inch',
+  'inches',
+  'cm',
+]);
+
+function isStepPreviewNoiseWord(word: string) {
+  const normalized = word.toLowerCase();
+  return STEP_PREVIEW_STOP_WORDS.has(normalized) ||
+    STEP_PREVIEW_MEASUREMENT_WORDS.has(normalized) ||
+    /^\d/.test(normalized);
+}
+
 function titleCaseStepLabel(words: string[]) {
   return words
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -265,6 +352,34 @@ function deriveStepActionLabel(instruction: string) {
     return 'Prep Leek';
   }
 
+  if (/\badd\b.*\b(cold\s+)?(cooked\s+)?rice\b/.test(lowerInstruction)) {
+    return /\bcold\b/.test(lowerInstruction) ? 'Add Cold Rice' : 'Add Rice';
+  }
+
+  if (/\b(cool|spread)\b.*\brice\b|\brice\b.*\b(cool|steam off|dry)\b/.test(lowerInstruction)) {
+    return 'Cool Rice';
+  }
+
+  if (/\brice\b/.test(lowerInstruction) && /\b(season|soy sauce|taste)\b/.test(lowerInstruction)) {
+    return 'Season Fried Rice';
+  }
+
+  if (/\brice\b/.test(lowerInstruction) && /\b(mix|combine|stir)\b/.test(lowerInstruction)) {
+    return 'Mix Fried Rice';
+  }
+
+  if (/\brice\b/.test(lowerInstruction) && /\b(serve|garnish|finish)\b/.test(lowerInstruction)) {
+    return 'Serve Fried Rice';
+  }
+
+  if (/\brice\b/.test(lowerInstruction) && /\b(cook|fry|crisp)\b/.test(lowerInstruction)) {
+    return 'Fry Rice';
+  }
+
+  if (/\bpush\b.*\b(vegetables|veggies|onions?|leeks?|carrots?|peppers?|mushrooms?|spinach|greens)\b.*\b(side|aside)\b/.test(lowerInstruction)) {
+    return 'Push Vegetables Aside';
+  }
+
   if (/\beggs?\b/.test(lowerInstruction) && /\b(crack|mix|whisk|beat)\b/.test(lowerInstruction)) {
     return 'Mix Eggs';
   }
@@ -282,21 +397,62 @@ function deriveStepActionLabel(instruction: string) {
     .split(/\s+/)
     .filter(Boolean);
 
-  const compactWords = words.filter(word => !STEP_PREVIEW_STOP_WORDS.has(word.toLowerCase()));
-  const previewWords = (compactWords.length >= 2 ? compactWords : words).slice(0, 3);
+  const compactWords = words.filter(word => !isStepPreviewNoiseWord(word));
+  let previewWords = (compactWords.length >= 2 ? compactWords : words.filter(word => !/^\d/.test(word))).slice(0, 4);
+  if (previewWords.length < 2) {
+    previewWords = words.slice(0, 3);
+  }
   const label = titleCaseStepLabel(previewWords);
 
-  return label.length > 22 ? `${label.slice(0, 19).trim()}...` : label || 'Step';
+  if (!label) {
+    return 'Step';
+  }
+
+  if (label.length <= STEP_ACTION_LABEL_MAX_CHARS) {
+    return label;
+  }
+
+  while (previewWords.length > 2) {
+    previewWords = previewWords.slice(0, -1);
+    const shorterLabel = titleCaseStepLabel(previewWords);
+    if (shorterLabel.length <= STEP_ACTION_LABEL_MAX_CHARS) {
+      return shorterLabel;
+    }
+  }
+
+  return titleCaseStepLabel(previewWords) || 'Step';
 }
 
-function getStepActionLabel(step: RecipeStep) {
-  return step.actionLabel || deriveStepActionLabel(step.instruction);
+function getStepActionLabel(step: RecipeStep, options: { ignoreProvided?: boolean } = {}) {
+  return !options.ignoreProvided && step.actionLabel
+    ? step.actionLabel
+    : deriveStepActionLabel(step.instruction);
 }
 
-function getStepHeadline(step: RecipeStep) {
+function buildStepPreviewLabels(steps: RecipeStep[]) {
+  const seen = new Set<string>();
+
+  return steps.map((step) => {
+    let label = getStepActionLabel(step);
+    const normalized = normalizeActionLabelForComparison(label);
+
+    if (seen.has(normalized)) {
+      const fallbackLabel = getStepActionLabel(step, { ignoreProvided: true });
+      const fallbackNormalized = normalizeActionLabelForComparison(fallbackLabel);
+      if (!seen.has(fallbackNormalized)) {
+        label = fallbackLabel;
+      }
+    }
+
+    seen.add(normalizeActionLabelForComparison(label));
+    return label;
+  });
+}
+
+function getStepHeadline(step: RecipeStep, displayLabel?: string) {
   const instructionLines = splitInstructionLines(step.instruction);
   if (step.actionLabel || instructionLines.length > 1 || step.instruction.length > 90) {
-    return getStepActionLabel(step);
+    return displayLabel || getStepActionLabel(step);
   }
 
   return step.instruction;
@@ -797,10 +953,10 @@ export default function LiveCooking({
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
   const stepPreviewLabels = useMemo(
-    () => currentRecipeSteps.map(getStepActionLabel),
+    () => buildStepPreviewLabels(currentRecipeSteps),
     [currentRecipeSteps],
   );
-  const currentStepHeadline = currentStep ? getStepHeadline(currentStep) : '';
+  const currentStepHeadline = currentStep ? getStepHeadline(currentStep, stepPreviewLabels[displayedStepIndex]) : '';
   const currentStepInstructionLines = currentStep ? splitInstructionLines(currentStep.instruction) : [];
   const shouldShowInstructionDetails = Boolean(
     currentStep && (

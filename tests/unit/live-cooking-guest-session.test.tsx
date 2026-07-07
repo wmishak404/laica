@@ -402,6 +402,22 @@ describe('LiveCooking guest session boundary', () => {
           safetyLevel: 'minor',
           duration: 420,
         },
+        {
+          instruction: 'Push the vegetables to the side of the skillet. Add the cooked beef back, mixing everything together.',
+          tips: 'Keep the pan over medium heat.',
+          visualCues: 'Vegetables sit to one side with open skillet space.',
+          commonMistakes: 'Do not pile the beef on top before making room.',
+          safetyLevel: 'minor',
+          duration: 60,
+        },
+        {
+          instruction: 'Add the cold, cooked rice to the skillet. Press out any large clumps with the back of a spatula. Mix well to combine with the beef and vegetables.',
+          tips: 'If your rice is warm, spread it on a plate so steam can escape before adding it.',
+          visualCues: 'No large rice clumps remain.',
+          commonMistakes: 'Using hot, fresh rice can turn sticky.',
+          safetyLevel: 'minor',
+          duration: 180,
+        },
       ],
     });
 
@@ -419,8 +435,63 @@ describe('LiveCooking guest session boundary', () => {
     expect(previewStrip).toHaveTextContent('Boil Water');
     expect(previewStrip).toHaveTextContent('Add Dashi Packet');
     expect(previewStrip).toHaveTextContent('Cook Leek & Spinach');
+    expect(previewStrip).toHaveTextContent('Push Vegetables Aside');
+    expect(previewStrip).toHaveTextContent('Add Cold Rice');
     expect(previewStrip).not.toHaveTextContent('Bring 4 Cups');
     expect(previewStrip).not.toHaveTextContent('Heat Oil Butter');
+    expect(previewStrip).not.toHaveTextContent('Push Vegetables Side');
+    expect(previewStrip).not.toHaveTextContent('Add Cold Cooked');
+  });
+
+  it('normalizes known bad provider action labels before rendering', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          actionLabel: 'Push Vegetables Side',
+          instruction: 'Push the vegetables to the side of the skillet. Add the cooked beef back, mixing everything together.',
+          tips: 'Keep the pan over medium heat.',
+          visualCues: 'Vegetables sit to one side with open skillet space.',
+          commonMistakes: 'Do not pile the beef on top before making room.',
+          safetyLevel: 'minor',
+          duration: 60,
+        },
+        {
+          actionLabel: 'Add Cold Cooked',
+          instruction: 'Add the cold, cooked rice to the skillet. Press out any large clumps with the back of a spatula.',
+          tips: 'If your rice is warm, spread it on a plate so steam can escape before adding it.',
+          visualCues: 'No large rice clumps remain.',
+          commonMistakes: 'Using hot, fresh rice can turn sticky.',
+          safetyLevel: 'minor',
+          duration: 180,
+        },
+        {
+          actionLabel: 'Cook Vegetables',
+          instruction: 'Season the fried rice with soy sauce and stir until the rice, beef, and vegetables are evenly coated.',
+          tips: 'Add soy sauce around the edge of the pan for aroma.',
+          visualCues: 'Rice looks evenly seasoned and glossy.',
+          commonMistakes: 'Do not leave white patches of unseasoned rice.',
+          safetyLevel: 'minor',
+          duration: 120,
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByRole('heading', { name: 'Push Vegetables Aside' })).toBeTruthy();
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Push Vegetables Aside');
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Add Cold Rice');
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Season Fried Rice');
+    expect(screen.getByTestId('step-preview-strip')).not.toHaveTextContent('Push Vegetables Side');
+    expect(screen.getByTestId('step-preview-strip')).not.toHaveTextContent('Add Cold Cooked');
   });
 
   it('uses action labels as mobile headlines and separates paragraph-like instructions', async () => {
