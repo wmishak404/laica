@@ -350,7 +350,9 @@ describe('LiveCooking guest session boundary', () => {
     expect(mocks.startCookingSession).not.toHaveBeenCalled();
   });
 
-  it('pins the current step above the Coach Feed cues', async () => {
+  it('keeps the current step and compact guidance visible in the cooking cockpit', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
     render(
       <LiveCooking
         selectedMeal={selectedMeal}
@@ -362,7 +364,10 @@ describe('LiveCooking guest session boundary', () => {
     await clickReadyCheckStart();
 
     expect(screen.getByTestId('current-step-panel').className).toContain('sticky');
-    expect(screen.getByRole('heading', { name: /coach feed/i })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: /coach feed/i })).toBeNull();
+    expect(screen.getByTestId('step-guidance-panel')).toBeTruthy();
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Warm Rice Beans');
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Fold Salsa');
     expect(screen.getByText('Steam rises.')).toBeTruthy();
     expect(screen.getByText('Stir gently.')).toBeTruthy();
     expect(screen.getByText('Do not scorch the rice.')).toBeTruthy();
@@ -730,7 +735,7 @@ describe('LiveCooking guest session boundary', () => {
     expect(AudioContextMock).not.toHaveBeenCalled();
   });
 
-  it('persists the live transcript pin state from the visible toggle', async () => {
+  it('keeps closed captions opt-in and persists the visible captions toggle', async () => {
     render(
       <LiveCooking
         selectedMeal={selectedMeal}
@@ -741,24 +746,24 @@ describe('LiveCooking guest session boundary', () => {
 
     await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
-    const transcriptionBox = screen.getByTestId('transcription-box');
-    expect(transcriptionBox.className).toContain('sticky');
-    expect(screen.getByRole('button', { name: /unpin transcription/i })).toBeTruthy();
+    expect(screen.queryByTestId('transcription-box')).toBeNull();
+    expect(screen.getByTestId('text-transcription-full').className).toContain('sr-only');
+    expect(screen.getByRole('button', { name: /show closed captions/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /unpin transcription/i }));
+    fireEvent.click(screen.getByRole('button', { name: /show closed captions/i }));
 
-    expect(transcriptionBox.className).not.toContain('sticky');
-    expect(window.localStorage.getItem('laica_transcription_pinned')).toBe('false');
-    expect(screen.getByRole('button', { name: /pin transcription/i })).toBeTruthy();
+    expect(screen.getByTestId('transcription-box')).toBeTruthy();
+    expect(window.localStorage.getItem('laica_captions_visible')).toBe('true');
+    expect(screen.getByRole('button', { name: /hide closed captions/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /pin transcription/i }));
+    fireEvent.click(screen.getByRole('button', { name: /hide closed captions/i }));
 
-    expect(transcriptionBox.className).toContain('sticky');
-    expect(window.localStorage.getItem('laica_transcription_pinned')).toBe('true');
+    expect(screen.queryByTestId('transcription-box')).toBeNull();
+    expect(window.localStorage.getItem('laica_captions_visible')).toBe('false');
   });
 
-  it('falls back to a pinned transcript when the saved pin preference is malformed', async () => {
-    window.localStorage.setItem('laica_transcription_pinned', 'not-json');
+  it('falls back to hidden captions when the saved captions preference is malformed', async () => {
+    window.localStorage.setItem('laica_captions_visible', 'not-json');
 
     render(
       <LiveCooking
@@ -770,9 +775,9 @@ describe('LiveCooking guest session boundary', () => {
 
     await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
-    expect(screen.getByTestId('transcription-box').className).toContain('sticky');
-    expect(screen.getByRole('button', { name: /unpin transcription/i })).toBeTruthy();
-    expect(window.localStorage.getItem('laica_transcription_pinned')).toBeNull();
+    expect(screen.queryByTestId('transcription-box')).toBeNull();
+    expect(screen.getByRole('button', { name: /show closed captions/i })).toBeTruthy();
+    expect(window.localStorage.getItem('laica_captions_visible')).toBeNull();
   });
 
   describe('speech arbitration acceptance', () => {
@@ -867,13 +872,13 @@ describe('LiveCooking guest session boundary', () => {
       expect(audio.sources[0].start).toHaveBeenCalledTimes(1);
     });
 
-    it('stops active and pending step audio before Ask for Help begins recording', async () => {
+    it('stops active and pending step audio before Ask a question begins recording', async () => {
       const audio = installAudioMocks();
 
       await renderCookingGuide();
       await advanceSpeechDelay();
 
-      fireEvent.click(screen.getByRole('button', { name: /ask for help/i }));
+      fireEvent.click(screen.getByRole('button', { name: /ask a question/i }));
       await flushPromises();
 
       expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
@@ -888,31 +893,31 @@ describe('LiveCooking guest session boundary', () => {
       await renderCookingGuide();
       await advanceSpeechDelay();
 
-      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      fireEvent.click(screen.getByRole('button', { name: /mute audio/i }));
 
       expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
       expect(audio.speechCancel).toHaveBeenCalled();
-      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /turn audio on/i })).toBeTruthy();
     });
 
     it('keeps Muted state across step navigation and prevents automatic step audio', async () => {
       installAudioMocks();
 
       await renderCookingGuide();
-      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      fireEvent.click(screen.getByRole('button', { name: /mute audio/i }));
       mocks.synthesizeSpeech.mockClear();
 
       fireEvent.click(screen.getByRole('button', { name: /next/i }));
       await advanceSpeechDelay();
 
-      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /turn audio on/i })).toBeTruthy();
       expect(screen.getByTestId('text-transcription-full').textContent).toBe('Step 2: Fold in salsa. Keep the heat low.');
       expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
 
       fireEvent.click(screen.getByRole('button', { name: /previous/i }));
       await advanceSpeechDelay();
 
-      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /turn audio on/i })).toBeTruthy();
       expect(screen.getByTestId('text-transcription-full').textContent).toBe('Back to step 1: Warm the rice and beans.');
       expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
     });
@@ -921,14 +926,14 @@ describe('LiveCooking guest session boundary', () => {
       installAudioMocks();
 
       await renderCookingGuide();
-      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      fireEvent.click(screen.getByRole('button', { name: /mute audio/i }));
       fireEvent.click(screen.getByRole('button', { name: /next/i }));
       mocks.synthesizeSpeech.mockClear();
 
-      fireEvent.click(screen.getByRole('button', { name: /muted/i }));
+      fireEvent.click(screen.getByRole('button', { name: /turn audio on/i }));
       await advanceSpeechDelay(1200);
 
-      expect(screen.getByRole('button', { name: /audio on/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /mute audio/i })).toBeTruthy();
       expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
 
       fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));

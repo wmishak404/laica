@@ -2,11 +2,10 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, MessageCircle, Repeat, StopCircle, Pin, PinOff } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -50,6 +49,17 @@ interface RecipeIngredient {
   quantity?: string;
   forSteps?: number[];
 }
+
+interface ScreenWakeLockSentinel extends EventTarget {
+  released: boolean;
+  release: () => Promise<void>;
+}
+
+type NavigatorWithWakeLock = Navigator & {
+  wakeLock?: {
+    request: (type: 'screen') => Promise<ScreenWakeLockSentinel>;
+  };
+};
 
 interface StepLoadIssue {
   title: string;
@@ -189,16 +199,54 @@ function sanitizeRecipeSteps(steps: unknown): RecipeStep[] {
     .map((step, index) => ({ ...step, id: index + 1 }));
 }
 
-function getInitialTranscriptionPinned() {
-  const saved = localStorage.getItem('laica_transcription_pinned');
-  if (saved === null) return true;
+const STEP_PREVIEW_STOP_WORDS = new Set([
+  'a',
+  'an',
+  'and',
+  'for',
+  'in',
+  'into',
+  'of',
+  'on',
+  'or',
+  'over',
+  'the',
+  'to',
+  'until',
+  'with',
+  'your',
+]);
+
+function toStepPreviewLabel(instruction: string) {
+  const firstClause = instruction
+    .replace(/^\s*step\s*\d+\s*[:.)-]?\s*/i, '')
+    .split(/[.;:]/)[0]
+    .trim();
+
+  const words = firstClause
+    .replace(/[^A-Za-z0-9\s'-]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const compactWords = words.filter(word => !STEP_PREVIEW_STOP_WORDS.has(word.toLowerCase()));
+  const previewWords = (compactWords.length >= 2 ? compactWords : words).slice(0, 3);
+  const label = previewWords
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  return label.length > 22 ? `${label.slice(0, 19).trim()}...` : label || 'Step';
+}
+
+function getInitialCaptionsVisible() {
+  const saved = localStorage.getItem('laica_captions_visible');
+  if (saved === null) return false;
 
   try {
     const parsed = JSON.parse(saved);
-    return typeof parsed === 'boolean' ? parsed : true;
+    return typeof parsed === 'boolean' ? parsed : false;
   } catch {
-    localStorage.removeItem('laica_transcription_pinned');
-    return true;
+    localStorage.removeItem('laica_captions_visible');
+    return false;
   }
 }
 
@@ -264,9 +312,8 @@ export default function LiveCooking({
   const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
-  const [isTranscriptionPinned, setIsTranscriptionPinned] = useState(getInitialTranscriptionPinned);
-  const transcriptionRef = useRef<HTMLDivElement>(null);
-  const touchStartY = useRef<number>(0);
+  const [areCaptionsVisible, setAreCaptionsVisible] = useState(getInitialCaptionsVisible);
+  const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
 
   const { toast } = useToast();
   const startSessionMutation = useStartCookingSession();
@@ -683,7 +730,10 @@ export default function LiveCooking({
     ? Math.min(currentStepIndex, currentRecipeSteps.length - 1)
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
-  const progress = currentRecipeSteps.length > 0 ? ((displayedStepIndex + 1) / currentRecipeSteps.length) * 100 : 0;
+  const stepPreviewLabels = useMemo(
+    () => currentRecipeSteps.map(step => toStepPreviewLabel(step.instruction)),
+    [currentRecipeSteps],
+  );
   const isFinalStep = currentRecipeSteps.length > 0 && displayedStepIndex >= currentRecipeSteps.length - 1;
 
   useEffect(() => {
@@ -691,6 +741,63 @@ export default function LiveCooking({
       setCurrentStepIndex(currentRecipeSteps.length - 1);
     }
   }, [currentRecipeSteps.length, currentStepIndex]);
+
+  useEffect(() => {
+    if (!hasStartedCookingGuide || currentRecipeSteps.length === 0) return;
+
+    let cancelled = false;
+
+    const releaseWakeLock = async () => {
+      const sentinel = wakeLockRef.current;
+      wakeLockRef.current = null;
+
+      if (sentinel && !sentinel.released) {
+        await sentinel.release().catch(() => undefined);
+      }
+    };
+
+    const requestWakeLock = async () => {
+      if (document.visibilityState !== 'visible' || wakeLockRef.current) return;
+
+      const wakeLock = (navigator as NavigatorWithWakeLock).wakeLock;
+      if (!wakeLock) return;
+
+      try {
+        const sentinel = await wakeLock.request('screen');
+
+        if (cancelled) {
+          await sentinel.release().catch(() => undefined);
+          return;
+        }
+
+        wakeLockRef.current = sentinel;
+        sentinel.addEventListener('release', () => {
+          if (wakeLockRef.current === sentinel) {
+            wakeLockRef.current = null;
+          }
+        });
+      } catch (error) {
+        console.info('Screen wake lock is unavailable for this Live Cooking session.', error);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void requestWakeLock();
+      } else {
+        void releaseWakeLock();
+      }
+    };
+
+    void requestWakeLock();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      void releaseWakeLock();
+    };
+  }, [currentRecipeSteps.length, hasStartedCookingGuide]);
 
   // Timer effect
   useEffect(() => {
@@ -950,7 +1057,7 @@ export default function LiveCooking({
         
         if (isMobileDevice && isAudioContextError) {
           title = "Mobile audio needs permission";
-          description = "Tap the audio button or 'Ask for Help' to enable voice features. You can continue cooking with text instructions.";
+          description = "Tap the audio or Ask button to enable voice features. You can continue cooking with text instructions.";
         } else if (isMobileDevice) {
           description = "Voice features may need browser permission. You can continue cooking with text instructions.";
         }
@@ -965,34 +1072,12 @@ export default function LiveCooking({
     }
   };
 
-  // Toggle transcription pinned state and persist to localStorage
-  const toggleTranscriptionPinned = () => {
-    setIsTranscriptionPinned((prev: boolean) => {
+  const toggleCaptionsVisible = () => {
+    setAreCaptionsVisible((prev: boolean) => {
       const newValue = !prev;
-      localStorage.setItem('laica_transcription_pinned', JSON.stringify(newValue));
+      localStorage.setItem('laica_captions_visible', JSON.stringify(newValue));
       return newValue;
     });
-  };
-
-  // Handle swipe gestures for transcription box
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchEndY - touchStartY.current;
-    const swipeThreshold = 50; // pixels
-
-    if (Math.abs(deltaY) > swipeThreshold) {
-      if (deltaY > 0 && isTranscriptionPinned) {
-        // Swiped down - unpin (minimize)
-        toggleTranscriptionPinned();
-      } else if (deltaY < 0 && !isTranscriptionPinned) {
-        // Swiped up - pin (expand)
-        toggleTranscriptionPinned();
-      }
-    }
   };
 
   // Speak assistant response when it changes (only if audio is enabled and not recording)
@@ -1657,21 +1742,22 @@ export default function LiveCooking({
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-4 sm:py-6">
-        <header className="flex items-center justify-between gap-3">
+    <div className="live-cooking-ui min-h-screen bg-background text-foreground">
+      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-3 px-4 pb-0 pt-3 sm:pt-4">
+        <header className="flex items-center justify-between gap-2">
           <Button
             variant="ghost"
             onClick={handleBackToPlanning}
-            className="shrink-0"
+            className="h-9 shrink-0 px-2 text-sm"
+            aria-label="Back to Planning"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Planning
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Planning
           </Button>
 
           <div className="min-w-0 text-center">
             <h1 className="truncate text-lg font-semibold">{selectedMeal.recipeName}</h1>
-            <p className="text-xs text-muted-foreground">Live Cooking Assistant</p>
+            <p className="text-xs text-muted-foreground">Live Cooking</p>
           </div>
 
           <div className="w-10 shrink-0" aria-hidden="true" />
@@ -1690,17 +1776,17 @@ export default function LiveCooking({
 
         {currentStep && (
           <Card
-            className="sticky top-3 z-20 border-primary/20 bg-card/95 shadow-lg backdrop-blur"
+            className="sticky top-2 z-20 border-primary/20 bg-card/95 shadow-lg backdrop-blur"
             data-testid="current-step-panel"
           >
-            <CardHeader className="space-y-3">
+            <CardHeader className="space-y-2 p-3 sm:p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 space-y-1">
                   <p className="text-xs font-medium uppercase text-muted-foreground">
-                    Current step
-                  </p>
-                  <CardTitle className="text-xl">
                     Step {displayedStepIndex + 1} of {currentRecipeSteps.length}
+                  </p>
+                  <CardTitle className="text-xl leading-6">
+                    {currentStep.instruction}
                   </CardTitle>
                 </div>
                 <Badge className={getSafetyColor(currentStep.safetyLevel)}>
@@ -1708,34 +1794,71 @@ export default function LiveCooking({
                   <span className="ml-1 capitalize">{currentStep.safetyLevel}</span>
                 </Badge>
               </div>
-              <Progress value={progress} className="w-full" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-xl font-semibold leading-7">{currentStep.instruction}</p>
 
-              {currentStep.duration && (
-                <div className="rounded-md border bg-muted/40 p-3">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <span className="font-medium">
-                      <Clock className="h-4 w-4 inline mr-1" />
-                      Timer: {formatTime(timer)}
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={() => setIsTimerRunning(!isTimerRunning)}
-                      variant={isTimerRunning ? "destructive" : "default"}
-                      aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
+              <ol
+                aria-label="Step previews"
+                className="flex gap-2 overflow-x-auto pb-1"
+                data-testid="step-preview-strip"
+              >
+                {stepPreviewLabels.map((label, index) => {
+                  const isActive = index === displayedStepIndex;
+
+                  return (
+                    <li
+                      key={`${currentRecipeSteps[index]?.id ?? index}-${label}`}
+                      aria-current={isActive ? 'step' : undefined}
+                      className={`flex min-w-20 flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center ${
+                        isActive
+                          ? 'border-primary/40 bg-primary/10 text-primary'
+                          : index < displayedStepIndex
+                            ? 'border-secondary/30 bg-secondary/10 text-secondary-foreground'
+                            : 'border-muted bg-muted/40 text-muted-foreground'
+                      }`}
                     >
-                      {isTimerRunning ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                    </Button>
+                      <span
+                        className={`h-2.5 w-2.5 rounded-full ${
+                          isActive
+                            ? 'bg-primary'
+                            : index < displayedStepIndex
+                              ? 'bg-secondary'
+                              : 'bg-muted-foreground/40'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span className="line-clamp-2 text-[0.68rem] font-semibold leading-tight">
+                        {label}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </CardHeader>
+            <CardContent className="space-y-2 p-3 pt-0 sm:p-4 sm:pt-0">
+              {currentStep.duration && (
+                <div className="flex items-center gap-2 rounded-md border bg-muted/40 p-2">
+                  <div className="min-w-0 flex-1 text-sm font-medium">
+                    <Clock className="mr-1 inline h-4 w-4" />
+                    {timer > 0 ? (
+                      <>Timer: {formatTime(timer)}</>
+                    ) : (
+                      `Optional timer: ${currentStep.duration / 60} min`
+                    )}
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => startTimer(currentStep.duration! / 60)}
-                    className="w-full"
                   >
                     Start {currentStep.duration / 60} min timer
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => setIsTimerRunning(!isTimerRunning)}
+                    variant={isTimerRunning ? "destructive" : "secondary"}
+                    aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
+                    disabled={timer === 0}
+                  >
+                    {isTimerRunning ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
                   </Button>
                 </div>
               )}
@@ -1762,95 +1885,110 @@ export default function LiveCooking({
         </div>
 
         <section
-          aria-labelledby="coach-feed-title"
-          className="space-y-4 rounded-lg border bg-card p-4 shadow-sm"
+          aria-label="Step guidance"
+          className="space-y-2 rounded-lg border bg-card p-3 shadow-sm"
+          data-testid="step-guidance-panel"
         >
-          <div className="flex items-start gap-3">
-            <div className="rounded-md bg-primary/10 p-2 text-primary">
-              <MessageCircle className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <h2 id="coach-feed-title" className="text-lg font-semibold">Coach Feed</h2>
-              <p className="text-sm text-muted-foreground">
-                Cues, reminders, and spoken guidance for this step.
-              </p>
-            </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {currentStep?.visualCues && (
+              <div className="rounded-md border border-primary/20 bg-primary/10 p-2">
+                <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+                  <Info className="h-3.5 w-3.5 text-primary" />
+                  Look for
+                </div>
+                <p className="text-sm leading-5">{currentStep.visualCues}</p>
+              </div>
+            )}
+
+            {currentStep?.tips && (
+              <div className="rounded-md border border-secondary/20 bg-secondary/10 p-2">
+                <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+                  <CheckCircle className="h-3.5 w-3.5 text-secondary" />
+                  Pro tip
+                </div>
+                <p className="text-sm leading-5">{currentStep.tips}</p>
+              </div>
+            )}
+
+            {currentStep?.commonMistakes && (
+              <div className="rounded-md border border-accent/40 bg-accent/20 p-2">
+                <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+                  <AlertTriangle className="h-3.5 w-3.5 text-foreground" />
+                  Avoid
+                </div>
+                <p className="text-sm leading-5">{currentStep.commonMistakes}</p>
+              </div>
+            )}
           </div>
 
-          {currentStep?.visualCues && (
-            <div className="rounded-md border border-primary/20 bg-primary/10 p-3">
-              <div className="mb-1 flex items-center gap-2 font-medium">
-                <Info className="h-4 w-4 text-primary" />
-                Look for
-              </div>
-              <p className="text-sm leading-5">{currentStep.visualCues}</p>
-            </div>
-          )}
+          <div className="flex items-center justify-between gap-3 rounded-md border bg-background px-3 py-2">
+            <span className="text-sm font-medium">Closed captions</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleCaptionsVisible}
+              aria-expanded={areCaptionsVisible}
+            >
+              {areCaptionsVisible ? 'Hide closed captions' : 'Show closed captions'}
+            </Button>
+          </div>
 
-          {currentStep?.tips && (
-            <div className="rounded-md border border-secondary/20 bg-secondary/10 p-3">
-              <div className="mb-1 flex items-center gap-2 font-medium">
-                <CheckCircle className="h-4 w-4 text-secondary" />
-                Pro tip
-              </div>
-              <p className="text-sm leading-5">{currentStep.tips}</p>
+          {areCaptionsVisible ? (
+            <div
+              className="rounded-md border bg-background p-3"
+              data-testid="transcription-box"
+            >
+              <p
+                className="leading-relaxed text-foreground"
+                style={{ fontSize: `${captionSize}px` }}
+                data-testid="text-transcription-full"
+              >
+                {assistantResponse}
+              </p>
             </div>
+          ) : (
+            <p className="sr-only" data-testid="text-transcription-full">
+              {assistantResponse}
+            </p>
           )}
+        </section>
 
-          {currentStep?.commonMistakes && (
-            <div className="rounded-md border border-accent/40 bg-accent/20 p-3">
-              <div className="mb-1 flex items-center gap-2 font-medium">
-                <AlertTriangle className="h-4 w-4 text-foreground" />
-                Avoid
-              </div>
-              <p className="text-sm leading-5">{currentStep.commonMistakes}</p>
-            </div>
-          )}
-
-          <div className="grid gap-2 sm:grid-cols-3">
+        <div className="sticky bottom-0 z-30 -mx-4 mt-auto border-t bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur">
+          <div className="grid grid-cols-[1fr_1.25fr_1fr] gap-2">
             <Button
               onClick={repeatStepInstructions}
               variant="outline"
-              className="w-full"
+              className="min-w-0 px-2"
+              aria-label="Repeat step instruction"
             >
-              <Repeat className="h-4 w-4 mr-2" />
-              Repeat Step
+              <Repeat className="mr-1 h-4 w-4" />
+              Repeat
             </Button>
 
-            <div className="w-full">
-              <Button
-                variant={isVoiceRecording ? "destructive" : "default"}
-                onClick={askForHelp}
-                disabled={isProcessing && !isVoiceRecording}
-                className="w-full"
-              >
-                {isProcessing && !isVoiceRecording ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                    Processing...
-                  </>
-                ) : isVoiceRecording ? (
-                  <>
-                    <MicOff className="h-4 w-4 mr-2" />
-                    Cancel
-                  </>
-                ) : (
-                  <>
-                    <Mic className="h-4 w-4 mr-2" />
-                    Ask for Help
-                  </>
-                )}
-              </Button>
-
-              {isVoiceRecording && (
-                <div className="mt-2 text-center">
-                  <div className="inline-flex items-center gap-1 rounded-full bg-destructive px-2 py-1 text-sm text-destructive-foreground">
-                    <div className="h-2 w-2 animate-pulse rounded-full bg-destructive-foreground"></div>
-                    Listening...
-                  </div>
-                </div>
+            <Button
+              variant={isVoiceRecording ? "destructive" : "default"}
+              onClick={askForHelp}
+              disabled={isProcessing && !isVoiceRecording}
+              className="min-w-0 px-2"
+              aria-label={isVoiceRecording ? "Cancel question" : "Ask a question"}
+            >
+              {isProcessing && !isVoiceRecording ? (
+                <>
+                  <div className="mr-1 h-4 w-4 animate-spin rounded-full border-b-2 border-current"></div>
+                  Processing
+                </>
+              ) : isVoiceRecording ? (
+                <>
+                  <MicOff className="mr-1 h-4 w-4" />
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <Mic className="mr-1 h-4 w-4" />
+                  Ask
+                </>
               )}
-            </div>
+            </Button>
 
             <Button
               onClick={async () => {
@@ -1872,64 +2010,37 @@ export default function LiveCooking({
               }}
               disabled={!voiceAvailable}
               variant={!voiceAvailable ? "secondary" : isAudioEnabled ? "secondary" : "destructive"}
-              className="w-full"
-              size="lg"
+              className="min-w-0 px-2"
+              aria-label={!voiceAvailable ? "Voice mode unavailable" : isAudioEnabled ? "Mute audio" : "Turn audio on"}
             >
               {!voiceAvailable ? (
                 <>
-                  <VolumeX className="h-4 w-4 mr-2" />
-                  Voice mode unavailable
+                  <VolumeX className="mr-1 h-4 w-4" />
+                  Voice
                 </>
               ) : isAudioEnabled ? (
                 <>
-                  <Volume2 className="h-4 w-4 mr-2" />
-                  Audio On
+                  <Volume2 className="mr-1 h-4 w-4" />
+                  Audio
                 </>
               ) : (
                 <>
-                  <VolumeX className="h-4 w-4 mr-2" />
+                  <VolumeX className="mr-1 h-4 w-4" />
                   Muted
                 </>
               )}
             </Button>
           </div>
 
-          <div
-            ref={transcriptionRef}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            className={`relative rounded-md border bg-background p-4 transition-all duration-300 ease-in-out ${
-              isTranscriptionPinned ? 'sticky bottom-4 shadow-lg' : ''
-            }`}
-            data-testid="transcription-box"
-          >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleTranscriptionPinned();
-              }}
-              className="absolute top-2 right-2 z-10 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              aria-label={isTranscriptionPinned ? "Unpin transcription" : "Pin transcription"}
-              data-testid="button-toggle-pin"
-            >
-              {isTranscriptionPinned ? (
-                <Pin className="h-4 w-4" />
-              ) : (
-                <PinOff className="h-4 w-4" />
-              )}
-            </button>
-
-            <div className="pr-10">
-              <p
-                className="leading-relaxed text-foreground"
-                style={{ fontSize: `${captionSize}px` }}
-                data-testid="text-transcription-full"
-              >
-                {assistantResponse}
-              </p>
+          {isVoiceRecording && (
+            <div className="mt-2 text-center">
+              <div className="inline-flex items-center gap-1 rounded-full bg-destructive px-2 py-1 text-sm text-destructive-foreground">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-destructive-foreground"></div>
+                Listening...
+              </div>
             </div>
-          </div>
-        </section>
+          )}
+        </div>
       </div>
     </div>
   );
