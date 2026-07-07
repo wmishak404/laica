@@ -38,7 +38,8 @@ Formal step-preview/action-label eval work is intentionally deferred to a separa
 - `tests/e2e/cooking-workflow.test.ts`
   - Extends the guest cooking smoke to expect the step-guidance panel, step preview strip, hidden-by-default captions, and bottom `Ask a question` control after Live Cooking starts.
 - `server/openai.ts`
-  - Adds the atomic Live Cooking step rule to the cooking-step prompt path and asks for short, non-repeated, plain-English `actionLabel` values such as `Boil Water`, `Prep Leek`, `Cook Leek & Spinach`, `Push Vegetables Aside`, and `Add Cold Rice`.
+  - Adds the atomic Live Cooking step rule to the cooking-step prompt path and asks for short, non-repeated, plain-English `actionLabel` values.
+  - Teaches correction relationships rather than only good/bad examples: measurement labels become action/result labels (`Bring 4 Cups` -> `Boil Water`), setup-only labels become actual milestones (`Heat Oil Butter` -> `Cook Leek & Spinach` when vegetables are being cooked), ungrammatical labels become idiomatic phrases (`Push Vegetables Side` -> `Push Vegetables Aside`), and missing-object labels include the noun (`Add Cold Cooked` -> `Add Cold Rice`).
 - `server/ai-response-schemas.ts`, `client/src/lib/openai.ts`, `client/src/hooks/useCookingSession.ts`
   - Records `actionLabel` as an optional passthrough field without requiring a schema migration or changing route shape.
 - `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`
