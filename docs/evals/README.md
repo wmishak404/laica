@@ -12,6 +12,7 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 - `fixtures/` - canonical home for public synthetic or reviewed redacted regression fixtures. Raw private fixtures stay outside git under `LAICA_PRIVATE_EVAL_DIR`.
 - `init-004-phase-2-rubric-dataset-spec.md` - INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec revised from Wilson's architecture decisions.
 - Non-V1 interaction seeds, such as Live Cooking speech arbitration, may be registered here when they need the same intake/registry discipline. These records do not automatically expand INIT-004's active V1 scope.
+- Narrow Live Cooking output-artifact seeds, such as proposed step-preview/action-label quality, may be registered here before a fixture schema exists. Keep the owning INIT/phase and peer-review dependency explicit so they do not silently merge into recipe-generation or broad cooking-step pass rates.
 - INIT-004 Phase 7 generated-image quality calibration may also be registered here once the human-review workflow exists. Image review batches should stay separate from recipe-text eval pass rates, use blind Wilson labels over `recipe_image_cache` samples, compare model judges against frozen human-labeled sets, and route repeated disagreement clusters to generator, judge, threshold, provider/style, fingerprinting, product-rule, or fixture actions.
 
 Future implementation work may add:
@@ -86,7 +87,7 @@ npx vitest run tests/unit/eval-fixtures.test.ts
 
 `npm run eval:fixtures` is the focused public-fixture validation lane for PR evidence. `npx vitest run tests/unit/eval-fixtures.test.ts` validates the fixture validator behavior, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
-Current limitation: committed fixtures now include foundation contract guards plus first user-expectation probes for max-time, cooking-step safety/skill/equipment/sequence, and pantry recipe dietary/pantry/skill fit. They still do not prove live model quality, judge calibration, taste, broad cuisine fit, private-gold coverage, provider behavior, or prompt-candidate quality.
+Current limitation: committed fixtures now include foundation contract guards plus first user-expectation probes for max-time, cooking-step safety/skill/equipment/sequence, and pantry recipe dietary/pantry/skill fit. They still do not prove live model quality, judge calibration, taste, broad cuisine fit, private-gold coverage, provider behavior, prompt-candidate quality, or the proposed Live Cooking step-preview/action-label lane registered in `live-cooking-step-preview-label-seed-2026-07-07`.
 
 Future fixture-batch evidence should summarize:
 

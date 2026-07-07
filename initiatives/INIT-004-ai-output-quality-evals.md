@@ -56,12 +56,15 @@ Wilson's 2026-06-30 EFF-022 direction accepts transparent pantry fallback as the
 
 PR #247 merged the EFF-022 fallback decision record as `203e621` on 2026-06-30. This is docs-only direction capture; it does not change prompts, provider behavior, schema, user-facing UI, fixtures, eval execution, or the deferred fallback activation threshold.
 
+Wilson's 2026-07-07 PR #260 Live Cooking QA surfaced step-preview/action-label failures such as `Bring 4 Cups`, `Heat Oil Butter`, `Push Vegetables Side`, `Add Cold Cooked`, and repeated generic labels for different fried-rice milestones. The seed record [live-cooking-step-preview-label-seed-2026-07-07](../docs/evals/intakes/live-cooking-step-preview-label-seed-2026-07-07.md) proposes a distinct `live_cooking_step_previews` eval family because the artifact is the small Live Cooking recall card, not recipe-generation quality and not broad `cooking_steps` safety/sequence quality. Fixture schema, public fixtures, judge criteria, and prompt/runtime changes remain deferred until Wilson routes the plan back to the INIT-001 Phase 4 PR #260 Codex thread for peer review.
+
 The seed inputs are:
 
 - Wilson's 2026-06-09 direction to create a standalone INIT-004 rather than folding the work into INIT-002.
 - Durable eval discipline now lives in [docs/workflows/evaluations.md](../docs/workflows/evaluations.md); seed records and practical eval artifacts live in [docs/evals/](../docs/evals/README.md), not inside this INIT.
 - Good/bad examples already embedded in `server/openai.ts` prompt text from earlier open coding.
 - [EFF-022](../efforts/effort-022-cross-cuisine-recommendation-prompts.md) negative cuisine-fit fixtures for Chinese, Indian, and Thai requests under constrained pantry conditions.
+- Wilson's 2026-07-07 Live Cooking step-preview label QA from PR #260, preserved as a redacted eval intake seed for peer review before fixture/schema work.
 
 ## Source Docs
 
@@ -102,6 +105,7 @@ INIT-004 builds on the durable eval system but does not own it permanently. The 
 - Intake template: [docs/evals/intakes/TEMPLATE.md](../docs/evals/intakes/TEMPLATE.md)
 - OpenAI Platform seed record: [openai-platform-evalrun-685361470e9c819195a768074ef126cd](../docs/evals/intakes/openai-platform-evalrun-685361470e9c819195a768074ef126cd.md)
 - Arize seed record: [arize-open-coding-2025-11-07](../docs/evals/intakes/arize-open-coding-2025-11-07.md)
+- Live Cooking step-preview label seed: [live-cooking-step-preview-label-seed-2026-07-07](../docs/evals/intakes/live-cooking-step-preview-label-seed-2026-07-07.md)
 
 ## Current Build Signals
 
@@ -218,6 +222,12 @@ Wilson's 2026-06-17 Live Cooking speech questions are registered as [speech-inte
 
 Future speech eval work should start from deterministic interaction checks before provider-quality claims: transcript-to-synthesis payload fidelity, speech request arbitration, mute persistence, late-response invalidation, stop-before-recording behavior, and only then real-device/provider pronunciation or audio-quality smoke. Do not mix those checks into recipe/Slop Bowl/cooking-step output-quality pass rates.
 
+### Live Cooking step-preview label boundary
+
+Wilson's 2026-07-07 PR #260 QA examples are registered as [live-cooking-step-preview-label-seed-2026-07-07](../docs/evals/intakes/live-cooking-step-preview-label-seed-2026-07-07.md). This seed proposes `live_cooking_step_previews` as a distinct eval family for the small Live Cooking preview/action label. The user value is fast hands-busy recall: labels should usually be 2-4 words, stretch to 5 only when needed for meaning, avoid measurements, fit the preview card, avoid duplicate labels for distinct milestones in the same recipe, read as plain English, and name the real cooking milestone.
+
+Keep this lane separate from recipe-generation quality and from broad `cooking_steps` safety, equipment, sequence, and sensory-cue checks. The first implementation should wait for INIT-001 Phase 4 PR #260 peer review, then use synthetic/redacted fixtures only. Recommended evidence mix after review: deterministic checks for word count, measurements, exact duplicates, and required output shape; Wilson labels for milestone fit and plain-English usefulness; narrow LLM judge criteria only after labels exist, with uncalibrated status until TPR/TNR are measured.
+
 ## INIT-004 Build Outputs
 
 INIT-004 should produce or coordinate:
@@ -237,7 +247,7 @@ INIT-004 should produce or coordinate:
 | Phase 0 - INIT filing | Merged | [#160](https://github.com/wmishak404/laica/pull/160) / `codex/init-004-output-evals` | Merged as `680e26e`; created focused INIT hub, durable eval workflow/evidence docs, active-list links, INIT-002 boundary note, EFF-022 link, and handoff |
 | Phase 1 - Surface and data audit | Merged | [#166](https://github.com/wmishak404/laica/pull/166) / `codex/init-004-phase-1-audit` | Merged as `3338611`; audited current generation routes, prompt/eval feature ids, response shapes, admin eval storage, seed intakes, deterministic-check gaps, Slop Bowl first-class feature need, and EFF-022 cuisine-fit mapping |
 | Phase 2 - Rubric and dataset spec | Merged | [#181](https://github.com/wmishak404/laica/pull/181) / `codex/init-004-phase-2-spec` | Merged as `5c410e3`; accepted eval-vs-prompt taxonomy split, first-class `pantry_recipes` and `slop_bowl` eval surfaces, +15 max-time band, output-attached fixtures, two-tier public/private fixture storage, cross-user bleed prevention, dietary-compliance labeling, cooking-assistance V1 exclusion, and the first Wilson-label target set |
-| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged / [#200](https://github.com/wmishak404/laica/pull/200) merged / [#205](https://github.com/wmishak404/laica/pull/205) merged / [#219](https://github.com/wmishak404/laica/pull/219) merged / [#232](https://github.com/wmishak404/laica/pull/232) merged / [#246](https://github.com/wmishak404/laica/pull/246) merged | Latest slice added a protected redacted report artifact/export path over existing eval summary fields; provider judges, private fixtures, DB migrations, prompt activation, daily reports, and runtime EFF-022 fallback implementation remain out of scope |
+| Phase 3 - Eval harness | In progress | [#188](https://github.com/wmishak404/laica/pull/188) merged / [#190](https://github.com/wmishak404/laica/pull/190) merged / [#198](https://github.com/wmishak404/laica/pull/198) merged / [#200](https://github.com/wmishak404/laica/pull/200) merged / [#205](https://github.com/wmishak404/laica/pull/205) merged / [#219](https://github.com/wmishak404/laica/pull/219) merged / [#232](https://github.com/wmishak404/laica/pull/232) merged / [#246](https://github.com/wmishak404/laica/pull/246) merged / `codex/init-004-step-preview-evals` in progress | Latest merged slice added a protected redacted report artifact/export path over existing eval summary fields. Current in-progress docs branch registers a proposed `live_cooking_step_previews` seed for PR #260 peer review only; provider judges, private fixtures, DB migrations, prompt activation, daily reports, public step-preview fixtures, and runtime EFF-022 fallback changes remain out of scope |
 | Phase 4 - Human review and calibration | Planned | TBD | Wilson-first review workflow; calculate TPR/TNR per judge; mark uncalibrated metrics clearly |
 | Phase 5 - Daily reporting automation | Planned | TBD | Daily report vehicle, artifact storage, and metric summary without dashboard UX |
 | Phase 6 - Prompt candidate workflow | Planned | TBD | Failure clusters generate inactive prompt candidates and regression comparisons; no automatic production activation |
@@ -261,6 +271,7 @@ INIT-004 should produce or coordinate:
 | [#232](https://github.com/wmishak404/laica/pull/232) | Merged as `5b8e7ed` | `codex/init-004-eval-summary` | Eval pending/summary admin reporting and taxonomy clarity slice. After `origin/main` moved to `11b1847`, PR #232 was rebased and final head `2c78813` passed local focused eval Vitest, `npm run eval:fixtures`, full unit suite, `npm run check`, `npm audit --audit-level=high`, `npm run build`, whitespace checks, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL before Wilson's merge instruction was applied; no Replit validation required. |
 | [#247](https://github.com/wmishak404/laica/pull/247) | Merged as `203e621` | `codex/eff-022-fallback-decision` | Docs-only EFF-022 fallback direction record. Final PR head `cd4bbca` passed local `git diff --check` plus GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and CodeQL action / JavaScript-TypeScript analyses before Wilson's merge instruction was applied; no Replit validation required. |
 | [#246](https://github.com/wmishak404/laica/pull/246) | Merged as `690fe2c` | `codex/init-004-eval-export` | Redacted eval report artifact/export path over completed eval rows, criterion aggregates, Judge Metrics, and Provider Input Inventory. Final head `58c0be6` passed local focused admin/evaluator Vitest, `npm run check`, `npm run build`, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL action/javascript analyses, and CodeQL summary before Wilson's merge instruction was applied; no Replit validation required. |
+| TBD | In progress | `codex/init-004-step-preview-evals` | Docs-only Live Cooking step-preview/action-label eval seed. Registers PR #260 QA examples as a redacted intake and proposes a separate `live_cooking_step_previews` family pending INIT-001 Phase 4 peer review; no runtime code, prompts, fixtures, provider runs, DB/schema, or judge criteria changed. |
 
 ## Validation State
 
@@ -290,6 +301,8 @@ PR #247 is docs-only product-direction capture for EFF-022, merged as `203e621` 
 
 The report-export Phase 3 slice is local/offline admin/reporting plumbing merged in PR #246. It adds a redacted JSON/Markdown report artifact path for completed eval summary data so future PRs and handoffs can cite feature-level and prompt-version-level eval summaries without copying raw request or model-response payloads. After Wilson accepted the report structure through the INIT-004 live-cooking synthetic/provider-backed smoke review, the final branch placed Judge Metrics above Provider Input Inventory. Final validation passed: local focused `npx vitest run tests/unit/evaluator.test.ts tests/unit/admin-cache-headers.test.ts`, `npm run check`, `npm run build`, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL action/javascript analyses, and CodeQL summary at final head `58c0be6`. It does not call providers, start judge batches, process new eval results, write schema, change prompts, ingest private fixtures, expose user UI, activate daily reports, or decide EFF-022 cuisine fallback behavior.
 
+The Live Cooking step-preview label seed branch `codex/init-004-step-preview-evals` is docs-only coordination work. It registers Wilson's PR #260 QA examples as a redacted intake and proposes a separate `live_cooking_step_previews` eval family for peer review. It does not change runtime code, prompts, fixture schema, committed fixtures, provider behavior, DB/schema, eval execution, or user-facing UI. Replit validation is not required for this planning branch.
+
 Future implementation phases that use eval results as merge evidence must follow [Testing and Acceptance Workflow](../docs/workflows/testing-and-acceptance.md). Future DB or production-sampling work must follow ADR-0001, the testing/local-sandbox workflows, and Replit as the primary runtime.
 
 ## Current Resume Point
@@ -298,11 +311,13 @@ The latest merged Phase 3 implementation slice is PR #246, merged as `690fe2c`; 
 
 The latest EFF-022 direction signal is [PR #247](https://github.com/wmishak404/laica/pull/247), merged as `203e621`, which records transparent pantry fallback as the accepted product direction while keeping runtime implementation and the activation threshold deferred behind higher-priority INIT-001 work.
 
-After the report-export slice, the next bounded Phase 3 candidates are:
+The latest in-progress INIT-004 coordination branch is `codex/init-004-step-preview-evals`. It proposes `live_cooking_step_previews` as a distinct eval family for Wilson's PR #260 Live Cooking step-preview/action-label failures and is intentionally blocked from schema, fixture, judge, or prompt implementation until the INIT-001 Phase 4 PR #260 Codex thread reviews the boundary against the actual user-facing behavior.
 
-1. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
-2. Add more fixtures only when they cover a new accepted label gap rather than duplicating dietary/pantry/skill probes.
-3. Extend reports only as a small artifact/export/reporting increment using existing summary fields, still without running live providers or changing prompts.
+The next bounded Phase 3 candidates are:
+
+1. Route the `live_cooking_step_previews` plan back to the INIT-001 Phase 4 PR #260 Codex thread before step-preview schema/fixture implementation.
+2. Start narrow LLM-judge work only after fixture labels and deterministic checks exist.
+3. Add more fixtures only when they cover a new accepted label gap rather than duplicating dietary/pantry/skill probes.
 
 Cuisine-fit fixtures may now use the accepted EFF-022 product direction: transparent pantry fallback is preferred when selected-cuisine pantry support is weak, optional staple help may come first, and Laica must not default users to `No preference`. Fixtures, judge labels, or prompt candidates that depend on the exact fallback activation threshold or user-facing copy remain deferred until EFF-022 records that threshold after higher-priority INIT-001 work. Do not start live-provider judge runs, private fixture ingestion, DB migrations, prompt activation, daily reports, or runtime EFF-022 cuisine-fallback product changes without a separate documented milestone and any required Wilson decision.
 
@@ -344,3 +359,4 @@ Future image-quality calibration was recorded in [PR #228](https://github.com/wm
 - **2026-06-30** - Started `codex/init-004-eval-export` from fresh `origin/main` `f9909af` after triage found no active INIT-004 PR. The bounded milestone adds a protected redacted JSON/Markdown report artifact endpoint over completed eval feature/prompt-version summaries without provider judges, private fixtures, prompt changes, DB/schema changes, user-facing UI, daily reports, or EFF-022 fallback implementation.
 - **2026-07-01** - PR #246 was rebased cleanly onto `origin/main` `4608609` after PR #242 merged the production-validation registry. The branch remained scoped to the same report-export milestone before Wilson's final report-structure review and merge instruction.
 - **2026-07-08** - PR #246 merged as `690fe2c` after Wilson accepted the report format through INIT-004 synthetic/provider-backed smoke review and requested Judge Metrics appear before Provider Input Inventory. Final head `58c0be6` passed local focused admin/evaluator Vitest, `npm run check`, `npm run build`, and GitHub required checks before merge. No Replit validation was required because the slice is protected admin/reporting plumbing over existing eval rows and does not change prompts, schema, providers, user UI, or deployment behavior.
+- **2026-07-07** - Started `codex/init-004-step-preview-evals` from fresh `origin/main` `263eec5` after reading the Phase 4 PR #260 handoff from `origin/codex/init-001-phase4-step-coach` without checking out the active Phase 4 branch. The branch registers Wilson's Live Cooking step-preview/action-label QA examples as a redacted intake, recommends a distinct `live_cooking_step_previews` eval family, and defers schema, fixtures, judges, and prompt/runtime work until the INIT-001 Phase 4 PR #260 Codex thread peer-reviews the plan.
