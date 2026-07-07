@@ -298,7 +298,9 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
-    expect(await screen.findByText('Ready to cook?')).toBeTruthy();
+    const readyHeading = await screen.findByText('Ready to cook?');
+    expect(readyHeading.closest('.live-cooking-ui')).toBeTruthy();
+    expect(readyHeading.closest('.live-cooking-screen')).toBeTruthy();
     expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: /start cooking/i }));
@@ -365,11 +367,17 @@ describe('LiveCooking guest session boundary', () => {
 
     await clickReadyCheckStart();
 
-    expect(screen.getByTestId('current-step-panel').className).toContain('sticky');
+    const currentStepPanel = screen.getByTestId('current-step-panel');
+    expect(currentStepPanel.closest('.live-cooking-ui')).toBeTruthy();
+    expect(currentStepPanel.className).toContain('live-cooking-step-card');
+    expect(currentStepPanel.className).toContain('sticky');
     expect(screen.queryByRole('heading', { name: /coach feed/i })).toBeNull();
-    expect(screen.getByTestId('step-guidance-panel')).toBeTruthy();
-    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Warm Rice Beans');
-    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Fold Salsa');
+    expect(screen.getByTestId('step-guidance-panel').className).toContain('live-cooking-guidance-panel');
+    const previewStrip = screen.getByTestId('step-preview-strip');
+    expect(previewStrip).toHaveTextContent('Warm Rice Beans');
+    expect(previewStrip).toHaveTextContent('Fold Salsa');
+    expect(previewStrip.querySelector('[data-state="active"]')?.className).toContain('live-cooking-preview-card');
+    expect(document.querySelector('.live-cooking-command-bar')).toBeTruthy();
     expect(screen.getByText('Steam rises.')).toBeTruthy();
     expect(screen.getByText('Stir gently.')).toBeTruthy();
     expect(screen.getByText('Do not scorch the rice.')).toBeTruthy();

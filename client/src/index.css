@@ -123,6 +123,23 @@ html, body {
 
 @layer components {
   .live-cooking-ui {
+    --cooking-cream: 38 100% 97%;
+    --cooking-cream-deep: 34 84% 93%;
+    --cooking-coral: 0 84% 67%;
+    --cooking-coral-strong: 0 72% 58%;
+    --cooking-coral-soft: 0 100% 94%;
+    --cooking-rust: 14 62% 42%;
+    --cooking-ink: 223 21% 18%;
+    --cooking-muted: 25 28% 46%;
+    --cooking-card: 36 92% 98%;
+    --cooking-card-edge: 31 42% 78%;
+    --cooking-herb: 112 30% 42%;
+    --cooking-herb-soft: 102 40% 90%;
+    --cooking-teal: 174 48% 46%;
+    --cooking-teal-soft: 174 42% 90%;
+    --cooking-butter: 43 100% 76%;
+    background: linear-gradient(180deg, hsl(var(--cooking-cream)), hsl(var(--cooking-cream-deep)));
+    color: hsl(var(--cooking-ink));
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
   }
 
@@ -132,6 +149,143 @@ html, body {
   .live-cooking-ui button {
     font-family: inherit;
     letter-spacing: 0;
+  }
+
+  .live-cooking-ui .live-cooking-screen {
+    color: hsl(var(--cooking-ink));
+  }
+
+  .live-cooking-ui .live-cooking-loading-card,
+  .live-cooking-ui .live-cooking-ready-row,
+  .live-cooking-ui .live-cooking-recovery-card,
+  .live-cooking-ui .live-cooking-step-card,
+  .live-cooking-ui .live-cooking-guidance-panel,
+  .live-cooking-ui .live-cooking-overlay-card {
+    border: 1px solid hsl(var(--cooking-card-edge) / 0.42);
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.82), hsl(var(--cooking-card) / 0.9)),
+      hsl(var(--cooking-card));
+    box-shadow: 0 1rem 2.2rem hsl(var(--cooking-coral-strong) / 0.09);
+  }
+
+  .live-cooking-ui .live-cooking-back-button {
+    color: hsl(var(--cooking-coral-strong));
+  }
+
+  .live-cooking-ui .live-cooking-back-button:hover {
+    background: hsl(0 0% 100% / 0.55);
+    color: hsl(var(--cooking-rust));
+  }
+
+  .live-cooking-ui .live-cooking-eyebrow,
+  .live-cooking-ui .live-cooking-step-count {
+    color: hsl(var(--cooking-muted));
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .live-cooking-ui .live-cooking-title,
+  .live-cooking-ui .live-cooking-step-headline {
+    color: hsl(var(--cooking-ink));
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+
+  .live-cooking-ui .live-cooking-subtitle,
+  .live-cooking-ui .live-cooking-detail-text {
+    color: hsl(var(--cooking-ink) / 0.72);
+  }
+
+  .live-cooking-ui .live-cooking-ready-row {
+    border-radius: 0.8rem;
+  }
+
+  .live-cooking-ui .live-cooking-ready-icon,
+  .live-cooking-ui .live-cooking-detail-number {
+    color: hsl(var(--cooking-coral-strong));
+  }
+
+  .live-cooking-ui .live-cooking-detail-number {
+    background: hsl(var(--cooking-coral-soft) / 0.72);
+  }
+
+  .live-cooking-ui .live-cooking-step-card {
+    border-color: hsl(var(--cooking-coral-strong) / 0.24);
+    background:
+      linear-gradient(180deg, hsl(0 0% 100% / 0.9), hsl(var(--cooking-card) / 0.96)),
+      hsl(var(--cooking-card));
+    box-shadow: 0 1rem 2.4rem hsl(var(--cooking-coral-strong) / 0.12);
+  }
+
+  .live-cooking-ui .live-cooking-preview-card {
+    min-width: 5rem;
+    border-color: hsl(var(--cooking-card-edge) / 0.54);
+    background: hsl(0 0% 100% / 0.58);
+    color: hsl(var(--cooking-muted));
+  }
+
+  .live-cooking-ui .live-cooking-preview-card[data-state='active'] {
+    border-color: hsl(var(--cooking-coral-strong) / 0.52);
+    background: hsl(var(--cooking-coral-soft) / 0.72);
+    color: hsl(var(--cooking-coral-strong));
+    box-shadow: inset 0 0 0 1px hsl(var(--cooking-coral-strong) / 0.12);
+  }
+
+  .live-cooking-ui .live-cooking-preview-card[data-state='done'] {
+    border-color: hsl(var(--cooking-teal) / 0.34);
+    background: hsl(var(--cooking-teal-soft) / 0.68);
+    color: hsl(var(--cooking-ink) / 0.72);
+  }
+
+  .live-cooking-ui .live-cooking-preview-dot {
+    background: hsl(var(--cooking-muted) / 0.38);
+  }
+
+  .live-cooking-ui .live-cooking-preview-card[data-state='active'] .live-cooking-preview-dot {
+    background: hsl(var(--cooking-coral-strong));
+  }
+
+  .live-cooking-ui .live-cooking-preview-card[data-state='done'] .live-cooking-preview-dot {
+    background: hsl(var(--cooking-teal));
+  }
+
+  .live-cooking-ui .live-cooking-timer-pill {
+    border-color: hsl(var(--cooking-teal) / 0.28);
+    background: hsl(var(--cooking-teal-soft) / 0.55);
+  }
+
+  .live-cooking-ui .live-cooking-cue-card {
+    border-radius: 0.75rem;
+  }
+
+  .live-cooking-ui .live-cooking-cue-card[data-tone='look'] {
+    border-color: hsl(var(--cooking-herb) / 0.26);
+    background: hsl(var(--cooking-herb-soft) / 0.68);
+  }
+
+  .live-cooking-ui .live-cooking-cue-card[data-tone='tip'] {
+    border-color: hsl(var(--cooking-teal) / 0.24);
+    background: hsl(var(--cooking-teal-soft) / 0.62);
+  }
+
+  .live-cooking-ui .live-cooking-cue-card[data-tone='avoid'] {
+    border-color: hsl(var(--cooking-butter) / 0.58);
+    background: hsl(var(--cooking-butter) / 0.22);
+  }
+
+  .live-cooking-ui .live-cooking-cue-label {
+    color: hsl(var(--cooking-ink));
+  }
+
+  .live-cooking-ui .live-cooking-caption-box {
+    border-color: hsl(var(--cooking-card-edge) / 0.4);
+    background: hsl(0 0% 100% / 0.72);
+  }
+
+  .live-cooking-ui .live-cooking-command-bar {
+    border-top: 1px solid hsl(var(--cooking-card-edge) / 0.42);
+    background: hsl(var(--cooking-cream-deep) / 0.94);
+    box-shadow: 0 -0.7rem 1.8rem hsl(var(--cooking-coral-strong) / 0.08);
   }
 
   .landing-ui {
