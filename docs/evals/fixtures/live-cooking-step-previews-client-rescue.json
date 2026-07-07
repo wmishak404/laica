@@ -40,6 +40,11 @@
     "step_preview_provider_label_quality": "fail",
     "step_preview_rendered_label_quality": "pass"
   },
+  "judgeExpectations": {
+    "expectedPassed": true,
+    "expectedErrorModes": ["provider_label_needs_client_rescue"],
+    "notes": "Final rendered labels are usable, but the raw provider labels need client rescue."
+  },
   "labelProvenance": {
     "labeledBy": "codex-from-wilson-pr260-peer-review",
     "labeledAt": "2026-07-07"

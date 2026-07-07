@@ -235,7 +235,7 @@ This lane is uncalibrated until Wilson-labeled examples and TPR/TNR exist. Disti
       {
         id: 'ungrammatical_or_incomplete_label',
         name: 'Ungrammatical Or Incomplete Label',
-        description: 'The label is not plain English or omits a needed noun, preposition, or adverb, such as "Push Vegetables Side" or "Add Cold Cooked".',
+        description: 'The label is not plain English, uses incorrect singular/plural agreement for the object being prepared, or omits a needed noun, preposition, or adverb, such as "Prep Leek" for multiple leeks, "Push Vegetables Side", or "Add Cold Cooked".',
         severity: 'medium',
       },
       {

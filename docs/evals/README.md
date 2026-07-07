@@ -87,7 +87,15 @@ npx vitest run tests/unit/eval-fixtures.test.ts
 
 `npm run eval:fixtures` is the focused public-fixture validation lane for PR evidence. `npx vitest run tests/unit/eval-fixtures.test.ts` validates the fixture validator behavior, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
-Current limitation: committed fixtures now include foundation contract guards plus first user-expectation probes for max-time, cooking-step safety/skill/equipment/sequence, pantry recipe dietary/pantry/skill fit, and Live Cooking step-preview/action-label rendered-card quality. They still do not prove live model quality, judge calibration, taste, broad cuisine fit, private-gold coverage, provider behavior, prompt-candidate quality, PR #260 runtime fallback behavior, or pixel/visual preview-card fit.
+Optional step-preview judge smoke:
+
+```bash
+npm run env:run -- npm run eval:step-preview-judge-smoke -- --runs 3 --out /tmp/laica-step-preview-judge-smoke.md
+```
+
+This provider-backed command repeats the focused synthetic `live_cooking_step_previews` fixtures and emits an uncalibrated Markdown report for Wilson review. It does not write eval rows, change prompts, or establish product-quality truth.
+
+Current limitation: committed fixtures now include foundation contract guards plus first user-expectation probes for max-time, cooking-step safety/skill/equipment/sequence, pantry recipe dietary/pantry/skill fit, and Live Cooking step-preview/action-label rendered-card quality. They still do not prove live model quality, judge calibration, taste, broad cuisine fit, private-gold coverage, prompt-candidate quality, PR #260 runtime fallback behavior, or pixel/visual preview-card fit. The optional judge smoke proves judge plumbing and qualitative stability only until Wilson labels and TPR/TNR exist.
 
 Future fixture-batch evidence should summarize:
 
@@ -108,7 +116,12 @@ Current committed public fixture set:
 - `chef-it-up-suggestions-max-time-30-to-60`
 - `slop-bowl-suggestions-current-shape`
 - `live-cooking-step-previews-client-rescue`
+- `live-cooking-step-previews-duplicate-labels`
+- `live-cooking-step-previews-incomplete-phrase`
+- `live-cooking-step-previews-measurement-fragment`
 - `live-cooking-step-previews-rendered-fragments`
+- `live-cooking-step-previews-singular-plural-agreement`
+- `live-cooking-step-previews-wrong-milestone`
 
 ## Current Related Initiative
 

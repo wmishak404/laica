@@ -1,0 +1,49 @@
+{
+  "id": "live-cooking-step-previews-singular-plural-agreement",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07"],
+  "request": {
+    "recipe": {
+      "recipeName": "Leek and Carrot Fried Rice",
+      "description": "A synthetic single-failure fixture for singular/plural grammar agreement in preview labels.",
+      "ingredients": ["leeks", "carrots", "rice"]
+    },
+    "steps": [
+      "Slice the leeks into thin rounds and dice the carrots.",
+      "Cook the vegetables until softened."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Leek and Carrot Fried Rice\",\"description\":\"A synthetic single-failure fixture for singular/plural grammar agreement in preview labels.\",\"ingredients\":[\"leeks\",\"carrots\",\"rice\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Prep Leek\",\"Cook Vegetables\"],\"siblingLabelsAfterRendering\":[\"Prep Leek\",\"Cook Vegetables\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Slice the leeks into thin rounds and dice the carrots.\",\"providerActionLabel\":\"Prep Leek\",\"clientNormalizedProviderLabel\":\"Prep Leek\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Prep Leek\"},{\"stepIndex\":1,\"instruction\":\"Cook the vegetables until softened.\",\"providerActionLabel\":\"Cook Vegetables\",\"clientNormalizedProviderLabel\":\"Cook Vegetables\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Cook Vegetables\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "pr-260-review-seed",
+    "capturedAt": "2026-07-07"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "pass",
+    "step_preview_distinctness": "pass",
+    "step_preview_plain_english": "fail",
+    "step_preview_milestone_fit": "pass",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "fail"
+  },
+  "judgeExpectations": {
+    "expectedPassed": false,
+    "expectedErrorModes": ["ungrammatical_or_incomplete_label"],
+    "notes": "The label uses singular Leek when the step prepares multiple leeks; expected wording is Prep Leeks."
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-from-wilson-replit-run",
+    "labeledAt": "2026-07-07"
+  },
+  "notes": "Synthetic fixture derived from Wilson's Replit observation that Prep Leek should be Prep Leeks. Raw screenshot is intentionally not committed."
+}

@@ -1,0 +1,49 @@
+{
+  "id": "live-cooking-step-previews-incomplete-phrase",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07"],
+  "request": {
+    "recipe": {
+      "recipeName": "Cold Rice Fried Rice",
+      "description": "A synthetic single-failure fixture for incomplete noun phrases.",
+      "ingredients": ["cold cooked rice", "soy sauce"]
+    },
+    "steps": [
+      "Add cold cooked rice and break it up in the pan.",
+      "Season the fried rice with soy sauce."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Cold Rice Fried Rice\",\"description\":\"A synthetic single-failure fixture for incomplete noun phrases.\",\"ingredients\":[\"cold cooked rice\",\"soy sauce\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Add Cold Cooked\",\"Season Fried Rice\"],\"siblingLabelsAfterRendering\":[\"Add Cold Cooked\",\"Season Fried Rice\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Add cold cooked rice and break it up in the pan.\",\"providerActionLabel\":\"Add Cold Cooked\",\"clientNormalizedProviderLabel\":\"Add Cold Cooked\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Add Cold Cooked\"},{\"stepIndex\":1,\"instruction\":\"Season the fried rice with soy sauce.\",\"providerActionLabel\":\"Season Fried Rice\",\"clientNormalizedProviderLabel\":\"Season Fried Rice\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Season Fried Rice\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "pr-260-review-seed",
+    "capturedAt": "2026-07-07"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "pass",
+    "step_preview_distinctness": "pass",
+    "step_preview_plain_english": "fail",
+    "step_preview_milestone_fit": "fail",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "fail"
+  },
+  "judgeExpectations": {
+    "expectedPassed": false,
+    "expectedErrorModes": ["ungrammatical_or_incomplete_label"],
+    "notes": "The label omits the object noun Rice and reads like a clipped instruction fragment."
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-from-wilson-pr260-peer-review",
+    "labeledAt": "2026-07-07"
+  },
+  "notes": "Synthetic judge-smoke fixture focused on incomplete rendered labels."
+}

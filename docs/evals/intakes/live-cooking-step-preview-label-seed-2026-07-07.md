@@ -64,6 +64,7 @@ This intake led to the first deterministic fixture lane on `codex/init-004-step-
 | `live-cooking-step-preview-sibling-dedup` | Synthetic multi-step fried-rice label list with repeated `Cook Vegetables` for distinct milestones | Sibling-label distinction | Public synthetic fixture only. |
 | `live-cooking-step-previews-client-rescue` | Synthetic multi-step fried-rice preview list preserving bad provider labels but good final rendered labels | Provider-versus-rendered quality split, measurement-free final label, sibling distinctness | Added as public synthetic fixture. |
 | `live-cooking-step-previews-rendered-fragments` | Synthetic multi-step fried-rice preview list whose final rendered labels still contain measurement fragments and duplicates | Measurement-free final label, sibling distinctness, rendered quality fail | Added as public synthetic fixture. |
+| `live-cooking-step-previews-singular-plural-agreement` | Synthetic leek-prep label preserving Wilson's Replit observation that `Prep Leek` should be `Prep Leeks` when preparing multiple leeks | Plain-English grammar agreement, rendered quality fail | Added as public synthetic fixture; raw screenshot is not committed. |
 
 ## Open Questions / Deferrals
 

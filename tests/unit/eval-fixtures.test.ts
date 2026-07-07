@@ -347,7 +347,12 @@ describe("INIT-004 eval fixture foundation", () => {
       "cooking-steps-missing-lid-alternative",
       "cooking-steps-raw-beef-doneness",
       "live-cooking-step-previews-client-rescue",
+      "live-cooking-step-previews-duplicate-labels",
+      "live-cooking-step-previews-incomplete-phrase",
+      "live-cooking-step-previews-measurement-fragment",
       "live-cooking-step-previews-rendered-fragments",
+      "live-cooking-step-previews-singular-plural-agreement",
+      "live-cooking-step-previews-wrong-milestone",
       "openai-max-time-25-to-30",
       "slop-bowl-suggestions-current-shape",
     ]);
@@ -357,6 +362,9 @@ describe("INIT-004 eval fixture foundation", () => {
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-dietary-halal-pork")?.labels.dietary_compliance).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-optional-extras-required")?.labels.optional_ingredient_contract).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-beginner-complexity")?.labels.skill_fit).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-measurement-fragment")?.labels.step_preview_measurement_free).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-duplicate-labels")?.labels.step_preview_distinctness).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-singular-plural-agreement")?.labels.step_preview_plain_english).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_measurement_free).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_distinctness).toBe("fail");
   });
