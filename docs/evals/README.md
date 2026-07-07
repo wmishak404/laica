@@ -10,15 +10,13 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 - `intakes/` - normalized records for each eval intake listed in the registry.
 - `intakes/TEMPLATE.md` - required structure for future intake records.
 - `fixtures/` - canonical home for public synthetic or reviewed redacted regression fixtures. Raw private fixtures stay outside git under `LAICA_PRIVATE_EVAL_DIR`.
+- `reports/` - committed public-safe eval report artifacts when the report itself belongs in repo.
 - `init-004-phase-2-rubric-dataset-spec.md` - INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec revised from Wilson's architecture decisions.
 - Non-V1 interaction seeds, such as Live Cooking speech arbitration, may be registered here when they need the same intake/registry discipline. These records do not automatically expand INIT-004's active V1 scope.
 - Narrow Live Cooking output-artifact lanes, such as `live_cooking_step_previews`, may be registered here when they need the same fixture and calibration discipline. Keep the owning INIT/phase explicit so they do not silently merge into recipe-generation or broad cooking-step pass rates.
 - INIT-004 Phase 7 generated-image quality calibration may also be registered here once the human-review workflow exists. Image review batches should stay separate from recipe-text eval pass rates, use blind Wilson labels over `recipe_image_cache` samples, compare model judges against frozen human-labeled sets, and route repeated disagreement clusters to generator, judge, threshold, provider/style, fingerprinting, product-rule, or fixture actions.
 
-Future implementation work may add:
-
-- `reports/` - generated summaries or durable references to generated summaries when committing the report itself is appropriate.
-- Additional harness command notes as INIT-004 adds executable eval tooling beyond fixture validation.
+Future implementation work may add additional harness command notes as INIT-004 adds executable eval tooling beyond fixture validation.
 
 Private raw-real gold fixtures do not live in this repo. INIT-004 Phase 2 reserves `LAICA_PRIVATE_EVAL_DIR` for a gitignored local directory outside worktrees when Wilson-labeled raw or staged outputs need to outlive normal interaction retention for calibration.
 
