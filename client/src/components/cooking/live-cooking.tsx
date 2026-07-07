@@ -35,6 +35,7 @@ interface SavedCookingSession {
 
 interface RecipeStep {
   id: number;
+  actionLabel?: string;
   instruction: string;
   duration?: number;
   tips: string;
@@ -97,6 +98,7 @@ function createBasicCookingSteps(recipeName: string): RecipeStep[] {
   return [
     {
       id: 1,
+      actionLabel: 'Prep Ingredients',
       instruction: `Prepare ingredients for ${recipeName}`,
       tips: 'Gather all ingredients and prep workspace',
       visualCues: 'All ingredients should be within reach',
@@ -105,6 +107,7 @@ function createBasicCookingSteps(recipeName: string): RecipeStep[] {
     },
     {
       id: 2,
+      actionLabel: 'Start Cooking',
       instruction: `Begin cooking ${recipeName}`,
       tips: 'Follow the recipe step by step',
       visualCues: 'Start with the base ingredients',
@@ -153,11 +156,24 @@ function isPlaceholderInstruction(instruction: string) {
   ].includes(compact);
 }
 
+function normalizeStepActionLabel(label: unknown) {
+  if (typeof label !== 'string') return undefined;
+
+  const normalized = normalizeInstructionText(label);
+  if (isPlaceholderInstruction(normalized)) return undefined;
+
+  return normalized;
+}
+
 function toRecipeStep(step: unknown, index: number): RecipeStep | null {
   const normalizedStep = typeof step === 'string' ? { instruction: step } : step;
   if (typeof normalizedStep !== 'object' || normalizedStep === null) return null;
 
-  const candidate = normalizedStep as Partial<RecipeStep> & { step?: unknown };
+  const candidate = normalizedStep as Partial<RecipeStep> & {
+    label?: unknown;
+    step?: unknown;
+    title?: unknown;
+  };
   const rawInstruction = typeof candidate.instruction === 'string'
     ? candidate.instruction
     : typeof candidate.step === 'string'
@@ -180,6 +196,7 @@ function toRecipeStep(step: unknown, index: number): RecipeStep | null {
 
   return {
     id: index + 1,
+    actionLabel: normalizeStepActionLabel(candidate.actionLabel ?? candidate.label ?? candidate.title),
     instruction,
     duration: parsedDuration,
     tips: typeof candidate.tips === 'string' ? candidate.tips : '',
@@ -196,6 +213,16 @@ function sanitizeRecipeSteps(steps: unknown): RecipeStep[] {
     .map(toRecipeStep)
     .filter((step: RecipeStep | null): step is RecipeStep => step !== null)
     .map((step, index) => ({ ...step, id: index + 1 }));
+}
+
+function splitInstructionLines(instruction: string) {
+  const normalized = normalizeInstructionText(instruction);
+  if (!normalized) return [];
+
+  const sentenceMatches = normalized.match(/[^.!?]+(?:[.!?]+|$)/g) || [normalized];
+  return sentenceMatches
+    .map(sentence => sentence.trim().replace(/[.!?]+$/, '').trim())
+    .filter(Boolean);
 }
 
 const STEP_PREVIEW_STOP_WORDS = new Set([
@@ -216,17 +243,40 @@ const STEP_PREVIEW_STOP_WORDS = new Set([
   'your',
 ]);
 
-function toStepPreviewLabel(instruction: string) {
+function titleCaseStepLabel(words: string[]) {
+  return words
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function deriveStepActionLabel(instruction: string) {
+  const normalized = normalizeInstructionText(instruction);
+  const lowerInstruction = normalized.toLowerCase();
+
+  if (/^bring\b.*\bwater\b.*\bboil\b/.test(lowerInstruction)) {
+    return 'Boil Water';
+  }
+
+  if (/\bleeks?\b/.test(lowerInstruction) && /\bspinach\b/.test(lowerInstruction) && /\b(cook|stir|soft|wilt|moisture)\b/.test(lowerInstruction)) {
+    return 'Cook Leek & Spinach';
+  }
+
+  if (/\bleeks?\b/.test(lowerInstruction) && /\b(trim|slice|wash|rinse|drain|prepare|prep)\b/.test(lowerInstruction)) {
+    return 'Prep Leek';
+  }
+
+  if (/\beggs?\b/.test(lowerInstruction) && /\b(crack|mix|whisk|beat)\b/.test(lowerInstruction)) {
+    return 'Mix Eggs';
+  }
+
+  if (/\b(vegetables|veggies|onions?|leeks?|carrots?|peppers?|mushrooms?|spinach|greens)\b/.test(lowerInstruction) && /\b(cook|saut|stir|soften|wilt)\b/.test(lowerInstruction)) {
+    return 'Cook Vegetables';
+  }
+
   const firstClause = instruction
     .replace(/^\s*step\s*\d+\s*[:.)-]?\s*/i, '')
     .split(/[.;:]/)[0]
     .trim();
-  const lowerClause = firstClause.toLowerCase();
-
-  if (/^bring\b.*\bwater\b.*\bboil\b/.test(lowerClause)) {
-    return 'Boil Water';
-  }
-
   const words = firstClause
     .replace(/[^A-Za-z0-9\s'-]/g, ' ')
     .split(/\s+/)
@@ -234,11 +284,22 @@ function toStepPreviewLabel(instruction: string) {
 
   const compactWords = words.filter(word => !STEP_PREVIEW_STOP_WORDS.has(word.toLowerCase()));
   const previewWords = (compactWords.length >= 2 ? compactWords : words).slice(0, 3);
-  const label = previewWords
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  const label = titleCaseStepLabel(previewWords);
 
   return label.length > 22 ? `${label.slice(0, 19).trim()}...` : label || 'Step';
+}
+
+function getStepActionLabel(step: RecipeStep) {
+  return step.actionLabel || deriveStepActionLabel(step.instruction);
+}
+
+function getStepHeadline(step: RecipeStep) {
+  const instructionLines = splitInstructionLines(step.instruction);
+  if (step.actionLabel || instructionLines.length > 1 || step.instruction.length > 90) {
+    return getStepActionLabel(step);
+  }
+
+  return step.instruction;
 }
 
 function getInitialCaptionsVisible() {
@@ -647,6 +708,7 @@ export default function LiveCooking({
         isFusion: 'isFusion' in selectedMeal ? Boolean(selectedMeal.isFusion) : false,
         steps: (steps || []).map(s => ({
           id: s.id,
+          actionLabel: s.actionLabel,
           instruction: s.instruction,
           duration: s.duration,
           tips: s.tips,
@@ -735,8 +797,16 @@ export default function LiveCooking({
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
   const stepPreviewLabels = useMemo(
-    () => currentRecipeSteps.map(step => toStepPreviewLabel(step.instruction)),
+    () => currentRecipeSteps.map(getStepActionLabel),
     [currentRecipeSteps],
+  );
+  const currentStepHeadline = currentStep ? getStepHeadline(currentStep) : '';
+  const currentStepInstructionLines = currentStep ? splitInstructionLines(currentStep.instruction) : [];
+  const shouldShowInstructionDetails = Boolean(
+    currentStep && (
+      currentStepHeadline !== currentStep.instruction ||
+      currentStepInstructionLines.length > 1
+    ),
   );
   const isFinalStep = currentRecipeSteps.length > 0 && displayedStepIndex >= currentRecipeSteps.length - 1;
 
@@ -1748,9 +1818,26 @@ export default function LiveCooking({
                 <p className="text-xs font-medium uppercase text-muted-foreground">
                   Step {displayedStepIndex + 1} of {currentRecipeSteps.length}
                 </p>
-                <CardTitle className="text-xl leading-6">
-                  {currentStep.instruction}
-                </CardTitle>
+                <h2 className="text-xl font-semibold leading-6">
+                  {currentStepHeadline}
+                </h2>
+                {shouldShowInstructionDetails && (
+                  <ol
+                    aria-label="Step details"
+                    className="space-y-1.5 text-sm leading-5 text-foreground/90"
+                  >
+                    {currentStepInstructionLines.map((line, index) => (
+                      <li key={`${index}-${line}`} className="flex gap-2">
+                        {currentStepInstructionLines.length > 1 && (
+                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[0.65rem] font-bold text-primary">
+                            {index + 1}
+                          </span>
+                        )}
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
               </div>
 
               <ol

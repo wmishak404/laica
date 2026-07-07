@@ -394,6 +394,14 @@ describe('LiveCooking guest session boundary', () => {
           safetyLevel: 'minor',
           duration: 120,
         },
+        {
+          instruction: 'Heat oil or butter in a medium skillet over medium heat. Add sliced leek and a pinch of salt. Cook, stirring frequently, until soft. Add chopped spinach and cook until wilted.',
+          tips: 'Keep the heat moderate.',
+          visualCues: 'Leek softens and spinach wilts.',
+          commonMistakes: 'Browning the leek too hard.',
+          safetyLevel: 'minor',
+          duration: 420,
+        },
       ],
     });
 
@@ -410,7 +418,44 @@ describe('LiveCooking guest session boundary', () => {
     const previewStrip = screen.getByTestId('step-preview-strip');
     expect(previewStrip).toHaveTextContent('Boil Water');
     expect(previewStrip).toHaveTextContent('Add Dashi Packet');
+    expect(previewStrip).toHaveTextContent('Cook Leek & Spinach');
     expect(previewStrip).not.toHaveTextContent('Bring 4 Cups');
+    expect(previewStrip).not.toHaveTextContent('Heat Oil Butter');
+  });
+
+  it('uses action labels as mobile headlines and separates paragraph-like instructions', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          actionLabel: 'Cook Leek & Spinach',
+          instruction: 'Heat oil or butter in a medium oven-safe skillet over medium heat. Add sliced leek and a pinch of salt. Cook, stirring frequently, until soft, about 5 minutes. Add chopped spinach and cook 1-2 minutes, stirring, until wilted and most moisture has cooked off.',
+          tips: 'Keep the heat moderate so the leek softens without browning.',
+          visualCues: 'Leek becomes translucent and soft; spinach shrinks and turns deep green.',
+          commonMistakes: 'Browning the leek too hard before the eggs go in.',
+          safetyLevel: 'minor',
+          duration: 420,
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByRole('heading', { name: 'Cook Leek & Spinach' })).toBeTruthy();
+    expect(screen.getByLabelText('Step details')).toHaveTextContent('Heat oil or butter in a medium oven-safe skillet over medium heat');
+    expect(screen.getByLabelText('Step details')).toHaveTextContent('Add sliced leek and a pinch of salt');
+    expect(screen.getByLabelText('Step details')).toHaveTextContent('Add chopped spinach and cook 1-2 minutes, stirring, until wilted and most moisture has cooked off');
+
+    const previewStrip = screen.getByTestId('step-preview-strip');
+    expect(previewStrip).toHaveTextContent('Cook Leek & Spinach');
+    expect(previewStrip).not.toHaveTextContent('Heat Oil Butter');
   });
 
   it('restores the saved guest step tray without reinitializing cooking steps', async () => {

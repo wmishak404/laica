@@ -210,6 +210,7 @@ const DEFAULT_COOKING_STEPS_PROMPT = `You are a home-cooking expert that provide
             "steps": [
               {
                 "number": 1,
+                "actionLabel": "2-4 word action label",
                 "instruction": "Clear step instruction",
                 "timing": "Estimated time in minutes",
                 "tips": "Practical home cooking advice",
@@ -374,6 +375,9 @@ export async function getCookingSteps(
         ? `The cook acknowledged they may skip these optional ingredients: ${sanitizedAcknowledgedMissingIngredients.join(", ")}. Adapt the steps so the recipe works without requiring them.`
         : null,
       "Please provide detailed home cooking instructions with visual cues I can look for at each step.",
+      "For Live Cooking, each step must be one glanceable cookable action or milestone, not a paragraph. Split prep, heating, adding, cooking, draining, and serving into separate steps when they are distinct actions.",
+      "Keep each instruction to one short sentence when possible. If an action needs sub-detail, keep it concise and do not combine unrelated actions into one step.",
+      "For each step include actionLabel: a 2-4 word verb-first label for the step rail and mobile headline. Name the real cooking action, not just the first setup phrase. For example: Boil Water, Prep Leek, Cook Leek & Spinach, Reduce Heat, Serve Rice.",
       "Focus on practical techniques for a home kitchen, not professional chef methods.",
     ]
       .filter(Boolean)

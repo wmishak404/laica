@@ -9,16 +9,20 @@
 
 ## Summary
 
-This branch advances INIT-001 Phase 4 from the merged Ready Check baseline into the first active cooking visual refresh. Live Cooking keeps the existing speech, recovery, invalid-step, and Ready Check generation behavior, but Wilson's 2026-07-07 UX review revised the story from a named feed into a compact hands-busy cooking cockpit: Ready Check uses one `Start cooking` action, the current instruction is the sticky headline, step progress shows action-forward dot-node previews, routine `minor` badges are removed, cues stay compact, captions are opt-in behind a CC toggle, Repeat/Ask a question/mute are taller bottom controls, and the guide requests a screen wake lock when supported.
+This branch advances INIT-001 Phase 4 from the merged Ready Check baseline into the first active cooking refresh. Live Cooking keeps the existing speech, recovery, invalid-step, and Ready Check generation behavior, but Wilson's 2026-07-07 UX review revised the story from a named feed into a compact hands-busy cooking cockpit: Ready Check uses one `Start cooking` action, the current instruction is the sticky action headline, step progress shows action-forward dot-node previews, routine `minor` badges are removed, cues stay compact, captions are opt-in behind a CC toggle, Repeat/Ask a question/mute are taller bottom controls, and the guide requests a screen wake lock when supported.
 
-The slice is intentionally visual/structural. It does not change cooking-step prompts, provider schema, route contracts, assistance failure handling, durable navigation, Finish/History semantics, or Phase 5 cleanup state. It only makes the existing timer presentation more compact/optional and adds best-effort browser wake-lock handling during active cooking.
+Wilson's Replit QA pass then added two refinements: the plain white Live Cooking background is functional but not final visual design, and paragraph-like provider instructions are not acceptable as the mobile step headline. This branch now includes a narrow prompt/client refinement for atomic cookable steps and optional `actionLabel` values, plus fallback rendering that separates remaining multi-sentence instructions into detail lines under a short action headline.
+
+The slice remains narrow. It does not change route contracts, durable session schema, assistance failure handling, durable navigation, Finish/History semantics, or Phase 5 cleanup state. It only makes the existing timer presentation more compact/optional, adds best-effort browser wake-lock handling during active cooking, and adjusts cooking-step generation/display toward glanceable actions.
 
 ## Changes
 
 - `client/src/components/cooking/live-cooking.tsx`
   - Replaces the old dark centered active-cooking layout with a tokenized focus-mode surface.
   - Collapses Ready Check to one `Start cooking` action while still passing acknowledged missing/skipped ingredients into generation.
-  - Pins the current instruction in a sticky top panel with `Step X of N` and a horizontal action-forward dot-node step preview strip.
+  - Pins the current action in a sticky top panel with `Step X of N` and a horizontal action-forward dot-node step preview strip.
+  - Accepts optional provider `actionLabel` values for the current-step headline and rail; older/saved steps derive labels locally.
+  - Splits paragraph-like multi-sentence instructions into numbered detail lines beneath the short action headline.
   - Removes routine `minor` status chips from the current-step panel.
   - Keeps `Look for`, `Pro tip`, and `Avoid` guidance compact beneath the current step without naming it as a separate feed.
   - Makes transcript text opt-in via a compact CC toggle; a hidden transcript node remains for accessibility/test fidelity while the visual transcript is off.
@@ -26,9 +30,13 @@ The slice is intentionally visual/structural. It does not change cooking-step pr
   - Requests a best-effort screen wake lock while the live guide is active and releases it on page hide/exit.
   - Brings the preparing-guide and step-recovery panels onto the same tokenized surface while preserving Retry/basic-backup/Back behavior.
 - `tests/unit/live-cooking-guest-session.test.tsx`
-  - Adds deterministic coverage that the cockpit renders the sticky current-step panel, compact cue guidance, step preview strip, opt-in captions, and existing Live Cooking guest/session/recovery baselines after Ready Check.
+  - Adds deterministic coverage that the cockpit renders the sticky current-step panel, compact cue guidance, step preview strip, opt-in captions, action-label headline/detail rendering, and existing Live Cooking guest/session/recovery baselines after Ready Check.
 - `tests/e2e/cooking-workflow.test.ts`
   - Extends the guest cooking smoke to expect the step-guidance panel, step preview strip, hidden-by-default captions, and bottom `Ask a question` control after Live Cooking starts.
+- `server/openai.ts`
+  - Adds the atomic Live Cooking step rule to the cooking-step prompt path and asks for 2-4 word `actionLabel` values such as `Boil Water`, `Prep Leek`, and `Cook Leek & Spinach`.
+- `server/ai-response-schemas.ts`, `client/src/lib/openai.ts`, `client/src/hooks/useCookingSession.ts`
+  - Records `actionLabel` as an optional passthrough field without requiring a schema migration or changing route shape.
 - `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`
   - Records Wilson's 2026-07-07 UX correction, the revised cockpit acceptance criteria, source baselines, negative scope, and validation expectations.
 - `initiatives/INIT-001-mobile-refresh.md`
@@ -40,9 +48,9 @@ The slice is intentionally visual/structural. It does not change cooking-step pr
 
 ## Impact on other agents
 
-Treat PR #191 speech arbitration, PR #236 recovery/Finish, PR #256 invalid-step validation, PR #258 Ready Check generation gating, and this branch's compact Live Cooking cockpit as the intended Phase 4 baseline if this PR merges. Full timer redesign should follow after this slice unless Wilson reprioritizes.
+Treat PR #191 speech arbitration, PR #236 recovery/Finish, PR #256 invalid-step validation, PR #258 Ready Check generation gating, and this branch's compact Live Cooking cockpit/atomic-step rule as the intended Phase 4 baseline if this PR merges. Full timer redesign and warm active-cooking background polish should follow after this slice unless Wilson reprioritizes.
 
-The implementation conforms to PD-005 and `design_guidelines.md` for focus-mode cooking: tokenized colors, shadcn Button variants instead of custom button color overrides, large readable step text, visible Back, and no durable navigation changes.
+The implementation conforms to PD-005 and `design_guidelines.md` for focus-mode cooking: tokenized colors, shadcn Button variants instead of custom button color overrides, large readable step text, visible Back, and no durable navigation changes. Wilson explicitly noted the current plain white background does not yet match the warmer coral/rust character of other Laica surfaces; that is documented future visual polish, not final acceptance.
 
 Blocked handoff scan found only unrelated blockers:
 
@@ -53,16 +61,16 @@ Blocked handoff scan found only unrelated blockers:
 
 - Exact-head GitHub CI/E2E/security checks are required after the branch is pushed and the PR is opened.
 - Local Playwright E2E was not run because this worktree lacks `.env.keys` and a configured `LAICA_LOCAL_SANDBOX_DATABASE_URL`; use the GitHub `e2e_guest_smoke` lane for merge-gate E2E evidence.
-- Human Replit validation is deferred to the next production/release batch unless Wilson asks for PR-level mobile visual validation. The batch should smoke Ready Check single `Start cooking` -> generated steps -> sticky current instruction -> action-forward step-preview rail -> compact cues -> CC caption toggle -> bottom Repeat/Ask a question/mute controls -> optional timer -> Back/Finish cleanup.
+- Human Replit validation is deferred to the next production/release batch unless Wilson asks for PR-level mobile visual validation. The batch should smoke Ready Check single `Start cooking` -> generated atomic steps -> sticky action headline and detail lines -> action-forward step-preview rail -> compact cues -> CC caption toggle -> bottom Repeat/Ask a question/mute controls -> optional timer -> Back/Finish cleanup.
 
 ## Verification
 
-Value claim: cooks get a calmer, more glanceable mobile guide that fits the hands-busy moment: the Ready Check start does not imply product trouble, the current instruction stays primary, the route through the recipe is visible with useful action labels, captions do not crowd the default view, core voice/audio controls stay at thumb reach, and the phone is less likely to sleep mid-step.
+Value claim: cooks get a calmer, more glanceable mobile guide that fits the hands-busy moment: the Ready Check start does not imply product trouble, the current action stays primary, wordy provider output is broken into readable detail lines, the route through the recipe is visible with useful action labels, captions do not crowd the default view, core voice/audio controls stay at thumb reach, and the phone is less likely to sleep mid-step.
 
 Evidence:
 
-- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed: 1 file, 29 tests. This covers the revised compact cockpit assertion, the `Boil Water` action-forward preview case, and existing Live Cooking guest/session/recovery/speech baselines.
-- `npm run test:unit` passed: 45 files, 344 tests.
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/provider-boundary-happy-paths.test.ts` passed: 2 files, 40 tests. This covers the revised compact cockpit assertion, the `Boil Water` action-forward preview case, the `Cook Leek & Spinach` action-label/detail-line and no-label fallback cases, existing Live Cooking guest/session/recovery/speech baselines, and cooking-step route boundary passthrough with optional `actionLabel` data.
+- `npm run test:unit` passed: 45 files, 345 tests.
 - `npm run check` passed: TypeScript and UI lint.
 - `npm run build` passed. Existing warnings remained: stale Browserslist data, Firebase dynamic/static import chunk warning, and large bundle warning.
 - `git diff --check` passed on the final working-tree diff.
