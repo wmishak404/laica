@@ -29,7 +29,7 @@ This closeout updates the durable INIT and Phase 4 records so later agents do no
 
 Treat PR #191, PR #236, PR #256, PR #258, and PR #260 as the merged Phase 4 baseline before doing more Live Cooking work. Later Phase 4 slices should preserve the speech arbitration, recovery/Finish honesty, invalid-step validation, Ready Check gating, and compact cockpit/action-label behavior unless Wilson explicitly changes direction.
 
-I also read the parallel INIT-004 handoff on branch `codex/init-004-step-preview-evals` at `0d78da0`. The proposed fixture object shape maps cleanly to PR #260 runtime concepts:
+I also read the parallel INIT-004 handoffs on branch `codex/init-004-step-preview-evals`. The branch was first implemented at `0d78da0`, then rebased onto the merged PR #260 baseline and pushed at `331a193`. The fixture object shape maps cleanly to PR #260 runtime concepts:
 
 - raw provider label: provider `actionLabel`
 - normalized provider label: `normalizeStepActionLabel(...)` result when accepted or rescued
@@ -37,7 +37,7 @@ I also read the parallel INIT-004 handoff on branch `codex/init-004-step-preview
 - final rendered preview/headline label: `buildStepPreviewLabels(...)` output, then `getStepHeadline(...)` for the current step
 - sibling lists: the raw/normalized provider list before rendering and `buildStepPreviewLabels(...)` output after rendering
 
-The one correction for INIT-004 is the hard rendered-card character limit: PR #260 currently uses `STEP_ACTION_LABEL_MAX_CHARS = 24` and `STEP_ACTION_LABEL_MAX_WORDS = 5`, so future fixtures should prefer `maxCharacters: 24` instead of the synthetic `28` when they want to mirror runtime exactly. Pixel/card-fit validation remains future scope.
+The INIT-004 follow-up aligned the public synthetic fixtures and test helper with PR #260's hard runtime cap: `STEP_ACTION_LABEL_MAX_CHARS = 24` and `STEP_ACTION_LABEL_MAX_WORDS = 5`. Pixel/card-fit validation remains future scope.
 
 ## Open items
 
