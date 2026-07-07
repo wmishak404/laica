@@ -174,6 +174,27 @@ describe("provider-boundary route happy paths", () => {
       ["rice", "eggs"],
       ["saucepan"],
       "Use a gentle simmer.",
+      undefined,
+    );
+  });
+
+  it("passes acknowledged missing ingredients into cooking-step generation", async () => {
+    const response = await postJson("/api/cooking/steps", {
+      recipeName: "Rice Bowl",
+      ingredients: ["rice", "eggs"],
+      equipment: ["saucepan"],
+      description: "Use a gentle simmer.",
+      acknowledgedMissingIngredients: [" cilantro ", "lime"],
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(sampleCookingStepsResponse);
+    expect(mocks.getCookingSteps).toHaveBeenCalledWith(
+      "Rice Bowl",
+      ["rice", "eggs"],
+      ["saucepan"],
+      "Use a gentle simmer.",
+      ["cilantro", "lime"],
     );
   });
 
@@ -196,6 +217,7 @@ describe("provider-boundary route happy paths", () => {
       [descriptiveIngredient],
       ["large nonstick skillet or wok"],
       "Wrap a savory tofu and vegetable stir fry in soft tortillas with a pantry-first sauce.",
+      undefined,
     );
   });
 

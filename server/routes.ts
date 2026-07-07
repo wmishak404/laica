@@ -644,10 +644,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ingredients: z.array(cookingContextItemSchema).optional(),
         equipment: z.array(cookingContextItemSchema).optional(),
         description: z.string().trim().max(2000).optional(),
+        acknowledgedMissingIngredients: z.array(cookingContextItemSchema).optional(),
       });
       
-      const { recipeName, ingredients, equipment, description } = schema.parse(req.body);
-      const steps = await getCookingSteps(recipeName, ingredients, equipment, description);
+      const { recipeName, ingredients, equipment, description, acknowledgedMissingIngredients } = schema.parse(req.body);
+      const steps = await getCookingSteps(recipeName, ingredients, equipment, description, acknowledgedMissingIngredients);
       res.json(steps);
     } catch (error) {
       logAiError({

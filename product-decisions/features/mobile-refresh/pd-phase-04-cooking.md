@@ -119,6 +119,14 @@ The slice routes both fresh provider output and browser-local restored step tray
 
 This does not change the cooking-step prompt, provider behavior, route schema, Ready Check, Coach Feed, timer redesign, speech/audio arbitration, durable History semantics, Phase 5 cleanup state, or the current basic-backup copy. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at `bb98cf8` before merge. Human Replit validation remains release/batch scope unless later work changes real provider behavior, device audio, microphone permissions, cooking-session persistence, or Finish-to-Phase-5 semantics.
 
+## 2026-07-07 Ready Check slice
+
+Branch `codex/init-001-phase4-ready-check` starts the broader Phase 4 mobile refresh by putting a user-controlled Ready Check before new Live Cooking step generation. New sessions now check for a valid saved guide first, then show Ready Check instead of calling `/api/cooking/steps` on mount. Valid restored guides still resume directly into the step tray, while invalid saved placeholder guides stay out of Step 1 until the cook explicitly starts and receives newly validated steps.
+
+This slice implements the first two Ready Check acceptance items without pulling in the rest of the Phase 4 redesign: `Start cooking` / `Cook silently` begin generation, `Cook anyway` appears when optional missing/skipped ingredients exist, and that acknowledgement is sent through the client helper, `/api/cooking/steps` schema, `getCookingSteps` prompt context, and AI interaction log. `Cook silently` starts the guide with audio disabled and preserves the PR #191 speech arbitration baseline. Coach Feed, timer redesign, pinned-step visual overhaul, full provider schema shape, Finish-to-Phase-5 cleanup state, and human Replit validation remain outside this narrow branch.
+
+Local evidence for the branch is focused Vitest coverage for Ready Check gating, guest/linked session boundaries, invalid-step recovery, and route schema plumbing; `npm run check`; and `npm run build`. Local Playwright E2E was not run because this worktree did not have `.env.keys` or a configured `LAICA_LOCAL_SANDBOX_DATABASE_URL`; exact-head GitHub `e2e_guest_smoke` and release/batch Replit smoke remain the intended evidence lanes per EFF-017 and the testing workflow.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
@@ -146,6 +154,7 @@ This does not change the cooking-step prompt, provider behavior, route schema, R
 
 - PD-005 / `design_guidelines.md`: Establishes the Warm Focus cooking surface and avoids generic AI-chat styling.
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Requires Replit smoke for cooking-session persistence and speech routes.
+- EFF-017: Keeps Phase 4 evidence honest by separating exact-head GitHub CI/E2E from local sandbox DB setup and release/batch Replit validation.
 - EFF-018: Provides shared authenticated AI error classification and non-demo copy; Phase 4 owns live-cooking presentation, retry, and Feedback placement.
 - INIT-003 Plan B: Public guest entry may ship before full Phase 4, so Phase 4 must preserve the linked-vs-guest memory boundary introduced by the homepage.
 
