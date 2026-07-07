@@ -3,6 +3,7 @@ import type { VisionAnalysisResult } from './visionResult';
 import type { PlanningTimeValue } from '@shared/planning';
 
 interface CookingStepObject {
+  actionLabel?: string;
   instruction?: string;
   step?: string;
   duration?: string | number;

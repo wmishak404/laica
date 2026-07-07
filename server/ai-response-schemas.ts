@@ -39,6 +39,7 @@ export const slopBowlResponseSchema = z.object({
 }).passthrough();
 
 export const cookingStepSchema = z.object({
+  actionLabel: nonEmptyString.optional(),
   instruction: nonEmptyString,
 }).passthrough();
 

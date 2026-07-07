@@ -385,7 +385,7 @@ test.describe('Laica Guest E2E Smoke', () => {
     expect(liveCookingRoutes.getStepsRequestCount()).toBe(0);
 
     const cookingStepsRequestPromise = page.waitForRequest('**/api/cooking/steps');
-    await page.getByRole('button', { name: /start cooking|cook anyway/i }).click();
+    await page.getByRole('button', { name: /^start cooking$/i }).click();
     const cookingStepsRequest = await cookingStepsRequestPromise;
     const cookingStepsPayload = cookingStepsRequest.postDataJSON() as {
       recipeName: string;
@@ -399,11 +399,16 @@ test.describe('Laica Guest E2E Smoke', () => {
     expect(cookingStepsPayload.description).toBe('A fast bowl built from rice, eggs, soy sauce, tortillas, and lime.');
     expect(cookingStepsPayload.acknowledgedMissingIngredients).toEqual(['cilantro']);
 
-    await expect(page.getByText('Live Cooking Assistant')).toBeVisible();
+    await expect(page.getByText('Live Cooking', { exact: true })).toBeVisible();
     await expect(page.getByText('Step 1 of 3')).toBeVisible();
+    await expect(page.getByTestId('step-guidance-panel')).toBeVisible();
+    await expect(page.getByTestId('step-preview-strip')).toContainText('Warm Rice Skillet');
     await expect(page.getByText('Warm the rice in a skillet until steamy.', { exact: true })).toBeVisible();
     await expect(page.getByText('Steam rises and the rice separates easily.')).toBeVisible();
     await expect(page.getByText('Stir once so the grains loosen without drying out.')).toBeVisible();
+    await expect(page.getByTestId('transcription-box')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Show captions' }).click();
+    await expect(page.getByTestId('transcription-box')).toBeVisible();
 
     await expect(page.getByRole('button', { name: 'Previous' })).toBeDisabled();
     await page.getByRole('button', { name: 'Next' }).click();
@@ -420,9 +425,9 @@ test.describe('Laica Guest E2E Smoke', () => {
     await page.getByRole('button', { name: 'Pause timer' }).click();
     await expect(page.getByRole('button', { name: 'Resume timer' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Ask for Help' }).click();
+    await page.getByRole('button', { name: 'Ask a question' }).click();
     await expect(page.getByText("I couldn't access your microphone. Please check your browser permissions and try again.")).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Ask for Help' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Ask a question' })).toBeVisible();
 
     expect(pantryRoutes.getRequestCount()).toBe(1);
     expect(liveCookingRoutes.getStepsRequestCount()).toBe(1);

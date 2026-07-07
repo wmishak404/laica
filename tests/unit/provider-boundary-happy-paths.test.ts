@@ -81,6 +81,7 @@ const authHeaders = {
 const sampleCookingStepsResponse = {
   steps: [
     {
+      actionLabel: "Rinse Rice",
       instruction: "Rinse the rice until the water runs mostly clear.",
       duration: 3,
       tips: "Use a fine-mesh strainer if you have one.",
@@ -89,6 +90,7 @@ const sampleCookingStepsResponse = {
       safetyTips: ["Keep fingertips away from the strainer edge."],
     },
     {
+      actionLabel: "Simmer Rice & Eggs",
       instruction: "Simmer rice with eggs and scallions until fluffy.",
       duration: 18,
       tips: "Keep the lid closed while the rice steams.",

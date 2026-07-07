@@ -230,7 +230,7 @@ async function flushPromises() {
   });
 }
 
-async function clickReadyCheckStart(name: RegExp = /start cooking|cook anyway/i) {
+async function clickReadyCheckStart(name: RegExp = /^start cooking$/i) {
   await flushPromises();
   expect(screen.getByText('Ready to cook?')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name }));
@@ -311,7 +311,7 @@ describe('LiveCooking guest session boundary', () => {
     }));
   });
 
-  it('passes acknowledged missing ingredients when the cook chooses Cook anyway', async () => {
+  it('passes acknowledged missing ingredients while keeping one Start cooking action', async () => {
     render(
       <LiveCooking
         selectedMeal={{
@@ -324,7 +324,9 @@ describe('LiveCooking guest session boundary', () => {
     );
 
     expect(await screen.findByText('Ready to cook?')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /cook anyway/i }));
+    expect(screen.queryByRole('button', { name: /cook anyway/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /cook silently/i })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /^start cooking$/i }));
 
     await screen.findByText('Warm the rice and beans.');
     expect(mocks.fetchCookingSteps).toHaveBeenCalledWith('Guest Rice Bowl', {
@@ -348,6 +350,183 @@ describe('LiveCooking guest session boundary', () => {
     await screen.findByText('Warm the rice and beans.');
 
     expect(mocks.startCookingSession).not.toHaveBeenCalled();
+  });
+
+  it('keeps the current step and compact guidance visible in the cooking cockpit', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByTestId('current-step-panel').className).toContain('sticky');
+    expect(screen.queryByRole('heading', { name: /coach feed/i })).toBeNull();
+    expect(screen.getByTestId('step-guidance-panel')).toBeTruthy();
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Warm Rice Beans');
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Fold Salsa');
+    expect(screen.getByText('Steam rises.')).toBeTruthy();
+    expect(screen.getByText('Stir gently.')).toBeTruthy();
+    expect(screen.getByText('Do not scorch the rice.')).toBeTruthy();
+  });
+
+  it('uses action-forward labels for step previews', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          instruction: 'Bring 4 cups of water to a boil in a medium saucepan or large pot.',
+          tips: 'Use a kettle to pre-boil your water for speed.',
+          visualCues: 'You should see a rolling boil.',
+          commonMistakes: 'Do not add the packet before boiling.',
+          safetyLevel: 'minor',
+          duration: 120,
+        },
+        {
+          instruction: 'Add the dashi packet and simmer for 2 minutes.',
+          tips: 'Stir once to dissolve.',
+          visualCues: 'The broth turns amber.',
+          commonMistakes: 'Do not boil hard after adding dashi.',
+          safetyLevel: 'minor',
+          duration: 120,
+        },
+        {
+          instruction: 'Heat oil or butter in a medium skillet over medium heat. Add sliced leek and a pinch of salt. Cook, stirring frequently, until soft. Add chopped spinach and cook until wilted.',
+          tips: 'Keep the heat moderate.',
+          visualCues: 'Leek softens and spinach wilts.',
+          commonMistakes: 'Browning the leek too hard.',
+          safetyLevel: 'minor',
+          duration: 420,
+        },
+        {
+          instruction: 'Push the vegetables to the side of the skillet. Add the cooked beef back, mixing everything together.',
+          tips: 'Keep the pan over medium heat.',
+          visualCues: 'Vegetables sit to one side with open skillet space.',
+          commonMistakes: 'Do not pile the beef on top before making room.',
+          safetyLevel: 'minor',
+          duration: 60,
+        },
+        {
+          instruction: 'Add the cold, cooked rice to the skillet. Press out any large clumps with the back of a spatula. Mix well to combine with the beef and vegetables.',
+          tips: 'If your rice is warm, spread it on a plate so steam can escape before adding it.',
+          visualCues: 'No large rice clumps remain.',
+          commonMistakes: 'Using hot, fresh rice can turn sticky.',
+          safetyLevel: 'minor',
+          duration: 180,
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    const previewStrip = screen.getByTestId('step-preview-strip');
+    expect(previewStrip).toHaveTextContent('Boil Water');
+    expect(previewStrip).toHaveTextContent('Add Dashi Packet');
+    expect(previewStrip).toHaveTextContent('Cook Leek & Spinach');
+    expect(previewStrip).toHaveTextContent('Push Vegetables Aside');
+    expect(previewStrip).toHaveTextContent('Add Cold Rice');
+    expect(previewStrip).not.toHaveTextContent('Bring 4 Cups');
+    expect(previewStrip).not.toHaveTextContent('Heat Oil Butter');
+    expect(previewStrip).not.toHaveTextContent('Push Vegetables Side');
+    expect(previewStrip).not.toHaveTextContent('Add Cold Cooked');
+  });
+
+  it('normalizes known bad provider action labels before rendering', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          actionLabel: 'Push Vegetables Side',
+          instruction: 'Push the vegetables to the side of the skillet. Add the cooked beef back, mixing everything together.',
+          tips: 'Keep the pan over medium heat.',
+          visualCues: 'Vegetables sit to one side with open skillet space.',
+          commonMistakes: 'Do not pile the beef on top before making room.',
+          safetyLevel: 'minor',
+          duration: 60,
+        },
+        {
+          actionLabel: 'Add Cold Cooked',
+          instruction: 'Add the cold, cooked rice to the skillet. Press out any large clumps with the back of a spatula.',
+          tips: 'If your rice is warm, spread it on a plate so steam can escape before adding it.',
+          visualCues: 'No large rice clumps remain.',
+          commonMistakes: 'Using hot, fresh rice can turn sticky.',
+          safetyLevel: 'minor',
+          duration: 180,
+        },
+        {
+          actionLabel: 'Cook Vegetables',
+          instruction: 'Season the fried rice with soy sauce and stir until the rice, beef, and vegetables are evenly coated.',
+          tips: 'Add soy sauce around the edge of the pan for aroma.',
+          visualCues: 'Rice looks evenly seasoned and glossy.',
+          commonMistakes: 'Do not leave white patches of unseasoned rice.',
+          safetyLevel: 'minor',
+          duration: 120,
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByRole('heading', { name: 'Push Vegetables Aside' })).toBeTruthy();
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Push Vegetables Aside');
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Add Cold Rice');
+    expect(screen.getByTestId('step-preview-strip')).toHaveTextContent('Season Fried Rice');
+    expect(screen.getByTestId('step-preview-strip')).not.toHaveTextContent('Push Vegetables Side');
+    expect(screen.getByTestId('step-preview-strip')).not.toHaveTextContent('Add Cold Cooked');
+  });
+
+  it('uses action labels as mobile headlines and separates paragraph-like instructions', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          actionLabel: 'Cook Leek & Spinach',
+          instruction: 'Heat oil or butter in a medium oven-safe skillet over medium heat. Add sliced leek and a pinch of salt. Cook, stirring frequently, until soft, about 5 minutes. Add chopped spinach and cook 1-2 minutes, stirring, until wilted and most moisture has cooked off.',
+          tips: 'Keep the heat moderate so the leek softens without browning.',
+          visualCues: 'Leek becomes translucent and soft; spinach shrinks and turns deep green.',
+          commonMistakes: 'Browning the leek too hard before the eggs go in.',
+          safetyLevel: 'minor',
+          duration: 420,
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByRole('heading', { name: 'Cook Leek & Spinach' })).toBeTruthy();
+    expect(screen.getByLabelText('Step details')).toHaveTextContent('Heat oil or butter in a medium oven-safe skillet over medium heat');
+    expect(screen.getByLabelText('Step details')).toHaveTextContent('Add sliced leek and a pinch of salt');
+    expect(screen.getByLabelText('Step details')).toHaveTextContent('Add chopped spinach and cook 1-2 minutes, stirring, until wilted and most moisture has cooked off');
+
+    const previewStrip = screen.getByTestId('step-preview-strip');
+    expect(previewStrip).toHaveTextContent('Cook Leek & Spinach');
+    expect(previewStrip).not.toHaveTextContent('Heat Oil Butter');
   });
 
   it('restores the saved guest step tray without reinitializing cooking steps', async () => {
@@ -712,7 +891,7 @@ describe('LiveCooking guest session boundary', () => {
     expect(AudioContextMock).not.toHaveBeenCalled();
   });
 
-  it('persists the live transcript pin state from the visible toggle', async () => {
+  it('keeps captions opt-in and persists the visible CC toggle', async () => {
     render(
       <LiveCooking
         selectedMeal={selectedMeal}
@@ -723,24 +902,25 @@ describe('LiveCooking guest session boundary', () => {
 
     await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
-    const transcriptionBox = screen.getByTestId('transcription-box');
-    expect(transcriptionBox.className).toContain('sticky');
-    expect(screen.getByRole('button', { name: /unpin transcription/i })).toBeTruthy();
+    expect(screen.queryByTestId('transcription-box')).toBeNull();
+    expect(screen.getByTestId('text-transcription-full').className).toContain('sr-only');
+    expect(screen.getByTestId('button-toggle-captions')).toHaveTextContent('CC');
+    expect(screen.getByRole('button', { name: /show captions/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /unpin transcription/i }));
+    fireEvent.click(screen.getByRole('button', { name: /show captions/i }));
 
-    expect(transcriptionBox.className).not.toContain('sticky');
-    expect(window.localStorage.getItem('laica_transcription_pinned')).toBe('false');
-    expect(screen.getByRole('button', { name: /pin transcription/i })).toBeTruthy();
+    expect(screen.getByTestId('transcription-box')).toBeTruthy();
+    expect(window.localStorage.getItem('laica_captions_visible')).toBe('true');
+    expect(screen.getByRole('button', { name: /hide captions/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /pin transcription/i }));
+    fireEvent.click(screen.getByRole('button', { name: /hide captions/i }));
 
-    expect(transcriptionBox.className).toContain('sticky');
-    expect(window.localStorage.getItem('laica_transcription_pinned')).toBe('true');
+    expect(screen.queryByTestId('transcription-box')).toBeNull();
+    expect(window.localStorage.getItem('laica_captions_visible')).toBe('false');
   });
 
-  it('falls back to a pinned transcript when the saved pin preference is malformed', async () => {
-    window.localStorage.setItem('laica_transcription_pinned', 'not-json');
+  it('falls back to hidden captions when the saved captions preference is malformed', async () => {
+    window.localStorage.setItem('laica_captions_visible', 'not-json');
 
     render(
       <LiveCooking
@@ -752,9 +932,9 @@ describe('LiveCooking guest session boundary', () => {
 
     await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
-    expect(screen.getByTestId('transcription-box').className).toContain('sticky');
-    expect(screen.getByRole('button', { name: /unpin transcription/i })).toBeTruthy();
-    expect(window.localStorage.getItem('laica_transcription_pinned')).toBeNull();
+    expect(screen.queryByTestId('transcription-box')).toBeNull();
+    expect(screen.getByRole('button', { name: /show captions/i })).toBeTruthy();
+    expect(window.localStorage.getItem('laica_captions_visible')).toBeNull();
   });
 
   describe('speech arbitration acceptance', () => {
@@ -849,13 +1029,13 @@ describe('LiveCooking guest session boundary', () => {
       expect(audio.sources[0].start).toHaveBeenCalledTimes(1);
     });
 
-    it('stops active and pending step audio before Ask for Help begins recording', async () => {
+    it('stops active and pending step audio before Ask a question begins recording', async () => {
       const audio = installAudioMocks();
 
       await renderCookingGuide();
       await advanceSpeechDelay();
 
-      fireEvent.click(screen.getByRole('button', { name: /ask for help/i }));
+      fireEvent.click(screen.getByRole('button', { name: /ask a question/i }));
       await flushPromises();
 
       expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
@@ -870,31 +1050,31 @@ describe('LiveCooking guest session boundary', () => {
       await renderCookingGuide();
       await advanceSpeechDelay();
 
-      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      fireEvent.click(screen.getByRole('button', { name: /mute audio/i }));
 
       expect(audio.sources[0].stop).toHaveBeenCalledTimes(1);
       expect(audio.speechCancel).toHaveBeenCalled();
-      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /turn audio on/i })).toBeTruthy();
     });
 
     it('keeps Muted state across step navigation and prevents automatic step audio', async () => {
       installAudioMocks();
 
       await renderCookingGuide();
-      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      fireEvent.click(screen.getByRole('button', { name: /mute audio/i }));
       mocks.synthesizeSpeech.mockClear();
 
       fireEvent.click(screen.getByRole('button', { name: /next/i }));
       await advanceSpeechDelay();
 
-      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /turn audio on/i })).toBeTruthy();
       expect(screen.getByTestId('text-transcription-full').textContent).toBe('Step 2: Fold in salsa. Keep the heat low.');
       expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
 
       fireEvent.click(screen.getByRole('button', { name: /previous/i }));
       await advanceSpeechDelay();
 
-      expect(screen.getByRole('button', { name: /muted/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /turn audio on/i })).toBeTruthy();
       expect(screen.getByTestId('text-transcription-full').textContent).toBe('Back to step 1: Warm the rice and beans.');
       expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
     });
@@ -903,14 +1083,14 @@ describe('LiveCooking guest session boundary', () => {
       installAudioMocks();
 
       await renderCookingGuide();
-      fireEvent.click(screen.getByRole('button', { name: /audio on/i }));
+      fireEvent.click(screen.getByRole('button', { name: /mute audio/i }));
       fireEvent.click(screen.getByRole('button', { name: /next/i }));
       mocks.synthesizeSpeech.mockClear();
 
-      fireEvent.click(screen.getByRole('button', { name: /muted/i }));
+      fireEvent.click(screen.getByRole('button', { name: /turn audio on/i }));
       await advanceSpeechDelay(1200);
 
-      expect(screen.getByRole('button', { name: /audio on/i })).toBeTruthy();
+      expect(screen.getByRole('button', { name: /mute audio/i })).toBeTruthy();
       expect(mocks.synthesizeSpeech).not.toHaveBeenCalled();
 
       fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));

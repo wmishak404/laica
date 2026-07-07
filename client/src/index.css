@@ -122,6 +122,18 @@ html, body {
 }
 
 @layer components {
+  .live-cooking-ui {
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .live-cooking-ui h1,
+  .live-cooking-ui h2,
+  .live-cooking-ui h3,
+  .live-cooking-ui button {
+    font-family: inherit;
+    letter-spacing: 0;
+  }
+
   .landing-ui {
     --setup-cream: 38 100% 96%;
     --setup-cream-deep: 35 88% 92%;

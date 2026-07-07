@@ -21,6 +21,7 @@ interface RecipeSnapshotData {
   isFusion: boolean;
   steps: Array<{
     id?: number;
+    actionLabel?: string;
     instruction: string;
     duration?: string | number;
     tips?: string;
