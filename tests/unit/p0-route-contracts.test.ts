@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import express from "express";
 import { requestHttp, type TestResponse } from "./http-test-client";
+import { resetRateLimitBucketsForTest } from "../../server/rate-limit";
 
 const mocks = vi.hoisted(() => ({
   firebaseUser: {
@@ -143,6 +144,7 @@ async function postJson(path: string, body: unknown, headers = authHeaders): Pro
 
 describe("P0 user-facing route contracts", () => {
   beforeEach(() => {
+    resetRateLimitBucketsForTest();
     mocks.firebaseUser = {
       uid: "linked-user-id",
       email: "linked@example.com",
@@ -191,6 +193,7 @@ describe("P0 user-facing route contracts", () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    resetRateLimitBucketsForTest();
   });
 
   it("writes feedback anonymously without requiring auth", async () => {
@@ -204,6 +207,7 @@ describe("P0 user-facing route contracts", () => {
     );
 
     expect(response.status).toBe(200);
+    expect(response.headers["x-ratelimit-limit"]).toBe("10");
     expect(await response.json()).toEqual({
       success: true,
       message: "Feedback received successfully",
@@ -224,6 +228,7 @@ describe("P0 user-facing route contracts", () => {
     });
 
     expect(response.status).toBe(200);
+    expect(response.headers["x-ratelimit-limit"]).toBe("10");
     expect(response.headers["cache-control"]).toBe("private, no-store, max-age=0");
     expect(response.headers["pragma"]).toBe("no-cache");
     expect(response.headers["vary"]).toContain("Authorization");

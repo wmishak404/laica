@@ -13,6 +13,7 @@ import {
   consumeRecipeImageGenerationRateLimits,
   recipeUserBurstLimit,
   recipeUserDayLimit,
+  feedbackIpLimit,
   slopBowlUserDayLimit,
   slopBowlUserHourLimit,
   speechUserDayLimit,
@@ -1194,7 +1195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Feedback submission endpoint
-  app.post('/api/feedback', async (req, res) => {
+  app.post('/api/feedback', feedbackIpLimit, async (req, res) => {
     try {
       if (req.headers.authorization) {
         setPrivateResponseHeaders(res);
