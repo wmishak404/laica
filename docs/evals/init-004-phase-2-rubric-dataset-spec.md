@@ -32,7 +32,7 @@ Accepted Phase 2 decisions:
 
 2026-06-30 EFF-022 fallback direction: Wilson accepted transparent pantry fallback as the preferred behavior when a selected cuisine is weakly supported by the user's pantry. Laica may ask about a few missing staples first, but if the user does not add them, the product should explain the pantry limitation and continue with honest pantry-first suggestions instead of silently replacing the selected cuisine or defaulting to `No preference`. The exact activation threshold and copy remain EFF-022 implementation work, deferred until after higher-priority INIT-001 work.
 
-2026-07-07 Phase 3 extension: Phase 4 peer review accepted `live_cooking_step_previews` as a distinct eval family for the small Live Cooking preview/action-label artifact. This surface stays separate from recipe-generation metrics and broad `cooking_steps` safety/sequence metrics. V1 fixtures are synthetic/redacted only and capture both provider and final rendered behavior so future reports can distinguish model label failures from client fallback rescues.
+2026-07-07 Phase 3 extension: Phase 4 peer review accepted `live_cooking_step_previews` as a distinct eval family for the small Live Cooking preview/action-label artifact. This surface stays separate from recipe-generation metrics and broad `cooking_steps` safety/sequence metrics. V1 fixtures are synthetic/redacted only and capture both provider and final rendered behavior so future reports can distinguish model label failures from client fallback rescues. After PR #260 merged, the synthetic rendering constraints were aligned to the merged runtime limits of 5 words and 24 characters.
 
 ## Feature Taxonomy
 

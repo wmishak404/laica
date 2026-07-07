@@ -71,10 +71,11 @@ Preserved bad examples/patterns:
 
 No PR #260 runtime code or prompt text was changed here. The eval lane confirms the prompt constraints Phase 4 already accepted: action/result over measurement fragments, actual milestone over setup words, idiomatic phrases, required object nouns, and distinct labels for distinct milestones.
 
-Potential Phase 4 review checks before PR #260 merges:
+Resolved Phase 4 alignment after PR #260 merge:
 
-- Confirm PR #260's runtime object names map cleanly to the fixture fields: raw provider `actionLabel`, normalized provider label if any, fallback label, final rendered label, and sibling lists.
-- If PR #260 enforces a different hard character limit than the synthetic `28` used here, INIT-004 can update `renderingConstraints` in a follow-up without changing the surface boundary.
+- PR #260 merged as `72df55749b8c9a83ad6e5d5123a64592eb40dbfb` from validated head `0040f9f43d78634b0341a20a16a43c3c5a06109d`.
+- Phase 4 confirmed PR #260's runtime object names map cleanly to the fixture fields: provider `actionLabel`, `normalizeStepActionLabel(...)`, `deriveStepActionLabel(...)`, `buildStepPreviewLabels(...)`, `getStepHeadline(...)`, and sibling lists before/after rendering.
+- INIT-004 aligned `renderingConstraints.maxCharacters` to PR #260's hard runtime limit of `24` while keeping `maxWords` at `5`.
 - Pixel/visual preview-card fit is still future scope; this branch only validates word and character limits.
 
 ## Open items
@@ -97,6 +98,6 @@ No Replit validation is required for this offline eval-harness branch. It change
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `263eec5fc14e0923807e2a040d46125846fd1152`
+- Current base: `origin/main` at `72df55749b8c9a83ad6e5d5123a64592eb40dbfb`
 - Last Replit-validated at: not applicable for offline eval-harness work
-- Notes: not stacked on PR #260. The Phase 4 peer review came through thread `019f3962-127d-7910-8d99-b6d21357b680`; this branch should be pushed back to that thread for awareness before PR #260 prompt finalization/merge.
+- Notes: not stacked on PR #260. The Phase 4 peer review came through thread `019f3962-127d-7910-8d99-b6d21357b680`; PR #260 is merged, and this branch now tracks the merged baseline for eval fixture wording/field names.

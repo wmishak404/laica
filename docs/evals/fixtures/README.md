@@ -42,7 +42,7 @@ When adding or materially changing fixtures, keep the fixture data readable and 
 2026-07-07 Live Cooking step-preview label batch:
 
 - `Value claim`: Live Cooking step-preview evals should protect hands-busy cooks from small-card labels that are measurement fragments, generic duplicates, ungrammatical snippets, or labels for the wrong milestone.
-- `Evidence`: `live-cooking-step-previews-client-rescue` and `live-cooking-step-previews-rendered-fragments` load as public synthetic fixtures under `live_cooking_step_previews`; deterministic validation checks output shape, final rendered-label word/character limits, measurement-free labels, and sibling-label distinctness while preserving provider-versus-rendered quality labels.
+- `Evidence`: `live-cooking-step-previews-client-rescue` and `live-cooking-step-previews-rendered-fragments` load as public synthetic fixtures under `live_cooking_step_previews`; deterministic validation checks output shape, final rendered-label word/character limits, measurement-free labels, and sibling-label distinctness while preserving provider-versus-rendered quality labels. The synthetic rendering constraints mirror the PR #260 merged runtime limits of 5 words and 24 characters.
 - `Evidence limits`: The current validation lane proves schema, privacy posture, deterministic rendered-label checks, and label preservation only. It does not prove live provider behavior, PR #260 runtime fallback behavior, pixel/visual card fit, Wilson re-labeling of these exact synthetic outputs, or calibrated LLM judge quality.
 
 Current harness commands:

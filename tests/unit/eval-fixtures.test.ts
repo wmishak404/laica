@@ -75,7 +75,7 @@ function stepPreviewFixture(overrides: Record<string, unknown> = {}) {
     constraints: {
       maxWords: 5,
       preferredMaxWords: 4,
-      maxCharacters: 28,
+      maxCharacters: 24,
     },
     output: JSON.stringify({
       recipe: {
@@ -85,7 +85,7 @@ function stepPreviewFixture(overrides: Record<string, unknown> = {}) {
       renderingConstraints: {
         maxWords: 5,
         preferredMaxWords: 4,
-        maxCharacters: 28,
+        maxCharacters: 24,
       },
       siblingLabelsBeforeRendering: ["Bring 4 Cups", "Season Fried Rice"],
       siblingLabelsAfterRendering: ["Boil Water", "Season Fried Rice"],
@@ -271,7 +271,7 @@ describe("INIT-004 eval fixture foundation", () => {
       id: "synthetic-step-preview-fail",
       output: JSON.stringify({
         recipe: { recipeName: "Fried Rice" },
-        renderingConstraints: { maxWords: 5, maxCharacters: 28 },
+        renderingConstraints: { maxWords: 5, maxCharacters: 24 },
         siblingLabelsBeforeRendering: ["Bring 4 Cups", "Cook Vegetables", "Cook Vegetables"],
         siblingLabelsAfterRendering: ["Bring 4 Cups", "Cook Vegetables", "Cook Vegetables"],
         previews: [
