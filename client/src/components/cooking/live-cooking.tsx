@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -222,6 +221,11 @@ function toStepPreviewLabel(instruction: string) {
     .replace(/^\s*step\s*\d+\s*[:.)-]?\s*/i, '')
     .split(/[.;:]/)[0]
     .trim();
+  const lowerClause = firstClause.toLowerCase();
+
+  if (/^bring\b.*\bwater\b.*\bboil\b/.test(lowerClause)) {
+    return 'Boil Water';
+  }
 
   const words = firstClause
     .replace(/[^A-Za-z0-9\s'-]/g, ' ')
@@ -1131,21 +1135,12 @@ export default function LiveCooking({
     setSpeechIntentRevision(revision => revision + 1);
   };
 
-  const startCookingGuideFromReadyCheck = (options?: { silent?: boolean }) => {
+  const startCookingGuideFromReadyCheck = () => {
     setAcknowledgedMissingIngredients(readyCheckMissingIngredients);
     setCurrentStepIndex(0);
     setTimer(0);
     setIsTimerRunning(false);
     setStepLoadIssue(null);
-
-    if (options?.silent) {
-      stopAudio();
-      isAudioEnabledRef.current = false;
-      setAudioJustEnabled(false);
-      setLastSpokenResponse(assistantResponseRef.current);
-      setIsAudioEnabled(false);
-    }
-
     setHasStartedCookingGuide(true);
   };
 
@@ -1574,22 +1569,6 @@ export default function LiveCooking({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getSafetyColor = (level: 'critical' | 'important' | 'minor') => {
-    switch (level) {
-      case 'critical': return 'border-destructive/40 bg-destructive/10 text-destructive';
-      case 'important': return 'border-accent/50 bg-accent/30 text-foreground';
-      case 'minor': return 'border-secondary/40 bg-secondary/10 text-foreground';
-    }
-  };
-
-  const getSafetyIcon = (level: 'critical' | 'important' | 'minor') => {
-    switch (level) {
-      case 'critical': return <AlertTriangle className="h-4 w-4" />;
-      case 'important': return <Info className="h-4 w-4" />;
-      case 'minor': return <CheckCircle className="h-4 w-4" />;
-    }
-  };
-
   const readyCheckItems = [
     {
       label: 'Ingredients nearby',
@@ -1604,11 +1583,6 @@ export default function LiveCooking({
         ? readyCheckEquipment.slice(0, 3).join(', ')
         : 'Have your usual pan, knife, board, and utensils nearby.',
       icon: <Info className="h-5 w-5 text-primary" />,
-    },
-    {
-      label: 'Audio choice',
-      detail: 'Start with spoken guidance, or cook silently and read each step.',
-      icon: <Volume2 className="h-5 w-5 text-primary" />,
     },
     {
       label: 'Heat stays off until Step 1',
@@ -1636,8 +1610,6 @@ export default function LiveCooking({
   }
 
   if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
-    const primaryReadyLabel = readyCheckMissingIngredients.length > 0 ? 'Cook anyway' : 'Start cooking';
-
     return (
       <div className="w-full max-w-4xl mx-auto min-h-screen bg-background px-4 py-6 text-foreground">
         <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-5">
@@ -1660,7 +1632,7 @@ export default function LiveCooking({
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Skipping {readyCheckMissingIngredients.join(', ')}. Laica will adapt the guide around what you have.
+                Laica will adapt around {readyCheckMissingIngredients.join(', ')} using what you have.
               </AlertDescription>
             </Alert>
           )}
@@ -1680,15 +1652,7 @@ export default function LiveCooking({
           <div className="mt-auto grid gap-3 pb-2">
             <Button size="lg" onClick={() => startCookingGuideFromReadyCheck()}>
               <Play className="h-4 w-4 mr-2" />
-              {primaryReadyLabel}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => startCookingGuideFromReadyCheck({ silent: true })}
-            >
-              <VolumeX className="h-4 w-4 mr-2" />
-              Cook silently
+              Start cooking
             </Button>
           </div>
         </div>
@@ -1780,19 +1744,13 @@ export default function LiveCooking({
             data-testid="current-step-panel"
           >
             <CardHeader className="space-y-2 p-3 sm:p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 space-y-1">
-                  <p className="text-xs font-medium uppercase text-muted-foreground">
-                    Step {displayedStepIndex + 1} of {currentRecipeSteps.length}
-                  </p>
-                  <CardTitle className="text-xl leading-6">
-                    {currentStep.instruction}
-                  </CardTitle>
-                </div>
-                <Badge className={getSafetyColor(currentStep.safetyLevel)}>
-                  {getSafetyIcon(currentStep.safetyLevel)}
-                  <span className="ml-1 capitalize">{currentStep.safetyLevel}</span>
-                </Badge>
+              <div className="min-w-0 space-y-1">
+                <p className="text-xs font-medium uppercase text-muted-foreground">
+                  Step {displayedStepIndex + 1} of {currentRecipeSteps.length}
+                </p>
+                <CardTitle className="text-xl leading-6">
+                  {currentStep.instruction}
+                </CardTitle>
               </div>
 
               <ol
@@ -1921,15 +1879,17 @@ export default function LiveCooking({
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-md border bg-background px-3 py-2">
-            <span className="text-sm font-medium">Closed captions</span>
+          <div className="flex justify-end">
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={toggleCaptionsVisible}
               aria-expanded={areCaptionsVisible}
+              aria-label={areCaptionsVisible ? 'Hide captions' : 'Show captions'}
+              title={areCaptionsVisible ? 'Hide captions' : 'Show captions'}
+              data-testid="button-toggle-captions"
             >
-              {areCaptionsVisible ? 'Hide closed captions' : 'Show closed captions'}
+              <span className="text-xs font-bold" aria-hidden="true">CC</span>
             </Button>
           </div>
 
@@ -1954,38 +1914,38 @@ export default function LiveCooking({
         </section>
 
         <div className="sticky bottom-0 z-30 -mx-4 mt-auto border-t bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur">
-          <div className="grid grid-cols-[1fr_1.25fr_1fr] gap-2">
+          <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-2">
             <Button
               onClick={repeatStepInstructions}
               variant="outline"
-              className="min-w-0 px-2"
+              className="min-h-[4.25rem] min-w-0 flex-col gap-1 px-2 py-2"
               aria-label="Repeat step instruction"
             >
-              <Repeat className="mr-1 h-4 w-4" />
-              Repeat
+              <Repeat className="h-5 w-5" />
+              <span className="text-sm leading-tight">Repeat</span>
             </Button>
 
             <Button
               variant={isVoiceRecording ? "destructive" : "default"}
               onClick={askForHelp}
               disabled={isProcessing && !isVoiceRecording}
-              className="min-w-0 px-2"
+              className="min-h-[4.25rem] min-w-0 flex-col gap-1 px-2 py-2"
               aria-label={isVoiceRecording ? "Cancel question" : "Ask a question"}
             >
               {isProcessing && !isVoiceRecording ? (
                 <>
-                  <div className="mr-1 h-4 w-4 animate-spin rounded-full border-b-2 border-current"></div>
-                  Processing
+                  <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-current"></div>
+                  <span className="text-sm leading-tight">Processing</span>
                 </>
               ) : isVoiceRecording ? (
                 <>
-                  <MicOff className="mr-1 h-4 w-4" />
-                  Cancel
+                  <MicOff className="h-5 w-5" />
+                  <span className="text-sm leading-tight">Cancel</span>
                 </>
               ) : (
                 <>
-                  <Mic className="mr-1 h-4 w-4" />
-                  Ask
+                  <Mic className="h-5 w-5" />
+                  <span className="text-center text-sm leading-tight">Ask a question</span>
                 </>
               )}
             </Button>
@@ -2010,23 +1970,23 @@ export default function LiveCooking({
               }}
               disabled={!voiceAvailable}
               variant={!voiceAvailable ? "secondary" : isAudioEnabled ? "secondary" : "destructive"}
-              className="min-w-0 px-2"
+              className="min-h-[4.25rem] min-w-0 flex-col gap-1 px-2 py-2"
               aria-label={!voiceAvailable ? "Voice mode unavailable" : isAudioEnabled ? "Mute audio" : "Turn audio on"}
             >
               {!voiceAvailable ? (
                 <>
-                  <VolumeX className="mr-1 h-4 w-4" />
-                  Voice
+                  <VolumeX className="h-5 w-5" />
+                  <span className="text-sm leading-tight">Voice</span>
                 </>
               ) : isAudioEnabled ? (
                 <>
-                  <Volume2 className="mr-1 h-4 w-4" />
-                  Audio
+                  <Volume2 className="h-5 w-5" />
+                  <span className="text-sm leading-tight">Audio</span>
                 </>
               ) : (
                 <>
-                  <VolumeX className="mr-1 h-4 w-4" />
-                  Muted
+                  <VolumeX className="h-5 w-5" />
+                  <span className="text-sm leading-tight">Muted</span>
                 </>
               )}
             </Button>

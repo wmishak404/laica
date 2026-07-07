@@ -230,7 +230,7 @@ async function flushPromises() {
   });
 }
 
-async function clickReadyCheckStart(name: RegExp = /start cooking|cook anyway/i) {
+async function clickReadyCheckStart(name: RegExp = /^start cooking$/i) {
   await flushPromises();
   expect(screen.getByText('Ready to cook?')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name }));
@@ -311,7 +311,7 @@ describe('LiveCooking guest session boundary', () => {
     }));
   });
 
-  it('passes acknowledged missing ingredients when the cook chooses Cook anyway', async () => {
+  it('passes acknowledged missing ingredients while keeping one Start cooking action', async () => {
     render(
       <LiveCooking
         selectedMeal={{
@@ -324,7 +324,9 @@ describe('LiveCooking guest session boundary', () => {
     );
 
     expect(await screen.findByText('Ready to cook?')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /cook anyway/i }));
+    expect(screen.queryByRole('button', { name: /cook anyway/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /cook silently/i })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /^start cooking$/i }));
 
     await screen.findByText('Warm the rice and beans.');
     expect(mocks.fetchCookingSteps).toHaveBeenCalledWith('Guest Rice Bowl', {
@@ -371,6 +373,44 @@ describe('LiveCooking guest session boundary', () => {
     expect(screen.getByText('Steam rises.')).toBeTruthy();
     expect(screen.getByText('Stir gently.')).toBeTruthy();
     expect(screen.getByText('Do not scorch the rice.')).toBeTruthy();
+  });
+
+  it('uses action-forward labels for step previews', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          instruction: 'Bring 4 cups of water to a boil in a medium saucepan or large pot.',
+          tips: 'Use a kettle to pre-boil your water for speed.',
+          visualCues: 'You should see a rolling boil.',
+          commonMistakes: 'Do not add the packet before boiling.',
+          safetyLevel: 'minor',
+          duration: 120,
+        },
+        {
+          instruction: 'Add the dashi packet and simmer for 2 minutes.',
+          tips: 'Stir once to dissolve.',
+          visualCues: 'The broth turns amber.',
+          commonMistakes: 'Do not boil hard after adding dashi.',
+          safetyLevel: 'minor',
+          duration: 120,
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    const previewStrip = screen.getByTestId('step-preview-strip');
+    expect(previewStrip).toHaveTextContent('Boil Water');
+    expect(previewStrip).toHaveTextContent('Add Dashi Packet');
+    expect(previewStrip).not.toHaveTextContent('Bring 4 Cups');
   });
 
   it('restores the saved guest step tray without reinitializing cooking steps', async () => {
@@ -735,7 +775,7 @@ describe('LiveCooking guest session boundary', () => {
     expect(AudioContextMock).not.toHaveBeenCalled();
   });
 
-  it('keeps closed captions opt-in and persists the visible captions toggle', async () => {
+  it('keeps captions opt-in and persists the visible CC toggle', async () => {
     render(
       <LiveCooking
         selectedMeal={selectedMeal}
@@ -748,15 +788,16 @@ describe('LiveCooking guest session boundary', () => {
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     expect(screen.queryByTestId('transcription-box')).toBeNull();
     expect(screen.getByTestId('text-transcription-full').className).toContain('sr-only');
-    expect(screen.getByRole('button', { name: /show closed captions/i })).toBeTruthy();
+    expect(screen.getByTestId('button-toggle-captions')).toHaveTextContent('CC');
+    expect(screen.getByRole('button', { name: /show captions/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /show closed captions/i }));
+    fireEvent.click(screen.getByRole('button', { name: /show captions/i }));
 
     expect(screen.getByTestId('transcription-box')).toBeTruthy();
     expect(window.localStorage.getItem('laica_captions_visible')).toBe('true');
-    expect(screen.getByRole('button', { name: /hide closed captions/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /hide captions/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /hide closed captions/i }));
+    fireEvent.click(screen.getByRole('button', { name: /hide captions/i }));
 
     expect(screen.queryByTestId('transcription-box')).toBeNull();
     expect(window.localStorage.getItem('laica_captions_visible')).toBe('false');
@@ -776,7 +817,7 @@ describe('LiveCooking guest session boundary', () => {
     await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     expect(screen.queryByTestId('transcription-box')).toBeNull();
-    expect(screen.getByRole('button', { name: /show closed captions/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /show captions/i })).toBeTruthy();
     expect(window.localStorage.getItem('laica_captions_visible')).toBeNull();
   });
 

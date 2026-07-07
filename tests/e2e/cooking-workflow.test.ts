@@ -385,7 +385,7 @@ test.describe('Laica Guest E2E Smoke', () => {
     expect(liveCookingRoutes.getStepsRequestCount()).toBe(0);
 
     const cookingStepsRequestPromise = page.waitForRequest('**/api/cooking/steps');
-    await page.getByRole('button', { name: /start cooking|cook anyway/i }).click();
+    await page.getByRole('button', { name: /^start cooking$/i }).click();
     const cookingStepsRequest = await cookingStepsRequestPromise;
     const cookingStepsPayload = cookingStepsRequest.postDataJSON() as {
       recipeName: string;
@@ -407,7 +407,7 @@ test.describe('Laica Guest E2E Smoke', () => {
     await expect(page.getByText('Steam rises and the rice separates easily.')).toBeVisible();
     await expect(page.getByText('Stir once so the grains loosen without drying out.')).toBeVisible();
     await expect(page.getByTestId('transcription-box')).toHaveCount(0);
-    await page.getByRole('button', { name: 'Show closed captions' }).click();
+    await page.getByRole('button', { name: 'Show captions' }).click();
     await expect(page.getByTestId('transcription-box')).toBeVisible();
 
     await expect(page.getByRole('button', { name: 'Previous' })).toBeDisabled();
