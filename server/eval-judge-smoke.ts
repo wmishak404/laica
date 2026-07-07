@@ -11,6 +11,7 @@ export const STEP_PREVIEW_JUDGE_SMOKE_FIXTURE_IDS = [
   "live-cooking-step-previews-wrong-milestone",
   "live-cooking-step-previews-incomplete-phrase",
   "live-cooking-step-previews-singular-plural-agreement",
+  "live-cooking-step-previews-stale-final-garnish-label",
   "live-cooking-step-previews-duplicate-labels",
 ] as const;
 

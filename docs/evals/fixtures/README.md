@@ -22,6 +22,7 @@ Committed public fixture set:
 - `live-cooking-step-previews-measurement-fragment.json` - synthetic judge-smoke fixture for measurement-driven preview labels.
 - `live-cooking-step-previews-rendered-fragments.json` - synthetic negative rendered-label guard for measurement-driven, incomplete, and repeated generic preview labels.
 - `live-cooking-step-previews-singular-plural-agreement.json` - synthetic judge-smoke fixture for grammar agreement, such as `Prep Leek` when the step prepares multiple leeks.
+- `live-cooking-step-previews-stale-final-garnish-label.json` - synthetic judge-smoke fixture for stale generic final labels, such as `Cook Vegetables` when the milestone is garnish and serve.
 - `live-cooking-step-previews-wrong-milestone.json` - synthetic judge-smoke fixture for setup-only labels that miss the actual cooking milestone.
 
 Expected deterministic failures are allowed only when the matching resolved criterion label is also `fail`. Fixture schema, privacy class, privacy scan, output-required, and deterministic label expectation failures still make the artifact invalid.
@@ -47,7 +48,7 @@ When adding or materially changing fixtures, keep the fixture data readable and 
 2026-07-07 Live Cooking step-preview label batch:
 
 - `Value claim`: Live Cooking step-preview evals should protect hands-busy cooks from small-card labels that are measurement fragments, generic duplicates, ungrammatical snippets, or labels for the wrong milestone.
-- `Evidence`: `live-cooking-step-previews-client-rescue`, the five focused judge-smoke fixtures, and `live-cooking-step-previews-rendered-fragments` load as public synthetic fixtures under `live_cooking_step_previews`; deterministic validation checks output shape, final rendered-label word/character limits, measurement-free labels, and sibling-label distinctness while preserving provider-versus-rendered quality labels. The synthetic rendering constraints mirror the PR #260 merged runtime limits of 5 words and 24 characters.
+- `Evidence`: `live-cooking-step-previews-client-rescue`, the six focused judge-smoke fixtures, and `live-cooking-step-previews-rendered-fragments` load as public synthetic fixtures under `live_cooking_step_previews`; deterministic validation checks output shape, final rendered-label word/character limits, measurement-free labels, and sibling-label distinctness while preserving provider-versus-rendered quality labels. The synthetic rendering constraints mirror the PR #260 merged runtime limits of 5 words and 24 characters, and the newest fixture mirrors PR #264's prompt direction for final garnish/serve labels.
 - `Evidence limits`: The current validation lane proves schema, privacy posture, deterministic rendered-label checks, label preservation, and judge-smoke report plumbing only. It does not prove live provider behavior, PR #260 runtime fallback behavior, pixel/visual card fit, Wilson re-labeling of these exact synthetic outputs, or calibrated LLM judge quality.
 
 Current harness commands:
@@ -64,4 +65,4 @@ npx vitest run tests/unit/eval-fixtures.test.ts
 
 `npx vitest run tests/unit/eval-fixtures.test.ts` remains the validator behavior coverage lane. It validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
-These fixtures are offline regression artifacts only. They do not change prompts, activate prompt versions, ingest private fixtures, write eval rows, test PR #260 runtime fallback behavior, or represent production-quality rates. The optional judge-smoke command calls a provider only when run explicitly with local secrets.
+These fixtures are offline regression artifacts only. They do not change prompts, activate prompt versions, ingest private fixtures, write eval rows, test PR #260 runtime fallback behavior, prove PR #264 provider quality, or represent production-quality rates. The optional judge-smoke command calls a provider only when run explicitly with local secrets.

@@ -234,7 +234,7 @@ Phase 2 uses criterion-level labels rather than one aggregate "good/bad" label.
 | `step_preview_measurement_free` | `live_cooking_step_previews` | Final rendered preview/headline labels avoid measurements, quantities, and numeric fragments. | Deterministic |
 | `step_preview_distinctness` | `live_cooking_step_previews` | Final rendered sibling labels do not repeat for distinct recipe milestones. | Deterministic for exact duplicates; human/judge for near-duplicates |
 | `step_preview_plain_english` | `live_cooking_step_previews` | Labels read as idiomatic plain English, use correct singular/plural agreement, and include needed nouns, prepositions, or adverbs. | Human/judge |
-| `step_preview_milestone_fit` | `live_cooking_step_previews` | Labels name the actual cooking milestone rather than incidental setup text or clipped instruction fragments. | Human/judge |
+| `step_preview_milestone_fit` | `live_cooking_step_previews` | Labels name the actual cooking milestone rather than incidental setup text, clipped instruction fragments, or stale generic labels for final garnish/serving/plating actions. | Human/judge |
 | `step_preview_provider_label_quality` | `live_cooking_step_previews` | The raw provider `actionLabel` is independently usable before client rescue. | Human/judge plus deterministic flags where practical |
 | `step_preview_rendered_label_quality` | `live_cooking_step_previews` | The final rendered label is usable as a hands-busy recall card after client normalization/fallback. | Human/judge plus deterministic checks |
 

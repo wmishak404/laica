@@ -352,6 +352,7 @@ describe("INIT-004 eval fixture foundation", () => {
       "live-cooking-step-previews-measurement-fragment",
       "live-cooking-step-previews-rendered-fragments",
       "live-cooking-step-previews-singular-plural-agreement",
+      "live-cooking-step-previews-stale-final-garnish-label",
       "live-cooking-step-previews-wrong-milestone",
       "openai-max-time-25-to-30",
       "slop-bowl-suggestions-current-shape",
@@ -365,6 +366,7 @@ describe("INIT-004 eval fixture foundation", () => {
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-measurement-fragment")?.labels.step_preview_measurement_free).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-duplicate-labels")?.labels.step_preview_distinctness).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-singular-plural-agreement")?.labels.step_preview_plain_english).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-stale-final-garnish-label")?.labels.step_preview_milestone_fit).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_measurement_free).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_distinctness).toBe("fail");
   });

@@ -65,6 +65,7 @@ describe("Live Cooking step-preview judge smoke runner", () => {
       "live-cooking-step-previews-wrong-milestone",
       "live-cooking-step-previews-incomplete-phrase",
       "live-cooking-step-previews-singular-plural-agreement",
+      "live-cooking-step-previews-stale-final-garnish-label",
       "live-cooking-step-previews-duplicate-labels",
     ]);
   });

@@ -95,7 +95,7 @@ npm run env:run -- npm run eval:step-preview-judge-smoke -- --runs 3 --out /tmp/
 
 This provider-backed command repeats the focused synthetic `live_cooking_step_previews` fixtures and emits an uncalibrated Markdown report for Wilson review. It does not write eval rows, change prompts, or establish product-quality truth.
 
-Current limitation: committed fixtures now include foundation contract guards plus first user-expectation probes for max-time, cooking-step safety/skill/equipment/sequence, pantry recipe dietary/pantry/skill fit, and Live Cooking step-preview/action-label rendered-card quality. They still do not prove live model quality, judge calibration, taste, broad cuisine fit, private-gold coverage, prompt-candidate quality, PR #260 runtime fallback behavior, or pixel/visual preview-card fit. The optional judge smoke proves judge plumbing and qualitative stability only until Wilson labels and TPR/TNR exist.
+Current limitation: committed fixtures now include foundation contract guards plus first user-expectation probes for max-time, cooking-step safety/skill/equipment/sequence, pantry recipe dietary/pantry/skill fit, and Live Cooking step-preview/action-label rendered-card quality. They still do not prove live model quality, judge calibration, taste, broad cuisine fit, private-gold coverage, prompt-candidate quality, PR #260 runtime fallback behavior, PR #264 prompt-provider behavior, or pixel/visual preview-card fit. The optional judge smoke proves judge plumbing and qualitative stability only until Wilson labels and TPR/TNR exist.
 
 Future fixture-batch evidence should summarize:
 
@@ -121,6 +121,7 @@ Current committed public fixture set:
 - `live-cooking-step-previews-measurement-fragment`
 - `live-cooking-step-previews-rendered-fragments`
 - `live-cooking-step-previews-singular-plural-agreement`
+- `live-cooking-step-previews-stale-final-garnish-label`
 - `live-cooking-step-previews-wrong-milestone`
 
 ## Current Related Initiative

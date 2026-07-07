@@ -229,7 +229,7 @@ This lane is uncalibrated until Wilson-labeled examples and TPR/TNR exist. Disti
       {
         id: 'wrong_milestone_label',
         name: 'Wrong Milestone Label',
-        description: 'The label names incidental setup words instead of the actual cooking milestone, such as labeling a vegetable-cooking step as only heating oil or butter.',
+        description: 'The label names incidental setup words, stale generic actions, or the wrong milestone instead of the actual cooking milestone, such as labeling a vegetable-cooking step as only heating oil or butter, or labeling an off-heat green-onion garnish and serving step as "Cook Vegetables".',
         severity: 'medium',
       },
       {
