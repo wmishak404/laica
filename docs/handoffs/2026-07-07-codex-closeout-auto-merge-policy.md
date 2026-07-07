@@ -13,6 +13,11 @@ Wilson clarified that when he explicitly approves merging a parent PR, Codex sho
 ## Validation
 
 - `git diff --check`
+- PR #267 exact-head GitHub checks passed before merge: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze jobs.
+
+## Merge Closeout
+
+PR #267 merged on 2026-07-07 as `9cb63fa87d29e4d8e885350f3d8bee9d1f6e4e6a` after Wilson explicitly requested the policy update. This closeout adds only the merge SHA and final check summary.
 
 ## Boundaries
 
