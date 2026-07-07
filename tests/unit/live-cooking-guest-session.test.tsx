@@ -350,6 +350,24 @@ describe('LiveCooking guest session boundary', () => {
     expect(mocks.startCookingSession).not.toHaveBeenCalled();
   });
 
+  it('pins the current step above the Coach Feed cues', async () => {
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByTestId('current-step-panel').className).toContain('sticky');
+    expect(screen.getByRole('heading', { name: /coach feed/i })).toBeTruthy();
+    expect(screen.getByText('Steam rises.')).toBeTruthy();
+    expect(screen.getByText('Stir gently.')).toBeTruthy();
+    expect(screen.getByText('Do not scorch the rice.')).toBeTruthy();
+  });
+
   it('restores the saved guest step tray without reinitializing cooking steps', async () => {
     window.localStorage.setItem('laica_cooking_session:guest:guest-user-id', JSON.stringify({
       recipeName: 'Guest Rice Bowl',

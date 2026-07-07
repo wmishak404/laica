@@ -127,6 +127,12 @@ This slice implements the first two Ready Check acceptance items without pulling
 
 Local evidence for the branch included focused Vitest coverage for Ready Check gating, guest/linked session boundaries, invalid-step recovery, and route schema plumbing; full `npm run test:unit`; `npm run check`; `npm run build`; and `git diff --check`. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at validated head `8529878` before merge; `trufflehog_push` skipped as expected. Local Playwright E2E was not run because the worktree did not have `.env.keys` or a configured `LAICA_LOCAL_SANDBOX_DATABASE_URL`. Human Replit validation remains release/batch scope per EFF-017 and the testing workflow.
 
+## 2026-07-07 Pinned Step and Coach Feed slice
+
+Branch `codex/init-001-phase4-step-coach` continues Phase 4 from fresh `origin/main` after PR #258 and its closeout. It turns the active cooking guide from the old dark centered card into a calmer focus-mode surface: the current step is a sticky top panel with larger instruction text and progress, while contextual `Look for`, `Pro tip`, `Avoid`, transcript, repeat/help, and audio controls live together in a named Coach Feed below the pinned step. The adjacent preparing-guide and step-recovery panels now use the same tokenized focus-mode surface so generation, retry, and backup paths no longer visually fall back to the pre-refresh dark treatment.
+
+This slice is visual/structural and preserves PR #191 speech arbitration, PR #236 recovery/Finish behavior, PR #256 invalid-step validation, and PR #258 Ready Check entry. It does not change cooking-step prompts, route schema, timer semantics, assistance failure handling, full structured provider output, Phase 5 cleanup state, or durable navigation. Local evidence includes focused Live Cooking Vitest coverage for the sticky step / Coach Feed contract, full `npm run test:unit`, `npm run check`, and `npm run build`; local Playwright E2E remains deferred to GitHub CI because the worktree lacks `.env.keys` and a configured local sandbox database.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.

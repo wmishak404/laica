@@ -401,6 +401,7 @@ test.describe('Laica Guest E2E Smoke', () => {
 
     await expect(page.getByText('Live Cooking Assistant')).toBeVisible();
     await expect(page.getByText('Step 1 of 3')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Coach Feed' })).toBeVisible();
     await expect(page.getByText('Warm the rice in a skillet until steamy.', { exact: true })).toBeVisible();
     await expect(page.getByText('Steam rises and the rice separates easily.')).toBeVisible();
     await expect(page.getByText('Stir once so the grains loosen without drying out.')).toBeVisible();
