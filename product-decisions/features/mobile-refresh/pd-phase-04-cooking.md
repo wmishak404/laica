@@ -98,6 +98,20 @@ Before any Phase 4 speech/audio branch is merge-ready, it must classify and test
 | Rapid repeated actions | Fast taps should settle on one current instruction. | Rapid Next/Previous/Repeat actions cancel older speech requests and only the last requested transcript can play. | Unit test using fake timers and late promise resolution. |
 | Timer completion during speech | Time-sensitive alerts should not layer over stale step audio. | Timer completion interrupts current guidance and speaks the timer alert once, or records an explicit no-audio decision if muted. | Unit test for timer alert arbitration. |
 
+### Future voice activity affordance
+
+Wilson's 2026-07-07 Replit review added a future Phase 4 design slice for the bottom-center `Ask a question` control. The preferred direction is a Claude-style bottom-up glowing gradient animation, not a radial orb. The glow should rise and fall with user or agent voice activity when amplitude/state data is available, so a cook can tell Laica is listening, processing, or speaking without relying on captions.
+
+This is a design and interaction slice worthy of its own PR. It should not be folded into unrelated Live Cooking styling, step-label quality, or speech-arbitration fixes. The future branch should keep the affordance inside or immediately around the existing bottom-center `Ask a question` command so it supports the compact cockpit rather than introducing a separate voice screen.
+
+Implementation guardrails:
+
+- Drive the animation from explicit voice states such as `idle`, `listening`, `processing`, and `speaking`.
+- Use amplitude only as progressive enhancement; provide a clear non-amplitude fallback when browser/provider audio data is unavailable.
+- Respect `prefers-reduced-motion` and keep the non-animated state readable and tappable.
+- Preserve the current bottom command layout: Repeat on the left, Ask a question centered, Audio on the right.
+- Validate with rendered mobile screenshots or video frames plus computed-style/state evidence; matching class names alone are not enough.
+
 ### 2026-06-17 - Audio lifecycle cleanup slice
 
 [PR #191](https://github.com/wmishak404/laica/pull/191) merged as `104ee0c` on 2026-06-20 and implements the first narrow Phase 4 runtime slice for the Replit-observed speech-leak issue and Wilson's follow-up speech-action matrix. Back to Planning, Finish, and unmount share a cleanup path that clears delayed speech, clears mobile audio retry timers, stops current audio/browser speech synthesis, invalidates late ElevenLabs synthesis responses before playback, and cancels active voice recording without processing abandoned audio chunks. Existing Live Cooking speech controls now share a current-request arbitration token so Step navigation, Repeat Step, timer messages, Ask for Help, Mute, Unmute, and rapid repeated actions cannot leave stale audio playing over the current visible/requested transcript.
@@ -159,6 +173,7 @@ This slice preserves PR #191 speech arbitration, PR #236 recovery/Finish behavio
 - Step progress includes dot nodes and short action-forward preview labels for each step.
 - Routine `minor` safety badges are not shown as a persistent status chip.
 - Repeat step instruction, Ask a question, and audio mute controls are taller icon-over-label buttons anchored in a bottom command bar, with Ask a question centered.
+- A future dedicated Phase 4 design PR should add a state-driven bottom-up glowing gradient voice affordance to `Ask a question`, using the Claude-style vertical glow direction Wilson preferred and respecting reduced-motion/fallback states.
 - Transcript text is hidden by default and appears only when the icon-like CC caption toggle is enabled.
 - Active Live Cooking requests a screen wake lock when supported by the browser and releases it when the guide exits or the page hides.
 - Model steps include sensory cues where applicable.
