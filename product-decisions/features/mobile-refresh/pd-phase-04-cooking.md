@@ -113,11 +113,11 @@ Wilson approved the small-win merge on 2026-06-29 so the silent generic fallback
 
 ### 2026-07-06 - Generated-step validation slice
 
-[PR #256](https://github.com/wmishak404/laica/pull/256) is the next bounded Phase 4 runtime slice. It tightens the PR #236 recovery contract so blank, whitespace-only, and obvious placeholder generated instructions do not start or restore a Live Cooking guide and do not create a linked cooking session. When every generated instruction is unusable, the existing inline recovery panel remains the user-visible state; the generic backup guide still requires an explicit `Use basic steps` choice.
+[PR #256](https://github.com/wmishak404/laica/pull/256) merged as `f40cb1c` on 2026-07-06. It tightens the PR #236 recovery contract so blank, whitespace-only, and obvious placeholder generated instructions do not start or restore a Live Cooking guide and do not create a linked cooking session. When every generated instruction is unusable, the existing inline recovery panel remains the user-visible state; the generic backup guide still requires an explicit `Use basic steps` choice.
 
 The slice routes both fresh provider output and browser-local restored step trays through the same sanitizer, so stale placeholder local state cannot bypass regeneration. Focused local coverage in `tests/unit/live-cooking-guest-session.test.tsx` proves linked sessions are not started from placeholder output and saved placeholder trays regenerate instead of rendering as Step 1.
 
-This does not change the cooking-step prompt, provider behavior, route schema, Ready Check, Coach Feed, timer redesign, speech/audio arbitration, durable History semantics, Phase 5 cleanup state, or the current basic-backup copy. Human Replit validation can remain release/batch scope unless later work changes real provider behavior, device audio, microphone permissions, cooking-session persistence, or Finish-to-Phase-5 semantics.
+This does not change the cooking-step prompt, provider behavior, route schema, Ready Check, Coach Feed, timer redesign, speech/audio arbitration, durable History semantics, Phase 5 cleanup state, or the current basic-backup copy. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at `bb98cf8` before merge. Human Replit validation remains release/batch scope unless later work changes real provider behavior, device audio, microphone permissions, cooking-session persistence, or Finish-to-Phase-5 semantics.
 
 ## Acceptance Criteria
 
