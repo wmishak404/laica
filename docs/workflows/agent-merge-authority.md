@@ -8,7 +8,7 @@ This workflow defines when Codex may merge a PR without a fresh Wilson instructi
 
 ## Plain-English Rule
 
-Codex may auto-merge docs-only workflow PRs and fact-only post-merge evidence closeouts after the relevant merge-readiness checklist passes. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, human Replit validation when the risk lane requires it, and an explicit human merge instruction.
+Codex may auto-merge docs-only workflow PRs and fact-only post-merge evidence closeouts after the relevant merge-readiness checklist passes. When Wilson explicitly approves merging a parent INIT/Effort/code/product PR, that instruction carries to the immediate mechanical closeout PR only if the closeout adds no new scope and only records already-merged facts, validation, deferrals, and the next resume point. Code, repo configuration, deployment-bound, product-direction, security/privacy, and unresolved-review PRs still require the stricter gates in [`testing-and-acceptance.md`](testing-and-acceptance.md), automation evidence reports when automated checks are used as merge-readiness proof, human Replit validation when the risk lane requires it, and an explicit human merge instruction.
 
 Codex may mark its own complete draft PRs ready for review and monitor CI without waiting for Wilson when the ready-for-review gates below pass. That authority only starts the shared CI/review loop; it does not grant merge authority.
 
@@ -44,15 +44,16 @@ If any condition is uncertain, stop and leave a blocking report instead of mergi
 
 Codex may also auto-merge docs-only post-merge evidence closeout PRs that touch active INIT or Effort files when all of these are true:
 
-1. The PR records already-observed facts: merged PR number, merge SHA, branch/head SHA, checks, validation evidence, negative scope, deferrals, and next resume point already implied by the owning source doc.
-2. The PR does not change product direction, acceptance criteria, validation authority, ownership, phase order, current resume priority, or the meaning of the underlying work.
-3. The PR does not mark an INIT, phase, or Effort `Resolved`, `Deferred`, `Superseded`, remove it from active read lists, or create a new active Effort unless the existing source doc already makes that outcome mechanically true.
-4. The PR does not introduce new policy language or expand agent permissions, unless Wilson explicitly approved that policy change in the current thread.
-5. The branch is current with `origin/main`, has no merge conflicts, and has no unrelated worktree changes.
-6. The agent checked for conflicting active work before merge: open PRs or recent handoffs touching the same INIT/Effort/workflow, and matching `docs/handoffs/*-blocked.md` reports.
-7. Required checks are passing, or GitHub reports no required checks for the docs-only closeout PR.
-8. PR comments, review submissions, and review threads do not contain unresolved blockers, requested changes, or explicit peer-review-before-merge requests.
-9. The PR body and handoff include validation, remaining unvalidated scope, Replit status, and any explicit deferrals.
+1. The parent PR was merged by explicit Wilson instruction or by an existing auto-merge authority, and the closeout is the immediate documentation continuation of that merge.
+2. The PR records already-observed facts: merged PR number, merge SHA, branch/head SHA, checks, validation evidence, negative scope, deferrals, and next resume point already implied by the owning source doc.
+3. The PR adds no new scope and does not change product direction, acceptance criteria, validation authority, ownership, phase order, current resume priority, or the meaning of the underlying work.
+4. The PR does not mark an INIT, phase, or Effort `Resolved`, `Deferred`, `Superseded`, remove it from active read lists, or create a new active Effort unless the existing source doc already makes that outcome mechanically true.
+5. The PR does not introduce new policy language or expand agent permissions, unless Wilson explicitly approved that policy change in the current thread.
+6. The branch is current with `origin/main`, has no merge conflicts, and has no unrelated worktree changes.
+7. The agent checked for conflicting active work before merge: open PRs or recent handoffs touching the same INIT/Effort/workflow, and matching `docs/handoffs/*-blocked.md` reports.
+8. Required checks are passing, or GitHub reports no required checks for the docs-only closeout PR.
+9. PR comments, review submissions, and review threads do not contain unresolved blockers, requested changes, or explicit peer-review-before-merge requests.
+10. The PR body and handoff include validation, remaining unvalidated scope, Replit status, and any explicit deferrals.
 
 If the closeout changes the meaning of work rather than preserving evidence about work that already happened, it needs human approval.
 
