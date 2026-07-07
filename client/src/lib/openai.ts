@@ -110,6 +110,7 @@ export async function fetchCookingSteps(
     ingredients?: string[];
     equipment?: string[];
     description?: string;
+    acknowledgedMissingIngredients?: string[];
   }
 ): Promise<CookingStepsResponse> {
   const response = await apiRequest('POST', '/api/cooking/steps', {

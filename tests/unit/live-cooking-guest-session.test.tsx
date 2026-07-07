@@ -230,6 +230,13 @@ async function flushPromises() {
   });
 }
 
+async function clickReadyCheckStart(name: RegExp = /start cooking|cook anyway/i) {
+  await flushPromises();
+  expect(screen.getByText('Ready to cook?')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name }));
+  await flushPromises();
+}
+
 async function renderCookingGuide() {
   render(
     <LiveCooking
@@ -238,7 +245,7 @@ async function renderCookingGuide() {
       onBackToPlanning={vi.fn()}
     />,
   );
-  await flushPromises();
+  await clickReadyCheckStart();
   expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
 }
 
@@ -282,6 +289,52 @@ describe('LiveCooking guest session boundary', () => {
     window.localStorage.clear();
   });
 
+  it('waits for Ready Check before generating cooking steps', async () => {
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Ready to cook?')).toBeTruthy();
+    expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /start cooking/i }));
+
+    await screen.findByText('Warm the rice and beans.');
+    await waitFor(() => expect(mocks.fetchCookingSteps).toHaveBeenCalledWith('Guest Rice Bowl', {
+      ingredients: ['rice', 'beans'],
+      equipment: ['skillet'],
+      description: 'A quick guest recipe',
+    }));
+  });
+
+  it('passes acknowledged missing ingredients when the cook chooses Cook anyway', async () => {
+    render(
+      <LiveCooking
+        selectedMeal={{
+          ...selectedMeal,
+          missingIngredients: [' cilantro ', 'lime'],
+        }}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Ready to cook?')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /cook anyway/i }));
+
+    await screen.findByText('Warm the rice and beans.');
+    expect(mocks.fetchCookingSteps).toHaveBeenCalledWith('Guest Rice Bowl', {
+      ingredients: ['rice', 'beans'],
+      equipment: ['skillet'],
+      description: 'A quick guest recipe',
+      acknowledgedMissingIngredients: ['cilantro', 'lime'],
+    });
+  });
+
   it('does not create durable cooking sessions for anonymous guests', async () => {
     render(
       <LiveCooking
@@ -291,12 +344,8 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     await screen.findByText('Warm the rice and beans.');
-    await waitFor(() => expect(mocks.fetchCookingSteps).toHaveBeenCalledWith('Guest Rice Bowl', {
-      ingredients: ['rice', 'beans'],
-      equipment: ['skillet'],
-      description: 'A quick guest recipe',
-    }));
 
     expect(mocks.startCookingSession).not.toHaveBeenCalled();
   });
@@ -360,6 +409,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     await screen.findByText('Warm the rice and beans.');
     await waitFor(() => expect(mocks.startCookingSession).toHaveBeenCalledTimes(1));
   });
@@ -443,6 +493,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     expect(screen.queryByText('Stale step from the old pantry.')).toBeNull();
     expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(1);
@@ -464,6 +515,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     expect(await screen.findByText('Cooking guide needs another try')).toBeTruthy();
     expect(screen.getByText(/try again shortly/i)).toBeTruthy();
     expect(screen.queryByText('Prepare ingredients for Guest Rice Bowl')).toBeNull();
@@ -489,6 +541,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     expect(await screen.findByText('Cooking guide needs another try')).toBeTruthy();
     expect(screen.queryByText('Prepare ingredients for Guest Rice Bowl')).toBeNull();
 
@@ -522,6 +575,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     expect(await screen.findByText('Cooking guide needs another try')).toBeTruthy();
     expect(screen.getByText(/usable cooking steps/i)).toBeTruthy();
     expect(screen.queryByText('Step 1')).toBeNull();
@@ -529,7 +583,7 @@ describe('LiveCooking guest session boundary', () => {
     expect(mocks.startCookingSession).not.toHaveBeenCalled();
   });
 
-  it('regenerates instead of restoring saved placeholder steps', async () => {
+  it('requires Ready Check before regenerating saved placeholder steps', async () => {
     window.localStorage.setItem('laica_cooking_session:guest:guest-user-id', JSON.stringify({
       recipeName: 'Guest Rice Bowl',
       recipeId: 'meal-1',
@@ -561,6 +615,12 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    expect(await screen.findByText('Ready to cook?')).toBeTruthy();
+    expect(screen.queryByText('Step 1')).toBeNull();
+    expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /start cooking/i }));
+
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     expect(screen.queryByText('Step 1')).toBeNull();
     expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(1);
@@ -580,6 +640,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     await waitFor(() => expect(mocks.startCookingSession).toHaveBeenCalledTimes(1));
 
@@ -625,11 +686,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
-    await act(async () => {
-      await Promise.resolve();
-      await Promise.resolve();
-    });
-
+    await clickReadyCheckStart();
     expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /repeat step/i }));
@@ -664,6 +721,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     const transcriptionBox = screen.getByTestId('transcription-box');
     expect(transcriptionBox.className).toContain('sticky');
@@ -692,6 +750,7 @@ describe('LiveCooking guest session boundary', () => {
       />,
     );
 
+    await clickReadyCheckStart();
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     expect(screen.getByTestId('transcription-box').className).toContain('sticky');
     expect(screen.getByRole('button', { name: /unpin transcription/i })).toBeTruthy();

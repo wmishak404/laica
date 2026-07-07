@@ -202,6 +202,12 @@ function getInitialTranscriptionPinned() {
   }
 }
 
+function normalizeContextItems(items?: string[]) {
+  return (items || [])
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
 interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
@@ -239,7 +245,10 @@ export default function LiveCooking({
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
   const [loadedRecipeIngredients, setLoadedRecipeIngredients] = useState<Array<{ name: string; quantity?: string; forSteps?: number[] }>>([]);
-  const [isLoadingSteps, setIsLoadingSteps] = useState(true);
+  const [hasCheckedSavedSession, setHasCheckedSavedSession] = useState(false);
+  const [hasStartedCookingGuide, setHasStartedCookingGuide] = useState(false);
+  const [acknowledgedMissingIngredients, setAcknowledgedMissingIngredients] = useState<string[]>([]);
+  const [isLoadingSteps, setIsLoadingSteps] = useState(false);
   const [stepLoadIssue, setStepLoadIssue] = useState<StepLoadIssue | null>(null);
   const [stepLoadAttempt, setStepLoadAttempt] = useState(0);
   const [useElevenLabs, setUseElevenLabs] = useState(true);
@@ -291,6 +300,19 @@ export default function LiveCooking({
   isAudioEnabledRef.current = isAudioEnabled;
   isVoiceRecordingRef.current = isVoiceRecording;
   voiceAvailableRef.current = voiceAvailable;
+
+  const readyCheckIngredients = useMemo(
+    () => normalizeContextItems(selectedMeal.ingredients),
+    [selectedMeal.ingredients],
+  );
+  const readyCheckEquipment = useMemo(
+    () => normalizeContextItems(selectedMeal.equipment),
+    [selectedMeal.equipment],
+  );
+  const readyCheckMissingIngredients = useMemo(
+    () => normalizeContextItems(selectedMeal.missingIngredients),
+    [selectedMeal.missingIngredients],
+  );
 
   // Validate and sanitize a saved cooking session
   const validateCookingSession = (data: any): SavedCookingSession | null => {
@@ -378,6 +400,7 @@ export default function LiveCooking({
             setLoadedRecipeSteps(session.steps);
             setLoadedRecipeIngredients(session.ingredients || []);
             setIsLoadingSteps(false);
+            setHasStartedCookingGuide(true);
             sessionStepsRestoredRef.current = true;
           }
           sessionRestoredRef.current = true;
@@ -392,6 +415,8 @@ export default function LiveCooking({
     } catch (error) {
       console.error('Error loading saved cooking session:', error);
       localStorage.removeItem(cookingSessionStorageKey);
+    } finally {
+      setHasCheckedSavedSession(true);
     }
   }, [cookingSessionStorageKey, selectedMeal.recipeName, selectedMeal.id, profileFingerprint]);
 
@@ -441,7 +466,6 @@ export default function LiveCooking({
     onBackToPlanning();
   };
 
-  // Load recipe steps when component mounts
   // Detect mobile device and setup early AudioContext preparation
   useEffect(() => {
     const detectMobile = () => {
@@ -461,6 +485,16 @@ export default function LiveCooking({
   }, []);
 
   useEffect(() => {
+    // Initialize speech synthesis early, but do not generate or speak steps until the cook passes Ready Check.
+    if ('speechSynthesis' in window) {
+      speechSynthesisRef.current = window.speechSynthesis;
+    }
+
+    if (!hasStartedCookingGuide) {
+      setIsLoadingSteps(false);
+      return;
+    }
+
     const loadRecipeSteps = async () => {
       if (sessionStepsRestoredRef.current) {
         sessionStepsRestoredRef.current = false;
@@ -478,6 +512,7 @@ export default function LiveCooking({
           ingredients: selectedMeal.ingredients,
           equipment: selectedMeal.equipment,
           description: selectedMeal.description,
+          ...(acknowledgedMissingIngredients.length > 0 ? { acknowledgedMissingIngredients } : {}),
         });
         const parsedSteps = sanitizeRecipeSteps(response.steps);
         const parsedIngredients = response.recipe?.ingredients?.map((ing: { name: string; quantity?: string; forSteps?: number[] }) => ({
@@ -523,16 +558,12 @@ export default function LiveCooking({
     };
 
     loadRecipeSteps();
-    
-    // Initialize speech synthesis
-    if ('speechSynthesis' in window) {
-      speechSynthesisRef.current = window.speechSynthesis;
-    }
-  }, [selectedMeal.recipeName, stepLoadAttempt]);
+  }, [selectedMeal.recipeName, stepLoadAttempt, hasStartedCookingGuide, acknowledgedMissingIngredients, selectedMeal.ingredients, selectedMeal.equipment, selectedMeal.description]);
 
   const useBasicCookingSteps = () => {
     const basicSteps = createBasicCookingSteps(selectedMeal.recipeName);
 
+    setHasStartedCookingGuide(true);
     setStepLoadIssue(null);
     setCurrentStepIndex(0);
     setTimer(0);
@@ -973,6 +1004,11 @@ export default function LiveCooking({
   const [isInitializing, setIsInitializing] = useState(true);
   
   useEffect(() => {
+    if (!hasStartedCookingGuide || isLoadingSteps) {
+      cancelSpeechQueue();
+      return;
+    }
+
     if (!isAudioEnabled) {
       cancelSpeechQueue();
       return;
@@ -1000,7 +1036,7 @@ export default function LiveCooking({
         }
       }, delay);
     }
-  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording, isLoadingSteps, speechIntentRevision]);
+  }, [assistantResponse, isAudioEnabled, audioJustEnabled, lastSpokenResponse, isVoiceRecording, isLoadingSteps, speechIntentRevision, hasStartedCookingGuide]);
 
   const setSpokenAssistantResponse = (text: string) => {
     cancelSpeechQueue();
@@ -1008,6 +1044,24 @@ export default function LiveCooking({
     setLastSpokenResponse('');
     setAssistantResponse(text);
     setSpeechIntentRevision(revision => revision + 1);
+  };
+
+  const startCookingGuideFromReadyCheck = (options?: { silent?: boolean }) => {
+    setAcknowledgedMissingIngredients(readyCheckMissingIngredients);
+    setCurrentStepIndex(0);
+    setTimer(0);
+    setIsTimerRunning(false);
+    setStepLoadIssue(null);
+
+    if (options?.silent) {
+      stopAudio();
+      isAudioEnabledRef.current = false;
+      setAudioJustEnabled(false);
+      setLastSpokenResponse(assistantResponseRef.current);
+      setIsAudioEnabled(false);
+    }
+
+    setHasStartedCookingGuide(true);
   };
 
   const nextStep = () => {
@@ -1451,14 +1505,108 @@ export default function LiveCooking({
     }
   };
 
-  if (isLoadingSteps) {
+  const readyCheckItems = [
+    {
+      label: 'Ingredients nearby',
+      detail: readyCheckIngredients.length > 0
+        ? readyCheckIngredients.slice(0, 4).join(', ')
+        : 'Use the ingredients you confirmed in planning.',
+      icon: <CheckCircle className="h-5 w-5 text-primary" />,
+    },
+    {
+      label: 'Equipment ready',
+      detail: readyCheckEquipment.length > 0
+        ? readyCheckEquipment.slice(0, 3).join(', ')
+        : 'Have your usual pan, knife, board, and utensils nearby.',
+      icon: <Info className="h-5 w-5 text-primary" />,
+    },
+    {
+      label: 'Audio choice',
+      detail: 'Start with spoken guidance, or cook silently and read each step.',
+      icon: <Volume2 className="h-5 w-5 text-primary" />,
+    },
+    {
+      label: 'Heat stays off until Step 1',
+      detail: 'The guide will tell you when to turn on the stove, oven, or burner.',
+      icon: <Clock className="h-5 w-5 text-primary" />,
+    },
+  ];
+
+  if (!hasCheckedSavedSession || isLoadingSteps) {
     return (
       <div className="w-full max-w-4xl mx-auto p-4 min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold mb-2">Preparing Your Cooking Guide</h2>
-          <p className="text-gray-600">Setting up personalized step-by-step instructions for {selectedMeal.recipeName}...</p>
+          <h2 className="text-xl font-semibold mb-2">
+            {hasCheckedSavedSession ? 'Preparing Your Cooking Guide' : 'Checking Your Cooking Guide'}
+          </h2>
+          <p className="text-gray-600">
+            {hasCheckedSavedSession
+              ? `Setting up personalized step-by-step instructions for ${selectedMeal.recipeName}...`
+              : 'Looking for a saved place to resume...'}
+          </p>
         </Card>
+      </div>
+    );
+  }
+
+  if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
+    const primaryReadyLabel = readyCheckMissingIngredients.length > 0 ? 'Cook anyway' : 'Start cooking';
+
+    return (
+      <div className="w-full max-w-4xl mx-auto min-h-screen bg-background px-4 py-6 text-foreground">
+        <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-5">
+          <Button
+            variant="ghost"
+            onClick={handleBackToPlanning}
+            className="self-start"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Planning
+          </Button>
+
+          <header className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">Live Cooking</p>
+            <h1 className="text-3xl font-semibold leading-tight">Ready to cook?</h1>
+            <p className="text-base text-muted-foreground">{selectedMeal.recipeName}</p>
+          </header>
+
+          {readyCheckMissingIngredients.length > 0 && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Skipping {readyCheckMissingIngredients.join(', ')}. Laica will adapt the guide around what you have.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="space-y-3">
+            {readyCheckItems.map((item) => (
+              <div key={item.label} className="flex items-start gap-3 rounded-md border bg-card p-4">
+                <div className="mt-0.5">{item.icon}</div>
+                <div className="min-w-0 space-y-1">
+                  <p className="font-medium leading-none">{item.label}</p>
+                  <p className="text-sm leading-5 text-muted-foreground">{item.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-auto grid gap-3 pb-2">
+            <Button size="lg" onClick={() => startCookingGuideFromReadyCheck()}>
+              <Play className="h-4 w-4 mr-2" />
+              {primaryReadyLabel}
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => startCookingGuideFromReadyCheck({ silent: true })}
+            >
+              <VolumeX className="h-4 w-4 mr-2" />
+              Cook silently
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }

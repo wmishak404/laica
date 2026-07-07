@@ -380,18 +380,24 @@ test.describe('Laica Guest E2E Smoke', () => {
 
     await completeChefItUpToPrepTray(page);
 
-    const cookingStepsRequestPromise = page.waitForRequest('**/api/cooking/steps');
     await page.getByRole('button', { name: 'Cook this' }).click();
+    await expect(page.getByRole('heading', { name: 'Ready to cook?' })).toBeVisible();
+    expect(liveCookingRoutes.getStepsRequestCount()).toBe(0);
+
+    const cookingStepsRequestPromise = page.waitForRequest('**/api/cooking/steps');
+    await page.getByRole('button', { name: /start cooking|cook anyway/i }).click();
     const cookingStepsRequest = await cookingStepsRequestPromise;
     const cookingStepsPayload = cookingStepsRequest.postDataJSON() as {
       recipeName: string;
       ingredients?: string[];
       description?: string;
+      acknowledgedMissingIngredients?: string[];
     };
 
     expect(cookingStepsPayload.recipeName).toBe('Soy Rice Breakfast Bowl');
     expect(cookingStepsPayload.ingredients).toEqual(['rice', 'eggs', 'soy sauce', 'tortillas', 'lime']);
     expect(cookingStepsPayload.description).toBe('A fast bowl built from rice, eggs, soy sauce, tortillas, and lime.');
+    expect(cookingStepsPayload.acknowledgedMissingIngredients).toEqual(['cilantro']);
 
     await expect(page.getByText('Live Cooking Assistant')).toBeVisible();
     await expect(page.getByText('Step 1 of 3')).toBeVisible();

@@ -348,6 +348,7 @@ export async function getCookingSteps(
   ingredients?: string[],
   equipment?: string[],
   description?: string,
+  acknowledgedMissingIngredients?: string[],
 ) {
   try {
     const systemPrompt = await getActivePrompt('cooking_steps') || DEFAULT_COOKING_STEPS_PROMPT;
@@ -355,11 +356,13 @@ export async function getCookingSteps(
     const sanitizedIngredients = sanitizePromptInput(ingredients || []);
     const sanitizedEquipment = sanitizePromptInput(equipment || []);
     const sanitizedDescription = sanitizePromptInput(description || "");
+    const sanitizedAcknowledgedMissingIngredients = sanitizePromptInput(acknowledgedMissingIngredients || []);
     const inputData = {
       recipeName: sanitizedRecipeName,
       ingredients: sanitizedIngredients,
       equipment: sanitizedEquipment,
       description: sanitizedDescription || null,
+      acknowledgedMissingIngredients: sanitizedAcknowledgedMissingIngredients,
     };
 
     const userPrompt = [
@@ -367,6 +370,9 @@ export async function getCookingSteps(
       sanitizedDescription ? `Description: ${sanitizedDescription}` : null,
       sanitizedIngredients.length > 0 ? `Using these ingredients: ${sanitizedIngredients.join(", ")}` : null,
       sanitizedEquipment.length > 0 ? `Available equipment: ${sanitizedEquipment.join(", ")}` : null,
+      sanitizedAcknowledgedMissingIngredients.length > 0
+        ? `The cook acknowledged they may skip these optional ingredients: ${sanitizedAcknowledgedMissingIngredients.join(", ")}. Adapt the steps so the recipe works without requiring them.`
+        : null,
       "Please provide detailed home cooking instructions with visual cues I can look for at each step.",
       "Focus on practical techniques for a home kitchen, not professional chef methods.",
     ]
