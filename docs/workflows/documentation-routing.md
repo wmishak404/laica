@@ -124,6 +124,7 @@ Post-merge closeout is an automatic continuation of merging, not a separate task
 3. Update the durable source of truth and only the indexes/read lists whose status changed.
 4. Add a merge-closeout handoff with the PR number, merge commit SHA, validation SHA, validation summary, deferrals, and next resume point.
 5. Push the closeout branch and open a PR, or write an explicit deferral naming the owner, branch, PR, merge SHA, and smallest remaining closeout action.
+6. If the closeout PR meets the fact-only evidence closeout authority in [`agent-merge-authority.md`](agent-merge-authority.md), treat the parent merge instruction as carrying through to that mechanical closeout and merge it after checks pass. If it adds scope, changes decisions, changes status beyond already-mechanical facts, or has unresolved comments/checks, stop for Wilson.
 
 Do this before starting the next feature task. A final merge response should either link the closeout PR or name the documented deferral.
 

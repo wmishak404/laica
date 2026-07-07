@@ -78,7 +78,7 @@ The branch owner performs this rebase, triggered by the lower-stack merge handof
 
 ## Agent merge authority
 
-Codex may auto-merge docs-only workflow PRs only under [`docs/workflows/agent-merge-authority.md`](docs/workflows/agent-merge-authority.md): checks pass, branch is current, there are no conflicts, changed files stay in the allowed workflow/process scope, and no human/product/security/Replit decision remains. Code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs still require the stricter validation gates and an explicit human merge instruction.
+Codex may auto-merge docs-only workflow PRs and fact-only post-merge closeout PRs only under [`docs/workflows/agent-merge-authority.md`](docs/workflows/agent-merge-authority.md): checks pass, branch is current, there are no conflicts, changed files stay inside the allowed workflow/process or evidence-closeout scope, and no human/product/security/Replit decision remains. When Wilson explicitly approves merging an INIT/Effort/code/product PR, that merge instruction also authorizes the mechanical closeout PR if it only records already-merged facts, validation, deferrals, and the next resume point without adding scope or changing decisions. Code, repo configuration, dependency, security/privacy, schema, product, UI, or deployment-bound PRs still require the stricter validation gates and an explicit human merge instruction.
 
 Codex may mark its own complete draft PRs ready for review and monitor CI without waiting for Wilson only under the ready-for-review rule in [`docs/workflows/agent-merge-authority.md`](docs/workflows/agent-merge-authority.md). This starts automation/review; it does not grant merge authority.
 
