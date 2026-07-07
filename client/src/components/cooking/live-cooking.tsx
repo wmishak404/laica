@@ -105,6 +105,90 @@ function createBasicCookingSteps(recipeName: string): RecipeStep[] {
   ];
 }
 
+function normalizeInstructionText(instruction: string) {
+  return instruction.replace(/\s+/g, ' ').trim();
+}
+
+function isPlaceholderInstruction(instruction: string) {
+  const normalized = normalizeInstructionText(instruction);
+  if (normalized.length === 0) {
+    return true;
+  }
+
+  const lower = normalized.toLowerCase();
+  const compact = lower.replace(/[.:;,\-—–_()[\]{}'"!?]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+  if (/^step\s*\d+$/i.test(compact)) {
+    return true;
+  }
+
+  return [
+    'tbd',
+    'to be determined',
+    'n a',
+    'na',
+    'none',
+    'null',
+    'undefined',
+    'placeholder',
+    'lorem ipsum',
+    'no instructions',
+    'no instructions available',
+    'instructions unavailable',
+    'instruction unavailable',
+    'add instruction here',
+    'details to come',
+    'follow the recipe',
+    'follow recipe instructions',
+    'follow the recipe instructions',
+  ].includes(compact);
+}
+
+function toRecipeStep(step: unknown, index: number): RecipeStep | null {
+  const normalizedStep = typeof step === 'string' ? { instruction: step } : step;
+  if (typeof normalizedStep !== 'object' || normalizedStep === null) return null;
+
+  const candidate = normalizedStep as Partial<RecipeStep> & { step?: unknown };
+  const rawInstruction = typeof candidate.instruction === 'string'
+    ? candidate.instruction
+    : typeof candidate.step === 'string'
+      ? candidate.step
+      : '';
+  const instruction = normalizeInstructionText(rawInstruction);
+
+  if (isPlaceholderInstruction(instruction)) return null;
+
+  const parsedDuration = typeof candidate.duration === 'number'
+    ? candidate.duration
+    : typeof candidate.duration === 'string'
+      ? Number.parseInt(candidate.duration, 10) || undefined
+      : undefined;
+  const safetyLevel = candidate.safetyLevel === 'critical' ||
+    candidate.safetyLevel === 'important' ||
+    candidate.safetyLevel === 'minor'
+    ? candidate.safetyLevel
+    : 'minor';
+
+  return {
+    id: index + 1,
+    instruction,
+    duration: parsedDuration,
+    tips: typeof candidate.tips === 'string' ? candidate.tips : '',
+    visualCues: typeof candidate.visualCues === 'string' ? candidate.visualCues : '',
+    commonMistakes: typeof candidate.commonMistakes === 'string' ? candidate.commonMistakes : '',
+    safetyLevel,
+  };
+}
+
+function sanitizeRecipeSteps(steps: unknown): RecipeStep[] {
+  if (!Array.isArray(steps)) return [];
+
+  return steps
+    .map(toRecipeStep)
+    .filter((step: RecipeStep | null): step is RecipeStep => step !== null)
+    .map((step, index) => ({ ...step, id: index + 1 }));
+}
+
 function getInitialTranscriptionPinned() {
   const saved = localStorage.getItem('laica_transcription_pinned');
   if (saved === null) return true;
@@ -225,28 +309,7 @@ export default function LiveCooking({
       const savedProfileFingerprint = typeof data.profileFingerprint === 'string'
         ? data.profileFingerprint
         : undefined;
-      const steps = Array.isArray(data.steps)
-        ? data.steps.map((step: unknown, index: number): RecipeStep | null => {
-          if (typeof step !== 'object' || step === null) return null;
-          const candidate = step as Partial<RecipeStep>;
-          if (typeof candidate.instruction !== 'string' || candidate.instruction.trim().length === 0) return null;
-          const safetyLevel = candidate.safetyLevel === 'critical' ||
-            candidate.safetyLevel === 'important' ||
-            candidate.safetyLevel === 'minor'
-            ? candidate.safetyLevel
-            : 'minor';
-
-          return {
-            id: typeof candidate.id === 'number' ? candidate.id : index + 1,
-            instruction: candidate.instruction,
-            duration: typeof candidate.duration === 'number' ? candidate.duration : undefined,
-            tips: typeof candidate.tips === 'string' ? candidate.tips : '',
-            visualCues: typeof candidate.visualCues === 'string' ? candidate.visualCues : '',
-            commonMistakes: typeof candidate.commonMistakes === 'string' ? candidate.commonMistakes : '',
-            safetyLevel,
-          };
-        }).filter((step: RecipeStep | null): step is RecipeStep => step !== null)
-        : undefined;
+      const steps = Array.isArray(data.steps) ? sanitizeRecipeSteps(data.steps) : undefined;
       const ingredients = Array.isArray(data.ingredients)
         ? data.ingredients.map((ingredient: unknown): RecipeIngredient | null => {
           if (typeof ingredient !== 'object' || ingredient === null) return null;
@@ -416,29 +479,7 @@ export default function LiveCooking({
           equipment: selectedMeal.equipment,
           description: selectedMeal.description,
         });
-        const parsedSteps = response.steps?.map((step, index): RecipeStep => {
-          const normalizedStep = typeof step === 'string' ? { instruction: step } : step;
-          const parsedDuration = typeof normalizedStep.duration === 'number'
-            ? normalizedStep.duration
-            : typeof normalizedStep.duration === 'string'
-              ? Number.parseInt(normalizedStep.duration, 10) || undefined
-              : undefined;
-          const safetyLevel = normalizedStep.safetyLevel === 'critical' ||
-            normalizedStep.safetyLevel === 'important' ||
-            normalizedStep.safetyLevel === 'minor'
-            ? normalizedStep.safetyLevel
-            : 'minor';
-
-          return {
-            id: index + 1,
-            instruction: normalizedStep.instruction || normalizedStep.step || '',
-            duration: parsedDuration,
-            tips: normalizedStep.tips || '',
-            visualCues: normalizedStep.visualCues || '',
-            commonMistakes: normalizedStep.commonMistakes || '',
-            safetyLevel,
-          };
-        }) || [];
+        const parsedSteps = sanitizeRecipeSteps(response.steps);
         const parsedIngredients = response.recipe?.ingredients?.map((ing: { name: string; quantity?: string; forSteps?: number[] }) => ({
           name: ing.name,
           quantity: ing.quantity,

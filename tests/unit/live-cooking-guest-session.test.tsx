@@ -499,6 +499,73 @@ describe('LiveCooking guest session boundary', () => {
     expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps placeholder cooking steps in recovery and does not start a linked session', async () => {
+    mocks.authUser = {
+      id: 'linked-user-id',
+      email: 'cook@example.com',
+    };
+    mocks.fetchCookingSteps.mockResolvedValueOnce({
+      steps: [
+        '   ',
+        { instruction: 'Step 1' },
+        { instruction: 'TBD' },
+        { instruction: 'Follow the recipe instructions.' },
+      ],
+      recipe: { ingredients: [{ name: 'rice' }] },
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByText('Cooking guide needs another try')).toBeTruthy();
+    expect(screen.getByText(/usable cooking steps/i)).toBeTruthy();
+    expect(screen.queryByText('Step 1')).toBeNull();
+    expect(screen.queryByText('Follow the recipe instructions.')).toBeNull();
+    expect(mocks.startCookingSession).not.toHaveBeenCalled();
+  });
+
+  it('regenerates instead of restoring saved placeholder steps', async () => {
+    window.localStorage.setItem('laica_cooking_session:guest:guest-user-id', JSON.stringify({
+      recipeName: 'Guest Rice Bowl',
+      recipeId: 'meal-1',
+      currentStepIndex: 0,
+      timer: 0,
+      isTimerRunning: false,
+      savedAt: Date.now(),
+      steps: [
+        {
+          id: 1,
+          instruction: 'Step 1',
+          tips: '',
+          visualCues: '',
+          commonMistakes: '',
+          safetyLevel: 'minor',
+        },
+      ],
+      ingredients: [{ name: 'rice' }],
+      profileFingerprint: 'current-profile',
+    }));
+    mocks.fetchCookingSteps.mockResolvedValueOnce(multiStepResponse);
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+        profileFingerprint="current-profile"
+      />,
+    );
+
+    expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
+    expect(screen.queryByText('Step 1')).toBeNull();
+    expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(1);
+  });
+
   it('finishes linked cooking sessions without inventing a rating or pantry update', async () => {
     mocks.authUser = {
       id: 'linked-user-id',
