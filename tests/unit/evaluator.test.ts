@@ -26,16 +26,18 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
       { id: 1, featureType: "recipe_suggestions" },
       { id: 2, featureType: "chef_it_up_suggestions" },
       { id: 3, featureType: "slop_bowl_suggestions" },
-      { id: 4, featureType: "ingredient_detection" },
-      { id: 5, featureType: "future_unreviewed_feature" },
+      { id: 4, featureType: "live_cooking_step_previews" },
+      { id: 5, featureType: "ingredient_detection" },
+      { id: 6, featureType: "future_unreviewed_feature" },
     ];
 
     expect(hasEvalCriteria("chef_it_up_suggestions")).toBe(true);
+    expect(hasEvalCriteria("live_cooking_step_previews")).toBe(true);
     expect(hasEvalCriteria("ingredient_detection")).toBe(false);
 
     const result = selectEvaluableInteractionsForBatch(interactions);
 
-    expect(result.evaluableInteractions.map((interaction) => interaction.id)).toEqual([1, 2, 3]);
+    expect(result.evaluableInteractions.map((interaction) => interaction.id)).toEqual([1, 2, 3, 4]);
     expect(result.skipped).toBe(2);
   });
 
@@ -46,12 +48,13 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
       { id: 3, featureType: "ingredient_detection" },
       { id: 4, featureType: "tts" },
       { id: 5, featureType: "cooking_steps" },
+      { id: 6, featureType: "live_cooking_step_previews" },
     ];
 
     const summary = buildPendingEvalQueueSummary(interactions);
 
-    expect(summary.total).toBe(5);
-    expect(summary.eligibleTotal).toBe(3);
+    expect(summary.total).toBe(6);
+    expect(summary.eligibleTotal).toBe(4);
     expect(summary.skippedTotal).toBe(2);
     expect(summary.byFeature).toEqual({
       recipe_suggestions: 1,
@@ -59,11 +62,13 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
       ingredient_detection: 1,
       tts: 1,
       cooking_steps: 1,
+      live_cooking_step_previews: 1,
     });
     expect(summary.eligibleByFeature).toEqual({
       recipe_suggestions: 1,
       chef_it_up_suggestions: 1,
       cooking_steps: 1,
+      live_cooking_step_previews: 1,
     });
     expect(summary.skippedByFeature).toEqual({
       ingredient_detection: 1,

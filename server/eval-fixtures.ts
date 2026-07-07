@@ -37,6 +37,13 @@ const criterionLabelSchema = z.enum([
   "skill_fit",
   "equipment_fit",
   "cooking_step_sequence",
+  "step_preview_word_count",
+  "step_preview_measurement_free",
+  "step_preview_distinctness",
+  "step_preview_plain_english",
+  "step_preview_milestone_fit",
+  "step_preview_provider_label_quality",
+  "step_preview_rendered_label_quality",
 ]);
 type CriterionLabel = z.infer<typeof criterionLabelSchema>;
 const criterionCheckIds = new Set<string>(criterionLabelSchema.options);
@@ -88,6 +95,31 @@ export type EvalFixtureValidation = {
   checks: EvalFixtureCheck[];
   passed: boolean;
 };
+
+const stepPreviewRenderingConstraintsSchema = z.object({
+  maxWords: z.number().int().positive().default(5),
+  maxCharacters: z.number().int().positive().optional(),
+  preferredMaxWords: z.number().int().positive().optional(),
+}).passthrough().default({ maxWords: 5 });
+
+const liveCookingStepPreviewOutputSchema = z.object({
+  recipe: z.object({
+    recipeName: z.string().min(1),
+    description: z.string().optional(),
+    ingredients: z.array(z.string()).optional(),
+  }).passthrough(),
+  renderingConstraints: stepPreviewRenderingConstraintsSchema,
+  siblingLabelsBeforeRendering: z.array(z.string()).min(1),
+  siblingLabelsAfterRendering: z.array(z.string()).min(1),
+  previews: z.array(z.object({
+    stepIndex: z.number().int().nonnegative(),
+    instruction: z.string().min(1),
+    providerActionLabel: z.string().nullable().optional(),
+    clientNormalizedProviderLabel: z.string().nullable().optional(),
+    clientFallbackLabel: z.string().nullable().optional(),
+    renderedPreviewLabel: z.string().min(1),
+  }).passthrough()).min(1),
+}).passthrough();
 
 function check(id: string, status: EvalFixtureCheck["status"], message: string): EvalFixtureCheck {
   return { id, status, message };
@@ -165,6 +197,18 @@ function collectPrivacyLeaks(value: unknown, pathParts: string[] = []): string[]
   return leaks;
 }
 
+function labelWordCount(label: string): number {
+  return label.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function normalizeLabelForComparison(label: string): string {
+  return label.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function containsMeasurementOrQuantity(label: string): boolean {
+  return /(?:\d|[¼½¾⅓⅔⅛⅜⅝⅞]|\b(?:cups?|tablespoons?|tbsp|teaspoons?|tsp|ounces?|oz|grams?|kilograms?|kg|pounds?|lbs?|milliliters?|ml|liters?|quarts?|qt|pints?|pt)\b)/i.test(label);
+}
+
 function validateRecipeSurface(fixture: EvalFixture): EvalFixtureCheck[] {
   const parsed = parseOutputJson(fixture);
   if (parsed.error) {
@@ -234,6 +278,85 @@ function validateCookingStepsSurface(fixture: EvalFixture): EvalFixtureCheck[] {
   ];
 }
 
+function validateLiveCookingStepPreviewSurface(fixture: EvalFixture): EvalFixtureCheck[] {
+  const parsed = parseOutputJson(fixture);
+  if (parsed.error) {
+    return [
+      check("structure_contract", "fail", parsed.error),
+      check("step_preview_word_count", "not_applicable", "Step-preview checks require valid JSON."),
+      check("step_preview_measurement_free", "not_applicable", "Step-preview checks require valid JSON."),
+      check("step_preview_distinctness", "not_applicable", "Step-preview checks require valid JSON."),
+    ];
+  }
+
+  const schemaResult = liveCookingStepPreviewOutputSchema.safeParse(parsed.value);
+  if (!schemaResult.success) {
+    return [
+      check("structure_contract", "fail", schemaResult.error.issues[0]?.message ?? "Invalid Live Cooking step-preview shape."),
+      check("step_preview_word_count", "not_applicable", "Step-preview checks require a valid preview output shape."),
+      check("step_preview_measurement_free", "not_applicable", "Step-preview checks require a valid preview output shape."),
+      check("step_preview_distinctness", "not_applicable", "Step-preview checks require a valid preview output shape."),
+    ];
+  }
+
+  const output = schemaResult.data;
+  const renderedLabels = output.previews.map((preview) => preview.renderedPreviewLabel);
+  const structureIssues: string[] = [];
+  if (output.siblingLabelsAfterRendering.length !== output.previews.length) {
+    structureIssues.push("siblingLabelsAfterRendering must include one label per preview");
+  }
+  if (output.siblingLabelsBeforeRendering.length !== output.previews.length) {
+    structureIssues.push("siblingLabelsBeforeRendering must include one label per preview");
+  }
+  if (
+    output.siblingLabelsAfterRendering.length === output.previews.length
+    && output.siblingLabelsAfterRendering.some((label, index) => label !== renderedLabels[index])
+  ) {
+    structureIssues.push("siblingLabelsAfterRendering must match the final rendered preview labels in preview order");
+  }
+
+  if (structureIssues.length > 0) {
+    return [
+      check("structure_contract", "fail", structureIssues.join("; ")),
+      check("step_preview_word_count", "not_applicable", "Step-preview checks require aligned sibling label lists."),
+      check("step_preview_measurement_free", "not_applicable", "Step-preview checks require aligned sibling label lists."),
+      check("step_preview_distinctness", "not_applicable", "Step-preview checks require aligned sibling label lists."),
+    ];
+  }
+
+  const maxWords = output.renderingConstraints.maxWords;
+  const maxCharacters = output.renderingConstraints.maxCharacters;
+  const overWordLimit = renderedLabels.filter((label) => labelWordCount(label) > maxWords);
+  const overCharacterLimit = typeof maxCharacters === "number"
+    ? renderedLabels.filter((label) => label.length > maxCharacters)
+    : [];
+  const labelsWithMeasurements = renderedLabels.filter(containsMeasurementOrQuantity);
+  const normalizedLabels = renderedLabels.map(normalizeLabelForComparison);
+  const duplicateLabels = Array.from(new Set(
+    normalizedLabels.filter((label, index) => normalizedLabels.indexOf(label) !== index),
+  ));
+
+  return [
+    check("structure_contract", "pass", "Live Cooking step-preview output captures recipe context, source labels, rendered labels, sibling label lists, and card constraints."),
+    overWordLimit.length === 0 && overCharacterLimit.length === 0
+      ? check("step_preview_word_count", "pass", `All rendered preview labels fit the ${maxWords}-word${maxCharacters ? ` and ${maxCharacters}-character` : ""} limit.`)
+      : check(
+        "step_preview_word_count",
+        "fail",
+        [
+          overWordLimit.length > 0 ? `${overWordLimit.length} label(s) exceed ${maxWords} words` : null,
+          overCharacterLimit.length > 0 ? `${overCharacterLimit.length} label(s) exceed ${maxCharacters} characters` : null,
+        ].filter(Boolean).join("; "),
+      ),
+    labelsWithMeasurements.length === 0
+      ? check("step_preview_measurement_free", "pass", "Rendered preview labels avoid quantities and measurements.")
+      : check("step_preview_measurement_free", "fail", `Rendered preview labels include quantities or measurements: ${labelsWithMeasurements.join(", ")}`),
+    duplicateLabels.length === 0
+      ? check("step_preview_distinctness", "pass", "Rendered sibling preview labels are distinct.")
+      : check("step_preview_distinctness", "fail", `Rendered sibling preview labels repeat: ${duplicateLabels.join(", ")}`),
+  ];
+}
+
 function validateSurfaceContract(fixture: EvalFixture): EvalFixtureCheck[] {
   if (!fixture.output) {
     return [check("structure_contract", hasResolvedLabel(fixture) ? "fail" : "not_applicable", "Fixture has no output yet.")];
@@ -247,6 +370,8 @@ function validateSurfaceContract(fixture: EvalFixture): EvalFixtureCheck[] {
       return validateSlopBowlSurface(fixture);
     case "cooking_steps":
       return validateCookingStepsSurface(fixture);
+    case "live_cooking_step_previews":
+      return validateLiveCookingStepPreviewSurface(fixture);
     case "cooking_assistance":
       return [check("structure_contract", "not_applicable", "Cooking assistance is infrastructure-only for V1 reporting.")];
     default:

@@ -5,6 +5,7 @@ export const EVAL_FEATURE_TYPES = [
   "chef_it_up_suggestions",
   "slop_bowl_suggestions",
   "cooking_steps",
+  "live_cooking_step_previews",
   "cooking_assistance",
 ] as const;
 

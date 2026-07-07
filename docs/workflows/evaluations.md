@@ -43,6 +43,7 @@ Use the same minimal evidence shape for eval artifacts and reports:
 - General recipe suggestions from meal-planning preferences
 - Slop Bowl recipe generation
 - Cooking-step generation for accepted recipes
+- Live Cooking step-preview/action labels through `live_cooking_step_previews`, kept separate from broad `cooking_steps` safety/sequence quality
 
 V1 does not cover provider outage handling, image generation quality, speech transcription/synthesis quality, dashboard UX, or automatic prompt activation.
 
@@ -75,6 +76,7 @@ Human labels are the source of truth for this lane. Model judges are triage unti
 | Cuisine fit | Honors selected cuisine or transparently states a pantry-flexible fallback when pantry evidence is weak | Human/judge |
 | Recipe usefulness | Coherent dish, clear name, practical preparation, ranking/diversity, appropriate substitutions | Human/judge |
 | Cooking steps | Steps align with accepted recipe, equipment, ingredients, skill, time, and safe sequencing | Deterministic where possible; human/judge for sequence quality |
+| Live Cooking step previews | Small-card labels fit hands-busy recall: concise, measurement-free, distinct across sibling steps, plain English, and tied to the actual milestone | Deterministic for shape/length/measurements/exact duplicates; human/judge for milestone and language quality |
 | Food safety | Safe handling/cook guidance for meat, eggs, leftovers, allergens, and storage where relevant | Human/judge plus targeted deterministic flags |
 
 ## Measurement Rules

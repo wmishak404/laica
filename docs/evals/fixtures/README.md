@@ -16,6 +16,8 @@ Committed public fixture set:
 - `chef-it-up-suggestions-optional-extras-required.json` - synthetic negative guard for Chef It Up suggestions that make unavailable extras required instead of optional.
 - `slop-bowl-suggestions-current-shape.json` - synthetic positive guard for the current Slop Bowl `{ recipe }` response contract.
 - `chef-it-up-suggestions-max-time-30-to-60.json` - synthetic Chef It Up suggestions true negative where one 60-minute suggestion exceeds a 30-minute request plus the +15 minute band.
+- `live-cooking-step-previews-client-rescue.json` - synthetic positive rendered-label guard that preserves bad provider labels rescued by client normalization/fallback.
+- `live-cooking-step-previews-rendered-fragments.json` - synthetic negative rendered-label guard for measurement-driven, incomplete, and repeated generic preview labels.
 
 Expected deterministic failures are allowed only when the matching resolved criterion label is also `fail`. Fixture schema, privacy class, privacy scan, output-required, and deterministic label expectation failures still make the artifact invalid.
 
@@ -37,6 +39,12 @@ When adding or materially changing fixtures, keep the fixture data readable and 
 - `Evidence`: `chef-it-up-suggestions-dietary-halal-pork`, `chef-it-up-suggestions-optional-extras-required`, and `chef-it-up-suggestions-beginner-complexity` load as public synthetic fixtures and preserve resolved `dietary_compliance`, `pantry_grounding`, `optional_ingredient_contract`, `skill_fit`, and `recipe_usefulness` labels from the accepted target-set direction.
 - `Evidence limits`: The current validation lane proves the public artifacts are schema-valid, privacy-safe, current-shape pantry recipe fixtures with preserved labels. It does not prove live model behavior, Wilson re-labeling of these exact synthetic outputs, LLM judge calibration, taste, cuisine fit, provider behavior, or private-gold coverage.
 
+2026-07-07 Live Cooking step-preview label batch:
+
+- `Value claim`: Live Cooking step-preview evals should protect hands-busy cooks from small-card labels that are measurement fragments, generic duplicates, ungrammatical snippets, or labels for the wrong milestone.
+- `Evidence`: `live-cooking-step-previews-client-rescue` and `live-cooking-step-previews-rendered-fragments` load as public synthetic fixtures under `live_cooking_step_previews`; deterministic validation checks output shape, final rendered-label word/character limits, measurement-free labels, and sibling-label distinctness while preserving provider-versus-rendered quality labels.
+- `Evidence limits`: The current validation lane proves schema, privacy posture, deterministic rendered-label checks, and label preservation only. It does not prove live provider behavior, PR #260 runtime fallback behavior, pixel/visual card fit, Wilson re-labeling of these exact synthetic outputs, or calibrated LLM judge quality.
+
 Current harness commands:
 
 ```bash
@@ -48,4 +56,4 @@ npx vitest run tests/unit/eval-fixtures.test.ts
 
 `npx vitest run tests/unit/eval-fixtures.test.ts` remains the validator behavior coverage lane. It validates the public fixture schema, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
-These fixtures are offline regression artifacts only. They do not run provider judges, change prompts, activate prompt versions, ingest private fixtures, write eval rows, or represent production-quality rates.
+These fixtures are offline regression artifacts only. They do not run provider judges, change prompts, activate prompt versions, ingest private fixtures, write eval rows, test PR #260 runtime fallback behavior, or represent production-quality rates.

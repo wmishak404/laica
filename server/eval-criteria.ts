@@ -212,4 +212,50 @@ export const EVAL_CRITERIA: Record<EvalFeatureType, EvalCriteria> = {
       },
     ],
   },
+
+  live_cooking_step_previews: {
+    featureType: 'live_cooking_step_previews',
+    description: 'Evaluates Live Cooking step-preview/action labels for small-card recall quality. This judge lane is uncalibrated until Wilson labels and TPR/TNR exist.',
+    evaluatorInstructions: `You are evaluating Live Cooking step-preview/action labels for a hands-busy home cook. The full cooking step may be safe and useful while the small preview label is still bad. Judge the preview label artifact separately from broad cooking-step safety or recipe quality.
+
+This lane is uncalibrated until Wilson-labeled examples and TPR/TNR exist. Distinguish provider actionLabel failures from final rendered-label failures when the client fallback rescues the label.`,
+    errorModes: [
+      {
+        id: 'measurement_or_quantity_label',
+        name: 'Measurement Or Quantity Label',
+        description: 'The final rendered preview label includes measurements, quantities, or numeric fragments instead of an action/result label, such as "Bring 4 Cups".',
+        severity: 'medium',
+      },
+      {
+        id: 'wrong_milestone_label',
+        name: 'Wrong Milestone Label',
+        description: 'The label names incidental setup words instead of the actual cooking milestone, such as labeling a vegetable-cooking step as only heating oil or butter.',
+        severity: 'medium',
+      },
+      {
+        id: 'ungrammatical_or_incomplete_label',
+        name: 'Ungrammatical Or Incomplete Label',
+        description: 'The label is not plain English or omits a needed noun, preposition, or adverb, such as "Push Vegetables Side" or "Add Cold Cooked".',
+        severity: 'medium',
+      },
+      {
+        id: 'duplicate_distinct_milestone_label',
+        name: 'Duplicate Distinct Milestone Label',
+        description: 'Different milestones in the same recipe render the same generic preview label, such as repeated "Cook Vegetables" cards for distinct fried-rice steps.',
+        severity: 'medium',
+      },
+      {
+        id: 'too_long_for_preview_card',
+        name: 'Too Long For Preview Card',
+        description: 'The label is too long for the small preview card. Labels should usually be 2-4 words and stretch to 5 only when needed for meaning.',
+        severity: 'low',
+      },
+      {
+        id: 'provider_label_needs_client_rescue',
+        name: 'Provider Label Needs Client Rescue',
+        description: 'The raw provider actionLabel is poor, but the final rendered label is acceptable only because client normalization or fallback corrected it. Track separately from final rendered-label failure.',
+        severity: 'low',
+      },
+    ],
+  },
 };
