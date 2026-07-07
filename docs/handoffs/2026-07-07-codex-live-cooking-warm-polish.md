@@ -9,9 +9,9 @@
 
 ## Summary
 
-This branch continues INIT-001 Phase 4 from the merged PR #260 cockpit baseline and addresses Wilson's explicit visual finding that the active cooking white background was functional, not final. Ready Check, preparing/recovery, the sticky active step, step-preview rail, cue cards, caption box, and bottom command bar now share a scoped warm `live-cooking-ui` focus-mode surface that visually relates to the setup/planning coral/rust language while preserving the compact hands-busy cockpit.
+This branch continues INIT-001 Phase 4 from the merged PR #260 cockpit baseline and addresses Wilson's explicit visual finding that the active cooking white background was functional, not final. Ready Check, preparing/recovery, the sticky active step, step-preview rail, cue cards, caption box, and bottom command bar now share a scoped warm `live-cooking-ui` focus-mode surface that visually relates to the setup/planning coral/rust language while preserving the compact hands-busy cockpit. A follow-up prompt tightening in the same PR captures Wilson's Replit step-preview findings for plural labels (`Prep Leeks`, not `Prep Leek`) and final garnish/serve labels (`Garnish` / `Garnish & Serve`, not stale `Cook Vegetables`).
 
-The slice is deliberately visual. It preserves PR #191 speech arbitration, PR #236 recovery/Finish honesty, PR #256 invalid-step validation, PR #258 Ready Check gating, and PR #260 compact cockpit/action-label behavior. It does not change route contracts, provider prompts or schemas, durable cooking-session schema, Finish/History semantics, assistance failure handling, durable navigation, formal INIT-004 eval work, full timer redesign, or Phase 5 cleanup.
+The slice is mostly visual with a narrow cooking-step prompt refinement. It preserves PR #191 speech arbitration, PR #236 recovery/Finish honesty, PR #256 invalid-step validation, PR #258 Ready Check gating, and PR #260 compact cockpit/action-label behavior. It does not change route contracts, provider response schema, durable cooking-session schema, Finish/History semantics, assistance failure handling, durable navigation, formal INIT-004 eval work, full timer redesign, or Phase 5 cleanup.
 
 ## Changes
 
@@ -24,14 +24,18 @@ The slice is deliberately visual. It preserves PR #191 speech arbitration, PR #2
   - Keeps the existing control layout and behavior intact.
 - `tests/unit/live-cooking-guest-session.test.tsx`
   - Extends the focused cockpit regression to assert the warm root/screen, step card, guidance panel, preview card, and command bar classes.
+- `tests/unit/cooking-steps-prompt.test.ts`
+  - Adds prompt-composition coverage proving the cooking-step prompt now asks for plural ingredient agreement and final garnish/serve labels instead of stale generic labels.
+- `server/openai.ts`
+  - Tightens the Live Cooking step-preview prompt for `actionLabel` grammar: preserve plural ingredient wording and use garnish/serve labels for final off-heat finishing steps.
 - `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`
-  - Records the warm-surface branch, guardrails, evidence, and remaining negative scope.
+  - Records the warm-surface branch, the prompt-tightening follow-up, guardrails, evidence, and remaining negative scope.
 - `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md`
   - Record this branch as the active Phase 4 visual follow-up and update the resume point.
 
 ## Impact on other agents
 
-Treat PR #260 as the behavior baseline and this branch as the warm visual layer on top. Future timer redesign should start after this surface, keep timers optional and minimizable, and avoid hiding the current step. Assistance-failure handling remains a separate Phase 4 acceptance gap. INIT-004 step-preview eval work remains separate; do not fold eval fixtures or judge calibration into this runtime branch unless Wilson explicitly redirects.
+Treat PR #260 as the behavior baseline and this branch as the warm visual layer plus a narrow provider-prompt tightening on top. Future timer redesign should start after this surface, keep timers optional and minimizable, and avoid hiding the current step. Assistance-failure handling remains a separate Phase 4 acceptance gap. INIT-004 step-preview eval work remains separate; align its fixtures with the new prompt expectations, but do not fold eval fixtures or judge calibration into this runtime branch unless Wilson explicitly redirects.
 
 PD-005 / `design_guidelines.md` interaction: conforms. The branch uses tokenized CSS variables and a wrapper-specificity guardrail rather than raw hex or unscoped primitive overrides. No durable navigation changes were made.
 
@@ -49,6 +53,7 @@ Evidence:
 - `npm ci` passed and reported 0 vulnerabilities.
 - Initial `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` failed before app code because this fresh worktree lacked `node_modules`; rerun after `npm ci` passed.
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed: 1 file, 31 tests.
+- `npx vitest run tests/unit/cooking-steps-prompt.test.ts tests/unit/live-cooking-guest-session.test.tsx` passed after prompt tightening: 2 files, 32 tests.
 - `npm run check` passed: TypeScript plus UI lint.
 - `npm run build` passed. Existing warnings remained: stale Browserslist data, Firebase dynamic/static import chunk warning, and large bundle warning.
 - Local dev server boot via `PORT=3000 npm run env:run -- npm run dev` required sandbox escalation because `tsx` IPC hit `EPERM` inside the sandbox. The approved rerun served on port 3000.
@@ -69,7 +74,8 @@ Evidence limits:
 - The Playwright smoke stubbed `/api/auth/session` because the decrypted local DB still lacks the `anonymous_recipe_usage` table and returns 500 during guest auth. This is the known local DB drift / EFF-017 lane, not a branch behavior change.
 - Provider routes, speech synthesis, and microphone access were stubbed; the smoke does not prove live AI/audio quality.
 - Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level mobile visual acceptance.
-- GitHub exact-head `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL remain pending until the branch is pushed and the PR is opened or marked ready.
+- The prompt-composition test proves prompt text only; it does not prove provider output quality. The separate INIT-004 eval lane should add fixtures for the plural-label and final-garnish failure modes.
+- GitHub exact-head `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL need to rerun after the prompt-tightening commit is pushed.
 
 ## Stack / base status
 
