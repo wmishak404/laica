@@ -150,6 +150,12 @@ Local evidence: focused `npx vitest run tests/unit/live-cooking-guest-session.te
 
 Wilson's Replit follow-up on the same branch found two additional step-preview prompt failure modes: `Prep Leek` should be `Prep Leeks` when the cook is handling multiple leeks, and a final off-heat / green-onion / serve step should be labeled `Garnish` or `Garnish & Serve`, not stale generic `Cook Vegetables`. PR #264 tightens the cooking-step user prompt so action labels preserve plural ingredient grammar and final garnish/serve semantics outrank generic ingredient-bucket labels. This prompt change does not change the route contract, response schema, client fallback/eval harness, or durable session storage.
 
+## 2026-07-07 timer polish branch
+
+Branch `codex/init-001-phase4-timer-polish` starts from `origin/main` after PR #264 and its closeout. It implements the first bounded timer redesign without changing provider schema: existing step `duration` values are treated as optional timer suggestions, not preloaded active timer state. Navigating steps clears timer state, active timers can collapse to a compact time-only pill and expand back to controls, and obvious prep-only instructions such as chopping do not show timer suggestions even if a duration is present. Timer speech copy now handles singular/plural duration text.
+
+The branch intentionally does not add `suggestedTimer` schema, timer kinds/reasons, provider prompt changes, route contracts, durable cooking-session schema changes, assistance failure handling, Finish/History semantics, durable navigation, formal eval work, or Phase 5 cleanup. Focused local evidence so far: `npx vitest run tests/unit/live-cooking-guest-session.test.tsx`, `npm run check`, and `npm run build` pass. Exact-head GitHub checks and release/batch Replit validation remain pending/deferred.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.

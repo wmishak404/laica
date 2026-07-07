@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, Minimize2, Maximize2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -115,6 +115,44 @@ function createBasicCookingSteps(recipeName: string): RecipeStep[] {
       safetyLevel: 'important',
     },
   ];
+}
+
+function formatTimerDuration(seconds: number) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  if (minutes > 0 && remainingSeconds > 0) {
+    return `${minutes} min ${remainingSeconds} sec`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+  }
+
+  return `${remainingSeconds} ${remainingSeconds === 1 ? 'second' : 'seconds'}`;
+}
+
+function formatTimerStartLabel(seconds: number) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+
+  if (safeSeconds > 0 && safeSeconds % 60 === 0) {
+    return `${safeSeconds / 60} min`;
+  }
+
+  return formatTimerDuration(safeSeconds);
+}
+
+function hasTimerSuggestion(step?: RecipeStep) {
+  if (!step?.duration || step.duration < 60) {
+    return false;
+  }
+
+  const instruction = step.instruction.toLowerCase();
+  const prepOnlyPattern = /\b(chop|slice|dice|mince|prep|prepare|gather|measure)\b/;
+  const cookingSignalPattern = /\b(cook|bake|roast|simmer|boil|steam|fry|saute|sauté|sear|toast|rest|stand|cool|reduce|broil|grill|heat|warm)\b/;
+
+  return cookingSignalPattern.test(instruction) || !prepOnlyPattern.test(instruction);
 }
 
 function normalizeInstructionText(instruction: string) {
@@ -510,6 +548,7 @@ export default function LiveCooking({
   const [isProcessing, setIsProcessing] = useState(false);
   const [timer, setTimer] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [isTimerMinimized, setIsTimerMinimized] = useState(false);
   const [captionSize, setCaptionSize] = useState(16);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
@@ -952,6 +991,8 @@ export default function LiveCooking({
     ? Math.min(currentStepIndex, currentRecipeSteps.length - 1)
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
+  const shouldShowTimerSuggestion = hasTimerSuggestion(currentStep);
+  const timerDuration = currentStep?.duration ?? 0;
   const stepPreviewLabels = useMemo(
     () => buildStepPreviewLabels(currentRecipeSteps),
     [currentRecipeSteps],
@@ -1375,8 +1416,9 @@ export default function LiveCooking({
       const newStepIndex = currentStepIndex + 1;
       setCurrentStepIndex(newStepIndex);
       const nextStepData = currentRecipeSteps[newStepIndex];
-      setTimer(nextStepData?.duration || 0);
+      setTimer(0);
       setIsTimerRunning(false);
+      setIsTimerMinimized(false);
       
       const stepText = `Step ${newStepIndex + 1}: ${formatInstructionWithTips(nextStepData.instruction, nextStepData.tips)}`;
       setSpokenAssistantResponse(stepText);
@@ -1395,18 +1437,20 @@ export default function LiveCooking({
       const newStepIndex = currentStepIndex - 1;
       setCurrentStepIndex(newStepIndex);
       const prevStepData = currentRecipeSteps[newStepIndex];
-      setTimer(prevStepData?.duration || 0);
+      setTimer(0);
       setIsTimerRunning(false);
+      setIsTimerMinimized(false);
       
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
       setSpokenAssistantResponse(stepText);
     }
   };
 
-  const startTimer = (minutes: number) => {
-    setTimer(minutes * 60);
+  const startTimer = (durationSeconds: number) => {
+    setTimer(durationSeconds);
     setIsTimerRunning(true);
-    setSpokenAssistantResponse(`Timer set for ${minutes} minutes. I'll let you know when time is up!`);
+    setIsTimerMinimized(false);
+    setSpokenAssistantResponse(`Timer set for ${formatTimerDuration(durationSeconds)}. I'll let you know when time is up!`);
   };
 
   // Clean up audio on component unmount or page navigation
@@ -2024,32 +2068,68 @@ export default function LiveCooking({
               </ol>
             </CardHeader>
             <CardContent className="space-y-2 p-3 pt-0 sm:p-4 sm:pt-0">
-              {currentStep.duration && (
-                <div className="live-cooking-timer-pill flex items-center gap-2 rounded-md border p-2">
+              {shouldShowTimerSuggestion && (
+                <div
+                  className="live-cooking-timer-pill flex items-center gap-2 rounded-md border p-2"
+                  data-state={timer > 0 ? 'active' : 'suggested'}
+                  data-minimized={timer > 0 && isTimerMinimized ? 'true' : 'false'}
+                  data-testid="live-cooking-timer"
+                >
                   <div className="min-w-0 flex-1 text-sm font-medium">
                     <Clock className="mr-1 inline h-4 w-4" />
                     {timer > 0 ? (
                       <>Timer: {formatTime(timer)}</>
                     ) : (
-                      `Optional timer: ${currentStep.duration / 60} min`
+                      `Optional timer: ${formatTimerDuration(timerDuration)}`
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => startTimer(currentStep.duration! / 60)}
-                  >
-                    Start {currentStep.duration / 60} min timer
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => setIsTimerRunning(!isTimerRunning)}
-                    variant={isTimerRunning ? "destructive" : "secondary"}
-                    aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
-                    disabled={timer === 0}
-                  >
-                    {isTimerRunning ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                  </Button>
+
+                  {timer > 0 && isTimerMinimized ? (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setIsTimerMinimized(false)}
+                      aria-label="Show timer controls"
+                      title="Show timer controls"
+                      className="h-8 w-8"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                    </Button>
+                  ) : (
+                    <div className="flex shrink-0 items-center gap-1">
+                      {timer === 0 ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => startTimer(timerDuration)}
+                          aria-label={`Start ${formatTimerStartLabel(timerDuration)} timer`}
+                        >
+                          Start timer
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => setIsTimerRunning(!isTimerRunning)}
+                            variant={isTimerRunning ? "destructive" : "secondary"}
+                            aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
+                          >
+                            {isTimerRunning ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setIsTimerMinimized(true)}
+                            aria-label="Minimize timer"
+                            title="Minimize timer"
+                            className="h-8 w-8"
+                          >
+                            <Minimize2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

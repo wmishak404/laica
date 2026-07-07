@@ -383,6 +383,75 @@ describe('LiveCooking guest session boundary', () => {
     expect(screen.getByText('Do not scorch the rice.')).toBeTruthy();
   });
 
+  it('keeps timer suggestions optional and reset on step navigation', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
+    await renderCookingGuide();
+
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Optional timer: 1 minute');
+    expect(screen.getByRole('button', { name: /start 1 min timer/i })).toBeTruthy();
+    expect(screen.queryByText(/Timer: 1:00/)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Timer: 1:00');
+
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    await flushPromises();
+
+    expect(screen.getByText('Fold in salsa.')).toBeTruthy();
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Optional timer: 1 minute');
+    expect(screen.queryByText(/Timer: 1:00/)).toBeNull();
+    expect(screen.getByRole('button', { name: /start 1 min timer/i })).toBeTruthy();
+  });
+
+  it('lets active timers collapse without hiding the current step', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
+    await renderCookingGuide();
+
+    fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+    expect(screen.getByRole('button', { name: /pause timer/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /minimize timer/i }));
+
+    expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Timer: 1:00');
+    expect(screen.getByRole('button', { name: /show timer controls/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /pause timer/i })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /show timer controls/i }));
+    expect(screen.getByRole('button', { name: /pause timer/i })).toBeTruthy();
+  });
+
+  it('does not suggest timers for prep-only steps', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          instruction: 'Chop the onions and parsley.',
+          tips: 'Use a stable board.',
+          visualCues: 'Pieces are small and even.',
+          commonMistakes: 'Do not rush the knife work.',
+          safetyLevel: 'minor',
+          duration: 120,
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByText('Chop the onions and parsley.')).toBeTruthy();
+    expect(screen.queryByTestId('live-cooking-timer')).toBeNull();
+    expect(screen.queryByRole('button', { name: /start .* timer/i })).toBeNull();
+  });
+
   it('uses action-forward labels for step previews', async () => {
     mocks.fetchCookingSteps.mockResolvedValue({
       steps: [
@@ -1027,7 +1096,7 @@ describe('LiveCooking guest session boundary', () => {
 
       await advanceSpeechDelay();
       const transcript = screen.getByTestId('text-transcription-full').textContent;
-      expect(transcript).toBe("Timer set for 1 minutes. I'll let you know when time is up!");
+      expect(transcript).toBe("Timer set for 1 minute. I'll let you know when time is up!");
       expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(2);
       expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
 
