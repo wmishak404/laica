@@ -1801,26 +1801,26 @@ export default function LiveCooking({
       detail: readyCheckIngredients.length > 0
         ? readyCheckIngredients.slice(0, 4).join(', ')
         : 'Use the ingredients you confirmed in planning.',
-      icon: <CheckCircle className="h-5 w-5 text-primary" />,
+      icon: <CheckCircle className="live-cooking-ready-icon h-5 w-5" />,
     },
     {
       label: 'Equipment ready',
       detail: readyCheckEquipment.length > 0
         ? readyCheckEquipment.slice(0, 3).join(', ')
         : 'Have your usual pan, knife, board, and utensils nearby.',
-      icon: <Info className="h-5 w-5 text-primary" />,
+      icon: <Info className="live-cooking-ready-icon h-5 w-5" />,
     },
     {
       label: 'Heat stays off until Step 1',
       detail: 'The guide will tell you when to turn on the stove, oven, or burner.',
-      icon: <Clock className="h-5 w-5 text-primary" />,
+      icon: <Clock className="live-cooking-ready-icon h-5 w-5" />,
     },
   ];
 
   if (!hasCheckedSavedSession || isLoadingSteps) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-background p-4 text-foreground">
-        <Card className="w-full max-w-md p-8 text-center">
+      <div className="live-cooking-ui flex min-h-screen w-full items-center justify-center p-4">
+        <Card className="live-cooking-loading-card w-full max-w-md p-8 text-center">
           <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
           <h2 className="text-xl font-semibold mb-2">
             {hasCheckedSavedSession ? 'Preparing Your Cooking Guide' : 'Checking Your Cooking Guide'}
@@ -1837,21 +1837,21 @@ export default function LiveCooking({
 
   if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
     return (
-      <div className="w-full max-w-4xl mx-auto min-h-screen bg-background px-4 py-6 text-foreground">
-        <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-5">
+      <div className="live-cooking-ui min-h-screen w-full px-4 py-6">
+        <div className="live-cooking-screen mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-5">
           <Button
             variant="ghost"
             onClick={handleBackToPlanning}
-            className="self-start"
+            className="live-cooking-back-button self-start"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Planning
           </Button>
 
           <header className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Live Cooking</p>
-            <h1 className="text-3xl font-semibold leading-tight">Ready to cook?</h1>
-            <p className="text-base text-muted-foreground">{selectedMeal.recipeName}</p>
+            <p className="live-cooking-eyebrow text-sm">Live Cooking</p>
+            <h1 className="live-cooking-title text-3xl leading-tight">Ready to cook?</h1>
+            <p className="live-cooking-subtitle text-base">{selectedMeal.recipeName}</p>
           </header>
 
           {readyCheckMissingIngredients.length > 0 && (
@@ -1865,11 +1865,11 @@ export default function LiveCooking({
 
           <div className="space-y-3">
             {readyCheckItems.map((item) => (
-              <div key={item.label} className="flex items-start gap-3 rounded-md border bg-card p-4">
+              <div key={item.label} className="live-cooking-ready-row flex items-start gap-3 p-4">
                 <div className="mt-0.5">{item.icon}</div>
                 <div className="min-w-0 space-y-1">
-                  <p className="font-medium leading-none">{item.label}</p>
-                  <p className="text-sm leading-5 text-muted-foreground">{item.detail}</p>
+                  <p className="font-extrabold leading-none">{item.label}</p>
+                  <p className="live-cooking-detail-text text-sm leading-5">{item.detail}</p>
                 </div>
               </div>
             ))}
@@ -1888,8 +1888,8 @@ export default function LiveCooking({
 
   if (stepLoadIssue && currentRecipeSteps.length === 0) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-background p-4 text-foreground">
-        <Card className="w-full max-w-md">
+      <div className="live-cooking-ui flex min-h-screen w-full items-center justify-center p-4">
+        <Card className="live-cooking-recovery-card w-full max-w-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-accent" />
@@ -1932,13 +1932,13 @@ export default function LiveCooking({
   }
 
   return (
-    <div className="live-cooking-ui min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-3 px-4 pb-0 pt-3 sm:pt-4">
+    <div className="live-cooking-ui min-h-screen">
+      <div className="live-cooking-screen mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-3 px-4 pb-0 pt-3 sm:pt-4">
         <header className="flex items-center justify-between gap-2">
           <Button
             variant="ghost"
             onClick={handleBackToPlanning}
-            className="h-9 shrink-0 px-2 text-sm"
+            className="live-cooking-back-button h-9 shrink-0 px-2 text-sm"
             aria-label="Back to Planning"
           >
             <ArrowLeft className="mr-1 h-4 w-4" />
@@ -1947,15 +1947,15 @@ export default function LiveCooking({
 
           <div className="min-w-0 text-center">
             <h1 className="truncate text-lg font-semibold">{selectedMeal.recipeName}</h1>
-            <p className="text-xs text-muted-foreground">Live Cooking</p>
+            <p className="live-cooking-eyebrow text-xs">Live Cooking</p>
           </div>
 
           <div className="w-10 shrink-0" aria-hidden="true" />
         </header>
 
         {(isProcessing || isAnalyzing) && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="rounded-lg border bg-card px-8 py-6 text-center shadow-lg">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--cooking-cream-deep)/0.82)] backdrop-blur-sm">
+            <div className="live-cooking-overlay-card rounded-lg px-8 py-6 text-center">
               <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
               <p className="text-sm font-medium">
                 {isProcessing ? 'Processing your question...' : 'Analyzing cooking progress...'}
@@ -1966,26 +1966,26 @@ export default function LiveCooking({
 
         {currentStep && (
           <Card
-            className="sticky top-2 z-20 border-primary/20 bg-card/95 shadow-lg backdrop-blur"
+            className="live-cooking-step-card sticky top-2 z-20 backdrop-blur"
             data-testid="current-step-panel"
           >
             <CardHeader className="space-y-2 p-3 sm:p-4">
               <div className="min-w-0 space-y-1">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
+                <p className="live-cooking-step-count text-xs uppercase">
                   Step {displayedStepIndex + 1} of {currentRecipeSteps.length}
                 </p>
-                <h2 className="text-xl font-semibold leading-6">
+                <h2 className="live-cooking-step-headline text-xl leading-6">
                   {currentStepHeadline}
                 </h2>
                 {shouldShowInstructionDetails && (
                   <ol
                     aria-label="Step details"
-                    className="space-y-1.5 text-sm leading-5 text-foreground/90"
+                    className="space-y-1.5 text-sm leading-5"
                   >
                     {currentStepInstructionLines.map((line, index) => (
                       <li key={`${index}-${line}`} className="flex gap-2">
                         {currentStepInstructionLines.length > 1 && (
-                          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[0.65rem] font-bold text-primary">
+                          <span className="live-cooking-detail-number mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold">
                             {index + 1}
                           </span>
                         )}
@@ -2008,22 +2008,11 @@ export default function LiveCooking({
                     <li
                       key={`${currentRecipeSteps[index]?.id ?? index}-${label}`}
                       aria-current={isActive ? 'step' : undefined}
-                      className={`flex min-w-20 flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center ${
-                        isActive
-                          ? 'border-primary/40 bg-primary/10 text-primary'
-                          : index < displayedStepIndex
-                            ? 'border-secondary/30 bg-secondary/10 text-secondary-foreground'
-                            : 'border-muted bg-muted/40 text-muted-foreground'
-                      }`}
+                      className="live-cooking-preview-card flex flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center"
+                      data-state={isActive ? 'active' : index < displayedStepIndex ? 'done' : 'upcoming'}
                     >
                       <span
-                        className={`h-2.5 w-2.5 rounded-full ${
-                          isActive
-                            ? 'bg-primary'
-                            : index < displayedStepIndex
-                              ? 'bg-secondary'
-                              : 'bg-muted-foreground/40'
-                        }`}
+                        className="live-cooking-preview-dot h-2.5 w-2.5 rounded-full"
                         aria-hidden="true"
                       />
                       <span className="line-clamp-2 text-[0.68rem] font-semibold leading-tight">
@@ -2036,7 +2025,7 @@ export default function LiveCooking({
             </CardHeader>
             <CardContent className="space-y-2 p-3 pt-0 sm:p-4 sm:pt-0">
               {currentStep.duration && (
-                <div className="flex items-center gap-2 rounded-md border bg-muted/40 p-2">
+                <div className="live-cooking-timer-pill flex items-center gap-2 rounded-md border p-2">
                   <div className="min-w-0 flex-1 text-sm font-medium">
                     <Clock className="mr-1 inline h-4 w-4" />
                     {timer > 0 ? (
@@ -2087,13 +2076,13 @@ export default function LiveCooking({
 
         <section
           aria-label="Step guidance"
-          className="space-y-2 rounded-lg border bg-card p-3 shadow-sm"
+          className="live-cooking-guidance-panel space-y-2 rounded-lg p-3"
           data-testid="step-guidance-panel"
         >
           <div className="grid gap-2 sm:grid-cols-3">
             {currentStep?.visualCues && (
-              <div className="rounded-md border border-primary/20 bg-primary/10 p-2">
-                <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+              <div className="live-cooking-cue-card p-2" data-tone="look">
+                <div className="live-cooking-cue-label mb-1 flex items-center gap-1.5 text-sm font-extrabold">
                   <Info className="h-3.5 w-3.5 text-primary" />
                   Look for
                 </div>
@@ -2102,8 +2091,8 @@ export default function LiveCooking({
             )}
 
             {currentStep?.tips && (
-              <div className="rounded-md border border-secondary/20 bg-secondary/10 p-2">
-                <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+              <div className="live-cooking-cue-card p-2" data-tone="tip">
+                <div className="live-cooking-cue-label mb-1 flex items-center gap-1.5 text-sm font-extrabold">
                   <CheckCircle className="h-3.5 w-3.5 text-secondary" />
                   Pro tip
                 </div>
@@ -2112,8 +2101,8 @@ export default function LiveCooking({
             )}
 
             {currentStep?.commonMistakes && (
-              <div className="rounded-md border border-accent/40 bg-accent/20 p-2">
-                <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold">
+              <div className="live-cooking-cue-card p-2" data-tone="avoid">
+                <div className="live-cooking-cue-label mb-1 flex items-center gap-1.5 text-sm font-extrabold">
                   <AlertTriangle className="h-3.5 w-3.5 text-foreground" />
                   Avoid
                 </div>
@@ -2138,7 +2127,7 @@ export default function LiveCooking({
 
           {areCaptionsVisible ? (
             <div
-              className="rounded-md border bg-background p-3"
+              className="live-cooking-caption-box rounded-md border p-3"
               data-testid="transcription-box"
             >
               <p
@@ -2156,7 +2145,7 @@ export default function LiveCooking({
           )}
         </section>
 
-        <div className="sticky bottom-0 z-30 -mx-4 mt-auto border-t bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur">
+        <div className="live-cooking-command-bar sticky bottom-0 z-30 -mx-4 mt-auto px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur">
           <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-2">
             <Button
               onClick={repeatStepInstructions}

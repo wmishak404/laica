@@ -140,6 +140,14 @@ The revised branch turns the active cooking guide from the old dark centered car
 
 This slice preserves PR #191 speech arbitration, PR #236 recovery/Finish behavior, PR #256 invalid-step validation, and PR #258 Ready Check entry. It does not change route schema, durable session schema, Finish/History semantics, Phase 5 cleanup state, or durable navigation. It does add a narrow cooking-step prompt refinement: each provider step should be one cookable action or milestone and may include `actionLabel` for the rail/mobile headline. The client accepts that optional field and has a compatibility fallback for older saved/provider steps. It also makes the existing timer presentation more compact/optional and requests a best-effort browser screen wake lock during the live guide. Local evidence included focused Live Cooking Vitest coverage for the compact cockpit, opt-in captions, action labels, multi-line instruction fallback, step preview strip, and existing speech/session/recovery baselines; exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at `0040f9f` before merge. Human Replit validation remains deferred to the next production/release batch.
 
+## 2026-07-07 warm cooking-surface polish branch
+
+Branch `codex/init-001-live-cooking-warm-polish` starts from `origin/main` `3d33239` after the PR #260 closeout and addresses Wilson's remaining visual finding without reopening the cockpit behavior. The slice gives Ready Check, preparing/recovery, the active step card, preview rail, compact cues, captions, and bottom command bar a scoped `live-cooking-ui` warm focus-mode surface using setup/planning-adjacent cream, coral, rust, teal, herb, and butter tokens. It intentionally keeps the compact cockpit structure from PR #260: one `Start cooking`, sticky action headline, action-forward preview rail, compact cues, opt-in CC captions, bottom Repeat / Ask a question / Audio controls, screen wake lock, and existing timer behavior.
+
+Implementation guardrail: the warm classes are scoped as `.live-cooking-ui .live-cooking-*` so they beat shadcn `Card` default `bg-card` / `border` utilities in computed style. This follows PD-005's rendered-style rule; matching class names alone are not accepted as visual proof when primitive utilities can win the cascade. The branch does not change route contracts, provider prompt/schema behavior, durable cooking-session schema, Finish/History semantics, assistance failure handling, durable navigation, formal INIT-004 eval work, full timer redesign, or Phase 5 cleanup.
+
+Local evidence before PR push: focused `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed with 31 tests and now asserts the scoped warm root, step card, guidance panel, preview card, and command bar classes. `npm run check` and `npm run build` passed; build retained the existing stale Browserslist, Firebase dynamic/static import, and bundle-size warnings. A local Playwright mobile visual smoke at `390x844` used provider-light route stubs and a stubbed `/api/auth/session` because the decrypted local DB still lacks `anonymous_recipe_usage`; it captured `/tmp/laica-live-cooking-ready-warm-polish-clean.png` and `/tmp/laica-live-cooking-active-warm-polish-clean.png`. Computed styles confirmed the root warm gradient (`rgb(255, 249, 240)` to `rgb(252, 239, 222)`), warm step-card gradient, active preview coral background/border, warm command bar, Nunito font, and active-screen `scrollHeight: 844` matching the `844` viewport height. GitHub exact-head `unit`, `e2e_guest_smoke`, security checks, and any required PR review remain pending until the branch is pushed.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
@@ -163,7 +171,7 @@ This slice preserves PR #191 speech arbitration, PR #236 recovery/Finish behavio
 - Active Live Cooking requests a screen wake lock when supported by the browser and releases it when the guide exits or the page hides.
 - Model steps include sensory cues where applicable.
 - Suggested timers appear only on timer-worthy steps and never auto-start.
-- The current white active-cooking background is not final visual acceptance; future Phase 4 visual polish should compare against the warmer coral/rust setup and planning surfaces.
+- Live Cooking should use a warm focus-mode cooking surface that visually relates to the coral/rust setup and planning surfaces without becoming a heavy marketing/hero composition.
 - Active timer can be minimized without hiding the step.
 - Finish creates or updates cooking history but does not change pantry inventory.
 - Guest Finish never creates durable cooking history unless the user has linked Google first.
