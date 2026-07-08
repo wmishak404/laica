@@ -32,9 +32,8 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 - `npm run check` passed.
 - `npm run build` passed with existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
-- Exact-head GitHub checks passed at `1165975`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
-- Pending after speech-limit update: update exact-head CI evidence after push.
+- Exact-head GitHub checks passed at `5abe6fe`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
 
 ## Remaining Before Merge
 
-- Human Replit validation remains release/batch deferred unless Wilson asks for PR-level mobile validation.
+- Human Replit validation remains release/batch deferred unless Wilson asks for PR-level mobile validation. Production/release-batch validation should include the changed-since-last-prod Phase 4 timer and captions path: load the PR/merged head, confirm speech synthesis has the raised `90/hour` and `360/day` user fallbacks after server restart, enter Live Cooking, find a timed step, confirm the automatic explicit-start timer uses the step's real duration or text-derived timing, start/pause/reset it, let it reach `Time's up` without relying on CC, open captions and confirm the boxed circular CC button shares the row with the transcript, confirm durationless steps do not invent timers, and rerun Ready Check/Prep Tray follow-ups for selected-image loading copy, `Preview unavailable`, Back to Planning restore, visible Ready Check bottom nav, and active-cooking hidden bottom nav.
