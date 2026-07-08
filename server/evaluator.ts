@@ -1,7 +1,7 @@
 import OpenAI, { toFile } from "openai";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
-import { eq, inArray, and, isNull } from "drizzle-orm";
+import { eq, inArray, and } from "drizzle-orm";
 import { normalizeEvalFeatureType, type EvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
 import { EVAL_CRITERIA } from "./eval-criteria";
 import { sanitizePromptInput, stripPromptMarkers } from "./ai-privacy";
@@ -14,57 +14,90 @@ type EvalBatchCandidate = {
 
 type EvalReportCandidate = {
   featureType: string;
+  id?: number;
   promptVersionId?: number | null;
   evalPassed?: boolean | null;
   evalScore?: number | null;
   evalErrorModes?: string[] | null;
+  evalReasoning?: string | null;
+  inputData?: unknown;
+  outputData?: string;
 };
 
-export type EvalCountSummary = {
+type EvalCountSummary = {
   total: number;
   passed: number;
   failed: number;
 };
 
-export type EvalMetricSummary = EvalCountSummary & {
+type EvalMetricSummary = EvalCountSummary & {
   passRate: number | null;
   averageScore: number | null;
 };
 
-export type EvalPromptVersionSummary = EvalMetricSummary & {
+type EvalReportOutputFormat = "json" | "markdown";
+
+type EvalArtifactRow = {
+  dataItemId: number;
+  featureType: string;
+  sourceClass: string;
+  promptRuntimeVersion: string;
+  outputUnderTest: string;
+  criteria: string[];
+  judgeDecision: "PASS" | "FAIL" | "UNASSESSED";
+  judgeRationale: string;
+  humanVerdict: "PASS" | "FAIL" | "TBD";
+  humanNotes: string | null;
+};
+
+type EvalCriterionAggregate = {
+  total: number;
+  passed: number;
+  failed: number;
+};
+
+type EvalArtifactMetrics = {
+  total: number;
+  passed: number;
+  failed: number;
+  passRate: number | null;
+};
+
+type EvalArtifactJudgeMetric = {
+  value: number | null;
+  status: "available" | "unavailable";
+  reason?: string;
+};
+
+type EvalReportArtifact = {
+  reportGeneratedAt: string;
+  requestedSourceClass: string;
+  requestedRunType: string;
+  requestedOutputFormat: EvalReportOutputFormat;
+  rows: EvalArtifactRow[];
+  metrics: {
+    overall: EvalArtifactMetrics;
+    passRate: number | null;
+    tpr: EvalArtifactJudgeMetric;
+    tnr: EvalArtifactJudgeMetric;
+  };
+  criterionAggregate: Record<string, EvalCriterionAggregate>;
+};
+
+type EvalReportOptions = {
+  sourceClass?: string;
+  runType?: string;
+  outputFormat?: EvalReportOutputFormat;
+};
+
+type EvalPromptVersionSummary = EvalMetricSummary & {
   featureType: string;
   promptVersionId: number | null;
 };
 
-export type EvalFeatureReport = EvalMetricSummary & {
+type EvalFeatureReport = EvalMetricSummary & {
   errorModes: Record<string, number>;
   promptVersions: EvalPromptVersionSummary[];
-};
-
-export type EvalReportSummary = EvalCountSummary & {
-  errorModeBreakdown: Record<string, number>;
-  byFeature: Record<string, EvalCountSummary>;
-  featureReports: Record<string, EvalFeatureReport>;
-  promptVersionReports: EvalPromptVersionSummary[];
-};
-
-export type EvalReportArtifactFeature = EvalMetricSummary & {
-  featureType: string;
-  errorModes: Record<string, number>;
-  promptVersions: EvalPromptVersionSummary[];
-};
-
-export type EvalReportArtifact = {
-  reportType: "eval_summary";
-  generatedAt: string;
-  valueClaim: string;
-  evidence: string[];
-  evidenceLimits: string[];
-  totals: EvalCountSummary;
-  failedInteractionCount: number | null;
-  featureReports: EvalReportArtifactFeature[];
-  promptVersionReports: EvalPromptVersionSummary[];
-  errorModeBreakdown: Record<string, number>;
 };
 
 function getEvalCriteriaFeatureType(featureType: string): EvalFeatureType | null {
@@ -91,6 +124,31 @@ export function selectEvaluableInteractionsForBatch<T extends EvalBatchCandidate
 
 function incrementCount(counts: Record<string, number>, key: string): void {
   counts[key] = (counts[key] || 0) + 1;
+}
+
+function normalizeForReportOutput(output: string | undefined | null): string {
+  if (!output) {
+    return "";
+  }
+  const stripped = stripPromptMarkers(output);
+  return stripped.length <= 1200 ? stripped : `${stripped.slice(0, 1197)}...`;
+}
+
+function resolvePromptRuntimeVersion(promptVersionId?: number | null): string {
+  if (typeof promptVersionId === "number" && Number.isFinite(promptVersionId) && promptVersionId > 0) {
+    return `prompt_version_${promptVersionId}`;
+  }
+  return "default_prompt";
+}
+
+function resolveJudgeDecision(evalPassed?: boolean | null): "PASS" | "FAIL" | "UNASSESSED" {
+  if (evalPassed === true) return "PASS";
+  if (evalPassed === false) return "FAIL";
+  return "UNASSESSED";
+}
+
+function resolveHumanVerdict(): "PASS" | "FAIL" | "TBD" {
+  return "TBD";
 }
 
 export function buildPendingEvalQueueSummary<T extends EvalBatchCandidate>(interactions: T[]) {
@@ -170,7 +228,7 @@ function finalizeCountSummary<T extends EvalCountSummary>(summary: T): EvalCount
   };
 }
 
-export function buildEvalReportSummary(interactions: EvalReportCandidate[]): EvalReportSummary {
+export function buildEvalReportSummary(interactions: EvalReportCandidate[]) {
   const overall = createMetricAccumulator();
   const byFeature: Record<string, EvalCountSummary> = {};
   const errorModeBreakdown: Record<string, number> = {};
@@ -248,148 +306,159 @@ export function buildEvalReportSummary(interactions: EvalReportCandidate[]): Eva
   };
 }
 
-function sortRecordByKey<T>(record: Record<string, T>): Record<string, T> {
-  return Object.fromEntries(Object.entries(record).sort(([left], [right]) => left.localeCompare(right)));
-}
-
-function formatPercent(value: number | null): string {
-  return value === null ? "n/a" : `${Math.round(value * 1000) / 10}%`;
-}
-
-function formatScore(value: number | null): string {
-  return value === null ? "n/a" : String(Math.round(value * 10) / 10);
-}
-
-function formatErrorModes(errorModes: Record<string, number>): string {
-  const entries = Object.entries(sortRecordByKey(errorModes));
-  if (entries.length === 0) {
-    return "none";
-  }
-  return entries.map(([mode, count]) => `${mode}: ${count}`).join("; ");
-}
-
 export function buildEvalReportArtifact(
-  summary: EvalReportSummary & { failedInteractions?: unknown[] },
-  options: { generatedAt?: Date | string } = {},
+  interactions: EvalReportCandidate[],
+  options: EvalReportOptions = {},
 ): EvalReportArtifact {
-  const generatedAt =
-    options.generatedAt instanceof Date
-      ? options.generatedAt.toISOString()
-      : options.generatedAt ?? new Date().toISOString();
+  const sourceClass = options.sourceClass?.trim() || "unspecified source";
+  const runType = options.runType?.trim() || "evaluation-report";
+  const outputFormat = options.outputFormat || "json";
 
-  const featureReports = Object.entries(summary.featureReports)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([featureType, report]) => ({
+  const rows: EvalArtifactRow[] = interactions.map((interaction) => {
+    const featureType = normalizeEvalFeatureType(interaction.featureType) ?? interaction.featureType;
+    const criteria = EVAL_CRITERIA[featureType as EvalFeatureType]?.errorModes.map((c) => c.id) ?? [];
+    return {
+      dataItemId: interaction.id ?? -1,
       featureType,
-      total: report.total,
-      passed: report.passed,
-      failed: report.failed,
-      passRate: report.passRate,
-      averageScore: report.averageScore,
-      errorModes: sortRecordByKey(report.errorModes),
-      promptVersions: [...report.promptVersions].sort(
-        (left, right) =>
-          left.featureType.localeCompare(right.featureType) ||
-          (left.promptVersionId ?? -1) - (right.promptVersionId ?? -1),
-      ),
-    }));
+      sourceClass,
+      promptRuntimeVersion: resolvePromptRuntimeVersion(interaction.promptVersionId),
+      outputUnderTest: normalizeForReportOutput(interaction.outputData),
+      criteria,
+      judgeDecision: resolveJudgeDecision(interaction.evalPassed),
+      judgeRationale: interaction.evalReasoning?.trim() || "No rationale provided.",
+      humanVerdict: resolveHumanVerdict(),
+      humanNotes: null,
+    };
+  });
 
-  const promptVersionReports = [...summary.promptVersionReports].sort(
-    (left, right) =>
-      left.featureType.localeCompare(right.featureType) ||
-      (left.promptVersionId ?? -1) - (right.promptVersionId ?? -1),
-  );
+  const aggregate: Record<string, EvalCriterionAggregate> = {};
+  for (const row of rows) {
+    for (const criterion of row.criteria) {
+      if (!aggregate[criterion]) {
+        aggregate[criterion] = { total: 0, passed: 0, failed: 0 };
+      }
+      aggregate[criterion].total++;
+      if (row.judgeDecision === "PASS") aggregate[criterion].passed++;
+      if (row.judgeDecision === "FAIL") aggregate[criterion].failed++;
+    }
+  }
+
+  const total = rows.length;
+  const passed = rows.filter((row) => row.judgeDecision === "PASS").length;
+  const failed = rows.filter((row) => row.judgeDecision === "FAIL").length;
 
   return {
-    reportType: "eval_summary",
-    generatedAt,
-    valueClaim:
-      "Operators can inspect eval coverage and failure clusters by product surface and prompt-version provenance without copying raw user interaction payloads.",
-    evidence: [
-      "Completed eval rows are grouped by canonical eval feature report keys.",
-      "Prompt-version provenance is reported separately so candidate prompt comparisons do not rely on mixed aggregate rates.",
-      "Top-level totals remain counts only; pass rates and average scores stay scoped to feature and prompt-version reports.",
-    ],
-    evidenceLimits: [
-      "This report does not run provider judges, submit eval batches, process new eval results, or change prompts.",
-      "This report omits raw request and model-response payloads; use the protected raw interaction endpoint only for manual admin review when privacy posture allows it.",
-      "Uncalibrated judge results remain triage signal, not product-quality truth.",
-    ],
-    totals: {
-      total: summary.total,
-      passed: summary.passed,
-      failed: summary.failed,
+    reportGeneratedAt: new Date().toISOString(),
+    requestedSourceClass: sourceClass,
+    requestedRunType: runType,
+    requestedOutputFormat: outputFormat,
+    rows,
+    metrics: {
+      overall: {
+        total,
+        passed,
+        failed,
+        passRate: total > 0 ? passed / total : null,
+      },
+      passRate: total > 0 ? passed / total : null,
+      tpr: {
+        value: null,
+        status: "unavailable",
+        reason: "TPR unavailable: no Wilson-labeled ground-truth class labels are present.",
+      },
+      tnr: {
+        value: null,
+        status: "unavailable",
+        reason: "TNR unavailable: no Wilson-labeled ground-truth class labels are present.",
+      },
     },
-    failedInteractionCount: Array.isArray(summary.failedInteractions) ? summary.failedInteractions.length : null,
-    featureReports,
-    promptVersionReports,
-    errorModeBreakdown: sortRecordByKey(summary.errorModeBreakdown),
+    criterionAggregate: aggregate,
   };
 }
 
 export function formatEvalReportArtifactMarkdown(artifact: EvalReportArtifact): string {
-  const featureRows = artifact.featureReports
-    .map(
-      (report) =>
-        `| \`${report.featureType}\` | ${report.total} | ${report.passed} | ${report.failed} | ${formatPercent(report.passRate)} | ${formatScore(report.averageScore)} | ${formatErrorModes(report.errorModes)} |`,
-    )
-    .join("\n");
+  const featureCounts: Record<string, number> = {};
+  for (const row of artifact.rows) {
+    incrementCount(featureCounts, row.featureType);
+  }
+  const providerInputRows = Object.keys(featureCounts)
+    .sort()
+    .map((featureType) => `| ${featureType} | ${featureCounts[featureType]} |`);
 
-  const promptRows = artifact.promptVersionReports
-    .map((report) => {
-      const promptVersion = report.promptVersionId === null ? "default" : String(report.promptVersionId);
-      return `| \`${report.featureType}\` | ${promptVersion} | ${report.total} | ${report.passed} | ${report.failed} | ${formatPercent(report.passRate)} | ${formatScore(report.averageScore)} |`;
-    })
-    .join("\n");
+  const lines = [
+    "# Eval Report",
+    "",
+    `- Generated: ${artifact.reportGeneratedAt}`,
+    `- Source class: ${artifact.requestedSourceClass}`,
+    `- Run type: ${artifact.requestedRunType}`,
+    `- Output format requested: ${artifact.requestedOutputFormat}`,
+    "",
+    "## Run Results",
+    "",
+    "| Data Item | Source Class | Feature | Prompt/Runtime Version | Judge Decision | Human Verdict | Criteria | Judge Rationale | Output Under Test |",
+    "|---|---|---|---|---|---|---|---|",
+  ];
 
-  const errorRows = Object.entries(artifact.errorModeBreakdown)
-    .map(([mode, count]) => `| \`${mode}\` | ${count} |`)
-    .join("\n");
+  if (artifact.rows.length === 0) {
+    lines.push(
+      "",
+      "No completed interaction rows are available for export. Run eval batch processing first, then re-run this report.",
+    );
+  } else {
+    for (const row of artifact.rows) {
+      const criteria = row.criteria.length > 0 ? row.criteria.join(", ") : "N/A";
+      lines.push(
+        `| ${row.dataItemId} | ${row.sourceClass} | ${row.featureType} | ${row.promptRuntimeVersion} | ${row.judgeDecision} | ${row.humanVerdict} | ${criteria} | ${row.judgeRationale.replace(/\|/g, "&#124;")} | ${(row.outputUnderTest || "").replace(/\|/g, "&#124;")} |`,
+      );
+    }
+  }
 
-  const evidence = artifact.evidence.map((item) => `- ${item}`).join("\n");
-  const limits = artifact.evidenceLimits.map((item) => `- ${item}`).join("\n");
+  lines.push(
+    "",
+    "## Criterion Aggregate (Pass/Fail)",
+    "",
+    "| Criterion | Total | Passed | Failed |",
+    "|---|---:|---:|---:|",
+  );
 
-  return `# AI Eval Summary Report
+  const criterionEntries = Object.keys(artifact.criterionAggregate).sort();
+  if (criterionEntries.length === 0) {
+    lines.push("| (none) | 0 | 0 | 0 |");
+  } else {
+    for (const criterion of criterionEntries) {
+      const counts = artifact.criterionAggregate[criterion];
+      lines.push(`| ${criterion} | ${counts.total} | ${counts.passed} | ${counts.failed} |`);
+    }
+  }
 
-Generated: ${artifact.generatedAt}
+  lines.push(
+    "",
+    "## Judge Metrics",
+    "",
+    `- Pass rate: ${artifact.metrics.passRate === null ? "not available" : `${artifact.metrics.passRate.toFixed(3)}`}`,
+    `- TPR: ${artifact.metrics.tpr.status === "available" ? String(artifact.metrics.tpr.value) : `not available (${artifact.metrics.tpr.reason})`}`,
+    `- TNR: ${artifact.metrics.tnr.status === "available" ? String(artifact.metrics.tnr.value) : `not available (${artifact.metrics.tnr.reason})`}`,
+  );
 
-## Value Claim
+  lines.push(
+    "",
+    "## Provider Input Inventory",
+    "",
+    "| Feature | Samples |",
+    "|---|---:|",
+    ...(providerInputRows.length ? providerInputRows : ["| (none) | 0 |"]),
+  );
 
-${artifact.valueClaim}
+  lines.push(
+    "",
+    "## Caveats and assumptions",
+    "- No raw interaction payloads (input/output) are emitted; both are redacted, truncated, and reduced for admin-safe review.",
+    "- Aggregate metrics are judge-only and do not represent production defect rate.",
+    "- Human review is intentionally deferred by default; `humanVerdict` remains `TBD` until Wilson review is recorded.",
+    "- If report scope needs to represent live-sample, synthetic fixture, or provider-smoke runs, pass that source class explicitly in the request.",
+  );
 
-## Evidence
-
-${evidence}
-
-## Totals
-
-- Completed evals: ${artifact.totals.total}
-- Passed: ${artifact.totals.passed}
-- Failed: ${artifact.totals.failed}
-- Failed interaction payloads omitted: ${artifact.failedInteractionCount === null ? "unknown" : artifact.failedInteractionCount}
-
-## Feature Reports
-
-| Feature | Total | Passed | Failed | Pass rate | Average score | Error modes |
-|---|---:|---:|---:|---:|---:|---|
-${featureRows || "| n/a | 0 | 0 | 0 | n/a | n/a | none |"}
-
-## Prompt Version Reports
-
-| Feature | Prompt version | Total | Passed | Failed | Pass rate | Average score |
-|---|---:|---:|---:|---:|---:|---:|
-${promptRows || "| n/a | n/a | 0 | 0 | 0 | n/a | n/a |"}
-
-## Error Mode Breakdown
-
-| Error mode | Count |
-|---|---:|
-${errorRows || "| n/a | 0 |"}
-
-## Evidence Limits
-
-${limits}
-`;
+  return lines.join("\n");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -597,6 +666,26 @@ export async function getEvalSummary() {
     ...reportSummary,
     failedInteractions,
   };
+}
+
+export async function getEvalReportArtifact(options: EvalReportOptions = {}) {
+  const interactions = await db
+    .select()
+    .from(aiInteractions)
+    .where(eq(aiInteractions.evalStatus, 'completed'));
+
+  const normalized = interactions.map((interaction) => ({
+    id: interaction.id,
+    featureType: interaction.featureType,
+    promptVersionId: interaction.promptVersionId,
+    evalPassed: interaction.evalPassed,
+    evalScore: interaction.evalScore,
+    evalErrorModes: interaction.evalErrorModes,
+    evalReasoning: interaction.evalReasoning,
+    outputData: interaction.outputData,
+  }));
+
+  return buildEvalReportArtifact(normalized, options);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
