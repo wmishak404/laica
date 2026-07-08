@@ -102,11 +102,11 @@ This Effort can be resolved when all of the following are true:
 
 ## 2026-05-06 — Filed From Phase 3 Replit Validation
 
-Filed after Wilson reported the misleading demo-limit toast and repeated pantry recipe 400s during INIT-001 Phase 3 validation. Current branch has already aligned recipe preference caps locally, but the Effort remains open because the cross-app error handler still carries demo-era behavior and the Replit 500-character symptom needs validation against the running environment.
+Filed after Wilson reported the misleading demo-limit toast and repeated pantry recipe 400s during INIT-001 Phase 3 validation. At filing time, the current branch had already aligned recipe preference caps locally, but the Effort stayed open because the cross-app error handler still carried demo-era behavior and the Replit 500-character symptom needed validation against the running environment.
 
 ## 2026-05-07 — Live Cooking Error UX Deferred to Phase 4
 
-Wilson decided that live-cooking-specific error presentation should not be solved through EFF-018 toasts. EFF-018 remains responsible for typed authenticated AI error classification, non-demo copy, and no redirect behavior across AI calls, including live-cooking callsites. Mobile Refresh Phase 4 now owns inline cooking-step retry/recovery, Coach Feed failure placement, and inline Feedback access for persistent mid-cook issues.
+Wilson decided that live-cooking-specific error presentation should not be solved through EFF-018 toasts. At that point, EFF-018 remained responsible for typed authenticated AI error classification, non-demo copy, and no redirect behavior across AI calls, including live-cooking callsites. Mobile Refresh Phase 4 took ownership of inline cooking-step retry/recovery, Coach Feed failure placement, and inline Feedback access for persistent mid-cook issues.
 
 ## 2026-05-07 — Resolved by PR #43
 

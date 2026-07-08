@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-06-30
+**Updated:** 2026-07-01
 
 ## One-line summary
 
@@ -734,3 +734,11 @@ Branch `codex/eff-017-live-surface-coverage` hardens the Live Cooking transcript
 The same branch extends `tests/unit/live-cooking-guest-session.test.tsx` with visible transcript-pin assertions: default pinned state, toggle persistence to localStorage, restored unpinned/pinned button labels, and malformed-preference recovery. This closes a small live-cooking coverage gap around user-visible transcript state, not the broader provider, Replit, or policy lanes.
 
 EFF-017 remains `In Progress`. Remaining scope still includes provider canary decisions, automated Replit-environment work, coverage ratcheting, future policy alignment only when Wilson accepts it, and any broader live-surface coverage that is not already protected by the current unit/E2E gates.
+
+## 2026-07-01 — Cooking-session hook coverage added
+
+The daily Efforts hygiene pass kept EFF-017 as the highest-leverage active Effort. EFF-022 now has an accepted transparent pantry-fallback direction, but its runtime threshold/copy work remains intentionally deferred after higher-priority INIT-001 work and is adjacent to open INIT-004 eval-reporting PR #246. EFF-017 still has unblocked deterministic coverage work that de-risks INIT-001 cooking persistence, INIT-003 linked/guest boundaries, and release validation.
+
+Branch `codex/eff-017-cooking-session-coverage` adds hook-level coverage for `useCookingSession`: guest users do not fetch linked-only durable cooking-session queries, linked users get auth-id-scoped active/history query keys, and cooking completion refreshes cooking/profile caches without invalidating `/api/auth/session`.
+
+This is a test-only confidence slice. It does not change runtime behavior, provider canaries, Replit automation, OAuth configuration, coverage thresholds, schema, prompts, or validation authority. EFF-017 remains `In Progress`.
