@@ -495,7 +495,7 @@ export const voiceUserDayLimit = createRateLimit({
 export const speechUserHourLimit = createRateLimit({
   name: "speech:user:hour",
   windowMs: ONE_HOUR,
-  max: getConfiguredRateLimit("speech", "hour", 30),
+  max: getConfiguredRateLimit("speech", "hour", 90),
   keyGenerator: getUserRateLimitKey,
 });
 
@@ -509,6 +509,6 @@ export const speechIpHourLimit = createRateLimit({
 export const speechUserDayLimit = createRateLimit({
   name: "speech:user:day",
   windowMs: ONE_DAY,
-  max: getConfiguredRateLimit("speech", "day", 120),
+  max: getConfiguredRateLimit("speech", "day", 360),
   keyGenerator: getUserRateLimitKey,
 });

@@ -12,6 +12,7 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 - Timer completion is a first-class visual timer state, not a CC workaround: CC remains voice/transcript-only and is not auto-opened when a countdown reaches zero.
 - Active timers no longer collapse/minimize; the centered time, play/pause, and reset controls remain visible together so the cook does not lose the controls mid-step.
 - Timer speech copy now uses singular/plural duration text correctly, such as `1 minute` or `2 minutes`.
+- Speech synthesis user limits are raised 3x for Live Cooking testing and hands-busy usage: `90/hour` and `360/day`. This changes only the `speech` bucket fallbacks; env overrides and the broader `/api` request limiter remain separate.
 - Prep Tray selected-image loading now shows larger visible loading copy and a stable `Preview unavailable` fallback when the image resolver returns `status: unavailable`.
 - Ready Check `Back to Planning` restores the Prep Tray / recipe-suggestion session instead of restarting planning. The planning session is dismissed only once `Start cooking` begins the active guide.
 - Bottom nav remains visible on Ready Check per Wilson's explicit request, with additional Ready Check bottom padding so the fixed nav does not cover `Start cooking`; active hands-busy cooking still hides bottom nav.
@@ -27,10 +28,12 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 39 tests.
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000` passed: 96 tests.
+- `npx vitest run tests/unit/rate-limit.test.ts` passed after the speech-limit increase: 2 files, 18 tests.
 - `npm run check` passed.
 - `npm run build` passed with existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
 - Exact-head GitHub checks passed at `1165975`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
+- Pending after speech-limit update: update exact-head CI evidence after push.
 
 ## Remaining Before Merge
 

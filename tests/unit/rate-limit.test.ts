@@ -15,6 +15,8 @@ import {
   getVisionUserRateLimitKey,
   recipeUserBurstLimit,
   resetRateLimitBucketsForTest,
+  speechUserDayLimit,
+  speechUserHourLimit,
 } from '../../server/rate-limit';
 
 interface MockRequestOptions {
@@ -156,6 +158,44 @@ describe('vision rate-limit keys', () => {
     recipeUserBurstLimit(anonymousReq, res as any, next);
 
     expect(next).toHaveBeenCalledTimes(21);
+  });
+
+  it('allows 90 speech synthesis requests per user hour before returning 429', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+    const next = vi.fn();
+    const { res, status } = makeResponse();
+    const req = makeRequest({ firebaseUser: { uid: 'speech-user' } });
+
+    for (let index = 0; index < 90; index += 1) {
+      speechUserHourLimit(req, res as any, next);
+    }
+
+    speechUserHourLimit(req, res as any, next);
+
+    expect(next).toHaveBeenCalledTimes(90);
+    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Limit', '90');
+    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Reset', '3600');
+    expect(status).toHaveBeenCalledWith(429);
+  });
+
+  it('allows 360 speech synthesis requests per user day before returning 429', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+    const next = vi.fn();
+    const { res, status } = makeResponse();
+    const req = makeRequest({ firebaseUser: { uid: 'speech-user' } });
+
+    for (let index = 0; index < 360; index += 1) {
+      speechUserDayLimit(req, res as any, next);
+    }
+
+    speechUserDayLimit(req, res as any, next);
+
+    expect(next).toHaveBeenCalledTimes(360);
+    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Limit', '360');
+    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Reset', '86400');
+    expect(status).toHaveBeenCalledWith(429);
   });
 
   it('returns a typed RATE_LIMITED payload with Retry-After when a bucket is exhausted', () => {
