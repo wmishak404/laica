@@ -238,3 +238,7 @@ PR #246 on `codex/init-004-eval-export` adds a redacted JSON/Markdown admin repo
 ## 2026-07-01 - Eval report export refreshed
 
 PR #246 was rebased cleanly onto `origin/main` `4608609` after PR #242 merged. The scope is unchanged: portable redacted report artifacts for future cuisine-fit evidence, not runtime prompt/fallback implementation or the transparent-fallback activation threshold.
+
+## 2026-07-08 - Eval report export merged
+
+PR #246 merged as `690fe2c`, making the redacted eval report artifact available on `main` for future cuisine-fit evidence and handoff summaries. This still does not satisfy EFF-022 because the remaining product work is the transparent-fallback activation threshold, user-facing copy, and runtime implementation.
