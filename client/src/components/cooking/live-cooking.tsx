@@ -183,15 +183,36 @@ function isPlaceholderInstruction(instruction: string) {
 
 const STEP_ACTION_LABEL_MAX_WORDS = 5;
 const STEP_ACTION_LABEL_MAX_CHARS = 24;
-const TIMER_VISIBILITY_STORAGE_KEY = 'laica_timer_visible';
+
+function parseTimerDurationSeconds(value: string) {
+  const normalized = value.replace(/[–—]/g, '-');
+  const candidates: number[] = [];
+  const durationPattern = /\b(\d+(?:\.\d+)?)\s*(seconds?|secs?|minutes?|mins?)\b/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = durationPattern.exec(normalized)) !== null) {
+    const amount = Number.parseFloat(match[1]);
+    const unit = match[2].toLowerCase();
+    const seconds = unit.startsWith('sec') ? amount : amount * 60;
+    if (Number.isFinite(seconds) && seconds > 0) {
+      candidates.push(seconds);
+    }
+  }
+
+  return candidates.length > 0 ? Math.round(Math.max(...candidates)) : null;
+}
 
 function getStepTimerDurationSeconds(step?: RecipeStep) {
-  if (!step || typeof step.duration !== 'number' || !Number.isFinite(step.duration)) {
+  if (!step) {
     return null;
   }
 
-  const roundedSeconds = Math.round(step.duration);
-  return roundedSeconds > 0 ? roundedSeconds : null;
+  if (typeof step.duration === 'number' && Number.isFinite(step.duration)) {
+    const roundedSeconds = Math.round(step.duration);
+    return roundedSeconds > 0 ? roundedSeconds : null;
+  }
+
+  return parseTimerDurationSeconds(step.instruction);
 }
 
 function formatTimerControlDuration(seconds: number) {
@@ -280,7 +301,7 @@ function toRecipeStep(step: unknown, index: number): RecipeStep | null {
   const parsedDuration = typeof candidate.duration === 'number'
     ? candidate.duration
     : typeof candidate.duration === 'string'
-      ? Number.parseInt(candidate.duration, 10) || undefined
+      ? parseTimerDurationSeconds(candidate.duration) ?? undefined
       : undefined;
   const safetyLevel = candidate.safetyLevel === 'critical' ||
     candidate.safetyLevel === 'important' ||
@@ -522,19 +543,6 @@ function getInitialCaptionsVisible() {
   }
 }
 
-function getInitialTimersVisible() {
-  const saved = localStorage.getItem(TIMER_VISIBILITY_STORAGE_KEY);
-  if (saved === null) return true;
-
-  try {
-    const parsed = JSON.parse(saved);
-    return typeof parsed === 'boolean' ? parsed : true;
-  } catch {
-    localStorage.removeItem(TIMER_VISIBILITY_STORAGE_KEY);
-    return true;
-  }
-}
-
 function normalizeContextItems(items?: string[]) {
   return (items || [])
     .map(item => item.trim())
@@ -603,7 +611,6 @@ export default function LiveCooking({
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [areCaptionsVisible, setAreCaptionsVisible] = useState(getInitialCaptionsVisible);
-  const [areTimersVisible, setAreTimersVisible] = useState(getInitialTimersVisible);
   const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
 
   const { toast } = useToast();
@@ -1033,7 +1040,7 @@ export default function LiveCooking({
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
   const timerDuration = getStepTimerDurationSeconds(currentStep);
-  const shouldShowTimerControl = areTimersVisible && Boolean(currentStep) && timerDuration !== null;
+  const shouldShowTimerControl = Boolean(currentStep) && timerDuration !== null;
   const displayedTimerSeconds = timer > 0 ? timer : timerDuration ?? 0;
   const timerControlDurationLabel = timerDuration !== null ? formatTimerControlDuration(timerDuration) : '';
   const stepPreviewLabels = useMemo(
@@ -1390,21 +1397,6 @@ export default function LiveCooking({
     setAreCaptionsVisible((prev: boolean) => {
       const newValue = !prev;
       localStorage.setItem('laica_captions_visible', JSON.stringify(newValue));
-      return newValue;
-    });
-  };
-
-  const toggleTimersVisible = () => {
-    setAreTimersVisible((prev: boolean) => {
-      const newValue = !prev;
-      localStorage.setItem(TIMER_VISIBILITY_STORAGE_KEY, JSON.stringify(newValue));
-
-      if (!newValue) {
-        setTimer(0);
-        setIsTimerRunning(false);
-        setIsTimerMinimized(false);
-      }
-
       return newValue;
     });
   };
@@ -1960,8 +1952,8 @@ export default function LiveCooking({
 
   if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
     return (
-      <div className="live-cooking-ui min-h-screen w-full px-4 py-6 pb-24">
-        <div className="live-cooking-screen mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-5">
+      <div className="live-cooking-ui min-h-screen w-full px-4 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] pt-6">
+        <div className="live-cooking-screen mx-auto flex min-h-[calc(100svh-10rem)] w-full max-w-md flex-col gap-5">
           <Button
             variant="ghost"
             onClick={handleBackToPlanning}
@@ -1999,7 +1991,11 @@ export default function LiveCooking({
           </div>
 
           <div className="mt-auto grid gap-3 pb-2">
-            <Button size="lg" onClick={() => startCookingGuideFromReadyCheck()}>
+            <Button
+              size="lg"
+              onClick={() => startCookingGuideFromReadyCheck()}
+              className="live-cooking-start-button h-14 text-lg font-extrabold"
+            >
               <Play className="h-4 w-4 mr-2" />
               Start cooking
             </Button>
@@ -2269,25 +2265,13 @@ export default function LiveCooking({
 
           <div className="flex justify-end gap-2">
             <Button
-              variant={areTimersVisible ? 'secondary' : 'outline'}
-              size="icon"
-              onClick={toggleTimersVisible}
-              aria-pressed={areTimersVisible}
-              aria-label={areTimersVisible ? 'Hide timer' : 'Show timer'}
-              title={areTimersVisible ? 'Hide timer' : 'Show timer'}
-              className="live-cooking-timer-toggle"
-              data-active={areTimersVisible ? 'true' : 'false'}
-              data-testid="button-toggle-timer"
-            >
-              <Clock className="h-4 w-4" aria-hidden="true" />
-            </Button>
-            <Button
               variant="outline"
               size="icon"
               onClick={toggleCaptionsVisible}
               aria-expanded={areCaptionsVisible}
               aria-label={areCaptionsVisible ? 'Hide captions' : 'Show captions'}
               title={areCaptionsVisible ? 'Hide captions' : 'Show captions'}
+              className="live-cooking-caption-toggle"
               data-testid="button-toggle-captions"
             >
               <span className="text-xs font-bold" aria-hidden="true">CC</span>

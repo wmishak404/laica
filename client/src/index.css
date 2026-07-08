@@ -270,23 +270,32 @@ html, body {
   }
 
   .live-cooking-ui .live-cooking-round-control,
-  .live-cooking-ui .live-cooking-timer-toggle {
+  .live-cooking-ui .live-cooking-caption-toggle {
     border-radius: 999px;
     border: 1px solid hsl(var(--cooking-coral-strong) / 0.26);
     color: hsl(var(--cooking-coral-strong));
     background: hsl(0 0% 100% / 0.68);
   }
 
+  .live-cooking-ui .live-cooking-caption-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    width: 3rem;
+    padding: 0;
+  }
+
   .live-cooking-ui .live-cooking-round-control:hover,
-  .live-cooking-ui .live-cooking-timer-toggle:hover {
+  .live-cooking-ui .live-cooking-caption-toggle:hover {
     color: hsl(var(--cooking-rust));
     background: hsl(var(--cooking-coral-soft) / 0.78);
   }
 
-  .live-cooking-ui .live-cooking-timer-toggle[data-active='true'] {
-    color: hsl(0 0% 100%);
-    border-color: hsl(var(--cooking-coral-strong) / 0.54);
-    background: hsl(var(--cooking-coral));
+  .live-cooking-ui .live-cooking-caption-toggle[aria-expanded='true'] {
+    border-color: hsl(var(--cooking-butter) / 0.74);
+    color: hsl(var(--cooking-ink));
+    background: hsl(var(--cooking-butter) / 0.92);
   }
 
   .live-cooking-ui .live-cooking-cue-card {

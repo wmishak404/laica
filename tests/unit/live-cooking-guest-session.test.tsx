@@ -300,10 +300,16 @@ describe('LiveCooking guest session boundary', () => {
 
     const readyHeading = await screen.findByText('Ready to cook?');
     expect(readyHeading.closest('.live-cooking-ui')).toBeTruthy();
-    expect(readyHeading.closest('.live-cooking-screen')).toBeTruthy();
+    const readyScreen = readyHeading.closest('.live-cooking-screen');
+    expect(readyScreen).toBeTruthy();
+    expect(readyScreen?.className).toContain('min-h-[calc(100svh-10rem)]');
+    const startButton = screen.getByRole('button', { name: /^start cooking$/i });
+    expect(startButton.className).toContain('live-cooking-start-button');
+    expect(startButton.className).toContain('text-lg');
+    expect(startButton.className).toContain('font-extrabold');
     expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: /start cooking/i }));
+    fireEvent.click(startButton);
 
     await screen.findByText('Warm the rice and beans.');
     await waitFor(() => expect(mocks.fetchCookingSteps).toHaveBeenCalledWith('Guest Rice Bowl', {
@@ -495,7 +501,36 @@ describe('LiveCooking guest session boundary', () => {
 
     expect(screen.getByText('Toss with lime and serve.')).toBeTruthy();
     expect(screen.queryByTestId('live-cooking-timer')).toBeNull();
-    expect(screen.getByRole('button', { name: /hide timer/i })).toBeTruthy();
+    expect(screen.queryByTestId('button-toggle-timer')).toBeNull();
+    expect(screen.getByRole('button', { name: /show captions/i })).toBeTruthy();
+  });
+
+  it('derives a timer from explicit instruction time when duration is omitted', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue({
+      steps: [
+        {
+          instruction: 'Stir in spinach; cook 1-2 minutes until wilted and deep green.',
+          tips: 'Spinach wilts quickly.',
+          visualCues: 'Spinach turns glossy.',
+          commonMistakes: 'Do not cook until dull.',
+          safetyLevel: 'minor',
+        },
+      ],
+    });
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByText('Stir in spinach; cook 1-2 minutes until wilted and deep green.')).toBeTruthy();
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:02:00');
+    expect(screen.getByRole('button', { name: /start 2 min timer/i })).toBeTruthy();
   });
 
   it('uses action-forward labels for step previews', async () => {
@@ -1028,7 +1063,9 @@ describe('LiveCooking guest session boundary', () => {
     expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
     expect(screen.queryByTestId('transcription-box')).toBeNull();
     expect(screen.getByTestId('text-transcription-full').className).toContain('sr-only');
-    expect(screen.getByTestId('button-toggle-captions')).toHaveTextContent('CC');
+    const captionsToggle = screen.getByTestId('button-toggle-captions');
+    expect(captionsToggle).toHaveTextContent('CC');
+    expect(captionsToggle.className).toContain('live-cooking-caption-toggle');
     expect(screen.getByRole('button', { name: /show captions/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /show captions/i }));
@@ -1043,7 +1080,8 @@ describe('LiveCooking guest session boundary', () => {
     expect(window.localStorage.getItem('laica_captions_visible')).toBe('false');
   });
 
-  it('keeps timer controls opt-out and resets an active timer when hidden', async () => {
+  it('shows timers automatically even if an old hidden timer preference exists', async () => {
+    window.localStorage.setItem('laica_timer_visible', 'false');
     mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
 
     render(
@@ -1056,22 +1094,12 @@ describe('LiveCooking guest session boundary', () => {
 
     await clickReadyCheckStart();
 
-    expect(screen.getByRole('button', { name: /hide timer/i })).toBeTruthy();
     expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:01:00');
+    expect(screen.queryByTestId('button-toggle-timer')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
     expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:01:00');
-
-    fireEvent.click(screen.getByRole('button', { name: /hide timer/i }));
-
     expect(window.localStorage.getItem('laica_timer_visible')).toBe('false');
-    expect(screen.queryByTestId('live-cooking-timer')).toBeNull();
-    expect(screen.getByRole('button', { name: /show timer/i })).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: /show timer/i }));
-
-    expect(window.localStorage.getItem('laica_timer_visible')).toBe('true');
-    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:01:00');
   });
 
   it('falls back to hidden captions when the saved captions preference is malformed', async () => {
