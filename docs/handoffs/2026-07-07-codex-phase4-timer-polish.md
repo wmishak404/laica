@@ -33,6 +33,7 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 - `npm run build` passed with existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
 - Exact-head GitHub checks passed at `5abe6fe`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
+- Wilson's light Replit smoke on 2026-07-08 after resetting Replit to `8be2901` confirmed the compact CC layout: transcript on the left, circular boxed-CC control on the same row, and no extra vertical dead space. This is visual smoke evidence only, not full human regression.
 
 ## Remaining Before Merge
 
