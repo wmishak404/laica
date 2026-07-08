@@ -32,8 +32,9 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000` passed: 96 tests.
 - `npx vitest run tests/unit/rate-limit.test.ts` passed after the speech-limit increase: 2 files, 18 tests.
 - Latest rail-follow patch: `npm run check`, `npm run build`, and `git diff --check` passed. Build retained the existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
-- Exact-head GitHub checks passed at `5abe6fe`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
+- Exact-head GitHub checks passed at rebased PR head `ced3de8`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
 - Wilson's light Replit smoke on 2026-07-08 after resetting Replit to `8be2901` confirmed the compact CC layout: transcript on the left, circular boxed-CC control on the same row, and no extra vertical dead space. This is visual smoke evidence only, not full human regression.
+- Wilson's later Replit smoke on 2026-07-08 at the PR head confirmed the new step-preview rail affordance looks good and functions well: the active rail position follows the current step, and the bottom left/right return controls appear for hidden rail content and snap back to the current step. This is acceptance smoke for the added rail affordance only; full production regression remains release/batch deferred.
 
 ## Remaining Before Merge
 
