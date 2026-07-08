@@ -30,7 +30,7 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 - `npm run check` passed.
 - `npm run build` passed with existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
-- Exact-head GitHub checks passed at `edd0484`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
+- Exact-head GitHub checks passed at `1165975`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
 
 ## Remaining Before Merge
 
