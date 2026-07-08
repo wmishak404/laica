@@ -179,6 +179,7 @@ export default function MealPlanning({
   const [isLoading, setIsLoading] = useState(false);
   const [isSelectedRecipeImagePending, setIsSelectedRecipeImagePending] = useState(false);
   const [selectedRecipeImageUrlsByRecipeId, setSelectedRecipeImageUrlsByRecipeId] = useState<Record<string, string>>({});
+  const [selectedRecipeImageStatusesByRecipeId, setSelectedRecipeImageStatusesByRecipeId] = useState<Record<string, 'unavailable'>>({});
   const [sessionRestored, setSessionRestored] = useState(false);
   const [lockedStapleView, setLockedStapleView] = useState<LockedStapleView | null>(null);
   const [savedStapleHint, setSavedStapleHint] = useState<string | null>(null);
@@ -187,6 +188,7 @@ export default function MealPlanning({
   const imagePreviewRunIdRef = useRef(0);
   const activeImagePreviewRef = useRef<{ runId: number; controller: AbortController } | null>(null);
   const suppressSessionPersistenceRef = useRef(false);
+  const hasSubmittedMealRef = useRef(false);
   const { toast } = useToast();
   const mealPlanningStorageKey = useMemo(
     () => `${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`,
@@ -518,18 +520,18 @@ export default function MealPlanning({
       delayMs: number;
       isStillActive: () => boolean;
     },
-  ): Promise<{ imageUrl: string } | null> => {
+  ): Promise<{ status: 'ready'; imageUrl: string } | { status: 'unavailable' } | null> => {
     const resolverRecipe = buildRecipeImageResolverPayload(recipe);
     while (isStillActive()) {
       const result = await resolveSelectedRecipeImage(resolverRecipe, { signal: controller.signal });
       if (!isStillActive()) return null;
 
       if (result.status === 'ready') {
-        return { imageUrl: result.image.imageUrl };
+        return { status: 'ready', imageUrl: result.image.imageUrl };
       }
 
       if (result.status === 'unavailable') {
-        return null;
+        return { status: 'unavailable' };
       }
 
       await waitForRecipeImagePoll(controller.signal, delayMs);
@@ -557,15 +559,26 @@ export default function MealPlanning({
     imagePreviewRunIdRef.current = runId;
     activeImagePreviewRef.current = { runId, controller };
     setIsSelectedRecipeImagePending(true);
+    setSelectedRecipeImageStatusesByRecipeId((currentStatuses) => {
+      if (!currentStatuses[recipe.id]) return currentStatuses;
+
+      const { [recipe.id]: _status, ...remaining } = currentStatuses;
+      return remaining;
+    });
 
     void (async () => {
       try {
-        const image = await waitForResolvedSelectedRecipeImage(recipe, controller, {
+        const result = await waitForResolvedSelectedRecipeImage(recipe, controller, {
           delayMs: SELECTED_RECIPE_IMAGE_POLL_DELAY_MS,
           isStillActive: () => isActiveImagePreview(runId, controller),
         });
-        if (image) {
-          applyResolvedSelectedRecipeImage(recipe, image);
+        if (result?.status === 'ready') {
+          applyResolvedSelectedRecipeImage(recipe, { imageUrl: result.imageUrl });
+        } else if (result?.status === 'unavailable') {
+          setSelectedRecipeImageStatusesByRecipeId((currentStatuses) => ({
+            ...currentStatuses,
+            [recipe.id]: 'unavailable',
+          }));
         }
       } catch (error) {
         if (!controller.signal.aborted) {
@@ -583,9 +596,12 @@ export default function MealPlanning({
   useEffect(() => {
     if (currentStep !== 'prep-tray') return;
     if (!selectedMeal || selectedRecipeImageUrlsByRecipeId[selectedMeal.id]) return;
+    if (hasSubmittedMealRef.current) return;
+    if (isSelectedRecipeImagePending) return;
+    if (selectedRecipeImageStatusesByRecipeId[selectedMeal.id] === 'unavailable') return;
 
     hydrateSelectedRecipeImage(selectedMeal);
-  }, [currentStep, selectedMeal?.id, selectedRecipeImageUrlsByRecipeId]);
+  }, [currentStep, isSelectedRecipeImagePending, selectedMeal?.id, selectedRecipeImageStatusesByRecipeId, selectedRecipeImageUrlsByRecipeId]);
 
   const generateRecommendations = async ({
     confirmedStaples = [],
@@ -780,6 +796,7 @@ export default function MealPlanning({
   };
 
   const handleMealSelected = (meal: RecipeRecommendation) => {
+    hasSubmittedMealRef.current = true;
     cancelRecipeImageHydration();
     onMealSelected(meal, 'now');
   };
@@ -1198,14 +1215,17 @@ export default function MealPlanning({
     }
 
     const selectedPrepTrayImageUrl = selectedRecipeImageUrlsByRecipeId[selectedMeal.id];
+    const selectedPrepTrayImageStatus = selectedRecipeImageStatusesByRecipeId[selectedMeal.id];
     const selectedMealWithPrepImage = selectedPrepTrayImageUrl
       ? { ...selectedMeal, imageUrl: selectedPrepTrayImageUrl }
       : selectedMeal;
-    let prepTrayImageState: 'ready' | 'pending' | 'placeholder' = 'placeholder';
+    let prepTrayImageState: 'ready' | 'pending' | 'unavailable' | 'placeholder' = 'placeholder';
     if (selectedMealWithPrepImage.imageUrl) {
       prepTrayImageState = 'ready';
     } else if (isSelectedRecipeImagePending) {
       prepTrayImageState = 'pending';
+    } else if (selectedPrepTrayImageStatus === 'unavailable') {
+      prepTrayImageState = 'unavailable';
     }
 
     return (
@@ -1220,6 +1240,9 @@ export default function MealPlanning({
             {renderRecipeImageSlot(selectedMealWithPrepImage, 'prep', isSelectedRecipeImagePending)}
             {isSelectedRecipeImagePending && (
               <p className="planning-prep-image-status">Cooking up the preview...</p>
+            )}
+            {selectedPrepTrayImageStatus === 'unavailable' && (
+              <p className="planning-prep-image-status">Preview unavailable</p>
             )}
           </div>
           <div className="planning-prep-body">

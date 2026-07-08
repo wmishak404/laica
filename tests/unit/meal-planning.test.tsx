@@ -937,6 +937,23 @@ describe('MealPlanning recipe generation locking', () => {
     }
   });
 
+  it('shows a stable Prep Tray fallback when the selected image is unavailable', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveSelectedRecipeImageMock.mockResolvedValue({ status: 'unavailable', reason: 'image_not_approved' });
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
+    expect(await screen.findByText(/preview unavailable/i)).toBeTruthy();
+    expect(container.querySelector('.planning-prep-hero .planning-recipe-image')).toBeNull();
+    expect(container.querySelector('.planning-prep-hero')?.getAttribute('data-image-state')).toBe('unavailable');
+    expect(container.querySelector('.planning-prep-hero .planning-recipe-image-spinner')).toBeNull();
+  });
+
   it('keeps showing Prep Tray progress and resolves an image after the old 15 second window', async () => {
     fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
     resolveSelectedRecipeImageMock

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, Minimize2, Maximize2 } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, Minimize2, Maximize2, RotateCcw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -133,26 +133,13 @@ function formatTimerDuration(seconds: number) {
   return `${remainingSeconds} ${remainingSeconds === 1 ? 'second' : 'seconds'}`;
 }
 
-function formatTimerStartLabel(seconds: number) {
+function formatTimerClock(seconds: number) {
   const safeSeconds = Math.max(0, Math.round(seconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const remainingSeconds = safeSeconds % 60;
 
-  if (safeSeconds > 0 && safeSeconds % 60 === 0) {
-    return `${safeSeconds / 60} min`;
-  }
-
-  return formatTimerDuration(safeSeconds);
-}
-
-function hasTimerSuggestion(step?: RecipeStep) {
-  if (!step?.duration || step.duration < 60) {
-    return false;
-  }
-
-  const instruction = step.instruction.toLowerCase();
-  const prepOnlyPattern = /\b(chop|slice|dice|mince|prep|prepare|gather|measure)\b/;
-  const cookingSignalPattern = /\b(cook|bake|roast|simmer|boil|steam|fry|saute|sauté|sear|toast|rest|stand|cool|reduce|broil|grill|heat|warm)\b/;
-
-  return cookingSignalPattern.test(instruction) || !prepOnlyPattern.test(instruction);
+  return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
 function normalizeInstructionText(instruction: string) {
@@ -1021,9 +1008,9 @@ export default function LiveCooking({
     ? Math.min(currentStepIndex, currentRecipeSteps.length - 1)
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
-  const hasStepTimerSuggestion = hasTimerSuggestion(currentStep);
   const shouldShowTimerControl = areTimersVisible && Boolean(currentStep);
-  const timerDuration = hasStepTimerSuggestion ? currentStep?.duration ?? DEFAULT_TIMER_DURATION_SECONDS : DEFAULT_TIMER_DURATION_SECONDS;
+  const timerDuration = DEFAULT_TIMER_DURATION_SECONDS;
+  const displayedTimerSeconds = timer > 0 ? timer : timerDuration;
   const stepPreviewLabels = useMemo(
     () => buildStepPreviewLabels(currentRecipeSteps),
     [currentRecipeSteps],
@@ -1499,6 +1486,26 @@ export default function LiveCooking({
     setSpokenAssistantResponse(`Timer set for ${formatTimerDuration(durationSeconds)}. I'll let you know when time is up!`);
   };
 
+  const toggleTimerRunning = () => {
+    if (isTimerRunning) {
+      setIsTimerRunning(false);
+      return;
+    }
+
+    if (timer > 0) {
+      setIsTimerRunning(true);
+      return;
+    }
+
+    startTimer(timerDuration);
+  };
+
+  const resetTimer = () => {
+    setTimer(timerDuration);
+    setIsTimerRunning(false);
+    setIsTimerMinimized(false);
+  };
+
   // Clean up audio on component unmount or page navigation
   useEffect(() => {
     return () => {
@@ -1878,13 +1885,6 @@ export default function LiveCooking({
     }
   };
 
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const readyCheckItems = [
     {
       label: 'Ingredients nearby',
@@ -2117,19 +2117,13 @@ export default function LiveCooking({
               {shouldShowTimerControl && (
                 <div
                   className="live-cooking-timer-pill flex items-center gap-2 rounded-md border p-2"
-                  data-state={timer > 0 ? 'active' : hasStepTimerSuggestion ? 'suggested' : 'ready'}
+                  data-state={timer > 0 ? 'active' : 'ready'}
                   data-minimized={timer > 0 && isTimerMinimized ? 'true' : 'false'}
                   data-testid="live-cooking-timer"
                 >
-                  <div className="min-w-0 flex-1 text-sm font-medium">
+                  <div className="min-w-0 flex-1 text-sm font-extrabold tabular-nums">
                     <Clock className="mr-1 inline h-4 w-4" />
-                    {timer > 0 ? (
-                      <>Timer: {formatTime(timer)}</>
-                    ) : hasStepTimerSuggestion ? (
-                      `Optional timer: ${formatTimerDuration(timerDuration)}`
-                    ) : (
-                      'Timer ready'
-                    )}
+                    {formatTimerClock(displayedTimerSeconds)}
                   </div>
 
                   {timer > 0 && isTimerMinimized ? (
@@ -2145,36 +2139,37 @@ export default function LiveCooking({
                     </Button>
                   ) : (
                     <div className="flex shrink-0 items-center gap-1">
-                      {timer === 0 ? (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={toggleTimerRunning}
+                        aria-label={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : "Start 5 min timer"}
+                        title={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : "Start 5 min timer"}
+                        className="live-cooking-round-control h-8 w-8"
+                      >
+                        {isTimerRunning ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={resetTimer}
+                        aria-label="Reset 5 min timer"
+                        title="Reset 5 min timer"
+                        className="live-cooking-round-control h-8 w-8"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                      </Button>
+                      {timer > 0 && (
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => startTimer(timerDuration)}
-                          aria-label={`Start ${formatTimerStartLabel(timerDuration)} timer`}
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setIsTimerMinimized(true)}
+                          aria-label="Minimize timer"
+                          title="Minimize timer"
+                          className="live-cooking-round-control h-8 w-8"
                         >
-                          {hasStepTimerSuggestion ? 'Start timer' : `Start ${formatTimerStartLabel(timerDuration)}`}
+                          <Minimize2 className="h-3.5 w-3.5" />
                         </Button>
-                      ) : (
-                        <>
-                          <Button
-                            size="sm"
-                            onClick={() => setIsTimerRunning(!isTimerRunning)}
-                            variant={isTimerRunning ? "destructive" : "secondary"}
-                            aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
-                          >
-                            {isTimerRunning ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => setIsTimerMinimized(true)}
-                            aria-label="Minimize timer"
-                            title="Minimize timer"
-                            className="h-8 w-8"
-                          >
-                            <Minimize2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </>
                       )}
                     </div>
                   )}
@@ -2247,6 +2242,8 @@ export default function LiveCooking({
               aria-pressed={areTimersVisible}
               aria-label={areTimersVisible ? 'Hide timer' : 'Show timer'}
               title={areTimersVisible ? 'Hide timer' : 'Show timer'}
+              className="live-cooking-timer-toggle"
+              data-active={areTimersVisible ? 'true' : 'false'}
               data-testid="button-toggle-timer"
             >
               <Clock className="h-4 w-4" aria-hidden="true" />
