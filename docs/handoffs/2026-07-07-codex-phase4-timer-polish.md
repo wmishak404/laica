@@ -24,13 +24,13 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 
 ## Validation
 
-- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx` passed: 92 tests.
-- Earlier focused `npx vitest run tests/unit/live-cooking-guest-session.test.tsx` passed: 34 tests before the Ready Check/nav follow-up.
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 38 tests.
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000` passed: 95 tests.
 - `npm run check` passed.
 - `npm run build` passed with existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
+- Exact-head GitHub checks passed at `edd0484`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
 
 ## Remaining Before Merge
 
-- Push PR and wait for exact-head GitHub checks.
 - Human Replit validation remains release/batch deferred unless Wilson asks for PR-level mobile validation.
