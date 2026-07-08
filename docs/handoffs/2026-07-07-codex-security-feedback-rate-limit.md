@@ -25,16 +25,16 @@ This branch applies the current security automation's low-risk feedback-route ha
 
 ## Open items
 
-- GitHub CI/security checks must run on the pushed PR head before merge readiness.
+- GitHub CI/security checks must rerun on the 2026-07-08 rebased PR head before merge.
 - Human Replit validation is not required before merge for this narrow route-boundary patch under the automation-primary lane. If this joins a release validation batch, the smallest manual smoke is: open the app, submit feedback anonymously, submit feedback while signed in, and confirm no unexpected 429 for normal single submissions.
 - Last Replit-validated at: not yet validated; release/batch validation only if Wilson wants a runtime smoke before publish.
 
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `263eec5fc14e0923807e2a040d46125846fd1152`
+- Current base: `origin/main` at `809aa0ed7a963e401192722ea8382a18c7c24e52`
 - Last Replit-validated at: not yet validated
-- Notes: fresh branch from current `origin/main`; not stacked on another PR.
+- Notes: fresh branch from current `origin/main`; not stacked on another PR. Rebased cleanly on 2026-07-08 after PR #270 merged.
 
 ## Verification
 
@@ -43,7 +43,7 @@ Value claim: feedback writes keep their existing user-facing behavior while addi
 Evidence:
 - `npm ci` passed and reported `found 0 vulnerabilities`.
 - `npx vitest run tests/unit/p0-route-contracts.test.ts tests/unit/rate-limit.test.ts` passed: 3 files / 34 tests.
-- `npm run test:unit` passed: 45 files / 342 tests.
+- `npm run test:unit` passed on the rebased head: 46 files / 349 tests. The first sandboxed attempt hit Vitest temp-file `EPERM`; the rerun outside the sandbox passed.
 - `npm run check` passed: TypeScript plus UI lint.
 - `npm run build` passed with existing Vite/Browserslist/chunk-size warnings only.
 - `npm audit --audit-level=high` passed with `found 0 vulnerabilities`.
@@ -51,4 +51,4 @@ Evidence:
 
 Evidence limits:
 - Local tests use the mocked route harness and do not prove Replit runtime behavior, live Firebase sign-in, or production proxy/IP behavior.
-- GitHub PR checks are pending until the branch is pushed and the PR is opened or updated.
+- GitHub PR checks are pending until the rebased branch is pushed and the required workflows complete.
