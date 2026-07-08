@@ -35,7 +35,39 @@ Use the same minimal evidence shape for eval artifacts and reports:
 9. **Calibrate judges against human labels.** Report observed judge pass rate, human label pass rate when available, TPR, TNR, corrected pass rate when the denominator is valid, confidence interval, sample size, prompt/model/evaluator versions, and negative scope. Until TPR/TNR exist, mark LLM-judge metrics as uncalibrated.
 10. **Run two evidence lanes.** Golden/regression fixtures protect known contracts in CI or scheduled automation. Production/staged sampling estimates real output quality only after privacy handling, source fields, and raw artifact policy are explicit.
 11. **Report compactly and routinely.** V1 reporting should be daily automation, not an admin dashboard. Reports should include criterion rates, calibration status, sample size, trend deltas, top clusters, fixture/report ids, privacy posture, and negative scope, and should be indexed through [docs/evals/registry.md](../evals/registry.md).
-12. **Turn failures into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
+12. **Promote product-learning candidates deliberately.** Eval reports are evidence artifacts, not product doctrine by themselves. Promote generalized learnings from labeled rows into product-learning candidates before changing prompts, runtime fallbacks, fixtures, or product rules.
+13. **Turn promoted learnings into controlled prompt work.** Failure clusters generate inactive prompt candidates or product fallback decisions. Compare candidates against baseline using deterministic checks, human labels, LLM judges with calibration status, positive examples worth preserving, and known negative fixtures. Do not auto-activate prompt changes without Wilson approval.
+
+## Eval-To-Product Promotion
+
+INIT-004 is a self-improvement loop, not only a passive eval archive. The durable loop is:
+
+1. Eval run
+2. Wilson labels
+3. Report stores evidence, limits, and action routing
+4. Registry indexes surface, trend tags, status, and next action
+5. Product-learning candidates are promoted from the report
+6. Prompt/runtime branch consumes accepted candidates and cites the report
+7. Eval rerun verifies behavior against the same or expanded evidence set
+8. Registry/report status is updated with the outcome
+
+Promotion is based on labeled evidence, confidence, repetition, and product relevance:
+
+| Human label | Promotion meaning |
+|---|---|
+| `FAIL` / `HIGH` | Strong product-learning candidate; usually prompt/runtime action unless the issue is already covered by a lower-level fixture or product rule. |
+| `FAIL` / `MEDIUM` | Product-learning candidate; act when the failure mode is clear, repeated, or aligned with existing product direction. |
+| `BORDERLINE` / `HIGH` | Strong rubric/product nuance; may become prompt guidance, fixture coverage, or a product rule after more evidence or explicit Wilson promotion. |
+| `BORDERLINE` / `MEDIUM` | Trend signal; keep in reports and aggregate across runs. Do not discard merely because confidence is not `HIGH`. |
+| `PASS` with judge false alarm | Judge calibration issue, not product behavior issue, unless Wilson notes a separate product concern. |
+
+Reports should distinguish evidence classes before promotion:
+
+- Controls and sentinels validate judge, rubric, or fixture behavior.
+- Provider-generated synthetic/staged samples are calibration and product-learning candidates.
+- Real app traffic is product-quality evidence only when labeled and privacy handling is explicit; label it distinctly from synthetic/provider-generated samples.
+
+Prompt/runtime changes should cite the eval report id and the specific promoted learning they consume. Avoid claiming that a scoring/rubric change and a product behavior change both caused the same improvement unless both were rerun separately enough to make that causal claim auditable.
 
 ## V1 Surfaces
 
@@ -43,6 +75,7 @@ Use the same minimal evidence shape for eval artifacts and reports:
 - General recipe suggestions from meal-planning preferences
 - Slop Bowl recipe generation
 - Cooking-step generation for accepted recipes
+- Live Cooking step-preview/action labels through `live_cooking_step_previews`, kept separate from broad `cooking_steps` safety/sequence quality
 
 V1 does not cover provider outage handling, image generation quality, speech transcription/synthesis quality, dashboard UX, or automatic prompt activation.
 
@@ -50,7 +83,7 @@ Speech or other interaction-eval records may still be registered outside INIT-00
 
 ## Future INIT-004 Image Quality Calibration Phase
 
-Generated recipe images are accepted as a later INIT-004 phase once the core INIT-004 human-review, judge-calibration, reporting, and action-routing machinery exists. Do not fold image quality into the recipe-text V1 pass rates early: image generation has different artifacts, privacy handling, provider/style variables, and human-review needs.
+Generated recipe images are accepted as a later INIT-004 phase once the core INIT-004 human-review, judge-calibration, product-learning promotion, reporting, and action-routing machinery exists. Do not fold image quality into the recipe-text V1 pass rates early: image generation has different artifacts, privacy handling, provider/style variables, and human-review needs.
 
 The first image-quality lane should be a blind human-review queue over `recipe_image_cache` samples, not another model-only dashboard. It should:
 
@@ -75,6 +108,7 @@ Human labels are the source of truth for this lane. Model judges are triage unti
 | Cuisine fit | Honors selected cuisine or transparently states a pantry-flexible fallback when pantry evidence is weak | Human/judge |
 | Recipe usefulness | Coherent dish, clear name, practical preparation, ranking/diversity, appropriate substitutions | Human/judge |
 | Cooking steps | Steps align with accepted recipe, equipment, ingredients, skill, time, and safe sequencing | Deterministic where possible; human/judge for sequence quality |
+| Live Cooking step previews | Small-card labels fit hands-busy recall: concise, measurement-free, distinct across sibling steps, plain English, and tied to the actual milestone | Deterministic for shape/length/measurements/exact duplicates; human/judge for milestone and language quality |
 | Food safety | Safe handling/cook guidance for meat, eggs, leftovers, allergens, and storage where relevant | Human/judge plus targeted deterministic flags |
 
 ## Measurement Rules

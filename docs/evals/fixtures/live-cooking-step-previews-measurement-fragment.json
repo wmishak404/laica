@@ -1,0 +1,49 @@
+{
+  "id": "live-cooking-step-previews-measurement-fragment",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07"],
+  "request": {
+    "recipe": {
+      "recipeName": "Boiled Rice Setup Labels",
+      "description": "A synthetic single-failure fixture for measurement-driven preview labels.",
+      "ingredients": ["water", "rice"]
+    },
+    "steps": [
+      "Bring four cups of water to a boil.",
+      "Add rice and simmer until tender."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Boiled Rice Setup Labels\",\"description\":\"A synthetic single-failure fixture for measurement-driven preview labels.\",\"ingredients\":[\"water\",\"rice\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Bring 4 Cups\",\"Add Rice\"],\"siblingLabelsAfterRendering\":[\"Bring 4 Cups\",\"Add Rice\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Bring four cups of water to a boil.\",\"providerActionLabel\":\"Bring 4 Cups\",\"clientNormalizedProviderLabel\":\"Bring 4 Cups\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Bring 4 Cups\"},{\"stepIndex\":1,\"instruction\":\"Add rice and simmer until tender.\",\"providerActionLabel\":\"Add Rice\",\"clientNormalizedProviderLabel\":\"Add Rice\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Add Rice\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "pr-260-review-seed",
+    "capturedAt": "2026-07-07"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "fail",
+    "step_preview_distinctness": "pass",
+    "step_preview_plain_english": "fail",
+    "step_preview_milestone_fit": "fail",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "fail"
+  },
+  "judgeExpectations": {
+    "expectedPassed": false,
+    "expectedErrorModes": ["measurement_or_quantity_label"],
+    "notes": "The final rendered label still says Bring 4 Cups instead of an action/result such as Boil Water."
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-from-wilson-pr260-peer-review",
+    "labeledAt": "2026-07-07"
+  },
+  "notes": "Synthetic judge-smoke fixture focused on measurement fragments in final rendered preview labels."
+}

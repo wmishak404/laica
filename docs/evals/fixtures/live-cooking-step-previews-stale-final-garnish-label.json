@@ -1,0 +1,48 @@
+{
+  "id": "live-cooking-step-previews-stale-final-garnish-label",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07", "pr-264-live-cooking-step-preview-prompt"],
+  "request": {
+    "recipe": {
+      "recipeName": "Leek, Carrot and Beef Fried Rice",
+      "description": "A synthetic single-failure fixture for stale generic labels on final garnish and serving steps.",
+      "ingredients": ["leeks", "carrots", "cooked beef", "green onions", "rice"]
+    },
+    "steps": [
+      "Turn off the heat, stir in the sliced green onions, and serve hot in ceramic bowls."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Leek, Carrot and Beef Fried Rice\",\"description\":\"A synthetic single-failure fixture for stale generic labels on final garnish and serving steps.\",\"ingredients\":[\"leeks\",\"carrots\",\"cooked beef\",\"green onions\",\"rice\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Cook Vegetables\"],\"siblingLabelsAfterRendering\":[\"Cook Vegetables\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Turn off the heat, stir in the sliced green onions, and serve hot in ceramic bowls.\",\"providerActionLabel\":\"Cook Vegetables\",\"clientNormalizedProviderLabel\":\"Cook Vegetables\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Cook Vegetables\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "pr-264-step-preview-prompt-seed",
+    "capturedAt": "2026-07-07"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "pass",
+    "step_preview_distinctness": "pass",
+    "step_preview_plain_english": "pass",
+    "step_preview_milestone_fit": "fail",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "fail"
+  },
+  "judgeExpectations": {
+    "expectedPassed": false,
+    "expectedErrorModes": ["wrong_milestone_label"],
+    "notes": "The final off-heat green-onion and serving step is mislabeled as Cook Vegetables; expected quick-recall wording is Garnish or Garnish & Serve."
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-from-wilson-pr264-replit-review",
+    "labeledAt": "2026-07-07"
+  },
+  "notes": "Synthetic fixture derived from Wilson's PR #264 Replit review: final garnish/off-heat/serve steps must not use the stale generic Cook Vegetables label."
+}

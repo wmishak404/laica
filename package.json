@@ -22,6 +22,7 @@
     "db:sandbox:prepare": "tsx scripts/local-sandbox.ts --prepare-only",
     "check:oauth": "tsx scripts/oauth-start-preflight.ts",
     "eval:fixtures": "tsx scripts/validate-eval-fixtures.ts",
+    "eval:step-preview-judge-smoke": "tsx scripts/run-step-preview-judge-smoke.ts",
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test --project=chromium",

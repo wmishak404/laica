@@ -1,0 +1,49 @@
+{
+  "id": "live-cooking-step-previews-wrong-milestone",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07"],
+  "request": {
+    "recipe": {
+      "recipeName": "Leek and Spinach Fried Rice",
+      "description": "A synthetic single-failure fixture for setup-only labels.",
+      "ingredients": ["leeks", "spinach", "butter", "rice"]
+    },
+    "steps": [
+      "Cook the leeks and spinach in oil and butter until softened.",
+      "Add rice and fold everything together."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Leek and Spinach Fried Rice\",\"description\":\"A synthetic single-failure fixture for setup-only labels.\",\"ingredients\":[\"leeks\",\"spinach\",\"butter\",\"rice\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Heat Oil Butter\",\"Add Rice\"],\"siblingLabelsAfterRendering\":[\"Heat Oil Butter\",\"Add Rice\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Cook the leeks and spinach in oil and butter until softened.\",\"providerActionLabel\":\"Heat Oil Butter\",\"clientNormalizedProviderLabel\":\"Heat Oil Butter\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Heat Oil Butter\"},{\"stepIndex\":1,\"instruction\":\"Add rice and fold everything together.\",\"providerActionLabel\":\"Add Rice\",\"clientNormalizedProviderLabel\":\"Add Rice\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Add Rice\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "pr-260-review-seed",
+    "capturedAt": "2026-07-07"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "pass",
+    "step_preview_distinctness": "pass",
+    "step_preview_plain_english": "fail",
+    "step_preview_milestone_fit": "fail",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "fail"
+  },
+  "judgeExpectations": {
+    "expectedPassed": false,
+    "expectedErrorModes": ["wrong_milestone_label"],
+    "notes": "The label names setup ingredients instead of the actual Cook Leek & Spinach milestone."
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-from-wilson-pr260-peer-review",
+    "labeledAt": "2026-07-07"
+  },
+  "notes": "Synthetic judge-smoke fixture focused on setup-only labels that miss the actual cooking milestone."
+}

@@ -59,13 +59,80 @@ function baseFixture(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function stepPreviewFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "synthetic-step-preview-pass",
+    surface: "live_cooking_step_previews",
+    privacyClass: "synthetic",
+    roles: ["regression"],
+    sourceRefs: ["live-cooking-step-preview-label-seed-2026-07-07"],
+    request: {
+      recipe: {
+        recipeName: "Fried Rice",
+        ingredients: ["water", "rice", "vegetables"],
+      },
+    },
+    constraints: {
+      maxWords: 5,
+      preferredMaxWords: 4,
+      maxCharacters: 24,
+    },
+    output: JSON.stringify({
+      recipe: {
+        recipeName: "Fried Rice",
+        ingredients: ["water", "rice", "vegetables"],
+      },
+      renderingConstraints: {
+        maxWords: 5,
+        preferredMaxWords: 4,
+        maxCharacters: 24,
+      },
+      siblingLabelsBeforeRendering: ["Bring 4 Cups", "Season Fried Rice"],
+      siblingLabelsAfterRendering: ["Boil Water", "Season Fried Rice"],
+      previews: [
+        {
+          stepIndex: 0,
+          instruction: "Bring water to a boil.",
+          providerActionLabel: "Bring 4 Cups",
+          clientNormalizedProviderLabel: null,
+          clientFallbackLabel: "Boil Water",
+          renderedPreviewLabel: "Boil Water",
+        },
+        {
+          stepIndex: 1,
+          instruction: "Season the fried rice.",
+          providerActionLabel: "Season Fried Rice",
+          clientNormalizedProviderLabel: "Season Fried Rice",
+          clientFallbackLabel: null,
+          renderedPreviewLabel: "Season Fried Rice",
+        },
+      ],
+    }),
+    outputProvenance: {
+      kind: "synthetic",
+      promptVersion: "pr-260-review-seed",
+    },
+    labels: {
+      structure_contract: "pass",
+      step_preview_word_count: "pass",
+      step_preview_measurement_free: "pass",
+      step_preview_distinctness: "pass",
+      step_preview_provider_label_quality: "fail",
+      step_preview_rendered_label_quality: "pass",
+    },
+    ...overrides,
+  };
+}
+
 describe("INIT-004 eval fixture foundation", () => {
   it("separates eval/reporting feature ids from prompt-managed feature ids", () => {
     expect(listEvalFeatureTypesForFixtures()).toContain("chef_it_up_suggestions");
     expect(listEvalFeatureTypesForFixtures()).toContain("slop_bowl_suggestions");
+    expect(listEvalFeatureTypesForFixtures()).toContain("live_cooking_step_previews");
     expect(listEvalFeatureTypesForFixtures()).not.toContain("pantry_recipes");
     expect(listEvalFeatureTypesForFixtures()).not.toContain("slop_bowl");
     expect(promptFeatureTypeSchema.safeParse("slop_bowl_suggestions").success).toBe(false);
+    expect(promptFeatureTypeSchema.safeParse("live_cooking_step_previews").success).toBe(false);
     expect(promptFeatureTypeSchema.safeParse("recipe_suggestions").success).toBe(true);
   });
 
@@ -198,6 +265,64 @@ describe("INIT-004 eval fixture foundation", () => {
     expect(cookingStepsResult.passed).toBe(true);
   });
 
+  it("validates Live Cooking step-preview label shape and rendered-label checks", () => {
+    const rescuedResult = validateEvalFixture(stepPreviewFixture());
+    const renderedFailure = validateEvalFixture(stepPreviewFixture({
+      id: "synthetic-step-preview-fail",
+      output: JSON.stringify({
+        recipe: { recipeName: "Fried Rice" },
+        renderingConstraints: { maxWords: 5, maxCharacters: 24 },
+        siblingLabelsBeforeRendering: ["Bring 4 Cups", "Cook Vegetables", "Cook Vegetables"],
+        siblingLabelsAfterRendering: ["Bring 4 Cups", "Cook Vegetables", "Cook Vegetables"],
+        previews: [
+          {
+            stepIndex: 0,
+            instruction: "Bring four cups of water to a boil.",
+            providerActionLabel: "Bring 4 Cups",
+            clientNormalizedProviderLabel: "Bring 4 Cups",
+            renderedPreviewLabel: "Bring 4 Cups",
+          },
+          {
+            stepIndex: 1,
+            instruction: "Cook vegetables until softened.",
+            providerActionLabel: "Cook Vegetables",
+            clientNormalizedProviderLabel: "Cook Vegetables",
+            renderedPreviewLabel: "Cook Vegetables",
+          },
+          {
+            stepIndex: 2,
+            instruction: "Season the vegetables as a distinct milestone.",
+            providerActionLabel: "Cook Vegetables",
+            clientNormalizedProviderLabel: "Cook Vegetables",
+            renderedPreviewLabel: "Cook Vegetables",
+          },
+        ],
+      }),
+      labels: {
+        structure_contract: "pass",
+        step_preview_word_count: "pass",
+        step_preview_measurement_free: "fail",
+        step_preview_distinctness: "fail",
+        step_preview_rendered_label_quality: "fail",
+      },
+    }));
+
+    expect(rescuedResult.passed).toBe(true);
+    expect(rescuedResult.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "structure_contract", status: "pass" }),
+      expect.objectContaining({ id: "step_preview_word_count", status: "pass" }),
+      expect.objectContaining({ id: "step_preview_measurement_free", status: "pass" }),
+      expect.objectContaining({ id: "step_preview_distinctness", status: "pass" }),
+    ]));
+    expect(renderedFailure.passed).toBe(false);
+    expect(renderedFailure.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "step_preview_measurement_free", status: "fail" }),
+      expect.objectContaining({ id: "step_preview_distinctness", status: "fail" }),
+      expect.objectContaining({ id: "label_expectations", status: "pass" }),
+    ]));
+    expect(isEvalFixtureArtifactValid(renderedFailure)).toBe(true);
+  });
+
   it("loads and sorts committed public fixture files", async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), "laica-eval-fixtures-"));
     await fs.writeFile(path.join(dir, "b.json"), JSON.stringify(baseFixture({ id: "synthetic-b" })));
@@ -221,6 +346,15 @@ describe("INIT-004 eval fixture foundation", () => {
       "cooking-steps-generated-context",
       "cooking-steps-missing-lid-alternative",
       "cooking-steps-raw-beef-doneness",
+      "live-cooking-step-previews-client-rescue",
+      "live-cooking-step-previews-duplicate-labels",
+      "live-cooking-step-previews-incomplete-phrase",
+      "live-cooking-step-previews-measurement-fragment",
+      "live-cooking-step-previews-multi-ingredient-incomplete-label",
+      "live-cooking-step-previews-rendered-fragments",
+      "live-cooking-step-previews-singular-plural-agreement",
+      "live-cooking-step-previews-stale-final-garnish-label",
+      "live-cooking-step-previews-wrong-milestone",
       "openai-max-time-25-to-30",
       "slop-bowl-suggestions-current-shape",
     ]);
@@ -230,6 +364,14 @@ describe("INIT-004 eval fixture foundation", () => {
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-dietary-halal-pork")?.labels.dietary_compliance).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-optional-extras-required")?.labels.optional_ingredient_contract).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-beginner-complexity")?.labels.skill_fit).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-measurement-fragment")?.labels.step_preview_measurement_free).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-multi-ingredient-incomplete-label")?.labels.step_preview_plain_english).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-multi-ingredient-incomplete-label")?.labels.step_preview_milestone_fit).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-duplicate-labels")?.labels.step_preview_distinctness).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-singular-plural-agreement")?.labels.step_preview_plain_english).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-stale-final-garnish-label")?.labels.step_preview_milestone_fit).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_measurement_free).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_distinctness).toBe("fail");
   });
 
   it("rejects public fixture artifacts when deterministic labels contradict observed checks", async () => {

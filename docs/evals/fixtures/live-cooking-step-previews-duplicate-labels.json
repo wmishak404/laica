@@ -1,0 +1,50 @@
+{
+  "id": "live-cooking-step-previews-duplicate-labels",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07"],
+  "request": {
+    "recipe": {
+      "recipeName": "Distinct Fried Rice Milestones",
+      "description": "A synthetic single-failure fixture for repeated generic sibling labels.",
+      "ingredients": ["vegetables", "rice", "soy sauce"]
+    },
+    "steps": [
+      "Cook vegetables until just softened.",
+      "Season the vegetables and rice as a distinct milestone.",
+      "Serve the fried rice hot."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Distinct Fried Rice Milestones\",\"description\":\"A synthetic single-failure fixture for repeated generic sibling labels.\",\"ingredients\":[\"vegetables\",\"rice\",\"soy sauce\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Cook Vegetables\",\"Cook Vegetables\",\"Serve Fried Rice\"],\"siblingLabelsAfterRendering\":[\"Cook Vegetables\",\"Cook Vegetables\",\"Serve Fried Rice\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Cook vegetables until just softened.\",\"providerActionLabel\":\"Cook Vegetables\",\"clientNormalizedProviderLabel\":\"Cook Vegetables\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Cook Vegetables\"},{\"stepIndex\":1,\"instruction\":\"Season the vegetables and rice as a distinct milestone.\",\"providerActionLabel\":\"Cook Vegetables\",\"clientNormalizedProviderLabel\":\"Cook Vegetables\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Cook Vegetables\"},{\"stepIndex\":2,\"instruction\":\"Serve the fried rice hot.\",\"providerActionLabel\":\"Serve Fried Rice\",\"clientNormalizedProviderLabel\":\"Serve Fried Rice\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Serve Fried Rice\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "pr-260-review-seed",
+    "capturedAt": "2026-07-07"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "pass",
+    "step_preview_distinctness": "fail",
+    "step_preview_plain_english": "pass",
+    "step_preview_milestone_fit": "fail",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "fail"
+  },
+  "judgeExpectations": {
+    "expectedPassed": false,
+    "expectedErrorModes": ["duplicate_distinct_milestone_label"],
+    "notes": "Two distinct milestones render the same generic Cook Vegetables label."
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-from-wilson-pr260-peer-review",
+    "labeledAt": "2026-07-07"
+  },
+  "notes": "Synthetic judge-smoke fixture focused on exact duplicate rendered labels for distinct recipe milestones."
+}

@@ -1,0 +1,49 @@
+{
+  "id": "live-cooking-step-previews-multi-ingredient-incomplete-label",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07"],
+  "request": {
+    "recipe": {
+      "recipeName": "Leek And Carrot Fried Rice",
+      "description": "A synthetic negative fixture for prep labels that omit a meaningful object from a multi-ingredient step.",
+      "ingredients": ["leeks", "carrots", "rice"]
+    },
+    "steps": [
+      "Slice the leeks into thin rounds and dice the carrots.",
+      "Cook the vegetables until softened."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Leek And Carrot Fried Rice\",\"description\":\"A synthetic negative fixture for prep labels that omit a meaningful object from a multi-ingredient step.\",\"ingredients\":[\"leeks\",\"carrots\",\"rice\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Prep Leeks\",\"Cook Vegetables\"],\"siblingLabelsAfterRendering\":[\"Prep Leeks\",\"Cook Vegetables\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Slice the leeks into thin rounds and dice the carrots.\",\"providerActionLabel\":\"Prep Leeks\",\"clientNormalizedProviderLabel\":\"Prep Leeks\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Prep Leeks\"},{\"stepIndex\":1,\"instruction\":\"Cook the vegetables until softened.\",\"providerActionLabel\":\"Cook Vegetables\",\"clientNormalizedProviderLabel\":\"Cook Vegetables\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Cook Vegetables\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "wilson-calibration-2026-07-08",
+    "capturedAt": "2026-07-08"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "pass",
+    "step_preview_distinctness": "pass",
+    "step_preview_plain_english": "fail",
+    "step_preview_milestone_fit": "fail",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "fail"
+  },
+  "judgeExpectations": {
+    "expectedPassed": false,
+    "expectedErrorModes": ["ungrammatical_or_incomplete_label"],
+    "notes": "The step prepares both leeks and carrots, so Prep Leeks is incomplete. A compact acceptable label would be Prep Leeks and Carrots."
+  },
+  "labelProvenance": {
+    "labeledBy": "wilson-human-review",
+    "labeledAt": "2026-07-08"
+  },
+  "notes": "Derived from Wilson's reviewed calibration CSV. The source row was a synthetic control, not raw production traffic."
+}

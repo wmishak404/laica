@@ -3,9 +3,9 @@
 **Status:** Draft revised from Wilson decisions
 **Initiative:** [INIT-004](../../initiatives/INIT-004-ai-output-quality-evals.md)
 **Date:** 2026-06-10
-**Last updated:** 2026-06-23
+**Last updated:** 2026-07-07
 **Owner:** Wilson / Codex / Claude / Replit
-**Applies to:** Recipe suggestions, Chef It Up pantry recipes, Slop Bowl, and cooking-step generation
+**Applies to:** Recipe suggestions, Chef It Up pantry recipes, Slop Bowl, cooking-step generation, and Live Cooking step-preview labels
 
 ## Summary
 
@@ -32,13 +32,15 @@ Accepted Phase 2 decisions:
 
 2026-06-30 EFF-022 fallback direction: Wilson accepted transparent pantry fallback as the preferred behavior when a selected cuisine is weakly supported by the user's pantry. Laica may ask about a few missing staples first, but if the user does not add them, the product should explain the pantry limitation and continue with honest pantry-first suggestions instead of silently replacing the selected cuisine or defaulting to `No preference`. The exact activation threshold and copy remain EFF-022 implementation work, deferred until after higher-priority INIT-001 work.
 
+2026-07-07 Phase 3 extension: Phase 4 peer review accepted `live_cooking_step_previews` as a distinct eval family for the small Live Cooking preview/action-label artifact. This surface stays separate from recipe-generation metrics and broad `cooking_steps` safety/sequence metrics. V1 fixtures are synthetic/redacted only and capture both provider and final rendered behavior so future reports can distinguish model label failures from client fallback rescues. After PR #260 merged, the synthetic rendering constraints were aligned to the merged runtime limits of 5 words and 24 characters.
+
 ## Feature Taxonomy
 
 Current code couples `FeatureType` to both eval criteria and prompt management. Phase 3 should split that into two concepts before expanding coverage:
 
 | Type | Purpose | Phase 2 values |
 |---|---|---|
-| `EvalFeatureType` | Eval queueing, deterministic checks, criterion labels, reporting, fixture routing | `recipe_suggestions`, `chef_it_up_suggestions`, `slop_bowl_suggestions`, `cooking_steps`, `cooking_assistance` |
+| `EvalFeatureType` | Eval queueing, deterministic checks, criterion labels, reporting, fixture routing | `recipe_suggestions`, `chef_it_up_suggestions`, `slop_bowl_suggestions`, `cooking_steps`, `live_cooking_step_previews`, `cooking_assistance` |
 | `PromptFeatureType` | DB-backed prompt lookup, prompt history, prompt generation/save/activation | Keep current prompt-managed set unless a later prompt-candidate phase explicitly adds more: `recipe_suggestions`, `cooking_steps`, `cooking_assistance` |
 
 Phase 3 should derive `AiErrorFeature`, `EvalFeatureType`, and `PromptFeatureType` from a canonical feature-id module instead of copying hand-written literal arrays into admin Zod schemas, evaluator code, and prompt-management code.
@@ -51,6 +53,7 @@ Phase 3 should derive `AiErrorFeature`, `EvalFeatureType`, and `PromptFeatureTyp
 | Chef It Up pantry recipes from `/api/recipes/pantry` | `chef_it_up_suggestions` | Existing `recipe_suggestions` prompt until a later prompt split is accepted | V1 |
 | Slop Bowl from `/api/recipes/slop-bowl` | `slop_bowl_suggestions` | Existing hardcoded Slop Bowl prompt per accepted Slop Bowl v1 direction | V1 |
 | Cooking steps from `/api/cooking/steps` | `cooking_steps` | Existing `cooking_steps` prompt | V1 |
+| Live Cooking step-preview/action labels | `live_cooking_step_previews` | Existing `cooking_steps` prompt or client fallback source; prompt activation still belongs to the prompt-managed `cooking_steps` path unless a later prompt-candidate phase splits it | V1 fixture lane; judge criteria uncalibrated |
 | Cooking assistance from `/api/cooking/assistance` | `cooking_assistance` | Existing `cooking_assistance` prompt | Infrastructure only in V1 |
 
 `cooking_assistance` keeps logging and existing `EVAL_CRITERIA`, but V1 reporting and Wilson labeling exclude it because the seed data has no assistance failures, the output is free text with no deterministic response contract, and the safety-critical content mostly originates in `cooking_steps`. Pull it into reporting if INIT-002 clusters, user feedback, or calibrated recipe-surface judges show assistance failures.
@@ -191,6 +194,7 @@ Required fixture semantics:
   - `recipe_suggestions` / `chef_it_up_suggestions`: packed `preferences` plus `ingredients`.
   - `slop_bowl_suggestions`: `SlopBowlInput`.
   - `cooking_steps`: `{ recipeName, ingredients?, equipment?, description? }`.
+  - `live_cooking_step_previews`: accepted recipe context plus rendered preview output containing step instruction, step index, raw provider `actionLabel`, client-normalized provider label when applicable, client fallback-derived label, final rendered preview/headline label, sibling labels before/after rendering, and first-pass card constraints such as word/character limits.
 - `outputProvenance.kind` should distinguish `captured`, `synthetic`, `redacted`, or `authored-regression` so future reviewers do not confuse synthetic examples with real captured model evidence.
 - `roles` may include `regression`, `calibration-probe`, and `positive-guard`. Calibration status belongs to eval reports, not to a criterion label.
 - `derivedFrom` is optional and non-sensitive; use it to link a public synthetic/redacted fixture to a private fixture id.
@@ -226,10 +230,17 @@ Phase 2 uses criterion-level labels rather than one aggregate "good/bad" label.
 | `skill_fit` | Recipe and cooking-step surfaces | Complexity, technique, detail, and assumptions match the user's cooking proficiency. | Human/judge |
 | `equipment_fit` | `slop_bowl_suggestions`, `cooking_steps` | Required equipment is available or a safe common alternative is provided. V1 does not score equipment fit for pantry/generic recipe suggestions because those surfaces do not currently receive structured equipment context. | Deterministic equipment-term flags plus human/judge |
 | `cooking_step_sequence` | `cooking_steps` | Steps are ordered logically, align with the accepted recipe, and include visual/sensory cues where judgment is required. | Human/judge with deterministic flags |
+| `step_preview_word_count` | `live_cooking_step_previews` | Final rendered preview/headline labels fit first-pass small-card text constraints: usually 2-4 words, 5 max only when needed, with optional character limits. Borderline human-review notes should identify table-stakes modifiers such as `Evenly` or `Thoroughly` separately from hard failures; meaningful descriptors such as `Finely`, `Rounds`, `Cubes`, or `Shredded` can be acceptable when they add recall value. | Deterministic |
+| `step_preview_measurement_free` | `live_cooking_step_previews` | Final rendered preview/headline labels avoid measurements, quantities, time spans, and numeric fragments. | Deterministic |
+| `step_preview_distinctness` | `live_cooking_step_previews` | Final rendered sibling labels do not repeat for distinct recipe milestones. | Deterministic for exact duplicates; human/judge for near-duplicates |
+| `step_preview_plain_english` | `live_cooking_step_previews` | Labels read as idiomatic plain English, use correct singular/plural agreement, use the right adjective/adverb form, and include needed objects, nouns, prepositions, or adverbs. | Human/judge |
+| `step_preview_milestone_fit` | `live_cooking_step_previews` | Labels name the actual cooking milestone rather than incidental setup text, clipped instruction fragments, stale generic labels for final garnish/serving/plating actions, or only one object from a multi-ingredient prep milestone. | Human/judge |
+| `step_preview_provider_label_quality` | `live_cooking_step_previews` | The raw provider `actionLabel` is independently usable before client rescue. | Human/judge plus deterministic flags where practical |
+| `step_preview_rendered_label_quality` | `live_cooking_step_previews` | The final rendered label is usable as a hands-busy recall card after client normalization/fallback. | Human/judge plus deterministic checks |
 
 Nutrition-preference fit is excluded, not deferred. Current client UI, routes, and `shared/schema.ts` have no nutrition field. The stale `DEFAULT_RECIPE_SUGGESTIONS_PROMPT` line claiming a nutritional preference, plus stale equipment language for surfaces that do not send equipment, are Phase 6 / EFF-022 prompt-cleanup notes rather than Phase 3 harness fixes.
 
-Judge calibration is a run/reporting concern. Phase 4 should compare judge verdicts to Wilson labels with TPR/TNR, but `judge_calibration` is not a fixture label.
+Judge calibration is a run/reporting concern. Phase 4 should compare judge verdicts to Wilson labels with TPR/TNR, but `judge_calibration` is not a fixture label. `BORDERLINE` human-review rows are useful for rubric tuning and score-threshold decisions, but should stay out of binary PASS/FAIL TPR/TNR until Wilson defines whether the specific pattern should block acceptance.
 
 ## First Wilson-Label Target Set
 

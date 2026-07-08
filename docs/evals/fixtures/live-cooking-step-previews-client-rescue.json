@@ -1,0 +1,53 @@
+{
+  "id": "live-cooking-step-previews-client-rescue",
+  "surface": "live_cooking_step_previews",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "positive-guard", "calibration-probe"],
+  "sourceRefs": ["live-cooking-step-preview-label-seed-2026-07-07"],
+  "request": {
+    "recipe": {
+      "recipeName": "Leek and Spinach Fried Rice",
+      "description": "A synthetic fried rice flow used to preserve Wilson's PR #260 step-preview label direction.",
+      "ingredients": ["water", "leeks", "spinach", "cold cooked rice", "soy sauce"]
+    },
+    "steps": [
+      "Bring water to a boil before starting the rice components.",
+      "Cook the leeks and spinach in oil and butter until softened.",
+      "Push the vegetables aside to make room for the rice.",
+      "Add cold cooked rice and break it up in the pan.",
+      "Season the fried rice with soy sauce.",
+      "Serve the fried rice hot."
+    ]
+  },
+  "constraints": {
+    "maxWords": 5,
+    "preferredMaxWords": 4,
+    "maxCharacters": 24
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Leek and Spinach Fried Rice\",\"description\":\"A synthetic fried rice flow used to preserve Wilson's PR #260 step-preview label direction.\",\"ingredients\":[\"water\",\"leeks\",\"spinach\",\"cold cooked rice\",\"soy sauce\"]},\"renderingConstraints\":{\"maxWords\":5,\"preferredMaxWords\":4,\"maxCharacters\":24},\"siblingLabelsBeforeRendering\":[\"Bring 4 Cups\",\"Heat Oil Butter\",\"Push Vegetables Side\",\"Add Cold Cooked\",\"Season Fried Rice\",\"Serve Fried Rice\"],\"siblingLabelsAfterRendering\":[\"Boil Water\",\"Cook Leek & Spinach\",\"Push Vegetables Aside\",\"Add Cold Rice\",\"Season Fried Rice\",\"Serve Fried Rice\"],\"previews\":[{\"stepIndex\":0,\"instruction\":\"Bring water to a boil before starting the rice components.\",\"providerActionLabel\":\"Bring 4 Cups\",\"clientNormalizedProviderLabel\":null,\"clientFallbackLabel\":\"Boil Water\",\"renderedPreviewLabel\":\"Boil Water\"},{\"stepIndex\":1,\"instruction\":\"Cook the leeks and spinach in oil and butter until softened.\",\"providerActionLabel\":\"Heat Oil Butter\",\"clientNormalizedProviderLabel\":null,\"clientFallbackLabel\":\"Cook Leek & Spinach\",\"renderedPreviewLabel\":\"Cook Leek & Spinach\"},{\"stepIndex\":2,\"instruction\":\"Push the vegetables aside to make room for the rice.\",\"providerActionLabel\":\"Push Vegetables Side\",\"clientNormalizedProviderLabel\":\"Push Vegetables Aside\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Push Vegetables Aside\"},{\"stepIndex\":3,\"instruction\":\"Add cold cooked rice and break it up in the pan.\",\"providerActionLabel\":\"Add Cold Cooked\",\"clientNormalizedProviderLabel\":null,\"clientFallbackLabel\":\"Add Cold Rice\",\"renderedPreviewLabel\":\"Add Cold Rice\"},{\"stepIndex\":4,\"instruction\":\"Season the fried rice with soy sauce.\",\"providerActionLabel\":\"Season Fried Rice\",\"clientNormalizedProviderLabel\":\"Season Fried Rice\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Season Fried Rice\"},{\"stepIndex\":5,\"instruction\":\"Serve the fried rice hot.\",\"providerActionLabel\":\"Serve Fried Rice\",\"clientNormalizedProviderLabel\":\"Serve Fried Rice\",\"clientFallbackLabel\":null,\"renderedPreviewLabel\":\"Serve Fried Rice\"}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "pr-260-review-seed",
+    "capturedAt": "2026-07-07"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "step_preview_word_count": "pass",
+    "step_preview_measurement_free": "pass",
+    "step_preview_distinctness": "pass",
+    "step_preview_plain_english": "pass",
+    "step_preview_milestone_fit": "pass",
+    "step_preview_provider_label_quality": "fail",
+    "step_preview_rendered_label_quality": "pass"
+  },
+  "judgeExpectations": {
+    "expectedPassed": true,
+    "expectedErrorModes": ["provider_label_needs_client_rescue"],
+    "notes": "Final rendered labels are usable, but the raw provider labels need client rescue."
+  },
+  "labelProvenance": {
+    "labeledBy": "codex-from-wilson-pr260-peer-review",
+    "labeledAt": "2026-07-07"
+  },
+  "notes": "Synthetic positive rendered-label guard. It intentionally keeps bad raw provider labels so future eval reports can distinguish model label failures from client-rendered rescue behavior."
+}

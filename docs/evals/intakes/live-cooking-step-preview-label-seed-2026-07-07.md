@@ -1,0 +1,80 @@
+# 2026-07-07 - Live Cooking Step Preview Label Seed Intake
+
+**Intake id:** `live-cooking-step-preview-label-seed-2026-07-07`
+**Source:** Wilson manual PR #260 QA feedback, PR #264 Replit review, and Phase 4 Codex handoffs
+**Owner / reviewer:** Wilson / INIT-001 Phase 4 Codex thread / INIT-004 Codex
+**Raw artifact handling:** Screenshots and raw QA context are not committed; this record keeps only the redacted summary and synthetic-safe label examples from the pushed Phase 4 handoff.
+**Privacy posture:** Redacted summary; no raw real pantry, user, request id, auth, screenshot, or production trace data committed.
+**Related surfaces:** Distinct eval family `live_cooking_step_previews`; adjacent to but separate from `cooking_steps`.
+**Prompt/model/evaluator versions:** No provider run in this intake; source behavior was observed during PR #260 Live Cooking QA and PR #264 human-in-the-loop prompt review. A narrow uncalibrated judge criteria entry now exists for future batches, but no judge run has been used as product-quality truth.
+**Input schema:** Public fixtures capture accepted recipe context, generated step instruction, step index, raw provider `actionLabel`, client-normalized provider label when applicable, client fallback-derived label, final rendered preview/headline label, sibling label lists before and after rendering, and first-pass rendered-card constraints such as word and character limits.
+**Sample size:** PR #260 supplied 11 redacted label examples or patterns; PR #264 added 2 prompt-target failure modes covering plural ingredient agreement and stale generic final garnish/serve labels.
+**Positive definition:** A label passes when it works as a small Live Cooking preview card for a hands-busy cook: usually 2-4 words, 5 only when needed for meaning, no measurements, plain English, semantically tied to the cooking milestone, visually fit for the preview card, and not repeated for distinct recipe milestones.
+**Trend tags:** `step-preview-label`, `hands-busy-guidance`, `plain-english`, `measurement-free-label`, `duplicate-label`, `milestone-fit`
+
+## Source Summary
+
+Wilson's PR #260 Live Cooking QA found that some generated step-preview/action labels looked like clipped prompt fragments instead of useful recall cards. The failures are not recipe-suggestion quality failures and are narrower than broad cooking-step safety, sequencing, equipment, or sensory-cue quality. The artifact being evaluated is the small preview/action label shown to a cook in Live Cooking.
+
+The eval family is distinct from recipe-generation metrics and from the existing broad `cooking_steps` surface. Phase 4 peer review accepted `live_cooking_step_previews` because the name keeps the Live Cooking UI context visible: preview-card fit, sibling-label duplication, provider-versus-rendered behavior, and hands-busy recall are part of the quality claim.
+
+This intake led to the first deterministic fixture lane on `codex/init-004-step-preview-evals`. The PR #264 update tightens runtime prompt wording in the INIT-001 branch, but this INIT-004 branch only mirrors that expectation in synthetic fixtures and judge notes. It does not include provider runs, production code, private fixtures, raw screenshots, or calibrated judge evidence.
+
+## Metrics Summary
+
+| Metric | Value | Calibration status | Notes |
+|---|---|---|---|
+| Observed pass rate | Not measured | n/a | QA examples are seed evidence, not a scored run. |
+| Item-level pass rate | Not measured | n/a | No fixture corpus exists yet. |
+| Human label pass rate | Not measured | n/a until human labels exist | Wilson supplied accepted and rejected examples, but no full labeled dataset. |
+| TPR | Not measured | n/a until human labels exist | The judge criteria are uncalibrated. |
+| TNR | Not measured | n/a until human labels exist | The judge criteria are uncalibrated. |
+| Corrected pass rate | Not measured | n/a until TPR/TNR valid | Not applicable to this seed. |
+| Confidence interval | Not measured | n/a | Not applicable to this seed. |
+
+## Failure / Learning Clusters
+
+| Cluster | Evidence | Criterion family | Proposed deterministic check | Proposed judge or human label | Product / prompt implication |
+|---|---|---|---|---|---|
+| Measurement or fragment-first labels | Bad examples: `Bring 4 Cups`, `Add Cold Cooked` | Step-preview label clarity | Flag digits, common measurement units, and labels missing an object noun after adjectives like `cold` or `cooked`. | Human or narrow judge label for whether the phrase reads as a complete plain-English recall card. | Label generation should summarize the action, not copy the first tokens of the instruction. |
+| Ungrammatical or missing connective words | Bad example: `Push Vegetables Side` | Plain-English label quality | Limited deterministic detection for known preposition/adverb omissions such as `aside`; otherwise use human labels. | Human or narrow judge label for grammatical plain English. | The label should include needed nouns, prepositions, or adverbs even within a tight word budget. |
+| Singular/plural agreement | Bad example: `Prep Leek` when the step prepares multiple leeks; expected `Prep Leeks` | Plain-English label quality | No reliable general deterministic check; fixtures can preserve obvious ingredient-number mismatches. | Human or narrow judge label for whether the label preserves plural ingredient wording. | Prompt examples should preserve plural ingredient wording for labels like `Prep Leeks`, `Prep Carrots`, and `Slice Green Onions`. |
+| Wrong cooking milestone | Bad example: `Heat Oil Butter` when the useful milestone was cooking vegetables | Milestone fit | No reliable deterministic check beyond comparing source step ingredients/action terms. | Human or narrow judge label for whether the label names the user's real mid-step milestone. | Prompt examples should prefer the cook's next meaningful action/result over incidental setup words. |
+| Stale generic final labels | Bad example: `Cook Vegetables` for a final step that turns off heat, stirs in green onions/herbs, and serves | Milestone fit | No reliable deterministic check when the label is unique; use fixture labels and judge review. | Human or narrow judge label for whether the label names garnish, serving, or plating rather than stale cooking. | Prompt examples should use `Garnish` or `Garnish & Serve` for final off-heat green-onion/herb serving steps. |
+| Repeated generic labels for distinct steps | Bad pattern: multiple `Cook Vegetables` cards for different fried-rice milestones | Sibling-label distinction | Deterministically flag exact repeated labels in the same recipe unless fixture marks the repeated action as intentionally identical. | Human label for whether near-duplicates are acceptable in context. | Fixtures should include sibling label lists, not only isolated labels. |
+| Preview-card length and fit | Bad labels tend to be clipped or low-information; acceptance direction is usually 2-4 words, 5 only if needed | Preview-card fit | Count words and flag labels over 5 words or with likely truncation risk; pair with UI/card constraints later if measurable. | Human label for whether the phrase is concise without losing meaning. | Eval should protect the small-card UI affordance, not only semantic correctness. |
+
+## Positive Examples Worth Preserving
+
+| Example | Why it passed | Regression risk if over-corrected |
+|---|---|---|
+| `Boil Water` | Short, complete, action-oriented, and removes the distracting quantity from the failed `Bring 4 Cups` label. | Overzealous ingredient naming could make simple actions longer than useful. |
+| `Cook Leek & Spinach` | Names the actual cooking milestone and the key ingredients. | A no-ingredient rule would erase useful recall detail. |
+| `Push Vegetables Aside` | Complete plain-English phrase with the needed adverb. | A strict word-count-only check might accept the broken shorter phrase. |
+| `Add Cold Rice` | Keeps the necessary noun while staying compact. | A measurement/descriptor filter must not remove useful descriptors like `cold` when they complete meaning. |
+| `Season Fried Rice` | Distinguishes a later milestone from generic cooking. | Generic deduping without semantic review could miss useful stage-specific labels. |
+| `Serve Fried Rice` | Clear completion action and distinct final milestone. | A label generator focused only on cooking actions might under-label serving/plating steps. |
+| `Prep Leeks` | Preserves plural ingredient wording when the cook handles multiple leeks. | Singularizing ingredient labels can make the card feel grammatically wrong even when short. |
+| `Garnish` / `Garnish & Serve` | Names the final off-heat green-onion/herb serving milestone without stale cooking language. | Generic fallback labels like `Cook Vegetables` can obscure a final finishing action. |
+
+## Fixture Candidates
+
+| Candidate | Source id / description | Intended criterion | Raw-data handling |
+|---|---|---|---|
+| `live-cooking-step-preview-boil-water` | Synthetic boiling-water step with failed `Bring 4 Cups` and expected `Boil Water` | Measurement-free concise action label | Public synthetic fixture only. |
+| `live-cooking-step-preview-leek-spinach` | Synthetic vegetable-cooking step with failed `Heat Oil Butter` and expected `Cook Leek & Spinach` | Milestone fit | Public synthetic fixture only. |
+| `live-cooking-step-preview-push-aside` | Synthetic fried-rice step with failed `Push Vegetables Side` and expected `Push Vegetables Aside` | Plain-English label quality | Public synthetic fixture only. |
+| `live-cooking-step-preview-add-rice` | Synthetic fried-rice step with failed `Add Cold Cooked` and expected `Add Cold Rice` or `Add Rice` | Complete noun phrase | Public synthetic fixture only. |
+| `live-cooking-step-preview-sibling-dedup` | Synthetic multi-step fried-rice label list with repeated `Cook Vegetables` for distinct milestones | Sibling-label distinction | Public synthetic fixture only. |
+| `live-cooking-step-previews-client-rescue` | Synthetic multi-step fried-rice preview list preserving bad provider labels but good final rendered labels | Provider-versus-rendered quality split, measurement-free final label, sibling distinctness | Added as public synthetic fixture. |
+| `live-cooking-step-previews-rendered-fragments` | Synthetic multi-step fried-rice preview list whose final rendered labels still contain measurement fragments and duplicates | Measurement-free final label, sibling distinctness, rendered quality fail | Added as public synthetic fixture. |
+| `live-cooking-step-previews-singular-plural-agreement` | Synthetic leek-prep label preserving Wilson's Replit observation that `Prep Leek` should be `Prep Leeks` when preparing multiple leeks | Plain-English grammar agreement, rendered quality fail | Added as public synthetic fixture; raw screenshot is not committed. |
+| `live-cooking-step-previews-stale-final-garnish-label` | Synthetic final fried-rice step preserving Wilson's PR #264 Replit observation that `Cook Vegetables` is stale/wrong when the step turns off heat, stirs in green onions, and serves | Milestone fit, rendered quality fail | Added as public synthetic fixture; raw screenshot or trace is not committed. |
+
+## Open Questions / Deferrals
+
+- Phase 4 peer review accepted `live_cooking_step_previews` as the canonical family name.
+- V1 implementation uses deterministic public fixtures plus criterion-level labels. The judge criteria entry is present but uncalibrated; do not use judge pass rates as product-quality truth until human labels and TPR/TNR exist.
+- Pixel/visual preview-card fit checks remain future scope. V1 uses word and character limits only.
+- PR #260 merged as `72df55749b8c9a83ad6e5d5123a64592eb40dbfb` from validated head `0040f9f43d78634b0341a20a16a43c3c5a06109d`. Phase 4 confirmed the fixture mapping: provider `actionLabel` is the raw provider label, `normalizeStepActionLabel(...)` is the normalized provider label when accepted or rescued, `deriveStepActionLabel(...)` is the fallback label, `buildStepPreviewLabels(...)` produces the rendered rail labels, and `getStepHeadline(...)` produces the current-step headline. V1 fixtures mirror the runtime first-pass limits of 5 words and 24 characters, but still do not test PR #260 runtime code.
+- Do not update production prompts beyond PR #260 examples or mix this lane into recipe-generation quality metrics without explicit Wilson approval.
