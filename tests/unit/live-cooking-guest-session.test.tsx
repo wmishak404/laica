@@ -427,23 +427,27 @@ describe('LiveCooking guest session boundary', () => {
     expect(screen.getByRole('button', { name: /start 1 min timer/i })).toBeTruthy();
   });
 
-  it('lets active timers collapse without hiding the current step', async () => {
+  it('keeps active timer controls visible with a centered, larger clock', async () => {
     mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
 
     await renderCookingGuide();
 
-    fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
-    expect(screen.getByRole('button', { name: /pause timer/i })).toBeTruthy();
+    const timerPill = screen.getByTestId('live-cooking-timer');
+    const timerClock = screen.getByTestId('live-cooking-timer-clock');
 
-    fireEvent.click(screen.getByRole('button', { name: /minimize timer/i }));
+    expect(timerPill.className).toContain('grid-cols-[4.75rem_minmax(0,1fr)_4.75rem]');
+    expect(timerPill.className).toContain('sm:grid-cols-[5.5rem_minmax(0,1fr)_5.5rem]');
+    expect(timerClock.className).toContain('justify-center');
+    expect(timerClock.className).toContain('text-xl');
+    expect(timerClock.className).toContain('sm:text-3xl');
+    fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
 
     expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
     expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:01:00');
-    expect(screen.getByRole('button', { name: /show timer controls/i })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /pause timer/i })).toBeNull();
-
-    fireEvent.click(screen.getByRole('button', { name: /show timer controls/i }));
     expect(screen.getByRole('button', { name: /pause timer/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /reset 1 min timer/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /minimize timer/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /show timer controls/i })).toBeNull();
   });
 
   it('uses the recipe step duration when a prep step has a timer-worthy duration', async () => {

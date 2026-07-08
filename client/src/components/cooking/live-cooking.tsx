@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, Minimize2, Maximize2, RotateCcw } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, RotateCcw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -586,7 +586,6 @@ export default function LiveCooking({
   const [isProcessing, setIsProcessing] = useState(false);
   const [timer, setTimer] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [isTimerMinimized, setIsTimerMinimized] = useState(false);
   const [captionSize, setCaptionSize] = useState(16);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
@@ -1468,7 +1467,6 @@ export default function LiveCooking({
       const nextStepData = currentRecipeSteps[newStepIndex];
       setTimer(0);
       setIsTimerRunning(false);
-      setIsTimerMinimized(false);
       
       const stepText = `Step ${newStepIndex + 1}: ${formatInstructionWithTips(nextStepData.instruction, nextStepData.tips)}`;
       setSpokenAssistantResponse(stepText);
@@ -1489,7 +1487,6 @@ export default function LiveCooking({
       const prevStepData = currentRecipeSteps[newStepIndex];
       setTimer(0);
       setIsTimerRunning(false);
-      setIsTimerMinimized(false);
       
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
       setSpokenAssistantResponse(stepText);
@@ -1499,7 +1496,6 @@ export default function LiveCooking({
   const startTimer = (durationSeconds: number) => {
     setTimer(durationSeconds);
     setIsTimerRunning(true);
-    setIsTimerMinimized(false);
     setSpokenAssistantResponse(`Timer set for ${formatTimerDuration(durationSeconds)}. I'll let you know when time is up!`);
   };
 
@@ -1528,7 +1524,6 @@ export default function LiveCooking({
 
     setTimer(timerDuration);
     setIsTimerRunning(false);
-    setIsTimerMinimized(false);
   };
 
   // Clean up audio on component unmount or page navigation
@@ -2145,63 +2140,40 @@ export default function LiveCooking({
             <CardContent className="space-y-2 p-3 pt-0 sm:p-4 sm:pt-0">
               {shouldShowTimerControl && (
                 <div
-                  className="live-cooking-timer-pill flex items-center gap-2 rounded-md border p-2"
+                  className="live-cooking-timer-pill grid grid-cols-[4.75rem_minmax(0,1fr)_4.75rem] items-center gap-1.5 rounded-md border px-3 py-2 sm:grid-cols-[5.5rem_minmax(0,1fr)_5.5rem] sm:gap-2"
                   data-state={timer > 0 ? 'active' : 'ready'}
-                  data-minimized={timer > 0 && isTimerMinimized ? 'true' : 'false'}
                   data-testid="live-cooking-timer"
                 >
-                  <div className="min-w-0 flex-1 text-sm font-extrabold tabular-nums">
-                    <Clock className="mr-1 inline h-4 w-4" />
+                  <div aria-hidden="true" />
+                  <div
+                    className="flex min-w-0 items-center justify-center text-xl font-medium leading-none tabular-nums sm:text-3xl"
+                    data-testid="live-cooking-timer-clock"
+                  >
+                    <Clock className="mr-1.5 inline h-6 w-6 shrink-0 sm:h-8 sm:w-8" />
                     {formatTimerClock(displayedTimerSeconds)}
                   </div>
-
-                  {timer > 0 && isTimerMinimized ? (
+                  <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => setIsTimerMinimized(false)}
-                      aria-label="Show timer controls"
-                      title="Show timer controls"
-                      className="h-8 w-8"
+                      onClick={toggleTimerRunning}
+                      aria-label={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
+                      title={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
+                      className="live-cooking-round-control h-9 w-9 sm:h-10 sm:w-10"
                     >
-                      <Maximize2 className="h-3.5 w-3.5" />
+                      {isTimerRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                     </Button>
-                  ) : (
-                    <div className="flex shrink-0 items-center gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={toggleTimerRunning}
-                        aria-label={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
-                        title={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
-                        className="live-cooking-round-control h-8 w-8"
-                      >
-                        {isTimerRunning ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={resetTimer}
-                        aria-label={`Reset ${timerControlDurationLabel} timer`}
-                        title={`Reset ${timerControlDurationLabel} timer`}
-                        className="live-cooking-round-control h-8 w-8"
-                      >
-                        <RotateCcw className="h-3.5 w-3.5" />
-                      </Button>
-                      {timer > 0 && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setIsTimerMinimized(true)}
-                          aria-label="Minimize timer"
-                          title="Minimize timer"
-                          className="live-cooking-round-control h-8 w-8"
-                        >
-                          <Minimize2 className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={resetTimer}
+                      aria-label={`Reset ${timerControlDurationLabel} timer`}
+                      title={`Reset ${timerControlDurationLabel} timer`}
+                      className="live-cooking-round-control h-9 w-9 sm:h-10 sm:w-10"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>

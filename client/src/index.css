@@ -263,12 +263,6 @@ html, body {
       hsl(var(--cooking-card));
   }
 
-  .live-cooking-ui .live-cooking-timer-pill[data-minimized='true'] {
-    width: fit-content;
-    max-width: 100%;
-    margin-left: auto;
-  }
-
   .live-cooking-ui .live-cooking-round-control,
   .live-cooking-ui .live-cooking-caption-toggle {
     border-radius: 999px;

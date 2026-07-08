@@ -43,7 +43,7 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 
 - Timers never auto-start.
 - Timer suggestions appear only when needed.
-- Active timer is a compact detachable/minimizable pill that does not obscure the current step.
+- Active timer is a compact inline control that does not obscure the current step.
 - A timer-worthy step has a clear start point, useful duration, meaningful consequence if missed, and still includes sensory cues.
 - No timer for vague prep work such as chopping, seasoning, or "until fragrant" unless the model can provide a useful cue and duration.
 
@@ -152,11 +152,11 @@ Wilson's Replit follow-up on the same branch found two additional step-preview p
 
 ## 2026-07-07 timer polish branch
 
-Branch `codex/init-001-phase4-timer-polish` starts from `origin/main` after PR #264 and its closeout. It implements the first bounded timer redesign without changing provider schema: Live Cooking shows a stable explicit-start timer control using the current recipe step's real `duration` instead of preloading active timer state or exposing provider-duration suggestions as separate cards. Navigating steps clears timer state, active timers can collapse to a compact time-only pill and expand back to controls, and the visible timer shows the step duration in `H:MM:SS` format with circular play/pause and reset controls. Timer controls appear automatically for duration-bearing steps and for explicit time language such as `cook 1-2 minutes`; durationless steps do not invent a fallback timer. The old separate timer visibility toggle is removed, leaving CC as the compact guidance-panel toggle. Timer speech copy now handles singular/plural duration text.
+Branch `codex/init-001-phase4-timer-polish` starts from `origin/main` after PR #264 and its closeout. It implements the first bounded timer redesign without changing provider schema: Live Cooking shows a stable explicit-start timer control using the current recipe step's real `duration` instead of preloading active timer state or exposing provider-duration suggestions as separate cards. Navigating steps clears timer state, and the visible timer shows the step duration in `H:MM:SS` format with a centered larger clock plus persistent circular play/pause and reset controls. Timer controls appear automatically for duration-bearing steps and for explicit time language such as `cook 1-2 minutes`; durationless steps do not invent a fallback timer. The old separate timer visibility toggle is removed, leaving CC as the compact guidance-panel toggle. Timer speech copy now handles singular/plural duration text.
 
 Wilson's Replit review at PR head `3849c846` added a Ready Check app-shell follow-up that belongs in this same PR: Prep Tray selected-image loading now includes larger visible copy plus a stable `Preview unavailable` fallback when the resolver returns `status: unavailable`; Ready Check `Back to Planning` preserves and restores the Prep Tray / recipe suggestions instead of restarting planning; and the existing bottom nav remains visible on Ready Check per Wilson's explicit request, with active hands-busy cooking still hiding it. The planning session is dismissed only after `Start cooking` begins the active guide.
 
-The branch intentionally does not add `suggestedTimer` schema, timer kinds/reasons, provider prompt changes, route contracts, durable cooking-session schema changes, assistance failure handling, Finish/History semantics, formal eval work, or Phase 5 cleanup. Durable navigation scope is limited to showing the existing bottom nav on Ready Check. Focused local evidence so far: `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx`, `npm run check`, and `npm run build` pass. Exact-head GitHub checks and release/batch Replit validation remain pending/deferred.
+The branch intentionally does not add `suggestedTimer` schema, timer kinds/reasons, provider prompt changes, route contracts, durable cooking-session schema changes, assistance failure handling, Finish/History semantics, formal eval work, or Phase 5 cleanup. Durable navigation scope is limited to showing the existing bottom nav on Ready Check. Focused local evidence so far: `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000`, `npm run check`, and `npm run build` pass. Exact-head GitHub checks must be re-run for the latest pushed head; release/batch Replit validation remains deferred.
 
 ## Acceptance Criteria
 
@@ -183,9 +183,9 @@ The branch intentionally does not add `suggestedTimer` schema, timer kinds/reaso
 - Active Live Cooking requests a screen wake lock when supported by the browser and releases it when the guide exits or the page hides.
 - Model steps include sensory cues where applicable.
 - Timer controls appear automatically for timer-worthy steps, show the current recipe step's real or text-derived duration in `H:MM:SS` format, and never auto-start.
-- The timer control uses circular play/pause and reset buttons; durationless steps do not invent a fallback timer, and provider step durations are not surfaced as separate timer suggestions in this slice.
+- The timer control uses a centered larger clock plus circular play/pause and reset buttons; durationless steps do not invent a fallback timer, and provider step durations are not surfaced as separate timer suggestions in this slice.
 - Live Cooking should use a warm focus-mode cooking surface that visually relates to the coral/rust setup and planning surfaces without becoming a heavy marketing/hero composition.
-- Active timer can be minimized without hiding the step.
+- Active timer controls remain visible together; the minimize/collapse affordance was removed after Wilson found it displaced pause/reset and made the timer harder to understand.
 - Finish creates or updates cooking history but does not change pantry inventory.
 - Guest Finish never creates durable cooking history unless the user has linked Google first.
 - Completion sends no hidden `5` rating when the user has not rated.
