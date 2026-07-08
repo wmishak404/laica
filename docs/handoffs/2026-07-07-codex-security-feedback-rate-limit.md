@@ -32,9 +32,9 @@ This branch applies the current security automation's low-risk feedback-route ha
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `809aa0ed7a963e401192722ea8382a18c7c24e52`
+- Current base: `origin/main` at `98730989d0375436810dd581c7909dad6cdb740d`
 - Last Replit-validated at: not yet validated
-- Notes: fresh branch from current `origin/main`; not stacked on another PR. Rebased cleanly on 2026-07-08 after PR #270 merged.
+- Notes: fresh branch from current `origin/main`; not stacked on another PR. Rebased cleanly on 2026-07-08 after PR #270 and PR #249 merged.
 
 ## Verification
 
@@ -43,7 +43,7 @@ Value claim: feedback writes keep their existing user-facing behavior while addi
 Evidence:
 - `npm ci` passed and reported `found 0 vulnerabilities`.
 - `npx vitest run tests/unit/p0-route-contracts.test.ts tests/unit/rate-limit.test.ts` passed: 3 files / 34 tests.
-- `npm run test:unit` passed on the rebased head: 46 files / 349 tests. The first sandboxed attempt hit Vitest temp-file `EPERM`; the rerun outside the sandbox passed.
+- `npm run test:unit` passed on the final rebased head: 47 files / 352 tests. The sandboxed attempt hit Vitest temp-file `EPERM`; the rerun outside the sandbox passed.
 - `npm run check` passed: TypeScript plus UI lint.
 - `npm run build` passed with existing Vite/Browserslist/chunk-size warnings only.
 - `npm audit --audit-level=high` passed with `found 0 vulnerabilities`.
