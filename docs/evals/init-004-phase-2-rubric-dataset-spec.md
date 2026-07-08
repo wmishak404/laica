@@ -230,17 +230,17 @@ Phase 2 uses criterion-level labels rather than one aggregate "good/bad" label.
 | `skill_fit` | Recipe and cooking-step surfaces | Complexity, technique, detail, and assumptions match the user's cooking proficiency. | Human/judge |
 | `equipment_fit` | `slop_bowl_suggestions`, `cooking_steps` | Required equipment is available or a safe common alternative is provided. V1 does not score equipment fit for pantry/generic recipe suggestions because those surfaces do not currently receive structured equipment context. | Deterministic equipment-term flags plus human/judge |
 | `cooking_step_sequence` | `cooking_steps` | Steps are ordered logically, align with the accepted recipe, and include visual/sensory cues where judgment is required. | Human/judge with deterministic flags |
-| `step_preview_word_count` | `live_cooking_step_previews` | Final rendered preview/headline labels fit first-pass small-card text constraints: usually 2-4 words, 5 max only when needed, with optional character limits. | Deterministic |
-| `step_preview_measurement_free` | `live_cooking_step_previews` | Final rendered preview/headline labels avoid measurements, quantities, and numeric fragments. | Deterministic |
+| `step_preview_word_count` | `live_cooking_step_previews` | Final rendered preview/headline labels fit first-pass small-card text constraints: usually 2-4 words, 5 max only when needed, with optional character limits. Borderline human-review notes should identify table-stakes modifiers such as `Evenly` or `Thoroughly` separately from hard failures; meaningful descriptors such as `Finely`, `Rounds`, `Cubes`, or `Shredded` can be acceptable when they add recall value. | Deterministic |
+| `step_preview_measurement_free` | `live_cooking_step_previews` | Final rendered preview/headline labels avoid measurements, quantities, time spans, and numeric fragments. | Deterministic |
 | `step_preview_distinctness` | `live_cooking_step_previews` | Final rendered sibling labels do not repeat for distinct recipe milestones. | Deterministic for exact duplicates; human/judge for near-duplicates |
-| `step_preview_plain_english` | `live_cooking_step_previews` | Labels read as idiomatic plain English, use correct singular/plural agreement, and include needed nouns, prepositions, or adverbs. | Human/judge |
-| `step_preview_milestone_fit` | `live_cooking_step_previews` | Labels name the actual cooking milestone rather than incidental setup text, clipped instruction fragments, or stale generic labels for final garnish/serving/plating actions. | Human/judge |
+| `step_preview_plain_english` | `live_cooking_step_previews` | Labels read as idiomatic plain English, use correct singular/plural agreement, use the right adjective/adverb form, and include needed objects, nouns, prepositions, or adverbs. | Human/judge |
+| `step_preview_milestone_fit` | `live_cooking_step_previews` | Labels name the actual cooking milestone rather than incidental setup text, clipped instruction fragments, stale generic labels for final garnish/serving/plating actions, or only one object from a multi-ingredient prep milestone. | Human/judge |
 | `step_preview_provider_label_quality` | `live_cooking_step_previews` | The raw provider `actionLabel` is independently usable before client rescue. | Human/judge plus deterministic flags where practical |
 | `step_preview_rendered_label_quality` | `live_cooking_step_previews` | The final rendered label is usable as a hands-busy recall card after client normalization/fallback. | Human/judge plus deterministic checks |
 
 Nutrition-preference fit is excluded, not deferred. Current client UI, routes, and `shared/schema.ts` have no nutrition field. The stale `DEFAULT_RECIPE_SUGGESTIONS_PROMPT` line claiming a nutritional preference, plus stale equipment language for surfaces that do not send equipment, are Phase 6 / EFF-022 prompt-cleanup notes rather than Phase 3 harness fixes.
 
-Judge calibration is a run/reporting concern. Phase 4 should compare judge verdicts to Wilson labels with TPR/TNR, but `judge_calibration` is not a fixture label.
+Judge calibration is a run/reporting concern. Phase 4 should compare judge verdicts to Wilson labels with TPR/TNR, but `judge_calibration` is not a fixture label. `BORDERLINE` human-review rows are useful for rubric tuning and score-threshold decisions, but should stay out of binary PASS/FAIL TPR/TNR until Wilson defines whether the specific pattern should block acceptance.
 
 ## First Wilson-Label Target Set
 

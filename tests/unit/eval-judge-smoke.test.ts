@@ -64,6 +64,7 @@ describe("Live Cooking step-preview judge smoke runner", () => {
       "live-cooking-step-previews-measurement-fragment",
       "live-cooking-step-previews-wrong-milestone",
       "live-cooking-step-previews-incomplete-phrase",
+      "live-cooking-step-previews-multi-ingredient-incomplete-label",
       "live-cooking-step-previews-singular-plural-agreement",
       "live-cooking-step-previews-stale-final-garnish-label",
       "live-cooking-step-previews-duplicate-labels",
@@ -75,6 +76,9 @@ describe("Live Cooking step-preview judge smoke runner", () => {
 
     expect(prompt).toContain("measurement_or_quantity_label");
     expect(prompt).toContain("Bring 4 Cups");
+    expect(prompt).toContain("Simmer 15 Minutes");
+    expect(prompt).toContain("Slice Cucumber Thin");
+    expect(prompt).toContain("Evenly");
     expect(prompt).toContain("live-cooking-step-previews-measurement-fragment");
     expect(prompt).not.toContain("judgeExpectations");
     expect(prompt).not.toContain("step_preview_measurement_free");

@@ -350,6 +350,7 @@ describe("INIT-004 eval fixture foundation", () => {
       "live-cooking-step-previews-duplicate-labels",
       "live-cooking-step-previews-incomplete-phrase",
       "live-cooking-step-previews-measurement-fragment",
+      "live-cooking-step-previews-multi-ingredient-incomplete-label",
       "live-cooking-step-previews-rendered-fragments",
       "live-cooking-step-previews-singular-plural-agreement",
       "live-cooking-step-previews-stale-final-garnish-label",
@@ -364,6 +365,8 @@ describe("INIT-004 eval fixture foundation", () => {
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-optional-extras-required")?.labels.optional_ingredient_contract).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-beginner-complexity")?.labels.skill_fit).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-measurement-fragment")?.labels.step_preview_measurement_free).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-multi-ingredient-incomplete-label")?.labels.step_preview_plain_english).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-multi-ingredient-incomplete-label")?.labels.step_preview_milestone_fit).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-duplicate-labels")?.labels.step_preview_distinctness).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-singular-plural-agreement")?.labels.step_preview_plain_english).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-stale-final-garnish-label")?.labels.step_preview_milestone_fit).toBe("fail");

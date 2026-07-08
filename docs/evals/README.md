@@ -14,7 +14,7 @@ The canonical eval discipline lives in [docs/workflows/evaluations.md](../workfl
 - `init-004-phase-2-rubric-dataset-spec.md` - INIT-004 Phase 2 taxonomy, privacy, rubric, fixture-format, and Wilson-label target spec revised from Wilson's architecture decisions.
 - Non-V1 interaction seeds, such as Live Cooking speech arbitration, may be registered here when they need the same intake/registry discipline. These records do not automatically expand INIT-004's active V1 scope.
 - Narrow Live Cooking output-artifact lanes, such as `live_cooking_step_previews`, may be registered here when they need the same fixture and calibration discipline. Keep the owning INIT/phase explicit so they do not silently merge into recipe-generation or broad cooking-step pass rates.
-- INIT-004 Phase 7 generated-image quality calibration may also be registered here once the human-review workflow exists. Image review batches should stay separate from recipe-text eval pass rates, use blind Wilson labels over `recipe_image_cache` samples, compare model judges against frozen human-labeled sets, and route repeated disagreement clusters to generator, judge, threshold, provider/style, fingerprinting, product-rule, or fixture actions.
+- INIT-004 generated-image quality calibration may also be registered here once the human-review and product-learning promotion workflows exist. Image review batches should stay separate from recipe-text eval pass rates, use blind Wilson labels over `recipe_image_cache` samples, compare model judges against frozen human-labeled sets, and route repeated disagreement clusters to generator, judge, threshold, provider/style, fingerprinting, product-rule, or fixture actions.
 
 Future implementation work may add additional harness command notes as INIT-004 adds executable eval tooling beyond fixture validation.
 
@@ -52,6 +52,8 @@ When raw artifacts remain local or external, the registry and intake record shou
 - Use [docs/workflows/evaluations.md](../workflows/evaluations.md) for the repo-wide operating model, merge-gate rules, calibration standard, privacy posture, and prompt-activation discipline.
 - Add every future eval run/import/report as a row in `registry.md`.
 - Add or update a matching `intakes/<intake-id>.md` record when the run changes rubric, fixtures, metrics, reporting, or prompt workflow.
+- Treat reports as evidence artifacts. Product behavior changes should consume promoted product-learning candidates from reports, not raw rows mechanically.
+- Preserve `MEDIUM` confidence product-learning signal in reports and registries. `MEDIUM` changes promotion strength; it does not mean "ignore."
 - Link active initiative hubs, such as `INIT-004`, back to this registry instead of treating the INIT as the permanent dataset ledger.
 - Use PR descriptions and `docs/handoffs/` for point-in-time command output, branch status, local-only file paths, and review context.
 - Use feature phase docs, product decisions, or active Efforts when an eval finding changes product behavior, not only measurement.
@@ -65,8 +67,9 @@ See [docs/workflows/evaluations.md](../workflows/evaluations.md) for the full du
 2. Normalize the intake under `intakes/` when it changes rubric, fixtures, metrics, reporting, or prompts.
 3. Store only redacted, synthetic, or explicitly approved fixture data in repo.
 4. Record harness commands, result artifact ids, report ids, and negative scope in the registry or matching intake.
-5. Link prompt-candidate comparisons and daily reports back through this directory.
-6. When executable tooling lands, document the exact command, required environment, output paths, and artifact-retention policy here.
+5. Promote product-learning candidates from the report when Wilson labels, confidence, repetition, and product relevance justify prompt/runtime follow-up.
+6. Link prompt/runtime branches, prompt-candidate comparisons, reruns, and daily reports back through this directory.
+7. When executable tooling lands, document the exact command, required environment, output paths, and artifact-retention policy here.
 
 Current admin summary surfaces:
 
@@ -117,6 +120,7 @@ Current committed public fixture set:
 - `live-cooking-step-previews-duplicate-labels`
 - `live-cooking-step-previews-incomplete-phrase`
 - `live-cooking-step-previews-measurement-fragment`
+- `live-cooking-step-previews-multi-ingredient-incomplete-label`
 - `live-cooking-step-previews-rendered-fragments`
 - `live-cooking-step-previews-singular-plural-agreement`
 - `live-cooking-step-previews-stale-final-garnish-label`
