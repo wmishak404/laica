@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, RotateCcw } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -607,11 +607,13 @@ export default function LiveCooking({
   const [cookingStartTime, setCookingStartTime] = useState<Date | null>(null);
   const [voiceAvailable, setVoiceAvailable] = useState(true);
   const [voiceErrorShown, setVoiceErrorShown] = useState(false);
+  const [stepPreviewOverflow, setStepPreviewOverflow] = useState({ left: false, right: false });
   const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [areCaptionsVisible, setAreCaptionsVisible] = useState(getInitialCaptionsVisible);
   const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
+  const stepPreviewStripRef = useRef<HTMLOListElement | null>(null);
   const activeStepPreviewRef = useRef<HTMLLIElement | null>(null);
 
   const { toast } = useToast();
@@ -1064,6 +1066,34 @@ export default function LiveCooking({
     ),
   );
   const isFinalStep = currentRecipeSteps.length > 0 && displayedStepIndex >= currentRecipeSteps.length - 1;
+  const updateStepPreviewOverflow = useCallback(() => {
+    const strip = stepPreviewStripRef.current;
+    if (!strip) {
+      setStepPreviewOverflow({ left: false, right: false });
+      return;
+    }
+
+    const maxScrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth);
+    const nextOverflow = {
+      left: strip.scrollLeft > 1,
+      right: strip.scrollLeft < maxScrollLeft - 1,
+    };
+
+    setStepPreviewOverflow(current => (
+      current.left === nextOverflow.left && current.right === nextOverflow.right
+        ? current
+        : nextOverflow
+    ));
+  }, []);
+  const scrollActiveStepPreviewIntoView = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    activeStepPreviewRef.current?.scrollIntoView?.({
+      behavior,
+      block: 'nearest',
+      inline: 'center',
+    });
+
+    window.requestAnimationFrame?.(updateStepPreviewOverflow);
+  }, [updateStepPreviewOverflow]);
 
   useEffect(() => {
     if (currentRecipeSteps.length > 0 && currentStepIndex >= currentRecipeSteps.length) {
@@ -1074,12 +1104,22 @@ export default function LiveCooking({
   useEffect(() => {
     if (!hasStartedCookingGuide || currentRecipeSteps.length === 0) return;
 
-    activeStepPreviewRef.current?.scrollIntoView?.({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center',
-    });
-  }, [displayedStepIndex, currentRecipeSteps.length, hasStartedCookingGuide]);
+    scrollActiveStepPreviewIntoView();
+  }, [displayedStepIndex, currentRecipeSteps.length, hasStartedCookingGuide, scrollActiveStepPreviewIntoView]);
+
+  useEffect(() => {
+    const strip = stepPreviewStripRef.current;
+    if (!strip || currentRecipeSteps.length === 0) return;
+
+    updateStepPreviewOverflow();
+    strip.addEventListener('scroll', updateStepPreviewOverflow, { passive: true });
+    window.addEventListener('resize', updateStepPreviewOverflow);
+
+    return () => {
+      strip.removeEventListener('scroll', updateStepPreviewOverflow);
+      window.removeEventListener('resize', updateStepPreviewOverflow);
+    };
+  }, [currentRecipeSteps.length, updateStepPreviewOverflow]);
 
   useEffect(() => {
     if (!hasStartedCookingGuide || currentRecipeSteps.length === 0) return;
@@ -2135,37 +2175,62 @@ export default function LiveCooking({
                 )}
               </div>
 
-              <ol
-                aria-label="Step previews"
-                className="flex gap-2 overflow-x-auto pb-1"
-                data-testid="step-preview-strip"
-              >
-                {stepPreviewLabels.map((label, index) => {
-                  const isActive = index === displayedStepIndex;
+              <div className="relative">
+                {stepPreviewOverflow.left && (
+                  <button
+                    type="button"
+                    aria-label="Return to current step preview; more steps are to the left"
+                    className="absolute bottom-0 left-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-sm"
+                    data-testid="step-preview-overflow-left"
+                    onClick={() => scrollActiveStepPreviewIntoView()}
+                  >
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+                {stepPreviewOverflow.right && (
+                  <button
+                    type="button"
+                    aria-label="Return to current step preview; more steps are to the right"
+                    className="absolute bottom-0 right-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-sm"
+                    data-testid="step-preview-overflow-right"
+                    onClick={() => scrollActiveStepPreviewIntoView()}
+                  >
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+                <ol
+                  ref={stepPreviewStripRef}
+                  aria-label="Step previews"
+                  className="flex gap-2 overflow-x-auto pb-3"
+                  data-testid="step-preview-strip"
+                >
+                  {stepPreviewLabels.map((label, index) => {
+                    const isActive = index === displayedStepIndex;
 
-                  return (
-                    <li
-                      key={`${currentRecipeSteps[index]?.id ?? index}-${label}`}
-                      ref={element => {
-                        if (isActive) {
-                          activeStepPreviewRef.current = element;
-                        }
-                      }}
-                      aria-current={isActive ? 'step' : undefined}
-                      className="live-cooking-preview-card flex flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center"
-                      data-state={isActive ? 'active' : index < displayedStepIndex ? 'done' : 'upcoming'}
-                    >
-                      <span
-                        className="live-cooking-preview-dot h-2.5 w-2.5 rounded-full"
-                        aria-hidden="true"
-                      />
-                      <span className="line-clamp-2 text-[0.68rem] font-semibold leading-tight">
-                        {label}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
+                    return (
+                      <li
+                        key={`${currentRecipeSteps[index]?.id ?? index}-${label}`}
+                        ref={element => {
+                          if (isActive) {
+                            activeStepPreviewRef.current = element;
+                          }
+                        }}
+                        aria-current={isActive ? 'step' : undefined}
+                        className="live-cooking-preview-card flex flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center"
+                        data-state={isActive ? 'active' : index < displayedStepIndex ? 'done' : 'upcoming'}
+                      >
+                        <span
+                          className="live-cooking-preview-dot h-2.5 w-2.5 rounded-full"
+                          aria-hidden="true"
+                        />
+                        <span className="line-clamp-2 text-[0.68rem] font-semibold leading-tight">
+                          {label}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
             </CardHeader>
             <CardContent className="space-y-2 p-3 pt-0 sm:p-4 sm:pt-0">
               {shouldShowTimerControl && (

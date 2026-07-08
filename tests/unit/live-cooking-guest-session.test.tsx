@@ -435,6 +435,48 @@ describe('LiveCooking guest session boundary', () => {
     }
   });
 
+  it('shows bottom step-preview overflow controls that return to the current step', async () => {
+    const scrollIntoView = vi.fn();
+    const originalScrollIntoView = window.HTMLElement.prototype.scrollIntoView;
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
+    try {
+      await renderCookingGuide();
+      scrollIntoView.mockClear();
+
+      const previewStrip = screen.getByTestId('step-preview-strip');
+      Object.defineProperty(previewStrip, 'scrollWidth', { configurable: true, value: 960 });
+      Object.defineProperty(previewStrip, 'clientWidth', { configurable: true, value: 320 });
+      Object.defineProperty(previewStrip, 'scrollLeft', { configurable: true, writable: true, value: 120 });
+
+      fireEvent.scroll(previewStrip);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('step-preview-overflow-left')).toBeTruthy();
+        expect(screen.getByTestId('step-preview-overflow-right')).toBeTruthy();
+      });
+
+      expect(screen.getByTestId('step-preview-overflow-left').className).toContain('bottom-0');
+      fireEvent.click(screen.getByTestId('step-preview-overflow-right'));
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+
+      Object.defineProperty(previewStrip, 'scrollLeft', { configurable: true, writable: true, value: 0 });
+      fireEvent.scroll(previewStrip);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('step-preview-overflow-left')).toBeNull();
+        expect(screen.getByTestId('step-preview-overflow-right')).toBeTruthy();
+      });
+    } finally {
+      window.HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+    }
+  });
+
   it('keeps recipe-derived timers explicit-start and reset on step navigation', async () => {
     mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
 

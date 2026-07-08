@@ -9,7 +9,7 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 - Timer controls remain explicit-start; step navigation clears timer state instead of carrying a running timer into the next step.
 - Timer controls appear automatically when the current recipe step has a timer-worthy `duration` or explicit time language such as `cook 1-2 minutes`. The visible control shows that duration in `H:MM:SS` format with circular play/pause and reset controls; durationless steps do not invent a fallback timer.
 - The old separate timer visibility toggle is removed; CC remains the only compact toggle in the guidance panel, uses a circular button with a boxed `CC` mark, and shares a row with the transcript when captions are open to reduce wasted vertical space.
-- Step previews stay action-forward and now scroll the active preview card into view as the cook moves through later steps, so the rail follows the current step instead of remaining at the leftmost start position.
+- Step previews stay action-forward and now scroll the active preview card into view as the cook moves through later steps, so the rail follows the current step instead of remaining at the leftmost start position. If the cook manually scrolls the rail or hidden steps exist off either edge, a small bottom-floating left/right return control appears only for the hidden side and snaps the rail back to the current step.
 - Timer completion is a first-class visual timer state, not a CC workaround: CC remains voice/transcript-only and is not auto-opened when a countdown reaches zero.
 - Active timers no longer collapse/minimize; the centered time, play/pause, and reset controls remain visible together so the cook does not lose the controls mid-step.
 - Timer speech copy now uses singular/plural duration text correctly, such as `1 minute` or `2 minutes`.
@@ -27,7 +27,8 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 
 ## Validation
 
-- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 40 tests.
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed after the step-preview overflow affordance: 41 tests.
+- Earlier focused `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 40 tests.
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000` passed: 96 tests.
 - `npx vitest run tests/unit/rate-limit.test.ts` passed after the speech-limit increase: 2 files, 18 tests.
 - Latest rail-follow patch: `npm run check`, `npm run build`, and `git diff --check` passed. Build retained the existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
@@ -36,4 +37,4 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 
 ## Remaining Before Merge
 
-- Human Replit validation remains release/batch deferred unless Wilson asks for PR-level mobile validation. Production/release-batch validation should include the changed-since-last-prod Phase 4 timer and captions path: load the PR/merged head, confirm speech synthesis has the raised `90/hour` and `360/day` user fallbacks after server restart, enter Live Cooking, find a timed step, confirm the automatic explicit-start timer uses the step's real duration or text-derived timing, start/pause/reset it, let it reach `Time's up` without relying on CC, open captions and confirm the boxed circular CC button shares the row with the transcript, confirm durationless steps do not invent timers, and rerun Ready Check/Prep Tray follow-ups for selected-image loading copy, `Preview unavailable`, Back to Planning restore, visible Ready Check bottom nav, and active-cooking hidden bottom nav.
+- Human Replit validation remains release/batch deferred unless Wilson asks for PR-level mobile validation. Production/release-batch validation should include the changed-since-last-prod Phase 4 timer and captions path: load the PR/merged head, confirm speech synthesis has the raised `90/hour` and `360/day` user fallbacks after server restart, enter Live Cooking, find a timed step, confirm the automatic explicit-start timer uses the step's real duration or text-derived timing, start/pause/reset it, let it reach `Time's up` without relying on CC, open captions and confirm the boxed circular CC button shares the row with the transcript, confirm durationless steps do not invent timers, navigate deep into a long recipe and confirm the step-preview rail follows the current card plus shows bottom left/right return affordances only when hidden rail content exists, and rerun Ready Check/Prep Tray follow-ups for selected-image loading copy, `Preview unavailable`, Back to Planning restore, visible Ready Check bottom nav, and active-cooking hidden bottom nav.
