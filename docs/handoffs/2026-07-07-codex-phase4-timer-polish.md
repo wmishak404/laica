@@ -2,14 +2,14 @@
 
 ## Summary
 
-Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the merged PR #264 warm Live Cooking baseline. The slice makes Live Cooking timers a stable explicit-start five-minute control instead of a provider-duration suggestion, adds a minimizable active timer pill, and makes timer controls visible by default with an opt-out toggle beside CC. Wilson also asked to keep the app shell available on Ready Check, so this branch preserves the Prep Tray session until the guide actually starts and shows bottom nav before active cooking.
+Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the merged PR #264 warm Live Cooking baseline. The slice makes Live Cooking timers stable and explicit-start using the current recipe step's real duration, adds a minimizable active timer pill, and makes timer controls visible by default with an opt-out toggle beside CC. Wilson also asked to keep the app shell available on Ready Check, so this branch preserves the Prep Tray session until the guide actually starts and shows bottom nav before active cooking.
 
 ## Scope
 
 - Timer controls remain explicit-start; step navigation clears timer state instead of carrying a running timer into the next step.
-- Timer controls are visible by default and can be hidden from a compact clock toggle beside CC. The visible control shows `0:05:00` with circular play/pause and reset controls.
+- Timer controls are visible by default and can be hidden from a compact clock toggle beside CC. When the current recipe step has a timer-worthy `duration`, the visible control shows that duration in `H:MM:SS` format with circular play/pause and reset controls; durationless steps do not invent a fallback timer.
 - Active timers can collapse to a compact time-only pill and expand back to pause/resume controls.
-- Timer speech copy now uses singular/plural duration text correctly, such as `5 minutes`.
+- Timer speech copy now uses singular/plural duration text correctly, such as `1 minute` or `2 minutes`.
 - Prep Tray selected-image loading now shows larger visible loading copy and a stable `Preview unavailable` fallback when the image resolver returns `status: unavailable`.
 - Ready Check `Back to Planning` restores the Prep Tray / recipe-suggestion session instead of restarting planning. The planning session is dismissed only once `Start cooking` begins the active guide.
 - Bottom nav remains visible on Ready Check per Wilson's explicit request, with additional Ready Check bottom padding so the fixed nav does not cover `Start cooking`; active hands-busy cooking still hides bottom nav.

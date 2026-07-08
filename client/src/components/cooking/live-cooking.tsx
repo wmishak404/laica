@@ -184,7 +184,31 @@ function isPlaceholderInstruction(instruction: string) {
 const STEP_ACTION_LABEL_MAX_WORDS = 5;
 const STEP_ACTION_LABEL_MAX_CHARS = 24;
 const TIMER_VISIBILITY_STORAGE_KEY = 'laica_timer_visible';
-const DEFAULT_TIMER_DURATION_SECONDS = 5 * 60;
+
+function getStepTimerDurationSeconds(step?: RecipeStep) {
+  if (!step || typeof step.duration !== 'number' || !Number.isFinite(step.duration)) {
+    return null;
+  }
+
+  const roundedSeconds = Math.round(step.duration);
+  return roundedSeconds > 0 ? roundedSeconds : null;
+}
+
+function formatTimerControlDuration(seconds: number) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  if (minutes > 0 && remainingSeconds === 0) {
+    return `${minutes} min`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes} min ${remainingSeconds} sec`;
+  }
+
+  return `${remainingSeconds} sec`;
+}
 
 function normalizeActionLabelForComparison(label: string) {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -1008,9 +1032,10 @@ export default function LiveCooking({
     ? Math.min(currentStepIndex, currentRecipeSteps.length - 1)
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
-  const shouldShowTimerControl = areTimersVisible && Boolean(currentStep);
-  const timerDuration = DEFAULT_TIMER_DURATION_SECONDS;
-  const displayedTimerSeconds = timer > 0 ? timer : timerDuration;
+  const timerDuration = getStepTimerDurationSeconds(currentStep);
+  const shouldShowTimerControl = areTimersVisible && Boolean(currentStep) && timerDuration !== null;
+  const displayedTimerSeconds = timer > 0 ? timer : timerDuration ?? 0;
+  const timerControlDurationLabel = timerDuration !== null ? formatTimerControlDuration(timerDuration) : '';
   const stepPreviewLabels = useMemo(
     () => buildStepPreviewLabels(currentRecipeSteps),
     [currentRecipeSteps],
@@ -1497,10 +1522,18 @@ export default function LiveCooking({
       return;
     }
 
+    if (timerDuration === null) {
+      return;
+    }
+
     startTimer(timerDuration);
   };
 
   const resetTimer = () => {
+    if (timerDuration === null) {
+      return;
+    }
+
     setTimer(timerDuration);
     setIsTimerRunning(false);
     setIsTimerMinimized(false);
@@ -2143,8 +2176,8 @@ export default function LiveCooking({
                         size="icon"
                         variant="ghost"
                         onClick={toggleTimerRunning}
-                        aria-label={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : "Start 5 min timer"}
-                        title={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : "Start 5 min timer"}
+                        aria-label={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
+                        title={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
                         className="live-cooking-round-control h-8 w-8"
                       >
                         {isTimerRunning ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
@@ -2153,8 +2186,8 @@ export default function LiveCooking({
                         size="icon"
                         variant="ghost"
                         onClick={resetTimer}
-                        aria-label="Reset 5 min timer"
-                        title="Reset 5 min timer"
+                        aria-label={`Reset ${timerControlDurationLabel} timer`}
+                        title={`Reset ${timerControlDurationLabel} timer`}
                         className="live-cooking-round-control h-8 w-8"
                       >
                         <RotateCcw className="h-3.5 w-3.5" />
