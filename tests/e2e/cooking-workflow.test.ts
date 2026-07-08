@@ -419,9 +419,10 @@ test.describe('Laica Guest E2E Smoke', () => {
     await expect(page.getByText('Step 1 of 3')).toBeVisible();
     await expect(page.getByText('Warm the rice in a skillet until steamy.', { exact: true })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Start 2 min timer' }).click();
-    await expect(page.getByText(/Timer: (2:00|1:59)/)).toBeVisible();
-    await expect(page.getByText("Timer set for 2 minutes. I'll let you know when time is up!")).toBeVisible();
+    await expect(page.getByTestId('live-cooking-timer')).toContainText('0:05:00');
+    await page.getByRole('button', { name: 'Start 5 min timer' }).click();
+    await expect(page.getByTestId('live-cooking-timer')).toContainText(/0:0[45]:[0-5][0-9]/);
+    await expect(page.getByText("Timer set for 5 minutes. I'll let you know when time is up!")).toBeVisible();
     await page.getByRole('button', { name: 'Pause timer' }).click();
     await expect(page.getByRole('button', { name: 'Resume timer' })).toBeVisible();
 
