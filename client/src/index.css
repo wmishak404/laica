@@ -1970,6 +1970,11 @@ html, body {
     letter-spacing: 0;
   }
 
+  .meal-planning-screen .planning-display {
+    font-size: 1.58rem;
+    line-height: 1.08;
+  }
+
   .planning-copy {
     color: hsl(var(--planning-ink) / 0.66);
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
@@ -2733,6 +2738,50 @@ html, body {
     margin-top: 0.65rem;
   }
 
+  .meal-planning-screen .planning-ticket-title {
+    font-size: 1.18rem;
+    line-height: 1.08;
+  }
+
+  .meal-planning-screen .planning-ticket-large .planning-ticket-title {
+    font-size: 1.28rem;
+    line-height: 1.1;
+  }
+
+  .meal-planning-screen .planning-ticket-title-detail {
+    font-size: 0.68em;
+  }
+
+  .meal-planning-screen .planning-ticket-large .planning-ticket-title-detail {
+    font-size: 0.64em;
+  }
+
+  .meal-planning-screen .planning-ticket-meta {
+    font-size: 0.78rem;
+  }
+
+  .meal-planning-screen .planning-ticket-row .planning-ticket-title {
+    font-size: 0.86rem;
+  }
+
+  .meal-planning-screen .planning-ticket-row .planning-ticket-meta {
+    font-size: 0.62rem;
+  }
+
+  .meal-planning-screen .planning-ticket-section-label,
+  .meal-planning-screen .planning-ticket-optional span,
+  .meal-planning-screen .planning-prep-label {
+    font-size: 0.72rem;
+  }
+
+  .meal-planning-screen .planning-use-chip {
+    font-size: 0.7rem;
+  }
+
+  .meal-planning-screen .planning-ticket-optional {
+    font-size: 0.74rem;
+  }
+
   .planning-prep-tray {
     overflow: hidden;
     border: 1px solid hsl(var(--planning-ticket-edge) / 0.52);
@@ -2803,6 +2852,11 @@ html, body {
 
   .planning-prep-body {
     padding: 1rem;
+  }
+
+  .meal-planning-screen .planning-prep-body .planning-copy {
+    font-size: 0.82rem;
+    line-height: 1.42;
   }
 
   .planning-prep-section {
