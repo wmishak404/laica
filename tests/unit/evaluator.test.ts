@@ -16,6 +16,8 @@ import {
   buildPendingEvalQueueSummary,
   hasEvalCriteria,
   selectEvaluableInteractionsForBatch,
+  buildEvalReportArtifact,
+  formatEvalReportArtifactMarkdown,
 } from "../../server/evaluator";
 
 describe("INIT-004 criteria-aware eval queue selection", () => {
@@ -203,5 +205,80 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
       "chef_it_up_suggestions",
       "slop_bowl_suggestions",
     ]);
+  });
+
+  it("builds a report artifact with bounded admin-safe rows", () => {
+    const longOutput = "out".repeat(600);
+    const artifact = buildEvalReportArtifact([
+      {
+        id: 11,
+        featureType: "chef_it_up_suggestions",
+        promptVersionId: 7,
+        evalPassed: false,
+        evalErrorModes: ["dietary_violation"],
+        evalReasoning: "Fails pantry alignment and language guardrails.",
+        outputData: longOutput,
+      },
+    ], {
+      sourceClass: "synthetic fixture validation",
+      runType: "provider-backed judge smoke",
+      outputFormat: "json",
+    });
+
+    expect(artifact.requestedSourceClass).toBe("synthetic fixture validation");
+    expect(artifact.requestedRunType).toBe("provider-backed judge smoke");
+    expect(artifact.rows).toHaveLength(1);
+    expect(artifact.rows[0]).toMatchObject({
+      dataItemId: 11,
+      featureType: "chef_it_up_suggestions",
+      sourceClass: "synthetic fixture validation",
+      promptRuntimeVersion: "prompt_version_7",
+      judgeDecision: "FAIL",
+      criteria: ["wrong_cuisine", "dietary_violation", "pantry_mismatch", "optional_ingredient_required", "skill_mismatch"],
+      humanVerdict: "TBD",
+    });
+    expect(artifact.rows[0].outputUnderTest.length).toBeLessThanOrEqual(1200);
+    expect(artifact.rows[0].outputUnderTest).not.toBe(longOutput);
+    expect(artifact.criterionAggregate).toEqual({
+      wrong_cuisine: { total: 1, passed: 0, failed: 1 },
+      dietary_violation: { total: 1, passed: 0, failed: 1 },
+      pantry_mismatch: { total: 1, passed: 0, failed: 1 },
+      optional_ingredient_required: { total: 1, passed: 0, failed: 1 },
+      skill_mismatch: { total: 1, passed: 0, failed: 1 },
+    });
+    expect(artifact.metrics.passRate).toBe(0);
+    expect(artifact.metrics.tpr.status).toBe("unavailable");
+    expect(artifact.metrics.tnr.status).toBe("unavailable");
+  });
+
+  it("renders report artifacts in a row-first markdown shape", () => {
+    const markdown = formatEvalReportArtifactMarkdown(
+      buildEvalReportArtifact(
+        [
+          {
+            id: 44,
+            featureType: "recipe_suggestions",
+            evalPassed: true,
+            evalReasoning: "Pass",
+            outputData: "good output",
+          },
+        ],
+        {
+          sourceClass: "real-usage sample",
+          runType: "provider-backed judge smoke",
+          outputFormat: "markdown",
+        },
+      ),
+    );
+
+    expect(markdown).toContain("# Eval Report");
+    expect(markdown).toContain("## Run Results");
+    expect(markdown).toContain("| 44 | real-usage sample | recipe_suggestions");
+    expect(markdown).toContain("## Criterion Aggregate (Pass/Fail)");
+    expect(markdown).toContain("## Judge Metrics");
+    expect(markdown).toContain("## Provider Input Inventory");
+    expect(markdown).toContain("| Feature | Samples |");
+    expect(markdown).toContain("No raw interaction payloads");
+    expect(markdown.indexOf("## Judge Metrics")).toBeLessThan(markdown.indexOf("## Provider Input Inventory"));
   });
 });

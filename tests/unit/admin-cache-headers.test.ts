@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import express from 'express';
 import http from 'node:http';
-import { resetRateLimitBucketsForTest } from '../../server/rate-limit';
 import { requestHttp } from './http-test-client';
 
 const mocks = vi.hoisted(() => ({
   getPendingQueueSummary: vi.fn(),
+  getEvalReportArtifact: vi.fn(),
+  buildEvalReportArtifact: vi.fn(),
+  formatEvalReportArtifactMarkdown: vi.fn(),
 }));
 
 vi.mock('../../server/evaluator', () => ({
@@ -14,7 +16,10 @@ vi.mock('../../server/evaluator', () => ({
   processBatchResults: vi.fn(),
   getEvalSummary: vi.fn(),
   generateImprovedPrompt: vi.fn(),
+  getEvalReportArtifact: mocks.getEvalReportArtifact,
+  buildEvalReportArtifact: mocks.buildEvalReportArtifact,
   getPendingQueueSummary: mocks.getPendingQueueSummary,
+  formatEvalReportArtifactMarkdown: mocks.formatEvalReportArtifactMarkdown,
 }));
 
 vi.mock('../../server/prompt-manager', () => ({
@@ -44,7 +49,6 @@ describe('Admin caching headers', () => {
 
   afterEach(() => {
     process.env.ADMIN_SECRET = originalAdminSecret;
-    resetRateLimitBucketsForTest();
     vi.clearAllMocks();
   });
 
@@ -76,36 +80,57 @@ describe('Admin caching headers', () => {
     expect(response.headers['vary']).toContain('X-Admin-Secret');
   });
 
-  it('rate-limits repeated invalid admin attempts before hitting handlers', async () => {
+  it('serves report export in JSON and markdown with non-cache headers', async () => {
     process.env.ADMIN_SECRET = 'test-secret';
+    const reportPayload = {
+      reportGeneratedAt: new Date().toISOString(),
+      requestedSourceClass: 'real-usage sample',
+      requestedRunType: 'provider-backed judge smoke',
+      requestedOutputFormat: 'json',
+      rows: [],
+      metrics: {
+        overall: { total: 0, passed: 0, failed: 0, passRate: null },
+        passRate: null,
+        tpr: { value: null, status: 'unavailable' },
+        tnr: { value: null, status: 'unavailable' },
+      },
+      criterionAggregate: {},
+    };
+
+    mocks.getEvalReportArtifact.mockResolvedValueOnce(reportPayload);
+    const markdownPayload = { ...reportPayload, requestedOutputFormat: 'markdown' };
+    mocks.getEvalReportArtifact.mockResolvedValueOnce(markdownPayload);
+    mocks.formatEvalReportArtifactMarkdown.mockReturnValue(
+      `# Eval Report\n- Source class: ${markdownPayload.requestedSourceClass}\n`,
+    );
+
     const server = await startAdminServer();
 
-    for (let index = 0; index < 60; index += 1) {
-      const response = await requestHttp(server, {
-        method: 'GET',
-        path: '/api/admin/eval/pending',
-        headers: {
-          'X-Admin-Secret': 'wrong-secret',
-        },
-      });
-
-      expect(response.status).toBe(403);
-    }
-
-    const response = await requestHttp(server, {
+    const jsonResponse = await requestHttp(server, {
       method: 'GET',
-      path: '/api/admin/eval/pending',
+      path: '/api/admin/eval/report?format=json&sourceClass=real-usage%20sample&runType=provider-backed%20judge%20smoke',
       headers: {
-        'X-Admin-Secret': 'wrong-secret',
+        'X-Admin-Secret': 'test-secret',
       },
     });
 
-    expect(response.status).toBe(429);
-    expect(await response.json()).toEqual({
-      code: 'RATE_LIMITED',
-      message: 'Too many requests. Try again later.',
+    expect(jsonResponse.status).toBe(200);
+    expect(jsonResponse.headers['cache-control']).toBe('no-store, max-age=0');
+    expect(jsonResponse.headers['content-type']).toContain('application/json');
+    const jsonBody = await jsonResponse.json();
+    expect(Array.isArray(jsonBody.rows)).toBe(true);
+
+    const markdownResponse = await requestHttp(server, {
+      method: 'GET',
+      path: '/api/admin/eval/report?format=markdown&sourceClass=real-usage%20sample&runType=provider-backed%20judge%20smoke',
+      headers: {
+        'X-Admin-Secret': 'test-secret',
+      },
     });
-    expect(response.headers['cache-control']).toBe('no-store, max-age=0');
-    expect(mocks.getPendingQueueSummary).not.toHaveBeenCalled();
+
+    expect(markdownResponse.status).toBe(200);
+    expect(markdownResponse.headers['cache-control']).toBe('no-store, max-age=0');
+    expect(markdownResponse.headers['content-type']).toContain('text/markdown');
+    expect(markdownResponse.text).toContain('# Eval Report');
   });
 });

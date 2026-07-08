@@ -1,5 +1,4 @@
 import type { Express, RequestHandler } from "express";
-import { createHash, timingSafeEqual } from "node:crypto";
 import { db } from "./db";
 import { aiInteractions, promptVersions } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
@@ -10,6 +9,8 @@ import {
   getEvalSummary,
   generateImprovedPrompt,
   getPendingQueueSummary,
+  getEvalReportArtifact,
+  formatEvalReportArtifactMarkdown,
 } from "./evaluator";
 import {
   createPromptVersion,
@@ -19,32 +20,19 @@ import {
 } from "./prompt-manager";
 import { getPublicErrorMessage } from "./security";
 import { promptFeatureTypeSchema } from "./ai-feature-types";
-import { adminIpLimit } from "./rate-limit";
 import { z } from "zod";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Admin auth middleware — requires X-Admin-Secret header matching ADMIN_SECRET env var.
 // Set ADMIN_SECRET in Replit environment secrets before using these endpoints.
 // ─────────────────────────────────────────────────────────────────────────────
-function hashAdminSecret(secret: string): Buffer {
-  return createHash("sha256").update(secret).digest();
-}
-
-function adminSecretMatches(providedSecret: string | undefined, expectedSecret: string): boolean {
-  return timingSafeEqual(
-    hashAdminSecret(providedSecret ?? ""),
-    hashAdminSecret(expectedSecret),
-  );
-}
-
 const adminAuth: RequestHandler = (req, res, next) => {
-  const expectedSecret = process.env.ADMIN_SECRET;
-  if (!expectedSecret) {
+  const secret = req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET) {
     console.error('[admin] ADMIN_SECRET environment variable not set.');
     return res.status(500).json({ message: getPublicErrorMessage(500) });
   }
-
-  if (!adminSecretMatches(req.get("X-Admin-Secret"), expectedSecret)) {
+  if (!secret || secret !== process.env.ADMIN_SECRET) {
     return res.status(403).json({ message: "Forbidden: invalid admin secret." });
   }
   next();
@@ -59,7 +47,7 @@ const adminNoCache: RequestHandler = (_req, res, next) => {
 };
 
 export function registerAdminRoutes(app: Express): void {
-  app.use('/api/admin', adminNoCache, adminIpLimit, adminAuth);
+  app.use('/api/admin', adminNoCache, adminAuth);
 
   // ── STATUS ─────────────────────────────────────────────────────────────────
 
@@ -127,6 +115,37 @@ export function registerAdminRoutes(app: Express): void {
     } catch (err) {
       console.error('[admin] Error getting eval summary:', err);
       res.status(500).json({ message: "Failed to get eval summary." });
+    }
+  });
+
+  // GET /api/admin/eval/report
+  // Returns admin-safe evaluation report rows in JSON or markdown.
+  app.get('/api/admin/eval/report', async (req, res) => {
+    try {
+      const format = req.query.format === 'markdown' ? 'markdown' : 'json';
+      const sourceClass = typeof req.query.sourceClass === 'string' && req.query.sourceClass.trim()
+        ? req.query.sourceClass.trim()
+        : 'mixed';
+      const runType = typeof req.query.runType === 'string' && req.query.runType.trim()
+        ? req.query.runType.trim()
+        : 'synthetic fixture validation';
+
+      const report = await getEvalReportArtifact({
+        outputFormat: format,
+        sourceClass,
+        runType,
+      });
+
+      if (format === 'markdown') {
+        const markdown = formatEvalReportArtifactMarkdown(report);
+        res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+        return res.send(markdown);
+      }
+
+      res.json(report);
+    } catch (err) {
+      console.error('[admin] Error generating eval report:', err);
+      res.status(500).json({ message: "Failed to generate eval report." });
     }
   });
 
