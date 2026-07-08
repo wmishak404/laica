@@ -66,6 +66,9 @@ describe('SlopBowl pantry check visual grammar', () => {
   it('renders saved pantry ingredients as green check chips that can be omitted from this bowl', () => {
     renderSlopBowl();
 
+    expect(screen.getByText(/one more check/i).closest('.slop-bowl-screen')).toBeTruthy();
+    expect(screen.getByText(/one more check/i).closest('.slop-bowl-menu-screen')).toBeTruthy();
+
     const riceChip = screen.getByRole('button', { name: /omit rice from this bowl/i });
 
     expect(riceChip.className).toContain('slop-check-chip-saved');
