@@ -236,7 +236,14 @@ export async function runFixtureJudgeSmoke(options: {
 }
 
 function listForReport(values: string[]): string {
-  return values.length > 0 ? values.join(", ") : "-";
+  return values.length > 0 ? values.map(escapeMarkdownTableCell).join(", ") : "-";
+}
+
+function escapeMarkdownTableCell(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, " ");
 }
 
 export function formatJudgeSmokeMarkdownReport(report: JudgeSmokeReport): string {
@@ -262,7 +269,7 @@ export function formatJudgeSmokeMarkdownReport(report: JudgeSmokeReport): string
     "| Fixture | Expected passed | Expected error modes | Notes |",
     "|---|---:|---|---|",
     ...report.fixtures.map((fixture) =>
-      `| \`${fixture.id}\` | ${typeof fixture.expectedPassed === "boolean" ? String(fixture.expectedPassed) : "-"} | ${listForReport(fixture.expectedErrorModes)} | ${fixture.notes ?? "-"} |`,
+      `| \`${fixture.id}\` | ${typeof fixture.expectedPassed === "boolean" ? String(fixture.expectedPassed) : "-"} | ${listForReport(fixture.expectedErrorModes)} | ${escapeMarkdownTableCell(fixture.notes ?? "-")} |`,
     ),
     "",
     "## Runs",
@@ -270,7 +277,7 @@ export function formatJudgeSmokeMarkdownReport(report: JudgeSmokeReport): string
     "| Fixture | Run | Valid | Passed | Score | Error modes | Missing expected | Unexpected | Reasoning / parse error |",
     "|---|---:|---:|---:|---:|---|---|---|---|",
     ...report.runs.map((run) =>
-      `| \`${run.fixtureId}\` | ${run.runIndex} | ${String(run.valid)} | ${run.verdict ? String(run.verdict.passed) : "-"} | ${run.verdict?.score ?? "-"} | ${listForReport(run.verdict?.errorModes ?? [])} | ${listForReport(run.missingExpectedErrorModes)} | ${listForReport(run.unexpectedErrorModes)} | ${(run.verdict?.reasoning ?? run.parseError ?? "").replace(/\|/g, "\\|")} |`,
+      `| \`${run.fixtureId}\` | ${run.runIndex} | ${String(run.valid)} | ${run.verdict ? String(run.verdict.passed) : "-"} | ${run.verdict?.score ?? "-"} | ${listForReport(run.verdict?.errorModes ?? [])} | ${listForReport(run.missingExpectedErrorModes)} | ${listForReport(run.unexpectedErrorModes)} | ${escapeMarkdownTableCell(run.verdict?.reasoning ?? run.parseError ?? "-")} |`,
     ),
     "",
   ];
