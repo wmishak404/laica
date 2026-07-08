@@ -247,7 +247,7 @@ export default function SlopBowl({
     const hasManualAdditions = pantry.some((item) => item.source === 'manual');
 
     return (
-      <div className="slop-check-screen space-y-6">
+      <div className="slop-bowl-menu-screen slop-check-screen space-y-6">
         <div className="text-center">
           <h2 className="planning-display text-3xl font-extrabold leading-tight text-gray-950">
             One more check that these are still around.
@@ -403,7 +403,7 @@ export default function SlopBowl({
     if (!recipe) return null;
 
     return (
-      <div className="space-y-6">
+      <div className="slop-bowl-menu-screen space-y-6">
         <div className="text-center">
           <h2 className="planning-display text-2xl font-extrabold leading-tight text-gray-950 mb-1">We made you a thing.</h2>
           <p className="planning-copy text-sm font-bold">Look what your pantry had hiding in it</p>
@@ -490,7 +490,7 @@ export default function SlopBowl({
 
   // ── Feedback ──────────────────────────────────────────────────────────────
   const renderFeedback = () => (
-    <div className="space-y-6">
+    <div className="slop-bowl-menu-screen space-y-6">
       <div className="text-center">
         <h2 className="planning-display text-2xl font-extrabold leading-tight text-gray-950 mb-1">What would you change?</h2>
         <p className="planning-copy text-sm font-bold">
@@ -539,7 +539,7 @@ export default function SlopBowl({
 
   // ── Main render ───────────────────────────────────────────────────────────
   return (
-    <div className="planning-screen w-full max-w-md mx-auto p-4">
+    <div className="planning-screen slop-bowl-screen w-full max-w-md mx-auto p-4">
       {state === 'pantry-check' && renderPantryCheck()}
       {state === 'generating' && renderGenerating()}
       {state === 'approval' && renderApproval()}

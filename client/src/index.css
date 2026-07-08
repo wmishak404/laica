@@ -2935,6 +2935,22 @@ html, body {
     stroke-width: 3;
   }
 
+  .slop-bowl-menu-screen .planning-display {
+    font-size: 1.5rem;
+    line-height: 1.08;
+  }
+
+  .slop-bowl-menu-screen .planning-copy {
+    font-size: 0.82rem;
+    line-height: 1.42;
+  }
+
+  .slop-bowl-menu-screen .slop-check-chip {
+    min-height: 2.05rem;
+    font-size: 0.76rem;
+    padding: 0.38rem 0.62rem;
+  }
+
 }
 
 @keyframes setup-focus-pulse {
