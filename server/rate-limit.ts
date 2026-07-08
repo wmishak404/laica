@@ -328,9 +328,8 @@ export const adminIpLimit = createRateLimit({
   keyGenerator: getClientIp,
 });
 
-// Runtime app routes currently rely on authenticated user-scoped limits.
-// Keep these IP limiter exports available so shared-source caps can be
-// re-enabled deliberately when product scale warrants the tradeoff.
+// Feedback can be anonymous, so use a shared IP cap in addition to the broad
+// API limiter.
 export const feedbackIpLimit = createRateLimit({
   name: "feedback:ip",
   windowMs: ONE_HOUR,
