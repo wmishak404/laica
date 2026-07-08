@@ -2258,7 +2258,21 @@ export default function LiveCooking({
             )}
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="live-cooking-caption-row flex items-start justify-end gap-2">
+            {areCaptionsVisible && (
+              <div
+                className="live-cooking-caption-box min-w-0 flex-1 rounded-md border p-3"
+                data-testid="transcription-box"
+              >
+                <p
+                  className="leading-relaxed text-foreground"
+                  style={{ fontSize: `${captionSize}px` }}
+                  data-testid="text-transcription-full"
+                >
+                  {assistantResponse}
+                </p>
+              </div>
+            )}
             <Button
               variant="outline"
               size="icon"
@@ -2269,24 +2283,11 @@ export default function LiveCooking({
               className="live-cooking-caption-toggle"
               data-testid="button-toggle-captions"
             >
-              <span className="text-xs font-bold" aria-hidden="true">CC</span>
+              <span className="live-cooking-caption-mark" aria-hidden="true">CC</span>
             </Button>
           </div>
 
-          {areCaptionsVisible ? (
-            <div
-              className="live-cooking-caption-box rounded-md border p-3"
-              data-testid="transcription-box"
-            >
-              <p
-                className="leading-relaxed text-foreground"
-                style={{ fontSize: `${captionSize}px` }}
-                data-testid="text-transcription-full"
-              >
-                {assistantResponse}
-              </p>
-            </div>
-          ) : (
+          {!areCaptionsVisible && (
             <p className="sr-only" data-testid="text-transcription-full">
               {assistantResponse}
             </p>

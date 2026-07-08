@@ -1070,11 +1070,15 @@ describe('LiveCooking guest session boundary', () => {
     const captionsToggle = screen.getByTestId('button-toggle-captions');
     expect(captionsToggle).toHaveTextContent('CC');
     expect(captionsToggle.className).toContain('live-cooking-caption-toggle');
+    expect(captionsToggle.querySelector('.live-cooking-caption-mark')).toBeTruthy();
     expect(screen.getByRole('button', { name: /show captions/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /show captions/i }));
 
-    expect(screen.getByTestId('transcription-box')).toBeTruthy();
+    const transcriptionBox = screen.getByTestId('transcription-box');
+    expect(transcriptionBox.className).toContain('flex-1');
+    expect(transcriptionBox.parentElement?.className).toContain('live-cooking-caption-row');
+    expect(captionsToggle.parentElement).toBe(transcriptionBox.parentElement);
     expect(window.localStorage.getItem('laica_captions_visible')).toBe('true');
     expect(screen.getByRole('button', { name: /hide captions/i })).toBeTruthy();
 

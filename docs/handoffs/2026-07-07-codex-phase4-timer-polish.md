@@ -8,7 +8,7 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 
 - Timer controls remain explicit-start; step navigation clears timer state instead of carrying a running timer into the next step.
 - Timer controls appear automatically when the current recipe step has a timer-worthy `duration` or explicit time language such as `cook 1-2 minutes`. The visible control shows that duration in `H:MM:SS` format with circular play/pause and reset controls; durationless steps do not invent a fallback timer.
-- The old separate timer visibility toggle is removed; CC remains the only compact toggle in the guidance panel and is circular/centered.
+- The old separate timer visibility toggle is removed; CC remains the only compact toggle in the guidance panel, uses a circular button with a boxed `CC` mark, and shares a row with the transcript when captions are open to reduce wasted vertical space.
 - Timer completion is a first-class visual timer state, not a CC workaround: CC remains voice/transcript-only and is not auto-opened when a countdown reaches zero.
 - Active timers no longer collapse/minimize; the centered time, play/pause, and reset controls remain visible together so the cook does not lose the controls mid-step.
 - Timer speech copy now uses singular/plural duration text correctly, such as `1 minute` or `2 minutes`.

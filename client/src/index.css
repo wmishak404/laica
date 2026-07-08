@@ -283,9 +283,24 @@ html, body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex: 0 0 auto;
     height: 3rem;
     width: 3rem;
     padding: 0;
+  }
+
+  .live-cooking-ui .live-cooking-caption-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.55rem;
+    min-height: 1.1rem;
+    border: 2px solid currentColor;
+    border-radius: 0.18rem;
+    font-size: 0.7rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0;
   }
 
   .live-cooking-ui .live-cooking-round-control:hover,

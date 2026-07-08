@@ -181,7 +181,7 @@ The branch intentionally does not add `suggestedTimer` schema, timer kinds/reaso
 - Step progress includes dot nodes and short action-forward preview labels for each step.
 - Routine `minor` safety badges are not shown as a persistent status chip.
 - Repeat step instruction, Ask a question, and audio mute controls are taller icon-over-label buttons anchored in a bottom command bar, with Ask a question centered.
-- Transcript text is hidden by default and appears only when the icon-like CC caption toggle is enabled.
+- Transcript text is hidden by default and appears only when the icon-like CC caption toggle is enabled; when open, the transcript and circular boxed-CC toggle share one compact row.
 - Active Live Cooking requests a screen wake lock when supported by the browser and releases it when the guide exits or the page hides.
 - Model steps include sensory cues where applicable.
 - Timer controls appear automatically for timer-worthy steps, show the current recipe step's real or text-derived duration in `H:MM:SS` format, and never auto-start.
