@@ -2685,8 +2685,10 @@ html, body {
   .planning-prep-hero {
     display: flex;
     min-height: 9.5rem;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 0.6rem;
     overflow: hidden;
     background:
       radial-gradient(circle at 50% 48%, hsl(0 0% 100% / 0.24), transparent 5rem),
@@ -2731,6 +2733,13 @@ html, body {
   .planning-recipe-image-slot-prep .planning-recipe-image-spinner {
     height: 4.7rem;
     width: 4.7rem;
+  }
+
+  .planning-prep-image-status {
+    color: hsl(var(--planning-coral));
+    font-size: 0.78rem;
+    font-weight: 900;
+    line-height: 1;
   }
 
   .planning-prep-body {

@@ -781,8 +781,6 @@ export default function MealPlanning({
 
   const handleMealSelected = (meal: RecipeRecommendation) => {
     cancelRecipeImageHydration();
-    suppressSessionPersistenceRef.current = true;
-    dismissScopedMealPlanningSession(sessionScopeKey);
     onMealSelected(meal, 'now');
   };
 
@@ -1220,6 +1218,9 @@ export default function MealPlanning({
         <div className="planning-prep-tray">
           <div className="planning-prep-hero" data-image-state={prepTrayImageState}>
             {renderRecipeImageSlot(selectedMealWithPrepImage, 'prep', isSelectedRecipeImagePending)}
+            {isSelectedRecipeImagePending && (
+              <p className="planning-prep-image-status">Cooking up the preview...</p>
+            )}
           </div>
           <div className="planning-prep-body">
             <h1 className="planning-display text-3xl font-extrabold leading-tight">{selectedMeal.recipeName}</h1>

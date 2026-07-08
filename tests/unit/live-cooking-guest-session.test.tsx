@@ -313,6 +313,24 @@ describe('LiveCooking guest session boundary', () => {
     }));
   });
 
+  it('asks the app shell to preserve planning when backing out from Ready Check', async () => {
+    const onBackToPlanning = vi.fn();
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={onBackToPlanning}
+      />,
+    );
+
+    await screen.findByText('Ready to cook?');
+
+    fireEvent.click(screen.getByRole('button', { name: /back to planning/i }));
+
+    expect(onBackToPlanning).toHaveBeenCalledWith({ preserveMealPlanningSession: true });
+  });
+
   it('passes acknowledged missing ingredients while keeping one Start cooking action', async () => {
     render(
       <LiveCooking
@@ -423,7 +441,7 @@ describe('LiveCooking guest session boundary', () => {
     expect(screen.getByRole('button', { name: /pause timer/i })).toBeTruthy();
   });
 
-  it('does not suggest timers for prep-only steps', async () => {
+  it('uses the default visible timer control for prep-only steps instead of a step-specific suggestion', async () => {
     mocks.fetchCookingSteps.mockResolvedValue({
       steps: [
         {
@@ -448,8 +466,9 @@ describe('LiveCooking guest session boundary', () => {
     await clickReadyCheckStart();
 
     expect(screen.getByText('Chop the onions and parsley.')).toBeTruthy();
-    expect(screen.queryByTestId('live-cooking-timer')).toBeNull();
-    expect(screen.queryByRole('button', { name: /start .* timer/i })).toBeNull();
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Timer ready');
+    expect(screen.getByRole('button', { name: /start 5 min timer/i })).toBeTruthy();
+    expect(screen.queryByText(/optional timer/i)).toBeNull();
   });
 
   it('uses action-forward labels for step previews', async () => {
@@ -964,6 +983,7 @@ describe('LiveCooking guest session boundary', () => {
     });
 
     expect(onBackToPlanning).toHaveBeenCalledTimes(1);
+    expect(onBackToPlanning).toHaveBeenCalledWith({ preserveMealPlanningSession: false });
     expect(browserSpeechCancel).toHaveBeenCalled();
     expect(AudioContextMock).not.toHaveBeenCalled();
   });
@@ -994,6 +1014,38 @@ describe('LiveCooking guest session boundary', () => {
 
     expect(screen.queryByTestId('transcription-box')).toBeNull();
     expect(window.localStorage.getItem('laica_captions_visible')).toBe('false');
+  });
+
+  it('keeps timer controls opt-out and resets an active timer when hidden', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+      />,
+    );
+
+    await clickReadyCheckStart();
+
+    expect(screen.getByRole('button', { name: /hide timer/i })).toBeTruthy();
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Optional timer: 1 minute');
+
+    fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Timer: 1:00');
+
+    fireEvent.click(screen.getByRole('button', { name: /hide timer/i }));
+
+    expect(window.localStorage.getItem('laica_timer_visible')).toBe('false');
+    expect(screen.queryByTestId('live-cooking-timer')).toBeNull();
+    expect(screen.getByRole('button', { name: /show timer/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /show timer/i }));
+
+    expect(window.localStorage.getItem('laica_timer_visible')).toBe('true');
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('Optional timer: 1 minute');
+    expect(screen.queryByText(/Timer: 1:00/)).toBeNull();
   });
 
   it('falls back to hidden captions when the saved captions preference is malformed', async () => {

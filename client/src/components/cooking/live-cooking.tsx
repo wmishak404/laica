@@ -196,6 +196,8 @@ function isPlaceholderInstruction(instruction: string) {
 
 const STEP_ACTION_LABEL_MAX_WORDS = 5;
 const STEP_ACTION_LABEL_MAX_CHARS = 24;
+const TIMER_VISIBILITY_STORAGE_KEY = 'laica_timer_visible';
+const DEFAULT_TIMER_DURATION_SECONDS = 5 * 60;
 
 function normalizeActionLabelForComparison(label: string) {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -509,6 +511,19 @@ function getInitialCaptionsVisible() {
   }
 }
 
+function getInitialTimersVisible() {
+  const saved = localStorage.getItem(TIMER_VISIBILITY_STORAGE_KEY);
+  if (saved === null) return true;
+
+  try {
+    const parsed = JSON.parse(saved);
+    return typeof parsed === 'boolean' ? parsed : true;
+  } catch {
+    localStorage.removeItem(TIMER_VISIBILITY_STORAGE_KEY);
+    return true;
+  }
+}
+
 function normalizeContextItems(items?: string[]) {
   return (items || [])
     .map(item => item.trim())
@@ -518,7 +533,9 @@ function normalizeContextItems(items?: string[]) {
 interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
-  onBackToPlanning: () => void;
+  onBackToPlanning: (options?: { preserveMealPlanningSession?: boolean }) => void;
+  onCookingGuideStarted?: () => void;
+  onCookingGuideStateChange?: (isActive: boolean) => void;
   onCookingComplete?: () => void;
   profileFingerprint?: string;
 }
@@ -527,6 +544,8 @@ export default function LiveCooking({
   selectedMeal,
   scheduledTime,
   onBackToPlanning,
+  onCookingGuideStarted,
+  onCookingGuideStateChange,
   onCookingComplete,
   profileFingerprint,
 }: LiveCookingProps) {
@@ -573,6 +592,7 @@ export default function LiveCooking({
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [areCaptionsVisible, setAreCaptionsVisible] = useState(getInitialCaptionsVisible);
+  const [areTimersVisible, setAreTimersVisible] = useState(getInitialTimersVisible);
   const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
 
   const { toast } = useToast();
@@ -597,6 +617,7 @@ export default function LiveCooking({
   const sessionRestoredRef = useRef(false);
   const sessionStepsRestoredRef = useRef(false);
   const restoredCookingSessionRef = useRef(false);
+  const hasNotifiedCookingGuideStartedRef = useRef(false);
   const initialMountRef = useRef(true);
   const assistantResponseRef = useRef(assistantResponse);
   const isAudioEnabledRef = useRef(isAudioEnabled);
@@ -620,6 +641,15 @@ export default function LiveCooking({
     () => normalizeContextItems(selectedMeal.missingIngredients),
     [selectedMeal.missingIngredients],
   );
+
+  useEffect(() => {
+    onCookingGuideStateChange?.(hasStartedCookingGuide);
+
+    if (hasStartedCookingGuide && !hasNotifiedCookingGuideStartedRef.current) {
+      hasNotifiedCookingGuideStartedRef.current = true;
+      onCookingGuideStarted?.();
+    }
+  }, [hasStartedCookingGuide, onCookingGuideStarted, onCookingGuideStateChange]);
 
   // Validate and sanitize a saved cooking session
   const validateCookingSession = (data: any): SavedCookingSession | null => {
@@ -770,7 +800,7 @@ export default function LiveCooking({
   const handleBackToPlanning = () => {
     stopCookingAudioLifecycle();
     clearCookingSession();
-    onBackToPlanning();
+    onBackToPlanning({ preserveMealPlanningSession: !hasStartedCookingGuide });
   };
 
   // Detect mobile device and setup early AudioContext preparation
@@ -991,8 +1021,9 @@ export default function LiveCooking({
     ? Math.min(currentStepIndex, currentRecipeSteps.length - 1)
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
-  const shouldShowTimerSuggestion = hasTimerSuggestion(currentStep);
-  const timerDuration = currentStep?.duration ?? 0;
+  const hasStepTimerSuggestion = hasTimerSuggestion(currentStep);
+  const shouldShowTimerControl = areTimersVisible && Boolean(currentStep);
+  const timerDuration = hasStepTimerSuggestion ? currentStep?.duration ?? DEFAULT_TIMER_DURATION_SECONDS : DEFAULT_TIMER_DURATION_SECONDS;
   const stepPreviewLabels = useMemo(
     () => buildStepPreviewLabels(currentRecipeSteps),
     [currentRecipeSteps],
@@ -1347,6 +1378,21 @@ export default function LiveCooking({
     setAreCaptionsVisible((prev: boolean) => {
       const newValue = !prev;
       localStorage.setItem('laica_captions_visible', JSON.stringify(newValue));
+      return newValue;
+    });
+  };
+
+  const toggleTimersVisible = () => {
+    setAreTimersVisible((prev: boolean) => {
+      const newValue = !prev;
+      localStorage.setItem(TIMER_VISIBILITY_STORAGE_KEY, JSON.stringify(newValue));
+
+      if (!newValue) {
+        setTimer(0);
+        setIsTimerRunning(false);
+        setIsTimerMinimized(false);
+      }
+
       return newValue;
     });
   };
@@ -1881,7 +1927,7 @@ export default function LiveCooking({
 
   if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
     return (
-      <div className="live-cooking-ui min-h-screen w-full px-4 py-6">
+      <div className="live-cooking-ui min-h-screen w-full px-4 py-6 pb-24">
         <div className="live-cooking-screen mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-5">
           <Button
             variant="ghost"
@@ -2068,10 +2114,10 @@ export default function LiveCooking({
               </ol>
             </CardHeader>
             <CardContent className="space-y-2 p-3 pt-0 sm:p-4 sm:pt-0">
-              {shouldShowTimerSuggestion && (
+              {shouldShowTimerControl && (
                 <div
                   className="live-cooking-timer-pill flex items-center gap-2 rounded-md border p-2"
-                  data-state={timer > 0 ? 'active' : 'suggested'}
+                  data-state={timer > 0 ? 'active' : hasStepTimerSuggestion ? 'suggested' : 'ready'}
                   data-minimized={timer > 0 && isTimerMinimized ? 'true' : 'false'}
                   data-testid="live-cooking-timer"
                 >
@@ -2079,8 +2125,10 @@ export default function LiveCooking({
                     <Clock className="mr-1 inline h-4 w-4" />
                     {timer > 0 ? (
                       <>Timer: {formatTime(timer)}</>
-                    ) : (
+                    ) : hasStepTimerSuggestion ? (
                       `Optional timer: ${formatTimerDuration(timerDuration)}`
+                    ) : (
+                      'Timer ready'
                     )}
                   </div>
 
@@ -2104,7 +2152,7 @@ export default function LiveCooking({
                           onClick={() => startTimer(timerDuration)}
                           aria-label={`Start ${formatTimerStartLabel(timerDuration)} timer`}
                         >
-                          Start timer
+                          {hasStepTimerSuggestion ? 'Start timer' : `Start ${formatTimerStartLabel(timerDuration)}`}
                         </Button>
                       ) : (
                         <>
@@ -2191,7 +2239,18 @@ export default function LiveCooking({
             )}
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <Button
+              variant={areTimersVisible ? 'secondary' : 'outline'}
+              size="icon"
+              onClick={toggleTimersVisible}
+              aria-pressed={areTimersVisible}
+              aria-label={areTimersVisible ? 'Hide timer' : 'Show timer'}
+              title={areTimersVisible ? 'Hide timer' : 'Show timer'}
+              data-testid="button-toggle-timer"
+            >
+              <Clock className="h-4 w-4" aria-hidden="true" />
+            </Button>
             <Button
               variant="outline"
               size="icon"

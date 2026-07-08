@@ -200,6 +200,10 @@ interface SavedActiveCookingPlan {
 
 type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'history' | 'slop-bowl';
 
+interface BackToPlanningOptions {
+  preserveMealPlanningSession?: boolean;
+}
+
 function normalizeStringList(value: unknown): string[] {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
@@ -424,6 +428,7 @@ export default function MobileApp() {
   );
   const [pendingExistingGoogleImport, setPendingExistingGoogleImport] = useState<PendingExistingGoogleImport | null>(null);
   const [slopItUpPlanningCopy] = useState(() => getRandomSlopItUpPlanningCopy());
+  const [isCookingGuideActive, setIsCookingGuideActive] = useState(false);
   const planningStateScopeKey = useMemo(
     () => user?.id ? `${isGuest ? 'guest' : 'linked'}:${user.id}` : 'signed-out',
     [isGuest, user?.id],
@@ -819,6 +824,7 @@ export default function MobileApp() {
     writeActiveCookingPlan(activeCookingPlanStorageKey, meal, scheduledTime, planningProfileFingerprint);
     setSelectedMeal(meal);
     setScheduledTime(scheduledTime);
+    setIsCookingGuideActive(false);
     setCurrentPhase('cooking');
   };
 
@@ -860,22 +866,30 @@ export default function MobileApp() {
     }
   }, [isGuest, updateProfileMutation, user?.id, userProfile]);
 
-  const handleBackToPlanning = () => {
+  const handleBackToPlanning = (options: BackToPlanningOptions = {}) => {
     clearSettingsRestore();
     clearActiveCookingPlan(activeCookingPlanStorageKey);
-    dismissScopedMealPlanningSession(planningStateScopeKey);
+    setIsCookingGuideActive(false);
+
+    if (!options.preserveMealPlanningSession) {
+      dismissScopedMealPlanningSession(planningStateScopeKey);
+    }
 
     // Check if profile is complete before allowing access to planning
     const isProfileComplete = hasCompletedCookingProfile(userProfile);
 
     if (isProfileComplete) {
-      setShowPlanningChoice(true);
+      setShowPlanningChoice(!options.preserveMealPlanningSession);
       setCurrentPhase('planning');
     } else {
       // If profile is incomplete, go back to profiling step
       setCurrentPhase('profiling');
     }
   };
+
+  const handleCookingGuideStarted = useCallback(() => {
+    dismissScopedMealPlanningSession(planningStateScopeKey);
+  }, [planningStateScopeKey]);
 
   const handleSettingsProfileUpdate = useCallback((updatedProfile: UserProfile) => {
     const shouldInvalidateRecipeState = !planningProfileFingerprintsMatch(userProfile, updatedProfile);
@@ -1280,7 +1294,7 @@ export default function MobileApp() {
   );
 
   const renderBottomNav = () => {
-    if (currentPhase === 'cooking' || currentPhase === 'profiling') return null;
+    if (currentPhase === 'profiling' || (currentPhase === 'cooking' && isCookingGuideActive)) return null;
 
     return (
       <div className="app-bottom-nav fixed bottom-0 left-0 right-0 p-4">
@@ -1394,6 +1408,8 @@ export default function MobileApp() {
             selectedMeal={selectedMeal}
             scheduledTime={scheduledTime}
             onBackToPlanning={handleBackToPlanning}
+            onCookingGuideStateChange={setIsCookingGuideActive}
+            onCookingGuideStarted={handleCookingGuideStarted}
             onCookingComplete={() => clearActiveCookingPlan(activeCookingPlanStorageKey)}
             profileFingerprint={planningProfileFingerprint}
           />

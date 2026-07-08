@@ -920,8 +920,11 @@ describe('MealPlanning recipe generation locking', () => {
       expect(container.querySelector('.planning-prep-hero .planning-recipe-image-slot')?.getAttribute('data-image-state'))
         .toBe('pending');
       expect(container.querySelector('.planning-prep-hero .planning-recipe-image-spinner')).not.toBeNull();
+      expect(screen.getByText(/cooking up the preview/i)).toBeTruthy();
       fireEvent.click(screen.getByRole('button', { name: /cook this/i }));
       expect(onMealSelected).toHaveBeenCalledTimes(1);
+      expect(window.localStorage.getItem(`${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`)).toContain('"currentStep":"prep-tray"');
+      expect(window.localStorage.getItem(`${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`)).toBeNull();
 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(15_000);
