@@ -612,6 +612,7 @@ export default function LiveCooking({
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [areCaptionsVisible, setAreCaptionsVisible] = useState(getInitialCaptionsVisible);
   const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
+  const activeStepPreviewRef = useRef<HTMLLIElement | null>(null);
 
   const { toast } = useToast();
   const startSessionMutation = useStartCookingSession();
@@ -1069,6 +1070,16 @@ export default function LiveCooking({
       setCurrentStepIndex(currentRecipeSteps.length - 1);
     }
   }, [currentRecipeSteps.length, currentStepIndex]);
+
+  useEffect(() => {
+    if (!hasStartedCookingGuide || currentRecipeSteps.length === 0) return;
+
+    activeStepPreviewRef.current?.scrollIntoView?.({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    });
+  }, [displayedStepIndex, currentRecipeSteps.length, hasStartedCookingGuide]);
 
   useEffect(() => {
     if (!hasStartedCookingGuide || currentRecipeSteps.length === 0) return;
@@ -2135,6 +2146,11 @@ export default function LiveCooking({
                   return (
                     <li
                       key={`${currentRecipeSteps[index]?.id ?? index}-${label}`}
+                      ref={element => {
+                        if (isActive) {
+                          activeStepPreviewRef.current = element;
+                        }
+                      }}
                       aria-current={isActive ? 'step' : undefined}
                       className="live-cooking-preview-card flex flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center"
                       data-state={isActive ? 'active' : index < displayedStepIndex ? 'done' : 'upcoming'}

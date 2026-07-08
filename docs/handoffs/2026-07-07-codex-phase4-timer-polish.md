@@ -9,6 +9,7 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 - Timer controls remain explicit-start; step navigation clears timer state instead of carrying a running timer into the next step.
 - Timer controls appear automatically when the current recipe step has a timer-worthy `duration` or explicit time language such as `cook 1-2 minutes`. The visible control shows that duration in `H:MM:SS` format with circular play/pause and reset controls; durationless steps do not invent a fallback timer.
 - The old separate timer visibility toggle is removed; CC remains the only compact toggle in the guidance panel, uses a circular button with a boxed `CC` mark, and shares a row with the transcript when captions are open to reduce wasted vertical space.
+- Step previews stay action-forward and now scroll the active preview card into view as the cook moves through later steps, so the rail follows the current step instead of remaining at the leftmost start position.
 - Timer completion is a first-class visual timer state, not a CC workaround: CC remains voice/transcript-only and is not auto-opened when a countdown reaches zero.
 - Active timers no longer collapse/minimize; the centered time, play/pause, and reset controls remain visible together so the cook does not lose the controls mid-step.
 - Timer speech copy now uses singular/plural duration text correctly, such as `1 minute` or `2 minutes`.
@@ -26,12 +27,10 @@ Branch `codex/init-001-phase4-timer-polish` continues INIT-001 Phase 4 from the 
 
 ## Validation
 
-- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 39 tests.
+- `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 40 tests.
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000` passed: 96 tests.
 - `npx vitest run tests/unit/rate-limit.test.ts` passed after the speech-limit increase: 2 files, 18 tests.
-- `npm run check` passed.
-- `npm run build` passed with existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
-- `git diff --check` passed.
+- Latest rail-follow patch: `npm run check`, `npm run build`, and `git diff --check` passed. Build retained the existing stale Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - Exact-head GitHub checks passed at `5abe6fe`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and both Analyze lanes.
 - Wilson's light Replit smoke on 2026-07-08 after resetting Replit to `8be2901` confirmed the compact CC layout: transcript on the left, circular boxed-CC control on the same row, and no extra vertical dead space. This is visual smoke evidence only, not full human regression.
 

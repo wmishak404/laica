@@ -407,6 +407,34 @@ describe('LiveCooking guest session boundary', () => {
     expect(screen.getByText('Do not scorch the rice.')).toBeTruthy();
   });
 
+  it('keeps the active step preview card in view as the cook advances', async () => {
+    const scrollIntoView = vi.fn();
+    const originalScrollIntoView = window.HTMLElement.prototype.scrollIntoView;
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
+    try {
+      await renderCookingGuide();
+      scrollIntoView.mockClear();
+
+      fireEvent.click(screen.getByRole('button', { name: /next/i }));
+      await flushPromises();
+
+      const activePreview = screen
+        .getByTestId('step-preview-strip')
+        .querySelector('[data-state="active"]');
+
+      expect(activePreview).toHaveTextContent('Fold Salsa');
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    } finally {
+      window.HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+    }
+  });
+
   it('keeps recipe-derived timers explicit-start and reset on step navigation', async () => {
     mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
 
