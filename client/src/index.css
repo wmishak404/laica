@@ -263,6 +263,14 @@ html, body {
       hsl(var(--cooking-card));
   }
 
+  .live-cooking-ui .live-cooking-timer-pill[data-state='complete'] {
+    border-color: hsl(var(--cooking-coral-strong) / 0.56);
+    color: hsl(var(--cooking-rust));
+    background:
+      linear-gradient(180deg, hsl(var(--cooking-butter) / 0.78), hsl(var(--cooking-coral-soft) / 0.74)),
+      hsl(var(--cooking-card));
+  }
+
   .live-cooking-ui .live-cooking-round-control,
   .live-cooking-ui .live-cooking-caption-toggle {
     border-radius: 999px;

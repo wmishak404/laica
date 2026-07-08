@@ -1388,11 +1388,46 @@ describe('LiveCooking guest session boundary', () => {
 
       await advanceSpeechDelay();
 
+      const timerPill = screen.getByTestId('live-cooking-timer');
+      expect(timerPill.getAttribute('data-state')).toBe('complete');
+      expect(screen.getByTestId('live-cooking-timer-status')).toHaveTextContent("Time's up");
+      expect(screen.getByRole('button', { name: /restart 1 min timer/i })).toBeTruthy();
+
       const transcript = screen.getByTestId('text-transcription-full').textContent;
       expect(transcript).toBe("Time's up! Check your cooking and let me know how it looks.");
       expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
       expect(audio.sources[1].stop).toHaveBeenCalledTimes(1);
       expect(audio.sources.at(-1)?.start).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps timer completion visible when captions are hidden and speech synthesis fails', async () => {
+      installAudioMocks();
+      mocks.synthesizeSpeech.mockRejectedValue(new Error('429: Too many requests'));
+
+      await renderCookingGuide();
+      expect(screen.queryByTestId('transcription-box')).toBeNull();
+
+      fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+
+      for (let index = 0; index < 60; index += 1) {
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(1000);
+          await Promise.resolve();
+        });
+      }
+
+      const timerPill = screen.getByTestId('live-cooking-timer');
+      expect(timerPill.getAttribute('data-state')).toBe('complete');
+      expect(screen.getByTestId('live-cooking-timer-status')).toHaveTextContent("Time's up");
+      expect(screen.getByRole('button', { name: /restart 1 min timer/i })).toBeTruthy();
+      expect(screen.queryByTestId('transcription-box')).toBeNull();
+
+      await advanceSpeechDelay();
+
+      expect(screen.getByTestId('live-cooking-timer-status')).toHaveTextContent("Time's up");
+      expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Voice features unavailable',
+      }));
     });
   });
 });

@@ -586,6 +586,7 @@ export default function LiveCooking({
   const [isProcessing, setIsProcessing] = useState(false);
   const [timer, setTimer] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [isTimerComplete, setIsTimerComplete] = useState(false);
   const [captionSize, setCaptionSize] = useState(16);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
@@ -1040,8 +1041,15 @@ export default function LiveCooking({
   const currentStep = currentRecipeSteps[displayedStepIndex];
   const timerDuration = getStepTimerDurationSeconds(currentStep);
   const shouldShowTimerControl = Boolean(currentStep) && timerDuration !== null;
-  const displayedTimerSeconds = timer > 0 ? timer : timerDuration ?? 0;
+  const displayedTimerSeconds = isTimerComplete ? 0 : timer > 0 ? timer : timerDuration ?? 0;
   const timerControlDurationLabel = timerDuration !== null ? formatTimerControlDuration(timerDuration) : '';
+  const timerPrimaryActionLabel = isTimerRunning
+    ? 'Pause timer'
+    : isTimerComplete
+      ? `Restart ${timerControlDurationLabel} timer`
+      : timer > 0
+        ? 'Resume timer'
+        : `Start ${timerControlDurationLabel} timer`;
   const stepPreviewLabels = useMemo(
     () => buildStepPreviewLabels(currentRecipeSteps),
     [currentRecipeSteps],
@@ -1127,6 +1135,7 @@ export default function LiveCooking({
       }, 1000);
     } else if (timer === 0 && isTimerRunning) {
       setIsTimerRunning(false);
+      setIsTimerComplete(true);
       setSpokenAssistantResponse("Time's up! Check your cooking and let me know how it looks.");
     }
 
@@ -1456,6 +1465,7 @@ export default function LiveCooking({
     setCurrentStepIndex(0);
     setTimer(0);
     setIsTimerRunning(false);
+    setIsTimerComplete(false);
     setStepLoadIssue(null);
     setHasStartedCookingGuide(true);
   };
@@ -1467,6 +1477,7 @@ export default function LiveCooking({
       const nextStepData = currentRecipeSteps[newStepIndex];
       setTimer(0);
       setIsTimerRunning(false);
+      setIsTimerComplete(false);
       
       const stepText = `Step ${newStepIndex + 1}: ${formatInstructionWithTips(nextStepData.instruction, nextStepData.tips)}`;
       setSpokenAssistantResponse(stepText);
@@ -1487,6 +1498,7 @@ export default function LiveCooking({
       const prevStepData = currentRecipeSteps[newStepIndex];
       setTimer(0);
       setIsTimerRunning(false);
+      setIsTimerComplete(false);
       
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
       setSpokenAssistantResponse(stepText);
@@ -1496,6 +1508,7 @@ export default function LiveCooking({
   const startTimer = (durationSeconds: number) => {
     setTimer(durationSeconds);
     setIsTimerRunning(true);
+    setIsTimerComplete(false);
     setSpokenAssistantResponse(`Timer set for ${formatTimerDuration(durationSeconds)}. I'll let you know when time is up!`);
   };
 
@@ -1524,6 +1537,7 @@ export default function LiveCooking({
 
     setTimer(timerDuration);
     setIsTimerRunning(false);
+    setIsTimerComplete(false);
   };
 
   // Clean up audio on component unmount or page navigation
@@ -2141,7 +2155,7 @@ export default function LiveCooking({
               {shouldShowTimerControl && (
                 <div
                   className="live-cooking-timer-pill grid grid-cols-[4.75rem_minmax(0,1fr)_4.75rem] items-center gap-1.5 rounded-md border px-3 py-2 sm:grid-cols-[5.5rem_minmax(0,1fr)_5.5rem] sm:gap-2"
-                  data-state={timer > 0 ? 'active' : 'ready'}
+                  data-state={isTimerComplete ? 'complete' : timer > 0 ? 'active' : 'ready'}
                   data-testid="live-cooking-timer"
                 >
                   <div aria-hidden="true" />
@@ -2149,16 +2163,25 @@ export default function LiveCooking({
                     className="flex min-w-0 items-center justify-center text-xl font-medium leading-none tabular-nums sm:text-3xl"
                     data-testid="live-cooking-timer-clock"
                   >
-                    <Clock className="mr-1.5 inline h-6 w-6 shrink-0 sm:h-8 sm:w-8" />
-                    {formatTimerClock(displayedTimerSeconds)}
+                    {isTimerComplete ? (
+                      <>
+                        <CheckCircle className="mr-1.5 inline h-6 w-6 shrink-0 sm:h-8 sm:w-8" />
+                        <span data-testid="live-cooking-timer-status">Time's up</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="mr-1.5 inline h-6 w-6 shrink-0 sm:h-8 sm:w-8" />
+                        {formatTimerClock(displayedTimerSeconds)}
+                      </>
+                    )}
                   </div>
                   <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={toggleTimerRunning}
-                      aria-label={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
-                      title={isTimerRunning ? "Pause timer" : timer > 0 ? "Resume timer" : `Start ${timerControlDurationLabel} timer`}
+                      aria-label={timerPrimaryActionLabel}
+                      title={timerPrimaryActionLabel}
                       className="live-cooking-round-control h-9 w-9 sm:h-10 sm:w-10"
                     >
                       {isTimerRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
