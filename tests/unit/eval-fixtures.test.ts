@@ -340,6 +340,10 @@ describe("INIT-004 eval fixture foundation", () => {
     expect(fixtures.map((fixture) => fixture.id)).toEqual([
       "chef-it-up-suggestions-beginner-complexity",
       "chef-it-up-suggestions-dietary-halal-pork",
+      "chef-it-up-suggestions-dish-identity-fried-rice-no-rice",
+      "chef-it-up-suggestions-dish-identity-frittata-no-eggs",
+      "chef-it-up-suggestions-dish-identity-honest-rename",
+      "chef-it-up-suggestions-dish-identity-ramen-no-noodles",
       "chef-it-up-suggestions-max-time-30-to-60",
       "chef-it-up-suggestions-optional-extras-required",
       "cooking-steps-chicken-doneness",
@@ -356,7 +360,9 @@ describe("INIT-004 eval fixture foundation", () => {
       "live-cooking-step-previews-stale-final-garnish-label",
       "live-cooking-step-previews-wrong-milestone",
       "openai-max-time-25-to-30",
+      "recipe-suggestions-dish-identity-steak-tacos",
       "slop-bowl-suggestions-current-shape",
+      "slop-bowl-suggestions-dish-identity-ramen",
     ]);
     expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-max-time-30-to-60")?.labels.max_time_adherence).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "cooking-steps-raw-beef-doneness")?.labels.food_safety).toBe("fail");
@@ -372,6 +378,99 @@ describe("INIT-004 eval fixture foundation", () => {
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-stale-final-garnish-label")?.labels.step_preview_milestone_fit).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_measurement_free).toBe("fail");
     expect(fixtures.find((fixture) => fixture.id === "live-cooking-step-previews-rendered-fragments")?.labels.step_preview_distinctness).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-dish-identity-frittata-no-eggs")?.labels.dish_identity).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "chef-it-up-suggestions-dish-identity-honest-rename")?.labels.dish_identity).toBe("pass");
+    expect(fixtures.find((fixture) => fixture.id === "recipe-suggestions-dish-identity-steak-tacos")?.labels.dish_identity).toBe("fail");
+    expect(fixtures.find((fixture) => fixture.id === "slop-bowl-suggestions-dish-identity-ramen")?.labels.dish_identity).toBe("fail");
+  });
+
+  it("fails dish-name identity when a defining ingredient is missing or only optional", () => {
+    const frittataWithoutEggs = validateEvalFixture(baseFixture({
+      id: "synthetic-frittata-no-eggs",
+      output: JSON.stringify({
+        recipes: [
+          recipe("Rice Bowl"),
+          {
+            ...recipe("Sausage and Cheese Frittata"),
+            pantryIngredientsUsed: ["sausages", "cubed cheese", "leeks"],
+            additionalIngredientsNeeded: ["eggs"],
+          },
+          recipe("Egg Rice"),
+        ],
+      }),
+      labels: { structure_contract: "pass", dish_identity: "fail" },
+    }));
+
+    expect(frittataWithoutEggs.passed).toBe(false);
+    expect(frittataWithoutEggs.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "dish_identity",
+        status: "fail",
+        message: expect.stringContaining("defining ingredient listed as optional"),
+      }),
+    ]));
+    expect(isEvalFixtureArtifactValid(frittataWithoutEggs)).toBe(true);
+
+    const unlabeled = validateEvalFixture(baseFixture({
+      id: "synthetic-frittata-no-eggs-unlabeled",
+      output: frittataWithoutEggs.fixture?.output,
+      labels: { structure_contract: "pass" },
+    }));
+    expect(isEvalFixtureArtifactValid(unlabeled)).toBe(false);
+  });
+
+  it("keeps dish-name identity precise for honest names and near-miss ingredients", () => {
+    const honest = validateEvalFixture(baseFixture({
+      id: "synthetic-dish-identity-honest",
+      output: JSON.stringify({
+        recipes: [
+          { ...recipe("Roasted Cauliflower Steaks"), pantryIngredientsUsed: ["cauliflower", "garlic"] },
+          { ...recipe("Sausage and Leek Skillet"), pantryIngredientsUsed: ["sausages", "leeks"] },
+          recipe("Pantry Fried Rice"),
+        ],
+      }),
+      labels: { structure_contract: "pass", dish_identity: "pass" },
+    }));
+    expect(honest.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "dish_identity", status: "pass" }),
+    ]));
+
+    const riceVinegarOnly = validateEvalFixture(baseFixture({
+      id: "synthetic-fried-rice-vinegar-only",
+      output: JSON.stringify({
+        recipes: [
+          { ...recipe("Quick Fried Rice"), pantryIngredientsUsed: ["rice vinegar", "eggs", "frozen peas"] },
+          recipe("Rice Bowl"),
+          recipe("Egg Rice"),
+        ],
+      }),
+      labels: { structure_contract: "pass", dish_identity: "fail" },
+    }));
+    expect(riceVinegarOnly.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "dish_identity", status: "fail" }),
+    ]));
+  });
+
+  it("runs the dish-name identity check on Slop Bowl outputs", () => {
+    const ramenBowlWithoutNoodles = validateEvalFixture(baseFixture({
+      id: "synthetic-slop-ramen-no-noodles",
+      surface: "slop_bowl_suggestions",
+      output: JSON.stringify({
+        recipe: {
+          ...recipe("Pork Belly Ramen Bowl"),
+          pantryIngredientsUsed: ["pork belly", "chicken broth", "scallions"],
+          additionalIngredientsNeeded: ["ramen noodles"],
+          pantryMatch: 80,
+        },
+      }),
+      labels: { structure_contract: "pass", dish_identity: "fail" },
+    }));
+
+    expect(ramenBowlWithoutNoodles.passed).toBe(false);
+    expect(ramenBowlWithoutNoodles.checks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "dish_identity", status: "fail" }),
+    ]));
+    expect(isEvalFixtureArtifactValid(ramenBowlWithoutNoodles)).toBe(true);
   });
 
   it("rejects public fixture artifacts when deterministic labels contradict observed checks", async () => {
