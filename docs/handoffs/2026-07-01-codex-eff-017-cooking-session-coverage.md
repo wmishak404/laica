@@ -37,13 +37,14 @@ Open PR #246 owns current INIT-004 eval-report-export work and touches EFF-022/I
 - EFF-017 still needs separate decisions or slices for provider canaries, automated Replit-environment checks, coverage ratcheting, and broader live-surface coverage.
 - EFF-022 remains open for the transparent pantry-fallback activation threshold and user-facing copy, but runtime implementation remains deferred.
 - Replit validation is not required before merge for this branch because it is test-only coverage plus docs hygiene with no runtime behavior change.
+- On 2026-07-08, the branch was rebased cleanly onto current `origin/main` so exact-head CI evidence can be refreshed without changing scope.
 
 ## Verification
 
-Local validation passed:
+Local validation passed on the rebased head:
 
 - `npx vitest run tests/unit/use-cooking-session.test.tsx` — 1 file / 3 tests passed.
-- `npm run test:unit` — 46 files / 340 tests passed.
+- `npm run test:unit` — 47 files / 352 tests passed.
 - `npm run check` passed.
 - `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
 - `git diff --check` passed before this handoff was added.
@@ -55,6 +56,6 @@ Evidence limits: This does not run the GitHub E2E gate yet, does not validate Re
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `460860984779c855e9fca302a1f01acca81d2355`
+- Current base: `origin/main` at `690fe2cdb614fa6e208b5d5bad822bf8ab920bf2`
 - Last Replit-validated at: not applicable for a test-only/docs hygiene branch
-- Notes: started from fresh `origin/main`; open PR #246 is adjacent INIT-004 work and not a base dependency.
+- Notes: started from fresh `origin/main`; open PR #246 was an adjacent INIT-004 dependency when this branch was first cut, and the 2026-07-08 rebase refreshed the branch after that PR merged.
