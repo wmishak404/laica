@@ -2071,8 +2071,8 @@ export default function LiveCooking({
 
   if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
     return (
-      <div className="live-cooking-ui min-h-screen w-full px-4 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] pt-6">
-        <div className="live-cooking-screen mx-auto flex min-h-[calc(100svh-10rem)] w-full max-w-md flex-col gap-5">
+      <div className="live-cooking-ui live-cooking-ready-check-screen min-h-screen w-full px-4 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] pt-6">
+        <div className="live-cooking-screen live-cooking-ready-check-panel mx-auto flex min-h-[calc(100svh-10rem)] w-full max-w-md flex-col gap-5">
           <Button
             variant="ghost"
             onClick={handleBackToPlanning}
@@ -2097,7 +2097,7 @@ export default function LiveCooking({
             </Alert>
           )}
 
-          <div className="space-y-3">
+          <div className="live-cooking-ready-list space-y-3">
             {readyCheckItems.map((item) => (
               <div key={item.label} className="live-cooking-ready-row flex items-start gap-3 p-4">
                 <div className="mt-0.5">{item.icon}</div>
@@ -2109,7 +2109,7 @@ export default function LiveCooking({
             ))}
           </div>
 
-          <div className="mt-auto grid gap-3 pb-2">
+          <div className="live-cooking-ready-actions mt-auto grid gap-3 pb-2">
             <Button
               size="lg"
               onClick={() => startCookingGuideFromReadyCheck()}

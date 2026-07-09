@@ -313,9 +313,10 @@ describe('LiveCooking guest session boundary', () => {
     );
 
     const readyHeading = await screen.findByText('Ready to cook?');
-    expect(readyHeading.closest('.live-cooking-ui')).toBeTruthy();
+    expect(readyHeading.closest('.live-cooking-ui.live-cooking-ready-check-screen')).toBeTruthy();
     const readyScreen = readyHeading.closest('.live-cooking-screen');
     expect(readyScreen).toBeTruthy();
+    expect(readyScreen?.className).toContain('live-cooking-ready-check-panel');
     expect(readyScreen?.className).toContain('min-h-[calc(100svh-10rem)]');
     const startButton = screen.getByRole('button', { name: /^start cooking$/i });
     expect(startButton.className).toContain('live-cooking-start-button');

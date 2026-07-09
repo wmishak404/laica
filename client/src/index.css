@@ -2977,352 +2977,446 @@ html, body {
   @media (max-width: 480px) and (max-height: 790px) {
     .meal-planning-screen {
       min-height: calc(100svh - 4.75rem);
-      padding-top: 1.15rem;
-      padding-bottom: 0.75rem;
+      padding-top: 1rem;
+      padding-bottom: 0.8rem;
     }
 
     .meal-planning-screen .planning-display {
-      font-size: 1.34rem;
-      line-height: 1.05;
+      font-size: 1.48rem;
+      line-height: 1.07;
     }
 
     .meal-planning-screen .planning-copy {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       line-height: 1.32;
     }
 
+    .planning-time-screen {
+      min-height: calc(100svh - 6.35rem);
+    }
+
     .planning-time-screen .planning-back-button {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
 
     .planning-time-screen .planning-time-content {
-      flex: 0 0 auto;
-      gap: 0.82rem;
-      justify-content: flex-start;
+      flex: 1 1 auto;
+      min-height: 0;
+      gap: 1.2rem;
+      justify-content: center;
+      padding-bottom: 1rem;
     }
 
     .planning-time-screen .planning-clock {
-      width: 6.65rem;
-      height: 6.65rem;
-      border-width: 0.42rem;
+      width: 7.9rem;
+      height: 7.9rem;
+      border-width: 0.48rem;
       box-shadow:
         0 0.75rem 1.6rem hsl(var(--planning-coral) / 0.14),
         inset 0 0 0 1px hsl(var(--planning-ticket-edge) / 0.3);
     }
 
     .planning-time-screen .planning-clock svg {
-      width: 3.25rem;
-      height: 3.25rem;
+      width: 3.75rem;
+      height: 3.75rem;
     }
 
     .planning-time-screen .planning-slider-card,
     .planning-time-screen .planning-note {
-      padding: 0.58rem;
-      border-radius: 0.95rem;
+      padding: 0.75rem;
+      border-radius: 1rem;
     }
 
     .planning-time-screen .planning-slider-track {
-      padding-inline: 10%;
+      padding-inline: 11%;
     }
 
     .planning-time-screen .planning-slider-card [role='slider'] {
-      width: 1.45rem;
-      height: 1.45rem;
-      border-width: 0.24rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-width: 0.26rem;
     }
 
     .planning-time-screen .planning-time-label-grid {
-      margin-top: 0.55rem;
+      margin-top: 0.75rem;
     }
 
     .planning-time-screen .planning-time-label {
-      min-height: 1.72rem;
-      font-size: 0.64rem;
-      line-height: 1;
+      min-height: 2rem;
+      font-size: 0.74rem;
+      line-height: 1.02;
     }
 
     .planning-time-screen .planning-note {
-      gap: 0.42rem;
-      font-size: 0.68rem;
-      line-height: 1.22;
+      gap: 0.55rem;
+      font-size: 0.78rem;
+      line-height: 1.24;
     }
 
     .planning-time-screen > button:last-child {
-      height: 2.6rem;
-      margin-top: 0.62rem;
+      flex-shrink: 0;
+      height: 3rem;
+      margin-top: auto;
     }
 
     .planning-cuisine-screen {
-      height: calc(100svh - 6.5rem);
-      max-height: calc(100svh - 6.5rem);
-      padding-top: 0.65rem;
-      padding-bottom: 0.5rem;
+      height: calc(100svh - 6.25rem);
+      max-height: calc(100svh - 6.25rem);
+      padding-top: 0.85rem;
+      padding-bottom: 0.65rem;
     }
 
     .planning-cuisine-screen .planning-back-button {
-      margin-bottom: 0.55rem;
+      margin-bottom: 0.75rem;
     }
 
     .planning-cuisine-screen .planning-copy {
-      margin-top: 0.35rem;
+      margin-top: 0.45rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-scroll {
-      margin-top: 0.85rem;
+      flex: 0 1 auto;
+      max-height: clamp(16.25rem, calc(100svh - 21rem), 21.5rem);
+      margin-top: 1.05rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-scroll .space-y-3 {
-      padding-bottom: 0.25rem;
+      padding-bottom: 0.35rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-row,
     .planning-cuisine-screen .planning-no-preference {
-      min-height: 3.25rem;
-      gap: 0.58rem;
-      border-radius: 0.85rem;
-      font-size: 0.86rem;
-      padding: 0.5rem 0.58rem;
+      min-height: 3.75rem;
+      gap: 0.68rem;
+      border-radius: 0.92rem;
+      font-size: 0.98rem;
+      padding: 0.62rem 0.7rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-icon {
-      width: 2.25rem;
-      height: 2.25rem;
-      border-radius: 0.75rem;
-      font-size: 1.25rem;
+      width: 2.45rem;
+      height: 2.45rem;
+      border-radius: 0.82rem;
+      font-size: 1.42rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-check {
-      width: 1.6rem;
-      height: 1.6rem;
+      width: 1.7rem;
+      height: 1.7rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-check svg {
-      width: 1rem;
-      height: 1rem;
+      width: 1.08rem;
+      height: 1.08rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-actions {
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-actions .planning-no-preference {
-      min-height: 2.9rem;
+      min-height: 3.15rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-actions .mt-4 {
-      margin-top: 0.5rem;
+      margin-top: 0.65rem;
     }
 
     .planning-cuisine-screen .planning-cuisine-actions .h-12 {
-      height: 2.55rem;
+      height: 3rem;
     }
 
     .planning-tickets-screen {
-      padding-top: 0.45rem;
-      padding-bottom: 0.5rem;
+      padding-top: 0.65rem;
+      padding-bottom: 0.7rem;
     }
 
     .planning-tickets-screen .planning-back-button {
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.45rem;
     }
 
     .planning-tickets-screen .planning-display {
-      font-size: 1.12rem;
-      line-height: 1.04;
+      font-size: 1.45rem;
+      line-height: 1.08;
     }
 
     .planning-tickets-screen .text-center svg {
-      width: 0.95rem;
-      height: 0.95rem;
-      margin-top: 0.25rem;
+      width: 1.05rem;
+      height: 1.05rem;
+      margin-top: 0.35rem;
     }
 
     .planning-tickets-screen .planning-ticket-stack {
-      margin-top: 0.6rem;
-      border-radius: 0.9rem;
-      padding: 0.45rem 0.4rem 0.5rem;
+      margin-top: 0.85rem;
+      border-radius: 1rem;
+      padding: 0.55rem 0.48rem 0.62rem;
     }
 
     .planning-tickets-screen .planning-ticket-stack::before {
-      inset: 0.3rem 0.7rem auto;
-      height: 1.45rem;
+      inset: 0.34rem 0.75rem auto;
+      height: 1.7rem;
     }
 
     .planning-tickets-screen .planning-ticket-large {
-      min-height: 13.2rem;
-      padding: 0.72rem 0.65rem 0.55rem;
+      min-height: 15.75rem;
+      padding: 0.88rem 0.75rem 0.68rem;
     }
 
     .planning-tickets-screen .planning-ticket-title {
-      margin-top: 0.35rem;
-      font-size: 0.9rem;
+      margin-top: 0.42rem;
+      font-size: 1rem;
     }
 
     .planning-tickets-screen .planning-ticket-large .planning-ticket-title {
-      font-size: 0.98rem;
+      font-size: 1.18rem;
     }
 
     .planning-tickets-screen .planning-ticket-row {
-      min-height: 3.15rem;
-      gap: 0.42rem;
-      padding: 0.38rem 0.48rem;
+      min-height: 3.65rem;
+      gap: 0.5rem;
+      padding: 0.48rem 0.55rem;
     }
 
     .planning-tickets-screen .planning-ticket-row .planning-ticket-title {
-      font-size: 0.68rem;
+      font-size: 0.78rem;
     }
 
     .planning-tickets-screen .planning-recipe-image-slot {
-      width: 4.55rem;
-      height: 3.75rem;
-      margin-top: 0.32rem;
+      width: 5.05rem;
+      height: 4.2rem;
+      margin-top: 0.42rem;
     }
 
     .planning-tickets-screen .planning-ticket-row .planning-recipe-image-slot {
-      width: 2.28rem;
-      height: 2rem;
+      width: 2.55rem;
+      height: 2.25rem;
     }
 
     .planning-tickets-screen .planning-ticket-meta {
-      gap: 0.18rem;
-      font-size: 0.62rem;
+      gap: 0.22rem;
+      font-size: 0.72rem;
     }
 
     .planning-tickets-screen .planning-ticket-row .planning-ticket-meta {
-      width: 3.55rem;
-      flex-basis: 3.55rem;
-      gap: 0.16rem;
-      font-size: 0.52rem;
+      width: 3.85rem;
+      flex-basis: 3.85rem;
+      gap: 0.18rem;
+      font-size: 0.58rem;
     }
 
     .planning-tickets-screen .planning-ticket-divider {
-      margin: 0.34rem 0;
+      margin: 0.45rem 0;
     }
 
     .planning-tickets-screen .planning-ticket-section-label,
     .planning-tickets-screen .planning-ticket-optional span,
     .planning-tickets-screen .planning-prep-label {
-      font-size: 0.6rem;
+      font-size: 0.68rem;
     }
 
     .planning-tickets-screen .planning-ticket-chip-row {
-      gap: 0.28rem;
+      gap: 0.34rem;
     }
 
     .planning-tickets-screen .planning-use-chip {
-      min-height: 1.34rem;
-      gap: 0.22rem;
-      font-size: 0.56rem;
-      padding: 0.18rem 0.36rem;
+      min-height: 1.6rem;
+      gap: 0.26rem;
+      font-size: 0.64rem;
+      padding: 0.24rem 0.45rem;
     }
 
     .planning-tickets-screen .planning-use-chip-status {
-      width: 0.72rem;
-      height: 0.72rem;
+      width: 0.84rem;
+      height: 0.84rem;
     }
 
     .planning-tickets-screen .planning-ticket-optional {
-      margin-top: 0.34rem;
-      font-size: 0.6rem;
-      line-height: 1.15;
+      margin-top: 0.42rem;
+      font-size: 0.68rem;
+      line-height: 1.18;
     }
 
     .planning-tickets-screen > .mt-6 {
-      gap: 0.45rem;
-      margin-top: 0.6rem;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
     }
 
     .planning-tickets-screen > .mt-6 .h-12 {
-      height: 2.55rem;
+      height: 3rem;
     }
 
     .planning-prep-screen {
-      padding-top: 0.45rem;
-      padding-bottom: 0.5rem;
+      padding-top: 0.65rem;
+      padding-bottom: 0.7rem;
     }
 
     .planning-prep-screen .planning-back-button {
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.45rem;
     }
 
     .planning-prep-screen .planning-prep-tray {
-      border-radius: 0.95rem;
+      border-radius: 1rem;
     }
 
     .planning-prep-screen .planning-prep-hero {
-      min-height: 6.75rem;
-      gap: 0.35rem;
-      padding: 0.55rem;
-    }
-
-    .planning-prep-screen .planning-prep-hero[data-image-state='ready'] {
-      height: 6.75rem;
-    }
-
-    .planning-prep-screen .planning-recipe-image-slot-prep {
-      width: min(10.5rem, 100%);
-      height: 5.35rem;
-      border-radius: 0.8rem;
-    }
-
-    .planning-prep-screen .planning-prep-image-status {
-      font-size: 0.8rem;
-    }
-
-    .planning-prep-screen .planning-prep-body {
+      min-height: 8.3rem;
+      gap: 0.48rem;
       padding: 0.72rem;
     }
 
+    .planning-prep-screen .planning-prep-hero[data-image-state='ready'] {
+      height: 8.3rem;
+    }
+
+    .planning-prep-screen .planning-recipe-image-slot-prep {
+      width: min(12rem, 100%);
+      height: 6.5rem;
+      border-radius: 0.9rem;
+    }
+
+    .planning-prep-screen .planning-prep-image-status {
+      font-size: 0.92rem;
+    }
+
+    .planning-prep-screen .planning-prep-body {
+      padding: 0.85rem;
+    }
+
     .planning-prep-screen .planning-display {
-      font-size: 1.08rem;
-      line-height: 1.05;
+      font-size: 1.34rem;
+      line-height: 1.07;
     }
 
     .planning-prep-screen .planning-ticket-meta {
-      margin-top: 0.38rem;
-      font-size: 0.62rem;
+      margin-top: 0.45rem;
+      font-size: 0.75rem;
     }
 
     .planning-prep-screen .planning-prep-body .planning-copy {
-      margin-top: 0.5rem;
-      font-size: 0.7rem;
-      line-height: 1.25;
+      margin-top: 0.62rem;
+      font-size: 0.78rem;
+      line-height: 1.33;
     }
 
     .planning-prep-screen .planning-prep-section {
-      border-radius: 0.8rem;
-      padding: 0.55rem;
+      border-radius: 0.9rem;
+      padding: 0.7rem;
     }
 
     .planning-prep-screen .planning-prep-section.mt-5 {
-      margin-top: 0.6rem;
+      margin-top: 0.72rem;
     }
 
     .planning-prep-screen .planning-prep-optional.mt-4 {
-      margin-top: 0.45rem;
+      margin-top: 0.55rem;
     }
 
     .planning-prep-screen .planning-ticket-chip-row {
-      gap: 0.28rem;
+      gap: 0.34rem;
     }
 
     .planning-prep-screen .planning-use-chip {
-      min-height: 1.34rem;
-      gap: 0.22rem;
-      font-size: 0.56rem;
-      padding: 0.18rem 0.36rem;
+      min-height: 1.6rem;
+      gap: 0.26rem;
+      font-size: 0.64rem;
+      padding: 0.24rem 0.45rem;
     }
 
     .planning-prep-screen .planning-optional-chip {
-      min-height: 1.34rem;
-      font-size: 0.56rem;
-      padding: 0.16rem 0.38rem;
+      min-height: 1.6rem;
+      font-size: 0.64rem;
+      padding: 0.22rem 0.46rem;
     }
 
     .planning-prep-screen > .mt-5 {
-      height: 2.55rem;
-      margin-top: 0.6rem;
+      height: 3rem;
+      margin-top: 0.75rem;
+    }
+
+    .live-cooking-ready-check-screen {
+      min-height: 100svh;
+      padding-top: 0.85rem;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 7.75rem);
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-check-panel {
+      min-height: calc(100svh - 12.5rem);
+      gap: 0.8rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-back-button {
+      height: 2.25rem;
+      padding-inline: 0.5rem;
+      font-size: 0.92rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-eyebrow {
+      font-size: 0.82rem;
+      line-height: 1.1;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-title {
+      font-size: 2.05rem;
+      line-height: 1.03;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-subtitle {
+      font-size: 0.95rem;
+      line-height: 1.25;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] {
+      padding: 0.75rem;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] > svg {
+      top: 0.82rem;
+      left: 0.82rem;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] > svg ~ * {
+      padding-left: 1.85rem;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] .text-sm {
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .live-cooking-ready-list > :not([hidden]) ~ :not([hidden]) {
+      --tw-space-y-reverse: 0;
+      margin-top: calc(0.55rem * calc(1 - var(--tw-space-y-reverse)));
+      margin-bottom: calc(0.55rem * var(--tw-space-y-reverse));
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-row {
+      gap: 0.65rem;
+      padding: 0.75rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-icon {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-row p.font-extrabold {
+      font-size: 0.95rem;
+      line-height: 1.08;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-detail-text {
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-actions {
+      padding-bottom: 0;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-start-button {
+      height: 3.2rem;
+      font-size: 1.05rem;
     }
 
     .setup-ui {
