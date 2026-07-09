@@ -13,7 +13,7 @@ import {
 import { ApiRequestError } from '@/lib/queryClient';
 import { normalizeEntryKey, parseCommaSeparatedEntries } from '@/lib/entryParsing';
 import { handleAiRequestError } from '@/lib/rateLimitHandler';
-import { getPlanningTimeLabel, type PlanningTimeValue } from '@shared/planning';
+import { DEFAULT_PLANNING_TIME_VALUE, getPlanningTimePrompt, type PlanningTimeValue } from '@shared/planning';
 
 interface UserProfile {
   cookingSkill: string;
@@ -37,11 +37,11 @@ interface RecipeRecommendation {
   ingredients?: string[];
   equipment?: string[];
   overview?: string;
+  planningSource?: 'chef-it-up' | 'slop-bowl';
 }
 
 interface SlopBowlProps {
   userProfile: UserProfile;
-  planningTimeAvailable: PlanningTimeValue;
   onMealSelected: (meal: RecipeRecommendation, scheduledTime: string) => void;
   onBackToPlanning: () => void;
   onEditPantry: () => void;
@@ -89,6 +89,7 @@ const pickRandomMessageIndex = (current: number) => {
 
 const normalizeIngredient = normalizeEntryKey;
 const MIN_SLOP_BOWL_INGREDIENTS = 3;
+const SLOP_BOWL_DEFAULT_TIME: PlanningTimeValue = DEFAULT_PLANNING_TIME_VALUE;
 
 const countDistinctIngredients = (ingredients: string[]) =>
   new Set(ingredients.map(normalizeIngredient).filter(Boolean)).size;
@@ -102,7 +103,6 @@ const createProfilePantryItems = (ingredients: string[]): PantryItem[] =>
 
 export default function SlopBowl({
   userProfile,
-  planningTimeAvailable,
   onMealSelected,
   onBackToPlanning,
   onEditPantry,
@@ -164,7 +164,7 @@ export default function SlopBowl({
     try {
       const result = await fetchSlopBowlRecipe({
         pantryOverride,
-        planningTimeAvailable,
+        planningTimeAvailable: SLOP_BOWL_DEFAULT_TIME,
         feedback: feedback || undefined,
         previousRecipe: prevRecipe || undefined,
       });
@@ -184,7 +184,7 @@ export default function SlopBowl({
     } finally {
       setIsLoading(false);
     }
-  }, [planningTimeAvailable]);
+  }, []);
 
   const handleAccept = () => {
     if (!recipe) return;
@@ -203,6 +203,7 @@ export default function SlopBowl({
       ingredients: recipe.pantryIngredientsUsed,
       equipment: userProfile.kitchenEquipment,
       overview: recipe.overview,
+      planningSource: 'slop-bowl',
     };
     onMealSelected(meal, 'now');
   };
@@ -247,7 +248,11 @@ export default function SlopBowl({
     const hasManualAdditions = pantry.some((item) => item.source === 'manual');
 
     return (
-      <div className="slop-bowl-menu-screen slop-check-screen space-y-6">
+      <div className="slop-bowl-menu-screen slop-check-screen planning-browser-action-screen space-y-6">
+        <button type="button" className="planning-back-button" onClick={onBackToPlanning} aria-label="Back to options">
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
         <div className="text-center">
           <h2 className="planning-display text-3xl font-extrabold leading-tight text-gray-950">
             One more check that these are still around.
@@ -256,7 +261,7 @@ export default function SlopBowl({
             I&apos;ll handle the decisions. You just confirm.
           </p>
           <p className="mt-2 text-xs font-bold text-gray-500">
-            Using your {getPlanningTimeLabel(planningTimeAvailable)} time setting.
+            Slop Bowl defaults to {getPlanningTimePrompt(SLOP_BOWL_DEFAULT_TIME)}.
           </p>
         </div>
 
@@ -355,35 +360,28 @@ export default function SlopBowl({
               </p>
             )}
 
+            <Button
+              variant="link"
+              onClick={onEditPantry}
+              className="slop-edit-pantry-button w-full font-extrabold"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Edit my pantry
+            </Button>
+
           </CardContent>
         </Card>
 
-        <Button
-          onClick={confirmPantry}
-          disabled={!canGenerateBowl}
-          className="h-12 w-full rounded-xl text-lg font-extrabold"
-        >
-          <ChefHat className="h-5 w-5" />
-          Make my bowl
-        </Button>
-
-        <Button
-          variant="link"
-          onClick={onEditPantry}
-          className="w-full font-extrabold"
-        >
-          <Settings className="h-4 w-4 mr-2" />
-          Edit my pantry
-        </Button>
-
-        <Button
-          variant="ghost"
-          onClick={onBackToPlanning}
-          className="w-full text-gray-500"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to options
-        </Button>
+        <div className="planning-action-dock">
+          <Button
+            onClick={confirmPantry}
+            disabled={!canGenerateBowl}
+            className="planning-primary-action h-12 w-full rounded-xl text-lg font-extrabold"
+          >
+            <ChefHat className="h-5 w-5" />
+            Make my bowl
+          </Button>
+        </div>
       </div>
     );
   };
@@ -403,7 +401,11 @@ export default function SlopBowl({
     if (!recipe) return null;
 
     return (
-      <div className="slop-bowl-menu-screen slop-bowl-approval-screen">
+      <div className="slop-bowl-menu-screen slop-bowl-approval-screen planning-browser-action-screen">
+        <button type="button" className="planning-back-button" onClick={() => setState('pantry-check')} aria-label="Back to pantry check">
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
         <div className="text-center">
           <h2 className="planning-display text-2xl font-extrabold leading-tight text-gray-950 mb-1">We made you a thing.</h2>
           <p className="planning-copy text-sm font-bold">Look what your pantry had hiding in it</p>
@@ -479,6 +481,7 @@ export default function SlopBowl({
             Try something else
           </Button>
           <Button
+            variant="outline"
             onClick={onBackToPlanning}
             className="h-12 w-full rounded-xl font-extrabold"
           >
@@ -491,7 +494,11 @@ export default function SlopBowl({
 
   // ── Feedback ──────────────────────────────────────────────────────────────
   const renderFeedback = () => (
-    <div className="slop-bowl-menu-screen space-y-6">
+    <div className="slop-bowl-menu-screen slop-bowl-feedback-screen planning-browser-action-screen space-y-6">
+      <button type="button" className="planning-back-button" onClick={() => setState('approval')} aria-label="Back to previous bowl">
+        <ArrowLeft className="h-5 w-5" />
+      </button>
+
       <div className="text-center">
         <h2 className="planning-display text-2xl font-extrabold leading-tight text-gray-950 mb-1">What would you change?</h2>
         <p className="planning-copy text-sm font-bold">
@@ -510,14 +517,7 @@ export default function SlopBowl({
           />
 
           <Button
-            onClick={() => handleRegenerate(true)}
-            disabled={isLoading}
-            className="h-12 w-full rounded-xl font-extrabold"
-          >
-            Recommend another bowl
-          </Button>
-
-          <Button
+            variant="outline"
             onClick={() => handleRegenerate(false)}
             disabled={isLoading}
             className="h-12 w-full rounded-xl font-extrabold"
@@ -527,14 +527,15 @@ export default function SlopBowl({
         </CardContent>
       </Card>
 
-      <Button
-        variant="ghost"
-        onClick={() => setState('approval')}
-        className="w-full text-gray-500"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Go back to previous bowl
-      </Button>
+      <div className="planning-action-dock">
+        <Button
+          onClick={() => handleRegenerate(true)}
+          disabled={isLoading}
+          className="planning-primary-action h-12 w-full rounded-xl font-extrabold"
+        >
+          Recommend another bowl
+        </Button>
+      </div>
     </div>
   );
 

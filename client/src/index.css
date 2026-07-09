@@ -2966,6 +2966,11 @@ html, body {
     gap: 1.5rem;
   }
 
+  .slop-bowl-feedback-screen {
+    display: flex;
+    flex-direction: column;
+  }
+
   .slop-approval-actions {
     display: flex;
     flex-direction: column;
@@ -3027,6 +3032,10 @@ html, body {
 
     .planning-browser-action-screen .planning-back-button:hover {
       background: hsl(0 0% 100% / 0.82);
+    }
+
+    .slop-bowl-screen .planning-browser-action-screen {
+      padding-top: 4.25rem;
     }
 
     .planning-action-dock {
@@ -3461,6 +3470,7 @@ html, body {
     }
 
     .live-cooking-ready-check-screen .live-cooking-ready-actions {
+      margin-top: 0;
       padding-bottom: 0;
     }
 
@@ -3583,8 +3593,17 @@ html, body {
       gap: 1rem;
     }
 
+    .slop-check-screen,
+    .slop-bowl-feedback-screen {
+      gap: 1rem;
+    }
+
     .slop-approval-actions {
       gap: 0.52rem;
+    }
+
+    .slop-edit-pantry-button {
+      height: 2.65rem;
     }
 
     .slop-approval-actions .h-12 {

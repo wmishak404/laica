@@ -140,7 +140,45 @@ vi.mock('@/components/cooking/meal-planning', () => ({
 }));
 
 vi.mock('@/components/cooking/slop-bowl', () => ({
-  default: () => <div data-testid="slop-bowl">Slop Bowl flow</div>,
+  default: ({
+    onMealSelected,
+  }: {
+    onMealSelected?: (meal: {
+      id: string;
+      recipeName: string;
+      description: string;
+      cookTime: number;
+      difficulty: string;
+      cuisine: string;
+      pantryMatch: number;
+      missingIngredients: string[];
+      ingredients: string[];
+      equipment: string[];
+      planningSource: 'slop-bowl';
+    }, scheduledTime: string) => void;
+  }) => (
+    <div data-testid="slop-bowl">
+      Slop Bowl flow
+      <button
+        type="button"
+        onClick={() => onMealSelected?.({
+          id: 'slop-bowl-test',
+          recipeName: 'Slop Test Bowl',
+          description: 'A pantry bowl.',
+          cookTime: 30,
+          difficulty: 'Easy',
+          cuisine: 'Pantry',
+          pantryMatch: 90,
+          missingIngredients: [],
+          ingredients: ['rice', 'eggs'],
+          equipment: ['skillet'],
+          planningSource: 'slop-bowl',
+        }, 'now')}
+      >
+        Mock accept slop bowl
+      </button>
+    </div>
+  ),
 }));
 
 vi.mock('@/components/cooking/live-cooking', () => ({
@@ -150,8 +188,8 @@ vi.mock('@/components/cooking/live-cooking', () => ({
     onCookingGuideStarted,
     onCookingGuideStateChange,
   }: {
-    selectedMeal: { recipeName: string };
-    onBackToPlanning?: (options?: { preserveMealPlanningSession?: boolean }) => void;
+    selectedMeal: { recipeName: string; planningSource?: 'chef-it-up' | 'slop-bowl' };
+    onBackToPlanning?: (options?: { preserveMealPlanningSession?: boolean; returnToSlopBowl?: boolean }) => void;
     onCookingGuideStarted?: () => void;
     onCookingGuideStateChange?: (isActive: boolean) => void;
   }) => {
@@ -166,7 +204,14 @@ vi.mock('@/components/cooking/live-cooking', () => ({
         Live cooking: {selectedMeal.recipeName}
         <button
           type="button"
-          onClick={() => onBackToPlanning?.({ preserveMealPlanningSession: !isActive })}
+          onClick={() => {
+            if (!isActive && selectedMeal.planningSource === 'slop-bowl') {
+              onBackToPlanning?.({ preserveMealPlanningSession: false, returnToSlopBowl: true });
+              return;
+            }
+
+            onBackToPlanning?.({ preserveMealPlanningSession: !isActive });
+          }}
         >
           Mock back to planning
         </button>
@@ -850,6 +895,25 @@ describe('MobileApp planning choice pantry status', () => {
     expect(screen.queryByRole('heading', { name: /what are we cooking today/i })).toBeNull();
     expect(window.localStorage.getItem(planningStorageKey)).toContain('"currentStep":"prep-tray"');
     expect(window.localStorage.getItem(dismissalKey)).toBeNull();
+  });
+
+  it('returns a Slop Bowl ready-check back action to the Slop menu instead of Chef planning', async () => {
+    await renderPlanningChoice(makeProfile({
+      pantryIngredients: ['rice', 'eggs', 'beans'],
+      kitchenEquipment: ['skillet'],
+    }));
+
+    fireEvent.click(screen.getByRole('button', { name: /slop it up/i }));
+    expect(await screen.findByTestId('slop-bowl')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /mock accept slop bowl/i }));
+    expect(await screen.findByTestId('live-cooking')).toHaveTextContent('Live cooking: Slop Test Bowl');
+
+    fireEvent.click(screen.getByRole('button', { name: /mock back to planning/i }));
+
+    expect(await screen.findByTestId('slop-bowl')).toBeTruthy();
+    expect(screen.queryByTestId('meal-planning')).toBeNull();
+    expect(screen.queryByRole('heading', { name: /what are we cooking today/i })).toBeNull();
   });
 
   it('hides bottom nav and dismisses Prep Tray restore once active cooking starts', async () => {
