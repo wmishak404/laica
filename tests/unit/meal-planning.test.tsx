@@ -797,6 +797,7 @@ describe('MealPlanning recipe generation locking', () => {
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
     expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(container.querySelector('.meal-planning-screen.planning-tickets-screen')).toBeTruthy();
 
     const spinachTicket = screen.getByRole('button', { name: /spinach egg skillet/i });
     fireEvent.click(spinachTicket);
@@ -815,6 +816,7 @@ describe('MealPlanning recipe generation locking', () => {
     fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
 
     expect(await screen.findByRole('heading', { name: /spinach egg skillet/i })).toBeTruthy();
+    expect(container.querySelector('.meal-planning-screen.planning-prep-screen')).toBeTruthy();
     const prepUseChips = Array.from(container.querySelectorAll<HTMLElement>('.planning-prep-section .planning-use-chip'));
     expect(prepUseChips.map((chip) => chip.textContent)).toEqual(['eggs', 'spinach']);
     expect(prepUseChips.every((chip) => chip.dataset.state === 'saved')).toBe(true);
