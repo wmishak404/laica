@@ -3013,7 +3013,12 @@ html, body {
     }
 
     .planning-browser-action-screen {
-      padding-top: 5.25rem;
+      --planning-browser-top-clearance: 5.25rem;
+      padding-top: var(--planning-browser-top-clearance);
+    }
+
+    .meal-planning-screen.planning-browser-action-screen {
+      --planning-browser-top-clearance: 7.45rem;
     }
 
     .planning-browser-action-screen .planning-back-button {
@@ -3128,7 +3133,7 @@ html, body {
       --planning-browser-action-space: 3.45rem;
       height: calc(100svh - 4.05rem);
       max-height: calc(100svh - 4.05rem);
-      padding-top: 5.25rem;
+      padding-top: var(--planning-browser-top-clearance);
     }
 
     .planning-cuisine-screen .planning-back-button {
@@ -3141,7 +3146,7 @@ html, body {
 
     .planning-cuisine-screen .planning-cuisine-scroll {
       flex: 0 1 auto;
-      max-height: clamp(15.5rem, calc(100svh - 21.75rem), 21rem);
+      max-height: clamp(13.25rem, calc(100svh - 23.95rem), 19rem);
       margin-top: 1.05rem;
     }
 
@@ -3193,7 +3198,7 @@ html, body {
     }
 
     .planning-tickets-screen {
-      padding-top: 5.25rem;
+      padding-top: var(--planning-browser-top-clearance);
     }
 
     .planning-tickets-screen .planning-back-button {
@@ -3312,7 +3317,7 @@ html, body {
     }
 
     .planning-prep-screen {
-      padding-top: 5.25rem;
+      padding-top: var(--planning-browser-top-clearance);
     }
 
     .planning-prep-screen .planning-back-button {
