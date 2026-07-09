@@ -25,7 +25,7 @@ Wilson's mobile browser screenshots showed that Chef It Up setup, recipe suggest
 Treat `.meal-planning-screen` as the scoped hook for Chef It Up/Ticket/Prep browser-fit typography, `.planning-time-screen` as the compact time-selector hook, `.setup-scan-step` as the setup scanner hook, and `.slop-bowl-menu-screen` as the scoped hook for Slop Bowl menu typography. Do not move these overrides back onto shared `.planning-screen`; that would risk pulling in surfaces Wilson explicitly said look okay. Keep `.menu-sheet` and `live-cooking-ui` out of this browser-fit pass unless Wilson reopens those surfaces.
 
 ## Open items
-Replit was loaded with the first pass at `80f1712`, but Wilson reported the visible app still looked unchanged. The stronger second pass has local build/test evidence and still needs a phone-browser skim after it is pushed and pulled into Replit. Target the exact reported surfaces: Chef It Up time selection should show the Next button before scrolling, the setup pantry scanner title should not reopen chopped, and Ticket Pass / Prep Tray / Slop Bowl menu typography should visibly compact. Live Cooking preparing/active and the Menu drawer should remain unchanged.
+Replit was loaded with the first pass at `80f1712`, but Wilson reported the visible app still looked unchanged. The stronger second pass was then pushed and loaded on Replit at runtime head `f15cab7`; the served `.replit.dev` CSS contains `planning-time-screen`, `setup-scan-step`, `100svh`, and `slop-bowl-menu-screen`. A phone-browser skim remains the useful human visual check. Target the exact reported surfaces: Chef It Up time selection should show the Next button before scrolling, the setup pantry scanner title should not reopen chopped, and Ticket Pass / Prep Tray / Slop Bowl menu typography should visibly compact. Live Cooking preparing/active and the Menu drawer should remain unchanged.
 
 ## Verification
 - `npm ci` passed; 1113 packages installed, 0 vulnerabilities reported.
@@ -35,9 +35,10 @@ Replit was loaded with the first pass at `80f1712`, but Wilson reported the visi
 - `npm run build` passed. Vite reported the existing Browserslist age warning, dynamic/static Firebase import warning, and large chunk warning.
 - `git diff --check` passed.
 - Built-CSS computed-style smoke passed in local headless Chromium after sandbox escalation. Observed values: MealPlanning display `25.28px`, MealPlanning selected-ticket title `20.48px`, use chip `11.2px`, Prep Tray copy `13.12px`; Slop Bowl display `24px`, Slop Bowl copy `13.12px`, Slop Bowl chip `12.16px`; Menu title stayed `30px`, menu destination text stayed `16px`, landing demo ticket title stayed `22.08px`, and Live Cooking stayed under its own `live-cooking-ui` styles.
+- Replit fast-forwarded `codex/mobile-browser-type-fit` to `f15cab7` after Wilson reported the first pass was too subtle. The direct `.replit.dev` app served the stronger CSS hooks (`planning-time-screen`, `setup-scan-step`, `100svh`, `slop-bowl-menu-screen`). The open direct tab was on Live Cooking state, which is intentionally excluded from this browser-fit pass.
 
 ## Stack / base status
 - Base refreshed: yes
 - Current base: `origin/main` at `9618a15cce82e6b8444e1f471a2b55905c07e633`
-- Last Replit-validated at: first pass loaded at `80f1712`; stronger second pass not yet loaded at time of this handoff update
+- Last Replit-validated at: runtime code loaded at `f15cab7`; human phone-browser visual acceptance still pending
 - Notes: independent Phase 3.1 browser-fit polish branch rebased after PR #269 and the PR #273 closeout merged; not stacked on another open branch.
