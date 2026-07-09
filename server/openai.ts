@@ -123,6 +123,7 @@ Each recipe should include:
   - additionalIngredientsNeeded: Optional enhancements that would improve the dish if the user happens to have them or wants to add them (keep this minimal; do not make the recipe depend on shopping). The recipe must still work if every item in this list is skipped. Return bare ingredient names only; do not include labels like "optional", "(optional)", or "if around" inside item strings.
   - overview: Brief overview of the cooking process in 1-3 sentences. Tone should be friendly and concise.
   - instructions: Step by step instructions on how to cook this recipe.
+  - cuisine: The cuisine or flavor direction of this recipe (for example Italian, Chinese, or Pantry-first), honoring the cuisine guidelines below.
   - isFusion: Boolean indicating if this recipe combines culinary traditions from multiple cuisines (e.g., Korean-Mexican tacos, Italian-Asian ramen, Indian-French fusion). Only mark as true if the recipe intentionally blends techniques, flavors, or ingredients from distinctly different culinary traditions.
 
 ## Guidelines for choosing a recipe suggestion

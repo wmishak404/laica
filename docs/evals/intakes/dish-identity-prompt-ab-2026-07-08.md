@@ -55,9 +55,13 @@ Wilson's 2026-07-08 production report showed Chef It Up suggesting "Spiced Sausa
 | `recipe-suggestions-dish-identity-steak-tacos` | Committed this batch | `dish_identity` (two definer families) | synthetic |
 | `slop-bowl-suggestions-dish-identity-ramen` | Committed this batch | `dish_identity` on the Slop Bowl surface | synthetic |
 
+## 2026-07-08 follow-up — cuisine field fix verification
+
+Wilson's JSON-attribute alignment pass resolved the cuisine drift inside the same branch: `DEFAULT_RECIPE_SUGGESTIONS_PROMPT` now requests `cuisine` in its output field list (the UI transform, `recipeSuggestionsResponseSchema`, and the `cuisine_fit` criterion all consume it; the Slop Bowl prompt already requested it). Verification run (`ARM=candidate RUNS=4`, 24 generations, 72 recipes): **0 shape failures** (previously 48/48 runs failed `recipes.0.cuisine: Required`), dish-identity at 6/72 violating recipes — within the variance band of the earlier 5/72 candidate run, with the frittata scenario still 0/12 (0/48 pooled across the four candidate passes today). The "Quesadilla-Style Skillet" adapted-name exemption and the pancake-rule removal both behaved as intended in this run.
+
 ## Open Questions / Deferrals
 
-- Cuisine-field drift: should `DEFAULT_RECIPE_SUGGESTIONS_PROMPT` request `cuisine` (UI and `cuisine_fit` evals consume it) or should `recipeSuggestionsResponseSchema` mark it optional? Owner: Wilson decision; smallest next action is a one-line prompt or schema change in a follow-up slice.
+- ~~Cuisine-field drift~~ Resolved in-branch 2026-07-08: the prompt now requests `cuisine`; see the follow-up section above. `recipeSuggestionsResponseSchema` stays strict.
 - Runtime enforcement: the deterministic dish-identity rules could gate `/api/recipes/*` responses (drop/regenerate/rename violating suggestions), mirroring the Live Cooking generated-steps validation pattern. Owner: Wilson product decision from the 2026-07-08 optional-ingredient principle discussion; not implemented in this slice.
 - Judge recall: dishes outside the rule map (for example flatbread without flour) need the `dish_identity` human/judge lane before quality rates can be claimed broadly.
 - Field-name coherence: the model still fills a field literally named `additionalIngredientsNeeded` under a never-needed contract; the `optionalEnhancements` model-facing rename (normalizer-mapped) remains an open option from the same discussion.
