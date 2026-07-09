@@ -5,6 +5,7 @@
 **Date:** 2026-07-09
 **Initiative:** INIT-001
 **INIT updated:** yes
+**PR:** https://github.com/wmishak404/laica/pull/275
 **Resolves blocked handoff:** none
 
 ## Summary
@@ -27,6 +28,8 @@ Architecture triage skipped owned or gated work: INIT-004 has open owned work in
   - Expands operational-message filtering so inline failure copy is not spoken as assistant guidance.
 - `tests/unit/live-cooking-guest-session.test.tsx`
   - Adds focused coverage for microphone-denial and assistance-route failure/retry behavior.
+- `tests/e2e/cooking-workflow.test.ts`
+  - Updates the guest smoke to assert the inline assistance issue panel.
 - `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`
   - Records the branch as the implementation of the inline assistance-failure criterion.
 - `initiatives/INIT-001-mobile-refresh.md` and `initiatives/registry.md`
@@ -40,7 +43,6 @@ The visual addition conforms to PD-005 and `design_guidelines.md`: it stays insi
 
 ## Open items
 
-- GitHub exact-head checks and PR evidence still need to be completed after the branch is pushed/opened.
 - Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level device microphone/provider smoke. Suggested release-batch check: deny microphone or force an assistance-route failure while in Live Cooking and verify the current step remains visible, the inline panel appears below cues, retry clears the panel, and captions/speech behavior remain sane.
 - Full provider schema shape and Phase 5 cleanup remain later INIT-001 work.
 
@@ -50,11 +52,13 @@ Focused local evidence so far:
 
 - `npm ci` passed after dependencies were missing in this worktree.
 - `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 43 tests.
-- `npm run check` passed.
+- `npm run check` passed before PR open and again after the E2E assertion follow-up.
 - `npm run build` passed with existing Browserslist/Firebase dynamic-import/chunk-size warnings.
 - `npm run test:unit` passed: 48 files, 375 tests.
 - `npm audit --audit-level=high` passed with 0 vulnerabilities.
 - `git diff --check` passed.
+- Local targeted Playwright did not reach the changed assertion because the local dotenvx database is missing `anonymous_recipe_usage`, so guest setup timed out before the Live Cooking path.
+- GitHub exact-head checks passed for PR #275 at head `2d9c0b1`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks.
 
 Value claim: cooks are less likely to get stranded when voice help fails during a step. Evidence: focused Vitest proves microphone-denial and assistance-route failures render `assistance-inline-issue`, keep the current step visible, avoid toast-only presentation, and clear on retry. Evidence limits: provider/network behavior is mocked; no live microphone, Replit device permission, real transcription, or real assistance provider call has been manually smoked yet.
 
@@ -62,5 +66,6 @@ Value claim: cooks are less likely to get stranded when voice help fails during 
 
 - Base refreshed: yes
 - Current base: `origin/main` at `9618a15`
+- Current PR head with passing GitHub checks: `2d9c0b1`
 - Last Replit-validated at: not yet validated / deferred to release-batch validation
 - Notes: independent branch from current `origin/main`; not stacked on PR #265, #272, or #274.
