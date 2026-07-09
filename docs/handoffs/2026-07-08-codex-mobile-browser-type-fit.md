@@ -26,7 +26,7 @@ No Replit/mobile-browser manual visual pass has been run for this branch yet. Th
 
 ## Verification
 - `npm ci` passed; 1113 packages installed, 0 vulnerabilities reported.
-- `npx vitest run tests/unit/slop-bowl.test.tsx tests/unit/meal-planning.test.tsx` passed: 2 files, 28 tests.
+- `npx vitest run tests/unit/slop-bowl.test.tsx tests/unit/meal-planning.test.tsx` passed after the PR #269/#273 rebase: 2 files, 29 tests.
 - `npm run check` passed: TypeScript plus UI lint.
 - `npm run build` passed. Vite reported the existing Browserslist age warning, dynamic/static Firebase import warning, and large chunk warning.
 - `git diff --check` passed.
@@ -34,6 +34,6 @@ No Replit/mobile-browser manual visual pass has been run for this branch yet. Th
 
 ## Stack / base status
 - Base refreshed: yes
-- Current base: `origin/main` at `2eaf393ed720e0095cccaae4ddc1c0910f1c06c4`
+- Current base: `origin/main` at `9618a15cce82e6b8444e1f471a2b55905c07e633`
 - Last Replit-validated at: not yet validated
-- Notes: independent Phase 3.1 browser-fit polish branch from fresh `origin/main`; not stacked on another open branch.
+- Notes: independent Phase 3.1 browser-fit polish branch rebased after PR #269 and the PR #273 closeout merged; not stacked on another open branch.
