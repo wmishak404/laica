@@ -2,6 +2,7 @@
 
 **Agent:** claude
 **Branch:** `claude/dish-identity-prompt-guard`
+**PR:** [#274](https://github.com/wmishak404/laica/pull/274)
 **Date:** 2026-07-08
 **Initiative:** INIT-004
 **INIT updated:** yes
