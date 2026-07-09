@@ -320,6 +320,17 @@ export default function MealPlanning({
     }
   }, [currentStep]);
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop > 0 || window.scrollX > 0) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [currentStep]);
+
   const selectedTimeIndex = Math.max(
     0,
     PLANNING_TIME_OPTIONS.findIndex((option) => option.value === mealPrefs.timeAvailable),
@@ -835,12 +846,12 @@ export default function MealPlanning({
   };
 
   const renderTimeStep = () => (
-    <section className="planning-screen meal-planning-screen mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+    <section className="planning-screen meal-planning-screen planning-time-screen mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to planning choices">
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <div className="flex flex-1 flex-col justify-center gap-10">
+      <div className="planning-time-content flex flex-1 flex-col justify-center gap-10">
         <div className="text-center">
           <h1 className="planning-display text-3xl font-extrabold leading-tight">
             How much time do you have today?

@@ -357,6 +357,22 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     });
   }, [currentStep, isToolsCaptureOpen, manualEntry, manualOpen, profile, sessionScopeKey]);
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop > 0 || window.scrollX > 0) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+
+      const phoneFrame = document.querySelector<HTMLElement>('.setup-phone-frame');
+      if (phoneFrame && (phoneFrame.scrollTop > 0 || phoneFrame.scrollLeft > 0)) {
+        phoneFrame.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [currentStep, isToolsCaptureOpen]);
+
   useEffect(() => () => {
     scanControllers.current.pantry?.abort();
     scanControllers.current.kitchen?.abort();
@@ -857,7 +873,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     const progress = scanProgress[type];
 
     return (
-      <div className="space-y-5">
+      <div className="setup-scan-step space-y-5">
         <div className="space-y-3">
           <div className="space-y-2 text-left">
             <h2 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">

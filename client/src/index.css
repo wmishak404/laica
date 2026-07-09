@@ -2951,6 +2951,244 @@ html, body {
     padding: 0.38rem 0.62rem;
   }
 
+  @supports (height: 100svh) {
+    .meal-planning-screen {
+      min-height: calc(100svh - 5rem);
+    }
+
+    .setup-ui,
+    .setup-ui > div {
+      min-height: 100svh;
+    }
+  }
+
+  @media (max-width: 480px) and (max-height: 790px) {
+    .meal-planning-screen {
+      min-height: calc(100svh - 4.75rem);
+      padding-top: 1.15rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .meal-planning-screen .planning-display {
+      font-size: 1.34rem;
+      line-height: 1.05;
+    }
+
+    .meal-planning-screen .planning-copy {
+      font-size: 0.78rem;
+      line-height: 1.32;
+    }
+
+    .planning-time-screen .planning-back-button {
+      margin-bottom: 0.85rem;
+    }
+
+    .planning-time-screen .planning-time-content {
+      flex: 0 0 auto;
+      gap: 1.15rem;
+      justify-content: flex-start;
+    }
+
+    .planning-time-screen .planning-clock {
+      width: 7.75rem;
+      height: 7.75rem;
+      border-width: 0.48rem;
+      box-shadow:
+        0 0.75rem 1.6rem hsl(var(--planning-coral) / 0.14),
+        inset 0 0 0 1px hsl(var(--planning-ticket-edge) / 0.3);
+    }
+
+    .planning-time-screen .planning-clock svg {
+      width: 3.75rem;
+      height: 3.75rem;
+    }
+
+    .planning-time-screen .planning-slider-card,
+    .planning-time-screen .planning-note {
+      padding: 0.72rem;
+      border-radius: 0.95rem;
+    }
+
+    .planning-time-screen .planning-slider-track {
+      padding-inline: 10%;
+    }
+
+    .planning-time-screen .planning-slider-card [role='slider'] {
+      width: 1.45rem;
+      height: 1.45rem;
+      border-width: 0.24rem;
+    }
+
+    .planning-time-screen .planning-time-label-grid {
+      margin-top: 0.75rem;
+    }
+
+    .planning-time-screen .planning-time-label {
+      min-height: 2rem;
+      font-size: 0.7rem;
+      line-height: 1;
+    }
+
+    .planning-time-screen .planning-note {
+      gap: 0.55rem;
+      font-size: 0.76rem;
+      line-height: 1.22;
+    }
+
+    .planning-time-screen > button:last-child {
+      height: 2.75rem;
+      margin-top: 0.95rem;
+    }
+
+    .meal-planning-screen .planning-ticket-stack {
+      margin-top: 1.15rem;
+    }
+
+    .meal-planning-screen .planning-ticket-large {
+      min-height: 16.25rem;
+      padding: 1rem 0.9rem 0.85rem;
+    }
+
+    .meal-planning-screen .planning-ticket-title {
+      font-size: 1.02rem;
+    }
+
+    .meal-planning-screen .planning-ticket-large .planning-ticket-title {
+      font-size: 1.08rem;
+    }
+
+    .meal-planning-screen .planning-ticket-row {
+      min-height: 4.15rem;
+      padding: 0.58rem 0.7rem;
+    }
+
+    .meal-planning-screen .planning-ticket-row .planning-ticket-title {
+      font-size: 0.78rem;
+    }
+
+    .meal-planning-screen .planning-recipe-image-slot {
+      width: 5.25rem;
+      height: 4.65rem;
+      margin-top: 0.55rem;
+    }
+
+    .meal-planning-screen .planning-ticket-row .planning-recipe-image-slot {
+      width: 2.85rem;
+      height: 2.55rem;
+    }
+
+    .meal-planning-screen .planning-ticket-divider {
+      margin: 0.55rem 0;
+    }
+
+    .meal-planning-screen .planning-use-chip {
+      min-height: 1.72rem;
+      font-size: 0.64rem;
+      padding: 0.28rem 0.5rem;
+    }
+
+    .setup-ui {
+      min-height: 100svh;
+    }
+
+    .setup-ui > div {
+      min-height: 100svh;
+      padding-top: 0.5rem;
+    }
+
+    .setup-phone-frame {
+      min-height: 0;
+      max-height: 100svh;
+      overflow-y: auto;
+      border-radius: 1.35rem 1.35rem 0 0;
+      padding-top: 0.85rem;
+    }
+
+    .setup-progress-shell {
+      min-height: 2.1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .setup-scan-step {
+      gap: 0.85rem;
+    }
+
+    .setup-scan-step .setup-display {
+      font-size: 1.62rem;
+      line-height: 1;
+    }
+
+    .setup-scan-step .setup-copy {
+      max-width: 18rem;
+      font-size: 0.76rem;
+      line-height: 1.34;
+    }
+
+    .setup-scan-step .setup-camera-card {
+      padding: 0.55rem;
+    }
+
+    .setup-scan-step .setup-viewfinder {
+      border-radius: 1.05rem;
+    }
+
+    .setup-scan-step .setup-viewfinder > .relative {
+      aspect-ratio: 1 / 1.05;
+    }
+
+    .setup-scan-step .setup-live-badge {
+      top: 0.55rem;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.64rem;
+    }
+
+    .setup-scan-step .setup-viewfinder-corner {
+      width: 1.85rem;
+      height: 1.85rem;
+      border-width: 0.18rem;
+    }
+
+    .setup-scan-step .setup-camera-icon-button {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .setup-scan-step .setup-camera-round-button {
+      width: 3.15rem;
+      height: 3.15rem;
+    }
+
+    .setup-scan-step .setup-camera-round-button::after {
+      width: 1.95rem;
+      height: 1.95rem;
+    }
+
+    .setup-scan-step .setup-camera-icon-button svg {
+      width: 1.45rem;
+      height: 1.45rem;
+    }
+
+    .setup-scan-step .setup-secondary-button {
+      height: 2.95rem;
+      padding-inline: 0.85rem;
+    }
+
+    .setup-scan-step .setup-action-icon {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 0.85rem;
+    }
+
+    .setup-scan-step .setup-action-title {
+      font-size: 0.92rem;
+    }
+
+    .setup-bottom-bar {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+  }
+
 }
 
 @keyframes setup-focus-pulse {
