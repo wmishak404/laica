@@ -47,7 +47,6 @@ function renderSlopBowl() {
   render(
     <SlopBowl
       userProfile={baseProfile}
-      planningTimeAvailable="30"
       onMealSelected={onMealSelected}
       onBackToPlanning={onBackToPlanning}
       onEditPantry={onEditPantry}
@@ -68,6 +67,12 @@ describe('SlopBowl pantry check visual grammar', () => {
 
     expect(screen.getByText(/one more check/i).closest('.slop-bowl-screen')).toBeTruthy();
     expect(screen.getByText(/one more check/i).closest('.slop-bowl-menu-screen')).toBeTruthy();
+    expect(screen.getByText('Slop Bowl defaults to 30 minutes.')).toBeTruthy();
+    expect(screen.queryByText(/using your/i)).toBeNull();
+    expect(screen.queryByText(/back to options/i)).toBeNull();
+    expect(screen.getByLabelText(/back to options/i).closest('.planning-browser-action-screen')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /make my bowl/i }).closest('.planning-action-dock')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /edit my pantry/i }).closest('.slop-check-card')).toBeTruthy();
 
     const riceChip = screen.getByRole('button', { name: /omit rice from this bowl/i });
 
@@ -103,9 +108,12 @@ describe('SlopBowl pantry check visual grammar', () => {
 
   it('keeps generated suggestion action buttons on the planning button typography contract', async () => {
     vi.mocked(fetchSlopBowlRecipe).mockResolvedValue({ recipe: generatedRecipe });
-    renderSlopBowl();
+    const { onMealSelected } = renderSlopBowl();
 
     fireEvent.click(screen.getByRole('button', { name: /make my bowl/i }));
+    expect(fetchSlopBowlRecipe).toHaveBeenCalledWith(expect.objectContaining({
+      planningTimeAvailable: '30',
+    }));
 
     const acceptButton = await screen.findByRole('button', { name: /let's cook this/i });
     const rejectButton = screen.getByRole('button', { name: /try something else/i });
@@ -120,6 +128,11 @@ describe('SlopBowl pantry check visual grammar', () => {
       expect(button.className).toContain('rounded-xl');
       expect(button.className).toContain('font-extrabold');
     }
+
+    fireEvent.click(acceptButton);
+    expect(onMealSelected).toHaveBeenCalledWith(expect.objectContaining({
+      planningSource: 'slop-bowl',
+    }), 'now');
 
     fireEvent.click(rejectButton);
 

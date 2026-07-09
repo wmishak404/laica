@@ -85,6 +85,7 @@ interface RecipeRecommendation {
   ingredients?: string[];      // actual pantry items used — fed to cooking steps
   equipment?: string[];        // user's kitchen equipment — fed to cooking steps
   overview?: string;           // short tagline from slop-bowl response
+  planningSource?: 'chef-it-up' | 'slop-bowl';
 }
 
 function formatInstructionWithTips(instruction: string, tips?: string) {
@@ -557,7 +558,7 @@ function normalizeContextItems(items?: string[]) {
 interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
-  onBackToPlanning: (options?: { preserveMealPlanningSession?: boolean }) => void;
+  onBackToPlanning: (options?: { preserveMealPlanningSession?: boolean; returnToSlopBowl?: boolean }) => void;
   onCookingGuideStarted?: () => void;
   onCookingGuideStateChange?: (isActive: boolean) => void;
   onCookingComplete?: () => void;
@@ -827,6 +828,11 @@ export default function LiveCooking({
   const handleBackToPlanning = () => {
     stopCookingAudioLifecycle();
     clearCookingSession();
+    if (selectedMeal.planningSource === 'slop-bowl' && !hasStartedCookingGuide) {
+      onBackToPlanning({ preserveMealPlanningSession: false, returnToSlopBowl: true });
+      return;
+    }
+
     onBackToPlanning({ preserveMealPlanningSession: !hasStartedCookingGuide });
   };
 
@@ -2109,11 +2115,11 @@ export default function LiveCooking({
             ))}
           </div>
 
-          <div className="live-cooking-ready-actions mt-auto grid gap-3 pb-2">
+          <div className="live-cooking-ready-actions planning-action-dock mt-auto grid gap-3 pb-2">
             <Button
               size="lg"
               onClick={() => startCookingGuideFromReadyCheck()}
-              className="live-cooking-start-button h-14 text-lg font-extrabold"
+              className="planning-primary-action live-cooking-start-button h-14 text-lg font-extrabold"
             >
               <Play className="h-4 w-4 mr-2" />
               Start cooking
