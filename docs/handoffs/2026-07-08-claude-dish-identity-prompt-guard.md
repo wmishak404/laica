@@ -53,10 +53,10 @@ The discipline added for future work: prompt rules that models ignore need a con
 
 ## Stack / base status
 
-- Base refreshed: yes — branched from `origin/main` at `16e52a9`
-- Current base: `origin/main` at `16e52a9`
+- Base refreshed: yes — originally branched from `origin/main` at `16e52a9`; rebased onto `origin/main` at `9618a15` after PR #263 (step-preview eval lane), PR #269, and PR #273 merged
+- Current base: `origin/main` at `9618a15`
 - Last Replit-validated at: not yet validated / deferred to release-batch validation with the targeted checks in Open items
-- Notes: not stacked on any open PR
+- Notes: not stacked on any open PR; rebase conflicts with the merged step-preview lane resolved additively (see 2026-07-08 rebase note below)
 
 ## 2026-07-08 addendum — judge inclusion, cuisine fix, Codex rebase map
 
@@ -66,7 +66,7 @@ Wilson's follow-up questions resolved three things on this branch:
 
 **2. JSON-attribute alignment.** Fixed in-branch: `DEFAULT_RECIPE_SUGGESTIONS_PROMPT` now requests `cuisine`, closing the drift where the eval schema (`recipeSuggestionsResponseSchema`), the Chef It Up client transform, and the `cuisine_fit` criterion all consume a field the prompt never asked for. Verification run (`ARM=candidate RUNS=4`): 0/24 shape failures (previously 48/48 failed `recipes.0.cuisine: Required`), dish-identity steady at 6/72, frittata scenario 0/12 (0/48 pooled). Recommended but deferred to the optional-ingredient principle/PD decision, because they touch persisted cooking-session data and cross-surface semantics: the client `missingIngredients` alias saved beside `additionalIngredientsNeeded` in cooking sessions (`server/routes.ts` session schema carries both; `recipe-images.ts` accepts both), and the vestigial client `pantryMatch` fallback formula that scores optional items as gaps. `imageUrl`/`image_url` dual-mapping is harmless legacy compat, no action.
 
-**3. Rebase map for `codex/init-004-step-preview-evals` (head `2d4f05e`).** Per Wilson, that branch waits for PR #274, then rebases. Exact collision points from this branch:
+**3. Rebase map for `codex/init-004-step-preview-evals` (head `2d4f05e`).** Written when the plan was for that branch to wait for PR #274. The ordering then flipped in practice — see the rebase note below — but the collision points identified here were exactly the files that conflicted:
 - `server/eval-fixtures.ts` — `criterionLabelSchema` gained `dish_identity`; `validateRecipeSurface` and `validateSlopBowlSurface` now push a `dishIdentityCheck`; new import from `server/eval-dish-identity`. The `live_cooking_step_previews` surface case and schema extensions should append beside these.
 - `server/eval-criteria.ts` — `dish_identity_mismatch` appended to the three recipe surfaces' error modes; the new step-preview criteria entry appends to the same record.
 - `tests/unit/eval-fixtures.test.ts` — the committed-fixture pinned id list is now 16 ids (sorted by `localeCompare`); splice step-preview fixture ids in, and keep the three new dish-identity validator tests.
@@ -74,3 +74,7 @@ Wilson's follow-up questions resolved three things on this branch:
 - `docs/evals/fixtures/README.md`, `docs/evals/README.md`, `docs/evals/registry.md` — appended fixture entries, command lines, and registry rows.
 - `package.json` — `eval:dish-identity` script added next to `eval:fixtures`.
 - `server/openai.ts` — dish-identity guideline in both recipe prompts, `cuisine` output field, exports; the step-preview branch does not touch runtime prompts, so no conflict — but note the guard means egg-free frittatas should no longer reach step-preview generation, so frittata-label fixtures ("Set Edges Over Stovetop", "Bake Frittata Until Puffing") should carry eggs in their recipe context to stay realistic.
+
+## 2026-07-08 rebase note — ordering flipped, resolved additively
+
+The step-preview eval lane merged first as PR #263 (`2eaf393`, plus PR #269/#273 on main), so this branch rebased onto `origin/main` `9618a15` instead of the reverse. Conflicts landed exactly on the mapped files and resolved additively: both script lines in `package.json`, both label families in `criterionLabelSchema`, both fixture batches in the committed-fixture pinned list (now 25 ids — git interleaved them in sorted order), both README batch notes, and both INIT status paragraphs. `server/eval-criteria.ts`, `server/eval-fixtures.ts` logic, and `tests/unit/evaluator.test.ts` auto-merged. `server/openai.ts` carried over without conflict, so the live-probe evidence in the intake still describes the exact prompt text on this branch; post-rebase gates re-ran clean (`eval:fixtures` now validates 25 fixtures across five surfaces, full unit suite, `npm run check`, `npm run build`).
