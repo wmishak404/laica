@@ -3,7 +3,17 @@ export const OPERATIONAL_MESSAGE_PHRASES = [
   "Recording cancelled",
   "Recording stopped",
   "Please try asking again",
+  "Question didn't go through",
+  "Question didn't get an answer",
+  "Question timed out",
+  "Voice question is not available",
+  "Voice questions are temporarily limited",
   "I couldn't access your microphone",
+  "I couldn't hear that clearly",
+  "Microphone didn't start",
+  "Request did not finish",
+  "Connection issue",
+  "Cooking requests paused",
   "Recording timed out",
 ] as const;
 

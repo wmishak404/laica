@@ -14,6 +14,9 @@ const mocks = vi.hoisted(() => ({
     isAnonymous: true,
   } as { id: string; email: string | null; isAnonymous?: boolean },
   fetchCookingSteps: vi.fn(),
+  fetchCookingAssistance: vi.fn(),
+  apiFetch: vi.fn(),
+  compressAudio: vi.fn(),
   startCookingSession: vi.fn(),
   updateCookingSession: vi.fn(),
   completeCookingSession: vi.fn(),
@@ -38,7 +41,7 @@ vi.mock('@/hooks/useCookingSession', () => ({
 
 vi.mock('@/lib/openai', () => ({
   fetchCookingSteps: mocks.fetchCookingSteps,
-  fetchCookingAssistance: vi.fn(),
+  fetchCookingAssistance: mocks.fetchCookingAssistance,
 }));
 
 vi.mock('@/lib/rateLimitHandler', () => ({
@@ -61,8 +64,12 @@ vi.mock('@/lib/elevenlabs', () => ({
 
 vi.mock('@/lib/audioUtils', () => ({
   AudioProcessor: {
-    compressAudio: vi.fn(),
+    compressAudio: mocks.compressAudio,
   },
+}));
+
+vi.mock('@/lib/queryClient', () => ({
+  apiFetch: mocks.apiFetch,
 }));
 
 vi.mock('@/lib/usageTracker', () => ({
@@ -78,7 +85,11 @@ vi.mock('@/lib/usageTracker', () => ({
       warnings: [],
       remainingUsage: { dailyMinutes: 60 },
     }),
-    recordUsage: vi.fn(),
+    recordUsage: vi.fn(() => ({
+      totalTranscriptions: 1,
+      dailyUsage: 0.02,
+      totalCost: 0.0001,
+    })),
   },
 }));
 
@@ -154,6 +165,7 @@ function installAudioMocks() {
   }> = [];
   const tracks = [{ stop: vi.fn() }];
   const stream = { getTracks: vi.fn(() => tracks) };
+  const mediaRecorders: MockMediaRecorder[] = [];
   const audioContext = {
     state: 'running',
     destination: {},
@@ -205,7 +217,9 @@ function installAudioMocks() {
     public ondataavailable: ((event: { data: Blob }) => void) | null = null;
     public onstop: (() => void | Promise<void>) | null = null;
 
-    constructor(public readonly mediaStream: unknown) {}
+    constructor(public readonly mediaStream: unknown) {
+      mediaRecorders.push(this);
+    }
 
     start() {
       this.state = 'recording';
@@ -219,7 +233,7 @@ function installAudioMocks() {
 
   vi.stubGlobal('MediaRecorder', MockMediaRecorder);
 
-  return { speechCancel, sources, audioContext, AudioContextMock, stream, tracks };
+  return { speechCancel, sources, audioContext, AudioContextMock, stream, tracks, mediaRecorders };
 }
 
 async function flushPromises() {
@@ -1303,6 +1317,70 @@ describe('LiveCooking guest session boundary', () => {
       expect(audio.speechCancel).toHaveBeenCalled();
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ audio: true });
       expect(screen.getByText(/listening/i)).toBeTruthy();
+    });
+
+    it('shows microphone access failures inline without hiding the current step', async () => {
+      installAudioMocks();
+      vi.mocked(navigator.mediaDevices.getUserMedia).mockRejectedValueOnce(new Error('Permission denied'));
+
+      await renderCookingGuide();
+
+      fireEvent.click(screen.getByRole('button', { name: /ask a question/i }));
+      await flushPromises();
+
+      const issue = screen.getByTestId('assistance-inline-issue');
+      expect(issue).toHaveTextContent("Microphone didn't start");
+      expect(issue).toHaveTextContent('Your current step is still here.');
+      expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
+      expect(screen.getByRole('button', { name: /ask a question/i })).toBeTruthy();
+      expect(mocks.toast).not.toHaveBeenCalled();
+    });
+
+    it('shows cooking-assistance request failures inline and clears them on retry', async () => {
+      const audio = installAudioMocks();
+      mocks.compressAudio.mockResolvedValueOnce({
+        blob: new Blob(['voice'], { type: 'audio/wav' }),
+        originalSize: 10,
+        compressedSize: 5,
+        compressionRatio: 2,
+        duration: 1.2,
+      });
+      mocks.apiFetch.mockResolvedValueOnce(new Response(JSON.stringify({
+        success: true,
+        transcription: 'Is this too dry?',
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }));
+      mocks.fetchCookingAssistance.mockRejectedValueOnce(new Error('503: Service unavailable'));
+
+      await renderCookingGuide();
+
+      fireEvent.click(screen.getByRole('button', { name: /ask a question/i }));
+      await flushPromises();
+
+      const recorder = audio.mediaRecorders[0];
+      expect(recorder).toBeTruthy();
+
+      await act(async () => {
+        recorder.ondataavailable?.({ data: new Blob(['question']) });
+        recorder.stop();
+        await flushPromises();
+      });
+
+      await flushPromises();
+
+      expect(mocks.fetchCookingAssistance).toHaveBeenCalledTimes(1);
+      const issue = screen.getByTestId('assistance-inline-issue');
+      expect(issue).toHaveTextContent('Request did not finish');
+      expect(issue).toHaveTextContent('Try Ask a question again');
+      expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
+      expect(mocks.toast).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByRole('button', { name: /ask a question/i }));
+      await flushPromises();
+
+      expect(screen.queryByTestId('assistance-inline-issue')).toBeNull();
     });
 
     it('stops active and pending audio immediately when Mute is pressed', async () => {
