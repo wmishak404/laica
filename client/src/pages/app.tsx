@@ -1297,7 +1297,7 @@ export default function MobileApp() {
     if (currentPhase === 'profiling' || (currentPhase === 'cooking' && isCookingGuideActive)) return null;
 
     return (
-      <div className="app-bottom-nav fixed bottom-0 left-0 right-0 p-4">
+      <div className="app-bottom-nav fixed bottom-0 left-0 right-0">
         <div className="mx-auto flex max-w-xs items-center justify-around">
           <Button 
             variant="ghost" 

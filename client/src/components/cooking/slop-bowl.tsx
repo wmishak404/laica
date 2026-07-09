@@ -461,13 +461,15 @@ export default function SlopBowl({
         </Card>
 
         <div className="slop-approval-actions">
-          <Button
-            onClick={handleAccept}
-            className="h-12 w-full rounded-xl font-extrabold"
-          >
-            <ChefHat className="h-5 w-5" />
-            Let's cook this!
-          </Button>
+          <div className="planning-action-dock">
+            <Button
+              onClick={handleAccept}
+              className="planning-primary-action h-12 w-full rounded-xl font-extrabold"
+            >
+              <ChefHat className="h-5 w-5" />
+              Let's cook this!
+            </Button>
+          </div>
           <p className="text-sm text-gray-400 text-center">Not feeling it? No judgment.</p>
           <Button
             variant="outline"

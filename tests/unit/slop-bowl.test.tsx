@@ -112,6 +112,7 @@ describe('SlopBowl pantry check visual grammar', () => {
     const planInsteadButton = screen.getByRole('button', { name: /plan your own meal instead/i });
 
     expect(screen.getByText(/we made you a thing/i).closest('.slop-bowl-approval-screen')).toBeTruthy();
+    expect(acceptButton.closest('.planning-action-dock')).toBeTruthy();
     expect(planInsteadButton.closest('.slop-approval-actions')).toBeTruthy();
 
     for (const button of [acceptButton, rejectButton, planInsteadButton]) {
