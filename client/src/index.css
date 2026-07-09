@@ -2951,6 +2951,18 @@ html, body {
     padding: 0.38rem 0.62rem;
   }
 
+  .slop-bowl-approval-screen {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .slop-approval-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   @supports (height: 100svh) {
     .meal-planning-screen {
       min-height: calc(100svh - 5rem);
@@ -2980,32 +2992,32 @@ html, body {
     }
 
     .planning-time-screen .planning-back-button {
-      margin-bottom: 0.85rem;
+      margin-bottom: 0.5rem;
     }
 
     .planning-time-screen .planning-time-content {
       flex: 0 0 auto;
-      gap: 1.15rem;
+      gap: 0.82rem;
       justify-content: flex-start;
     }
 
     .planning-time-screen .planning-clock {
-      width: 7.75rem;
-      height: 7.75rem;
-      border-width: 0.48rem;
+      width: 6.65rem;
+      height: 6.65rem;
+      border-width: 0.42rem;
       box-shadow:
         0 0.75rem 1.6rem hsl(var(--planning-coral) / 0.14),
         inset 0 0 0 1px hsl(var(--planning-ticket-edge) / 0.3);
     }
 
     .planning-time-screen .planning-clock svg {
-      width: 3.75rem;
-      height: 3.75rem;
+      width: 3.25rem;
+      height: 3.25rem;
     }
 
     .planning-time-screen .planning-slider-card,
     .planning-time-screen .planning-note {
-      padding: 0.72rem;
+      padding: 0.58rem;
       border-radius: 0.95rem;
     }
 
@@ -3020,71 +3032,297 @@ html, body {
     }
 
     .planning-time-screen .planning-time-label-grid {
-      margin-top: 0.75rem;
+      margin-top: 0.55rem;
     }
 
     .planning-time-screen .planning-time-label {
-      min-height: 2rem;
-      font-size: 0.7rem;
+      min-height: 1.72rem;
+      font-size: 0.64rem;
       line-height: 1;
     }
 
     .planning-time-screen .planning-note {
-      gap: 0.55rem;
-      font-size: 0.76rem;
+      gap: 0.42rem;
+      font-size: 0.68rem;
       line-height: 1.22;
     }
 
     .planning-time-screen > button:last-child {
-      height: 2.75rem;
-      margin-top: 0.95rem;
+      height: 2.6rem;
+      margin-top: 0.62rem;
     }
 
-    .meal-planning-screen .planning-ticket-stack {
-      margin-top: 1.15rem;
+    .planning-cuisine-screen {
+      height: calc(100svh - 6.5rem);
+      max-height: calc(100svh - 6.5rem);
+      padding-top: 0.65rem;
+      padding-bottom: 0.5rem;
     }
 
-    .meal-planning-screen .planning-ticket-large {
-      min-height: 16.25rem;
-      padding: 1rem 0.9rem 0.85rem;
+    .planning-cuisine-screen .planning-back-button {
+      margin-bottom: 0.55rem;
     }
 
-    .meal-planning-screen .planning-ticket-title {
-      font-size: 1.02rem;
+    .planning-cuisine-screen .planning-copy {
+      margin-top: 0.35rem;
     }
 
-    .meal-planning-screen .planning-ticket-large .planning-ticket-title {
-      font-size: 1.08rem;
+    .planning-cuisine-screen .planning-cuisine-scroll {
+      margin-top: 0.85rem;
     }
 
-    .meal-planning-screen .planning-ticket-row {
-      min-height: 4.15rem;
-      padding: 0.58rem 0.7rem;
+    .planning-cuisine-screen .planning-cuisine-scroll .space-y-3 {
+      padding-bottom: 0.25rem;
     }
 
-    .meal-planning-screen .planning-ticket-row .planning-ticket-title {
-      font-size: 0.78rem;
+    .planning-cuisine-screen .planning-cuisine-row,
+    .planning-cuisine-screen .planning-no-preference {
+      min-height: 3.25rem;
+      gap: 0.58rem;
+      border-radius: 0.85rem;
+      font-size: 0.86rem;
+      padding: 0.5rem 0.58rem;
     }
 
-    .meal-planning-screen .planning-recipe-image-slot {
-      width: 5.25rem;
-      height: 4.65rem;
-      margin-top: 0.55rem;
+    .planning-cuisine-screen .planning-cuisine-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.75rem;
+      font-size: 1.25rem;
     }
 
-    .meal-planning-screen .planning-ticket-row .planning-recipe-image-slot {
-      width: 2.85rem;
+    .planning-cuisine-screen .planning-cuisine-check {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-check svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions {
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions .planning-no-preference {
+      min-height: 2.9rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions .mt-4 {
+      margin-top: 0.5rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions .h-12 {
       height: 2.55rem;
     }
 
-    .meal-planning-screen .planning-ticket-divider {
-      margin: 0.55rem 0;
+    .planning-tickets-screen {
+      padding-top: 0.45rem;
+      padding-bottom: 0.5rem;
     }
 
-    .meal-planning-screen .planning-use-chip {
-      min-height: 1.72rem;
-      font-size: 0.64rem;
-      padding: 0.28rem 0.5rem;
+    .planning-tickets-screen .planning-back-button {
+      margin-bottom: 0.35rem;
+    }
+
+    .planning-tickets-screen .planning-display {
+      font-size: 1.12rem;
+      line-height: 1.04;
+    }
+
+    .planning-tickets-screen .text-center svg {
+      width: 0.95rem;
+      height: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-stack {
+      margin-top: 0.6rem;
+      border-radius: 0.9rem;
+      padding: 0.45rem 0.4rem 0.5rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-stack::before {
+      inset: 0.3rem 0.7rem auto;
+      height: 1.45rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-large {
+      min-height: 13.2rem;
+      padding: 0.72rem 0.65rem 0.55rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-title {
+      margin-top: 0.35rem;
+      font-size: 0.9rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-large .planning-ticket-title {
+      font-size: 0.98rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row {
+      min-height: 3.15rem;
+      gap: 0.42rem;
+      padding: 0.38rem 0.48rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row .planning-ticket-title {
+      font-size: 0.68rem;
+    }
+
+    .planning-tickets-screen .planning-recipe-image-slot {
+      width: 4.55rem;
+      height: 3.75rem;
+      margin-top: 0.32rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row .planning-recipe-image-slot {
+      width: 2.28rem;
+      height: 2rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-meta {
+      gap: 0.18rem;
+      font-size: 0.62rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row .planning-ticket-meta {
+      width: 3.55rem;
+      flex-basis: 3.55rem;
+      gap: 0.16rem;
+      font-size: 0.52rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-divider {
+      margin: 0.34rem 0;
+    }
+
+    .planning-tickets-screen .planning-ticket-section-label,
+    .planning-tickets-screen .planning-ticket-optional span,
+    .planning-tickets-screen .planning-prep-label {
+      font-size: 0.6rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-chip-row {
+      gap: 0.28rem;
+    }
+
+    .planning-tickets-screen .planning-use-chip {
+      min-height: 1.34rem;
+      gap: 0.22rem;
+      font-size: 0.56rem;
+      padding: 0.18rem 0.36rem;
+    }
+
+    .planning-tickets-screen .planning-use-chip-status {
+      width: 0.72rem;
+      height: 0.72rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-optional {
+      margin-top: 0.34rem;
+      font-size: 0.6rem;
+      line-height: 1.15;
+    }
+
+    .planning-tickets-screen > .mt-6 {
+      gap: 0.45rem;
+      margin-top: 0.6rem;
+    }
+
+    .planning-tickets-screen > .mt-6 .h-12 {
+      height: 2.55rem;
+    }
+
+    .planning-prep-screen {
+      padding-top: 0.45rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .planning-prep-screen .planning-back-button {
+      margin-bottom: 0.35rem;
+    }
+
+    .planning-prep-screen .planning-prep-tray {
+      border-radius: 0.95rem;
+    }
+
+    .planning-prep-screen .planning-prep-hero {
+      min-height: 6.75rem;
+      gap: 0.35rem;
+      padding: 0.55rem;
+    }
+
+    .planning-prep-screen .planning-prep-hero[data-image-state='ready'] {
+      height: 6.75rem;
+    }
+
+    .planning-prep-screen .planning-recipe-image-slot-prep {
+      width: min(10.5rem, 100%);
+      height: 5.35rem;
+      border-radius: 0.8rem;
+    }
+
+    .planning-prep-screen .planning-prep-image-status {
+      font-size: 0.8rem;
+    }
+
+    .planning-prep-screen .planning-prep-body {
+      padding: 0.72rem;
+    }
+
+    .planning-prep-screen .planning-display {
+      font-size: 1.08rem;
+      line-height: 1.05;
+    }
+
+    .planning-prep-screen .planning-ticket-meta {
+      margin-top: 0.38rem;
+      font-size: 0.62rem;
+    }
+
+    .planning-prep-screen .planning-prep-body .planning-copy {
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
+      line-height: 1.25;
+    }
+
+    .planning-prep-screen .planning-prep-section {
+      border-radius: 0.8rem;
+      padding: 0.55rem;
+    }
+
+    .planning-prep-screen .planning-prep-section.mt-5 {
+      margin-top: 0.6rem;
+    }
+
+    .planning-prep-screen .planning-prep-optional.mt-4 {
+      margin-top: 0.45rem;
+    }
+
+    .planning-prep-screen .planning-ticket-chip-row {
+      gap: 0.28rem;
+    }
+
+    .planning-prep-screen .planning-use-chip {
+      min-height: 1.34rem;
+      gap: 0.22rem;
+      font-size: 0.56rem;
+      padding: 0.18rem 0.36rem;
+    }
+
+    .planning-prep-screen .planning-optional-chip {
+      min-height: 1.34rem;
+      font-size: 0.56rem;
+      padding: 0.16rem 0.38rem;
+    }
+
+    .planning-prep-screen > .mt-5 {
+      height: 2.55rem;
+      margin-top: 0.6rem;
     }
 
     .setup-ui {
@@ -3093,7 +3331,7 @@ html, body {
 
     .setup-ui > div {
       min-height: 100svh;
-      padding-top: 0.5rem;
+      padding-top: 0;
     }
 
     .setup-phone-frame {
@@ -3101,20 +3339,29 @@ html, body {
       max-height: 100svh;
       overflow-y: auto;
       border-radius: 1.35rem 1.35rem 0 0;
-      padding-top: 0.85rem;
+      padding-top: 0.55rem;
     }
 
     .setup-progress-shell {
-      min-height: 2.1rem;
-      margin-bottom: 0.75rem;
+      min-height: 1.75rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .setup-progress-track {
+      height: 0.52rem;
+    }
+
+    .setup-progress-count {
+      font-size: 0.68rem;
+      padding: 0.42rem 0.55rem;
     }
 
     .setup-scan-step {
-      gap: 0.85rem;
+      gap: 0.65rem;
     }
 
     .setup-scan-step .setup-display {
-      font-size: 1.62rem;
+      font-size: 1.42rem;
       line-height: 1;
     }
 
@@ -3125,7 +3372,7 @@ html, body {
     }
 
     .setup-scan-step .setup-camera-card {
-      padding: 0.55rem;
+      padding: 0.45rem;
     }
 
     .setup-scan-step .setup-viewfinder {
@@ -3133,7 +3380,7 @@ html, body {
     }
 
     .setup-scan-step .setup-viewfinder > .relative {
-      aspect-ratio: 1 / 1.05;
+      aspect-ratio: 1 / 0.9;
     }
 
     .setup-scan-step .setup-live-badge {
@@ -3169,7 +3416,7 @@ html, body {
     }
 
     .setup-scan-step .setup-secondary-button {
-      height: 2.95rem;
+      height: 2.75rem;
       padding-inline: 0.85rem;
     }
 
@@ -3184,8 +3431,25 @@ html, body {
     }
 
     .setup-bottom-bar {
-      padding-top: 0.75rem;
-      padding-bottom: 0.75rem;
+      padding-top: 0.55rem;
+      padding-bottom: 0.55rem;
+    }
+
+    .slop-bowl-approval-screen {
+      gap: 1rem;
+    }
+
+    .slop-approval-actions {
+      gap: 0.52rem;
+    }
+
+    .slop-approval-actions .h-12 {
+      height: 2.65rem;
+    }
+
+    .slop-approval-actions p {
+      font-size: 0.78rem;
+      line-height: 1.15;
     }
   }
 

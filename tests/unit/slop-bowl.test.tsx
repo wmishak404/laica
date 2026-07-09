@@ -111,6 +111,9 @@ describe('SlopBowl pantry check visual grammar', () => {
     const rejectButton = screen.getByRole('button', { name: /try something else/i });
     const planInsteadButton = screen.getByRole('button', { name: /plan your own meal instead/i });
 
+    expect(screen.getByText(/we made you a thing/i).closest('.slop-bowl-approval-screen')).toBeTruthy();
+    expect(planInsteadButton.closest('.slop-approval-actions')).toBeTruthy();
+
     for (const button of [acceptButton, rejectButton, planInsteadButton]) {
       expect(button.className).toContain('h-12');
       expect(button.className).toContain('rounded-xl');

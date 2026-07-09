@@ -403,7 +403,7 @@ export default function SlopBowl({
     if (!recipe) return null;
 
     return (
-      <div className="slop-bowl-menu-screen space-y-6">
+      <div className="slop-bowl-menu-screen slop-bowl-approval-screen">
         <div className="text-center">
           <h2 className="planning-display text-2xl font-extrabold leading-tight text-gray-950 mb-1">We made you a thing.</h2>
           <p className="planning-copy text-sm font-bold">Look what your pantry had hiding in it</p>
@@ -460,15 +460,14 @@ export default function SlopBowl({
           </CardContent>
         </Card>
 
-        <Button
-          onClick={handleAccept}
-          className="h-12 w-full rounded-xl font-extrabold"
-        >
-          <ChefHat className="h-5 w-5" />
-          Let's cook this!
-        </Button>
-
-        <div className="space-y-3">
+        <div className="slop-approval-actions">
+          <Button
+            onClick={handleAccept}
+            className="h-12 w-full rounded-xl font-extrabold"
+          >
+            <ChefHat className="h-5 w-5" />
+            Let's cook this!
+          </Button>
           <p className="text-sm text-gray-400 text-center">Not feeling it? No judgment.</p>
           <Button
             variant="outline"
