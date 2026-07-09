@@ -58,7 +58,7 @@ Focused local evidence so far:
 - `npm audit --audit-level=high` passed with 0 vulnerabilities.
 - `git diff --check` passed.
 - Local targeted Playwright did not reach the changed assertion because the local dotenvx database is missing `anonymous_recipe_usage`, so guest setup timed out before the Live Cooking path.
-- GitHub exact-head checks passed for PR #275 at head `2d9c0b1`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks.
+- GitHub exact-head checks passed for PR #275: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks.
 
 Value claim: cooks are less likely to get stranded when voice help fails during a step. Evidence: focused Vitest proves microphone-denial and assistance-route failures render `assistance-inline-issue`, keep the current step visible, avoid toast-only presentation, and clear on retry. Evidence limits: provider/network behavior is mocked; no live microphone, Replit device permission, real transcription, or real assistance provider call has been manually smoked yet.
 
@@ -66,6 +66,6 @@ Value claim: cooks are less likely to get stranded when voice help fails during 
 
 - Base refreshed: yes
 - Current base: `origin/main` at `9618a15`
-- Current PR head with passing GitHub checks: `2d9c0b1`
+- Current PR head: see PR #275 for the live exact-head check rollup.
 - Last Replit-validated at: not yet validated / deferred to release-batch validation
 - Notes: independent branch from current `origin/main`; not stacked on PR #265, #272, or #274.
