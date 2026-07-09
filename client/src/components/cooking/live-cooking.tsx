@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
@@ -117,6 +117,31 @@ function createBasicCookingSteps(recipeName: string): RecipeStep[] {
   ];
 }
 
+function formatTimerDuration(seconds: number) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  if (minutes > 0 && remainingSeconds > 0) {
+    return `${minutes} min ${remainingSeconds} sec`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+  }
+
+  return `${remainingSeconds} ${remainingSeconds === 1 ? 'second' : 'seconds'}`;
+}
+
+function formatTimerClock(seconds: number) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
 function normalizeInstructionText(instruction: string) {
   return instruction.replace(/\s+/g, ' ').trim();
 }
@@ -158,6 +183,53 @@ function isPlaceholderInstruction(instruction: string) {
 
 const STEP_ACTION_LABEL_MAX_WORDS = 5;
 const STEP_ACTION_LABEL_MAX_CHARS = 24;
+
+function parseTimerDurationSeconds(value: string) {
+  const normalized = value.replace(/[–—]/g, '-');
+  const candidates: number[] = [];
+  const durationPattern = /\b(\d+(?:\.\d+)?)\s*(seconds?|secs?|minutes?|mins?)\b/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = durationPattern.exec(normalized)) !== null) {
+    const amount = Number.parseFloat(match[1]);
+    const unit = match[2].toLowerCase();
+    const seconds = unit.startsWith('sec') ? amount : amount * 60;
+    if (Number.isFinite(seconds) && seconds > 0) {
+      candidates.push(seconds);
+    }
+  }
+
+  return candidates.length > 0 ? Math.round(Math.max(...candidates)) : null;
+}
+
+function getStepTimerDurationSeconds(step?: RecipeStep) {
+  if (!step) {
+    return null;
+  }
+
+  if (typeof step.duration === 'number' && Number.isFinite(step.duration)) {
+    const roundedSeconds = Math.round(step.duration);
+    return roundedSeconds > 0 ? roundedSeconds : null;
+  }
+
+  return parseTimerDurationSeconds(step.instruction);
+}
+
+function formatTimerControlDuration(seconds: number) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainingSeconds = safeSeconds % 60;
+
+  if (minutes > 0 && remainingSeconds === 0) {
+    return `${minutes} min`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes} min ${remainingSeconds} sec`;
+  }
+
+  return `${remainingSeconds} sec`;
+}
 
 function normalizeActionLabelForComparison(label: string) {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -229,7 +301,7 @@ function toRecipeStep(step: unknown, index: number): RecipeStep | null {
   const parsedDuration = typeof candidate.duration === 'number'
     ? candidate.duration
     : typeof candidate.duration === 'string'
-      ? Number.parseInt(candidate.duration, 10) || undefined
+      ? parseTimerDurationSeconds(candidate.duration) ?? undefined
       : undefined;
   const safetyLevel = candidate.safetyLevel === 'critical' ||
     candidate.safetyLevel === 'important' ||
@@ -480,7 +552,9 @@ function normalizeContextItems(items?: string[]) {
 interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
-  onBackToPlanning: () => void;
+  onBackToPlanning: (options?: { preserveMealPlanningSession?: boolean }) => void;
+  onCookingGuideStarted?: () => void;
+  onCookingGuideStateChange?: (isActive: boolean) => void;
   onCookingComplete?: () => void;
   profileFingerprint?: string;
 }
@@ -489,6 +563,8 @@ export default function LiveCooking({
   selectedMeal,
   scheduledTime,
   onBackToPlanning,
+  onCookingGuideStarted,
+  onCookingGuideStateChange,
   onCookingComplete,
   profileFingerprint,
 }: LiveCookingProps) {
@@ -510,6 +586,7 @@ export default function LiveCooking({
   const [isProcessing, setIsProcessing] = useState(false);
   const [timer, setTimer] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [isTimerComplete, setIsTimerComplete] = useState(false);
   const [captionSize, setCaptionSize] = useState(16);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [loadedRecipeSteps, setLoadedRecipeSteps] = useState<RecipeStep[]>([]);
@@ -530,11 +607,14 @@ export default function LiveCooking({
   const [cookingStartTime, setCookingStartTime] = useState<Date | null>(null);
   const [voiceAvailable, setVoiceAvailable] = useState(true);
   const [voiceErrorShown, setVoiceErrorShown] = useState(false);
+  const [stepPreviewOverflow, setStepPreviewOverflow] = useState({ left: false, right: false });
   const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [areCaptionsVisible, setAreCaptionsVisible] = useState(getInitialCaptionsVisible);
   const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
+  const stepPreviewStripRef = useRef<HTMLOListElement | null>(null);
+  const activeStepPreviewRef = useRef<HTMLLIElement | null>(null);
 
   const { toast } = useToast();
   const startSessionMutation = useStartCookingSession();
@@ -558,6 +638,7 @@ export default function LiveCooking({
   const sessionRestoredRef = useRef(false);
   const sessionStepsRestoredRef = useRef(false);
   const restoredCookingSessionRef = useRef(false);
+  const hasNotifiedCookingGuideStartedRef = useRef(false);
   const initialMountRef = useRef(true);
   const assistantResponseRef = useRef(assistantResponse);
   const isAudioEnabledRef = useRef(isAudioEnabled);
@@ -581,6 +662,15 @@ export default function LiveCooking({
     () => normalizeContextItems(selectedMeal.missingIngredients),
     [selectedMeal.missingIngredients],
   );
+
+  useEffect(() => {
+    onCookingGuideStateChange?.(hasStartedCookingGuide);
+
+    if (hasStartedCookingGuide && !hasNotifiedCookingGuideStartedRef.current) {
+      hasNotifiedCookingGuideStartedRef.current = true;
+      onCookingGuideStarted?.();
+    }
+  }, [hasStartedCookingGuide, onCookingGuideStarted, onCookingGuideStateChange]);
 
   // Validate and sanitize a saved cooking session
   const validateCookingSession = (data: any): SavedCookingSession | null => {
@@ -731,7 +821,7 @@ export default function LiveCooking({
   const handleBackToPlanning = () => {
     stopCookingAudioLifecycle();
     clearCookingSession();
-    onBackToPlanning();
+    onBackToPlanning({ preserveMealPlanningSession: !hasStartedCookingGuide });
   };
 
   // Detect mobile device and setup early AudioContext preparation
@@ -952,6 +1042,17 @@ export default function LiveCooking({
     ? Math.min(currentStepIndex, currentRecipeSteps.length - 1)
     : currentStepIndex;
   const currentStep = currentRecipeSteps[displayedStepIndex];
+  const timerDuration = getStepTimerDurationSeconds(currentStep);
+  const shouldShowTimerControl = Boolean(currentStep) && timerDuration !== null;
+  const displayedTimerSeconds = isTimerComplete ? 0 : timer > 0 ? timer : timerDuration ?? 0;
+  const timerControlDurationLabel = timerDuration !== null ? formatTimerControlDuration(timerDuration) : '';
+  const timerPrimaryActionLabel = isTimerRunning
+    ? 'Pause timer'
+    : isTimerComplete
+      ? `Restart ${timerControlDurationLabel} timer`
+      : timer > 0
+        ? 'Resume timer'
+        : `Start ${timerControlDurationLabel} timer`;
   const stepPreviewLabels = useMemo(
     () => buildStepPreviewLabels(currentRecipeSteps),
     [currentRecipeSteps],
@@ -965,12 +1066,60 @@ export default function LiveCooking({
     ),
   );
   const isFinalStep = currentRecipeSteps.length > 0 && displayedStepIndex >= currentRecipeSteps.length - 1;
+  const updateStepPreviewOverflow = useCallback(() => {
+    const strip = stepPreviewStripRef.current;
+    if (!strip) {
+      setStepPreviewOverflow({ left: false, right: false });
+      return;
+    }
+
+    const maxScrollLeft = Math.max(0, strip.scrollWidth - strip.clientWidth);
+    const nextOverflow = {
+      left: strip.scrollLeft > 1,
+      right: strip.scrollLeft < maxScrollLeft - 1,
+    };
+
+    setStepPreviewOverflow(current => (
+      current.left === nextOverflow.left && current.right === nextOverflow.right
+        ? current
+        : nextOverflow
+    ));
+  }, []);
+  const scrollActiveStepPreviewIntoView = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    activeStepPreviewRef.current?.scrollIntoView?.({
+      behavior,
+      block: 'nearest',
+      inline: 'center',
+    });
+
+    window.requestAnimationFrame?.(updateStepPreviewOverflow);
+  }, [updateStepPreviewOverflow]);
 
   useEffect(() => {
     if (currentRecipeSteps.length > 0 && currentStepIndex >= currentRecipeSteps.length) {
       setCurrentStepIndex(currentRecipeSteps.length - 1);
     }
   }, [currentRecipeSteps.length, currentStepIndex]);
+
+  useEffect(() => {
+    if (!hasStartedCookingGuide || currentRecipeSteps.length === 0) return;
+
+    scrollActiveStepPreviewIntoView();
+  }, [displayedStepIndex, currentRecipeSteps.length, hasStartedCookingGuide, scrollActiveStepPreviewIntoView]);
+
+  useEffect(() => {
+    const strip = stepPreviewStripRef.current;
+    if (!strip || currentRecipeSteps.length === 0) return;
+
+    updateStepPreviewOverflow();
+    strip.addEventListener('scroll', updateStepPreviewOverflow, { passive: true });
+    window.addEventListener('resize', updateStepPreviewOverflow);
+
+    return () => {
+      strip.removeEventListener('scroll', updateStepPreviewOverflow);
+      window.removeEventListener('resize', updateStepPreviewOverflow);
+    };
+  }, [currentRecipeSteps.length, updateStepPreviewOverflow]);
 
   useEffect(() => {
     if (!hasStartedCookingGuide || currentRecipeSteps.length === 0) return;
@@ -1037,6 +1186,7 @@ export default function LiveCooking({
       }, 1000);
     } else if (timer === 0 && isTimerRunning) {
       setIsTimerRunning(false);
+      setIsTimerComplete(true);
       setSpokenAssistantResponse("Time's up! Check your cooking and let me know how it looks.");
     }
 
@@ -1366,6 +1516,7 @@ export default function LiveCooking({
     setCurrentStepIndex(0);
     setTimer(0);
     setIsTimerRunning(false);
+    setIsTimerComplete(false);
     setStepLoadIssue(null);
     setHasStartedCookingGuide(true);
   };
@@ -1375,8 +1526,9 @@ export default function LiveCooking({
       const newStepIndex = currentStepIndex + 1;
       setCurrentStepIndex(newStepIndex);
       const nextStepData = currentRecipeSteps[newStepIndex];
-      setTimer(nextStepData?.duration || 0);
+      setTimer(0);
       setIsTimerRunning(false);
+      setIsTimerComplete(false);
       
       const stepText = `Step ${newStepIndex + 1}: ${formatInstructionWithTips(nextStepData.instruction, nextStepData.tips)}`;
       setSpokenAssistantResponse(stepText);
@@ -1395,18 +1547,48 @@ export default function LiveCooking({
       const newStepIndex = currentStepIndex - 1;
       setCurrentStepIndex(newStepIndex);
       const prevStepData = currentRecipeSteps[newStepIndex];
-      setTimer(prevStepData?.duration || 0);
+      setTimer(0);
       setIsTimerRunning(false);
+      setIsTimerComplete(false);
       
       const stepText = `Back to step ${newStepIndex + 1}: ${prevStepData.instruction}`;
       setSpokenAssistantResponse(stepText);
     }
   };
 
-  const startTimer = (minutes: number) => {
-    setTimer(minutes * 60);
+  const startTimer = (durationSeconds: number) => {
+    setTimer(durationSeconds);
     setIsTimerRunning(true);
-    setSpokenAssistantResponse(`Timer set for ${minutes} minutes. I'll let you know when time is up!`);
+    setIsTimerComplete(false);
+    setSpokenAssistantResponse(`Timer set for ${formatTimerDuration(durationSeconds)}. I'll let you know when time is up!`);
+  };
+
+  const toggleTimerRunning = () => {
+    if (isTimerRunning) {
+      setIsTimerRunning(false);
+      return;
+    }
+
+    if (timer > 0) {
+      setIsTimerRunning(true);
+      return;
+    }
+
+    if (timerDuration === null) {
+      return;
+    }
+
+    startTimer(timerDuration);
+  };
+
+  const resetTimer = () => {
+    if (timerDuration === null) {
+      return;
+    }
+
+    setTimer(timerDuration);
+    setIsTimerRunning(false);
+    setIsTimerComplete(false);
   };
 
   // Clean up audio on component unmount or page navigation
@@ -1788,13 +1970,6 @@ export default function LiveCooking({
     }
   };
 
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const readyCheckItems = [
     {
       label: 'Ingredients nearby',
@@ -1837,8 +2012,8 @@ export default function LiveCooking({
 
   if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
     return (
-      <div className="live-cooking-ui min-h-screen w-full px-4 py-6">
-        <div className="live-cooking-screen mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col gap-5">
+      <div className="live-cooking-ui min-h-screen w-full px-4 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] pt-6">
+        <div className="live-cooking-screen mx-auto flex min-h-[calc(100svh-10rem)] w-full max-w-md flex-col gap-5">
           <Button
             variant="ghost"
             onClick={handleBackToPlanning}
@@ -1876,7 +2051,11 @@ export default function LiveCooking({
           </div>
 
           <div className="mt-auto grid gap-3 pb-2">
-            <Button size="lg" onClick={() => startCookingGuideFromReadyCheck()}>
+            <Button
+              size="lg"
+              onClick={() => startCookingGuideFromReadyCheck()}
+              className="live-cooking-start-button h-14 text-lg font-extrabold"
+            >
               <Play className="h-4 w-4 mr-2" />
               Start cooking
             </Button>
@@ -1996,60 +2175,109 @@ export default function LiveCooking({
                 )}
               </div>
 
-              <ol
-                aria-label="Step previews"
-                className="flex gap-2 overflow-x-auto pb-1"
-                data-testid="step-preview-strip"
-              >
-                {stepPreviewLabels.map((label, index) => {
-                  const isActive = index === displayedStepIndex;
+              <div className="relative">
+                {stepPreviewOverflow.left && (
+                  <button
+                    type="button"
+                    aria-label="Return to current step preview; more steps are to the left"
+                    className="absolute bottom-0 left-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-sm"
+                    data-testid="step-preview-overflow-left"
+                    onClick={() => scrollActiveStepPreviewIntoView()}
+                  >
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+                {stepPreviewOverflow.right && (
+                  <button
+                    type="button"
+                    aria-label="Return to current step preview; more steps are to the right"
+                    className="absolute bottom-0 right-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-sm"
+                    data-testid="step-preview-overflow-right"
+                    onClick={() => scrollActiveStepPreviewIntoView()}
+                  >
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+                <ol
+                  ref={stepPreviewStripRef}
+                  aria-label="Step previews"
+                  className="flex gap-2 overflow-x-auto pb-3"
+                  data-testid="step-preview-strip"
+                >
+                  {stepPreviewLabels.map((label, index) => {
+                    const isActive = index === displayedStepIndex;
 
-                  return (
-                    <li
-                      key={`${currentRecipeSteps[index]?.id ?? index}-${label}`}
-                      aria-current={isActive ? 'step' : undefined}
-                      className="live-cooking-preview-card flex flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center"
-                      data-state={isActive ? 'active' : index < displayedStepIndex ? 'done' : 'upcoming'}
-                    >
-                      <span
-                        className="live-cooking-preview-dot h-2.5 w-2.5 rounded-full"
-                        aria-hidden="true"
-                      />
-                      <span className="line-clamp-2 text-[0.68rem] font-semibold leading-tight">
-                        {label}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
+                    return (
+                      <li
+                        key={`${currentRecipeSteps[index]?.id ?? index}-${label}`}
+                        ref={element => {
+                          if (isActive) {
+                            activeStepPreviewRef.current = element;
+                          }
+                        }}
+                        aria-current={isActive ? 'step' : undefined}
+                        className="live-cooking-preview-card flex flex-1 flex-col items-center gap-1 rounded-md border px-2 py-1 text-center"
+                        data-state={isActive ? 'active' : index < displayedStepIndex ? 'done' : 'upcoming'}
+                      >
+                        <span
+                          className="live-cooking-preview-dot h-2.5 w-2.5 rounded-full"
+                          aria-hidden="true"
+                        />
+                        <span className="line-clamp-2 text-[0.68rem] font-semibold leading-tight">
+                          {label}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
             </CardHeader>
             <CardContent className="space-y-2 p-3 pt-0 sm:p-4 sm:pt-0">
-              {currentStep.duration && (
-                <div className="live-cooking-timer-pill flex items-center gap-2 rounded-md border p-2">
-                  <div className="min-w-0 flex-1 text-sm font-medium">
-                    <Clock className="mr-1 inline h-4 w-4" />
-                    {timer > 0 ? (
-                      <>Timer: {formatTime(timer)}</>
+              {shouldShowTimerControl && (
+                <div
+                  className="live-cooking-timer-pill grid grid-cols-[4.75rem_minmax(0,1fr)_4.75rem] items-center gap-1.5 rounded-md border px-3 py-2 sm:grid-cols-[5.5rem_minmax(0,1fr)_5.5rem] sm:gap-2"
+                  data-state={isTimerComplete ? 'complete' : timer > 0 ? 'active' : 'ready'}
+                  data-testid="live-cooking-timer"
+                >
+                  <div aria-hidden="true" />
+                  <div
+                    className="flex min-w-0 items-center justify-center text-xl font-medium leading-none tabular-nums sm:text-3xl"
+                    data-testid="live-cooking-timer-clock"
+                  >
+                    {isTimerComplete ? (
+                      <>
+                        <CheckCircle className="mr-1.5 inline h-6 w-6 shrink-0 sm:h-8 sm:w-8" />
+                        <span data-testid="live-cooking-timer-status">Time's up</span>
+                      </>
                     ) : (
-                      `Optional timer: ${currentStep.duration / 60} min`
+                      <>
+                        <Clock className="mr-1.5 inline h-6 w-6 shrink-0 sm:h-8 sm:w-8" />
+                        {formatTimerClock(displayedTimerSeconds)}
+                      </>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => startTimer(currentStep.duration! / 60)}
-                  >
-                    Start {currentStep.duration / 60} min timer
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => setIsTimerRunning(!isTimerRunning)}
-                    variant={isTimerRunning ? "destructive" : "secondary"}
-                    aria-label={isTimerRunning ? "Pause timer" : "Resume timer"}
-                    disabled={timer === 0}
-                  >
-                    {isTimerRunning ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                  </Button>
+                  <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={toggleTimerRunning}
+                      aria-label={timerPrimaryActionLabel}
+                      title={timerPrimaryActionLabel}
+                      className="live-cooking-round-control h-9 w-9 sm:h-10 sm:w-10"
+                    >
+                      {isTimerRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={resetTimer}
+                      aria-label={`Reset ${timerControlDurationLabel} timer`}
+                      title={`Reset ${timerControlDurationLabel} timer`}
+                      className="live-cooking-round-control h-9 w-9 sm:h-10 sm:w-10"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -2111,7 +2339,21 @@ export default function LiveCooking({
             )}
           </div>
 
-          <div className="flex justify-end">
+          <div className="live-cooking-caption-row flex items-start justify-end gap-2">
+            {areCaptionsVisible && (
+              <div
+                className="live-cooking-caption-box min-w-0 flex-1 rounded-md border p-3"
+                data-testid="transcription-box"
+              >
+                <p
+                  className="leading-relaxed text-foreground"
+                  style={{ fontSize: `${captionSize}px` }}
+                  data-testid="text-transcription-full"
+                >
+                  {assistantResponse}
+                </p>
+              </div>
+            )}
             <Button
               variant="outline"
               size="icon"
@@ -2119,26 +2361,14 @@ export default function LiveCooking({
               aria-expanded={areCaptionsVisible}
               aria-label={areCaptionsVisible ? 'Hide captions' : 'Show captions'}
               title={areCaptionsVisible ? 'Hide captions' : 'Show captions'}
+              className="live-cooking-caption-toggle"
               data-testid="button-toggle-captions"
             >
-              <span className="text-xs font-bold" aria-hidden="true">CC</span>
+              <span className="live-cooking-caption-mark" aria-hidden="true">CC</span>
             </Button>
           </div>
 
-          {areCaptionsVisible ? (
-            <div
-              className="live-cooking-caption-box rounded-md border p-3"
-              data-testid="transcription-box"
-            >
-              <p
-                className="leading-relaxed text-foreground"
-                style={{ fontSize: `${captionSize}px` }}
-                data-testid="text-transcription-full"
-              >
-                {assistantResponse}
-              </p>
-            </div>
-          ) : (
+          {!areCaptionsVisible && (
             <p className="sr-only" data-testid="text-transcription-full">
               {assistantResponse}
             </p>

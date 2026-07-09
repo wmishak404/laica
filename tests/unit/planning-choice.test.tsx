@@ -144,9 +144,44 @@ vi.mock('@/components/cooking/slop-bowl', () => ({
 }));
 
 vi.mock('@/components/cooking/live-cooking', () => ({
-  default: ({ selectedMeal }: { selectedMeal: { recipeName: string } }) => (
-    <div data-testid="live-cooking">Live cooking: {selectedMeal.recipeName}</div>
-  ),
+  default: ({
+    selectedMeal,
+    onBackToPlanning,
+    onCookingGuideStarted,
+    onCookingGuideStateChange,
+  }: {
+    selectedMeal: { recipeName: string };
+    onBackToPlanning?: (options?: { preserveMealPlanningSession?: boolean }) => void;
+    onCookingGuideStarted?: () => void;
+    onCookingGuideStateChange?: (isActive: boolean) => void;
+  }) => {
+    const [isActive, setIsActive] = React.useState(false);
+
+    React.useEffect(() => {
+      onCookingGuideStateChange?.(isActive);
+    }, [isActive, onCookingGuideStateChange]);
+
+    return (
+      <div data-testid="live-cooking">
+        Live cooking: {selectedMeal.recipeName}
+        <button
+          type="button"
+          onClick={() => onBackToPlanning?.({ preserveMealPlanningSession: !isActive })}
+        >
+          Mock back to planning
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setIsActive(true);
+            onCookingGuideStarted?.();
+          }}
+        >
+          Mock start cooking
+        </button>
+      </div>
+    );
+  },
 }));
 
 vi.mock('@/components/cooking/user-settings', () => ({
@@ -770,6 +805,94 @@ describe('MobileApp planning choice pantry status', () => {
 
     expect(await screen.findByTestId('live-cooking')).toHaveTextContent('Live cooking: Vegetable and Tofu Stir Fry');
     expect(screen.queryByRole('heading', { name: /what are we cooking today/i })).toBeNull();
+  });
+
+  it('keeps Ready Check in the app shell and returns back to the Prep Tray session', async () => {
+    const profile = makeProfile({
+      pantryIngredients: ['tofu', 'bell peppers', 'soy sauce'],
+      kitchenEquipment: ['wok'],
+    });
+    const selectedMeal = {
+      id: 'recipe-vegetable-tofu-stir-fry',
+      recipeName: 'Vegetable and Tofu Stir Fry',
+      description: 'Crisp vegetables and tofu in a quick sauce.',
+      cookTime: 25,
+      difficulty: 'Easy',
+      cuisine: 'Chinese',
+      pantryMatch: 92,
+      missingIngredients: [],
+      ingredients: ['extra-firm tofu, pressed and cubed', 'bell peppers, sliced'],
+      equipment: ['wok or large skillet'],
+    };
+    const planningStorageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
+    mocks.userProfileReturn.data = { user: profile };
+    writeMealPlanningSession('linked:user-1', profile, {
+      currentStep: 'prep-tray',
+      recommendations: [{ id: selectedMeal.id, recipeName: selectedMeal.recipeName }],
+    });
+    window.localStorage.setItem('laica_active_cooking_plan:linked:user-1', JSON.stringify({
+      selectedMeal,
+      scheduledTime: 'now',
+      savedAt: Date.now(),
+      profileFingerprint: createPlanningProfileFingerprint(profile),
+    }));
+
+    render(<MobileApp />);
+
+    expect(await screen.findByTestId('live-cooking')).toHaveTextContent('Live cooking: Vegetable and Tofu Stir Fry');
+    expect(screen.getByLabelText('Cook')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /mock back to planning/i }));
+
+    const planning = await screen.findByTestId('meal-planning');
+    expect(planning.dataset.scope).toBe('linked:user-1');
+    expect(screen.queryByRole('heading', { name: /what are we cooking today/i })).toBeNull();
+    expect(window.localStorage.getItem(planningStorageKey)).toContain('"currentStep":"prep-tray"');
+    expect(window.localStorage.getItem(dismissalKey)).toBeNull();
+  });
+
+  it('hides bottom nav and dismisses Prep Tray restore once active cooking starts', async () => {
+    const profile = makeProfile({
+      pantryIngredients: ['tofu', 'bell peppers', 'soy sauce'],
+      kitchenEquipment: ['wok'],
+    });
+    const selectedMeal = {
+      id: 'recipe-vegetable-tofu-stir-fry',
+      recipeName: 'Vegetable and Tofu Stir Fry',
+      description: 'Crisp vegetables and tofu in a quick sauce.',
+      cookTime: 25,
+      difficulty: 'Easy',
+      cuisine: 'Chinese',
+      pantryMatch: 92,
+      missingIngredients: [],
+      ingredients: ['extra-firm tofu, pressed and cubed', 'bell peppers, sliced'],
+      equipment: ['wok or large skillet'],
+    };
+    const planningStorageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`;
+    const dismissalKey = `${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`;
+    mocks.userProfileReturn.data = { user: profile };
+    writeMealPlanningSession('linked:user-1', profile, {
+      currentStep: 'prep-tray',
+      recommendations: [{ id: selectedMeal.id, recipeName: selectedMeal.recipeName }],
+    });
+    window.localStorage.setItem('laica_active_cooking_plan:linked:user-1', JSON.stringify({
+      selectedMeal,
+      scheduledTime: 'now',
+      savedAt: Date.now(),
+      profileFingerprint: createPlanningProfileFingerprint(profile),
+    }));
+
+    render(<MobileApp />);
+
+    expect(await screen.findByTestId('live-cooking')).toHaveTextContent('Live cooking: Vegetable and Tofu Stir Fry');
+    expect(screen.getByLabelText('Cook')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /mock start cooking/i }));
+
+    await waitFor(() => expect(screen.queryByLabelText('Cook')).toBeNull());
+    expect(window.localStorage.getItem(planningStorageKey)).toBeNull();
+    expect(window.localStorage.getItem(dismissalKey)).toBeTruthy();
   });
 
   it('does not restore an active cooking plan after the saved pantry basis changes', async () => {

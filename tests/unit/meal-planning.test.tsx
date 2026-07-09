@@ -920,8 +920,11 @@ describe('MealPlanning recipe generation locking', () => {
       expect(container.querySelector('.planning-prep-hero .planning-recipe-image-slot')?.getAttribute('data-image-state'))
         .toBe('pending');
       expect(container.querySelector('.planning-prep-hero .planning-recipe-image-spinner')).not.toBeNull();
+      expect(screen.getByText(/cooking up the preview/i)).toBeTruthy();
       fireEvent.click(screen.getByRole('button', { name: /cook this/i }));
       expect(onMealSelected).toHaveBeenCalledTimes(1);
+      expect(window.localStorage.getItem(`${MEAL_PLANNING_STORAGE_KEY}:linked:user-1`)).toContain('"currentStep":"prep-tray"');
+      expect(window.localStorage.getItem(`${MEAL_PLANNING_DISMISSAL_STORAGE_KEY}:linked:user-1`)).toBeNull();
 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(15_000);
@@ -932,6 +935,23 @@ describe('MealPlanning recipe generation locking', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('shows a stable Prep Tray fallback when the selected image is unavailable', async () => {
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    resolveSelectedRecipeImageMock.mockResolvedValue({ status: 'unavailable', reason: 'image_not_approved' });
+    const { container } = renderMealPlanning();
+
+    advanceToCuisine();
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
+
+    expect(await screen.findByText(/preview unavailable/i)).toBeTruthy();
+    expect(container.querySelector('.planning-prep-hero .planning-recipe-image')).toBeNull();
+    expect(container.querySelector('.planning-prep-hero')?.getAttribute('data-image-state')).toBe('unavailable');
+    expect(container.querySelector('.planning-prep-hero .planning-recipe-image-spinner')).toBeNull();
   });
 
   it('keeps showing Prep Tray progress and resolves an image after the old 15 second window', async () => {

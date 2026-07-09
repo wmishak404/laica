@@ -43,7 +43,7 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 
 - Timers never auto-start.
 - Timer suggestions appear only when needed.
-- Active timer is a compact detachable/minimizable pill that does not obscure the current step.
+- Active timer is a compact inline control that does not obscure the current step.
 - A timer-worthy step has a clear start point, useful duration, meaningful consequence if missed, and still includes sensory cues.
 - No timer for vague prep work such as chopping, seasoning, or "until fragrant" unless the model can provide a useful cue and duration.
 
@@ -150,6 +150,18 @@ Local evidence: focused `npx vitest run tests/unit/live-cooking-guest-session.te
 
 Wilson's Replit follow-up on the same branch found two additional step-preview prompt failure modes: `Prep Leek` should be `Prep Leeks` when the cook is handling multiple leeks, and a final off-heat / green-onion / serve step should be labeled `Garnish` or `Garnish & Serve`, not stale generic `Cook Vegetables`. PR #264 tightens the cooking-step user prompt so action labels preserve plural ingredient grammar and final garnish/serve semantics outrank generic ingredient-bucket labels. This prompt change does not change the route contract, response schema, client fallback/eval harness, or durable session storage.
 
+## 2026-07-07 timer polish branch
+
+Branch `codex/init-001-phase4-timer-polish` starts from `origin/main` after PR #264 and its closeout. It implements the first bounded timer redesign without changing provider schema: Live Cooking shows a stable explicit-start timer control using the current recipe step's real `duration` instead of preloading active timer state or exposing provider-duration suggestions as separate cards. Navigating steps clears timer state, and the visible timer shows the step duration in `H:MM:SS` format with a centered larger clock plus persistent circular play/pause and reset controls. Timer controls appear automatically for duration-bearing steps and for explicit time language such as `cook 1-2 minutes`; durationless steps do not invent a fallback timer. The old separate timer visibility toggle is removed, leaving CC as the compact guidance-panel toggle. When captions are open, the transcript and boxed circular CC button share one row to reduce wasted vertical space. The action-forward step preview rail scrolls the active preview card into view as the cook advances, so later steps are not stranded off-screen while the rail remains at the first cards; when the rail has hidden content to the left or right, a small bottom-floating return control appears only on that side and snaps back to the current step. Timer speech copy now handles singular/plural duration text.
+
+Wilson's 2026-07-08 Replit timer run clarified the completion contract: CC remains a voice/transcript affordance and should not become the general timer-notification surface. When a countdown reaches zero, the timer control itself must show an independent visible completion state such as `Time's up`, even if speech synthesis is unavailable or captions are hidden. The timer may still send the same completion text through the speech/transcript path when voice is available, but visual timer completion is required on its own.
+
+Wilson's Replit review at PR head `3849c846` added a Ready Check app-shell follow-up that belongs in this same PR: Prep Tray selected-image loading now includes larger visible copy plus a stable `Preview unavailable` fallback when the resolver returns `status: unavailable`; Ready Check `Back to Planning` preserves and restores the Prep Tray / recipe suggestions instead of restarting planning; and the existing bottom nav remains visible on Ready Check per Wilson's explicit request, with active hands-busy cooking still hiding it. The planning session is dismissed only after `Start cooking` begins the active guide.
+
+Wilson's 2026-07-08 Replit smoke also showed speech synthesis exhausting the old user quota during heavy Live Cooking testing. The branch raises only the speech synthesis user fallback limits from `30/hour` and `120/day` to `90/hour` and `360/day`, preserving Replit/env overrides and the broader `/api` abuse limiter as separate protections.
+
+The branch intentionally does not add `suggestedTimer` schema, timer kinds/reasons, provider prompt changes, route contracts, durable cooking-session schema changes, assistance failure handling, Finish/History semantics, formal eval work, or Phase 5 cleanup. Durable navigation scope is limited to showing the existing bottom nav on Ready Check. Focused local evidence includes `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000`, `npx vitest run tests/unit/rate-limit.test.ts`, `npm run check`, `npm run build`, and `git diff --check`; the later step-preview overflow affordance added focused Live Cooking coverage at 41 tests. Exact-head GitHub checks passed at `5abe6fe` before the final rail-affordance follow-up; release/batch Replit validation remains deferred and should include the timer, compact CC row, visible `Time's up` state, raised speech quota after server restart, step-preview rail follow/overflow-return behavior on a long recipe, Prep Tray image fallback, and Ready Check navigation/nav behavior.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
@@ -169,14 +181,17 @@ Wilson's Replit follow-up on the same branch found two additional step-preview p
 - Live Cooking uses the existing Laica planning/setup typography tone.
 - The guidance area has no user-facing "Coach Feed" label and does not look like a generic chat/feed window.
 - Step progress includes dot nodes and short action-forward preview labels for each step.
+- The step-preview rail follows the current step; if hidden steps exist to the left or right, a small bottom-floating return control appears only for the hidden side and snaps the rail back to the current step when selected.
 - Routine `minor` safety badges are not shown as a persistent status chip.
 - Repeat step instruction, Ask a question, and audio mute controls are taller icon-over-label buttons anchored in a bottom command bar, with Ask a question centered.
-- Transcript text is hidden by default and appears only when the icon-like CC caption toggle is enabled.
+- Transcript text is hidden by default and appears only when the icon-like CC caption toggle is enabled; when open, the transcript and circular boxed-CC toggle share one compact row.
 - Active Live Cooking requests a screen wake lock when supported by the browser and releases it when the guide exits or the page hides.
 - Model steps include sensory cues where applicable.
-- Suggested timers appear only on timer-worthy steps and never auto-start.
+- Timer controls appear automatically for timer-worthy steps, show the current recipe step's real or text-derived duration in `H:MM:SS` format, and never auto-start.
+- The timer control uses a centered larger clock plus circular play/pause and reset buttons; durationless steps do not invent a fallback timer, and provider step durations are not surfaced as separate timer suggestions in this slice.
+- When a timer reaches zero, the timer control itself shows a visible `Time's up` completion state. CC remains reserved for voice/transcript display and is not auto-opened as the timer alert.
 - Live Cooking should use a warm focus-mode cooking surface that visually relates to the coral/rust setup and planning surfaces without becoming a heavy marketing/hero composition.
-- Active timer can be minimized without hiding the step.
+- Active timer controls remain visible together; the minimize/collapse affordance was removed after Wilson found it displaced pause/reset and made the timer harder to understand.
 - Finish creates or updates cooking history but does not change pantry inventory.
 - Guest Finish never creates durable cooking history unless the user has linked Google first.
 - Completion sends no hidden `5` rating when the user has not rated.
