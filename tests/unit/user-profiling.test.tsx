@@ -42,7 +42,7 @@ describe('UserProfiling setup flow', () => {
   });
 
   it('starts with a welcome screen and lets pantry back return there', () => {
-    render(
+    const { container } = render(
       <UserProfiling
         onProfileComplete={vi.fn()}
         menuSlot={<button type="button">Account menu</button>}
@@ -56,6 +56,7 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
 
     expect(screen.getByRole('heading', { name: /start with pantry staples/i })).toBeTruthy();
+    expect(container.querySelector('.setup-scan-step')).toBeTruthy();
     expect(screen.getByText('1/5')).toBeTruthy();
     expect(screen.getByText(/camera is off/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /upload photos/i })).toBeTruthy();

@@ -242,6 +242,14 @@ afterEach(() => {
 });
 
 describe('MealPlanning recipe generation locking', () => {
+  it('scopes the opening time screen for mobile browser fitting', () => {
+    const { container } = renderMealPlanning();
+
+    expect(screen.getByRole('heading', { name: /how much time do you have today/i })).toBeTruthy();
+    expect(container.querySelector('.meal-planning-screen.planning-time-screen')).toBeTruthy();
+    expect(container.querySelector('.planning-time-content')).toBeTruthy();
+  });
+
   it('restores in-progress planning only from the current auth scope', async () => {
     const savedAt = Date.now();
     const profileFingerprint = createPlanningProfileFingerprint(makeMealPlanningProfile());
