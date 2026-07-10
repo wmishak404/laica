@@ -54,6 +54,8 @@ GitHub `e2e_guest_smoke` then failed again on `30709d511f7fac589565550d08425d2a8
 
 GitHub `e2e_guest_smoke` reached the consolidated Settings save path on `3c590c3982349321c115a75f1c6a75c9e3b4e85a` and failed only because the `Pantry saved!` toast text matched both the toast title and aria-live wrapper. The toast assertions now use exact text matches.
 
+GitHub `e2e_guest_smoke` then reached the Tools manual-entry step on `9f73644075b8189eb51a2104e12c97bc7e205f54` and failed because `getByLabel("Tools")` also matched camera controls. The assertion now targets the `Tools` textbox role.
+
 The focused E2E evidence must come from GitHub `e2e_guest_smoke` on the final pushed head because that lane prepares the disposable Neon branch, maps CI Firebase custom-token secrets, runs `db:health`, and then runs Playwright. Local dotenvx E2E against the default decrypted database is diagnostic only under the testing workflow.
 
 ## Stack / base status

@@ -429,7 +429,7 @@ test.describe("linked dev auth browser smoke", () => {
     await page.getByRole("tab", { name: "Tools" }).click();
     await expect(page.getByRole("heading", { name: "Tools" })).toBeVisible();
     await page.getByRole("button", { name: "Enter manually" }).click();
-    await page.getByLabel("Tools").fill("sheet pan");
+    await page.getByRole("textbox", { name: "Tools" }).fill("sheet pan");
     await page.getByRole("button", { name: "Add tools" }).click();
 
     await expect(page.getByText("sheet pan", { exact: true })).toBeVisible();
