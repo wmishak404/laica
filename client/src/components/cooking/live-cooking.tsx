@@ -1519,20 +1519,16 @@ export default function LiveCooking({
   };
 
   const showAssistanceIssue = (issue: AssistanceIssue) => {
-    const transcriptText = `${issue.title}. ${issue.description}`;
-
     setAssistanceIssue(issue);
     setAudioJustEnabled(false);
     setLastSpokenResponse('');
-    setAssistantResponse(transcriptText);
-    setSpeechIntentRevision(revision => revision + 1);
   };
 
   const showAssistanceIssueFromError = (error: unknown) => {
     const feedback = classifyAiRequestError(error, { context: 'cooking assistance', feedbackLink: false });
     showAssistanceIssue({
       title: feedback.title || "Question didn't go through",
-      description: `${feedback.description} Try Ask a question again when you're ready. Your current step is still here.`,
+      description: `${feedback.description} Try Ask a question again when you're ready. Your cooking guide is unchanged.`,
     });
   };
 
@@ -1635,7 +1631,7 @@ export default function LiveCooking({
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       showAssistanceIssue({
         title: 'Voice question is not available',
-        description: 'This browser does not support microphone recording here. You can keep following the current step.',
+        description: 'This browser does not support microphone recording here. The cooking guide is unchanged.',
       });
       return;
     }
@@ -1832,7 +1828,7 @@ export default function LiveCooking({
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
           showAssistanceIssue({
             title: 'Question timed out',
-            description: 'Try Ask a question again and keep it under 30 seconds. Your current step is still here.',
+            description: 'Try Ask a question again and keep it under 30 seconds. The cooking guide is unchanged.',
           });
           cancelVoiceRecording();
         }
@@ -1844,7 +1840,7 @@ export default function LiveCooking({
       console.error('Error accessing microphone:', error);
       showAssistanceIssue({
         title: "Microphone didn't start",
-        description: 'Check your browser permission, then use Ask a question again. Your current step is still here.',
+        description: 'Check your browser permission, then use Ask a question again. The cooking guide is unchanged.',
       });
       isVoiceRecordingRef.current = false;
       setIsVoiceRecording(false);
@@ -1896,7 +1892,7 @@ export default function LiveCooking({
         const exceeded = usageLimits.limitsExceeded.join(', ');
         showAssistanceIssue({
           title: 'Voice questions are temporarily limited',
-          description: `You've reached your ${exceeded} limit. Remaining usage: ${usageLimits.remainingUsage.dailyMinutes.toFixed(1)} min today. Keep following the current step for now.`,
+          description: `You've reached your ${exceeded} limit. Remaining usage: ${usageLimits.remainingUsage.dailyMinutes.toFixed(1)} min today. The cooking guide is unchanged.`,
         });
         clearRecordingTimers();
         setIsProcessing(false);
@@ -1998,7 +1994,7 @@ export default function LiveCooking({
       } else {
         showAssistanceIssue({
           title: "Question didn't get an answer",
-          description: "I didn't get a useful answer back. Try Ask a question again when you're ready. Your current step is still here.",
+          description: "I didn't get a useful answer back. Try Ask a question again when you're ready. The cooking guide is unchanged.",
         });
       }
       
@@ -2007,7 +2003,7 @@ export default function LiveCooking({
       console.error('Error processing voice question:', error);
       showAssistanceIssue({
         title: "I couldn't hear that clearly",
-        description: "Try Ask a question again when you're ready. Your current step is still here.",
+        description: "Try Ask a question again when you're ready. The cooking guide is unchanged.",
       });
     }
     
@@ -2402,20 +2398,6 @@ export default function LiveCooking({
             )}
           </div>
 
-          {assistanceIssue && (
-            <div
-              className="live-cooking-assistance-issue flex items-start gap-2 p-3"
-              data-testid="assistance-inline-issue"
-              role="alert"
-            >
-              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
-              <div className="min-w-0 space-y-1">
-                <p className="text-sm font-extrabold leading-5">{assistanceIssue.title}</p>
-                <p className="text-sm leading-5">{assistanceIssue.description}</p>
-              </div>
-            </div>
-          )}
-
           <div className="live-cooking-caption-row flex items-start justify-end gap-2">
             {areCaptionsVisible && (
               <div
@@ -2451,6 +2433,21 @@ export default function LiveCooking({
             </p>
           )}
         </section>
+
+        {assistanceIssue && (
+          <section
+            aria-label="Voice help status"
+            className="live-cooking-assistance-status flex items-start gap-2 p-3"
+            data-testid="assistance-status-issue"
+            role="alert"
+          >
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-extrabold leading-5">{assistanceIssue.title}</p>
+              <p className="text-sm leading-5">{assistanceIssue.description}</p>
+            </div>
+          </section>
+        )}
 
         <div className="live-cooking-command-bar sticky bottom-0 z-30 -mx-4 mt-auto px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur">
           <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-2">

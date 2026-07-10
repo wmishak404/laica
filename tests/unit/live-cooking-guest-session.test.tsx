@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LiveCooking from '../../client/src/components/cooking/live-cooking';
 
@@ -1319,7 +1319,7 @@ describe('LiveCooking guest session boundary', () => {
       expect(screen.getByText(/listening/i)).toBeTruthy();
     });
 
-    it('shows microphone access failures inline without hiding the current step', async () => {
+    it('shows microphone access failures in separate voice status without changing step guidance', async () => {
       installAudioMocks();
       vi.mocked(navigator.mediaDevices.getUserMedia).mockRejectedValueOnce(new Error('Permission denied'));
 
@@ -1328,15 +1328,17 @@ describe('LiveCooking guest session boundary', () => {
       fireEvent.click(screen.getByRole('button', { name: /ask a question/i }));
       await flushPromises();
 
-      const issue = screen.getByTestId('assistance-inline-issue');
+      const issue = screen.getByTestId('assistance-status-issue');
       expect(issue).toHaveTextContent("Microphone didn't start");
-      expect(issue).toHaveTextContent('Your current step is still here.');
+      expect(issue).toHaveTextContent('The cooking guide is unchanged.');
+      expect(within(screen.getByTestId('step-guidance-panel')).queryByText("Microphone didn't start")).toBeNull();
+      expect(screen.getByTestId('text-transcription-full').textContent).not.toContain("Microphone didn't start");
       expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
       expect(screen.getByRole('button', { name: /ask a question/i })).toBeTruthy();
       expect(mocks.toast).not.toHaveBeenCalled();
     });
 
-    it('shows cooking-assistance request failures inline and clears them on retry', async () => {
+    it('shows cooking-assistance request failures in separate voice status and clears them on retry', async () => {
       const audio = installAudioMocks();
       mocks.compressAudio.mockResolvedValueOnce({
         blob: new Blob(['voice'], { type: 'audio/wav' }),
@@ -1371,16 +1373,18 @@ describe('LiveCooking guest session boundary', () => {
       await flushPromises();
 
       expect(mocks.fetchCookingAssistance).toHaveBeenCalledTimes(1);
-      const issue = screen.getByTestId('assistance-inline-issue');
+      const issue = screen.getByTestId('assistance-status-issue');
       expect(issue).toHaveTextContent('Request did not finish');
       expect(issue).toHaveTextContent('Try Ask a question again');
+      expect(within(screen.getByTestId('step-guidance-panel')).queryByText('Request did not finish')).toBeNull();
+      expect(screen.getByTestId('text-transcription-full').textContent).not.toContain('Request did not finish');
       expect(screen.getByText('Warm the rice and beans.')).toBeTruthy();
       expect(mocks.toast).not.toHaveBeenCalled();
 
       fireEvent.click(screen.getByRole('button', { name: /ask a question/i }));
       await flushPromises();
 
-      expect(screen.queryByTestId('assistance-inline-issue')).toBeNull();
+      expect(screen.queryByTestId('assistance-status-issue')).toBeNull();
     });
 
     it('stops active and pending audio immediately when Mute is pressed', async () => {

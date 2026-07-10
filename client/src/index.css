@@ -338,7 +338,7 @@ html, body {
     color: hsl(var(--cooking-ink));
   }
 
-  .live-cooking-ui .live-cooking-assistance-issue {
+  .live-cooking-ui .live-cooking-assistance-status {
     border: 1px solid hsl(var(--cooking-coral-strong) / 0.28);
     border-radius: 0.75rem;
     color: hsl(var(--cooking-rust));
