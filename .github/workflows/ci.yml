@@ -75,7 +75,7 @@ jobs:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           LAICA_DEV_AUTH_ENABLED: "true"
           LAICA_DEV_AUTH_SECRET: gha-${{ github.run_id }}-${{ github.run_attempt }}
-          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci dev-test-linked-browser-ci
+          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci dev-test-linked-browser-ci dev-test-linked-settings-ci
           VITE_LAICA_DEV_AUTH_BROWSER: "true"
         run: |
           missing=()
@@ -126,7 +126,7 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.CI_FIREBASE_APP_ID }}
           LAICA_DEV_AUTH_ENABLED: "true"
           LAICA_DEV_AUTH_SECRET: gha-${{ github.run_id }}-${{ github.run_attempt }}
-          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci dev-test-linked-browser-ci
+          LAICA_DEV_AUTH_ALLOWED_USERS: dev-test-linked-ci dev-test-linked-browser-ci dev-test-linked-settings-ci
           VITE_LAICA_DEV_AUTH_BROWSER: "true"
         run: npm run test:e2e
 
