@@ -83,11 +83,15 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.queryByRole('tab', { name: /cooking profile/i })).toBeNull();
     expect(container.querySelector('.returning-mini-chip')).toBeNull();
     expect(screen.getByRole('heading', { name: /^pantry$/i })).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-controls')).toBeTruthy();
+    expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
 
     fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
 
     expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
     expect(screen.getByRole('tab', { name: /^tools$/i }).getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
 
     rerender(
       <UserSettings
