@@ -9,19 +9,15 @@
 
 ## Summary
 
-This branch adds linked Settings persistence to the deterministic dev-auth E2E lane. The new smoke uses a separate `dev-test-linked-settings-ci` user, signs into the real browser app through Firebase custom-token dev auth, saves pantry and tools from Settings, and verifies the linked profile through the normal authenticated API.
+This branch adds linked Settings persistence to the deterministic dev-auth E2E lane. The linked browser smoke signs into the real app through Firebase custom-token dev auth, plans with saved pantry, then saves pantry and tools from Settings in the same linked session and verifies the profile through the normal authenticated API.
 
 Hygiene found no active Effort status/routing changes. EFF-017 remains the highest-leverage active implementation lane; EFF-022 remains standalone and active, with only its stale `Updated` header refreshed to match the already-merged 2026-07-08 report-export signal.
 
 ## Changes
 
-- `.github/workflows/ci.yml`
-  - Adds `dev-test-linked-settings-ci` to the E2E linked dev-auth allowlist.
 - `tests/e2e/linked-dev-auth.test.ts`
-  - Generalizes linked profile seeding for multiple deterministic users.
-  - Adds a browser smoke for linked Settings pantry/tools save and authenticated profile verification.
-  - Mints separate Firebase custom tokens for API profile seeding and browser sign-in, and parameterizes the signed-in pantry-count assertion per fixture.
-  - Seeds the Settings browser smoke with the same three-item minimum pantry shape used by setup before asserting that Settings appends two pantry items and one tool.
+  - Extends the existing linked browser smoke to open Settings after Chef It Up planning, save pantry/tools changes, and verify authenticated profile persistence.
+  - Mints separate Firebase custom tokens for API profile seeding and browser sign-in.
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
   - Records the EFF-017 implementation signal and negative scope.
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md`
@@ -33,7 +29,7 @@ Hygiene found no active Effort status/routing changes. EFF-017 remains the highe
 
 ## Impact on other agents
 
-Future EFF-017 work should treat linked Settings browser persistence as covered by the CI E2E lane once this branch lands and the exact-head GitHub `e2e_guest_smoke` passes. Do not reuse `dev-test-linked-settings-ci` for another parallel E2E path unless the test data is reset or isolated.
+Future EFF-017 work should treat linked Settings browser persistence as covered by the CI E2E lane once this branch lands and the exact-head GitHub `e2e_guest_smoke` passes. The Settings assertions intentionally ride on the already-proven `dev-test-linked-browser-ci` session instead of introducing a second browser sign-in path.
 
 The known EFF-017 OAuth preflight blocker remains unresolved. This branch does not change OAuth target configuration, provider canaries, Replit automation, production Google popup validation, schema, prompts, or validation authority.
 
@@ -54,7 +50,7 @@ Local validation passed:
 
 GitHub `e2e_guest_smoke` initially failed on `b8cc855aba7afbb68545e1e5de25ba44b73d09f2` in the new Settings browser smoke before the app reached the signed-in planning screen. The follow-up fix avoids reusing the API-exchanged custom token for browser sign-in and corrects the helper's pantry-count expectation for the two-item Settings fixture.
 
-GitHub `e2e_guest_smoke` then failed again on `30709d511f7fac589565550d08425d2a870c695a` at the same signed-in planning assertion. The Settings fixture now seeds three pantry items so the browser smoke starts from the app's setup-complete pantry shape before testing Settings persistence.
+GitHub `e2e_guest_smoke` then failed again on `30709d511f7fac589565550d08425d2a870c695a` and `d5f264f6faca1b6bb937aff7ac454c68a09b9e94` at the same signed-in planning assertion for the second browser test. The Settings assertions now run inside the existing linked browser smoke after its proven sign-in and planning path, instead of starting a second linked browser session.
 
 The focused E2E evidence must come from GitHub `e2e_guest_smoke` on the final pushed head because that lane prepares the disposable Neon branch, maps CI Firebase custom-token secrets, runs `db:health`, and then runs Playwright. Local dotenvx E2E against the default decrypted database is diagnostic only under the testing workflow.
 

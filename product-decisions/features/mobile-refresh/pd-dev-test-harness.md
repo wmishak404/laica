@@ -88,7 +88,7 @@ This is not a backend auth bypass and does not complete Google popup sign-in or 
 
 ## 2026-07-10 — Linked Settings browser smoke
 
-EFF-017 branch `codex/eff-017-linked-settings-coverage` extends the browser-level custom-token lane with a separate deterministic `dev-test-linked-settings-ci` user. The CI E2E allowlist now includes that user, and `tests/e2e/linked-dev-auth.test.ts` signs in through Firebase custom-token dev auth, opens Settings through the real app menu, saves pantry and tools through the UI, and verifies persisted linked profile state through the authenticated API.
+EFF-017 branch `codex/eff-017-linked-settings-coverage` extends the browser-level custom-token lane for `dev-test-linked-browser-ci`. After the linked browser smoke signs in and proves Chef It Up pantry planning, `tests/e2e/linked-dev-auth.test.ts` opens Settings through the real app menu, saves pantry and tools through the UI, and verifies persisted linked profile state through the authenticated API.
 
 This covers the Settings portion of the broader linked-user flow target. It still does not complete Google popup sign-in, anonymous-to-Google linking, Slop Bowl quick-add, live provider calls, Replit deployment behavior, or camera/vision/speech live-service smoke.
 
