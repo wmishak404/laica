@@ -50,9 +50,10 @@ Replit was loaded with earlier passes at `80f1712` and `f15cab7`, but Wilson rep
 - `git diff --check` passed after the Chef It Up floating-back/title-clearance follow-up.
 - Built-CSS computed-style smoke passed in local headless Chromium after sandbox escalation. Observed values: MealPlanning display `25.28px`, MealPlanning selected-ticket title `20.48px`, use chip `11.2px`, Prep Tray copy `13.12px`; Slop Bowl display `24px`, Slop Bowl copy `13.12px`, Slop Bowl chip `12.16px`; Menu title stayed `30px`, menu destination text stayed `16px`, landing demo ticket title stayed `22.08px`, and Live Cooking stayed under its own `live-cooking-ui` styles.
 - Replit fast-forwarded `codex/mobile-browser-type-fit` to `f15cab7` after Wilson reported the first pass was too subtle. The direct `.replit.dev` app served the stronger CSS hooks (`planning-time-screen`, `setup-scan-step`, `100svh`, `slop-bowl-menu-screen`). The open direct tab was on Live Cooking state, which is intentionally excluded from this browser-fit pass.
+- Replit fast-forwarded `codex/mobile-browser-type-fit` to `2b6ccec` after the returning Settings/Profile/History browser-typography pass. No desktop Chrome/Replit visual QA was performed per Wilson's instruction; phone-browser review remains the acceptance path.
 
 ## Stack / base status
 - Base refreshed: yes
 - Current base: `origin/main` at `9618a15cce82e6b8444e1f471a2b55905c07e633`
-- Last Replit-validated at: runtime code loaded at `f15cab7` for an earlier pass; latest floating-action / shortened-bottom-nav follow-up intentionally has no desktop Chrome/Replit visual QA per Wilson's instruction. Human phone-browser visual acceptance still pending after deployment/load.
+- Last Replit-validated at: runtime code loaded at `2b6ccec` with no desktop Chrome/Replit visual QA per Wilson's instruction. Human phone-browser visual acceptance still pending after deployment/load.
 - Notes: independent Phase 3.1 browser-fit polish branch rebased after PR #269 and the PR #273 closeout merged; not stacked on another open branch.
