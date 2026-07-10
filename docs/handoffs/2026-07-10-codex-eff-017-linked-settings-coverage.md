@@ -20,6 +20,7 @@ Hygiene found no active Effort status/routing changes. EFF-017 remains the highe
 - `tests/e2e/linked-dev-auth.test.ts`
   - Generalizes linked profile seeding for multiple deterministic users.
   - Adds a browser smoke for linked Settings pantry/tools save and authenticated profile verification.
+  - Mints separate Firebase custom tokens for API profile seeding and browser sign-in, and parameterizes the signed-in pantry-count assertion per fixture.
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
   - Records the EFF-017 implementation signal and negative scope.
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md`
@@ -37,7 +38,7 @@ The known EFF-017 OAuth preflight blocker remains unresolved. This branch does n
 
 ## Open items
 
-- Run exact-head GitHub CI after pushing; the local environment cannot prove the Firebase/Neon-backed E2E lane without the configured CI secrets and disposable schema branch.
+- Re-run exact-head GitHub CI after the token-reuse fix; the local environment cannot prove the Firebase/Neon-backed E2E lane without the configured CI secrets and disposable schema branch.
 - EFF-017 remains `In Progress`: provider canary decisions, automated Replit-environment work, coverage ratcheting, OAuth preflight configuration, and broader live-surface coverage remain separate lanes.
 - EFF-022 remains active for transparent pantry-fallback threshold/copy/runtime implementation.
 
@@ -50,7 +51,9 @@ Local validation passed:
 - `npm run build` — passed with existing Browserslist, Firebase dynamic-import, and chunk-size warnings
 - `git diff --check`
 
-The focused E2E evidence must come from GitHub `e2e_guest_smoke` on the pushed head because that lane prepares the disposable Neon branch, maps CI Firebase custom-token secrets, runs `db:health`, and then runs Playwright. Local dotenvx E2E against the default decrypted database is diagnostic only under the testing workflow.
+GitHub `e2e_guest_smoke` initially failed on `b8cc855aba7afbb68545e1e5de25ba44b73d09f2` in the new Settings browser smoke before the app reached the signed-in planning screen. The follow-up fix avoids reusing the API-exchanged custom token for browser sign-in and corrects the helper's pantry-count expectation for the two-item Settings fixture.
+
+The focused E2E evidence must come from GitHub `e2e_guest_smoke` on the final pushed head because that lane prepares the disposable Neon branch, maps CI Firebase custom-token secrets, runs `db:health`, and then runs Playwright. Local dotenvx E2E against the default decrypted database is diagnostic only under the testing workflow.
 
 ## Stack / base status
 
