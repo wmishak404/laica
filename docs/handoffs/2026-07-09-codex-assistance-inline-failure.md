@@ -10,7 +10,7 @@
 
 ## Summary
 
-This branch makes Live Cooking safer during hands-busy help failures: if `Ask a question` cannot capture, transcribe, or answer the cook's question, the current step stays visible and a separate voice-help status panel appears outside the step guidance with a retry path. The cook no longer has to notice a transient toast, and operational errors stay isolated from step cues and captions.
+This branch is a narrow Live Cooking `Ask a question` failure-presentation slice: if the question pipeline cannot capture, transcribe, or produce a valid assistance answer, the current step stays visible and a separate voice-help status panel appears outside Step guidance with a retry path. This summary is limited to technical/quota failure presentation; it is not a decision about successful future Ask-a-question behavior.
 
 For this branch, "help failure" means a non-recipe-changing technical failure state: microphone capture is unavailable or denied, recording times out, local voice usage limits are exceeded, transcription upload/service fails or returns no transcript, `/api/cooking/assistance` returns rate-limit/service/network/unknown failure, or the assistance route returns no usable answer. It does not mean a successful Ask-a-question answer, user correction, preference change, or future intentional recipe/step adaptation.
 
@@ -23,7 +23,7 @@ Architecture triage skipped owned or gated work: INIT-004 has open owned work in
   - Reuses `classifyAiRequestError` for `/api/cooking/assistance` failures.
   - Shows isolated recovery for microphone support/permission failures, recording timeout, voice usage limits, transcription/processing failures, empty assistance answers, and assistance-route failures.
   - Clears the issue when the cook retries or receives a normal assistant response.
-  - Keeps operational failure copy out of speech playback and the captions transcript.
+  - Does not route technical failure copy through the normal assistant-response or speech playback path.
   - Leaves future successful Ask-a-question step adaptation out of scope.
 - `client/src/index.css`
   - Adds `.live-cooking-ui .live-cooking-assistance-status` using existing warm cooking tokens and scoped specificity.
@@ -48,7 +48,7 @@ The visual addition conforms to PD-005 and `design_guidelines.md`: it stays insi
 
 ## Open items
 
-- Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level device microphone/provider smoke. Suggested release-batch check: deny microphone or force an assistance-route failure while in Live Cooking and verify the current step remains visible, the separate voice-help status appears outside step guidance, retry clears the panel, and captions/speech behavior remain sane.
+- Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level device microphone/provider smoke. Suggested release-batch check: deny microphone or force an assistance-route failure while in Live Cooking and verify the current step remains visible, the separate voice-help status appears outside Step guidance, retry clears the panel, and technical failure copy is not spoken as cooking guidance.
 - Full provider schema shape and Phase 5 cleanup remain later INIT-001 work.
 
 ## Verification
@@ -65,7 +65,7 @@ Focused local evidence so far:
 - Local targeted Playwright did not reach the changed assertion because the local dotenvx database is missing `anonymous_recipe_usage`, so guest setup timed out before the Live Cooking path.
 - GitHub exact-head checks passed for PR #275: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks.
 
-Value claim: cooks are less likely to get stranded when voice help fails during a step. Evidence: focused Vitest proves microphone-denial and assistance-route failures render `assistance-status-issue`, keep the current step visible, avoid toast-only presentation, keep step guidance/captions clean, and clear on retry. Evidence limits: provider/network behavior is mocked; no live microphone, Replit device permission, real transcription, or real assistance provider call has been manually smoked yet.
+Behavior evidence: focused Vitest proves microphone-denial and assistance-route failures render `assistance-status-issue` outside Step guidance, keep the current step visible, and clear on retry. Evidence limits: provider/network behavior is mocked; no live microphone, Replit device permission, real transcription, or real assistance provider call has been manually smoked yet.
 
 ## Stack / base status
 
