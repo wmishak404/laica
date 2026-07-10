@@ -320,7 +320,7 @@ describe('LiveCooking guest session boundary', () => {
     expect(readyScreen?.className).toContain('min-h-[calc(100svh-10rem)]');
     const startButton = screen.getByRole('button', { name: /^start cooking$/i });
     expect(startButton.className).toContain('live-cooking-start-button');
-    expect(startButton.className).toContain('text-lg');
+    expect(startButton.className).toContain('planning-primary-action');
     expect(startButton.className).toContain('font-extrabold');
     expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
 

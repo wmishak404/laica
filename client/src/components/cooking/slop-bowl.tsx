@@ -376,7 +376,7 @@ export default function SlopBowl({
           <Button
             onClick={confirmPantry}
             disabled={!canGenerateBowl}
-            className="planning-primary-action h-12 w-full rounded-xl text-lg font-extrabold"
+            className="planning-primary-action h-12 w-full rounded-xl font-extrabold"
           >
             <ChefHat className="h-5 w-5" />
             Make my bowl
