@@ -16,15 +16,24 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-06-30.
-- Current `origin/main`: `a4450a60ca4767f0250b3c28b6999bd88dab25e3`.
-- Current latest merge: PR #248, `Close out EFF-022 fallback merge`.
-- Current latest user-visible/runtime merge: PR #244, `Harden admin and transcription boundaries`.
+- Registry updated: 2026-07-10 for the PR #276 addendum below.
+- Current `origin/main`: `c75d5bb334900549d0b8b00b4ad84d7ef1a5e96e`.
+- Current latest merge: PR #276, `[codex] Add linked Settings dev-auth smoke`.
+- Current latest user-visible/runtime merge: PR #269, `feat: polish Live Cooking timer`.
+
+The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The 2026-07-10 addendum records PR #276's automation coverage now so the next production-readiness pass does not lose that test signal.
+
+## 2026-07-10 PR #276 Production-Readiness Addendum
+
+- PR #276 merged at `c75d5bb334900549d0b8b00b4ad84d7ef1a5e96e` after exact-head GitHub checks passed for head `14a04d9242c239c497298ef8201b227ebbf2b8b3`.
+- Include the PR #276 linked dev-auth browser smoke in the next production-readiness evidence when the release SHA contains this merge. The smoke signs in the linked `dev-test-linked-browser-ci` profile, completes Chef It Up planning, saves Settings Pantry and Tools inventory, then verifies the linked profile through the authenticated `/api/user/profile` path.
+- No extra manual production smoke is required solely for PR #276 because it added test and documentation coverage only. Add a targeted Settings Pantry/Tools save/reload check if a later release changes auth, linked profiles, Settings inventory persistence, or the E2E lane is stale, skipped, or no longer running at the release SHA.
 
 Merged work after the 2026-06-22 production-smoke evidence that should be reviewed for the next production push:
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
+| 2026-07-10 | `c75d5bb` / PR #276 | EFF-017 linked dev-auth browser smoke for Chef It Up plus Settings Pantry/Tools persistence | Carry the exact-head GitHub E2E evidence into the production-readiness report. Do not duplicate manually unless later auth/profile/settings work or stale automation makes the release confidence indirect. |
 | 2026-06-30 | `a4450a6` / PR #248 | EFF-022 fallback merge closeout docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
 | 2026-06-30 | `203e621` / PR #247 | EFF-022 fallback direction and INIT-004 eval planning docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
 | 2026-06-30 | `3976a63` / PR #244 | Admin route hardening, transcription temp-file isolation, and runtime rate-limit policy | Focused security/provider smoke: signed-in Live Cooking transcription with the real provider, ordinary repeated voice-question usage from a shared network/browser, shared-network recipe/cooking assistance, and admin valid/invalid/throttled/no-cache behavior in Replit. |
@@ -62,6 +71,10 @@ Run the baseline core smoke from `docs/workflows/replit-validation-focus.md`:
 
 Run these changed-since-last-prod focused checks for the current candidate:
 
+- PR #276 linked Settings dev-auth smoke:
+  - Include the PR #276 exact-head GitHub E2E pass in the production-readiness evidence when validating a release SHA that contains `c75d5bb`.
+  - Confirm the readiness report names the linked user coverage: Chef It Up planning, Settings Pantry/Tools persistence, and authenticated profile verification.
+  - If the release SHA has later auth/profile/settings persistence changes or stale/skipped E2E evidence, add a targeted live Settings Pantry/Tools save/reload check.
 - PR #244 admin/transcription boundary hardening:
   - In signed-in Live Cooking, use the real transcription or voice-question path and confirm the provider-backed flow works without temp-file or cleanup errors.
   - Repeat normal recipe and cooking-assistance requests from the same network/browser enough to confirm ordinary shared-network use is not blocked by the rate-limit policy.
