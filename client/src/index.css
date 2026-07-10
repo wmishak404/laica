@@ -3647,6 +3647,63 @@ html, body {
       font-size: 0.875rem;
     }
 
+    .returning-ui .returning-hero,
+    .returning-ui .returning-profile-panel,
+    .history-ui .history-hero {
+      border-radius: 1.1rem;
+      padding: 0.85rem;
+    }
+
+    .returning-ui .returning-hero .returning-kicker,
+    .returning-ui .returning-profile-panel .returning-kicker,
+    .history-ui .history-hero .returning-kicker {
+      font-size: 0.68rem;
+    }
+
+    .returning-ui .returning-hero .returning-display,
+    .returning-ui .returning-profile-panel .setup-display,
+    .history-ui .history-hero .returning-display {
+      font-size: 1.5rem;
+      line-height: 1.08;
+    }
+
+    .returning-ui .returning-hero .returning-copy,
+    .returning-ui .returning-profile-panel .setup-copy,
+    .history-ui .history-hero .returning-copy {
+      font-size: 0.82rem;
+      line-height: 1.32;
+    }
+
+    .returning-ui .returning-hub-card {
+      gap: 0.7rem;
+      border-radius: 1rem;
+      padding: 0.78rem;
+      font-size: 0.92rem;
+    }
+
+    .returning-ui .returning-hub-card .returning-copy {
+      font-size: 0.82rem;
+      line-height: 1.28;
+    }
+
+    .returning-ui .returning-hub-icon,
+    .history-ui .history-recipe-icon {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 0.85rem;
+    }
+
+    .history-ui .history-card,
+    .history-ui .history-empty {
+      border-radius: 1rem;
+      padding: 0.85rem;
+    }
+
+    .history-ui .history-card h2 {
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
     .setup-bottom-bar {
       padding-top: 0.55rem;
       padding-bottom: 0.55rem;

@@ -142,6 +142,21 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.queryByRole('tablist', { name: /kitchen inventory sections/i })).toBeNull();
   });
 
+  it('marks Cooking Profile with the returning profile panel hook', () => {
+    const { container } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="profile"
+      />,
+    );
+
+    const profilePanel = container.querySelector('.returning-profile-panel');
+    expect(profilePanel).toBeTruthy();
+    expect(profilePanel?.textContent).toContain('How Laica adapts.');
+  });
+
   it('uses the same 20-photo over-cap guard for Pantry and Tools Settings refreshes', () => {
     const { container, rerender } = render(
       <UserSettings
