@@ -1327,14 +1327,6 @@ html, body {
       0 1rem 2rem hsl(var(--setup-ink) / 0.18);
   }
 
-  .setup-viewfinder-corner {
-    position: absolute;
-    pointer-events: none;
-    width: 2.6rem;
-    height: 2.6rem;
-    border-color: hsl(0 0% 100% / 0.88);
-  }
-
   .setup-live-badge {
     display: inline-flex;
     align-items: center;
@@ -3487,20 +3479,27 @@ html, body {
     }
 
     .setup-ui {
+      height: 100svh;
       min-height: 100svh;
+      overflow: hidden;
     }
 
     .setup-ui > div {
-      min-height: 100svh;
+      height: 100svh;
+      min-height: 0;
       padding-top: 0;
+      overflow: hidden;
     }
 
     .setup-phone-frame {
+      height: 100%;
       min-height: 0;
-      max-height: 100svh;
+      max-height: none;
       overflow-y: auto;
+      overscroll-behavior: contain;
       border-radius: 1.35rem 1.35rem 0 0;
       padding-top: 0.55rem;
+      -webkit-overflow-scrolling: touch;
     }
 
     .setup-progress-shell {
@@ -3541,7 +3540,7 @@ html, body {
     }
 
     .setup-scan-step .setup-viewfinder > .relative {
-      aspect-ratio: 1 / 0.9;
+      aspect-ratio: 1 / 1;
     }
 
     .setup-scan-step .setup-live-badge {
@@ -3550,10 +3549,31 @@ html, body {
       font-size: 0.64rem;
     }
 
-    .setup-scan-step .setup-viewfinder-corner {
-      width: 1.85rem;
-      height: 1.85rem;
-      border-width: 0.18rem;
+    .setup-scan-step .setup-camera-state {
+      gap: 0.48rem;
+      justify-content: center;
+      padding: 2.25rem 1rem 5.55rem;
+    }
+
+    .setup-scan-step .setup-camera-state > .relative {
+      width: 4.7rem;
+      height: 4.7rem;
+      border-radius: 1.2rem;
+    }
+
+    .setup-scan-step .setup-camera-state p.font-semibold {
+      font-size: 0.96rem;
+      line-height: 1.08;
+    }
+
+    .setup-scan-step .setup-camera-state p.text-sm {
+      font-size: 0.78rem;
+      line-height: 1.22;
+    }
+
+    .setup-scan-step .setup-camera-controls {
+      bottom: 0.8rem;
+      padding-inline: 1.55rem;
     }
 
     .setup-scan-step .setup-camera-icon-button {

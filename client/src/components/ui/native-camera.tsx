@@ -287,7 +287,7 @@ export function NativeCamera({
           />
 
           {cameraState !== 'ready' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
+            <div className="setup-camera-state absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
               {cameraState === 'off' ? (
                 <>
                   <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
@@ -338,10 +338,6 @@ export function NativeCamera({
 
           {isSetup ? (
             <>
-              <span className="setup-viewfinder-corner left-4 top-4 border-l-4 border-t-4" />
-              <span className="setup-viewfinder-corner right-4 top-4 border-r-4 border-t-4" />
-              <span className="setup-viewfinder-corner bottom-4 left-4 border-b-4 border-l-4" />
-              <span className="setup-viewfinder-corner bottom-4 right-4 border-b-4 border-r-4" />
               {cameraState === 'ready' && <span className="setup-focus-ring pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2" />}
             </>
           ) : (
@@ -361,7 +357,7 @@ export function NativeCamera({
           )}
 
           {isSetup && (
-            <div className="absolute bottom-5 left-0 right-0 flex items-center justify-between px-7">
+            <div className="setup-camera-controls absolute bottom-5 left-0 right-0 flex items-center justify-between px-7">
               <Button
                 type="button"
                 variant="ghost"
