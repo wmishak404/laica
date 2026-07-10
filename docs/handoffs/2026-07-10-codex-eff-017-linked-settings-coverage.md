@@ -21,6 +21,7 @@ Hygiene found no active Effort status/routing changes. EFF-017 remains the highe
   - Generalizes linked profile seeding for multiple deterministic users.
   - Adds a browser smoke for linked Settings pantry/tools save and authenticated profile verification.
   - Mints separate Firebase custom tokens for API profile seeding and browser sign-in, and parameterizes the signed-in pantry-count assertion per fixture.
+  - Seeds the Settings browser smoke with the same three-item minimum pantry shape used by setup before asserting that Settings appends two pantry items and one tool.
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
   - Records the EFF-017 implementation signal and negative scope.
 - `efforts/effort-022-cross-cuisine-recommendation-prompts.md`
@@ -52,6 +53,8 @@ Local validation passed:
 - `git diff --check`
 
 GitHub `e2e_guest_smoke` initially failed on `b8cc855aba7afbb68545e1e5de25ba44b73d09f2` in the new Settings browser smoke before the app reached the signed-in planning screen. The follow-up fix avoids reusing the API-exchanged custom token for browser sign-in and corrects the helper's pantry-count expectation for the two-item Settings fixture.
+
+GitHub `e2e_guest_smoke` then failed again on `30709d511f7fac589565550d08425d2a870c695a` at the same signed-in planning assertion. The Settings fixture now seeds three pantry items so the browser smoke starts from the app's setup-complete pantry shape before testing Settings persistence.
 
 The focused E2E evidence must come from GitHub `e2e_guest_smoke` on the final pushed head because that lane prepares the disposable Neon branch, maps CI Firebase custom-token secrets, runs `db:health`, and then runs Playwright. Local dotenvx E2E against the default decrypted database is diagnostic only under the testing workflow.
 

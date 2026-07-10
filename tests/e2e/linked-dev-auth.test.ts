@@ -419,7 +419,7 @@ test.describe("linked dev auth browser smoke", () => {
     const tokenPayload = await createLinkedDevAuthToken(request, LINKED_DEV_AUTH_SETTINGS_UID, "Linked Settings Dev User");
     const idToken = await exchangeCustomTokenForIdToken(tokenPayload.customToken!);
     await seedLinkedProfile(request, idToken, LINKED_DEV_AUTH_SETTINGS_UID, {
-      pantryIngredients: ["rice", "eggs"],
+      pantryIngredients: ["rice", "eggs", "soy sauce"],
       kitchenEquipment: ["skillet"],
     });
     const browserTokenPayload = await createLinkedDevAuthToken(
@@ -428,14 +428,14 @@ test.describe("linked dev auth browser smoke", () => {
       "Linked Settings Dev User",
     );
 
-    await signBrowserInWithCustomToken(page, browserTokenPayload.customToken!, 2);
+    await signBrowserInWithCustomToken(page, browserTokenPayload.customToken!);
 
-    await expect(page.getByText(/Right now I see/)).toContainText("2 pantry items");
+    await expect(page.getByText(/Right now I see/)).toContainText("3 pantry items");
     await page.getByRole("button", { name: "Menu" }).click();
     await page.getByRole("button", { name: /Settings\s+Pantry, tools, and cooking profile/i }).click();
 
     await expect(page.getByRole("heading", { name: "Keep Laica matched to your kitchen." })).toBeVisible();
-    await page.getByRole("button", { name: /Kitchen Inventory\s+2 pantry items \+ 1 tool/i }).click();
+    await page.getByRole("button", { name: /Kitchen Inventory\s+3 pantry items \+ 1 tool/i }).click();
 
     await expect(page.getByRole("heading", { name: "Pantry" })).toBeVisible();
     await page.getByRole("button", { name: "Enter manually" }).click();
@@ -462,7 +462,7 @@ test.describe("linked dev auth browser smoke", () => {
     await expect(page.getByRole("button", { name: "Save tools" })).toBeVisible();
 
     const savedProfile = await readLinkedProfile(request, idToken);
-    expect(savedProfile.user?.pantryIngredients).toEqual(["rice", "eggs", "spinach", "black beans"]);
+    expect(savedProfile.user?.pantryIngredients).toEqual(["rice", "eggs", "soy sauce", "spinach", "black beans"]);
     expect(savedProfile.user?.kitchenEquipment).toEqual(["skillet", "sheet pan"]);
   });
 });
