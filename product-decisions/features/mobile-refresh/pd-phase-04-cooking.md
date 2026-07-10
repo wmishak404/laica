@@ -36,6 +36,7 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 - Generated cooking steps are usable only when at least one step has a non-empty, cookable instruction. Empty arrays, blank instructions, whitespace-only instructions, or placeholder text must stay in recovery rather than rendering Step 1.
 - The new Phase 4 cooking flow must not start, restore as ready, or save a cooking session from invalid generated steps. Recovery into the live guide may happen after a user-invoked retry or another validated regeneration path, but not by silently substituting an unverified or generic step list.
 - If cooking assistance fails mid-step, keep the current step visible and show the failure in a separate voice-help status area, not in the step guidance or caption transcript.
+- For this assistance-failure slice, "fails" means the Ask-a-question pipeline cannot produce a valid assistance answer because of a technical or quota condition: microphone capture is unavailable or denied, recording hits the safety timeout, local voice usage limits are exceeded, transcription upload/service returns an error or blank transcript, `/api/cooking/assistance` returns rate-limit/service/network/unknown failure, or the assistance route returns no usable answer. It does not mean a successful user question, a successful assistant answer, user correction, preference change, or future intentional recipe/step adaptation.
 - Feedback appears as an inline action in the cooking display when the issue persists, not as a toaster CTA.
 - Error copy follows EFF-018 principles: first person, plain English, no user blame, and `Laica` casing.
 
@@ -165,6 +166,8 @@ The branch intentionally does not add `suggestedTimer` schema, timer kinds/reaso
 ## 2026-07-09 assistance failure inline recovery branch
 
 Branch `codex/init-001-assistance-inline-failure` implements the accepted Phase 4 criterion that cooking-assistance failures must have a visible recovery path without polluting the cooking step itself. When microphone access, recording/transcription, usage limits, empty assistance responses, or `/api/cooking/assistance` failures interrupt `Ask a question`, Live Cooking now shows a warm voice-help status panel outside the Step guidance area, keeps the pinned current step visible, keeps the bottom `Ask a question` control available for retry, and keeps operational failure copy out of both speech synthesis and the captions transcript.
+
+The precise scope is non-recipe-changing technical failure states: unavailable/denied microphone capture, recording safety timeout, local voice usage-limit exhaustion, failed or blank transcription, assistance-route rate limiting, assistance-route service/network/unknown failures, and empty assistance answers. Successful Ask-a-question responses are not treated as errors by this slice; future R&D may intentionally let successful questions revise or adapt live cooking steps under a separate product contract.
 
 The slice reuses the existing AI error classifier for assistance-route failures and keeps the status copy direct: the cook can keep following the unchanged cooking guide and try asking again when ready. Retrying clears the separate voice-help status, and a successful assistant answer clears it through the normal assistant-response path.
 

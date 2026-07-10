@@ -12,6 +12,8 @@
 
 This branch makes Live Cooking safer during hands-busy help failures: if `Ask a question` cannot capture, transcribe, or answer the cook's question, the current step stays visible and a separate voice-help status panel appears outside the step guidance with a retry path. The cook no longer has to notice a transient toast, and operational errors stay isolated from step cues and captions.
 
+For this branch, "help failure" means a non-recipe-changing technical failure state: microphone capture is unavailable or denied, recording times out, local voice usage limits are exceeded, transcription upload/service fails or returns no transcript, `/api/cooking/assistance` returns rate-limit/service/network/unknown failure, or the assistance route returns no usable answer. It does not mean a successful Ask-a-question answer, user correction, preference change, or future intentional recipe/step adaptation.
+
 Architecture triage skipped owned or gated work: INIT-004 has open owned work in PR #272/#274, INIT-002 remains in Replit observation before schema work, INIT-003 waits on INIT-001 Phase 5 semantics, and INIT-001 PR #265 owns only a future voice-affordance docs note. The documented next independent Phase 4 slice after PR #269 was assistance failure handling / inline guidance recovery, so no Wilson product decision was needed.
 
 ## Changes
@@ -22,6 +24,7 @@ Architecture triage skipped owned or gated work: INIT-004 has open owned work in
   - Shows isolated recovery for microphone support/permission failures, recording timeout, voice usage limits, transcription/processing failures, empty assistance answers, and assistance-route failures.
   - Clears the issue when the cook retries or receives a normal assistant response.
   - Keeps operational failure copy out of speech playback and the captions transcript.
+  - Leaves future successful Ask-a-question step adaptation out of scope.
 - `client/src/index.css`
   - Adds `.live-cooking-ui .live-cooking-assistance-status` using existing warm cooking tokens and scoped specificity.
 - `client/src/lib/voiceRecording.ts`
@@ -38,6 +41,8 @@ Architecture triage skipped owned or gated work: INIT-004 has open owned work in
 ## Impact on other agents
 
 Treat PR #191, #236, #256, #258, #260, #264, #269, and this branch together as the current Phase 4 Live Cooking baseline if this PR merges. This branch does not touch PR #265's future voice-activity affordance direction and does not change the prompt, provider contract, route schema, durable session schema, navigation, Finish/History semantics, or Phase 5 cleanup.
+
+It also does not close the future R&D path where a successful `Ask a question` interaction could intentionally revise, branch, or adapt live cooking steps. This branch only prevents technical/quota failure states from changing or contaminating the current guide.
 
 The visual addition conforms to PD-005 and `design_guidelines.md`: it stays inside the existing `live-cooking-ui` focus-mode surface, uses existing CSS variables, and keeps scoped computed-style specificity instead of adding raw hex or a new primitive.
 
