@@ -31,11 +31,12 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 
 ### Live-cooking error posture
 
-- Active cooking errors render inline inside the cooking surface, not as transient toasts.
+- Failures that block cooking flow should have a visible recovery state near the affected control or surface. This does not mean technical/system failures belong inside the recipe step text or assistant guidance.
 - If cooking-step generation fails, show a calm inline recovery state with retry and a practical fallback path.
 - Generated cooking steps are usable only when at least one step has a non-empty, cookable instruction. Empty arrays, blank instructions, whitespace-only instructions, or placeholder text must stay in recovery rather than rendering Step 1.
 - The new Phase 4 cooking flow must not start, restore as ready, or save a cooking session from invalid generated steps. Recovery into the live guide may happen after a user-invoked retry or another validated regeneration path, but not by silently substituting an unverified or generic step list.
-- If cooking assistance fails mid-step, keep the current step visible and show the failure in the inline guidance/caption area.
+- If cooking assistance fails mid-step, keep the current step visible and show the failure in a separate voice-help status area, not in the step guidance. Do not route technical failure copy through the normal assistant-guidance speech path.
+- For this assistance-failure slice, "fails" means the Ask-a-question pipeline cannot produce a valid assistance answer because of a technical or quota condition: microphone capture is unavailable or denied, recording hits the safety timeout, local voice usage limits are exceeded, transcription upload/service returns an error or blank transcript, `/api/cooking/assistance` returns rate-limit/service/network/unknown failure, or the assistance route returns no usable answer. It does not mean a successful user question, a successful assistant answer, user correction, preference change, or future intentional recipe/step adaptation.
 - Feedback appears as an inline action in the cooking display when the issue persists, not as a toaster CTA.
 - Error copy follows EFF-018 principles: first person, plain English, no user blame, and `Laica` casing.
 
@@ -162,6 +163,18 @@ Wilson's 2026-07-08 Replit smoke also showed speech synthesis exhausting the old
 
 The branch intentionally does not add `suggestedTimer` schema, timer kinds/reasons, provider prompt changes, route contracts, durable cooking-session schema changes, assistance failure handling, Finish/History semantics, formal eval work, or Phase 5 cleanup. Durable navigation scope is limited to showing the existing bottom nav on Ready Check. Focused local evidence includes `npx vitest run tests/unit/live-cooking-guest-session.test.tsx tests/unit/meal-planning.test.tsx tests/unit/planning-choice.test.tsx --testTimeout=15000`, `npx vitest run tests/unit/rate-limit.test.ts`, `npm run check`, `npm run build`, and `git diff --check`; the later step-preview overflow affordance added focused Live Cooking coverage at 41 tests. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks passed at final PR head `b0bdc9a`. Chrome-extension Replit smoke passed at that head without Replit Agent and covered the intended and negative behaviors for Prep Tray loading, Ready Check navigation/nav, CC persistence/layout, durationless-step timer absence, real/text-derived timer presence, start/pause/reset, visible `Time's up`, timer clearing on Next, and rail follow/overflow-return. Full production/release-batch regression remains deferred and should include the timer, compact CC row, visible `Time's up` state, raised speech quota after server restart, step-preview rail follow/overflow-return behavior on a long recipe, Prep Tray image fallback, and Ready Check navigation/nav behavior.
 
+## 2026-07-09 assistance failure inline recovery branch
+
+Branch `codex/init-001-assistance-inline-failure` implements the accepted Phase 4 criterion that cooking-assistance failures must have a visible recovery path without polluting the cooking step itself. When microphone access, recording/transcription, usage limits, empty assistance responses, or `/api/cooking/assistance` failures interrupt `Ask a question`, Live Cooking now shows a warm voice-help status panel outside the Step guidance area, keeps the pinned current step visible, and keeps the bottom `Ask a question` control available for retry. The failure copy is status copy only; it is not played as cooking guidance.
+
+The precise scope is non-recipe-changing technical failure states: unavailable/denied microphone capture, recording safety timeout, local voice usage-limit exhaustion, failed or blank transcription, assistance-route rate limiting, assistance-route service/network/unknown failures, and empty assistance answers. Successful Ask-a-question responses are not treated as errors by this slice; future R&D may intentionally let successful questions revise or adapt live cooking steps under a separate product contract.
+
+The slice reuses the existing AI error classifier for assistance-route failures and keeps the status copy direct: the cook can keep following the unchanged cooking guide and try asking again when ready. Retrying clears the separate voice-help status, and a successful assistant answer clears it through the normal assistant-response path.
+
+This branch does not change route contracts, provider prompts, provider response schema, durable cooking-session schema, Finish/History semantics, full provider schema shape, Phase 5 cleanup, durable navigation, or the future voice-activity affordance. The visual change stays inside the existing scoped `.live-cooking-ui` warm focus-mode surface and uses the existing cooking tokens, preserving the PR #264 computed-style specificity guardrail.
+
+Local evidence: `npm ci`, `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000`, `npm run check`, `npm run build`, `npm run test:unit`, `npm audit --audit-level=high`, and `git diff --check` pass. Focused assertions prove microphone-denial and assistance-route failures render the separate voice-help status outside Step guidance, preserve the current step, clear the issue on retry, and keep technical failure copy out of the normal assistant-answer path. PR #275 updated the guest E2E smoke for the new status panel; exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks passed on the PR. Local targeted Playwright did not reach the changed assertion because the local dotenvx database is missing `anonymous_recipe_usage`, matching the known local-environment gap. Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level device microphone/provider smoke, because the branch is a narrow client failure-presentation slice with mocked provider coverage and no schema, auth, deployment, or persistence changes.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
@@ -199,7 +212,7 @@ The branch intentionally does not add `suggestedTimer` schema, timer kinds/reaso
 - Cooking-step generation failure has an inline retry/recovery state.
 - Cooking-step generation validates output before entering the live guide: empty arrays, blank instructions, whitespace-only instructions, and non-cookable placeholder text are treated as recovery states, not as usable steps.
 - Step-generation recovery into Live Cooking is explicit and evidence-backed: retry or regeneration must produce a validated usable guide before the app starts/saves a cooking session; the generic backup guide remains a clearly labeled user choice, not silent self-recovery.
-- Cooking-assistance failure appears in the relevant inline guidance/caption area, not only in a toast.
+- Cooking-assistance failure appears in a separate voice-help status area, not in the step guidance/caption content and not only in a toast. Branch `codex/init-001-assistance-inline-failure` implements this with an isolated retry panel while preserving the pinned current step.
 - Persistent live-cooking failures offer inline Feedback access.
 - No live-cooking failure hides the pinned current step or leaves the cook without a next action.
 - Live-cooking errors follow EFF-018 status classification and copy principles.

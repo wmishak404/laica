@@ -427,7 +427,9 @@ test.describe('Laica Guest E2E Smoke', () => {
     await expect(page.getByRole('button', { name: 'Resume timer' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Ask a question' }).click();
-    await expect(page.getByText("I couldn't access your microphone. Please check your browser permissions and try again.")).toBeVisible();
+    await expect(page.getByTestId('assistance-status-issue')).toContainText("Microphone didn't start");
+    await expect(page.getByTestId('assistance-status-issue')).toContainText('The cooking guide is unchanged.');
+    await expect(page.getByTestId('step-guidance-panel')).not.toContainText("Microphone didn't start");
     await expect(page.getByRole('button', { name: 'Ask a question' })).toBeVisible();
 
     expect(pantryRoutes.getRequestCount()).toBe(1);

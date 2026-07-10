@@ -22,7 +22,7 @@ This directory is the coordination channel between Claude Code and Codex. Each f
 **INIT updated:** yes/no/n/a
 
 ## Summary
-Open with the concise overall view when the task changes the product/workflow/docs system, then summarize what was done and why. Do not force a separate heading when there is no broader system change.
+Open with the concise overall view when the task changes the product/workflow/docs system, then summarize what was done and why. Keep this evidence-bound: do not add unsupported user-value claims, broad intent language, or implementation details that could be misread later as accepted product direction. Do not force a separate heading when there is no broader system change.
 
 ## Changes
 List of files created/modified and what each change does.

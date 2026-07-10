@@ -338,6 +338,15 @@ html, body {
     color: hsl(var(--cooking-ink));
   }
 
+  .live-cooking-ui .live-cooking-assistance-status {
+    border: 1px solid hsl(var(--cooking-coral-strong) / 0.28);
+    border-radius: 0.75rem;
+    color: hsl(var(--cooking-rust));
+    background:
+      linear-gradient(180deg, hsl(var(--cooking-butter) / 0.36), hsl(var(--cooking-coral-soft) / 0.42)),
+      hsl(0 0% 100% / 0.74);
+  }
+
   .live-cooking-ui .live-cooking-caption-box {
     border-color: hsl(var(--cooking-card-edge) / 0.4);
     background: hsl(0 0% 100% / 0.72);

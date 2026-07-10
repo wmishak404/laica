@@ -21,6 +21,7 @@ Work from evidence, show the context needed to trust the result, keep the active
 9. **When blocked, produce a blocking report.** Stop guessing. State the exact blocker, missing input or permission, what was already tried, smallest next actions, owner if known, and resume point.
 10. **Turn bugs into durable learning.** When validation or user testing exposes a bug, treat it as evidence about the system, not only as a patch. Capture the cause, regression test or validation gap, durable rule or spec update, and remaining re-test requirement in the smallest appropriate source of truth.
 11. **Treat automated tests as evidence, not conclusions.** Before using automated testing as a merge-readiness signal, present the evidence with full reasoning and provenance: exact command or check name, environment, branch/SHA, source test or assertion, log/artifact URL when available, observed result, what the result proves, what it does not prove, and any remaining Replit/manual/eval gap.
+12. **Do not turn summary wording into accidental intent.** Durable summaries, handoffs, and PR descriptions must distinguish accepted product direction from implementation facts and evidence. Avoid unsupported user-value claims, broad intent adjectives, or "users no longer have to..." framing unless that is explicitly accepted and validated.
 
 ## Decision Homes
 

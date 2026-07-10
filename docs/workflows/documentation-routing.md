@@ -143,6 +143,8 @@ Include:
 - the learning or discipline added to the whole system, when the task produced one
 - validation status, unvalidated scope, and any explicit deferrals or owner decisions
 
+Keep the opening evidence-bound. Do not use the summary to launder assumptions into product intent: avoid unsupported user-value claims, broad adjectives like "safer" unless safety is the accepted decision, and phrases like "users no longer have to..." unless the before/after behavior was explicitly accepted and validated. Do not elevate implementation details such as toast placement, captions/transcript routing, CSS class names, provider fallback shape, or validation mechanics into durable product direction unless the governing PD/INIT explicitly says so. When in doubt, state the bounded implementation fact and the negative scope instead.
+
 If a task has no broader system learning, keep the opening simple. Do not add a special heading or invent a process lesson just to fill the section.
 
 After this section, still list what was done in practical terms: files changed, docs updated, commands run, checks passed or skipped, PR/branch state, and remaining work.

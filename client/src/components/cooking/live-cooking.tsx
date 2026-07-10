@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
 import { apiFetch } from '@/lib/queryClient';
-import { classifyAiRequestError, withAiErrorHandling } from '@/lib/rateLimitHandler';
+import { classifyAiRequestError } from '@/lib/rateLimitHandler';
 import { elevenLabsClient, browserTTSClient, COOKING_VOICE_SETTINGS, type VoiceSettings } from '@/lib/elevenlabs';
 import { AudioProcessor } from '@/lib/audioUtils';
 import { UsageTracker } from '@/lib/usageTracker';
@@ -62,6 +62,11 @@ type NavigatorWithWakeLock = Navigator & {
 };
 
 interface StepLoadIssue {
+  title: string;
+  description: string;
+}
+
+interface AssistanceIssue {
   title: string;
   description: string;
 }
@@ -596,6 +601,7 @@ export default function LiveCooking({
   const [acknowledgedMissingIngredients, setAcknowledgedMissingIngredients] = useState<string[]>([]);
   const [isLoadingSteps, setIsLoadingSteps] = useState(false);
   const [stepLoadIssue, setStepLoadIssue] = useState<StepLoadIssue | null>(null);
+  const [assistanceIssue, setAssistanceIssue] = useState<AssistanceIssue | null>(null);
   const [stepLoadAttempt, setStepLoadAttempt] = useState(0);
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
@@ -1505,10 +1511,25 @@ export default function LiveCooking({
 
   const setSpokenAssistantResponse = (text: string) => {
     cancelSpeechQueue();
+    setAssistanceIssue(null);
     setAudioJustEnabled(false);
     setLastSpokenResponse('');
     setAssistantResponse(text);
     setSpeechIntentRevision(revision => revision + 1);
+  };
+
+  const showAssistanceIssue = (issue: AssistanceIssue) => {
+    setAssistanceIssue(issue);
+    setAudioJustEnabled(false);
+    setLastSpokenResponse('');
+  };
+
+  const showAssistanceIssueFromError = (error: unknown) => {
+    const feedback = classifyAiRequestError(error, { context: 'cooking assistance', feedbackLink: false });
+    showAssistanceIssue({
+      title: feedback.title || "Question didn't go through",
+      description: `${feedback.description} Try Ask a question again when you're ready. Your cooking guide is unchanged.`,
+    });
   };
 
   const startCookingGuideFromReadyCheck = () => {
@@ -1608,11 +1629,15 @@ export default function LiveCooking({
   // Voice recording functionality with silence detection
   const startVoiceRecording = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setAssistantResponse("Voice recording is not supported in this browser. Please use a modern browser with microphone access.");
+      showAssistanceIssue({
+        title: 'Voice question is not available',
+        description: 'This browser does not support microphone recording here. The cooking guide is unchanged.',
+      });
       return;
     }
 
     try {
+      setAssistanceIssue(null);
       audioLifecycleActiveRef.current = true;
       const recordingRunId = recordingRunIdRef.current + 1;
       recordingRunIdRef.current = recordingRunId;
@@ -1801,7 +1826,10 @@ export default function LiveCooking({
         console.log('Auto-stopping due to 35s safety timeout');
         isCurrentlyListening = false;
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-          setAssistantResponse("Recording timed out. Please try asking your question again, keeping it under 30 seconds.");
+          showAssistanceIssue({
+            title: 'Question timed out',
+            description: 'Try Ask a question again and keep it under 30 seconds. The cooking guide is unchanged.',
+          });
           cancelVoiceRecording();
         }
       }, 35000);
@@ -1810,7 +1838,10 @@ export default function LiveCooking({
       
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      setAssistantResponse("I couldn't access your microphone. Please check your browser permissions and try again.");
+      showAssistanceIssue({
+        title: "Microphone didn't start",
+        description: 'Check your browser permission, then use Ask a question again. The cooking guide is unchanged.',
+      });
       isVoiceRecordingRef.current = false;
       setIsVoiceRecording(false);
     }
@@ -1859,8 +1890,15 @@ export default function LiveCooking({
       
       if (!usageLimits.withinLimits) {
         const exceeded = usageLimits.limitsExceeded.join(', ');
-        setAssistantResponse(`Voice questions are temporarily limited. You've reached your ${exceeded} limit. Remaining usage: ${usageLimits.remainingUsage.dailyMinutes.toFixed(1)} min today.`);
+        showAssistanceIssue({
+          title: 'Voice questions are temporarily limited',
+          description: `You've reached your ${exceeded} limit. Remaining usage: ${usageLimits.remainingUsage.dailyMinutes.toFixed(1)} min today. The cooking guide is unchanged.`,
+        });
+        clearRecordingTimers();
         setIsProcessing(false);
+        isVoiceRecordingRef.current = false;
+        setIsVoiceRecording(false);
+        setRecordingDuration(0);
         return;
       }
       
@@ -1935,25 +1973,46 @@ export default function LiveCooking({
       
       Please provide a helpful, contextual answer that relates specifically to this step and mentions how this connects to future steps when relevant. Keep the response conversational and encouraging.`;
       
-      const response = await withAiErrorHandling(async () => {
-        return await fetchCookingAssistance(contextualPrompt, transcription);
-      }, { context: 'cooking assistance', feedbackLink: false });
+      let response: string | null = null;
+      try {
+        response = await fetchCookingAssistance(contextualPrompt, transcription);
+      } catch (error) {
+        if (!audioLifecycleActiveRef.current) return;
+        console.error('Cooking assistance request failed:', error);
+        showAssistanceIssueFromError(error);
+        clearRecordingTimers();
+        setIsProcessing(false);
+        isVoiceRecordingRef.current = false;
+        setIsVoiceRecording(false);
+        setRecordingDuration(0);
+        return;
+      }
       if (!audioLifecycleActiveRef.current) return;
       
       if (response) {
         setSpokenAssistantResponse(response || "I'm here to help! Can you tell me more about what you're having trouble with?");
       } else {
-        setSpokenAssistantResponse("I'm having trouble connecting right now, but let me give you a general tip: take your time with this step and follow the visual cues I mentioned.");
+        showAssistanceIssue({
+          title: "Question didn't get an answer",
+          description: "I didn't get a useful answer back. Try Ask a question again when you're ready. The cooking guide is unchanged.",
+        });
       }
       
     } catch (error) {
       if (!audioLifecycleActiveRef.current) return;
       console.error('Error processing voice question:', error);
-      setSpokenAssistantResponse("I didn't catch that. Could you try again?");
+      showAssistanceIssue({
+        title: "I couldn't hear that clearly",
+        description: "Try Ask a question again when you're ready. The cooking guide is unchanged.",
+      });
     }
     
     if (audioLifecycleActiveRef.current) {
+      clearRecordingTimers();
       setIsProcessing(false);
+      isVoiceRecordingRef.current = false;
+      setIsVoiceRecording(false);
+      setRecordingDuration(0);
     }
   };
 
@@ -2374,6 +2433,21 @@ export default function LiveCooking({
             </p>
           )}
         </section>
+
+        {assistanceIssue && (
+          <section
+            aria-label="Voice help status"
+            className="live-cooking-assistance-status flex items-start gap-2 p-3"
+            data-testid="assistance-status-issue"
+            role="alert"
+          >
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-extrabold leading-5">{assistanceIssue.title}</p>
+              <p className="text-sm leading-5">{assistanceIssue.description}</p>
+            </div>
+          </section>
+        )}
 
         <div className="live-cooking-command-bar sticky bottom-0 z-30 -mx-4 mt-auto px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur">
           <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-2">
