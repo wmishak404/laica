@@ -2117,9 +2117,8 @@ export default function LiveCooking({
 
           <div className="live-cooking-ready-actions planning-action-dock mt-auto grid gap-3 pb-2">
             <Button
-              size="lg"
               onClick={() => startCookingGuideFromReadyCheck()}
-              className="planning-primary-action live-cooking-start-button h-14 text-lg font-extrabold"
+              className="planning-primary-action live-cooking-start-button h-12 font-extrabold"
             >
               <Play className="h-4 w-4 mr-2" />
               Start cooking
