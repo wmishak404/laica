@@ -16,12 +16,18 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-10 for the PR #276 addendum below.
-- Current `origin/main`: `c75d5bb334900549d0b8b00b4ad84d7ef1a5e96e`.
-- Current latest merge: PR #276, `[codex] Add linked Settings dev-auth smoke`.
-- Current latest user-visible/runtime merge: PR #269, `feat: polish Live Cooking timer`.
+- Registry updated: 2026-07-10 for the PR #275 addendum below.
+- Current `origin/main`: `148c881591479d2c5f07c500dd440682989824b4`.
+- Current latest merge: PR #275, `[codex] Show Live Cooking help failures inline`.
+- Current latest user-visible/runtime merge: PR #275, `[codex] Show Live Cooking help failures inline`.
 
-The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The 2026-07-10 addendum records PR #276's automation coverage now so the next production-readiness pass does not lose that test signal.
+The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The 2026-07-10 addenda record PR #275 and PR #276's automation coverage now so the next production-readiness pass does not lose that test signal.
+
+## 2026-07-10 PR #275 Production-Readiness Addendum
+
+- PR #275 merged at `148c881591479d2c5f07c500dd440682989824b4` after exact-head GitHub checks passed for head `eb364ee7127f86c2b46c826e74619d48719b1c50`.
+- Include the PR #275 Live Cooking assistance-failure behavior in the next production/release-batch smoke when the release SHA contains this merge: deny microphone or force an assistance-route failure, then confirm the current step remains visible, the separate voice-help status appears outside Step guidance, retry clears it, and technical failure copy is not spoken as cooking guidance.
+- No extra PR-level manual Replit smoke was required before merge because this was a narrow client failure-presentation slice with deterministic Live Cooking unit coverage, an updated guest E2E assertion, passing exact-head GitHub CI, and no schema, auth, provider contract, persistence, secrets, deployment, or navigation changes.
 
 ## 2026-07-10 PR #276 Production-Readiness Addendum
 
@@ -33,6 +39,7 @@ Merged work after the 2026-06-22 production-smoke evidence that should be review
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
+| 2026-07-10 | `148c881` / PR #275 | Live Cooking `Ask a question` technical/quota failure presentation | Release-batch Live Cooking smoke: deny microphone or force assistance-route failure; verify current step stays visible, separate voice-help retry status appears outside Step guidance, retry clears it, and technical failure copy is not spoken as cooking guidance. |
 | 2026-07-10 | `c75d5bb` / PR #276 | EFF-017 linked dev-auth browser smoke for Chef It Up plus Settings Pantry/Tools persistence | Carry the exact-head GitHub E2E evidence into the production-readiness report. Do not duplicate manually unless later auth/profile/settings work or stale automation makes the release confidence indirect. |
 | 2026-06-30 | `a4450a6` / PR #248 | EFF-022 fallback merge closeout docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
 | 2026-06-30 | `203e621` / PR #247 | EFF-022 fallback direction and INIT-004 eval planning docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
@@ -71,6 +78,12 @@ Run the baseline core smoke from `docs/workflows/replit-validation-focus.md`:
 
 Run these changed-since-last-prod focused checks for the current candidate:
 
+- PR #275 Live Cooking assistance-failure presentation:
+  - Deny microphone access or force `/api/cooking/assistance` to fail while in Live Cooking.
+  - Confirm the current step remains visible and unchanged.
+  - Confirm a separate voice-help retry status appears outside Step guidance.
+  - Confirm retry clears the status.
+  - Confirm technical failure copy is not spoken as cooking guidance.
 - PR #276 linked Settings dev-auth smoke:
   - Include the PR #276 exact-head GitHub E2E pass in the production-readiness evidence when validating a release SHA that contains `c75d5bb`.
   - Confirm the readiness report names the linked user coverage: Chef It Up planning, Settings Pantry/Tools persistence, and authenticated profile verification.
