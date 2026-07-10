@@ -209,7 +209,7 @@ async function stubPantryRecipes(page: Page) {
   });
 }
 
-async function signBrowserInWithCustomToken(page: Page, customToken: string) {
+async function signBrowserInWithCustomToken(page: Page, customToken: string, expectedPantryCount = 3) {
   await page.addInitScript(
     ({ key, token, bootstrappedKey }) => {
       if (window.sessionStorage.getItem(bootstrappedKey) === "true") {
@@ -229,7 +229,9 @@ async function signBrowserInWithCustomToken(page: Page, customToken: string) {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText(/Right now I see/)).toContainText("3 pantry items", { timeout: 30_000 });
+  await expect(page.getByText(/Right now I see/)).toContainText(`${expectedPantryCount} pantry items`, {
+    timeout: 30_000,
+  });
 }
 
 async function queueDevAuthTokenForNextLoad(page: Page, customToken: string) {
@@ -327,9 +329,14 @@ test.describe("linked dev auth browser smoke", () => {
     const tokenPayload = await createLinkedDevAuthToken(request, LINKED_DEV_AUTH_BROWSER_UID, "Linked Browser Dev User");
     const idToken = await exchangeCustomTokenForIdToken(tokenPayload.customToken!);
     await seedLinkedProfile(request, idToken);
+    const browserTokenPayload = await createLinkedDevAuthToken(
+      request,
+      LINKED_DEV_AUTH_BROWSER_UID,
+      "Linked Browser Dev User",
+    );
 
     await stubPantryRecipes(page);
-    await signBrowserInWithCustomToken(page, tokenPayload.customToken!);
+    await signBrowserInWithCustomToken(page, browserTokenPayload.customToken!);
 
     await expect(page.getByText(/Right now I see/)).toContainText("3 pantry items");
     await page.getByRole("button", { name: "Chef It Up" }).click();
@@ -415,8 +422,13 @@ test.describe("linked dev auth browser smoke", () => {
       pantryIngredients: ["rice", "eggs"],
       kitchenEquipment: ["skillet"],
     });
+    const browserTokenPayload = await createLinkedDevAuthToken(
+      request,
+      LINKED_DEV_AUTH_SETTINGS_UID,
+      "Linked Settings Dev User",
+    );
 
-    await signBrowserInWithCustomToken(page, tokenPayload.customToken!);
+    await signBrowserInWithCustomToken(page, browserTokenPayload.customToken!, 2);
 
     await expect(page.getByText(/Right now I see/)).toContainText("2 pantry items");
     await page.getByRole("button", { name: "Menu" }).click();
