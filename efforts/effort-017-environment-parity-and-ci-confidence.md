@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-07-01
+**Updated:** 2026-07-10
 
 ## One-line summary
 
@@ -742,3 +742,11 @@ The daily Efforts hygiene pass kept EFF-017 as the highest-leverage active Effor
 Branch `codex/eff-017-cooking-session-coverage` adds hook-level coverage for `useCookingSession`: guest users do not fetch linked-only durable cooking-session queries, linked users get auth-id-scoped active/history query keys, and cooking completion refreshes cooking/profile caches without invalidating `/api/auth/session`.
 
 This is a test-only confidence slice. It does not change runtime behavior, provider canaries, Replit automation, OAuth configuration, coverage thresholds, schema, prompts, or validation authority. EFF-017 remains `In Progress`.
+
+## 2026-07-10 — Linked Settings dev-auth browser coverage added
+
+The daily Efforts hygiene pass kept EFF-017 as the highest-leverage active Effort because deterministic linked-user validation de-risks INIT-001 Settings/pantry persistence, INIT-003 linked-account boundaries, and release validation. EFF-022 stayed active but was not selected because the runtime fallback threshold remains intentionally deferred and adjacent prompt/eval work is already active in PR #274.
+
+Branch `codex/eff-017-linked-settings-coverage` extends the existing linked dev-auth browser E2E lane. After the linked user signs in through Firebase custom-token dev auth and completes the Chef It Up pantry-planning path, the smoke opens Settings from the real app menu, adds pantry and tools through the UI, saves both lists, and verifies the persisted linked profile through authenticated `/api/user/profile`.
+
+This advances the dev-test harness from API auth plus Chef It Up planning into the linked Settings persistence path. It does not change production auth, Google popup linking, provider canaries, Replit automation, OAuth preflight, coverage thresholds, schema, prompts, or validation authority. EFF-017 remains `In Progress`.
