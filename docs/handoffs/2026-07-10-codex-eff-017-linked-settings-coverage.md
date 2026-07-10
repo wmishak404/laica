@@ -52,6 +52,8 @@ GitHub `e2e_guest_smoke` initially failed on `b8cc855aba7afbb68545e1e5de25ba44b7
 
 GitHub `e2e_guest_smoke` then failed again on `30709d511f7fac589565550d08425d2a870c695a` and `d5f264f6faca1b6bb937aff7ac454c68a09b9e94` at the same signed-in planning assertion for the second browser test. The Settings assertions now run inside the existing linked browser smoke after its proven sign-in and planning path, instead of starting a second linked browser session.
 
+GitHub `e2e_guest_smoke` reached the consolidated Settings save path on `3c590c3982349321c115a75f1c6a75c9e3b4e85a` and failed only because the `Pantry saved!` toast text matched both the toast title and aria-live wrapper. The toast assertions now use exact text matches.
+
 The focused E2E evidence must come from GitHub `e2e_guest_smoke` on the final pushed head because that lane prepares the disposable Neon branch, maps CI Firebase custom-token secrets, runs `db:health`, and then runs Playwright. Local dotenvx E2E against the default decrypted database is diagnostic only under the testing workflow.
 
 ## Stack / base status

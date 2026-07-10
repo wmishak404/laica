@@ -423,7 +423,7 @@ test.describe("linked dev auth browser smoke", () => {
     await expect(page.getByText("black beans", { exact: true })).toBeVisible();
     await expect(page.getByText("Unsaved pantry changes")).toBeVisible();
     await page.getByRole("button", { name: "Save pantry changes" }).click();
-    await expect(page.getByText("Pantry saved!")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText("Pantry saved!", { exact: true })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("button", { name: "Save pantry" })).toBeVisible();
 
     await page.getByRole("tab", { name: "Tools" }).click();
@@ -435,7 +435,7 @@ test.describe("linked dev auth browser smoke", () => {
     await expect(page.getByText("sheet pan", { exact: true })).toBeVisible();
     await expect(page.getByText("Unsaved tools changes")).toBeVisible();
     await page.getByRole("button", { name: "Save tools changes" }).click();
-    await expect(page.getByText("Tools saved!")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText("Tools saved!", { exact: true })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("button", { name: "Save tools" })).toBeVisible();
 
     const settingsProfile = await readLinkedProfile(request, idToken);
