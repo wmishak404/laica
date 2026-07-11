@@ -64,7 +64,7 @@ Whether `Fraunces` / `Nunito` graduate to the global stack is an open visual dec
 
 Tailwind units `3, 4, 6, 8, 12, 16`. Mobile gutters `px-4 py-6`; cards `p-6`; section gaps `gap-8` to `gap-12`; component spacing `space-y-4` / `space-y-6`. Mobile containers full-width with `px-4`; desktop `max-w-6xl` centered when needed.
 
-Mobile browser flows must end intentionally. When a page has terminal navigation or action controls such as a Back/Next rail, scrolling to the bottom should stop at that rail or its border, not continue into inert blank space below the final controls. Use an inner scrollport or visible-browser-height sizing when browser chrome reduces the available viewport, and keep any extra bottom padding tied to real fixed controls.
+Mobile browser flows must end intentionally. When a page has terminal navigation or action controls such as a Back/Next rail, scrolling to the bottom should stop at that rail or its border, not continue into inert blank space below the final controls. Use an inner scrollport or visible-browser-height sizing when browser chrome reduces the available viewport, make one layer clearly own scrolling, and keep any extra bottom padding tied to real fixed controls.
 
 ## Surface Taxonomy
 
