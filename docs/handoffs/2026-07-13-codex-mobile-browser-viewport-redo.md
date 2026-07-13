@@ -13,7 +13,7 @@ This branch is the first narrow redo after PR #280 was closed. It treats PR #280
 
 Wilson's phone-browser review caught an implementation drift in the first pass: selecting one staple added the `Added` shelf, but the staples screen did not have a real scroll owner, so `View recipe suggestions` fell below the visible action lane. The correction keeps the larger Planning typography and fixes the structure instead: short steps get visible top content, a scrollable body, a pinned primary action lane, and a slightly shorter bottom nav with the same actions/order/visibility.
 
-Wilson's later Settings Pantry screenshot caught the reference case for future pinned-navigation work: the Settings inventory save row was sticky at `bottom: 0`, so the fixed app bottom nav covered it. The fix keeps Pantry/Tools/Profile order, save behavior, Back behavior, and Settings content unchanged while offsetting the existing Settings action row above the compact app nav.
+Wilson's later Settings Pantry screenshots caught the reference case for future pinned-navigation work: first the Settings inventory save row was sticky at `bottom: 0`, so the fixed app bottom nav covered it; the first offset then read as a floating translucent sheet above the nav. The final fix keeps Pantry/Tools/Profile order, save behavior, Back behavior, and Settings content unchanged while attaching the existing Settings action row directly above the compact app nav with an opaque footer-lane background.
 
 ## Changes
 
@@ -27,9 +27,9 @@ Wilson's later Settings Pantry screenshot caught the reference case for future p
   - Wraps the staples `Added` shelf and candidate list in the same scroll-owner pattern used by cuisine.
 - `client/src/index.css`
   - Adds Planning-only browser-flow sizing using `100svh` with `100vh` fallback and a bottom-nav reservation.
-  - Keeps early Chef It Up step bodies as the scroll owner with the primary continuation in the page's bottom action lane.
+  - Keeps early Chef It Up step bodies as the scroll owner and makes the mobile primary continuation lane explicitly fixed directly above the compact app bottom nav.
   - Preserves Planning headline/body/card/ingredient-row type sizes rather than shrinking everything to fit one viewport.
-  - Offsets the existing returning Settings sticky action row above the compact app bottom nav with a small visible gap, without changing Settings flow or save/back behavior.
+  - Attaches the existing returning Settings sticky action row directly above the compact app bottom nav with an opaque background, without changing Settings flow or save/back behavior.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Records PR #280 as closed negative evidence, the first-pass selected-staples drift, and the corrected narrow redo slice.
 
@@ -58,10 +58,10 @@ Wilson's later Settings Pantry screenshot caught the reference case for future p
   - Time step: body scroll tail `0`; `Next` bottom `460`; compact bottom nav top `469`; nav tap target `48px`; time scroll delta `82`.
   - Cuisine step: body scroll tail `0`; action lane bottom `460`; compact bottom nav top `469`; nav tap target `48px`; cuisine list scroll delta `703`.
   - Staples empty / one selected / three selected: body scroll tail `0`; action lane bottom `460`; compact bottom nav top `469`; nav tap target `48px`; list scroll deltas `301` / `412` / `458`.
-- Settings action-lane geometry smoke against built CSS passed at 402x534:
-  - During sticky scrolling, the Settings action row bottom was `458px`, compact bottom nav top was `469px`, leaving an `11px` visible gap.
-  - At the scroll endpoint, the row remained above the nav with a `52px` natural gap and zero body scroll tail.
-  - Settings action buttons stayed ordered `Settings` then `Save pantry changes`, each `48px` tall; Back and Pantry/Tools tab labels stayed present.
+- Final action-lane geometry smoke against built CSS passed at 402x534:
+  - Settings action row bottom `469px`, compact bottom nav top `469px`, gap `0`, opaque footer-lane background, `Settings` then `Save pantry changes`, each `48px` tall.
+  - Planning time action bottom `469px`, compact bottom nav top `469px`, gap `0`, computed action position `fixed`, body scroll tail `0`.
+  - Planning cuisine/staples action lane bottom `469px`, compact bottom nav top `469px`, gap `0`, computed action position `fixed`, list scroll delta present, body scroll tail `0`.
 
 ## Stack / base status
 

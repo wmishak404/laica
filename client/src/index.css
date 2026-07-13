@@ -1472,7 +1472,6 @@ html, body {
   .returning-ui,
   .history-ui {
     --app-bottom-nav-space: 4rem;
-    --returning-action-nav-gap: 0.75rem;
     --returning-cream: 38 100% 96%;
     --returning-cream-deep: 35 88% 92%;
     --returning-coral-soft: 0 100% 94%;
@@ -1810,14 +1809,14 @@ html, body {
 
   .returning-actions {
     position: sticky;
-    bottom: calc(var(--app-bottom-nav-space) + var(--returning-action-nav-gap) + env(safe-area-inset-bottom));
+    bottom: calc(var(--app-bottom-nav-space) + 1px);
     z-index: 10;
     display: grid;
     grid-template-columns: 0.8fr 1.2fr;
     gap: 0.75rem;
     margin: 1.1rem -1rem -1rem;
     border-top: 1px solid hsl(var(--returning-coral) / 0.12);
-    background: linear-gradient(180deg, hsl(var(--returning-cream) / 0.42), hsl(var(--returning-cream) / 0.96));
+    background: linear-gradient(180deg, hsl(var(--returning-cream) / 0.98), hsl(var(--returning-cream-deep) / 0.98));
     padding: 0.85rem 1rem 1rem;
   }
 
@@ -2945,6 +2944,37 @@ html, body {
 
 .planning-browser-shell .planning-bottom-action {
   margin-top: 1rem;
+}
+
+@media (max-width: 480px) {
+  .planning-browser-shell .planning-bottom-action,
+  .planning-browser-shell .planning-cuisine-actions {
+    position: fixed;
+    right: auto;
+    bottom: calc(var(--planning-browser-bottom-nav-space) + 1px);
+    left: 50%;
+    z-index: 30;
+    width: min(calc(100vw - 2rem), 28rem);
+    transform: translateX(-50%);
+  }
+
+  .planning-browser-shell .planning-bottom-action {
+    margin-top: 0;
+  }
+
+  .planning-browser-shell .planning-cuisine-actions {
+    margin-top: 0;
+    background: linear-gradient(180deg, hsl(var(--planning-cream) / 0.98), hsl(var(--planning-cream-deep) / 0.98));
+    padding: 0.85rem 0 1rem;
+  }
+
+  .planning-browser-shell .planning-time-content {
+    padding-bottom: 5.5rem;
+  }
+
+  .planning-browser-shell .planning-cuisine-scroll {
+    padding-bottom: 8.25rem;
+  }
 }
 
 .planning-browser-shell .planning-browser-step {
