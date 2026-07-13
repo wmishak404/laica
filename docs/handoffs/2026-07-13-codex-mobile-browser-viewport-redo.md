@@ -9,28 +9,33 @@
 
 ## Summary
 
-This branch is the first narrow redo after PR #280 was closed. It treats PR #280 only as negative implementation evidence and starts from fresh `origin/main` `deaf17e`. The implementation is intentionally scoped to Planning entry plus the first Chef It Up decision steps, preserving Planning typography and avoiding Setup, Settings, Slop Bowl, Live Cooking, navigation, provider, schema, and Replit setup changes.
+This branch is the first narrow redo after PR #280 was closed. It treats PR #280 only as negative implementation evidence and starts from fresh `origin/main` `deaf17e`. The implementation is intentionally scoped to Planning entry plus the first Chef It Up decision steps, preserving Planning typography and avoiding Setup, Settings, Slop Bowl, Live Cooking, provider, schema, and Replit setup changes.
+
+Wilson's phone-browser review caught an implementation drift in the first pass: selecting one staple added the `Added` shelf, but the staples screen did not have a real scroll owner, so `View recipe suggestions` fell below the visible action lane. The correction keeps the larger Planning typography and fixes the structure instead: short steps get visible top content, a scrollable body, a pinned primary action lane, and a slightly shorter bottom nav with the same actions/order/visibility.
 
 ## Changes
 
 - `client/src/pages/app.tsx`
   - Adds a Planning-only `planning-browser-shell` wrapper for the authenticated Planning phase.
   - Adds scoped hooks to the Planning choice shell/header/stack.
+  - Compacts the bottom-nav padding only; nav actions, order, auth visibility, and behavior stay unchanged.
 - `client/src/components/cooking/meal-planning.tsx`
   - Adds scoped hooks to the time, cuisine, and staples steps.
-  - Marks the time-step `Next` button as the bottom action lane without changing its label, size, or behavior.
+  - Marks the time-step `Next` button as the bottom action lane without changing its label or behavior.
+  - Wraps the staples `Added` shelf and candidate list in the same scroll-owner pattern used by cuisine.
 - `client/src/index.css`
   - Adds Planning-only browser-flow sizing using `100svh` with `100vh` fallback and a bottom-nav reservation.
-  - Keeps the cuisine/staples list as the single scroll owner with the primary continuation in the page's bottom action lane.
-  - Adds a short-height mobile rule that tightens decorative Planning spacing and the time-step clock, not the semantic heading/body/action type.
+  - Keeps early Chef It Up step bodies as the scroll owner with the primary continuation in the page's bottom action lane.
+  - Preserves Planning headline/body/card/ingredient-row type sizes rather than shrinking everything to fit one viewport.
 - `initiatives/INIT-001-mobile-refresh.md`
-  - Records PR #280 as closed negative evidence and this branch as the narrow redo slice.
+  - Records PR #280 as closed negative evidence, the first-pass selected-staples drift, and the corrected narrow redo slice.
 
 ## Impact on other agents
 
 - Do not copy PR #280 implementation code into future viewport work.
 - The accepted principles are still tracked in open docs-only PR #282 / branch `codex/mobile-browser-ux-principles`; this branch used that handoff as input but did not stack on it.
 - Future slices should keep using scoped wrappers/shared primitives before global CSS. Setup remains intentionally untouched here.
+- Real phone-browser review should include dynamic states such as one or several selected staples, not only empty/default screens.
 
 ## Open items
 
@@ -44,10 +49,12 @@ This branch is the first narrow redo after PR #280 was closed. It treats PR #280
 - `npm run check` passed.
 - `npm run build` passed with existing Browserslist staleness, Firebase dynamic/static import, and large chunk warnings.
 - `git diff --check` passed.
-- DB-free Chromium geometry smoke against the built CSS passed at 390x700:
-  - Planning choice: body scroll tail `0`; primary card bottom `366`; secondary card bottom `536`; bottom nav top `603`.
-  - Time step: body scroll tail `0`; `Next` bottom `594`; bottom nav top `603`.
-  - Cuisine step: body scroll tail `0`; action lane bottom `594`; bottom nav top `603`; cuisine list scroll delta `549`, making the list the scroll owner.
+- Initial DB-free Chromium geometry smoke at 390x700 passed, but it missed the selected-staples state and was not representative of the phone-browser visible height.
+- Corrective DB-free Chromium geometry smoke against built CSS passed at 402x534:
+  - Planning choice: body scroll tail `0`; primary card bottom `329`; compact bottom nav top `469`; nav tap target `48px`; choice scroll delta `57`.
+  - Time step: body scroll tail `0`; `Next` bottom `460`; compact bottom nav top `469`; nav tap target `48px`; time scroll delta `82`.
+  - Cuisine step: body scroll tail `0`; action lane bottom `460`; compact bottom nav top `469`; nav tap target `48px`; cuisine list scroll delta `703`.
+  - Staples empty / one selected / three selected: body scroll tail `0`; action lane bottom `460`; compact bottom nav top `469`; nav tap target `48px`; list scroll deltas `301` / `412` / `458`.
 
 ## Stack / base status
 

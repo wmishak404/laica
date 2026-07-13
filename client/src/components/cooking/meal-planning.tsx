@@ -835,7 +835,7 @@ export default function MealPlanning({
   };
 
   const renderTimeStep = () => (
-    <section className="planning-screen planning-browser-flow mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+    <section className="planning-screen planning-browser-flow planning-browser-step planning-time-screen mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to planning choices">
         <ArrowLeft className="h-5 w-5" />
       </button>
@@ -887,14 +887,14 @@ export default function MealPlanning({
         </div>
       </div>
 
-      <Button className="planning-bottom-action mt-6 h-12 rounded-xl font-extrabold" onClick={() => setCurrentStep('cuisine')}>
+      <Button className="planning-bottom-action mt-6 h-12 w-full rounded-xl font-extrabold" onClick={() => setCurrentStep('cuisine')}>
         Next
       </Button>
     </section>
   );
 
   const renderCuisineStep = () => (
-    <section className="planning-screen planning-browser-flow planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+    <section className="planning-screen planning-browser-flow planning-browser-step planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to time">
         <ArrowLeft className="h-5 w-5" />
       </button>
@@ -959,7 +959,7 @@ export default function MealPlanning({
   );
 
   const renderStaplesStep = () => (
-    <section className="planning-screen planning-browser-flow planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+    <section className="planning-screen planning-browser-flow planning-browser-step planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to cuisines">
         <ArrowLeft className="h-5 w-5" />
       </button>
@@ -971,77 +971,79 @@ export default function MealPlanning({
         </p>
       </div>
 
-      {displayedSelectedStaples.length > 0 && (
-        <div className="planning-added-shelf mt-8" role="group" aria-label="Added pantry staples">
-          <p className="planning-added-label">Added</p>
-          <div className="planning-added-chip-row">
-            {displayedSelectedStaples.map((staple) => {
-              const savedToPantry = isSavedPantryStaple(staple);
+      <div className="planning-cuisine-scroll planning-staples-scroll mt-8" aria-label="Staple additions">
+        {displayedSelectedStaples.length > 0 && (
+          <div className="planning-added-shelf" role="group" aria-label="Added pantry staples">
+            <p className="planning-added-label">Added</p>
+            <div className="planning-added-chip-row">
+              {displayedSelectedStaples.map((staple) => {
+                const savedToPantry = isSavedPantryStaple(staple);
 
-              if (savedToPantry) {
+                if (savedToPantry) {
+                  return (
+                    <button
+                      type="button"
+                      key={staple}
+                      className="planning-added-chip planning-added-chip-saved"
+                      aria-label={`Already saved in your pantry: ${staple}. Head to Pantry Settings to make changes.`}
+                      onClick={() => setSavedStapleHint(staple)}
+                    >
+                      <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                      <span className="planning-added-chip-text">{staple}</span>
+                    </button>
+                  );
+                }
+
                 return (
                   <button
                     type="button"
                     key={staple}
-                    className="planning-added-chip planning-added-chip-saved"
-                    aria-label={`Already saved in your pantry: ${staple}. Head to Pantry Settings to make changes.`}
-                    onClick={() => setSavedStapleHint(staple)}
+                    className="planning-added-chip"
+                    aria-label={`Remove ${staple} from Added`}
+                    disabled={isLoading}
+                    onClick={() => toggleStaple(staple)}
                   >
-                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                    <Plus className="planning-added-chip-add h-4 w-4" aria-hidden="true" />
                     <span className="planning-added-chip-text">{staple}</span>
+                    <X className="planning-added-chip-remove h-3.5 w-3.5" aria-hidden="true" />
                   </button>
                 );
-              }
-
-              return (
-                <button
-                  type="button"
-                  key={staple}
-                  className="planning-added-chip"
-                  aria-label={`Remove ${staple} from Added`}
-                  disabled={isLoading}
-                  onClick={() => toggleStaple(staple)}
-                >
-                  <Plus className="planning-added-chip-add h-4 w-4" aria-hidden="true" />
-                  <span className="planning-added-chip-text">{staple}</span>
-                  <X className="planning-added-chip-remove h-3.5 w-3.5" aria-hidden="true" />
-                </button>
-              );
-            })}
+              })}
+            </div>
+            {showSavedStapleHint && (
+              <p className="planning-added-help" role="status">
+                These are already saved in your pantry. Head to Pantry Settings to make changes.
+              </p>
+            )}
           </div>
-          {showSavedStapleHint && (
-            <p className="planning-added-help" role="status">
-              These are already saved in your pantry. Head to Pantry Settings to make changes.
-            </p>
-          )}
-        </div>
-      )}
+        )}
 
-      <div
-        className={displayedSelectedStaples.length > 0 ? 'mt-5 space-y-3' : 'mt-8 space-y-3'}
-        role="group"
-        aria-label="Pantry staple options"
-      >
-        {displayedStapleCandidates.map((staple) => {
-          const selected = selectedStaples.includes(staple);
-          return (
-            <button
-              type="button"
-              key={staple}
-              className="planning-cuisine-row planning-staple-row"
-              data-selected={selected}
-              aria-pressed={selected}
-              disabled={isLoading}
-              onClick={() => toggleStaple(staple)}
-            >
-              <span className="planning-cuisine-icon" aria-hidden="true">+</span>
-              <span className="min-w-0 flex-1 text-left">{staple}</span>
-              <span className="planning-cuisine-check" aria-hidden="true">
-                {selected && <CheckCircle2 className="h-5 w-5" />}
-              </span>
-            </button>
-          );
-        })}
+        <div
+          className={displayedSelectedStaples.length > 0 ? 'mt-5 space-y-3 pb-3' : 'space-y-3 pb-3'}
+          role="group"
+          aria-label="Pantry staple options"
+        >
+          {displayedStapleCandidates.map((staple) => {
+            const selected = selectedStaples.includes(staple);
+            return (
+              <button
+                type="button"
+                key={staple}
+                className="planning-cuisine-row planning-staple-row"
+                data-selected={selected}
+                aria-pressed={selected}
+                disabled={isLoading}
+                onClick={() => toggleStaple(staple)}
+              >
+                <span className="planning-cuisine-icon" aria-hidden="true">+</span>
+                <span className="min-w-0 flex-1 text-left">{staple}</span>
+                <span className="planning-cuisine-check" aria-hidden="true">
+                  {selected && <CheckCircle2 className="h-5 w-5" />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="planning-cuisine-actions">

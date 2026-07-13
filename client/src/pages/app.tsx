@@ -1204,7 +1204,7 @@ export default function MobileApp() {
   );
 
   const renderPlanningChoice = () => (
-    <div className="planning-choice-shell planning-browser-flow mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+    <div className="planning-choice-shell planning-browser-flow planning-choice-flow mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
       <div className="planning-choice-header mb-6 flex items-center justify-between">
         <div>
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
@@ -1297,7 +1297,7 @@ export default function MobileApp() {
     if (currentPhase === 'profiling' || (currentPhase === 'cooking' && isCookingGuideActive)) return null;
 
     return (
-      <div className="app-bottom-nav fixed bottom-0 left-0 right-0 p-4">
+      <div className="app-bottom-nav fixed bottom-0 left-0 right-0 px-4 py-2">
         <div className="mx-auto flex max-w-xs items-center justify-around">
           <Button 
             variant="ghost" 

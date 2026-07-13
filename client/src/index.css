@@ -1857,8 +1857,8 @@ html, body {
   .app-bottom-button,
   .app-bottom-button:hover {
     display: inline-flex;
-    height: 4rem;
-    min-width: 4rem;
+    height: 3rem;
+    min-width: 3rem;
     align-items: center;
     justify-content: center;
     border-radius: 999px;
@@ -1874,8 +1874,8 @@ html, body {
   }
 
   .app-bottom-button svg {
-    height: 1.65rem;
-    width: 1.65rem;
+    height: 1.45rem;
+    width: 1.45rem;
   }
 
   .app-bottom-button[data-active='true'] {
@@ -2886,19 +2886,26 @@ html, body {
 .planning-browser-shell {
   min-height: 100vh;
   min-height: 100svh;
-  padding-bottom: 6rem;
+  padding-bottom: 4rem;
 }
 
 .planning-browser-shell .planning-browser-flow {
-  --planning-browser-bottom-nav-space: 6rem;
+  --planning-browser-bottom-nav-space: 4rem;
   --planning-browser-flow-height: calc(100vh - var(--planning-browser-bottom-nav-space));
   --planning-browser-flow-height: calc(100svh - var(--planning-browser-bottom-nav-space));
   min-height: var(--planning-browser-flow-height);
   padding: max(1rem, env(safe-area-inset-top)) 1rem max(0.75rem, env(safe-area-inset-bottom));
 }
 
+.planning-browser-shell .planning-choice-flow {
+  max-height: var(--planning-browser-flow-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .planning-browser-shell .planning-choice-shell {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .planning-browser-shell .planning-choice-header {
@@ -2913,11 +2920,19 @@ html, body {
 
 .planning-browser-shell .planning-browser-flow .planning-back-button {
   margin-bottom: 1.35rem;
+  flex-shrink: 0;
 }
 
 .planning-browser-shell .planning-time-content {
   min-height: 0;
+  flex: 1 1 auto;
   gap: 1.9rem;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.15rem;
+  padding-bottom: 0.75rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 .planning-browser-shell .planning-bottom-action,
@@ -2929,9 +2944,19 @@ html, body {
   margin-top: 1rem;
 }
 
+.planning-browser-shell .planning-browser-step {
+  height: var(--planning-browser-flow-height);
+  max-height: var(--planning-browser-flow-height);
+  overflow: hidden;
+}
+
 .planning-browser-shell .planning-cuisine-screen {
   height: var(--planning-browser-flow-height);
   max-height: var(--planning-browser-flow-height);
+}
+
+.planning-browser-shell .planning-staples-scroll {
+  margin-top: 1.25rem;
 }
 
 @media (max-width: 480px) and (max-height: 760px) {
@@ -2944,43 +2969,12 @@ html, body {
     margin-bottom: 0.95rem;
   }
 
-  .planning-browser-shell .planning-choice-card {
-    min-height: 11.15rem;
-  }
-
-  .planning-browser-shell .planning-choice-secondary {
-    min-height: 9.65rem;
-  }
-
-  .planning-browser-shell .planning-chef-mark,
-  .planning-browser-shell .planning-slop-mark {
-    height: 5.15rem;
-    width: 5.15rem;
-    border-radius: 1.25rem;
-  }
-
   .planning-browser-shell .planning-browser-flow .planning-back-button {
     margin-bottom: 1rem;
   }
 
   .planning-browser-shell .planning-time-content {
-    gap: 1rem;
-  }
-
-  .planning-browser-shell .planning-clock {
-    height: 8rem;
-    width: 8rem;
-    border-width: 0.48rem;
-  }
-
-  .planning-browser-shell .planning-clock svg {
-    height: 4.35rem;
-    width: 4.35rem;
-  }
-
-  .planning-browser-shell .planning-slider-card,
-  .planning-browser-shell .planning-note {
-    padding: 0.75rem;
+    gap: 1.25rem;
   }
 
   .planning-browser-shell .planning-cuisine-scroll {
