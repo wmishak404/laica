@@ -109,7 +109,7 @@ const sampleSession = {
     missingIngredients: ["tomato"],
     instructions: ["Boil pasta"],
     ingredients: [{ name: "pasta", quantity: "1 cup", forSteps: [1] }],
-    steps: [{ id: 1, instruction: "Boil pasta", duration: 10 }],
+    steps: [{ id: 1, actionLabel: "Boil Pasta", instruction: "Boil pasta", duration: 10 }],
     isFusion: false,
   },
   ingredientsUsed: ["pasta"],
