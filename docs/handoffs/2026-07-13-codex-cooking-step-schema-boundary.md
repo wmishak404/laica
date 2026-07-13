@@ -2,6 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/init-001-cooking-step-schema`
+**PR:** [#281](https://github.com/wmishak404/laica/pull/281)
 **Date:** 2026-07-13
 **Initiative:** INIT-001
 **INIT updated:** yes
@@ -13,7 +14,7 @@ This branch makes Live Cooking less dependent on raw provider JSON by normalizin
 
 Architecture triage selected INIT-001 Phase 4 because it was the only clearly executable, unowned INIT lane:
 
-- INIT-001: PR #275 had merged and closeout landed; current resume point explicitly named full provider schema shape before Phase 5 cleanup. This branch takes the bounded schema-foundation slice.
+- INIT-001: PR #275 had merged and closeout landed; current resume point explicitly named full provider schema shape before Phase 5 cleanup. PR #281 takes the bounded schema-foundation slice.
 - INIT-002: still in Phase 2 Replit observation; docs say not to start DB persistence or admin APIs.
 - INIT-003: still waits on INIT-001 Phase 5 semantics before guest current-cook/history import decisions.
 - INIT-004: active/open ownership exists in PR #272 closeout and Claude PR #274; automation should not touch those branches.
@@ -46,8 +47,8 @@ This branch does not implement Phase 5 cleanup, DB schema changes, prompt change
 
 ## Open items
 
-- Open the PR from this branch and include the exact head SHA/evidence in the PR description.
-- Read exact-head GitHub `unit`, `e2e_guest_smoke`, security, and audit checks from the PR after creation/ready-for-review.
+- PR #281 is ready for review; Wilson's explicit merge instruction is still required because this is code/runtime work.
+- Use the PR body and live PR checks as the final exact-head CI authority if additional commits land after this handoff.
 - Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level live-provider smoke. Suggested release-batch check: generate a real Live Cooking guide, confirm the current step/timer/action-label surfaces still work, and confirm linked History/recipe snapshot still has readable step labels.
 
 ## Verification
@@ -62,8 +63,9 @@ Local evidence so far:
 - `npm audit --audit-level=high` passed with 0 vulnerabilities.
 - `npm run build` passed with existing non-blocking warnings for stale Browserslist data, Firebase dynamic/static import, and chunk size.
 - `git diff --check` passed.
+- PR #281 was marked ready and GitHub checks passed on runtime head `a4e8e96e29d3a57206a7d5da9d64c0be1d793421`: `unit`, `e2e_guest_smoke`, `npm-audit`, and `trufflehog_pr`.
 
-Evidence limits: provider calls are mocked; no live OpenAI/Replit cooking-step generation has been run; GitHub E2E is pending until the PR is pushed; Phase 5 cleanup and `suggestedTimer` remain unimplemented.
+Evidence limits: provider calls are mocked; no live OpenAI/Replit cooking-step generation has been run; Phase 5 cleanup and `suggestedTimer` remain unimplemented.
 
 ## Stack / base status
 
