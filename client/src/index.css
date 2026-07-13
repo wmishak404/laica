@@ -2883,6 +2883,116 @@ html, body {
 
 }
 
+.planning-browser-shell {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-bottom: 6rem;
+}
+
+.planning-browser-shell .planning-browser-flow {
+  --planning-browser-bottom-nav-space: 6rem;
+  --planning-browser-flow-height: calc(100vh - var(--planning-browser-bottom-nav-space));
+  --planning-browser-flow-height: calc(100svh - var(--planning-browser-bottom-nav-space));
+  min-height: var(--planning-browser-flow-height);
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.planning-browser-shell .planning-choice-shell {
+  justify-content: center;
+}
+
+.planning-browser-shell .planning-choice-header {
+  margin-bottom: 1.25rem;
+}
+
+.planning-browser-shell .planning-choice-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.planning-browser-shell .planning-browser-flow .planning-back-button {
+  margin-bottom: 1.35rem;
+}
+
+.planning-browser-shell .planning-time-content {
+  min-height: 0;
+  gap: 1.9rem;
+}
+
+.planning-browser-shell .planning-bottom-action,
+.planning-browser-shell .planning-cuisine-actions {
+  flex-shrink: 0;
+}
+
+.planning-browser-shell .planning-bottom-action {
+  margin-top: 1rem;
+}
+
+.planning-browser-shell .planning-cuisine-screen {
+  height: var(--planning-browser-flow-height);
+  max-height: var(--planning-browser-flow-height);
+}
+
+@media (max-width: 480px) and (max-height: 760px) {
+  .planning-browser-shell .planning-browser-flow {
+    padding-top: max(0.85rem, env(safe-area-inset-top));
+    padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+  }
+
+  .planning-browser-shell .planning-choice-header {
+    margin-bottom: 0.95rem;
+  }
+
+  .planning-browser-shell .planning-choice-card {
+    min-height: 11.15rem;
+  }
+
+  .planning-browser-shell .planning-choice-secondary {
+    min-height: 9.65rem;
+  }
+
+  .planning-browser-shell .planning-chef-mark,
+  .planning-browser-shell .planning-slop-mark {
+    height: 5.15rem;
+    width: 5.15rem;
+    border-radius: 1.25rem;
+  }
+
+  .planning-browser-shell .planning-browser-flow .planning-back-button {
+    margin-bottom: 1rem;
+  }
+
+  .planning-browser-shell .planning-time-content {
+    gap: 1rem;
+  }
+
+  .planning-browser-shell .planning-clock {
+    height: 8rem;
+    width: 8rem;
+    border-width: 0.48rem;
+  }
+
+  .planning-browser-shell .planning-clock svg {
+    height: 4.35rem;
+    width: 4.35rem;
+  }
+
+  .planning-browser-shell .planning-slider-card,
+  .planning-browser-shell .planning-note {
+    padding: 0.75rem;
+  }
+
+  .planning-browser-shell .planning-cuisine-scroll {
+    margin-top: 1.25rem;
+  }
+
+  .planning-browser-shell .planning-cuisine-actions {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+  }
+}
+
 @keyframes setup-focus-pulse {
   0%, 100% {
     transform: translate(-50%, -50%) scale(0.96);

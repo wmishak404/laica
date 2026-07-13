@@ -1204,8 +1204,8 @@ export default function MobileApp() {
   );
 
   const renderPlanningChoice = () => (
-    <div className="planning-choice-shell mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="planning-choice-shell planning-browser-flow mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+      <div className="planning-choice-header mb-6 flex items-center justify-between">
         <div>
           <h2 className="planning-display text-3xl font-extrabold leading-tight">
             What are we cooking today?
@@ -1242,7 +1242,7 @@ export default function MobileApp() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="planning-choice-stack">
         {/* design:tone-override — Phase 3 makes Chef It Up the tone-forward primary planning object from the mockup. */}
         <button
           type="button"
@@ -1362,7 +1362,7 @@ export default function MobileApp() {
         
       case 'planning':
         return (
-          <div className="planning-ui min-h-screen pb-20">
+          <div className="planning-ui planning-browser-shell min-h-screen pb-20">
             {showPlanningChoice ? (
               renderPlanningChoice()
             ) : (

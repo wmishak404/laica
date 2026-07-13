@@ -835,12 +835,12 @@ export default function MealPlanning({
   };
 
   const renderTimeStep = () => (
-    <section className="planning-screen mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+    <section className="planning-screen planning-browser-flow mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to planning choices">
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <div className="flex flex-1 flex-col justify-center gap-10">
+      <div className="planning-time-content flex flex-1 flex-col justify-center gap-10">
         <div className="text-center">
           <h1 className="planning-display text-3xl font-extrabold leading-tight">
             How much time do you have today?
@@ -887,14 +887,14 @@ export default function MealPlanning({
         </div>
       </div>
 
-      <Button className="mt-6 h-12 rounded-xl font-extrabold" onClick={() => setCurrentStep('cuisine')}>
+      <Button className="planning-bottom-action mt-6 h-12 rounded-xl font-extrabold" onClick={() => setCurrentStep('cuisine')}>
         Next
       </Button>
     </section>
   );
 
   const renderCuisineStep = () => (
-    <section className="planning-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+    <section className="planning-screen planning-browser-flow planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to time">
         <ArrowLeft className="h-5 w-5" />
       </button>
@@ -959,7 +959,7 @@ export default function MealPlanning({
   );
 
   const renderStaplesStep = () => (
-    <section className="planning-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+    <section className="planning-screen planning-browser-flow planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to cuisines">
         <ArrowLeft className="h-5 w-5" />
       </button>
