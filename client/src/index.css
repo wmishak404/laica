@@ -1471,6 +1471,8 @@ html, body {
 
   .returning-ui,
   .history-ui {
+    --app-bottom-nav-space: 4rem;
+    --returning-action-nav-gap: 0.75rem;
     --returning-cream: 38 100% 96%;
     --returning-cream-deep: 35 88% 92%;
     --returning-coral-soft: 0 100% 94%;
@@ -1808,7 +1810,8 @@ html, body {
 
   .returning-actions {
     position: sticky;
-    bottom: 0;
+    bottom: calc(var(--app-bottom-nav-space) + var(--returning-action-nav-gap) + env(safe-area-inset-bottom));
+    z-index: 10;
     display: grid;
     grid-template-columns: 0.8fr 1.2fr;
     gap: 0.75rem;

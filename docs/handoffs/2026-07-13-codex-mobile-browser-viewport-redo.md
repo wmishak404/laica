@@ -9,9 +9,11 @@
 
 ## Summary
 
-This branch is the first narrow redo after PR #280 was closed. It treats PR #280 only as negative implementation evidence and starts from fresh `origin/main` `deaf17e`. The implementation is intentionally scoped to Planning entry plus the first Chef It Up decision steps, preserving Planning typography and avoiding Setup, Settings, Slop Bowl, Live Cooking, provider, schema, and Replit setup changes.
+This branch is the first narrow redo after PR #280 was closed. It treats PR #280 only as negative implementation evidence and starts from fresh `origin/main` `deaf17e`. The implementation is intentionally scoped to browser-viewport navigation/action-lane structure: Planning entry plus the first Chef It Up decision steps, with a follow-up Settings action-lane clearance fix after Wilson confirmed Settings feature/function changes remain out of scope but navigation pins may be corrected. It preserves Planning typography and avoids Setup, Slop Bowl, Live Cooking, provider, schema, and Replit setup changes.
 
 Wilson's phone-browser review caught an implementation drift in the first pass: selecting one staple added the `Added` shelf, but the staples screen did not have a real scroll owner, so `View recipe suggestions` fell below the visible action lane. The correction keeps the larger Planning typography and fixes the structure instead: short steps get visible top content, a scrollable body, a pinned primary action lane, and a slightly shorter bottom nav with the same actions/order/visibility.
+
+Wilson's later Settings Pantry screenshot caught the reference case for future pinned-navigation work: the Settings inventory save row was sticky at `bottom: 0`, so the fixed app bottom nav covered it. The fix keeps Pantry/Tools/Profile order, save behavior, Back behavior, and Settings content unchanged while offsetting the existing Settings action row above the compact app nav.
 
 ## Changes
 
@@ -27,6 +29,7 @@ Wilson's phone-browser review caught an implementation drift in the first pass: 
   - Adds Planning-only browser-flow sizing using `100svh` with `100vh` fallback and a bottom-nav reservation.
   - Keeps early Chef It Up step bodies as the scroll owner with the primary continuation in the page's bottom action lane.
   - Preserves Planning headline/body/card/ingredient-row type sizes rather than shrinking everything to fit one viewport.
+  - Offsets the existing returning Settings sticky action row above the compact app bottom nav with a small visible gap, without changing Settings flow or save/back behavior.
 - `initiatives/INIT-001-mobile-refresh.md`
   - Records PR #280 as closed negative evidence, the first-pass selected-staples drift, and the corrected narrow redo slice.
 
@@ -34,7 +37,7 @@ Wilson's phone-browser review caught an implementation drift in the first pass: 
 
 - Do not copy PR #280 implementation code into future viewport work.
 - The accepted principles are still tracked in open docs-only PR #282 / branch `codex/mobile-browser-ux-principles`; this branch used that handoff as input but did not stack on it.
-- Future slices should keep using scoped wrappers/shared primitives before global CSS. Setup remains intentionally untouched here.
+- Future slices should keep using scoped wrappers/shared primitives before global CSS. Setup remains intentionally untouched here. For non-Planning pages, Settings is now the reference pattern: page-level sticky action lanes must reserve the app-bottom-nav space instead of sharing `bottom: 0` with the nav.
 - Real phone-browser review should include dynamic states such as one or several selected staples, not only empty/default screens.
 
 ## Open items
@@ -55,6 +58,10 @@ Wilson's phone-browser review caught an implementation drift in the first pass: 
   - Time step: body scroll tail `0`; `Next` bottom `460`; compact bottom nav top `469`; nav tap target `48px`; time scroll delta `82`.
   - Cuisine step: body scroll tail `0`; action lane bottom `460`; compact bottom nav top `469`; nav tap target `48px`; cuisine list scroll delta `703`.
   - Staples empty / one selected / three selected: body scroll tail `0`; action lane bottom `460`; compact bottom nav top `469`; nav tap target `48px`; list scroll deltas `301` / `412` / `458`.
+- Settings action-lane geometry smoke against built CSS passed at 402x534:
+  - During sticky scrolling, the Settings action row bottom was `458px`, compact bottom nav top was `469px`, leaving an `11px` visible gap.
+  - At the scroll endpoint, the row remained above the nav with a `52px` natural gap and zero body scroll tail.
+  - Settings action buttons stayed ordered `Settings` then `Save pantry changes`, each `48px` tall; Back and Pantry/Tools tab labels stayed present.
 
 ## Stack / base status
 
