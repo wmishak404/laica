@@ -64,6 +64,19 @@ Whether `Fraunces` / `Nunito` graduate to the global stack is an open visual dec
 
 Tailwind units `3, 4, 6, 8, 12, 16`. Mobile gutters `px-4 py-6`; cards `p-6`; section gaps `gap-8` to `gap-12`; component spacing `space-y-4` / `space-y-6`. Mobile containers full-width with `px-4`; desktop `max-w-6xl` centered when needed.
 
+### Mobile Browser Viewports
+
+The mobile web app runs inside browser chrome, not a native full-screen shell. Browser-mode layout should preserve the accepted app proportions while respecting the smaller visible viewport.
+
+- Short decision surfaces should make the next useful action discoverable in the first visible viewport when practical. Do not make every page smaller; long inventory, settings, scan-review, and cooking-content pages may scroll as long as they start cleanly and the user can tell there is more content.
+- Primary next actions should occupy a consistent bottom action lane on short guided flows. Secondary or alternative actions should stay in normal page flow unless they are the single primary continuation.
+- Top content must begin below browser chrome on fresh load and after step changes. A user should not need to infer that a hidden title, progress marker, or leading copy exists above the visible viewport.
+- Similar text levels should keep the same computed size, weight, and family across related flows. Fit pressure should be solved with shared layout rhythm, content hierarchy, and scoped component changes before one-off font shrinking.
+- Scrollports should have one clear owner. Do not let a page scroll past the meaningful end into inert blank space below the final control lane.
+- Floating or pinned controls are acceptable only when they improve task continuity. They must not cover headings, content, selected states, or tap targets; if a floating control collides with content, revisit the layout rather than piling on pixel offsets.
+- Browser-mode adaptations should be scoped to the affected flow or shared primitive. Avoid broad CSS selectors that silently resize Setup, Planning, Settings, Slop Bowl, Live Cooking, and public/landing surfaces together.
+- Validate browser-mode work on an actual phone browser or an accepted equivalent before merge. Desktop Chrome with a mobile viewport is useful for functional smoke, but it is not sufficient visual evidence for address-bar and bottom-browser-chrome behavior.
+
 ## Surface Taxonomy
 
 (Mirrors PD-005. Both files keep the same vocabulary; PD-005 governs conformance, this file shapes posture.)
@@ -178,6 +191,8 @@ These are the unresolved identity questions. Edit this section inline as Phase 3
 - Hex color literals (`bg-[#FF6B6B]`) when a token resolves to the same value.
 - Custom `<Button className="...">` overrides instead of extending `buttonVariants`.
 - Reusing phase-scoped utility classes without verifying computed style on the destination surface.
+- Browser-fit changes that apply through broad global selectors instead of scoped wrappers or shared primitives.
+- Mobile browser pages that scroll into inert blank space after the final meaningful content or control lane.
 
 ## Review checklist
 
@@ -193,6 +208,7 @@ Before a feature or phase is marked visually ready:
 - Type sizes appropriate to the surface; no oversized hero type inside compact panels.
 - Icons, emoji, imagery, and motion serve product meaning.
 - Repeated patterns are reusable or documented as intentional one-offs.
+- Mobile browser review covers a fresh load and a step change: top content is not hidden under browser chrome, primary continuation is discoverable where practical, and the scroll endpoint stops at meaningful content rather than inert blank space.
 - For surfaces reusing phase-scoped class names: rendered control comparison done (typography, radius, icon size, hover/active/disabled states) — not just class-name reuse.
 - Handoff names any deliberate deviation from the mockup or governance rule.
 - Tone-forward overrides carry the `// design:tone-override — <reason>` comment from PD-005.
