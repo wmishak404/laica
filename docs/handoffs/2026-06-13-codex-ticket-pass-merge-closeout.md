@@ -25,7 +25,7 @@ PR #175 squash-merged into `main` as `6510860e5b3a8645c3682848a583a13e8588c91d` 
 
 Do not start another Ticket Pass hierarchy-only retry unless new validation evidence shows a regression. PR #175 is now the accepted baseline for the selected-ticket depth, shared pass backing, compact-row readability, stable in-place selection, and Prep Tray continuity.
 
-Next Phase 3.1 work should choose a different documented slice from fresh `origin/main`: light Prep Tray shell alignment if the accepted Ticket Pass exposes adjacent mismatch, Planning toast cleanup, ingredient chip unification, async/cached generated imagery into existing `imageUrl` slots, or closeout visual review.
+Next Phase 3.1 work should choose a different documented slice from fresh `origin/main`: light Prep Tray shell alignment if the accepted Ticket Pass exposes adjacent mismatch, Planning toast cleanup, ingredient chip unification, async/cached generated imagery into existing `imageUrl` slots, or closeout visual review. 2026-07-13 note: later PR #234 shipped ingredient-chip consistency; current remaining Phase 3.1 scope lives in the phase record and INIT.
 
 ## Open items
 

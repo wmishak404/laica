@@ -24,12 +24,14 @@ This branch starts the broader Phase 4 Live Cooking mobile refresh with the smal
 
 Future Phase 4 branches should treat Ready Check as the current entry baseline. Do not restore the old mount-time `/api/cooking/steps` behavior for new sessions. Continue to preserve PR #191 audio arbitration, PR #236 inline recovery/Finish honesty, and PR #256 invalid-step rejection.
 
-This slice intentionally does not implement Coach Feed, timer redesign, pinned-step visual overhaul, full structured provider schema, cooking-assistance presentation, or Phase 5 cleanup state. Those remain separate Phase 4/5 work.
+2026-07-13 superseded-context note: `Cook anyway` and `Cook silently` are historical PR #258 branch facts. PR #260 replaced the current Ready Check UI with one `Start cooking` action while preserving acknowledged missing/skipped ingredient request context.
+
+This slice intentionally did not implement the later compact Live Cooking cockpit, timer redesign, pinned-step visual overhaul, full structured provider schema, cooking-assistance presentation, or Phase 5 cleanup state. The earlier "Coach Feed" planning name was rejected by PR #260 and should not be used as current product direction.
 
 ## Open items
 
 - Exact-head GitHub CI/E2E still needs to run after the branch is pushed.
-- Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level manual validation. The batch should include Ready Check entry, `Cook anyway`, `Cook silently`, normal generated-step load, induced step-generation recovery/retry, invalid placeholder recovery if practical, and linked Finish copy.
+- Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level manual validation. Current-basis validation should use the PR #260 single `Start cooking` Ready Check baseline, while still confirming acknowledged missing/skipped ingredient context, normal generated-step load, induced step-generation recovery/retry, invalid placeholder recovery if practical, and linked Finish copy.
 - Local Playwright E2E was not run because this worktree lacked `.env.keys` and a configured `LAICA_LOCAL_SANDBOX_DATABASE_URL`; see EFF-017 and the testing workflow for the accepted lanes.
 
 ## Verification

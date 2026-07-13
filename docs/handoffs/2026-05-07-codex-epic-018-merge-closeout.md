@@ -24,7 +24,7 @@ EFF-018 no longer needs to be read as an active governance item before ordinary 
 Remaining related work lives elsewhere:
 
 - [EFF-019](../../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md): redacted operational AI error telemetry and eval monitoring.
-- Mobile Refresh Phase 4: live-cooking inline retry/recovery, Coach Feed error placement, and inline Feedback access for persistent mid-cook issues.
+- Mobile Refresh Phase 4: live-cooking inline retry/recovery, compact cockpit/step-guidance status placement, and inline Feedback access for persistent mid-cook issues. 2026-07-13 note: PR #260 superseded the earlier "Coach Feed" planning name, and PR #275 later implemented narrow Ask-a-question technical failures as a separate voice-help status outside Step guidance.
 
 ## Open items
 

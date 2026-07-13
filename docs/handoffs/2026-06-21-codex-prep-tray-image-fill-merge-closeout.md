@@ -30,4 +30,4 @@ The merge did not change recipe image resolver behavior, providers, schema, prom
 
 ## Next Resume Point
 
-Continue INIT-001 Phase 3.1 from fresh `origin/main` for Gemini/OpenAI provider benchmarking before any provider-default change, ingredient chip unification, or closeout visual review. Phase 4 remains parallel-safe if Wilson prioritizes cooking guidance next, but it should preserve the PR #191 speech arbitration baseline.
+Continue INIT-001 Phase 3.1 from fresh `origin/main` for Gemini/OpenAI provider benchmarking before any provider-default change, ingredient chip unification, or closeout visual review. Phase 4 remains parallel-safe if Wilson prioritizes cooking guidance next, but it should preserve the PR #191 speech arbitration baseline. 2026-07-13 note: later PR #234 shipped ingredient-chip consistency; current remaining Phase 3.1 scope lives in the phase record and INIT.
