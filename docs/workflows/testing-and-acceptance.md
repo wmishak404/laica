@@ -66,6 +66,8 @@ The minimal evidence rule is: no claim without evidence, no evidence without a c
 
 For implementation branches, every pushed build intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human Replit smoke is still useful for production-release confidence and risk-triggered PRs, but it is not a substitute for the automated E2E gate. Automated Replit-environment checks may become PR gates when their setup, evidence, and negative scope are documented and accepted.
 
+When human Replit validation uses Chrome for app UI, the default viewport is mobile via Chrome's device toolbar/mobile toggle because LAICA is mobile-first. Evidence must record the viewport or device preset used. Desktop checks are an added lane when the change is desktop-specific, touches responsive breakpoints, or when the risk note explicitly asks for both.
+
 ## Automation Evidence Gate
 
 When automated tests are used as a merge gate, the PR or handoff must include an evidence report with full reasoning and provenance before the change is called correct or merge-ready. Do not summarize automation as only "CI green", "tests passed", or "covered by tests."
@@ -154,6 +156,20 @@ Before closeout, classify the meaningful test cases:
 - **Not covered / deferred**: intentionally out of scope. State why, where the deferral lives, and the smallest future test that would close the gap.
 
 Use visible reasoning and provenance. A good validation note says: "This case is local-only because the provider is mocked in `tests/unit/...`; Replit still needs to prove the real provider call and secret." A weak note says only: "covered by tests."
+
+### Mobile-First Replit Chrome Evidence
+
+For manual Replit UI validation in Chrome, start with the active Replit URL in mobile view using Chrome DevTools' device toolbar/mobile toggle. Prefer a realistic narrow viewport or phone preset; if using Responsive mode, record the width and height. Do not treat a desktop-width browser pass as enough evidence for user-facing mobile flows unless the PR explicitly scopes the change away from mobile.
+
+For each selected Replit UI flow, check the mobile-specific surfaces that routinely regress:
+
+- Pinned or bottom navigation remains visible, tappable, and does not cover form controls, content, sticky CTAs, or the last scroll item.
+- Back buttons and escape paths are visible, tappable, and return to the expected previous step without losing required state.
+- Sticky CTAs, drawers, modals, toasts, and status panels remain readable and reachable in the narrow viewport.
+- Text, chips, cards, image previews, list rows, and controls do not overflow, overlap, clip, or resize the layout unexpectedly.
+- Visual review compares the rendered mobile screen to the relevant mockup, design guideline, or accepted existing pattern when a visual surface changed.
+
+Record the viewport/device, route/screen, steps, observed UI result, and any desktop negative scope in the PR or handoff. If the flow also needs desktop coverage, list it separately rather than implying the mobile pass covers both.
 
 When asked for an app-wide test pass, separate "all existing automated tests" from "all app functions mapped to documented specs." The first is a command; the second is a coverage audit. A true app-wide coverage audit should enumerate the documented product functions, cite their source docs, map each function to local/Replit/human checks, and identify missing specs or stale tests.
 
@@ -296,6 +312,7 @@ Every implementation handoff and PR description should include:
 - Automation evidence reports for any automated test used as a merge gate: claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope.
 - A coverage classification that separates happy paths, corner cases, local automation, Replit automation, Replit human validation, confidence gaps, and explicitly deferred scope.
 - Manual checks performed.
+- Chrome viewport or device used for manual UI checks; for Replit Chrome checks, mobile viewport is the default and desktop coverage or desktop negative scope should be explicit.
 - Validation lane and human Replit status, including `Last Replit-validated at: <sha>`, `Human Replit validation: deferred to release/batch validation`, or `Human Replit validation: not required before merge` with rationale.
 - What was intentionally not tested.
 - Any accepted deferrals and where they are tracked.

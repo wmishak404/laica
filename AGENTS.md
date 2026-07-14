@@ -40,6 +40,8 @@ Before fixing a reported bug, follow the bug investigation evidence protocol in 
 
 Human manual Replit validation is no longer the default PR merge gate for every deployment-bound change. Use [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md) to classify the validation lane.
 
+When Replit validation uses Chrome for app UI, default to Chrome's mobile viewport / device toolbar because LAICA's primary users are mobile. Record the viewport or device preset in the PR/handoff evidence, and explicitly check pinned navigation bars, back buttons, sticky CTAs, scroll fit, and visual element layout in mobile view. Add desktop viewport checks only when the changed surface is desktop-specific or responsive risk calls for both.
+
 ### Replit Agent credit guard
 
 When accessing Replit through Chrome, do not use Replit Agent by default because it spends Replit credits. Prefer direct Replit shell commands, the workspace UI, local tooling, and GitHub automation first. If Replit Agent looks necessary because direct shell/UI paths are blocked or substantially unsafe, stop and ask Wilson for explicit approval before starting or continuing a Replit Agent task. Document any approved Replit Agent use in the PR or handoff evidence, including why direct validation was insufficient.
