@@ -10,6 +10,22 @@ After a feature is validated locally or in CI, Replit validation should focus on
 
 Human manual Replit validation is not the default PR gate. Use this guide when a PR's risk lane requires manual Replit validation before merge, when a low-risk batch is ready for pre-production/release validation, or when an accepted automated Replit-environment lane needs focus areas and expected evidence.
 
+## Mobile-First Chrome Rule
+
+When Replit validation uses Chrome to visit the app UI on a Replit URL, start in Chrome's mobile viewport / device toolbar. LAICA is mobile-first, so the mobile viewport is the default human-validation view for workspace and deployment visits. Use the active Replit target URL for the task, such as the current `replit.dev` workspace preview Wilson provides, without hardcoding a preview URL into durable evidence as if it were permanent.
+
+Record the exact viewport or device preset in the PR/handoff evidence, for example `Chrome Device Toolbar, Responsive 400 x 708` or a named phone preset. A desktop-width Chrome pass is additional evidence, not a replacement for mobile evidence, unless the change is explicitly desktop-only.
+
+For each selected mobile Replit UI flow, include a visual/nav pass:
+
+- Pinned or bottom navigation remains visible, tappable, and does not cover sticky CTAs, form controls, or the last scroll item.
+- Back buttons and other escape paths are visible, tappable, and return to the expected previous step without losing required state.
+- Sticky CTAs, drawers, modals, toasts, status panels, and safe-area/bottom padding remain readable and reachable.
+- Text, chips, cards, image previews, list rows, and controls do not overflow, overlap, clip, or resize the layout unexpectedly.
+- Any surface with accepted mockups, phase assets, or design-guideline requirements is visually compared in mobile view, not inferred from class names or desktop behavior.
+
+Add desktop viewport checks only when the change touches responsive breakpoints, desktop-specific presentation, or the PR/handoff names desktop as a risk lane.
+
 For the exhaustive drift-vector inventory and longer-term parity plan, see:
 - `docs/workflows/environment-parity-spec.md`
 - `efforts/effort-017-environment-parity-and-ci-confidence.md`
@@ -110,7 +126,7 @@ Focused smoke adds the release-specific cases that are most likely to fail:
 3. **Recent production failures or Wilson concerns.** Add the exact failed surface even if the current code change is adjacent rather than direct. The June 2026 production vision failure means production publish validation should include a live vision pantry scan until the secret-propagation lesson is no longer active risk.
 4. **Enhancement test-impact review output.** If a PR records a deferred manual/release check, include that case in the next release batch unless a later PR replaced it with accepted automation.
 
-If Wilson asks for a **full regression**, do not imply the baseline smoke is full coverage. A full regression should deliberately enumerate supported user-visible product areas and then run or assign them, including at minimum: setup/onboarding, guest path, Google sign-in/linking, Settings inventory/profile edits, pantry/kitchen scan and manual entry, Chef It Up, Slop Bowl, Prep Tray image generation, Live Cooking, speech ask/repeat/mute behavior, History, feedback, auth/session reload/restore, and relevant mobile/desktop viewport checks. Remove hidden, retired, or unsupported flows from this list rather than preserving checklist bloat.
+If Wilson asks for a **full regression**, do not imply the baseline smoke is full coverage. A full regression should deliberately enumerate supported user-visible product areas and then run or assign them, including at minimum: setup/onboarding, guest path, Google sign-in/linking, Settings inventory/profile edits, pantry/kitchen scan and manual entry, Chef It Up, Slop Bowl, Prep Tray image generation, Live Cooking, speech ask/repeat/mute behavior, History, feedback, auth/session reload/restore, mobile pinned-nav/back-button/visual layout checks, and any explicitly relevant desktop viewport checks. Remove hidden, retired, or unsupported flows from this list rather than preserving checklist bloat.
 
 ### 3) Automated Evidence To Trust First
 
@@ -143,7 +159,8 @@ Run this after automation is green or after recording the exact automation gap. 
    - `VITE_FIREBASE_*` client config
    - Firebase Admin/service-account config used by the server
 5. Confirm the database lane intentionally points at the expected non-production or production DB for the validation target; do not infer this from successful app load.
-6. Run only the live flows that automation cannot confidently prove for the release batch:
+6. For Chrome UI checks, enable the mobile viewport/device toolbar before starting app visits and record the viewport or device preset. Keep DevTools Network/Console available when debugging, but judge visual layout from the mobile viewport.
+7. Run only the live flows that automation cannot confidently prove for the release batch:
    - Firebase entry: anonymous guest start and Google sign-in completion on the Replit domain.
    - Backend auth: authenticated API calls return 200 after real sign-in; an unauthenticated probe still returns the expected 401.
    - Pantry/Settings persistence: add, delete, save, reload, and verify state only if Settings/profile/inventory changed or was recently risky.
@@ -205,6 +222,7 @@ Use this as a checklist picker. If you did not touch a category, you generally d
 | AI provider routes (OpenAI/Claude), rate limits | Real provider calls succeed using Replit secrets; ensure rate-limit behavior is sane in a long-running server process; watch for provider/network errors that local mocks wouldn’t catch. |
 | ElevenLabs speech routes | Speech endpoints return audio on Replit; latency acceptable; no missing key or network egress issues. |
 | File uploads / vision / image processing | Upload/scan flows work in Replit; no reliance on local filesystem persistence; any system package assumptions (image conversion) behave on Linux. |
+| Mobile layout, pinned navigation, back buttons, sticky CTAs, or visual polish | Use Chrome mobile viewport/device toolbar on the Replit URL; verify pinned/bottom nav does not cover content, back/escape paths are visible and state-preserving, sticky CTAs remain reachable, and no text/cards/chips/images overflow or overlap. Record the viewport/device and screenshot or written observations in the PR/handoff. |
 | Security-sensitive headers, production HTML, admin routes, or provider abuse controls | Confirm served HTML/header behavior from the running Replit server, admin responses are not cacheable, and DB-backed security controls have their schema applied. Reuse focused checks from [`security-due-diligence.md`](security-due-diligence.md). |
 | Performance / boot-time changes | Deploy health check passes (homepage responds quickly); app doesn’t crash-loop; logs clean. |
 
@@ -230,6 +248,10 @@ Replit validation target:
 - [ ] Workspace (replit.dev)
 - [ ] Deployment (replit.app / custom domain)
 
+Chrome viewport / device:
+- [ ] Mobile viewport/device toolbar (default for app UI): <device preset or width x height>
+- [ ] Desktop viewport, only if explicitly in scope: <width x height or reason skipped>
+
 Focus areas (only select what applies):
 - [ ] Ports/origin
 - [ ] Secrets in deployment
@@ -239,6 +261,7 @@ Focus areas (only select what applies):
 - [ ] AI routes (OpenAI/Claude)
 - [ ] ElevenLabs speech routes
 - [ ] Vision / uploads / image processing
+- [ ] Mobile visual/nav/back-button layout
 - [ ] Security headers / caching / external scripts / abuse limits
 
 Coverage classification:
