@@ -74,7 +74,7 @@ If production smoke cannot safely induce a step-generation failure, record that 
 
 ## Remaining Scope
 
-- Full Phase 4 revamp remains open: Ready Check, Coach Feed, timer redesign, provider prompt/schema improvements, and richer Phase 5 handoff.
+- Full Phase 4 revamp remained open at this closeout point: Ready Check, compact cockpit/step guidance, timer redesign, provider prompt/schema improvements, and richer Phase 5 handoff. 2026-07-13 note: PR #260 later rejected the "Coach Feed" name, so future work should use the compact cockpit/step-guidance language unless a newer product decision changes it.
 - The new Phase 4 flow must still validate blank, whitespace-only, or non-cookable generated instructions as recovery states before entering/saving Live Cooking state.
 - No active Effort status changed in this PR.
 

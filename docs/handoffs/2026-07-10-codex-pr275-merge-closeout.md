@@ -26,7 +26,7 @@ Future INIT-001 Phase 4 work should start from `origin/main` after merge commit 
 
 - Human Replit validation for PR #275 remains deferred to production/release-batch validation.
 - Full provider schema shape, future voice-activity affordance, and Phase 5 cleanup remain outside PR #275.
-- The separate docs spring-cleaning task is queued in its own Codex thread and should wait for the viewport-fit thread/PR dependency Wilson named before it starts.
+- The separate docs spring-cleaning task was originally queued to wait for the viewport-fit thread/PR dependency Wilson named. 2026-07-13 supersession: Wilson explicitly allowed the docs cleanup to proceed before the viewport merge because that project was taking too long.
 
 ## Stack / base status
 

@@ -23,13 +23,13 @@ This closeout moves durable docs from "PR #191 pending" to "PR #191 merged basel
 
 ## Impact on other agents
 
-Future Phase 4 work should start from fresh `origin/main` and preserve PR #191's speech ownership baseline. New Ready Check, Coach Feed, timer redesign, live-cooking inline recovery, provider-prompt, schema, or Finish/Phase 5 semantics remain future Phase 4/5 scope and should not reinterpret PR #191 as having completed the full cooking guidance phase.
+Future Phase 4 work should start from fresh `origin/main` and preserve PR #191's speech ownership baseline. New Ready Check, compact cockpit/step guidance, timer redesign, live-cooking inline recovery, provider-prompt, schema, or Finish/Phase 5 semantics remain future Phase 4/5 scope and should not reinterpret PR #191 as having completed the full cooking guidance phase. 2026-07-13 note: the earlier "Coach Feed" planning name was superseded by PR #260.
 
 The default local dotenvx DB drift remains an EFF-010 / EFF-017 evidence-environment issue. Do not run `npm run db:push` against the decrypted default `.env` DB; use GitHub's schema-only `e2e_guest_smoke` or a guarded local diagnostics sandbox if local reproduction is needed.
 
 ## Open items
 
-- Full Phase 4 still needs Ready Check, Coach Feed, timer redesign, live-cooking inline AI error recovery, and Finish/history semantics.
+- At this closeout point, full Phase 4 still needed Ready Check, compact cockpit/step guidance, timer redesign, live-cooking inline AI error recovery, and Finish/history semantics. Later PRs landed Ready Check, cockpit, timer, and narrow assistance-failure presentation slices; use the current Phase 4 record for remaining scope.
 - Future speech work that changes real device audio, microphone permission, ElevenLabs pronunciation, or live provider quality should add a named Replit/mobile speech-smoke lane or canary.
 - No active Effort status changed in this PR. See [`EFF-010`](../../efforts/effort-010-local-db-schema-strategy.md) and [`EFF-017`](../../efforts/effort-017-environment-parity-and-ci-confidence.md) for their current state.
 

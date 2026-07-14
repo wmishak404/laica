@@ -25,7 +25,7 @@ PR #184 also cleared its required audit blocker after Wilson explicitly approved
 
 Do not reopen the Planning-ready toast cleanup unless new validation evidence shows a regression. The accepted guardrail is: guest setup/profile completion uses a title-only `Your kitchen is ready` toast, short-lived at 2.5 seconds, without re-explaining browser/local retention over the Chef It Up / Slop It Up choice cards.
 
-Next Phase 3.1 work should choose a different documented slice from fresh `origin/main`: light Prep Tray shell alignment if needed, ingredient chip unification, async/cached generated imagery into existing `imageUrl` slots, or closeout visual review.
+Next Phase 3.1 work should choose a different documented slice from fresh `origin/main`: light Prep Tray shell alignment if needed, ingredient chip unification, async/cached generated imagery into existing `imageUrl` slots, or closeout visual review. 2026-07-13 note: later PR #234 shipped ingredient-chip consistency; current remaining Phase 3.1 scope lives in the phase record and INIT.
 
 ## Open items
 

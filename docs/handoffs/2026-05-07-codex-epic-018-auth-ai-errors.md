@@ -33,7 +33,7 @@ Claude/Replit should validate the branch from GitHub using the exact branch name
 
 EFF-018 intentionally does not implement persistent error logging. Use [EFF-019](../../efforts/effort-019-ai-error-telemetry-and-eval-monitoring.md) for that parallel work, especially the allowlist-first redaction policy.
 
-Phase 4 owns live-cooking-specific presentation: inline step retry/recovery, Coach Feed failure placement, and inline Feedback access. EFF-018 only removes demo behavior and supplies shared classification/copy.
+Phase 4 owns live-cooking-specific presentation: inline step retry/recovery, compact cockpit/step-guidance status placement, and inline Feedback access. EFF-018 only removes demo behavior and supplies shared classification/copy. 2026-07-13 note: PR #260 superseded the earlier "Coach Feed" planning name, and PR #275 later implemented narrow Ask-a-question technical failures as a separate voice-help status outside Step guidance.
 
 ## Open items
 

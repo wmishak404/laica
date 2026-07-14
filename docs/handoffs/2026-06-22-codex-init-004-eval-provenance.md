@@ -13,7 +13,7 @@ This slice makes future pantry recipe evals more reliable without changing what 
 
 ## Architecture Triage
 
-- INIT-001 current start point: Phase 3.1 follow-up / Phase 4 follow-up after PR #208 and PR #191. Remaining slices include provider benchmark comparison, ingredient chip unification, closeout visual review, and later full Phase 4. Dependency/risk: UI/provider/Replit judgment risk is higher, and Phase 4 product scope is larger than a one-run automation milestone.
+- INIT-001 current start point: Phase 3.1 follow-up / Phase 4 follow-up after PR #208 and PR #191. Remaining slices include provider benchmark comparison, ingredient chip unification, closeout visual review, and later full Phase 4. Dependency/risk: UI/provider/Replit judgment risk is higher, and Phase 4 product scope is larger than a one-run automation milestone. 2026-07-13 note: later PR #234 shipped ingredient-chip consistency; current remaining Phase 3.1 scope lives in the phase record and INIT.
 - INIT-002 current start point: Phase 2 Replit observation week after Phase 1 logger merge. Dependency/risk: Phase 3 DB persistence is explicitly blocked until Replit observation records classifier gaps and field nullability.
 - INIT-003 current start point: Phase 5 / later promotion follow-up planning. Dependency/risk: waits on INIT-001 Phase 5 semantics for History, cleanup, taste memory, pending cleanup, and next-meal retention.
 - INIT-004 current start point: Phase 3 eval harness after PR #205. Dependency/risk: no active INIT-004 PR was open; the queue/provenance slice is documented, offline, and does not require product/security/privacy/secrets/Replit/deployment judgment.

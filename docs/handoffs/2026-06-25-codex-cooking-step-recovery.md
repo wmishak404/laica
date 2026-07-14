@@ -82,7 +82,7 @@ Rationale: the branch is a narrow client/state correction with focused determini
 ## Negative Scope
 
 - Does not implement Ready Check.
-- Does not add Coach Feed redesign or inline cooking-assistance recovery.
+- Does not add the later compact cockpit/step-guidance redesign or inline cooking-assistance recovery. 2026-07-13 note: the earlier "Coach Feed" planning name was superseded by PR #260.
 - Does not redesign timers or suggested-timer metadata.
 - Does not change OpenAI prompts, provider calls, route schemas, or DB schema.
 - Does not create Phase 5 pending cleanup, pantry cleanup review, taste memory, or next-meal retention state.

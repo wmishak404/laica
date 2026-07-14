@@ -14,7 +14,7 @@ This slice makes the eval admin/reporting layer clearer before Laica starts rely
 
 ## Architecture Triage
 
-- INIT-001 current start point: Phase 3.1 follow-up / Phase 4 planning after the Prep Tray image-fill and Live Cooking speech arbitration merges. Smallest candidates are Gemini/OpenAI benchmark comparison, ingredient chip unification, visual closeout review, or broader Phase 4 work. Dependency/risk: provider benchmarks and UI review need Replit/product judgment; Phase 4 is larger than one safe automation milestone.
+- INIT-001 current start point: Phase 3.1 follow-up / Phase 4 planning after the Prep Tray image-fill and Live Cooking speech arbitration merges. Smallest candidates are Gemini/OpenAI benchmark comparison, ingredient chip unification, visual closeout review, or broader Phase 4 work. Dependency/risk: provider benchmarks and UI review need Replit/product judgment; Phase 4 is larger than one safe automation milestone. 2026-07-13 note: later PR #234 shipped ingredient-chip consistency; current remaining Phase 3.1 scope lives in the phase record and INIT.
 - INIT-002 current start point: Phase 2 Replit observation week. Dependency/risk: Phase 3 DB persistence is explicitly blocked until Replit observation records classifier gaps and field-nullability decisions.
 - INIT-003 current start point: Phase 5 / later promotion follow-up planning. Dependency/risk: later guest cook/History import waits for INIT-001 Phase 5 semantics.
 - INIT-004 current start point: Phase 3 eval harness. Dependency/risk: no active INIT-004 PR was open; the current INIT explicitly listed queue/reporting summaries using separated eval surface and prompt-version provenance as a bounded candidate.

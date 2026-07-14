@@ -35,7 +35,7 @@ The slice is mostly visual with a narrow cooking-step prompt refinement. It pres
 
 ## Impact on other agents
 
-Treat PR #260 as the behavior baseline and this branch as the warm visual layer plus a narrow provider-prompt tightening on top. Future timer redesign should start after this surface, keep timers optional and minimizable, and avoid hiding the current step. Assistance-failure handling remains a separate Phase 4 acceptance gap. INIT-004 step-preview eval work remains separate; align its fixtures with the new prompt expectations, but do not fold eval fixtures or judge calibration into this runtime branch unless Wilson explicitly redirects.
+Treat PR #260 as the behavior baseline and this branch as the warm visual layer plus a narrow provider-prompt tightening on top. 2026-07-13 superseded-context note: this handoff predates PR #269 and PR #275. Current timer baseline keeps timers explicit-start and visible together but removed minimize/collapse after Wilson found it displaced pause/reset; current assistance-failure baseline is PR #275's separate voice-help status for narrow Ask-a-question technical failures. INIT-004 step-preview eval work remains separate; align its fixtures with the new prompt expectations, but do not fold eval fixtures or judge calibration into this runtime branch unless Wilson explicitly redirects.
 
 PD-005 / `design_guidelines.md` interaction: conforms. The branch uses tokenized CSS variables and a wrapper-specificity guardrail rather than raw hex or unscoped primitive overrides. No durable navigation changes were made.
 

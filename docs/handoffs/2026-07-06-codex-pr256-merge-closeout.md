@@ -14,7 +14,7 @@
 
 PR #256 merged the narrow INIT-001 Phase 4 generated-step validation slice. Current Live Cooking now rejects blank, whitespace-only, and obvious placeholder generated or browser-local restored cooking steps before rendering Step 1 or starting a linked cooking session. This extends the PR #236 recovery baseline while preserving PR #191 speech arbitration.
 
-The merge did not implement Ready Check, Coach Feed, timer redesign, prompt/provider changes, schema work, speech/audio changes, durable History changes, Phase 5 cleanup state, or basic-backup copy changes.
+The merge did not implement Ready Check, the later compact Live Cooking cockpit, timer redesign, prompt/provider changes, schema work, speech/audio changes, durable History changes, Phase 5 cleanup state, or basic-backup copy changes. 2026-07-13 note: the earlier "Coach Feed" planning name was superseded by PR #260 and should not be read as current product direction.
 
 ## Merge Evidence
 
@@ -39,4 +39,4 @@ Release/batch validation should include normal generated-step load, induced `/ap
 
 ## Next Resume Point
 
-Treat PR #191, PR #236, and PR #256 as the current merged baselines for existing Live Cooking speech arbitration and step-generation recovery. Future Phase 4 work should continue from fresh `origin/main` and can focus on Ready Check, Coach Feed, timer redesign, prompt/provider work, schema, and later Phase 5 cleanup semantics only when those slices are intentionally pulled forward.
+Treat PR #191, PR #236, and PR #256 as the current merged baselines for existing Live Cooking speech arbitration and step-generation recovery. Future Phase 4 work should continue from fresh `origin/main` and can focus on Ready Check, compact cockpit/step guidance, timer redesign, prompt/provider work, schema, and later Phase 5 cleanup semantics only when those slices are intentionally pulled forward.

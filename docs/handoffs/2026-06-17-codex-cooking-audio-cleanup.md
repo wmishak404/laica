@@ -9,11 +9,11 @@
 
 ## Summary
 
-This branch closes the narrow Phase 4 audio lifecycle gap found during earlier Replit validation: leaving Live Cooking should stop Laica's voice instead of allowing delayed or in-flight speech to continue after the cook returns to Planning. The user value is a calmer, safer cooking exit path: Back, Finish, and unmount now share cleanup for speech playback, delayed speech, retry timers, and active recording work.
+This branch closes the narrow Phase 4 audio lifecycle gap found during earlier Replit validation: leaving Live Cooking should stop Laica's voice instead of allowing delayed or in-flight speech to continue after the cook returns to Planning. The accepted behavior is a quieter, current-surface-owned exit path: Back, Finish, and unmount now share cleanup for speech playback, delayed speech, retry timers, and active recording work.
 
-This is not the full Phase 4 cooking-guidance redesign. Ready Check, Coach Feed, timer redesign, inline AI recovery, Finish/history semantics, provider prompt changes, schema work, and Phase 5 cleanup remain future work.
+This is not the full Phase 4 cooking-guidance redesign. Ready Check, compact cockpit/step guidance, timer redesign, inline AI recovery, Finish/history semantics, provider prompt changes, schema work, and Phase 5 cleanup remain future work. 2026-07-13 note: the earlier "Coach Feed" planning name was superseded by PR #260 and is not current product direction.
 
-2026-06-18 follow-up: Wilson clarified that this PR's merge bar is the existing Live Cooking speech-arbitration matrix, not only the Back-to-Planning bug. PR #191 now implements that matrix for current Live Cooking controls: Step 1 speech after setup, Next/Previous interruption, competing speech actions, Ask for Help stop-before-recording, exit cleanup, mute persistence, unmute-no-autoplay, transcript fidelity, rapid actions, and timer interruption are covered by passing deterministic assertions in `tests/unit/live-cooking-guest-session.test.tsx`. This is still bounded to current Live Cooking speech controls and should not widen into Ready Check, Coach Feed, prompts, schema, or Phase 5 semantics.
+2026-06-18 follow-up: Wilson clarified that this PR's merge bar is the existing Live Cooking speech-arbitration matrix, not only the Back-to-Planning bug. PR #191 now implements that matrix for current Live Cooking controls: Step 1 speech after setup, Next/Previous interruption, competing speech actions, Ask for Help stop-before-recording, exit cleanup, mute persistence, unmute-no-autoplay, transcript fidelity, rapid actions, and timer interruption are covered by passing deterministic assertions in `tests/unit/live-cooking-guest-session.test.tsx`. This is still bounded to current Live Cooking speech controls and should not widen into Ready Check, compact cockpit/step guidance, prompts, schema, or Phase 5 semantics.
 
 ## Triage
 

@@ -9,11 +9,11 @@
 
 ## Summary
 
-PR #258 is merged, so Phase 4 now has a real Ready Check baseline instead of a plan-only acceptance item. Future Live Cooking work should preserve the user-gated step-generation entry, valid saved-guide resume, invalid placeholder regeneration guard, acknowledged missing/skipped ingredient context, and `Cook silently` audio-off path before layering Coach Feed, pinned-step visual refresh, timers, or Phase 5 cleanup semantics.
+PR #258 is merged, so Phase 4 now has a real Ready Check baseline instead of a plan-only acceptance item. Future Live Cooking work should preserve the user-gated step-generation entry, valid saved-guide resume, invalid placeholder regeneration guard, and acknowledged missing/skipped ingredient context before layering later cockpit, timer, or Phase 5 cleanup semantics. 2026-07-13 superseded-context note: PR #260 replaced the PR #258 `Cook silently` / multi-entry Ready Check UI with one `Start cooking` action, and rejected the "Coach Feed" planning name in favor of a compact hands-busy cockpit.
 
 ## Changes
 
-- Updated `initiatives/INIT-001-mobile-refresh.md` to mark PR #258 merged as `496731c`, record validated head `8529878`, and set the next Phase 4 resume point to pinned-step visual refresh plus Coach Feed framing before timer redesign.
+- Updated `initiatives/INIT-001-mobile-refresh.md` to mark PR #258 merged as `496731c`, record validated head `8529878`, and set the next Phase 4 resume point to the then-planned pinned-step visual refresh. PR #260 later superseded the "Coach Feed" framing with the compact cockpit direction.
 - Updated `initiatives/registry.md` so the INIT-001 index reflects the merged Ready Check slice instead of an in-progress branch.
 - Updated `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md` so the Phase 4 record treats Ready Check as a merged slice with exact-head evidence.
 - Added this merge-closeout handoff.
@@ -24,8 +24,8 @@ Start the next Phase 4 runtime branch from fresh `origin/main` after `496731c`. 
 
 ## Open items
 
-- Human Replit validation remains deferred to release/batch validation. Include Ready Check entry, `Cook anyway`, `Cook silently`, normal generated-step load, induced step-generation recovery/retry, invalid placeholder recovery if practical, and linked Finish copy in the changed-since-last-prod smoke.
-- Coach Feed, pinned-step visual refresh, timer redesign, full structured provider schema, cooking-assistance presentation, and Phase 5 cleanup state remain planned.
+- Human Replit validation remains deferred to release/batch validation. Current-basis smoke should use Ready Check's single `Start cooking` action from PR #260, normal generated-step load, induced step-generation recovery/retry, invalid placeholder recovery if practical, acknowledged missing/skipped ingredient context, and linked Finish copy.
+- Compact cockpit, timer redesign, full structured provider schema, cooking-assistance presentation, and Phase 5 cleanup state remained planned at this closeout point; PR #260/#269/#275 later landed the cockpit, timer, and narrow assistance-failure slices.
 
 ## Verification
 

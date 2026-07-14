@@ -43,21 +43,12 @@ Turn cooking into a calm, hands-free-biased guide that prioritizes sensory cues 
 ### Timer behavior
 
 - Timers never auto-start.
-- Timer suggestions appear only when needed.
-- Active timer is a compact inline control that does not obscure the current step.
+- Timer controls appear automatically only for timer-worthy steps, but the cook must explicitly start them.
+- Active timer controls stay visible together and do not obscure the current step.
 - A timer-worthy step has a clear start point, useful duration, meaningful consequence if missed, and still includes sensory cues.
 - No timer for vague prep work such as chopping, seasoning, or "until fragrant" unless the model can provide a useful cue and duration.
-
-Suggested timer shape:
-
-```ts
-suggestedTimer?: {
-  durationSeconds: number;
-  label: string;
-  kind: "passive" | "active" | "resting" | "safety";
-  reason: string;
-}
-```
+- Current accepted runtime from PR #269 uses the existing step `duration` plus obvious text-derived timing such as `cook 1-2 minutes`; it does not add or require a separate provider `suggestedTimer` object.
+- A richer timer metadata object with kind/reason remains future schema work and should not be treated as shipped Phase 4 behavior.
 
 ### Finish behavior
 
@@ -212,7 +203,7 @@ Local evidence: `npm ci`, `npx vitest run tests/unit/live-cooking-guest-session.
 - Cooking-step generation failure has an inline retry/recovery state.
 - Cooking-step generation validates output before entering the live guide: empty arrays, blank instructions, whitespace-only instructions, and non-cookable placeholder text are treated as recovery states, not as usable steps.
 - Step-generation recovery into Live Cooking is explicit and evidence-backed: retry or regeneration must produce a validated usable guide before the app starts/saves a cooking session; the generic backup guide remains a clearly labeled user choice, not silent self-recovery.
-- Cooking-assistance failure appears in a separate voice-help status area, not in the step guidance/caption content and not only in a toast. PR #275 implements this with an isolated retry panel while preserving the pinned current step.
+- Cooking-assistance technical/quota failure appears in a separate voice-help status/retry area outside Step guidance. PR #275 implements this only for the narrow Ask-a-question failure list above while preserving the pinned current step; it does not define successful assistance answers or future step adaptation.
 - Persistent live-cooking failures offer inline Feedback access.
 - No live-cooking failure hides the pinned current step or leaves the cook without a next action.
 - Live-cooking errors follow EFF-018 status classification and copy principles.

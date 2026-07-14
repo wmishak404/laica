@@ -23,7 +23,7 @@ Live Cooking now has a stricter guard before it treats generated cooking steps a
 
 PR #256 is independent of open PR #246 and draft EFF-017 PR #249. PR #249 touches cooking-session hook coverage and Effort docs, not `live-cooking.tsx` or `tests/unit/live-cooking-guest-session.test.tsx`.
 
-Do not treat this as the full Phase 4 revamp. Ready Check, Coach Feed, timer redesign, cooking-step prompt/provider work, schema changes, speech/audio changes, and Phase 5 cleanup remain planned/deferred in the Phase 4 and Phase 5 records.
+Do not treat this as the full Phase 4 revamp. Ready Check, compact cockpit/step guidance, timer redesign, cooking-step prompt/provider work, schema changes, speech/audio changes, and Phase 5 cleanup remain planned/deferred in the Phase 4 and Phase 5 records. 2026-07-13 note: the earlier "Coach Feed" planning name was superseded by PR #260 and should not be used as current product direction.
 
 ## Open items
 

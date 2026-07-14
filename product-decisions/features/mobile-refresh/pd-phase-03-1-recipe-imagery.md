@@ -17,6 +17,8 @@ Phase 3.2 is split out separately for the progressive Chef It Up Added shelf / r
 
 Wilson's Phase 3.2 Replit review also identified a related design-consistency follow-up for the Slop Bowl pantry-check menu: Phase 3.1 should compare Slop Bowl's existing removable pantry chips/list treatment against the newer Chef It Up Phase 3.2 shelf/row style and use the Chef It Up direction as the preferred visual baseline where the surfaces overlap. This is a visual-alignment scope note only; Slop Bowl behavior remains unchanged unless Phase 3.1 explicitly revisits it.
 
+Current accepted imagery state after PR #192 and PR #208: Ticket Pass remains placeholder-only while users choose among recipes, and Prep Tray resolves imagery only for the selected recipe as a non-blocking enhancement. The earlier broad Ticket Pass image-hydration direction is historical scope, not current accepted runtime. Future real/generated Ticket Pass imagery or a provider-default change still needs separate product/provider evidence.
+
 ## Phase 3 Contract
 
 Phase 3 reserves generated-image slots now:
