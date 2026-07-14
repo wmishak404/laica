@@ -19,8 +19,8 @@ This branch starts from the Replit-validated `8c48ec4` mobile-browser build beca
 - `tests/unit/user-profiling.test.tsx`: verifies first-run Pantry setup renders the new setup camera state hooks, still has no setup corner ornaments, and resets both frame/body scroll when backing out of the Ready confirmation.
 - `tests/unit/user-settings-scan-policy.test.tsx`: verifies returning Settings Pantry/Tools reuse the same setup camera state hooks and still have no setup corner ornaments.
 - `design_guidelines.md`: tightens the setup camera principle to include camera-like preview proportion alongside the existing no-crowded-brackets/control-zone guidance, and records the no-scroll-leak rule for step-based mobile-browser flows.
-- `efforts/effort-028-setup-skill-next-action.md`, `efforts/README.md`, `efforts/registry.md`: records Wilson's later-scope request to add an explicit bottom Next action to the cooking-comfort setup page without folding that work into this repair branch.
-- `efforts/effort-029-chrome-setup-tap-hit-test-drift.md`, `initiatives/INIT-001-mobile-refresh.md`: records Wilson's Chrome-only intermittent setup tap mismatch as separate Phase 3.1/4 browser-fit follow-up; refresh cleared the issue and DuckDuckGo did not reproduce it.
+- `efforts/effort-030-setup-skill-next-action.md`, `efforts/README.md`, `efforts/registry.md`: records Wilson's later-scope request to add an explicit bottom Next action to the cooking-comfort setup page without folding that work into this repair branch.
+- `efforts/effort-031-chrome-setup-tap-hit-test-drift.md`, `initiatives/INIT-001-mobile-refresh.md`: records Wilson's Chrome-only intermittent setup tap mismatch as separate Phase 3.1/4 browser-fit follow-up; refresh cleared the issue and DuckDuckGo did not reproduce it.
 
 ## Impact on other agents
 
@@ -33,8 +33,8 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - No mobile-device manual QA has been claimed for this branch. When Replit validation is ready, follow PR #288's mobile-first Chrome/Replit methodology: inspect UI and visual cues in Chrome mobile view by default, record the device preset or viewport, exact branch/SHA, Replit URL, and whether browser chrome was expanded/collapsed. Desktop Chrome/Replit visual checks do not count as a pass for this mobile-browser UI build.
 - The required mobile-view Replit checklist for this branch is: Pantry and Tools camera off-states have no decorative corner squares and no text/control overlap; Pantry/Tools manual-entry flows remain tappable; setup scroll ends at the Back/Next rail with no inert blank tail; Ready -> Back resets scroll position for Dietary, Cooking Skill, Tools, and Pantry; existing accepted Chef It Up and Slop It Up browser proportions/actions are not regressed; Live Cooking active/preparing surfaces and the Menu drawer remain outside this branch's visual-fit claims.
 - Camera proportion/text composition is intentionally deferred to thread `019f5f00-e389-7873-af20-a47a3ff66da3`; this branch's latest follow-up only changed scroll containment.
-- EFF-028 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
-- EFF-029 is intentionally open for a later Chrome-specific interaction investigation: setup taps could intermittently target the wrong visible item or make Ready Back untappable on Chrome, while refresh restored correct behavior and DuckDuckGo did not reproduce it.
+- EFF-030 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
+- EFF-031 is intentionally open for a later Chrome-specific interaction investigation: setup taps could intermittently target the wrong visible item or make Ready Back untappable on Chrome, while refresh restored correct behavior and DuckDuckGo did not reproduce it.
 
 ## Verification
 
@@ -44,8 +44,8 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 
 ## Stack / base status
 
-- Base refreshed: no
-- Current base: `8c48ec4` (`codex: clean up setup browser scan fit`)
+- Base refreshed: yes, rebased onto fresh `origin/main` after PR #287 and PR #290 merged.
+- Current base: `origin/main` at `9dcb37da4e57f4c655816e6a0c399fa67365f43f`
 - Last Replit-validated at: `8c48ec4` baseline only; this follow-up branch is not yet Replit-validated.
 - Replit validation lane: deferred until after rebase/current-branch work, conflicts, and exact-head CI/E2E; then run PR #288 mobile-first Chrome/Replit validation for the checklist above.
 - Notes: intentionally based on Wilson's known-good navigation build rather than the later divergent branch head.
