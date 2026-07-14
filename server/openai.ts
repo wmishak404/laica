@@ -16,7 +16,7 @@ import {
   normalizePlanningTimeValue,
   type PlanningTimeValue,
 } from "@shared/planning";
-import { slopBowlRecipeSchema } from "./ai-response-schemas";
+import { normalizeCookingStepsResponse, slopBowlRecipeSchema } from "./ai-response-schemas";
 import { lt } from "drizzle-orm";
 import { redactAiOutput, redactForAiLog, sanitizePromptInput } from "./ai-privacy";
 import { throwOpenAIProviderError } from "./ai-errors";
@@ -401,7 +401,7 @@ export async function getCookingSteps(
       response_format: { type: "json_object" }
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = normalizeCookingStepsResponse(JSON.parse(response.choices[0].message.content || "{}"));
     logInteraction('cooking_steps', inputData, JSON.stringify(result));
     return result;
   } catch (error) {

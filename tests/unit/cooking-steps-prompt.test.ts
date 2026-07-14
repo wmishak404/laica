@@ -84,5 +84,67 @@ describe("cooking steps prompt", () => {
     expect(userMessage?.content).toContain("If a final step says to turn off heat, stir in green onions or herbs, and serve, use Garnish or Garnish & Serve instead of Cook Vegetables.");
     expect(userMessage?.content).toContain("Garnish, and Serve Fried Rice");
   });
-});
 
+  it("normalizes provider cooking-step output before returning and logging it", async () => {
+    mocks.chatCompletionsCreate.mockResolvedValueOnce({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              recipe: {
+                recipeName: "Rice Bowl",
+                ingredients: [{ name: " rice ", quantity: "1 cup", forSteps: [1] }],
+              },
+              steps: [
+                {
+                  actionLabel: " Boil Rice ",
+                  instruction: " Simmer rice until tender. ",
+                  timing: "3 minutes",
+                  tips: " Keep the lid on. ",
+                  visualCues: " Steam holes form on top. ",
+                  commonMistakes: " Do not stir constantly. ",
+                  safetyLevel: "important",
+                },
+                " Rest rice for 5 minutes. ",
+                { instruction: "Follow the recipe instructions" },
+              ],
+              variations: [" Add a fried egg. ", ""],
+            }),
+          },
+        },
+      ],
+    });
+
+    const result = await getCookingSteps("Rice Bowl", ["rice"], ["pot"]);
+
+    expect(result).toEqual({
+      recipe: {
+        recipeName: "Rice Bowl",
+        ingredients: [{ name: "rice", quantity: "1 cup", forSteps: [1] }],
+      },
+      steps: [
+        {
+          actionLabel: "Boil Rice",
+          instruction: "Simmer rice until tender.",
+          duration: 180,
+          tips: "Keep the lid on.",
+          visualCues: "Steam holes form on top.",
+          commonMistakes: "Do not stir constantly.",
+          safetyLevel: "important",
+        },
+        {
+          instruction: "Rest rice for 5 minutes.",
+          tips: "",
+          visualCues: "",
+          commonMistakes: "",
+          safetyLevel: "minor",
+        },
+      ],
+      variations: ["Add a fried egg."],
+    });
+    expect(mocks.insertValues).toHaveBeenCalledWith(expect.objectContaining({
+      featureType: "cooking_steps",
+      outputData: JSON.stringify(result),
+    }));
+  });
+});

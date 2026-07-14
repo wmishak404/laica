@@ -166,10 +166,19 @@ This merged slice does not change route contracts, provider prompts, provider re
 
 Local evidence: `npm ci`, `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000`, `npm run check`, `npm run build`, `npm run test:unit`, `npm audit --audit-level=high`, and `git diff --check` passed during the PR. Focused assertions prove microphone-denial and assistance-route failures render the separate voice-help status outside Step guidance, preserve the current step, clear the issue on retry, and keep technical failure copy out of the normal assistant-answer path. PR #275 updated the guest E2E smoke for the new status panel; final pre-merge local `git diff --check`, `npm run check`, focused Live Cooking Vitest, and `npm run build` passed at `eb364ee`; exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks also passed. Local targeted Playwright did not reach the changed assertion because the local dotenvx database is missing `anonymous_recipe_usage`, matching the known local-environment gap. Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level device microphone/provider smoke, because the merged slice is a narrow client failure-presentation change with mocked provider coverage and no schema, auth, deployment, or persistence changes.
 
+## 2026-07-13 cooking-step schema boundary branch
+
+`codex/init-001-cooking-step-schema` is the bounded Phase 4 provider-schema foundation after PR #275. The branch makes `getCookingSteps` parse provider output through the shared cooking-step response schema before eval logging or `/api/cooking/steps` returns it: instructions are trimmed, placeholder-only steps are dropped, all-placeholder output is rejected into existing recovery, `timing` minute values can become numeric `duration` seconds, recipe ingredients normalize from strings or objects, variations are trimmed, cue/tip/mistake fields default to strings, and `safetyLevel` is constrained to `critical | important | minor`.
+
+The same slice preserves Live Cooking `actionLabel` values through linked cooking-session creation by accepting them in the session-start recipe snapshot schema. This supports the current step-preview/quick-recall contract without starting Phase 5.
+
+This branch does not add the future `suggestedTimer` object with kind/reason metadata, change provider prompts, change DB schema, add cleanup/taste state, change the Live Cooking UI, run live providers by default, or implement Phase 5 pantry cleanup.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
 - Ready Check has one primary `Start cooking` action; acknowledged missing/skipped ingredients still pass into cooking-step generation so the model can adapt.
+- Cooking-step provider output is normalized at the server boundary before eval logging and route response: usable instructions remain, placeholder-only output triggers existing recovery, duration/timing data is represented as seconds where available, and recipe ingredients/action labels survive in the current response/session contract.
 - Current step remains pinned with the actual cooking action as the headline while the user moves through guidance.
 - Provider-generated Live Cooking steps should be atomic cookable actions or milestones; paragraph-like steps should be split at generation time when possible.
 - Optional `actionLabel` values provide 2-4 word verb-first rail/headline labels such as `Boil Water`, `Prep Leeks`, `Cook Leek & Spinach`, `Garnish`, or `Push Vegetables Aside`.
@@ -220,6 +229,6 @@ Local evidence: `npm ci`, `npx vitest run tests/unit/live-cooking-guest-session.
 
 ## Backend Notes
 
-- Cooking steps should return structured sensory guidance and optional timer metadata.
+- Cooking steps should return structured sensory guidance and optional timer metadata. Current Phase 4 code normalizes the existing `duration` / `timing` fields to numeric seconds; the richer `suggestedTimer` object with `kind` and `reason` remains future schema work.
 - Tap-to-talk assistance should use the cross-phase voice context allowlist.
 - Session completion must set up Phase 5 cleanup state instead of writing `pantryIngredients`.

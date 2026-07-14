@@ -6,11 +6,11 @@ interface CookingStepObject {
   actionLabel?: string;
   instruction?: string;
   step?: string;
-  duration?: string | number;
+  duration?: number;
   tips?: string;
   visualCues?: string;
   commonMistakes?: string;
-  safetyLevel?: string;
+  safetyLevel?: 'critical' | 'important' | 'minor';
   [key: string]: unknown;
 }
 

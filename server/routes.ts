@@ -1003,12 +1003,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       const recipeStepSchema = z.object({
         id: z.number().optional(),
+        actionLabel: z.string().trim().max(80).optional(),
         instruction: z.string(),
         duration: z.union([z.string(), z.number()]).optional(),
         tips: z.string().optional(),
         visualCues: z.string().optional(),
         commonMistakes: z.string().optional(),
-        safetyLevel: z.string().optional(),
+        safetyLevel: z.enum(["critical", "important", "minor"]).optional(),
       });
       const recipeSnapshotSchema = z.object({
         recipeName: z.string(),
