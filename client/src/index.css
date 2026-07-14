@@ -927,6 +927,10 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
   }
 
+  .setup-shell {
+    min-height: 100vh;
+  }
+
   .setup-ui-kitchen {
     --setup-coral-soft: 31 53% 90%;
     --setup-peach: 33 44% 84%;
@@ -951,6 +955,13 @@ html, body {
       linear-gradient(180deg, hsl(0 0% 100% / 0.54), hsl(0 0% 100% / 0.2)),
       hsl(var(--setup-cream) / 0.72);
     box-shadow: 0 1.5rem 3.5rem hsl(var(--setup-coral-strong) / 0.12);
+  }
+
+  .setup-scroll-body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .setup-progress-shell {
@@ -1249,6 +1260,7 @@ html, body {
   }
 
   .setup-bottom-bar {
+    flex-shrink: 0;
     border-top: 1px solid hsl(var(--setup-coral-strong) / 0.14);
     background: linear-gradient(180deg, hsl(var(--setup-cream) / 0.58), hsl(var(--setup-cream) / 0.96));
   }
@@ -3018,7 +3030,7 @@ html, body {
     }
 
     .setup-ui,
-    .setup-ui > div {
+    .setup-shell {
       min-height: 100svh;
     }
   }
@@ -3521,17 +3533,22 @@ html, body {
     }
 
     .setup-ui {
+      position: fixed;
+      inset: 0;
+      width: 100%;
       height: 100svh;
       height: 100dvh;
       min-height: 100svh;
       min-height: 100dvh;
+      max-height: 100dvh;
       overflow: hidden;
     }
 
-    .setup-ui > div {
+    .setup-shell {
       height: 100svh;
       height: 100dvh;
       min-height: 0;
+      max-height: 100dvh;
       padding-top: 0;
       overflow: hidden;
     }
@@ -3540,10 +3557,15 @@ html, body {
       height: 100%;
       min-height: 0;
       max-height: none;
-      overflow-y: auto;
-      overscroll-behavior: contain;
+      overflow: hidden;
       border-radius: 1.35rem 1.35rem 0 0;
       padding-top: 0.55rem;
+    }
+
+    .setup-scroll-body {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
     }
 

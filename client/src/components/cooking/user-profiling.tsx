@@ -333,6 +333,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
   const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setupFrameRef = useRef<HTMLElement | null>(null);
+  const setupScrollBodyRef = useRef<HTMLDivElement | null>(null);
   const [initialDraft] = useState(() => existingProfile ? null : readSetupDraft(sessionScopeKey));
   const [pantryPlaceholder] = useState(getNextPantryPlaceholder);
   const [currentStep, setCurrentStep] = useState(() => initialDraft?.currentStep ?? 0);
@@ -358,6 +359,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     };
 
     resetElement(setupFrameRef.current);
+    resetElement(setupScrollBodyRef.current);
     resetElement(document.scrollingElement as HTMLElement | null);
     resetElement(document.documentElement);
     resetElement(document.body);
@@ -1325,7 +1327,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
   return (
     <main className={`setup-ui ${isKitchenSetup ? 'setup-ui-kitchen' : ''}`}>
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-3 pt-3">
+      <div className="setup-shell mx-auto flex w-full max-w-md flex-col px-3 pt-3">
         <section
           key={setupViewKey}
           ref={setupFrameRef}
@@ -1342,11 +1344,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
             )}
           </div>
 
-          <div className="flex-1 pb-5">
+          <div ref={setupScrollBodyRef} className="setup-scroll-body flex-1 pb-5">
             {renderStep()}
           </div>
 
-          <div className="setup-bottom-bar sticky bottom-0 -mx-4 mt-2 px-4 py-4">
+          <div className="setup-bottom-bar -mx-4 mt-2 shrink-0 px-4 py-4">
             {currentStep === 0 ? (
               <Button
                 type="button"

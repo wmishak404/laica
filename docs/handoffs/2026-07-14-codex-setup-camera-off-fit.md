@@ -9,14 +9,14 @@
 
 ## Summary
 
-This branch starts from the Replit-validated `8c48ec4` mobile-browser build because Wilson reported that build did not reproduce the setup navigation bugs. It keeps that baseline and narrowly adjusts setup browser behavior: Pantry and Tools camera-off states now keep a camera-like proportion without decorative corner marks, and first-time setup step transitions reset the owned setup scrollport so a bottom-scrolled Ready screen does not leak its scroll position back into Dietary, Cooking Skill, or earlier pages.
+This branch starts from the Replit-validated `8c48ec4` mobile-browser build because Wilson reported that build did not reproduce the setup navigation bugs. It keeps that baseline and narrowly adjusts setup browser behavior: Pantry and Tools camera-off states avoid decorative corner marks, and first-time setup now has an explicit bounded content scrollport above the Back/Next rail so setup pages stop at the rail instead of continuing into inert blank space. Step transitions also reset the owned setup scrollport so a bottom-scrolled Ready screen does not leak its scroll position back into Dietary, Cooking Skill, or earlier pages.
 
 ## Changes
 
 - `client/src/components/ui/native-camera.tsx`: adds explicit setup camera state icon/copy hooks while keeping non-setup camera behavior unchanged.
-- `client/src/components/cooking/user-profiling.tsx`: resets the setup scrollport and document scroll on setup step/view transitions, including Ready -> Back and tools-capture transitions.
-- `client/src/index.css`: changes setup camera viewfinders to a 4:3 proportion, adds base layout rules for setup camera off/error states, keeps a reserved control zone so copy and controls do not overlap on mobile-browser setup pages, and uses the dynamic mobile viewport for the setup shell.
-- `tests/unit/user-profiling.test.tsx`: verifies first-run Pantry setup renders the new setup camera state hooks, still has no setup corner ornaments, and resets scroll when backing out of the Ready confirmation.
+- `client/src/components/cooking/user-profiling.tsx`: moves scrolling into a dedicated `.setup-scroll-body`, keeps the Back/Next rail outside that scroller, and resets the setup scrollport plus document scroll on setup step/view transitions, including Ready -> Back and tools-capture transitions.
+- `client/src/index.css`: adds the bounded setup shell/content-scroll/rail containment, changes setup camera viewfinders to a 4:3 proportion, adds base layout rules for setup camera off/error states, keeps a reserved control zone so copy and controls do not overlap on mobile-browser setup pages, and uses the dynamic mobile viewport for the setup shell.
+- `tests/unit/user-profiling.test.tsx`: verifies first-run Pantry setup renders the new setup camera state hooks, still has no setup corner ornaments, and resets both frame/body scroll when backing out of the Ready confirmation.
 - `tests/unit/user-settings-scan-policy.test.tsx`: verifies returning Settings Pantry/Tools reuse the same setup camera state hooks and still have no setup corner ornaments.
 - `design_guidelines.md`: tightens the setup camera principle to include camera-like preview proportion alongside the existing no-crowded-brackets/control-zone guidance, and records the no-scroll-leak rule for step-based mobile-browser flows.
 - `efforts/effort-028-setup-skill-next-action.md`, `efforts/README.md`, `efforts/registry.md`: records Wilson's later-scope request to add an explicit bottom Next action to the cooking-comfort setup page without folding that work into this repair branch.
@@ -28,7 +28,8 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 ## Open items
 
 - Not loaded to Replit yet in this branch.
-- No mobile-device manual QA has been claimed for this branch. Wilson should validate Pantry and Tools camera-off setup surfaces plus Ready -> Back scroll behavior in the mobile browser preview before merge decisions.
+- No mobile-device manual QA has been claimed for this branch. Wilson should validate Pantry manual-entry scrolling stops at the Back/Next rail, no inert bottom tail remains, and Ready -> Back scroll behavior does not contaminate earlier setup pages.
+- Camera proportion/text composition is intentionally deferred to thread `019f5f00-e389-7873-af20-a47a3ff66da3`; this branch's latest follow-up only changed scroll containment.
 - EFF-028 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
 
 ## Verification

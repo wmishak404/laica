@@ -287,7 +287,9 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByRole('heading', { name: /you are ready/i })).toBeTruthy();
 
     const readyFrame = container.querySelector('.setup-phone-frame') as HTMLElement;
+    const readyScrollBody = container.querySelector('.setup-scroll-body') as HTMLElement;
     readyFrame.scrollTop = 420;
+    readyScrollBody.scrollTop = 360;
     document.documentElement.scrollTop = 220;
     document.body.scrollTop = 220;
 
@@ -295,7 +297,9 @@ describe('UserProfiling setup flow', () => {
 
     expect(screen.getByRole('heading', { name: /anything i should avoid/i })).toBeTruthy();
     const dietaryFrame = container.querySelector('.setup-phone-frame') as HTMLElement;
+    const dietaryScrollBody = container.querySelector('.setup-scroll-body') as HTMLElement;
     expect(dietaryFrame.scrollTop).toBe(0);
+    expect(dietaryScrollBody.scrollTop).toBe(0);
     expect(document.documentElement.scrollTop).toBe(0);
     expect(document.body.scrollTop).toBe(0);
   });
