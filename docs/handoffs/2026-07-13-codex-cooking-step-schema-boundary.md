@@ -45,10 +45,22 @@ Future Phase 4 work should treat the server-normalized cooking-step response as 
 
 This branch does not implement Phase 5 cleanup, DB schema changes, prompt changes, live-provider runs, the future `suggestedTimer` object with kind/reason metadata, UI redesign, or the voice-activity affordance. PR #280 viewport-fit, PR #272 closeout, PR #274 Claude prompt/eval work, PR #265 voice-affordance docs, and PR #277 EFF-017 coverage remain separate owned/open work.
 
+## PR #284 coordination
+
+Wilson asked PR #281 to coordinate with docs-cleanup PR #284 before merge-readiness review. The first coordination pass checked PR #281 against draft PR #284 without touching the docs-cleanup branch. After Wilson approved and merged #284, a fresh fetch on 2026-07-14 showed `origin/main` at the #284 squash merge `28f96d2c11c3069b5d6b5157d79dc003a32c7014`; `git rebase origin/main` then replayed PR #281 cleanly on top of the merged cleanup.
+
+Mechanical overlap check before #284 merged: `git merge-tree --messages --write-tree HEAD origin/codex/docs-spring-cleaning` completed without conflict entries and reported auto-merging only `initiatives/INIT-001-mobile-refresh.md` and `product-decisions/features/mobile-refresh/pd-phase-04-cooking.md`. Post-merge rebase result: no textual conflicts. PR #281 did not modify, push, or rewrite the #284 branch.
+
+Semantic cleanup applied on this branch where PR #281 touches the same durable records:
+
+- Phase 4 timer decisions now describe the accepted PR #269 runtime: automatic timer controls for timer-worthy steps, explicit start, no separate shipped `suggestedTimer` object, and richer timer metadata left as future schema work.
+- The Phase 4 assistance criterion now scopes PR #275 to narrow Ask-a-question technical/quota failures in a separate voice-help status/retry area outside Step guidance.
+- INIT-001's Phase Progress table now treats PR #275 as merged while leaving PR #281-specific status in the current resume point, registry, this handoff, and the PR body so the merged #284 cleanup row does not erase the schema-boundary context.
+
 ## Open items
 
 - PR #281 is ready for review; Wilson's explicit merge instruction is still required because this is code/runtime work.
-- Use the PR body and live PR checks as the final exact-head CI authority if additional commits land after this handoff.
+- Use the PR body and live PR checks as the final exact-head CI authority. The PR body records the final pushed head after this handoff update because a commit cannot cite its own immutable SHA without changing that SHA.
 - Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level live-provider smoke. Suggested release-batch check: generate a real Live Cooking guide, confirm the current step/timer/action-label surfaces still work, and confirm linked History/recipe snapshot still has readable step labels.
 
 ## Verification
@@ -70,6 +82,6 @@ Evidence limits: provider calls are mocked; no live OpenAI/Replit cooking-step g
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `deaf17e7e6ccd9c4bd75239dcadfc586fed65e1b`
+- Current base: `origin/main` at `28f96d2c11c3069b5d6b5157d79dc003a32c7014` after PR #284 merged.
 - Last Replit-validated at: not PR-level validated; human Replit validation deferred to release/batch validation
-- Notes: independent branch from current `origin/main`; not stacked on PR #280, #272, #274, #265, or #277.
+- Notes: independent branch from current `origin/main`; not stacked on PR #280, #272, #274, #265, or #277. The overlapping INIT and Phase 4 docs were checked after #284 merged, with no product-decision ambiguity found.
