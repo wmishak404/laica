@@ -3522,12 +3522,15 @@ html, body {
 
     .setup-ui {
       height: 100svh;
+      height: 100dvh;
       min-height: 100svh;
+      min-height: 100dvh;
       overflow: hidden;
     }
 
     .setup-ui > div {
       height: 100svh;
+      height: 100dvh;
       min-height: 0;
       padding-top: 0;
       overflow: hidden;

@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, type SetStateAction, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { InventoryReviewChip } from '@/components/cooking/inventory-review-chip';
 import { Input } from '@/components/ui/input';
@@ -332,6 +332,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const scanRunIds = useRef<Record<ScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
   const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setupFrameRef = useRef<HTMLElement | null>(null);
   const [initialDraft] = useState(() => existingProfile ? null : readSetupDraft(sessionScopeKey));
   const [pantryPlaceholder] = useState(getNextPantryPlaceholder);
   const [currentStep, setCurrentStep] = useState(() => initialDraft?.currentStep ?? 0);
@@ -346,6 +347,31 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
   const [inventoryReviewState, setInventoryReviewState] = useState(createInventoryReviewState);
 
+  const resetSetupScroll = useCallback(() => {
+    const resetElement = (element: HTMLElement | null | undefined) => {
+      if (!element) return;
+      element.scrollTop = 0;
+      element.scrollLeft = 0;
+      if (typeof element.scrollTo === 'function') {
+        element.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    };
+
+    resetElement(setupFrameRef.current);
+    resetElement(document.scrollingElement as HTMLElement | null);
+    resetElement(document.documentElement);
+    resetElement(document.body);
+
+    if ((window.scrollY || window.scrollX) && typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, []);
+
+  const goToStep = useCallback((nextStep: SetStateAction<number>) => {
+    resetSetupScroll();
+    setCurrentStep(nextStep);
+  }, [resetSetupScroll]);
+
   useEffect(() => {
     writeSetupDraft(sessionScopeKey, {
       version: 1,
@@ -357,21 +383,21 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     });
   }, [currentStep, isToolsCaptureOpen, manualEntry, manualOpen, profile, sessionScopeKey]);
 
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
-      if (scrollTop > 0 || window.scrollX > 0) {
-        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-      }
-
-      const phoneFrame = document.querySelector<HTMLElement>('.setup-phone-frame');
-      if (phoneFrame && (phoneFrame.scrollTop > 0 || phoneFrame.scrollLeft > 0)) {
-        phoneFrame.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-      }
+  useLayoutEffect(() => {
+    resetSetupScroll();
+    let secondFrame: number | null = null;
+    const firstFrame = window.requestAnimationFrame(() => {
+      resetSetupScroll();
+      secondFrame = window.requestAnimationFrame(resetSetupScroll);
     });
 
-    return () => window.cancelAnimationFrame(frame);
-  }, [currentStep, isToolsCaptureOpen]);
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame !== null) {
+        window.cancelAnimationFrame(secondFrame);
+      }
+    };
+  }, [currentStep, isToolsCaptureOpen, resetSetupScroll]);
 
   useEffect(() => () => {
     scanControllers.current.pantry?.abort();
@@ -759,11 +785,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     if (currentStep === 2 && isToolsCaptureOpen) {
+      resetSetupScroll();
       setIsToolsCaptureOpen(false);
       return;
     }
 
-    setCurrentStep((step) => Math.max(0, step - 1));
+    goToStep((step) => Math.max(0, step - 1));
   };
 
   const handleNext = () => {
@@ -787,10 +814,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     if (currentStep === 1) {
+      resetSetupScroll();
       setIsToolsCaptureOpen(false);
     }
 
-    setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
+    goToStep((step) => Math.min(TOTAL_STEPS, step + 1));
   };
 
   const renderSetupProgress = () => {
@@ -1086,7 +1114,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
           type="button"
           variant="ghost"
           className="setup-primary-button setup-kitchen-primary-button h-12 w-full"
-          onClick={() => setIsToolsCaptureOpen(true)}
+          onClick={() => {
+            resetSetupScroll();
+            setIsToolsCaptureOpen(true);
+          }}
         >
           Add tools
         </Button>
@@ -1290,11 +1321,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       ? 'Finish setup'
       : 'Next';
   const isKitchenSetup = currentStep === 2;
+  const setupViewKey = `${currentStep}-${isToolsCaptureOpen ? 'tools-capture' : 'standard'}`;
 
   return (
     <main className={`setup-ui ${isKitchenSetup ? 'setup-ui-kitchen' : ''}`}>
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-3 pt-3">
-        <section className="setup-phone-frame flex flex-1 flex-col px-4 pt-4">
+        <section
+          key={setupViewKey}
+          ref={setupFrameRef}
+          className="setup-phone-frame flex flex-1 flex-col px-4 pt-4"
+        >
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               {renderSetupProgress()}
@@ -1315,7 +1351,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => setCurrentStep(1)}
+                onClick={() => goToStep(1)}
                 className="setup-primary-button h-14 w-full text-base"
               >
                 Get started

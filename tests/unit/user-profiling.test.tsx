@@ -269,6 +269,37 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByText('sheet pan').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
   });
 
+  it('resets the setup scrollport when backing out of the ready confirmation', () => {
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /skip tools/i }));
+    fireEvent.click(screen.getByRole('radio', { name: /intermediate/i }));
+    fireEvent.click(screen.getByRole('button', { name: /no restrictions/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    expect(screen.getByRole('heading', { name: /you are ready/i })).toBeTruthy();
+
+    const readyFrame = container.querySelector('.setup-phone-frame') as HTMLElement;
+    readyFrame.scrollTop = 420;
+    document.documentElement.scrollTop = 220;
+    document.body.scrollTop = 220;
+
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+
+    expect(screen.getByRole('heading', { name: /anything i should avoid/i })).toBeTruthy();
+    const dietaryFrame = container.querySelector('.setup-phone-frame') as HTMLElement;
+    expect(dietaryFrame.scrollTop).toBe(0);
+    expect(document.documentElement.scrollTop).toBe(0);
+    expect(document.body.scrollTop).toBe(0);
+  });
+
   it('cancels oversized pantry and kitchen upload batches without partial analysis', () => {
     const analyzeImageMock = vi.mocked(analyzeImage);
     const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);

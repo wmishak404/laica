@@ -66,6 +66,8 @@ Tailwind units `3, 4, 6, 8, 12, 16`. Mobile gutters `px-4 py-6`; cards `p-6`; se
 
 Mobile browser flows must end intentionally. When a page has terminal navigation or action controls such as a Back/Next rail, scrolling to the bottom should stop at that rail or its border, not continue into inert blank space below the final controls. Use an inner scrollport or visible-browser-height sizing when browser chrome reduces the available viewport, and keep any extra bottom padding tied to real fixed controls.
 
+Step-based mobile-browser flows must reset their owned scrollport on every step or view transition. A bottom-scrolled confirmation screen should never leak its scroll position into earlier setup pages, especially when browser chrome reduces the visible viewport.
+
 ## Surface Taxonomy
 
 (Mirrors PD-005. Both files keep the same vocabulary; PD-005 governs conformance, this file shapes posture.)
