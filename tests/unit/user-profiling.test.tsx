@@ -80,6 +80,28 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByRole('heading', { name: /yes, chef/i })).toBeTruthy();
   });
 
+  it('locks document scrolling while the setup frame owns the scroll surface', () => {
+    document.documentElement.style.overflow = 'visible';
+    document.body.style.position = 'static';
+    document.body.style.overflow = 'visible';
+
+    const { unmount } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    expect(document.documentElement.getAttribute('data-laica-setup-scroll-lock')).toBe('true');
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.height).toBe('100dvh');
+    expect(document.body.style.position).toBe('fixed');
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.body.style.height).toBe('100dvh');
+
+    unmount();
+
+    expect(document.documentElement.getAttribute('data-laica-setup-scroll-lock')).toBeNull();
+    expect(document.documentElement.style.overflow).toBe('visible');
+    expect(document.body.style.position).toBe('static');
+    expect(document.body.style.overflow).toBe('visible');
+  });
+
   it('auto-advances from Cooking Skill after one selection', () => {
     const onProfileComplete = vi.fn();
     render(<UserProfiling onProfileComplete={onProfileComplete} />);

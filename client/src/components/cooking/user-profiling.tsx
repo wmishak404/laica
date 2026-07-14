@@ -348,6 +348,101 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
   const [inventoryReviewState, setInventoryReviewState] = useState(createInventoryReviewState);
 
+  useLayoutEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const root = document.getElementById('root');
+    const previousScrollLockAttribute = html.getAttribute('data-laica-setup-scroll-lock');
+    const previousScrollBehavior = html.style.scrollBehavior;
+    const lockedElements: Array<{
+      element: HTMLElement;
+      styles: Record<string, string>;
+    }> = [
+      {
+        element: html,
+        styles: {
+          height: '100dvh',
+          'min-height': '100dvh',
+          'max-height': '100dvh',
+          overflow: 'hidden',
+          'overscroll-behavior': 'none',
+        },
+      },
+      {
+        element: body,
+        styles: {
+          position: 'fixed',
+          top: '0',
+          right: '0',
+          bottom: '0',
+          left: '0',
+          width: '100%',
+          height: '100dvh',
+          'min-height': '100dvh',
+          'max-height': '100dvh',
+          overflow: 'hidden',
+          'overscroll-behavior': 'none',
+        },
+      },
+      ...(root
+        ? [{
+            element: root,
+            styles: {
+              height: '100dvh',
+              'min-height': '100dvh',
+              'max-height': '100dvh',
+              overflow: 'hidden',
+            },
+          }]
+        : []),
+    ];
+    const previousStyles = lockedElements.map(({ element, styles }) => ({
+      element,
+      styles: Object.keys(styles).map((property) => ({
+        property,
+        value: element.style.getPropertyValue(property),
+      })),
+    }));
+
+    html.setAttribute('data-laica-setup-scroll-lock', 'true');
+    html.style.scrollBehavior = 'auto';
+    lockedElements.forEach(({ element, styles }) => {
+      Object.entries(styles).forEach(([property, value]) => {
+        element.style.setProperty(property, value);
+      });
+    });
+    document.scrollingElement?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    if ((window.scrollY || window.scrollX) && typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+
+    return () => {
+      previousStyles.forEach(({ element, styles }) => {
+        styles.forEach(({ property, value }) => {
+          if (value) {
+            element.style.setProperty(property, value);
+          } else {
+            element.style.removeProperty(property);
+          }
+        });
+      });
+      html.style.scrollBehavior = previousScrollBehavior;
+      if (previousScrollLockAttribute === null) {
+        html.removeAttribute('data-laica-setup-scroll-lock');
+      } else {
+        html.setAttribute('data-laica-setup-scroll-lock', previousScrollLockAttribute);
+      }
+      document.scrollingElement?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      if ((window.scrollY || window.scrollX) && typeof window.scrollTo === 'function') {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    };
+  }, []);
+
   const resetSetupScroll = useCallback(() => {
     const resetElement = (element: HTMLElement | null | undefined) => {
       if (!element) return;

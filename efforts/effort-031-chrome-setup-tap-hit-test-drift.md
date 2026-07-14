@@ -88,3 +88,9 @@ Wilson reported intermittent Chrome-only first-time setup tap mismatch after the
 ## 2026-07-14 - Reproduced again with primary-button tap-state symptom
 
 Wilson reproduced the wrong-location tap behavior again in Chrome/Replit browser setup. The report also surfaced a separate but adjacent annoyance: primary setup action buttons such as `Save ingredients` and `Next` can turn their text from white to black when tapped. Current inference is that the black text is a sticky mobile interaction state from the shared `ghost` button variant's hover/focus text color leaking through the setup primary button class. The primary-button text-state issue is being patched narrowly in PR #291; the broader wrong-target tap drift remains open in this Effort.
+
+## 2026-07-14 - Outer document scroll identified as likely tap-offset cause
+
+Wilson reproduced the tap mismatch with a more specific pattern: when the setup page's right-side scrollbar/rail was at the bottom with visible extra range below the Back/Next rail, taps on `Skip tools` / `Next` registered only when pressing noticeably above the visual button. Scrolling the rail back to the top made buttons register normally again, and the bad offset could carry into the next setup page. Current inference is that the fixed setup frame and browser document/root scroll range were both alive, causing mobile Chrome/Replit hit testing to disagree with the visible setup frame after the outer scroll moved.
+
+PR #291 now adds a setup-mounted document/root scroll lock: `html`, `body`, and `#root` are constrained to `100dvh` with overflow hidden while `UserProfiling` is mounted, and `.setup-scroll-body` remains the only intended scroll surface. Focused unit coverage verifies the lock/restoration contract. This narrows the likely root cause but does not by itself close EFF-031 until Wilson validates Chrome mobile/Replit taps at the exact patched head.

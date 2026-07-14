@@ -26,6 +26,16 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
+html[data-laica-setup-scroll-lock],
+html[data-laica-setup-scroll-lock] body,
+html[data-laica-setup-scroll-lock] #root {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
 @media screen and (max-width: 768px) {
   .container {
     padding-left: 1rem;
