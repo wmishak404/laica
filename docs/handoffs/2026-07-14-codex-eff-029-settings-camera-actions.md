@@ -1,15 +1,18 @@
 # EFF-029 Settings Camera And Action Clearance
 
 **Agent:** codex
-**Branch:** codex/settings-camera-action-effort
+**Original branch:** `codex/settings-camera-action-effort`
+**Consolidated branch:** `codex/chef-preview-image-effort`
 **Date:** 2026-07-14
 **Initiative:** INIT-001
-**INIT updated:** no
+**INIT updated:** yes, in the consolidated branch
 **Resolves blocked handoff:** none
 
 ## Summary
 
-Wilson reported two related returning Settings layout issues from mobile Safari/Replit screenshots: Pantry/Tools camera frames are too short and make the camera-off state feel disproportionate, and the pinned inventory action buttons are covered by the authenticated bottom nav. This branch files EFF-029 as a new active Effort so implementation can happen later, after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges.
+Wilson reported two related returning Settings layout issues from mobile Safari/Replit screenshots: Pantry/Tools camera frames are too short and make the camera-off state feel disproportionate, and the pinned inventory action buttons are covered by the authenticated bottom nav. The original branch filed EFF-029 as a new active Effort so implementation can happen later, after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges.
+
+This handoff was later consolidated into `codex/chef-preview-image-effort` with EFF-028 and the INIT-001 / Phase 4 routing update. Use the consolidated branch / PR for the current docs state; the original EFF-029-only draft is superseded.
 
 ## Changes
 
@@ -17,7 +20,7 @@ Wilson reported two related returning Settings layout issues from mobile Safari/
 - `efforts/README.md`: adds EFF-029 to the active Effort read list.
 - `efforts/registry.md`: adds EFF-029 to the searchable registry.
 
-INIT-001, Phase 2.1, Phase 2.2, PD-005, `design_guidelines.md`, and the production vision blocked handoff were read. INIT-001 was linked but not updated because filing this follow-up does not change initiative phase status, validation state, assets, current resume point, or a major product decision.
+INIT-001, Phase 2.1, Phase 2.2, PD-005, `design_guidelines.md`, and the production vision blocked handoff were read. The original EFF-029-only filing linked INIT-001 but did not update it. The consolidated branch later updates INIT-001 and Phase 4 so automation sees EFF-029 alongside EFF-028 as next adjacent visual/layout work.
 
 ## Impact on other agents
 

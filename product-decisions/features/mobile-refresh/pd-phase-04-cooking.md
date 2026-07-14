@@ -166,6 +166,15 @@ This merged slice does not change route contracts, provider prompts, provider re
 
 Local evidence: `npm ci`, `npx vitest run tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000`, `npm run check`, `npm run build`, `npm run test:unit`, `npm audit --audit-level=high`, and `git diff --check` passed during the PR. Focused assertions prove microphone-denial and assistance-route failures render the separate voice-help status outside Step guidance, preserve the current step, clear the issue on retry, and keep technical failure copy out of the normal assistant-answer path. PR #275 updated the guest E2E smoke for the new status panel; final pre-merge local `git diff --check`, `npm run check`, focused Live Cooking Vitest, and `npm run build` passed at `eb364ee`; exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks also passed. Local targeted Playwright did not reach the changed assertion because the local dotenvx database is missing `anonymous_recipe_usage`, matching the known local-environment gap. Human Replit validation is deferred to release/batch validation unless Wilson asks for PR-level device microphone/provider smoke, because the merged slice is a narrow client failure-presentation change with mocked provider coverage and no schema, auth, deployment, or persistence changes.
 
+## 2026-07-14 adjacent Efforts queued before next Phase 4 slice
+
+Wilson directed the next Phase 4 / automation resume pass to pick up two adjacent visual/layout Efforts before starting another Phase 4 runtime slice, once Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged:
+
+- [EFF-028](../../../efforts/effort-028-chef-it-up-time-title-clearance.md): Chef It Up mobile visual clearance. This covers the time-selection title being covered by the floating Back button and the mobile Prep Tray selected image sitting inset instead of filling the hero area like desktop.
+- [EFF-029](../../../efforts/effort-029-settings-camera-action-clearance.md): Settings camera height and action clearance. This covers returning logged-in Settings Pantry/Tools camera frames that are too short and pinned action buttons hidden under the authenticated bottom nav.
+
+These are priority/resume routing notes, not new Phase 4 cooking behavior. They should stay scoped to mobile visual/layout fixes and preserve the current provider, schema, prompt, navigation, Prep Tray content, Ready Check, and Live Cooking behavior unless Wilson explicitly reprioritizes. After those Efforts are either implemented or explicitly deferred, continue Phase 4 from the PR #275 assistance-failure baseline toward full provider schema shape or Phase 5 cleanup as appropriate.
+
 ## Acceptance Criteria
 
 - Ready Check appears before Step 1.
@@ -216,6 +225,8 @@ Local evidence: `npm ci`, `npx vitest run tests/unit/live-cooking-guest-session.
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Requires Replit smoke for cooking-session persistence and speech routes.
 - EFF-017: Keeps Phase 4 evidence honest by separating exact-head GitHub CI/E2E from local sandbox DB setup and release/batch Replit validation.
 - EFF-018: Provides shared authenticated AI error classification and non-demo copy; Phase 4 owns live-cooking presentation, retry, and Feedback placement.
+- EFF-028: Queued as the next adjacent Chef It Up visual-clearance task before more Phase 4 runtime work, after the gated thread merge.
+- EFF-029: Queued as the next adjacent returning Settings camera/action-layout task before more Phase 4 runtime work, after the gated thread merge.
 - INIT-003 Plan B: Public guest entry may ship before full Phase 4, so Phase 4 must preserve the linked-vs-guest memory boundary introduced by the homepage.
 
 ## Backend Notes
