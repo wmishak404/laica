@@ -76,3 +76,7 @@ Out of scope:
 ## 2026-07-14 - Effort filed
 
 Codex filed this Effort from Wilson's screenshot-backed request. No runtime implementation has started. Implementation is explicitly gated on thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merging first.
+
+## 2026-07-14 - Phase 4 routing merged
+
+[PR #287](https://github.com/wmishak404/laica/pull/287) merged as `430a5d8` from final head `9051805`, routing this Effort into INIT-001 / Phase 4 as the next adjacent returning Settings camera/action-layout target alongside EFF-028 after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges. The Effort remains `Open`; no runtime implementation has started.

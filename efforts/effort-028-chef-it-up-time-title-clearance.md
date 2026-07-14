@@ -91,3 +91,7 @@ Codex filed this Effort from Wilson's screenshot-backed request. Wilson then cla
 Wilson added mobile and desktop comparison screenshots for the Chef It Up Prep Tray / recipe-detail preview. Mobile shows the ready recipe image present but inset inside the top preview region with visible border/gutter space; desktop shows the image using the whole available image area. Codex updated this Effort rather than creating a new one because the issue is another narrow Chef It Up visual-fit problem before Live Cooking, and it shares the same sequencing gate after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4`.
 
 Implementation should start by checking the existing full-hero intent from Phase 3.1 / PR #208 and the current CSS around `.planning-prep-hero`, `.planning-recipe-image-slot-prep`, and `.planning-recipe-image`. No runtime implementation has started in this docs branch.
+
+## 2026-07-14 - Phase 4 routing merged
+
+[PR #287](https://github.com/wmishak404/laica/pull/287) merged as `430a5d8` from final head `9051805`, routing this Effort into INIT-001 / Phase 4 as the next adjacent visual-layout target alongside EFF-029 after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges. The Effort remains `Open`; no runtime implementation has started.
