@@ -28,27 +28,42 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 
 ## Open items
 
-- Not loaded to Replit yet in this branch.
-- Do not run or claim Replit validation until this branch is current with `origin/main`, merge conflicts are resolved, and exact-head CI/E2E has passed. Any Replit validation before that point is exploratory only.
-- No mobile-device manual QA has been claimed for this branch. When Replit validation is ready, follow PR #288's mobile-first Chrome/Replit methodology: inspect UI and visual cues in Chrome mobile view by default, record the device preset or viewport, exact branch/SHA, Replit URL, and whether browser chrome was expanded/collapsed. Desktop Chrome/Replit visual checks do not count as a pass for this mobile-browser UI build.
-- The required mobile-view Replit checklist for this branch is: Pantry and Tools camera off-states have no decorative corner squares and no text/control overlap; Pantry/Tools manual-entry flows remain tappable; setup scroll ends at the Back/Next rail with no inert blank tail; Ready -> Back resets scroll position for Dietary, Cooking Skill, Tools, and Pantry; existing accepted Chef It Up and Slop It Up browser proportions/actions are not regressed; Live Cooking active/preparing surfaces and the Menu drawer remain outside this branch's visual-fit claims.
 - Camera proportion/text composition is intentionally deferred to thread `019f5f00-e389-7873-af20-a47a3ff66da3`; this branch's latest follow-up only changed scroll containment.
 - EFF-030 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
 - EFF-031 is intentionally open for a later Chrome-specific interaction investigation: setup taps could intermittently target the wrong visible item or make Ready Back untappable on Chrome, while refresh restored correct behavior and DuckDuckGo did not reproduce it.
+- Live Cooking active/preparing surfaces, the Menu drawer visual treatment, real-device browser address-bar collapse/expand behavior, and full recipe-generation/service-provider QA remain outside this branch's claimed validation scope.
 
 ## Verification
 
-- Rebased exact head: `b808b9b` before this handoff-evidence update.
+- Rebased exact head: `eada41353a5c2f7ab24b82606594a211ccb25cbf`.
 - `git diff --check origin/main...HEAD` passed.
 - `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/native-camera.test.tsx tests/unit/meal-planning.test.tsx tests/unit/slop-bowl.test.tsx tests/unit/planning-choice.test.tsx tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 7 files / 139 tests.
 - `npm run check` passed.
 - `npm run build` passed with the existing Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `npm run test:unit` passed: 48 files / 380 tests.
+- GitHub exact-head checks passed after marking PR #291 ready for review: `unit`, `e2e_guest_smoke`, `trufflehog_pr`, `npm-audit`, and CodeQL. Earlier draft-created `unit`/`e2e_guest_smoke` runs were skipped by workflow condition, then reran and passed after the PR left draft.
+
+### Replit mobile Chrome validation
+
+- Replit workspace loaded exact PR head `eada413` with direct shell commands, not Replit Agent.
+- Replit app URL validated: `https://337eb835-685d-4e60-adfa-b3dc60ccf6c8-00-ouidv5a6jdpx.riker.replit.dev/`.
+- Chrome extension viewport override: `430x740`. App-reported CSS viewport: `537x925`. This is mobile-oriented Chrome extension validation per PR #288 methodology, not real-device browser-chrome collapse/expand validation.
+- First-run Pantry setup: `Enter manually` stayed on step `1/5`, `Next` blocked until at least three ingredients, saving `hummus, eggs, rice` populated the pantry list, and `Next` advanced to Tools.
+- First-run Pantry camera: `.setup-camera-card setup-camera-pantry`, `.setup-viewfinder`, `.setup-camera-state-icon`, `.setup-camera-state-copy`, and `.setup-camera-controls` were present; no corner/bracket ornament selector matched; copy and controls occupied separate vertical zones.
+- First-run Tools setup: the initial Tools choice rendered, `Add tools` opened Tools capture, `Enter manually` stayed on step `2/5` instead of advancing, and `Skip for now` advanced to Cooking Skill.
+- First-run Tools camera: `.setup-camera-card setup-camera-kitchen`, `.setup-viewfinder`, `.setup-camera-state-icon`, `.setup-camera-state-copy`, and `.setup-camera-controls` were present; no corner/bracket ornament selector matched; copy and controls occupied separate vertical zones.
+- Cooking Skill: the page rendered at `3/5`, selecting `Intermediate` advanced to Dietary. The requested explicit bottom `Next` action remains deferred to EFF-030.
+- Dietary: selecting `Gluten Free` and `Dairy Free` selected the intended rows; `Next` advanced to Ready.
+- Ready: rendered at `5/5` with `docH === innerHeight === 925` and `scrollY === 0`; `Back` returned to Dietary with `windowScrollY === 0` and setup body `scrollTop === 0`; `Next` returned to Ready without the inert bottom tail.
+- `Finish setup` landed on the post-setup planning choice screen with `docH === innerHeight === 925` and `scrollY === 0`.
+- Chef It Up card opened the time selection page; the page had an enabled `Next` action and `docH === innerHeight === 925`; Back returned to planning choices.
+- Slop It Up card responded in the guest state by showing the sign-in/save-account notice. Full Slop recipe generation was not exercised in this pass.
+- Returning Settings -> Kitchen Inventory -> Pantry and Tools camera surfaces reused the setup camera hooks and had no corner/bracket ornaments in Chrome inspection.
 
 ## Stack / base status
 
 - Base refreshed: yes, rebased onto fresh `origin/main` after PR #287 and PR #290 merged.
 - Current base: `origin/main` at `9dcb37da4e57f4c655816e6a0c399fa67365f43f`
-- Last Replit-validated at: `8c48ec4` baseline only; this follow-up branch is not yet Replit-validated.
-- Replit validation lane: deferred until after rebase/current-branch work, conflicts, and exact-head CI/E2E; then run PR #288 mobile-first Chrome/Replit validation for the checklist above.
+- Last Replit-validated at: `eada41353a5c2f7ab24b82606594a211ccb25cbf`
+- Replit validation lane: completed for this branch's mobile-browser setup camera/scroll containment checklist using Chrome extension mobile viewport validation; real mobile device and full provider/service QA remain outside this branch's claim.
 - Notes: intentionally based on Wilson's known-good navigation build rather than the later divergent branch head.
