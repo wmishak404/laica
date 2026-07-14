@@ -29,7 +29,9 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 ## Open items
 
 - Not loaded to Replit yet in this branch.
-- No mobile-device manual QA has been claimed for this branch. Wilson should validate Pantry manual-entry scrolling stops at the Back/Next rail, no inert bottom tail remains, and Ready -> Back scroll behavior does not contaminate earlier setup pages.
+- Do not run or claim Replit validation until this branch is current with `origin/main`, merge conflicts are resolved, and exact-head CI/E2E has passed. Any Replit validation before that point is exploratory only.
+- No mobile-device manual QA has been claimed for this branch. When Replit validation is ready, follow PR #288's mobile-first Chrome/Replit methodology: inspect UI and visual cues in Chrome mobile view by default, record the device preset or viewport, exact branch/SHA, Replit URL, and whether browser chrome was expanded/collapsed. Desktop Chrome/Replit visual checks do not count as a pass for this mobile-browser UI build.
+- The required mobile-view Replit checklist for this branch is: Pantry and Tools camera off-states have no decorative corner squares and no text/control overlap; Pantry/Tools manual-entry flows remain tappable; setup scroll ends at the Back/Next rail with no inert blank tail; Ready -> Back resets scroll position for Dietary, Cooking Skill, Tools, and Pantry; existing accepted Chef It Up and Slop It Up browser proportions/actions are not regressed; Live Cooking active/preparing surfaces and the Menu drawer remain outside this branch's visual-fit claims.
 - Camera proportion/text composition is intentionally deferred to thread `019f5f00-e389-7873-af20-a47a3ff66da3`; this branch's latest follow-up only changed scroll containment.
 - EFF-028 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
 - EFF-029 is intentionally open for a later Chrome-specific interaction investigation: setup taps could intermittently target the wrong visible item or make Ready Back untappable on Chrome, while refresh restored correct behavior and DuckDuckGo did not reproduce it.
@@ -45,4 +47,5 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - Base refreshed: no
 - Current base: `8c48ec4` (`codex: clean up setup browser scan fit`)
 - Last Replit-validated at: `8c48ec4` baseline only; this follow-up branch is not yet Replit-validated.
+- Replit validation lane: deferred until after rebase/current-branch work, conflicts, and exact-head CI/E2E; then run PR #288 mobile-first Chrome/Replit validation for the checklist above.
 - Notes: intentionally based on Wilson's known-good navigation build rather than the later divergent branch head.
