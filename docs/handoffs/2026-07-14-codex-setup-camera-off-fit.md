@@ -20,6 +20,7 @@ This branch starts from the Replit-validated `8c48ec4` mobile-browser build beca
 - `tests/unit/user-settings-scan-policy.test.tsx`: verifies returning Settings Pantry/Tools reuse the same setup camera state hooks and still have no setup corner ornaments.
 - `design_guidelines.md`: tightens the setup camera principle to include camera-like preview proportion alongside the existing no-crowded-brackets/control-zone guidance, and records the no-scroll-leak rule for step-based mobile-browser flows.
 - `efforts/effort-028-setup-skill-next-action.md`, `efforts/README.md`, `efforts/registry.md`: records Wilson's later-scope request to add an explicit bottom Next action to the cooking-comfort setup page without folding that work into this repair branch.
+- `efforts/effort-029-chrome-setup-tap-hit-test-drift.md`, `initiatives/INIT-001-mobile-refresh.md`: records Wilson's Chrome-only intermittent setup tap mismatch as separate Phase 3.1/4 browser-fit follow-up; refresh cleared the issue and DuckDuckGo did not reproduce it.
 
 ## Impact on other agents
 
@@ -31,6 +32,7 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - No mobile-device manual QA has been claimed for this branch. Wilson should validate Pantry manual-entry scrolling stops at the Back/Next rail, no inert bottom tail remains, and Ready -> Back scroll behavior does not contaminate earlier setup pages.
 - Camera proportion/text composition is intentionally deferred to thread `019f5f00-e389-7873-af20-a47a3ff66da3`; this branch's latest follow-up only changed scroll containment.
 - EFF-028 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
+- EFF-029 is intentionally open for a later Chrome-specific interaction investigation: setup taps could intermittently target the wrong visible item or make Ready Back untappable on Chrome, while refresh restored correct behavior and DuckDuckGo did not reproduce it.
 
 ## Verification
 
