@@ -84,3 +84,7 @@ This Effort is `Resolved` when:
 ## 2026-07-14 - Created from Chrome mobile setup QA
 
 Wilson reported intermittent Chrome-only first-time setup tap mismatch after the bottom-rail dead-space fix: taps could select the wrong visible item or stop working on `You are ready`, while a browser refresh restored correct behavior and DuckDuckGo did not reproduce it.
+
+## 2026-07-14 - Reproduced again with primary-button tap-state symptom
+
+Wilson reproduced the wrong-location tap behavior again in Chrome/Replit browser setup. The report also surfaced a separate but adjacent annoyance: primary setup action buttons such as `Save ingredients` and `Next` can turn their text from white to black when tapped. Current inference is that the black text is a sticky mobile interaction state from the shared `ghost` button variant's hover/focus text color leaking through the setup primary button class. The primary-button text-state issue is being patched narrowly in PR #291; the broader wrong-target tap drift remains open in this Effort.

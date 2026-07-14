@@ -1059,12 +1059,26 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-weight: 800;
     box-shadow: 0 0.9rem 1.8rem hsl(var(--setup-coral-strong) / 0.2);
+    touch-action: manipulation;
   }
 
   .setup-primary-button:hover,
   .setup-ui .setup-primary-button:hover,
   .returning-setup-anchor .setup-primary-button:hover {
     background: hsl(var(--setup-coral-strong) / 0.92);
+    color: hsl(0 0% 100%);
+  }
+
+  .setup-primary-button:focus,
+  .setup-primary-button:focus-visible,
+  .setup-primary-button:active,
+  .setup-ui .setup-primary-button:focus,
+  .setup-ui .setup-primary-button:focus-visible,
+  .setup-ui .setup-primary-button:active,
+  .returning-setup-anchor .setup-primary-button:focus,
+  .returning-setup-anchor .setup-primary-button:focus-visible,
+  .returning-setup-anchor .setup-primary-button:active {
+    color: hsl(0 0% 100%);
   }
 
   .setup-secondary-button,
@@ -1310,6 +1324,7 @@ html, body {
   .setup-ui .setup-kitchen-primary-button:hover,
   .returning-setup-anchor .setup-kitchen-primary-button:hover {
     background: hsl(216 11% 52%);
+    color: hsl(0 0% 100%);
   }
 
   .setup-camera-toggle {

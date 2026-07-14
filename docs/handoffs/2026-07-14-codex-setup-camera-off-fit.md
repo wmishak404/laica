@@ -16,9 +16,11 @@ This branch starts from the Replit-validated `8c48ec4` mobile-browser build beca
 - `client/src/components/ui/native-camera.tsx`: adds explicit setup camera state icon/copy hooks while keeping non-setup camera behavior unchanged.
 - `client/src/components/cooking/user-profiling.tsx`: moves scrolling into a dedicated `.setup-scroll-body`, keeps the Back/Next rail outside that scroller, and resets the setup scrollport plus document scroll on setup step/view transitions, including Ready -> Back and tools-capture transitions.
 - `client/src/index.css`: adds the bounded setup shell/content-scroll/rail containment, changes setup camera viewfinders to a 4:3 proportion, adds base layout rules for setup camera off/error states, keeps a reserved control zone so copy and controls do not overlap on mobile-browser setup pages, and uses the dynamic mobile viewport for the setup shell.
+- `client/src/index.css`: keeps setup primary CTA text white during hover, focus, focus-visible, active, and sticky mobile tap states so shared `ghost` button styling cannot make coral action text turn black after a tap.
 - `tests/unit/user-profiling.test.tsx`: verifies first-run Pantry setup renders the new setup camera state hooks, still has no setup corner ornaments, and resets both frame/body scroll when backing out of the Ready confirmation.
 - `tests/unit/user-settings-scan-policy.test.tsx`: verifies returning Settings Pantry/Tools reuse the same setup camera state hooks and still have no setup corner ornaments.
-- `design_guidelines.md`: tightens the setup camera principle to include camera-like preview proportion alongside the existing no-crowded-brackets/control-zone guidance, and records the no-scroll-leak rule for step-based mobile-browser flows.
+- `tests/unit/setup-button-css.test.ts`: guards setup primary CTA hover/focus/active text color.
+- `design_guidelines.md`: tightens the setup camera principle to include camera-like preview proportion alongside the existing no-crowded-brackets/control-zone guidance, records the no-scroll-leak rule for step-based mobile-browser flows, and records the primary CTA mobile tap-state color guardrail.
 - `efforts/effort-030-setup-skill-next-action.md`, `efforts/README.md`, `efforts/registry.md`: records Wilson's later-scope request to add an explicit bottom Next action to the cooking-comfort setup page without folding that work into this repair branch.
 - `efforts/effort-031-chrome-setup-tap-hit-test-drift.md`, `initiatives/INIT-001-mobile-refresh.md`: records Wilson's Chrome-only intermittent setup tap mismatch as separate Phase 3.1/4 browser-fit follow-up; refresh cleared the issue and DuckDuckGo did not reproduce it.
 
@@ -31,16 +33,19 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - Camera proportion/text composition is intentionally deferred to thread `019f5f00-e389-7873-af20-a47a3ff66da3`; this branch's latest follow-up only changed scroll containment.
 - EFF-030 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
 - EFF-031 is intentionally open for a later Chrome-specific interaction investigation: setup taps could intermittently target the wrong visible item or make Ready Back untappable on Chrome, while refresh restored correct behavior and DuckDuckGo did not reproduce it.
+- EFF-031 now also records Wilson's fresh reproduction plus the adjacent black-text primary-button tap-state symptom. The black-text symptom is patched in this PR; the wrong-location tap drift remains open.
 - Live Cooking active/preparing surfaces, the Menu drawer visual treatment, real-device browser address-bar collapse/expand behavior, and full recipe-generation/service-provider QA remain outside this branch's claimed validation scope.
 
 ## Verification
 
-- Rebased exact head: `eada41353a5c2f7ab24b82606594a211ccb25cbf`.
+- Full mobile Replit runtime validation head: `eada41353a5c2f7ab24b82606594a211ccb25cbf`.
 - `git diff --check origin/main...HEAD` passed.
 - `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/native-camera.test.tsx tests/unit/meal-planning.test.tsx tests/unit/slop-bowl.test.tsx tests/unit/planning-choice.test.tsx tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 7 files / 139 tests.
 - `npm run check` passed.
 - `npm run build` passed with the existing Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `npm run test:unit` passed: 48 files / 380 tests.
+- `npx vitest run tests/unit/setup-button-css.test.ts tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx --testTimeout=15000` passed: 3 files / 32 tests after the primary-button tap-state patch.
+- `npm run check` passed after the primary-button tap-state patch.
 - GitHub exact-head checks passed after marking PR #291 ready for review: `unit`, `e2e_guest_smoke`, `trufflehog_pr`, `npm-audit`, and CodeQL. Earlier draft-created `unit`/`e2e_guest_smoke` runs were skipped by workflow condition, then reran and passed after the PR left draft.
 
 ### Replit mobile Chrome validation
@@ -65,5 +70,5 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - Base refreshed: yes, rebased onto fresh `origin/main` after PR #287 and PR #290 merged.
 - Current base: `origin/main` at `9dcb37da4e57f4c655816e6a0c399fa67365f43f`
 - Last Replit-validated at: `eada41353a5c2f7ab24b82606594a211ccb25cbf`
-- Replit validation lane: completed for this branch's mobile-browser setup camera/scroll containment checklist using Chrome extension mobile viewport validation; real mobile device and full provider/service QA remain outside this branch's claim.
+- Replit validation lane: completed for this branch's mobile-browser setup camera/scroll containment checklist using Chrome extension mobile viewport validation; the later primary-button tap-text CSS patch has targeted automated evidence but has not yet been reloaded to Replit. Real mobile device and full provider/service QA remain outside this branch's claim.
 - Notes: intentionally based on Wilson's known-good navigation build rather than the later divergent branch head.
