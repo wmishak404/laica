@@ -120,7 +120,7 @@ Before a mobile-refresh phase merges:
 - Durable cross-functional navigation surfaces, including the bottom nav and app menu/account drawer, require explicit Wilson approval before adding, removing, renaming, reordering, or changing auth-mode visibility for actions.
 - Setup progress uses one clear top progress treatment (`1/N` bar style), not stacked brand chips + step pills + section labels.
 - Camera utility controls inside the camera object: large circular capture, smaller translucent circular toggles for camera on/off and tips. No flashlight-like icons for non-flashlight tips. Capture is a clean shutter without a camera glyph.
-- Setup and returning Settings camera objects should reserve enough internal height for camera-off/error text and bottom controls to coexist. Decorative viewfinder corner brackets should be omitted when they do not carry a specific user-facing function or when they crowd the scan object.
+- Setup and returning Settings camera objects should preserve a camera-like preview proportion and reserve enough internal height for camera-off/error text and bottom controls to coexist. Decorative viewfinder corner brackets should be omitted when they do not carry a specific user-facing function or when they crowd the scan object.
 - Secondary setup actions (`Upload photos`, `Enter manually`) keep consistent type sizing and weight across equivalent surfaces. No technical helper labels under obvious commands.
 - Kitchen-specific surfaces shift accents toward gray/silver and light wood for tool-specific actions, chips, save buttons, and item icons; coral progress is preserved.
 

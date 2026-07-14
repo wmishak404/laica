@@ -58,6 +58,8 @@ describe('UserProfiling setup flow', () => {
     expect(screen.getByRole('heading', { name: /start with pantry staples/i })).toBeTruthy();
     expect(container.querySelector('.setup-scan-step')).toBeTruthy();
     expect(container.querySelector('.setup-camera-state')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-icon')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-copy')).toBeTruthy();
     expect(container.querySelector('.setup-camera-controls')).toBeTruthy();
     expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
     expect(screen.getByText('1/5')).toBeTruthy();

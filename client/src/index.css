@@ -1318,6 +1318,10 @@ html, body {
       0 1rem 2rem hsl(var(--setup-ink) / 0.18);
   }
 
+  .setup-viewfinder > .relative {
+    aspect-ratio: 4 / 3;
+  }
+
   .setup-ui-kitchen .setup-viewfinder {
     background:
       radial-gradient(circle at 48% 42%, hsl(var(--setup-metal) / 0.18), transparent 5.5rem),
@@ -1325,6 +1329,39 @@ html, body {
     box-shadow:
       inset 0 0 0 1px hsl(var(--setup-metal) / 0.24),
       0 1rem 2rem hsl(var(--setup-ink) / 0.18);
+  }
+
+  .setup-camera-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    padding: 2.75rem 1.25rem 6.25rem;
+    pointer-events: none;
+  }
+
+  .setup-camera-state-icon {
+    width: 5.65rem;
+    height: 5.65rem;
+    border-radius: 1.35rem;
+  }
+
+  .setup-camera-state-copy {
+    max-width: min(18rem, 86%);
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .setup-camera-state-copy .font-semibold,
+  .setup-camera-state p.font-semibold {
+    font-size: 1.08rem;
+    line-height: 1.12;
+  }
+
+  .setup-camera-state-copy .text-sm,
+  .setup-camera-state p.text-sm {
+    font-size: 0.9rem;
+    line-height: 1.3;
   }
 
   .setup-live-badge {
@@ -1337,6 +1374,11 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-size: 0.74rem;
     font-weight: 800;
+  }
+
+  .setup-camera-controls {
+    bottom: 1rem;
+    padding-inline: clamp(1.35rem, 7vw, 2.7rem);
   }
 
   .setup-camera-round-button,
@@ -3540,7 +3582,7 @@ html, body {
     }
 
     .setup-scan-step .setup-viewfinder > .relative {
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 4 / 3;
     }
 
     .setup-scan-step .setup-live-badge {
@@ -3550,29 +3592,29 @@ html, body {
     }
 
     .setup-scan-step .setup-camera-state {
-      gap: 0.48rem;
+      gap: 0.42rem;
       justify-content: center;
-      padding: 2.25rem 1rem 5.55rem;
+      padding: 2.05rem 0.95rem 5rem;
     }
 
-    .setup-scan-step .setup-camera-state > .relative {
-      width: 4.7rem;
-      height: 4.7rem;
-      border-radius: 1.2rem;
+    .setup-scan-step .setup-camera-state-icon {
+      width: 4.35rem;
+      height: 4.35rem;
+      border-radius: 1.1rem;
     }
 
     .setup-scan-step .setup-camera-state p.font-semibold {
-      font-size: 0.96rem;
+      font-size: 0.95rem;
       line-height: 1.08;
     }
 
     .setup-scan-step .setup-camera-state p.text-sm {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       line-height: 1.22;
     }
 
     .setup-scan-step .setup-camera-controls {
-      bottom: 0.8rem;
+      bottom: 0.7rem;
       padding-inline: 1.55rem;
     }
 

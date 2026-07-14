@@ -84,6 +84,8 @@ describe('UserSettings scan upload policy', () => {
     expect(container.querySelector('.returning-mini-chip')).toBeNull();
     expect(screen.getByRole('heading', { name: /^pantry$/i })).toBeTruthy();
     expect(container.querySelector('.setup-camera-state')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-icon')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-copy')).toBeTruthy();
     expect(container.querySelector('.setup-camera-controls')).toBeTruthy();
     expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
 
