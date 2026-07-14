@@ -38,9 +38,12 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 
 ## Verification
 
-- `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/native-camera.test.tsx`
-- `npm run check`
-- `npm run build`
+- Rebased exact head: `b808b9b` before this handoff-evidence update.
+- `git diff --check origin/main...HEAD` passed.
+- `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/native-camera.test.tsx tests/unit/meal-planning.test.tsx tests/unit/slop-bowl.test.tsx tests/unit/planning-choice.test.tsx tests/unit/live-cooking-guest-session.test.tsx --testTimeout=15000` passed: 7 files / 139 tests.
+- `npm run check` passed.
+- `npm run build` passed with the existing Browserslist, Firebase dynamic/static import, and chunk-size warnings.
+- `npm run test:unit` passed: 48 files / 380 tests.
 
 ## Stack / base status
 
