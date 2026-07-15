@@ -56,7 +56,7 @@ Out of scope:
 ## Open questions
 
 - No product or implementation questions remain for the current EFF-028 slice.
-- Merge readiness still needs exact-head GitHub `e2e_guest_smoke` or an equivalent prepared-schema E2E lane after the branch is pushed. The local decrypted database failed the read-only schema health check, so local DB-backed E2E is not claimed.
+- Merge readiness still needs current-head CI after any docs-only validation-record commits. The implementation head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da` passed exact-head GitHub `unit` and `e2e_guest_smoke`; the local decrypted database failed the read-only schema health check, so local DB-backed E2E is not claimed.
 
 ## Agent checklist
 
@@ -114,3 +114,22 @@ Validation evidence on the implementation branch:
 DB-backed local E2E is not claimed. `npm run env:run -- npm run db:health` failed against the decrypted local database with missing tables `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, `recipe_image_cache`, and missing column `cooking_sessions.recipe_snapshot`. Per `docs/workflows/testing-and-acceptance.md`, Codex did not run `db:push` against that database; exact-head GitHub `e2e_guest_smoke` or an equivalent prepared-schema E2E lane remains the merge-readiness gate after push.
 
 Negative scope stayed intact: no provider, schema, prompt, durable navigation, Ticket Pass behavior, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, or recipe route changes. EFF-029 and EFF-030 were not started in this thread.
+
+## 2026-07-15 - Chrome/Replit mobile validation added
+
+Wilson requested Chrome/Replit validation in mobile mode with an iPhone viewport. Codex used the Chrome extension against the Replit preview and Replit workspace, and did not use Replit Agent. The Replit workspace had been switched to `codex/eff-028-time-title-prep-tray` at implementation head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da` before the smoke.
+
+Chrome automation could send the DevTools/device-toolbar keyboard shortcut but could not reliably inspect or select the DevTools device dropdown, so Codex used Chrome's viewport override and recorded the page-reported CSS viewport instead. The app reported `innerWidth: 390`, `innerHeight: 844`, `visualViewport.width: 390`, and `visualViewport.height: 843.75`, matching an iPhone-sized CSS viewport for this validation pass.
+
+Observed Replit flow evidence:
+
+- First-time setup completed in Chrome mobile from the Replit preview: manual Pantry saved five items, Tools skipped, cooking comfort set to Beginner, dietary restrictions set to No restrictions, and setup finished to Planning.
+- Chef It Up time selection showed `How much time do you have today?` visibly below and clear of the Back control in the iPhone viewport. Screenshot saved locally for the thread at `/tmp/laica-eff028-replit-time-iphone390.png`.
+- Adjacent `What sounds good?` comparison screen kept the same centered heading posture with sticky actions visible. Screenshot: `/tmp/laica-eff028-replit-cuisine-iphone390.png`.
+- Provider-backed Replit recipe suggestions returned successfully for the smoke (`Simple Fried Rice`, `Egg and Lime Tortilla Wraps`, `Soy-Lime Rice Quesadillas`). Ticket Pass stayed placeholder-only before Prep Tray: `ticketImages: 0`, all three ticket image slots had `data-has-image="false"`. Screenshot: `/tmp/laica-eff028-replit-ticket-pass-iphone390.png`.
+- Prep Tray pending state preserved the intended centered placeholder slot: hero `356.7578125 x 179.98046875`, placeholder slot `207.998046875 x 120`, `imageState: pending`, `imageCount: 0`. Screenshot: `/tmp/laica-eff028-replit-prep-pending-iphone390.png`.
+- The selected-image resolver reached `ready` after about five seconds. The ready Prep Tray hero, image slot, and image all measured `356.7578125 x 151.9921875` with zero x/y/width/height geometry delta and `object-fit: cover`; image source was `/api/recipe-images/8319ad288251e797fa7f1d0604203a75cbd6a871cafc90aba57454533e4a17ab`. Screenshot: `/tmp/laica-eff028-replit-prep-ready-iphone390.png`.
+- Back from Prep Tray to Ticket Pass preserved the no-bleed behavior: `ticketImages: 0`, all Ticket Pass slots stayed `data-has-image="false"`. Screenshot: `/tmp/laica-eff028-replit-ticket-return-iphone390.png`.
+- Chrome tab console errors/warnings for the LAICA app were empty during the smoke.
+
+Negative scope for this Replit smoke: Codex did not click `Cook this`, enter Ready Check, start Live Cooking, test speech/microphone, finish a cooking session, change provider settings, change schema, or use Replit Agent. A setup observation outside EFF-028 remains that after manual pantry save, the first setup page can require inner setup scrolling to bring the bottom rail fully into view; the rail was still reachable and setup could proceed, so this was not treated as EFF-028 scope.
