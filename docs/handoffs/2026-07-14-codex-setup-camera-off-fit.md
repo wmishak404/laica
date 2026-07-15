@@ -4,12 +4,12 @@
 **Branch:** codex/setup-camera-off-fit
 **Date:** 2026-07-14
 **Initiative:** INIT-001
-**INIT updated:** no
+**INIT updated:** yes
 **Resolves blocked handoff:** none
 
 ## Summary
 
-This branch starts from the Replit-validated `8c48ec4` mobile-browser build because Wilson reported that build did not reproduce the setup navigation bugs. It keeps that baseline and narrowly adjusts setup browser behavior: Pantry and Tools camera-off states avoid decorative corner marks, and first-time setup now has an explicit bounded content scrollport above the Back/Next rail so setup pages stop at the rail instead of continuing into inert blank space. Step transitions also reset the owned setup scrollport so a bottom-scrolled Ready screen does not leak its scroll position back into Dietary, Cooking Skill, or earlier pages.
+This branch starts from the Replit-validated `8c48ec4` mobile-browser build because Wilson reported that build did not reproduce the setup navigation bugs. It keeps that baseline and narrowly adjusts setup browser behavior: Pantry and Tools camera-off states avoid decorative corner marks, and first-time setup now has an explicit bounded content scrollport above the Back/Next rail so setup pages stop at the rail instead of continuing into inert blank space. Step transitions also reset the owned setup scrollport so a bottom-scrolled Ready screen does not leak its scroll position back into Dietary, Cooking Skill, or earlier pages. A final scroll-lock patch at `6f52420` fixes the Chrome/Replit mobile tap-offset bug by preventing the outer document/root from retaining a hidden scroll range under the fixed setup frame.
 
 ## Changes
 
@@ -24,7 +24,7 @@ This branch starts from the Replit-validated `8c48ec4` mobile-browser build beca
 - `tests/unit/setup-button-css.test.ts`: guards setup primary CTA hover/focus/active text color.
 - `design_guidelines.md`: tightens the setup camera principle to include camera-like preview proportion alongside the existing no-crowded-brackets/control-zone guidance, records the no-scroll-leak rule for step-based mobile-browser flows, and records the primary CTA mobile tap-state color guardrail.
 - `efforts/effort-030-setup-skill-next-action.md`, `efforts/README.md`, `efforts/registry.md`: records Wilson's later-scope request to add an explicit bottom Next action to the cooking-comfort setup page without folding that work into this repair branch.
-- `efforts/effort-031-chrome-setup-tap-hit-test-drift.md`, `initiatives/INIT-001-mobile-refresh.md`: records Wilson's Chrome-only intermittent setup tap mismatch as separate Phase 3.1/4 browser-fit follow-up; refresh cleared the issue and DuckDuckGo did not reproduce it.
+- `efforts/effort-031-chrome-setup-tap-hit-test-drift.md`, `efforts/README.md`, `efforts/registry.md`, `initiatives/INIT-001-mobile-refresh.md`: closes the Chrome/Replit setup tap hit-test follow-up after Wilson validated that `6f52420` solved the wrong-location tap behavior.
 
 ## Impact on other agents
 
@@ -34,8 +34,7 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 
 - Camera proportion/text composition is intentionally deferred to thread `019f5f00-e389-7873-af20-a47a3ff66da3`; this branch's latest follow-up only changed scroll containment.
 - EFF-030 is intentionally open for a later UX consistency pass: the cooking-comfort setup page still advances by tapping a skill option and does not yet have a bottom Next action.
-- EFF-031 is intentionally open until Wilson validates the exact patched head in Chrome/Replit: the latest evidence points to an outer document scroll range under the fixed setup frame causing tap-offset drift, and this branch now locks that scroll path while setup is mounted.
-- EFF-031 now also records Wilson's fresh reproduction plus the adjacent black-text primary-button tap-state symptom. The black-text symptom is patched in this PR; the wrong-location tap drift has a targeted mitigation but is not claimed fixed until phone-browser validation.
+- EFF-031 is resolved by this branch after Wilson validated PR #291 head `6f52420` in Chrome/Replit mobile. The accepted mitigation is the setup-mounted `html`/`body`/`#root` scroll lock, leaving `.setup-scroll-body` as the only setup scroll surface.
 - Live Cooking active/preparing surfaces, the Menu drawer visual treatment, real-device browser address-bar collapse/expand behavior, and full recipe-generation/service-provider QA remain outside this branch's claimed validation scope.
 
 ## Verification
@@ -52,6 +51,7 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - `git diff --check` passed after the setup document-scroll-lock patch.
 - `npm run check` passed after the setup document-scroll-lock patch.
 - `npm run build` passed after the setup document-scroll-lock patch.
+- Wilson loaded exact PR head `6f52420` to Replit and confirmed the setup document-scroll-lock finding solved the Chrome/Replit mobile wrong-location tap behavior.
 - GitHub exact-head checks passed after marking PR #291 ready for review: `unit`, `e2e_guest_smoke`, `trufflehog_pr`, `npm-audit`, and CodeQL. Earlier draft-created `unit`/`e2e_guest_smoke` runs were skipped by workflow condition, then reran and passed after the PR left draft.
 
 ### Replit mobile Chrome validation
@@ -75,6 +75,6 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 
 - Base refreshed: yes, rebased onto fresh `origin/main` after PR #287 and PR #290 merged.
 - Current base: `origin/main` at `9dcb37da4e57f4c655816e6a0c399fa67365f43f`
-- Last Replit-validated at: `eada41353a5c2f7ab24b82606594a211ccb25cbf`
-- Replit validation lane: completed at `eada413` for this branch's mobile-browser setup camera/scroll containment checklist using Chrome extension mobile viewport validation; the later primary-button tap-text CSS patch and setup document-scroll-lock patch have targeted automated evidence but have not yet been reloaded to Replit. Real mobile device and full provider/service QA remain outside this branch's claim.
+- Last Replit-validated at: `6f52420f652c97561c6f6624951e0bd84f841d75` for the Chrome/Replit mobile tap-offset fix; broader mobile-browser setup camera/scroll checklist completed at `eada41353a5c2f7ab24b82606594a211ccb25cbf`.
+- Replit validation lane: completed at `eada413` for this branch's mobile-browser setup camera/scroll containment checklist using Chrome extension mobile viewport validation; Wilson then loaded `6f52420` and validated the later primary-button/document-scroll-lock follow-up for the reported Chrome/Replit mobile tap-offset behavior. Real mobile device full provider/service QA remains outside this branch's claim.
 - Notes: intentionally based on Wilson's known-good navigation build rather than the later divergent branch head.

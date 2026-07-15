@@ -1,6 +1,6 @@
 # EFF-031 - Chrome setup tap hit-test drift
 
-**Status:** Open
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-14
 **Updated:** 2026-07-14
@@ -8,7 +8,7 @@
 
 ## One-line summary
 
-Investigate and fix intermittent Chrome mobile-browser setup taps registering against the wrong item or becoming unresponsive after progressing through first-time setup.
+Chrome mobile-browser setup tap drift was fixed by locking the outer document/root scroll while setup owns the visible scroll surface.
 
 ## Context
 
@@ -22,7 +22,7 @@ During validation of the INIT-001 browser-viewport setup work, Wilson confirmed 
 
 This makes the issue non-negligible even though it is intermittent: Chrome may be retaining or misapplying visual viewport, scroll, fixed-position, sticky, transform, or overlay state after step transitions.
 
-This Effort is intentionally separate from the immediate scroll-containment repair and from the separate camera-proportion thread `019f5f00-e389-7873-af20-a47a3ff66da3`.
+This Effort was intentionally separate from the immediate scroll-containment repair and from the separate camera-proportion thread `019f5f00-e389-7873-af20-a47a3ff66da3`.
 
 ## Scope
 
@@ -50,11 +50,7 @@ This Effort is intentionally separate from the immediate scroll-containment repa
 
 ## Open questions
 
-- Does the tap drift happen only after scrolling to the bottom of a setup step, or after any step transition?
-- Does it depend on Chrome browser chrome being expanded/collapsed, address-bar state, or returning from Replit's wrapper?
-- Is the visible element offset different from `document.elementFromPoint()` at the tap coordinate?
-- Is a fixed `.setup-ui`, sticky rail, stale route shell, or bottom browser UI overlay intercepting taps?
-- Can the issue be reproduced by automated mobile Chrome emulation, or only on real phone Chrome?
+None remaining for this Effort. The accepted mitigation is documented below; future camera proportion and cooking-skill Next-action follow-ups remain in EFF-029 and EFF-030.
 
 ## Agent checklist
 
@@ -87,10 +83,21 @@ Wilson reported intermittent Chrome-only first-time setup tap mismatch after the
 
 ## 2026-07-14 - Reproduced again with primary-button tap-state symptom
 
-Wilson reproduced the wrong-location tap behavior again in Chrome/Replit browser setup. The report also surfaced a separate but adjacent annoyance: primary setup action buttons such as `Save ingredients` and `Next` can turn their text from white to black when tapped. Current inference is that the black text is a sticky mobile interaction state from the shared `ghost` button variant's hover/focus text color leaking through the setup primary button class. The primary-button text-state issue is being patched narrowly in PR #291; the broader wrong-target tap drift remains open in this Effort.
+Wilson reproduced the wrong-location tap behavior again in Chrome/Replit browser setup. The report also surfaced a separate but adjacent annoyance: primary setup action buttons such as `Save ingredients` and `Next` can turn their text from white to black when tapped. Current inference was that the black text was a sticky mobile interaction state from the shared `ghost` button variant's hover/focus text color leaking through the setup primary button class. The primary-button text-state issue was patched narrowly in PR #291; the broader wrong-target tap drift remained pending until the later document-scroll-lock validation below.
 
 ## 2026-07-14 - Outer document scroll identified as likely tap-offset cause
 
 Wilson reproduced the tap mismatch with a more specific pattern: when the setup page's right-side scrollbar/rail was at the bottom with visible extra range below the Back/Next rail, taps on `Skip tools` / `Next` registered only when pressing noticeably above the visual button. Scrolling the rail back to the top made buttons register normally again, and the bad offset could carry into the next setup page. Current inference is that the fixed setup frame and browser document/root scroll range were both alive, causing mobile Chrome/Replit hit testing to disagree with the visible setup frame after the outer scroll moved.
 
-PR #291 now adds a setup-mounted document/root scroll lock: `html`, `body`, and `#root` are constrained to `100dvh` with overflow hidden while `UserProfiling` is mounted, and `.setup-scroll-body` remains the only intended scroll surface. Focused unit coverage verifies the lock/restoration contract. This narrows the likely root cause but does not by itself close EFF-031 until Wilson validates Chrome mobile/Replit taps at the exact patched head.
+PR #291 then added a setup-mounted document/root scroll lock: `html`, `body`, and `#root` are constrained to `100dvh` with overflow hidden while `UserProfiling` is mounted, and `.setup-scroll-body` remains the only intended scroll surface. Focused unit coverage verifies the lock/restoration contract. At that point this narrowed the likely root cause but still required Wilson's Chrome mobile/Replit validation at the exact patched head before closeout.
+
+## 2026-07-14 - Resolved by setup document scroll lock
+
+Wilson loaded PR #291 head `6f52420` to Replit and confirmed the finding solved the Chrome/Replit mobile tap-offset issue. The accepted root cause/mitigation is that the fixed setup frame and the outer document/root scroll range were both active; after the browser had scrolled the hidden outer range, Chrome hit testing could disagree with the visible Back/Next rail. `UserProfiling` now locks `html`, `body`, and `#root` to `100dvh` with overflow hidden while setup is mounted, leaving `.setup-scroll-body` as the only setup scroll surface.
+
+Resolution evidence:
+
+- Human Chrome/Replit mobile validation passed at `6f52420` for the reported wrong-location setup tap behavior.
+- Focused coverage in `tests/unit/user-profiling.test.tsx` verifies the setup document-scroll lock is applied and restored.
+- `tests/unit/setup-button-css.test.ts` guards the adjacent primary-button sticky tap-state text color issue.
+- The accepted setup rail rule remains: setup pages should stop at the Back/Next rail and must not expose inert bottom scroll space under the rail.

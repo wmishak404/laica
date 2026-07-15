@@ -199,7 +199,7 @@ The 2026-05-13 closeout pass resolved EFF-013 after PR #62 shipped conservative 
 | [EFF-021](../efforts/effort-021-scan-upload-photo-limit-policy.md) | Resolved mobile-refresh scan-capacity policy; retained as historical reference for Pantry/Kitchen upload limits and scan-specific messaging |
 | [EFF-025](../efforts/effort-025-settings-unsaved-inventory-reminder.md) | Resolved standalone Settings dirty-state follow-up; PR #237 shipped Pantry/Tools explicit-save reminders and leave/switch prompts |
 | [EFF-030](../efforts/effort-030-setup-skill-next-action.md) | Active setup cooking-skill Next-action consistency follow-up from Phase 3.1/4 browser-fit validation |
-| [EFF-031](../efforts/effort-031-chrome-setup-tap-hit-test-drift.md) | Active Chrome mobile-browser setup hit-test follow-up from Phase 3.1/4 browser-fit validation; refresh clears the issue and DuckDuckGo did not reproduce it |
+| [EFF-031](../efforts/effort-031-chrome-setup-tap-hit-test-drift.md) | Resolved Chrome mobile-browser setup hit-test follow-up: PR #291 head `6f52420` locks outer document/root scroll while setup is mounted, and Wilson confirmed the Replit mobile tap-offset issue was fixed |
 
 ## Changes Added After Initial Plan
 
