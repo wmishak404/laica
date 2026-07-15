@@ -1,6 +1,6 @@
 # EFF-028: Chef It Up mobile visual clearance
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-14
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
@@ -55,22 +55,20 @@ Out of scope:
 
 ## Open questions
 
-- Should the implementation use a shared Chef It Up process-heading rule for all pre-suggestion screens, or a narrower time-step override if the other screens are already correct?
-- What is the smallest mobile breakpoint/inset that clears the current floating Back button while preserving the intended centered headline?
-- Is the mobile Prep Tray image gutter caused by responsive CSS around `.planning-prep-hero`, the prep image slot dimensions, inherited ticket image-slot sizing, Safari image rendering, or a later wrapper/layout change from the large release branch?
-- Should the mobile ready-image hero height exactly match the desktop ratio, or only preserve the full-bleed/no-inner-border behavior within the current mobile hero height?
+- No product or implementation questions remain for the current EFF-028 slice.
+- Merge readiness still needs exact-head GitHub `e2e_guest_smoke` or an equivalent prepared-schema E2E lane after the branch is pushed. The local decrypted database failed the read-only schema health check, so local DB-backed E2E is not claimed.
 
 ## Agent checklist
 
-- [ ] Confirm Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has completed its current work before implementation.
-- [ ] Read this Effort, INIT-001, Phase 3 Planning, Phase 3.1, PD-005, and `design_guidelines.md` before implementation.
-- [ ] Inspect the current Chef It Up time, cuisine, and extra-ingredients process-heading markup/CSS before choosing a shared or local fix.
-- [ ] Inspect the current Prep Tray image markup/CSS and PR #208-era intent before changing image sizing.
-- [ ] Implement the smallest tokenized/scoped layout change that clears the Back button without pushing the whole page down.
-- [ ] Implement the smallest tokenized/scoped image-layout change that makes a ready selected Prep Tray image fill the mobile hero area without altering provider/image-generation behavior.
-- [ ] Verify a narrow mobile viewport visually against the time screen, adjacent Chef It Up screens, and a Prep Tray with a ready selected image.
-- [ ] Verify desktop Prep Tray remains full-bleed and does not regress while fixing mobile.
-- [ ] Include screenshot or Playwright/browser evidence in the PR/handoff, plus negative scope for unchanged flow behavior.
+- [x] Confirm Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has completed its current work before implementation.
+- [x] Read this Effort, INIT-001, Phase 3 Planning, Phase 3.1, PD-005, and `design_guidelines.md` before implementation.
+- [x] Inspect the current Chef It Up time, cuisine, and extra-ingredients process-heading markup/CSS before choosing a shared or local fix.
+- [x] Inspect the current Prep Tray image markup/CSS and PR #208-era intent before changing image sizing.
+- [x] Implement the smallest tokenized/scoped layout change that clears the Back button without pushing the whole page down.
+- [x] Implement the smallest tokenized/scoped image-layout change that makes a ready selected Prep Tray image fill the mobile hero area without altering provider/image-generation behavior.
+- [x] Verify a narrow mobile viewport visually against the time screen, adjacent Chef It Up screens, and a Prep Tray with a ready selected image.
+- [x] Verify desktop Prep Tray remains full-bleed and does not regress while fixing mobile.
+- [x] Include screenshot or Playwright/browser evidence in the PR/handoff, plus negative scope for unchanged flow behavior.
 
 ## Resolution criteria
 
@@ -95,3 +93,24 @@ Implementation should start by checking the existing full-hero intent from Phase
 ## 2026-07-14 - Phase 4 routing merged
 
 [PR #287](https://github.com/wmishak404/laica/pull/287) merged as `430a5d8` from final head `9051805`, routing this Effort into INIT-001 / Phase 4 as the next adjacent visual-layout target alongside EFF-029 after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges. The Effort remains `Open`; no runtime implementation has started.
+
+## 2026-07-15 - Implementation branch opened
+
+Codex opened `codex/eff-028-time-title-prep-tray` from fresh `origin/main` at `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d` after verifying that PR #291 merged as `766d910b128f84213d2a79a8077100d3df4272d8` and docs closeout PR #292 merged as `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`.
+
+The branch adds a shared `.planning-process-heading` wrapper to the Chef It Up time/cuisine/staple process headings, then applies the narrow mobile clearance only to the time screen so `How much time do you have today?` clears the floating Back button through horizontal inset instead of pushing the whole page downward. It also restores the PR #208 ready-image intent on short mobile Prep Tray by removing the ready hero padding and forcing the ready `.planning-recipe-image-slot-prep` to fill the hero box with `height: 100%`, `min-height: 0`, and `object-fit: cover`. Placeholder and pending image states keep their centered slot sizing.
+
+Validation evidence on the implementation branch:
+
+- `npm ci` passed and `npm run setup:worktree` linked `.env.keys`.
+- `npx vitest run tests/unit/meal-planning.test.tsx --testTimeout=15000` passed: 27 tests.
+- `npm run test:unit` passed: 49 files / 382 tests.
+- `npm run check` passed.
+- `npm run build` passed, with only existing Browserslist, Firebase mixed dynamic/static import, and chunk-size warnings.
+- `git diff --check` passed.
+- Headless Chromium compiled-CSS geometry at `320x740` showed the time heading text begins at `54.859375px` while the Back button ends at `44px`, so the title clears the Back button without vertical displacement. The same check showed the mobile Prep Tray ready slot exactly matched the hero (`320 x 132.796875`) and used `object-fit: cover`; screenshot evidence was saved at `/tmp/laica-eff028-compiled-css-mobile.png`.
+- A paired compiled-CSS geometry check at `900x800` showed desktop remains full-bleed (`900 x 152` hero and slot, zero geometry delta, `object-fit: cover`).
+
+DB-backed local E2E is not claimed. `npm run env:run -- npm run db:health` failed against the decrypted local database with missing tables `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, `recipe_image_cache`, and missing column `cooking_sessions.recipe_snapshot`. Per `docs/workflows/testing-and-acceptance.md`, Codex did not run `db:push` against that database; exact-head GitHub `e2e_guest_smoke` or an equivalent prepared-schema E2E lane remains the merge-readiness gate after push.
+
+Negative scope stayed intact: no provider, schema, prompt, durable navigation, Ticket Pass behavior, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, or recipe route changes. EFF-029 and EFF-030 were not started in this thread.

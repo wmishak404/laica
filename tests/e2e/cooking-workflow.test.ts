@@ -229,11 +229,49 @@ async function completeGuestSetupToPlanning(page: Page) {
   await expect(page.getByRole('heading', { name: 'What are we cooking today?' })).toBeVisible();
 }
 
-async function completeChefItUpToStapleSelection(page: Page) {
+async function expectHeadingTextClearsBackButton(page: Page, headingName: string) {
+  const heading = page.getByRole('heading', { name: headingName });
+  const backButton = page.locator('.planning-back-button').first();
+
+  await expect(heading).toBeVisible();
+  await expect(backButton).toBeVisible();
+
+  const backBox = await backButton.boundingBox();
+  const textLineBoxes = await heading.evaluate((element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const boxes = Array.from(range.getClientRects())
+      .filter((rect) => rect.width > 0 && rect.height > 0)
+      .map((rect) => ({
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        bottom: rect.bottom,
+      }));
+    range.detach();
+    return boxes;
+  });
+
+  expect(backBox).not.toBeNull();
+  expect(textLineBoxes.length).toBeGreaterThan(0);
+  if (!backBox) throw new Error('Back button bounds were unavailable');
+
+  const backRight = backBox.x + backBox.width;
+  const textLeft = Math.min(...textLineBoxes.map((box) => box.left));
+  expect(textLeft).toBeGreaterThanOrEqual(backRight - 1);
+}
+
+async function completeChefItUpToStapleSelection(
+  page: Page,
+  options: { verifyMobileTimeHeaderClearance?: boolean } = {},
+) {
   await completeGuestSetupToPlanning(page);
   await page.getByRole('button', { name: 'Chef It Up' }).click();
 
   await expect(page.getByRole('heading', { name: 'How much time do you have today?' })).toBeVisible();
+  if (options.verifyMobileTimeHeaderClearance) {
+    await expectHeadingTextClearsBackButton(page, 'How much time do you have today?');
+  }
   await page.getByRole('button', { name: '1hr' }).click();
   await page.getByRole('button', { name: 'Next' }).click();
 
@@ -296,6 +334,8 @@ test.describe('Laica Guest E2E Smoke', () => {
   });
 
   test('Guest sees selected recipe preview imagery only after opening Prep Tray', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+
     const imageUrl = '/mock/recipe-image-selected.png';
     const pantryRoutes = await stubPantryRecipes(page, [{
       status: 'ready',
@@ -305,7 +345,7 @@ test.describe('Laica Guest E2E Smoke', () => {
       },
     }]);
 
-    await completeChefItUpToStapleSelection(page);
+    await completeChefItUpToStapleSelection(page, { verifyMobileTimeHeaderClearance: true });
 
     await page.getByRole('button', { name: 'View recipe suggestions' }).click();
 
