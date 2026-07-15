@@ -83,11 +83,17 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.queryByRole('tab', { name: /cooking profile/i })).toBeNull();
     expect(container.querySelector('.returning-mini-chip')).toBeNull();
     expect(screen.getByRole('heading', { name: /^pantry$/i })).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-icon')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-copy')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-controls')).toBeTruthy();
+    expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
 
     fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
 
     expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
     expect(screen.getByRole('tab', { name: /^tools$/i }).getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
 
     rerender(
       <UserSettings
@@ -140,6 +146,21 @@ describe('UserSettings scan upload policy', () => {
 
     expect(screen.getByRole('heading', { name: /how laica adapts/i })).toBeTruthy();
     expect(screen.queryByRole('tablist', { name: /kitchen inventory sections/i })).toBeNull();
+  });
+
+  it('marks Cooking Profile with the returning profile panel hook', () => {
+    const { container } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="profile"
+      />,
+    );
+
+    const profilePanel = container.querySelector('.returning-profile-panel');
+    expect(profilePanel).toBeTruthy();
+    expect(profilePanel?.textContent).toContain('How Laica adapts.');
   });
 
   it('uses the same 20-photo over-cap guard for Pantry and Tools Settings refreshes', () => {

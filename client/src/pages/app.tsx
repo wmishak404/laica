@@ -189,6 +189,7 @@ interface RecipeRecommendation {
   ingredients?: string[];      // actual pantry items used — fed to cooking steps
   equipment?: string[];        // user's kitchen equipment — fed to cooking steps
   overview?: string;           // short tagline from slop-bowl response
+  planningSource?: 'chef-it-up' | 'slop-bowl';
 }
 
 interface SavedActiveCookingPlan {
@@ -202,6 +203,7 @@ type WorkflowPhase = 'profiling' | 'planning' | 'cooking' | 'settings' | 'histor
 
 interface BackToPlanningOptions {
   preserveMealPlanningSession?: boolean;
+  returnToSlopBowl?: boolean;
 }
 
 function normalizeStringList(value: unknown): string[] {
@@ -246,6 +248,9 @@ function validateRecipeRecommendation(value: unknown): RecipeRecommendation | nu
     ingredients: normalizeStringList(candidate.ingredients),
     equipment: normalizeStringList(candidate.equipment),
     overview: typeof candidate.overview === 'string' ? candidate.overview : undefined,
+    planningSource: candidate.planningSource === 'slop-bowl' || candidate.planningSource === 'chef-it-up'
+      ? candidate.planningSource
+      : undefined,
   };
 }
 
@@ -879,6 +884,12 @@ export default function MobileApp() {
     const isProfileComplete = hasCompletedCookingProfile(userProfile);
 
     if (isProfileComplete) {
+      if (options.returnToSlopBowl) {
+        setShowPlanningChoice(false);
+        setCurrentPhase('slop-bowl');
+        return;
+      }
+
       setShowPlanningChoice(!options.preserveMealPlanningSession);
       setCurrentPhase('planning');
     } else {
@@ -1297,7 +1308,7 @@ export default function MobileApp() {
     if (currentPhase === 'profiling' || (currentPhase === 'cooking' && isCookingGuideActive)) return null;
 
     return (
-      <div className="app-bottom-nav fixed bottom-0 left-0 right-0 p-4">
+      <div className="app-bottom-nav fixed bottom-0 left-0 right-0">
         <div className="mx-auto flex max-w-xs items-center justify-around">
           <Button 
             variant="ghost" 
@@ -1391,7 +1402,6 @@ export default function MobileApp() {
           <div className="planning-ui min-h-screen pb-20">
             <SlopBowl
               userProfile={userProfile}
-              planningTimeAvailable={lastPlanningTime}
               onMealSelected={handleMealSelected}
               onBackToPlanning={() => {
                 setShowPlanningChoice(true);

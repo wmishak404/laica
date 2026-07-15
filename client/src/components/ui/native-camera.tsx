@@ -48,6 +48,10 @@ export function NativeCamera({
   const [tipsOpen, setTipsOpen] = useState(false);
   const isSetup = variant === 'setup';
   const setupToneClass = setupTone === 'kitchen' ? 'setup-camera-kitchen' : 'setup-camera-pantry';
+  const setupStateIconClass = isSetup
+    ? 'setup-camera-state-icon relative flex items-center justify-center bg-white/85 text-primary shadow-lg'
+    : '';
+  const setupStateCopyClass = isSetup ? 'setup-camera-state-copy' : '';
 
   useEffect(() => {
     onErrorRef.current = onError;
@@ -287,14 +291,14 @@ export function NativeCamera({
           />
 
           {cameraState !== 'ready' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
+            <div className={isSetup ? 'setup-camera-state absolute inset-0 text-center' : 'absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center'}>
               {cameraState === 'off' ? (
                 <>
-                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                  <div className={setupStateIconClass}>
                     <VideoOff className={isSetup ? 'h-10 w-10' : 'h-10 w-10 text-sidebar-foreground/70'} />
                     {isSetup && <Sparkles className="absolute right-4 top-4 h-4 w-4 text-[hsl(var(--setup-butter))]" />}
                   </div>
-                  <div>
+                  <div className={setupStateCopyClass}>
                     <p className="font-semibold">Camera is off</p>
                     <p className="mt-1 text-sm text-sidebar-foreground/70">
                       Turn it on when you want a live preview.
@@ -303,17 +307,25 @@ export function NativeCamera({
                 </>
               ) : cameraState === 'starting' ? (
                 <>
-                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                  <div className={setupStateIconClass}>
                     <Video className={isSetup ? 'h-10 w-10 animate-pulse' : 'h-10 w-10 text-sidebar-foreground/70'} />
                   </div>
-                  <p className="text-sm text-sidebar-foreground/70">Starting camera...</p>
+                  <p
+                    className={
+                      isSetup
+                        ? 'setup-camera-state-copy text-sm text-sidebar-foreground/70'
+                        : 'text-sm text-sidebar-foreground/70'
+                    }
+                  >
+                    Starting camera...
+                  </p>
                 </>
               ) : cameraState === 'unsupported' ? (
                 <>
-                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                  <div className={setupStateIconClass}>
                     <VideoOff className={isSetup ? 'h-10 w-10' : 'h-10 w-10 text-sidebar-foreground/70'} />
                   </div>
-                  <div>
+                  <div className={setupStateCopyClass}>
                     <p className="font-semibold">Camera is not available</p>
                     <p className="mt-1 text-sm text-sidebar-foreground/70">
                       Upload a photo or enter items manually.
@@ -322,10 +334,10 @@ export function NativeCamera({
                 </>
               ) : (
                 <>
-                  <div className={isSetup ? 'relative flex h-24 w-24 items-center justify-center rounded-[1.4rem] bg-white/85 text-primary shadow-lg' : ''}>
+                  <div className={setupStateIconClass}>
                     <VideoOff className={isSetup ? 'h-10 w-10' : 'h-10 w-10 text-sidebar-foreground/70'} />
                   </div>
-                  <div>
+                  <div className={setupStateCopyClass}>
                     <p className="font-semibold">Camera could not start</p>
                     <p className="mt-1 text-sm text-sidebar-foreground/70">
                       Check permissions, or upload a photo instead.
@@ -338,10 +350,6 @@ export function NativeCamera({
 
           {isSetup ? (
             <>
-              <span className="setup-viewfinder-corner left-4 top-4 border-l-4 border-t-4" />
-              <span className="setup-viewfinder-corner right-4 top-4 border-r-4 border-t-4" />
-              <span className="setup-viewfinder-corner bottom-4 left-4 border-b-4 border-l-4" />
-              <span className="setup-viewfinder-corner bottom-4 right-4 border-b-4 border-r-4" />
               {cameraState === 'ready' && <span className="setup-focus-ring pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2" />}
             </>
           ) : (
@@ -361,7 +369,7 @@ export function NativeCamera({
           )}
 
           {isSetup && (
-            <div className="absolute bottom-5 left-0 right-0 flex items-center justify-between px-7">
+            <div className="setup-camera-controls absolute bottom-5 left-0 right-0 flex items-center justify-between px-7">
               <Button
                 type="button"
                 variant="ghost"

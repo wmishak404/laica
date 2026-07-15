@@ -85,6 +85,7 @@ interface RecipeRecommendation {
   ingredients?: string[];      // actual pantry items used — fed to cooking steps
   equipment?: string[];        // user's kitchen equipment — fed to cooking steps
   overview?: string;           // short tagline from slop-bowl response
+  planningSource?: 'chef-it-up' | 'slop-bowl';
 }
 
 function formatInstructionWithTips(instruction: string, tips?: string) {
@@ -557,7 +558,7 @@ function normalizeContextItems(items?: string[]) {
 interface LiveCookingProps {
   selectedMeal: RecipeRecommendation;
   scheduledTime: string;
-  onBackToPlanning: (options?: { preserveMealPlanningSession?: boolean }) => void;
+  onBackToPlanning: (options?: { preserveMealPlanningSession?: boolean; returnToSlopBowl?: boolean }) => void;
   onCookingGuideStarted?: () => void;
   onCookingGuideStateChange?: (isActive: boolean) => void;
   onCookingComplete?: () => void;
@@ -827,6 +828,11 @@ export default function LiveCooking({
   const handleBackToPlanning = () => {
     stopCookingAudioLifecycle();
     clearCookingSession();
+    if (selectedMeal.planningSource === 'slop-bowl' && !hasStartedCookingGuide) {
+      onBackToPlanning({ preserveMealPlanningSession: false, returnToSlopBowl: true });
+      return;
+    }
+
     onBackToPlanning({ preserveMealPlanningSession: !hasStartedCookingGuide });
   };
 
@@ -2071,8 +2077,8 @@ export default function LiveCooking({
 
   if (!hasStartedCookingGuide && currentRecipeSteps.length === 0 && !stepLoadIssue) {
     return (
-      <div className="live-cooking-ui min-h-screen w-full px-4 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] pt-6">
-        <div className="live-cooking-screen mx-auto flex min-h-[calc(100svh-10rem)] w-full max-w-md flex-col gap-5">
+      <div className="live-cooking-ui live-cooking-ready-check-screen min-h-screen w-full px-4 pb-[calc(env(safe-area-inset-bottom)+7.5rem)] pt-6">
+        <div className="live-cooking-screen live-cooking-ready-check-panel mx-auto flex min-h-[calc(100svh-10rem)] w-full max-w-md flex-col gap-5">
           <Button
             variant="ghost"
             onClick={handleBackToPlanning}
@@ -2097,7 +2103,7 @@ export default function LiveCooking({
             </Alert>
           )}
 
-          <div className="space-y-3">
+          <div className="live-cooking-ready-list space-y-3">
             {readyCheckItems.map((item) => (
               <div key={item.label} className="live-cooking-ready-row flex items-start gap-3 p-4">
                 <div className="mt-0.5">{item.icon}</div>
@@ -2109,11 +2115,10 @@ export default function LiveCooking({
             ))}
           </div>
 
-          <div className="mt-auto grid gap-3 pb-2">
+          <div className="live-cooking-ready-actions planning-action-dock mt-auto grid gap-3 pb-2">
             <Button
-              size="lg"
               onClick={() => startCookingGuideFromReadyCheck()}
-              className="live-cooking-start-button h-14 text-lg font-extrabold"
+              className="planning-primary-action live-cooking-start-button h-12 font-extrabold"
             >
               <Play className="h-4 w-4 mr-2" />
               Start cooking

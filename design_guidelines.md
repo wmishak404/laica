@@ -64,6 +64,12 @@ Whether `Fraunces` / `Nunito` graduate to the global stack is an open visual dec
 
 Tailwind units `3, 4, 6, 8, 12, 16`. Mobile gutters `px-4 py-6`; cards `p-6`; section gaps `gap-8` to `gap-12`; component spacing `space-y-4` / `space-y-6`. Mobile containers full-width with `px-4`; desktop `max-w-6xl` centered when needed.
 
+Mobile browser flows must end intentionally. When a page has terminal navigation or action controls such as a Back/Next rail, scrolling to the bottom should stop at that rail or its border, not continue into inert blank space below the final controls. Use an inner scrollport or visible-browser-height sizing when browser chrome reduces the available viewport, and keep any extra bottom padding tied to real fixed controls.
+
+Step-based mobile-browser flows must reset their owned scrollport on every step or view transition. A bottom-scrolled confirmation screen should never leak its scroll position into earlier setup pages, especially when browser chrome reduces the visible viewport.
+
+Step-based setup flows that use a fixed phone frame and internal content scrollport must also lock the outer document/root scroll while mounted. Do not allow `html`, `body`, or `#root` to retain an independent scroll range under the setup rail; mobile browser hit testing can drift when the visible setup frame and document scroll offset disagree.
+
 ## Surface Taxonomy
 
 (Mirrors PD-005. Both files keep the same vocabulary; PD-005 governs conformance, this file shapes posture.)
@@ -112,12 +118,14 @@ Before a mobile-refresh phase merges:
 - Repeatable surface types: camera frame, chip, full-row selection, ticket, prep tray, cue card, bottom action bar.
 - Compact cards stay disciplined; larger radii belong on intentional feature objects.
 - Buttons have clear command roles; the primary CTA is visually obvious without explanatory copy.
+- Primary CTA text color must remain stable across hover, focus, active, and mobile tap states. When a branded button class layers on a shared primitive variant, explicitly lock the interactive-state text color so sticky mobile hover cannot make coral primary-button text turn dark.
 - Pantry/status chips should use icon and color, not extra status words, when the state is otherwise obvious. Current Phase 3.2 pantry-confirmation grammar: pending/removable additions are coral chips with a `+` and right-side `X`; saved pantry facts are green chips with a checkmark only and no visible `Saved` label. If a saved fact is tapped where deletion would be ambiguous, reveal brief inline direction to Pantry Settings instead of deleting it in place.
 - Setup and returning Settings Pantry/Kitchen inventory review uses the same state grammar: saved items are green checked chips, recently-added manual/scan items are coral `+` chips with an `X`, and found-again scan matches remain green checked chips with a quiet latest-scan emphasis plus scan outcome copy. This state is client-side and clears on setup Continue or successful Settings save.
 - Authenticated app pages do not carry a persistent top header (per PD-009). Account, profile, and sign-out access live in the bottom menu/account surface.
 - Durable cross-functional navigation surfaces, including the bottom nav and app menu/account drawer, require explicit Wilson approval before adding, removing, renaming, reordering, or changing auth-mode visibility for actions.
 - Setup progress uses one clear top progress treatment (`1/N` bar style), not stacked brand chips + step pills + section labels.
 - Camera utility controls inside the camera object: large circular capture, smaller translucent circular toggles for camera on/off and tips. No flashlight-like icons for non-flashlight tips. Capture is a clean shutter without a camera glyph.
+- Setup and returning Settings camera objects should preserve a camera-like preview proportion and reserve enough internal height for camera-off/error text and bottom controls to coexist. Decorative viewfinder corner brackets should be omitted when they do not carry a specific user-facing function or when they crowd the scan object.
 - Secondary setup actions (`Upload photos`, `Enter manually`) keep consistent type sizing and weight across equivalent surfaces. No technical helper labels under obvious commands.
 - Kitchen-specific surfaces shift accents toward gray/silver and light wood for tool-specific actions, chips, save buttons, and item icons; coral progress is preserved.
 
@@ -174,6 +182,7 @@ These are the unresolved identity questions. Edit this section inline as Phase 3
 - Repeated floating cards for every section.
 - One-note color screens (all coral, all beige, all teal, all dark blue).
 - Hidden or missing Back/escape affordances in focused flows.
+- Scrollable dead space after final Back/Next or primary-action controls on mobile browser flows.
 - Visual changes not traceable to a mockup, token, or documented tone-forward exception.
 - Hex color literals (`bg-[#FF6B6B]`) when a token resolves to the same value.
 - Custom `<Button className="...">` overrides instead of extending `buttonVariants`.
@@ -191,6 +200,7 @@ Before a feature or phase is marked visually ready:
 - Back/escape paths are visible from focused flows.
 - Color usage has a clear role; no one-note saturation.
 - Type sizes appropriate to the surface; no oversized hero type inside compact panels.
+- Mobile-browser scroll endpoints are intentional: no inert blank tail after terminal controls.
 - Icons, emoji, imagery, and motion serve product meaning.
 - Repeated patterns are reusable or documented as intentional one-offs.
 - For surfaces reusing phase-scoped class names: rendered control comparison done (typography, radius, icon size, hover/active/disabled states) — not just class-name reuse.

@@ -242,6 +242,15 @@ afterEach(() => {
 });
 
 describe('MealPlanning recipe generation locking', () => {
+  it('scopes the opening time screen for mobile browser fitting', () => {
+    const { container } = renderMealPlanning();
+
+    expect(screen.getByRole('heading', { name: /how much time do you have today/i })).toBeTruthy();
+    expect(container.querySelector('.meal-planning-screen.planning-browser-action-screen.planning-time-screen')).toBeTruthy();
+    expect(container.querySelector('.planning-time-content')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^next$/i }).closest('.planning-action-dock')).toBeTruthy();
+  });
+
   it('restores in-progress planning only from the current auth scope', async () => {
     const savedAt = Date.now();
     const profileFingerprint = createPlanningProfileFingerprint(makeMealPlanningProfile());
@@ -789,6 +798,9 @@ describe('MealPlanning recipe generation locking', () => {
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
     expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(container.querySelector('.meal-planning-screen.planning-browser-action-screen.planning-tickets-screen')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /view prep tray/i }).closest('.planning-action-dock')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /refresh suggestions/i }).closest('.planning-secondary-actions')).toBeTruthy();
 
     const spinachTicket = screen.getByRole('button', { name: /spinach egg skillet/i });
     fireEvent.click(spinachTicket);
@@ -807,6 +819,8 @@ describe('MealPlanning recipe generation locking', () => {
     fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
 
     expect(await screen.findByRole('heading', { name: /spinach egg skillet/i })).toBeTruthy();
+    expect(container.querySelector('.meal-planning-screen.planning-browser-action-screen.planning-prep-screen')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /cook this/i }).closest('.planning-action-dock')).toBeTruthy();
     const prepUseChips = Array.from(container.querySelectorAll<HTMLElement>('.planning-prep-section .planning-use-chip'));
     expect(prepUseChips.map((chip) => chip.textContent)).toEqual(['eggs', 'spinach']);
     expect(prepUseChips.every((chip) => chip.dataset.state === 'saved')).toBe(true);

@@ -320,6 +320,17 @@ export default function MealPlanning({
     }
   }, [currentStep]);
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop > 0 || window.scrollX > 0) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [currentStep]);
+
   const selectedTimeIndex = Math.max(
     0,
     PLANNING_TIME_OPTIONS.findIndex((option) => option.value === mealPrefs.timeAvailable),
@@ -835,12 +846,12 @@ export default function MealPlanning({
   };
 
   const renderTimeStep = () => (
-    <section className="planning-screen mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
+    <section className="planning-screen meal-planning-screen planning-browser-action-screen planning-time-screen mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-md flex-col px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to planning choices">
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <div className="flex flex-1 flex-col justify-center gap-10">
+      <div className="planning-time-content flex flex-1 flex-col justify-center gap-10">
         <div className="text-center">
           <h1 className="planning-display text-3xl font-extrabold leading-tight">
             How much time do you have today?
@@ -887,14 +898,16 @@ export default function MealPlanning({
         </div>
       </div>
 
-      <Button className="mt-6 h-12 rounded-xl font-extrabold" onClick={() => setCurrentStep('cuisine')}>
-        Next
-      </Button>
+      <div className="planning-action-dock">
+        <Button className="planning-primary-action h-12 w-full rounded-xl font-extrabold" onClick={() => setCurrentStep('cuisine')}>
+          Next
+        </Button>
+      </div>
     </section>
   );
 
   const renderCuisineStep = () => (
-    <section className="planning-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+    <section className="planning-screen meal-planning-screen planning-browser-action-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to time">
         <ArrowLeft className="h-5 w-5" />
       </button>
@@ -940,26 +953,28 @@ export default function MealPlanning({
           <span>No preference</span>
         </button>
 
-        <Button
-          className="mt-4 h-12 w-full rounded-xl font-extrabold"
-          onClick={continueFromCuisine}
-          disabled={!canProceedFromCuisine || isLoading}
-        >
-          {isLoading ? (
-            <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Finding recipes...
-            </>
-          ) : (
-            'View recipe suggestions'
-          )}
-        </Button>
+        <div className="planning-action-dock">
+          <Button
+            className="planning-primary-action h-12 w-full rounded-xl font-extrabold"
+            onClick={continueFromCuisine}
+            disabled={!canProceedFromCuisine || isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                Finding recipes...
+              </>
+            ) : (
+              'View recipe suggestions'
+            )}
+          </Button>
+        </div>
       </div>
     </section>
   );
 
   const renderStaplesStep = () => (
-    <section className="planning-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+    <section className="planning-screen meal-planning-screen planning-browser-action-screen planning-cuisine-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
       <button type="button" className="planning-back-button mb-8" onClick={handleBack} aria-label="Back to cuisines">
         <ArrowLeft className="h-5 w-5" />
       </button>
@@ -1045,20 +1060,22 @@ export default function MealPlanning({
       </div>
 
       <div className="planning-cuisine-actions">
-        <Button
-          className="h-12 w-full rounded-xl font-extrabold"
-          onClick={continueFromStaples}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Finding recipes...
-            </>
-          ) : (
-            'View recipe suggestions'
-          )}
-        </Button>
+        <div className="planning-action-dock">
+          <Button
+            className="planning-primary-action h-12 w-full rounded-xl font-extrabold"
+            onClick={continueFromStaples}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                Finding recipes...
+              </>
+            ) : (
+              'View recipe suggestions'
+            )}
+          </Button>
+        </div>
       </div>
     </section>
   );
@@ -1151,7 +1168,7 @@ export default function MealPlanning({
     const selectedMealId = selectedMeal?.id ?? visibleRecommendations[0]?.id;
 
     return (
-      <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+      <section className="planning-screen meal-planning-screen planning-browser-action-screen planning-tickets-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
         <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to cuisines">
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -1167,15 +1184,7 @@ export default function MealPlanning({
           {visibleRecommendations.map((recipe) => renderTicket(recipe, recipe.id === selectedMealId))}
         </div>
 
-        <div className="mt-6 space-y-3">
-          <Button
-            className="h-12 w-full rounded-xl font-extrabold"
-            disabled={!selectedMeal || isLoading}
-            onClick={() => setCurrentStep('prep-tray')}
-          >
-            <ChefHat className="h-5 w-5" />
-            View prep tray
-          </Button>
+        <div className="planning-secondary-actions mt-6">
           <Button
             variant="outline"
             className="h-12 w-full rounded-xl font-extrabold"
@@ -1195,6 +1204,16 @@ export default function MealPlanning({
             )}
           </Button>
         </div>
+        <div className="planning-action-dock">
+          <Button
+            className="planning-primary-action h-12 w-full rounded-xl font-extrabold"
+            disabled={!selectedMeal || isLoading}
+            onClick={() => setCurrentStep('prep-tray')}
+          >
+            <ChefHat className="h-5 w-5" />
+            View prep tray
+          </Button>
+        </div>
       </section>
     );
   };
@@ -1202,7 +1221,7 @@ export default function MealPlanning({
   const renderPrepTray = () => {
     if (!selectedMeal) {
       return (
-        <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+        <section className="planning-screen meal-planning-screen planning-prep-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
           <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -1229,7 +1248,7 @@ export default function MealPlanning({
     }
 
     return (
-      <section className="planning-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
+      <section className="planning-screen meal-planning-screen planning-browser-action-screen planning-prep-screen mx-auto min-h-[calc(100vh-6rem)] w-full max-w-md px-4 pb-4 pt-8">
         <button type="button" className="planning-back-button mb-6" onClick={handleBack} aria-label="Back to recipe suggestions">
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -1278,10 +1297,12 @@ export default function MealPlanning({
           </div>
         </div>
 
-        <Button className="mt-5 h-12 w-full rounded-xl font-extrabold" onClick={() => handleMealSelected(selectedMeal)}>
-          <ChefHat className="h-5 w-5" />
-          Cook this
-        </Button>
+        <div className="planning-action-dock">
+          <Button className="planning-primary-action h-12 w-full rounded-xl font-extrabold" onClick={() => handleMealSelected(selectedMeal)}>
+            <ChefHat className="h-5 w-5" />
+            Cook this
+          </Button>
+        </div>
       </section>
     );
   };

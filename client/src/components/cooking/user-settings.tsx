@@ -1423,7 +1423,7 @@ export default function UserSettings({
 
     return (
       <div className="returning-setup-anchor space-y-4">
-        <section className="returning-panel">
+        <section className="returning-panel returning-profile-panel">
           <p className="returning-kicker">Cooking Profile</p>
           <h1 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">How Laica adapts.</h1>
           <p className="setup-copy mt-2 max-w-[20rem] text-sm leading-relaxed">

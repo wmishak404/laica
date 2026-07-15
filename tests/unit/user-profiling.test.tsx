@@ -42,7 +42,7 @@ describe('UserProfiling setup flow', () => {
   });
 
   it('starts with a welcome screen and lets pantry back return there', () => {
-    render(
+    const { container } = render(
       <UserProfiling
         onProfileComplete={vi.fn()}
         menuSlot={<button type="button">Account menu</button>}
@@ -56,6 +56,12 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /get started/i }));
 
     expect(screen.getByRole('heading', { name: /start with pantry staples/i })).toBeTruthy();
+    expect(container.querySelector('.setup-scan-step')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-icon')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-state-copy')).toBeTruthy();
+    expect(container.querySelector('.setup-camera-controls')).toBeTruthy();
+    expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
     expect(screen.getByText('1/5')).toBeTruthy();
     expect(screen.getByText(/camera is off/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /upload photos/i })).toBeTruthy();
@@ -72,6 +78,28 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
     expect(screen.getByRole('heading', { name: /yes, chef/i })).toBeTruthy();
+  });
+
+  it('locks document scrolling while the setup frame owns the scroll surface', () => {
+    document.documentElement.style.overflow = 'visible';
+    document.body.style.position = 'static';
+    document.body.style.overflow = 'visible';
+
+    const { unmount } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    expect(document.documentElement.getAttribute('data-laica-setup-scroll-lock')).toBe('true');
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.height).toBe('100dvh');
+    expect(document.body.style.position).toBe('fixed');
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.body.style.height).toBe('100dvh');
+
+    unmount();
+
+    expect(document.documentElement.getAttribute('data-laica-setup-scroll-lock')).toBeNull();
+    expect(document.documentElement.style.overflow).toBe('visible');
+    expect(document.body.style.position).toBe('static');
+    expect(document.body.style.overflow).toBe('visible');
   });
 
   it('auto-advances from Cooking Skill after one selection', () => {
@@ -261,6 +289,41 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 
     expect(screen.getByText('sheet pan').closest('.setup-chip')?.getAttribute('data-state')).toBe('saved');
+  });
+
+  it('resets the setup scrollport when backing out of the ready confirmation', () => {
+    const { container } = render(<UserProfiling onProfileComplete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /get started/i }));
+    fireEvent.click(screen.getByRole('button', { name: /enter manually/i }));
+    fireEvent.change(screen.getByLabelText(/pantry items/i), {
+      target: { value: 'ground beef, mayo, rice' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /save ingredients/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /skip tools/i }));
+    fireEvent.click(screen.getByRole('radio', { name: /intermediate/i }));
+    fireEvent.click(screen.getByRole('button', { name: /no restrictions/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    expect(screen.getByRole('heading', { name: /you are ready/i })).toBeTruthy();
+
+    const readyFrame = container.querySelector('.setup-phone-frame') as HTMLElement;
+    const readyScrollBody = container.querySelector('.setup-scroll-body') as HTMLElement;
+    readyFrame.scrollTop = 420;
+    readyScrollBody.scrollTop = 360;
+    document.documentElement.scrollTop = 220;
+    document.body.scrollTop = 220;
+
+    fireEvent.click(screen.getByRole('button', { name: /back/i }));
+
+    expect(screen.getByRole('heading', { name: /anything i should avoid/i })).toBeTruthy();
+    const dietaryFrame = container.querySelector('.setup-phone-frame') as HTMLElement;
+    const dietaryScrollBody = container.querySelector('.setup-scroll-body') as HTMLElement;
+    expect(dietaryFrame.scrollTop).toBe(0);
+    expect(dietaryScrollBody.scrollTop).toBe(0);
+    expect(document.documentElement.scrollTop).toBe(0);
+    expect(document.body.scrollTop).toBe(0);
   });
 
   it('cancels oversized pantry and kitchen upload batches without partial analysis', () => {

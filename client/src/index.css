@@ -26,6 +26,16 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
+html[data-laica-setup-scroll-lock],
+html[data-laica-setup-scroll-lock] body,
+html[data-laica-setup-scroll-lock] #root {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
 @media screen and (max-width: 768px) {
   .container {
     padding-left: 1rem;
@@ -927,6 +937,10 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
   }
 
+  .setup-shell {
+    min-height: 100vh;
+  }
+
   .setup-ui-kitchen {
     --setup-coral-soft: 31 53% 90%;
     --setup-peach: 33 44% 84%;
@@ -951,6 +965,13 @@ html, body {
       linear-gradient(180deg, hsl(0 0% 100% / 0.54), hsl(0 0% 100% / 0.2)),
       hsl(var(--setup-cream) / 0.72);
     box-shadow: 0 1.5rem 3.5rem hsl(var(--setup-coral-strong) / 0.12);
+  }
+
+  .setup-scroll-body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .setup-progress-shell {
@@ -1048,12 +1069,26 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-weight: 800;
     box-shadow: 0 0.9rem 1.8rem hsl(var(--setup-coral-strong) / 0.2);
+    touch-action: manipulation;
   }
 
   .setup-primary-button:hover,
   .setup-ui .setup-primary-button:hover,
   .returning-setup-anchor .setup-primary-button:hover {
     background: hsl(var(--setup-coral-strong) / 0.92);
+    color: hsl(0 0% 100%);
+  }
+
+  .setup-primary-button:focus,
+  .setup-primary-button:focus-visible,
+  .setup-primary-button:active,
+  .setup-ui .setup-primary-button:focus,
+  .setup-ui .setup-primary-button:focus-visible,
+  .setup-ui .setup-primary-button:active,
+  .returning-setup-anchor .setup-primary-button:focus,
+  .returning-setup-anchor .setup-primary-button:focus-visible,
+  .returning-setup-anchor .setup-primary-button:active {
+    color: hsl(0 0% 100%);
   }
 
   .setup-secondary-button,
@@ -1249,6 +1284,7 @@ html, body {
   }
 
   .setup-bottom-bar {
+    flex-shrink: 0;
     border-top: 1px solid hsl(var(--setup-coral-strong) / 0.14);
     background: linear-gradient(180deg, hsl(var(--setup-cream) / 0.58), hsl(var(--setup-cream) / 0.96));
   }
@@ -1298,6 +1334,7 @@ html, body {
   .setup-ui .setup-kitchen-primary-button:hover,
   .returning-setup-anchor .setup-kitchen-primary-button:hover {
     background: hsl(216 11% 52%);
+    color: hsl(0 0% 100%);
   }
 
   .setup-camera-toggle {
@@ -1318,6 +1355,10 @@ html, body {
       0 1rem 2rem hsl(var(--setup-ink) / 0.18);
   }
 
+  .setup-viewfinder > .relative {
+    aspect-ratio: 4 / 3;
+  }
+
   .setup-ui-kitchen .setup-viewfinder {
     background:
       radial-gradient(circle at 48% 42%, hsl(var(--setup-metal) / 0.18), transparent 5.5rem),
@@ -1327,12 +1368,37 @@ html, body {
       0 1rem 2rem hsl(var(--setup-ink) / 0.18);
   }
 
-  .setup-viewfinder-corner {
-    position: absolute;
+  .setup-camera-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    padding: 2.75rem 1.25rem 6.25rem;
     pointer-events: none;
-    width: 2.6rem;
-    height: 2.6rem;
-    border-color: hsl(0 0% 100% / 0.88);
+  }
+
+  .setup-camera-state-icon {
+    width: 5.65rem;
+    height: 5.65rem;
+    border-radius: 1.35rem;
+  }
+
+  .setup-camera-state-copy {
+    max-width: min(18rem, 86%);
+    font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  .setup-camera-state-copy .font-semibold,
+  .setup-camera-state p.font-semibold {
+    font-size: 1.08rem;
+    line-height: 1.12;
+  }
+
+  .setup-camera-state-copy .text-sm,
+  .setup-camera-state p.text-sm {
+    font-size: 0.9rem;
+    line-height: 1.3;
   }
 
   .setup-live-badge {
@@ -1345,6 +1411,11 @@ html, body {
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
     font-size: 0.74rem;
     font-weight: 800;
+  }
+
+  .setup-camera-controls {
+    bottom: 1rem;
+    padding-inline: clamp(1.35rem, 7vw, 2.7rem);
   }
 
   .setup-camera-round-button,
@@ -1852,13 +1923,14 @@ html, body {
     background: hsl(0 0% 100% / 0.94);
     box-shadow: 0 -0.8rem 2rem hsl(0 0% 0% / 0.05);
     backdrop-filter: blur(14px);
+    padding: 0.5rem 1rem calc(env(safe-area-inset-bottom) + 0.5rem);
   }
 
   .app-bottom-button,
   .app-bottom-button:hover {
     display: inline-flex;
-    height: 4rem;
-    min-width: 4rem;
+    height: 3.1rem;
+    min-width: 3.1rem;
     align-items: center;
     justify-content: center;
     border-radius: 999px;
@@ -1874,8 +1946,8 @@ html, body {
   }
 
   .app-bottom-button svg {
-    height: 1.65rem;
-    width: 1.65rem;
+    height: 1.45rem;
+    width: 1.45rem;
   }
 
   .app-bottom-button[data-active='true'] {
@@ -1970,6 +2042,11 @@ html, body {
     letter-spacing: 0;
   }
 
+  .meal-planning-screen .planning-display {
+    font-size: 1.58rem;
+    line-height: 1.08;
+  }
+
   .planning-copy {
     color: hsl(var(--planning-ink) / 0.66);
     font-family: 'Nunito', 'Source Sans Pro', system-ui, sans-serif;
@@ -1987,6 +2064,15 @@ html, body {
 
   .planning-back-button:hover {
     background: hsl(0 0% 100% / 0.5);
+  }
+
+  .planning-action-dock {
+    margin-top: 1.25rem;
+  }
+
+  .planning-primary-action {
+    font-size: 0.875rem;
+    box-shadow: 0 0.9rem 1.9rem hsl(var(--planning-coral-strong) / 0.18);
   }
 
   .planning-choice-card {
@@ -2733,6 +2819,50 @@ html, body {
     margin-top: 0.65rem;
   }
 
+  .meal-planning-screen .planning-ticket-title {
+    font-size: 1.18rem;
+    line-height: 1.08;
+  }
+
+  .meal-planning-screen .planning-ticket-large .planning-ticket-title {
+    font-size: 1.28rem;
+    line-height: 1.1;
+  }
+
+  .meal-planning-screen .planning-ticket-title-detail {
+    font-size: 0.68em;
+  }
+
+  .meal-planning-screen .planning-ticket-large .planning-ticket-title-detail {
+    font-size: 0.64em;
+  }
+
+  .meal-planning-screen .planning-ticket-meta {
+    font-size: 0.78rem;
+  }
+
+  .meal-planning-screen .planning-ticket-row .planning-ticket-title {
+    font-size: 0.86rem;
+  }
+
+  .meal-planning-screen .planning-ticket-row .planning-ticket-meta {
+    font-size: 0.62rem;
+  }
+
+  .meal-planning-screen .planning-ticket-section-label,
+  .meal-planning-screen .planning-ticket-optional span,
+  .meal-planning-screen .planning-prep-label {
+    font-size: 0.72rem;
+  }
+
+  .meal-planning-screen .planning-use-chip {
+    font-size: 0.7rem;
+  }
+
+  .meal-planning-screen .planning-ticket-optional {
+    font-size: 0.74rem;
+  }
+
   .planning-prep-tray {
     overflow: hidden;
     border: 1px solid hsl(var(--planning-ticket-edge) / 0.52);
@@ -2803,6 +2933,11 @@ html, body {
 
   .planning-prep-body {
     padding: 1rem;
+  }
+
+  .meal-planning-screen .planning-prep-body .planning-copy {
+    font-size: 0.82rem;
+    line-height: 1.42;
   }
 
   .planning-prep-section {
@@ -2879,6 +3014,838 @@ html, body {
   .slop-check-chip-remove-icon {
     flex-shrink: 0;
     stroke-width: 3;
+  }
+
+  .slop-bowl-menu-screen .planning-display {
+    font-size: 1.5rem;
+    line-height: 1.08;
+  }
+
+  .slop-bowl-menu-screen .planning-copy {
+    font-size: 0.82rem;
+    line-height: 1.42;
+  }
+
+  .slop-bowl-menu-screen .slop-check-chip {
+    min-height: 2.05rem;
+    font-size: 0.76rem;
+    padding: 0.38rem 0.62rem;
+  }
+
+  .slop-bowl-approval-screen {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .slop-bowl-feedback-screen {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slop-approval-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  @supports (height: 100svh) {
+    .meal-planning-screen {
+      min-height: calc(100svh - 5rem);
+    }
+
+    .setup-ui,
+    .setup-shell {
+      min-height: 100svh;
+    }
+  }
+
+  @media (max-width: 480px) and (max-height: 790px) {
+    .meal-planning-screen {
+      min-height: calc(100svh - 4.05rem);
+      padding-top: 3.9rem;
+      padding-bottom: 0.8rem;
+    }
+
+    .meal-planning-screen .planning-display {
+      font-size: 1.48rem;
+      line-height: 1.07;
+    }
+
+    .meal-planning-screen .planning-copy {
+      font-size: 0.82rem;
+      line-height: 1.32;
+    }
+
+    .planning-browser-action-screen,
+    .slop-bowl-approval-screen {
+      --planning-browser-bottom-nav-space: calc(env(safe-area-inset-bottom) + 4.1rem);
+      --planning-browser-action-space: 4.45rem;
+      padding-bottom: calc(var(--planning-browser-bottom-nav-space) + var(--planning-browser-action-space));
+    }
+
+    .planning-browser-action-screen {
+      --planning-browser-top-clearance: 5.25rem;
+      padding-top: var(--planning-browser-top-clearance);
+    }
+
+    .meal-planning-screen.planning-browser-action-screen {
+      --planning-browser-top-clearance: 7.45rem;
+    }
+
+    .planning-browser-action-screen .planning-back-button {
+      position: fixed;
+      z-index: 45;
+      top: 0.75rem;
+      left: max(1rem, calc((100vw - 28rem) / 2 + 1rem));
+      width: 2.45rem;
+      height: 2.45rem;
+      margin: 0;
+      border: 1px solid hsl(var(--planning-coral) / 0.16);
+      background: hsl(0 0% 100% / 0.64);
+      box-shadow: 0 0.65rem 1.45rem hsl(var(--planning-coral-strong) / 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .planning-browser-action-screen .planning-back-button:hover {
+      background: hsl(0 0% 100% / 0.82);
+    }
+
+    .slop-bowl-screen .planning-browser-action-screen {
+      padding-top: 4.25rem;
+    }
+
+    .planning-action-dock {
+      position: fixed;
+      z-index: 44;
+      right: 0;
+      bottom: calc(env(safe-area-inset-bottom) + 4.65rem);
+      left: 0;
+      width: min(calc(100vw - 2rem), 26.5rem);
+      margin: 0 auto;
+      pointer-events: none;
+    }
+
+    .planning-action-dock .planning-primary-action {
+      height: 3.2rem;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      box-shadow:
+        0 1rem 2rem hsl(var(--planning-coral-strong) / 0.22),
+        0 0 0 1px hsl(0 0% 100% / 0.45);
+      pointer-events: auto;
+    }
+
+    .planning-secondary-actions {
+      padding-bottom: 0.35rem;
+    }
+
+    .planning-time-screen {
+      min-height: calc(100svh - 4.05rem);
+    }
+
+    .planning-time-screen .planning-back-button {
+      margin-bottom: 0;
+    }
+
+    .planning-time-screen .planning-time-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      gap: 1.2rem;
+      justify-content: flex-start;
+      padding-bottom: 0;
+    }
+
+    .planning-time-screen .planning-clock {
+      width: 7.9rem;
+      height: 7.9rem;
+      border-width: 0.48rem;
+      box-shadow:
+        0 0.75rem 1.6rem hsl(var(--planning-coral) / 0.14),
+        inset 0 0 0 1px hsl(var(--planning-ticket-edge) / 0.3);
+    }
+
+    .planning-time-screen .planning-clock svg {
+      width: 3.75rem;
+      height: 3.75rem;
+    }
+
+    .planning-time-screen .planning-slider-card,
+    .planning-time-screen .planning-note {
+      padding: 0.75rem;
+      border-radius: 1rem;
+    }
+
+    .planning-time-screen .planning-slider-track {
+      padding-inline: 11%;
+    }
+
+    .planning-time-screen .planning-slider-card [role='slider'] {
+      width: 1.6rem;
+      height: 1.6rem;
+      border-width: 0.26rem;
+    }
+
+    .planning-time-screen .planning-time-label-grid {
+      margin-top: 0.75rem;
+    }
+
+    .planning-time-screen .planning-time-label {
+      min-height: 2rem;
+      font-size: 0.74rem;
+      line-height: 1.02;
+    }
+
+    .planning-time-screen .planning-note {
+      gap: 0.55rem;
+      font-size: 0.78rem;
+      line-height: 1.24;
+    }
+
+    .planning-cuisine-screen {
+      --planning-browser-action-space: 3.45rem;
+      height: calc(100svh - 4.05rem);
+      max-height: calc(100svh - 4.05rem);
+      padding-top: var(--planning-browser-top-clearance);
+    }
+
+    .planning-cuisine-screen .planning-back-button {
+      margin-bottom: 0;
+    }
+
+    .planning-cuisine-screen .planning-copy {
+      margin-top: 0.45rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-scroll {
+      flex: 0 1 auto;
+      max-height: clamp(13.25rem, calc(100svh - 23.95rem), 19rem);
+      margin-top: 1.05rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-scroll .space-y-3 {
+      padding-bottom: 0.35rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-row,
+    .planning-cuisine-screen .planning-no-preference {
+      min-height: 3.75rem;
+      gap: 0.68rem;
+      border-radius: 0.92rem;
+      font-size: 0.98rem;
+      padding: 0.62rem 0.7rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-icon {
+      width: 2.45rem;
+      height: 2.45rem;
+      border-radius: 0.82rem;
+      font-size: 1.42rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-check {
+      width: 1.7rem;
+      height: 1.7rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-check svg {
+      width: 1.08rem;
+      height: 1.08rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions {
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions .planning-no-preference {
+      min-height: 3.15rem;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions .mt-4 {
+      margin-top: 0;
+    }
+
+    .planning-cuisine-screen .planning-cuisine-actions .h-12 {
+      height: 3.2rem;
+    }
+
+    .planning-tickets-screen {
+      padding-top: var(--planning-browser-top-clearance);
+    }
+
+    .planning-tickets-screen .planning-back-button {
+      margin-bottom: 0;
+    }
+
+    .planning-tickets-screen .planning-display {
+      font-size: 1.45rem;
+      line-height: 1.08;
+    }
+
+    .planning-tickets-screen .text-center svg {
+      width: 1.05rem;
+      height: 1.05rem;
+      margin-top: 0.35rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-stack {
+      margin-top: 0.85rem;
+      border-radius: 1rem;
+      padding: 0.55rem 0.48rem 0.62rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-stack::before {
+      inset: 0.34rem 0.75rem auto;
+      height: 1.7rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-large {
+      min-height: 15.75rem;
+      padding: 0.88rem 0.75rem 0.68rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-title {
+      margin-top: 0.42rem;
+      font-size: 1rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-large .planning-ticket-title {
+      font-size: 1.18rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row {
+      min-height: 3.65rem;
+      gap: 0.5rem;
+      padding: 0.48rem 0.55rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row .planning-ticket-title {
+      font-size: 0.78rem;
+    }
+
+    .planning-tickets-screen .planning-recipe-image-slot {
+      width: 5.05rem;
+      height: 4.2rem;
+      margin-top: 0.42rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row .planning-recipe-image-slot {
+      width: 2.55rem;
+      height: 2.25rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-meta {
+      gap: 0.22rem;
+      font-size: 0.72rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-row .planning-ticket-meta {
+      width: 3.85rem;
+      flex-basis: 3.85rem;
+      gap: 0.18rem;
+      font-size: 0.58rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-divider {
+      margin: 0.45rem 0;
+    }
+
+    .planning-tickets-screen .planning-ticket-section-label,
+    .planning-tickets-screen .planning-ticket-optional span,
+    .planning-tickets-screen .planning-prep-label {
+      font-size: 0.68rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-chip-row {
+      gap: 0.34rem;
+    }
+
+    .planning-tickets-screen .planning-use-chip {
+      min-height: 1.6rem;
+      gap: 0.26rem;
+      font-size: 0.64rem;
+      padding: 0.24rem 0.45rem;
+    }
+
+    .planning-tickets-screen .planning-use-chip-status {
+      width: 0.84rem;
+      height: 0.84rem;
+    }
+
+    .planning-tickets-screen .planning-ticket-optional {
+      margin-top: 0.42rem;
+      font-size: 0.68rem;
+      line-height: 1.18;
+    }
+
+    .planning-tickets-screen > .mt-6 {
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+    }
+
+    .planning-tickets-screen > .mt-6 .h-12,
+    .planning-tickets-screen .planning-secondary-actions .h-12 {
+      height: 3rem;
+    }
+
+    .planning-prep-screen {
+      padding-top: var(--planning-browser-top-clearance);
+    }
+
+    .planning-prep-screen .planning-back-button {
+      margin-bottom: 0;
+    }
+
+    .planning-prep-screen .planning-prep-tray {
+      border-radius: 1rem;
+    }
+
+    .planning-prep-screen .planning-prep-hero {
+      min-height: 8.3rem;
+      gap: 0.48rem;
+      padding: 0.72rem;
+    }
+
+    .planning-prep-screen .planning-prep-hero[data-image-state='ready'] {
+      height: 8.3rem;
+    }
+
+    .planning-prep-screen .planning-recipe-image-slot-prep {
+      width: min(12rem, 100%);
+      height: 6.5rem;
+      border-radius: 0.9rem;
+    }
+
+    .planning-prep-screen .planning-prep-image-status {
+      font-size: 0.92rem;
+    }
+
+    .planning-prep-screen .planning-prep-body {
+      padding: 0.85rem;
+    }
+
+    .planning-prep-screen .planning-display {
+      font-size: 1.34rem;
+      line-height: 1.07;
+    }
+
+    .planning-prep-screen .planning-ticket-meta {
+      margin-top: 0.45rem;
+      font-size: 0.75rem;
+    }
+
+    .planning-prep-screen .planning-prep-body .planning-copy {
+      margin-top: 0.62rem;
+      font-size: 0.78rem;
+      line-height: 1.33;
+    }
+
+    .planning-prep-screen .planning-prep-section {
+      border-radius: 0.9rem;
+      padding: 0.7rem;
+    }
+
+    .planning-prep-screen .planning-prep-section.mt-5 {
+      margin-top: 0.72rem;
+    }
+
+    .planning-prep-screen .planning-prep-optional.mt-4 {
+      margin-top: 0.55rem;
+    }
+
+    .planning-prep-screen .planning-ticket-chip-row {
+      gap: 0.34rem;
+    }
+
+    .planning-prep-screen .planning-use-chip {
+      min-height: 1.6rem;
+      gap: 0.26rem;
+      font-size: 0.64rem;
+      padding: 0.24rem 0.45rem;
+    }
+
+    .planning-prep-screen .planning-optional-chip {
+      min-height: 1.6rem;
+      font-size: 0.64rem;
+      padding: 0.22rem 0.46rem;
+    }
+
+    .live-cooking-ready-check-screen {
+      min-height: 100svh;
+      padding-top: 0.85rem;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 7.75rem);
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-check-panel {
+      min-height: calc(100svh - 12.5rem);
+      gap: 0.8rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-back-button {
+      height: 2.25rem;
+      padding-inline: 0.5rem;
+      font-size: 0.92rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-eyebrow {
+      font-size: 0.82rem;
+      line-height: 1.1;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-title {
+      font-size: 2.05rem;
+      line-height: 1.03;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-subtitle {
+      font-size: 0.95rem;
+      line-height: 1.25;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] {
+      padding: 0.75rem;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] > svg {
+      top: 0.82rem;
+      left: 0.82rem;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] > svg ~ * {
+      padding-left: 1.85rem;
+    }
+
+    .live-cooking-ready-check-screen [role='alert'] .text-sm {
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .live-cooking-ready-list > :not([hidden]) ~ :not([hidden]) {
+      --tw-space-y-reverse: 0;
+      margin-top: calc(0.55rem * calc(1 - var(--tw-space-y-reverse)));
+      margin-bottom: calc(0.55rem * var(--tw-space-y-reverse));
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-row {
+      gap: 0.65rem;
+      padding: 0.75rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-icon {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-row p.font-extrabold {
+      font-size: 0.95rem;
+      line-height: 1.08;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-detail-text {
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-ready-actions {
+      margin-top: 0;
+      padding-bottom: 0;
+    }
+
+    .live-cooking-ready-check-screen .live-cooking-start-button {
+      height: 3.2rem;
+      font-size: 0.875rem;
+    }
+
+    .setup-ui {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100svh;
+      height: 100dvh;
+      min-height: 100svh;
+      min-height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
+    }
+
+    .setup-shell {
+      height: 100svh;
+      height: 100dvh;
+      min-height: 0;
+      max-height: 100dvh;
+      padding-top: 0;
+      overflow: hidden;
+    }
+
+    .setup-phone-frame {
+      height: 100%;
+      min-height: 0;
+      max-height: none;
+      overflow: hidden;
+      border-radius: 1.35rem 1.35rem 0 0;
+      padding-top: 0.55rem;
+    }
+
+    .setup-scroll-body {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .setup-progress-shell {
+      min-height: 1.75rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .setup-progress-track {
+      height: 0.52rem;
+    }
+
+    .setup-progress-count {
+      font-size: 0.68rem;
+      padding: 0.42rem 0.55rem;
+    }
+
+    .setup-scan-step {
+      gap: 0.65rem;
+    }
+
+    .setup-scan-step .setup-display {
+      font-size: 1.42rem;
+      line-height: 1;
+    }
+
+    .setup-scan-step .setup-copy {
+      max-width: 18rem;
+      font-size: 0.76rem;
+      line-height: 1.34;
+    }
+
+    .setup-scan-step .setup-camera-card {
+      padding: 0.45rem;
+    }
+
+    .setup-scan-step .setup-viewfinder {
+      border-radius: 1.05rem;
+    }
+
+    .setup-scan-step .setup-viewfinder > .relative {
+      aspect-ratio: 4 / 3;
+    }
+
+    .setup-scan-step .setup-live-badge {
+      top: 0.55rem;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.64rem;
+    }
+
+    .setup-scan-step .setup-camera-state {
+      gap: 0.42rem;
+      justify-content: center;
+      padding: 2.05rem 0.95rem 5rem;
+    }
+
+    .setup-scan-step .setup-camera-state-icon {
+      width: 4.35rem;
+      height: 4.35rem;
+      border-radius: 1.1rem;
+    }
+
+    .setup-scan-step .setup-camera-state p.font-semibold {
+      font-size: 0.95rem;
+      line-height: 1.08;
+    }
+
+    .setup-scan-step .setup-camera-state p.text-sm {
+      font-size: 0.76rem;
+      line-height: 1.22;
+    }
+
+    .setup-scan-step .setup-camera-controls {
+      bottom: 0.7rem;
+      padding-inline: 1.55rem;
+    }
+
+    .setup-scan-step .setup-camera-icon-button {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .setup-scan-step .setup-camera-round-button {
+      width: 3.15rem;
+      height: 3.15rem;
+    }
+
+    .setup-scan-step .setup-camera-round-button::after {
+      width: 1.95rem;
+      height: 1.95rem;
+    }
+
+    .setup-scan-step .setup-camera-icon-button svg {
+      width: 1.45rem;
+      height: 1.45rem;
+    }
+
+    .setup-scan-step .setup-secondary-button {
+      height: 2.75rem;
+      padding-inline: 0.85rem;
+    }
+
+    .setup-scan-step .setup-action-icon {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 0.85rem;
+    }
+
+    .setup-scan-step .setup-action-title {
+      font-size: 0.92rem;
+    }
+
+    .returning-ui .returning-inventory-panel {
+      border-radius: 0 0 1.1rem 1.1rem;
+    }
+
+    .returning-ui .returning-inventory-panel .returning-kicker {
+      font-size: 0.68rem;
+    }
+
+    .returning-ui .returning-inventory-panel .setup-display {
+      font-size: 1.5rem;
+      line-height: 1.08;
+    }
+
+    .returning-ui .returning-inventory-panel .setup-copy {
+      font-size: 0.82rem;
+      line-height: 1.32;
+    }
+
+    .returning-ui .returning-inventory-panel .returning-count {
+      width: 2.45rem;
+      height: 2.45rem;
+      min-width: 2.45rem;
+      font-size: 0.92rem;
+    }
+
+    .returning-ui .returning-inventory-panel .setup-secondary-button,
+    .returning-ui .returning-inventory-panel .setup-primary-button,
+    .returning-ui .returning-actions .setup-secondary-button,
+    .returning-ui .returning-actions .setup-primary-button {
+      height: 3.2rem;
+      font-size: 0.875rem;
+      border-radius: 1rem;
+    }
+
+    .returning-ui .returning-inventory-panel .setup-action-icon {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 0.85rem;
+    }
+
+    .returning-ui .returning-inventory-panel .setup-action-title {
+      font-size: 0.92rem;
+    }
+
+    .returning-ui .returning-inventory-panel .setup-review-chip {
+      min-height: 2.05rem;
+      gap: 0.34rem;
+      font-size: 0.76rem;
+      padding: 0.38rem 0.62rem;
+    }
+
+    .returning-ui .returning-inventory-panel input {
+      height: 3.2rem;
+      font-size: 0.875rem;
+    }
+
+    .returning-ui .returning-hero,
+    .returning-ui .returning-profile-panel,
+    .history-ui .history-hero {
+      border-radius: 1.1rem;
+      padding: 0.85rem;
+    }
+
+    .returning-ui .returning-hero .returning-kicker,
+    .returning-ui .returning-profile-panel .returning-kicker,
+    .history-ui .history-hero .returning-kicker {
+      font-size: 0.68rem;
+    }
+
+    .returning-ui .returning-hero .returning-display,
+    .returning-ui .returning-profile-panel .setup-display,
+    .history-ui .history-hero .returning-display {
+      font-size: 1.5rem;
+      line-height: 1.08;
+    }
+
+    .returning-ui .returning-hero .returning-copy,
+    .returning-ui .returning-profile-panel .setup-copy,
+    .history-ui .history-hero .returning-copy {
+      font-size: 0.82rem;
+      line-height: 1.32;
+    }
+
+    .returning-ui .returning-hub-card {
+      gap: 0.7rem;
+      border-radius: 1rem;
+      padding: 0.78rem;
+      font-size: 0.92rem;
+    }
+
+    .returning-ui .returning-hub-card .returning-copy {
+      font-size: 0.82rem;
+      line-height: 1.28;
+    }
+
+    .returning-ui .returning-hub-icon,
+    .history-ui .history-recipe-icon {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 0.85rem;
+    }
+
+    .history-ui .history-card,
+    .history-ui .history-empty {
+      border-radius: 1rem;
+      padding: 0.85rem;
+    }
+
+    .history-ui .history-card h2 {
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .setup-bottom-bar {
+      padding-top: 0.55rem;
+      padding-bottom: 0.55rem;
+    }
+
+    .slop-bowl-approval-screen {
+      gap: 1rem;
+    }
+
+    .slop-check-screen,
+    .slop-bowl-feedback-screen {
+      gap: 1rem;
+    }
+
+    .slop-approval-actions {
+      gap: 0.52rem;
+    }
+
+    .slop-edit-pantry-button {
+      height: 2.65rem;
+    }
+
+    .slop-approval-actions .h-12 {
+      height: 2.65rem;
+    }
+
+    .slop-approval-actions p {
+      font-size: 0.78rem;
+      line-height: 1.15;
+    }
   }
 
 }

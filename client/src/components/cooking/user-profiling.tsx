@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, type SetStateAction, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { InventoryReviewChip } from '@/components/cooking/inventory-review-chip';
 import { Input } from '@/components/ui/input';
@@ -332,6 +332,8 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const scanRunIds = useRef<Record<ScanType, number>>({ pantry: 0, kitchen: 0 });
   const scanControllers = useRef<Record<ScanType, AbortController | null>>({ pantry: null, kitchen: null });
   const correctionHighlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setupFrameRef = useRef<HTMLElement | null>(null);
+  const setupScrollBodyRef = useRef<HTMLDivElement | null>(null);
   const [initialDraft] = useState(() => existingProfile ? null : readSetupDraft(sessionScopeKey));
   const [pantryPlaceholder] = useState(getNextPantryPlaceholder);
   const [currentStep, setCurrentStep] = useState(() => initialDraft?.currentStep ?? 0);
@@ -346,6 +348,127 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
   const [recentlyCorrectedPantryKeys, setRecentlyCorrectedPantryKeys] = useState<Set<string>>(() => new Set());
   const [inventoryReviewState, setInventoryReviewState] = useState(createInventoryReviewState);
 
+  useLayoutEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const root = document.getElementById('root');
+    const previousScrollLockAttribute = html.getAttribute('data-laica-setup-scroll-lock');
+    const previousScrollBehavior = html.style.scrollBehavior;
+    const lockedElements: Array<{
+      element: HTMLElement;
+      styles: Record<string, string>;
+    }> = [
+      {
+        element: html,
+        styles: {
+          height: '100dvh',
+          'min-height': '100dvh',
+          'max-height': '100dvh',
+          overflow: 'hidden',
+          'overscroll-behavior': 'none',
+        },
+      },
+      {
+        element: body,
+        styles: {
+          position: 'fixed',
+          top: '0',
+          right: '0',
+          bottom: '0',
+          left: '0',
+          width: '100%',
+          height: '100dvh',
+          'min-height': '100dvh',
+          'max-height': '100dvh',
+          overflow: 'hidden',
+          'overscroll-behavior': 'none',
+        },
+      },
+      ...(root
+        ? [{
+            element: root,
+            styles: {
+              height: '100dvh',
+              'min-height': '100dvh',
+              'max-height': '100dvh',
+              overflow: 'hidden',
+            },
+          }]
+        : []),
+    ];
+    const previousStyles = lockedElements.map(({ element, styles }) => ({
+      element,
+      styles: Object.keys(styles).map((property) => ({
+        property,
+        value: element.style.getPropertyValue(property),
+      })),
+    }));
+
+    html.setAttribute('data-laica-setup-scroll-lock', 'true');
+    html.style.scrollBehavior = 'auto';
+    lockedElements.forEach(({ element, styles }) => {
+      Object.entries(styles).forEach(([property, value]) => {
+        element.style.setProperty(property, value);
+      });
+    });
+    document.scrollingElement?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    if ((window.scrollY || window.scrollX) && typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+
+    return () => {
+      previousStyles.forEach(({ element, styles }) => {
+        styles.forEach(({ property, value }) => {
+          if (value) {
+            element.style.setProperty(property, value);
+          } else {
+            element.style.removeProperty(property);
+          }
+        });
+      });
+      html.style.scrollBehavior = previousScrollBehavior;
+      if (previousScrollLockAttribute === null) {
+        html.removeAttribute('data-laica-setup-scroll-lock');
+      } else {
+        html.setAttribute('data-laica-setup-scroll-lock', previousScrollLockAttribute);
+      }
+      document.scrollingElement?.scrollTo?.({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      if ((window.scrollY || window.scrollX) && typeof window.scrollTo === 'function') {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    };
+  }, []);
+
+  const resetSetupScroll = useCallback(() => {
+    const resetElement = (element: HTMLElement | null | undefined) => {
+      if (!element) return;
+      element.scrollTop = 0;
+      element.scrollLeft = 0;
+      if (typeof element.scrollTo === 'function') {
+        element.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    };
+
+    resetElement(setupFrameRef.current);
+    resetElement(setupScrollBodyRef.current);
+    resetElement(document.scrollingElement as HTMLElement | null);
+    resetElement(document.documentElement);
+    resetElement(document.body);
+
+    if ((window.scrollY || window.scrollX) && typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, []);
+
+  const goToStep = useCallback((nextStep: SetStateAction<number>) => {
+    resetSetupScroll();
+    setCurrentStep(nextStep);
+  }, [resetSetupScroll]);
+
   useEffect(() => {
     writeSetupDraft(sessionScopeKey, {
       version: 1,
@@ -356,6 +479,22 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       manualOpen,
     });
   }, [currentStep, isToolsCaptureOpen, manualEntry, manualOpen, profile, sessionScopeKey]);
+
+  useLayoutEffect(() => {
+    resetSetupScroll();
+    let secondFrame: number | null = null;
+    const firstFrame = window.requestAnimationFrame(() => {
+      resetSetupScroll();
+      secondFrame = window.requestAnimationFrame(resetSetupScroll);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame !== null) {
+        window.cancelAnimationFrame(secondFrame);
+      }
+    };
+  }, [currentStep, isToolsCaptureOpen, resetSetupScroll]);
 
   useEffect(() => () => {
     scanControllers.current.pantry?.abort();
@@ -743,11 +882,12 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     if (currentStep === 2 && isToolsCaptureOpen) {
+      resetSetupScroll();
       setIsToolsCaptureOpen(false);
       return;
     }
 
-    setCurrentStep((step) => Math.max(0, step - 1));
+    goToStep((step) => Math.max(0, step - 1));
   };
 
   const handleNext = () => {
@@ -771,10 +911,11 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     }
 
     if (currentStep === 1) {
+      resetSetupScroll();
       setIsToolsCaptureOpen(false);
     }
 
-    setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
+    goToStep((step) => Math.min(TOTAL_STEPS, step + 1));
   };
 
   const renderSetupProgress = () => {
@@ -857,7 +998,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
     const progress = scanProgress[type];
 
     return (
-      <div className="space-y-5">
+      <div className="setup-scan-step space-y-5">
         <div className="space-y-3">
           <div className="space-y-2 text-left">
             <h2 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">
@@ -1070,7 +1211,10 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
           type="button"
           variant="ghost"
           className="setup-primary-button setup-kitchen-primary-button h-12 w-full"
-          onClick={() => setIsToolsCaptureOpen(true)}
+          onClick={() => {
+            resetSetupScroll();
+            setIsToolsCaptureOpen(true);
+          }}
         >
           Add tools
         </Button>
@@ -1274,11 +1418,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
       ? 'Finish setup'
       : 'Next';
   const isKitchenSetup = currentStep === 2;
+  const setupViewKey = `${currentStep}-${isToolsCaptureOpen ? 'tools-capture' : 'standard'}`;
 
   return (
     <main className={`setup-ui ${isKitchenSetup ? 'setup-ui-kitchen' : ''}`}>
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-3 pt-3">
-        <section className="setup-phone-frame flex flex-1 flex-col px-4 pt-4">
+      <div className="setup-shell mx-auto flex w-full max-w-md flex-col px-3 pt-3">
+        <section
+          key={setupViewKey}
+          ref={setupFrameRef}
+          className="setup-phone-frame flex flex-1 flex-col px-4 pt-4"
+        >
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               {renderSetupProgress()}
@@ -1290,16 +1439,16 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
             )}
           </div>
 
-          <div className="flex-1 pb-5">
+          <div ref={setupScrollBodyRef} className="setup-scroll-body flex-1 pb-5">
             {renderStep()}
           </div>
 
-          <div className="setup-bottom-bar sticky bottom-0 -mx-4 mt-2 px-4 py-4">
+          <div className="setup-bottom-bar -mx-4 mt-2 shrink-0 px-4 py-4">
             {currentStep === 0 ? (
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => setCurrentStep(1)}
+                onClick={() => goToStep(1)}
                 className="setup-primary-button h-14 w-full text-base"
               >
                 Get started

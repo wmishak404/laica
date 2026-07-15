@@ -313,13 +313,14 @@ describe('LiveCooking guest session boundary', () => {
     );
 
     const readyHeading = await screen.findByText('Ready to cook?');
-    expect(readyHeading.closest('.live-cooking-ui')).toBeTruthy();
+    expect(readyHeading.closest('.live-cooking-ui.live-cooking-ready-check-screen')).toBeTruthy();
     const readyScreen = readyHeading.closest('.live-cooking-screen');
     expect(readyScreen).toBeTruthy();
+    expect(readyScreen?.className).toContain('live-cooking-ready-check-panel');
     expect(readyScreen?.className).toContain('min-h-[calc(100svh-10rem)]');
     const startButton = screen.getByRole('button', { name: /^start cooking$/i });
     expect(startButton.className).toContain('live-cooking-start-button');
-    expect(startButton.className).toContain('text-lg');
+    expect(startButton.className).toContain('planning-primary-action');
     expect(startButton.className).toContain('font-extrabold');
     expect(mocks.fetchCookingSteps).not.toHaveBeenCalled();
 
@@ -349,6 +350,27 @@ describe('LiveCooking guest session boundary', () => {
     fireEvent.click(screen.getByRole('button', { name: /back to planning/i }));
 
     expect(onBackToPlanning).toHaveBeenCalledWith({ preserveMealPlanningSession: true });
+  });
+
+  it('asks the app shell to return to Slop Bowl when backing out from a Slop ready check', async () => {
+    const onBackToPlanning = vi.fn();
+
+    render(
+      <LiveCooking
+        selectedMeal={{ ...selectedMeal, planningSource: 'slop-bowl' }}
+        scheduledTime=""
+        onBackToPlanning={onBackToPlanning}
+      />,
+    );
+
+    await screen.findByText('Ready to cook?');
+
+    fireEvent.click(screen.getByRole('button', { name: /back to planning/i }));
+
+    expect(onBackToPlanning).toHaveBeenCalledWith({
+      preserveMealPlanningSession: false,
+      returnToSlopBowl: true,
+    });
   });
 
   it('passes acknowledged missing ingredients while keeping one Start cooking action', async () => {
