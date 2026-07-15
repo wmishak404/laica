@@ -98,6 +98,7 @@ Wilson loaded PR #291 head `6f52420` to Replit and confirmed the finding solved 
 Resolution evidence:
 
 - Human Chrome/Replit mobile validation passed at `6f52420` for the reported wrong-location setup tap behavior.
+- Wilson observed that the inert/extra page railing was gone and that the setup buttons pressed during the validation path executed their expected functions, including the bottom Back/Next-style actions and row selections.
 - Focused coverage in `tests/unit/user-profiling.test.tsx` verifies the setup document-scroll lock is applied and restored.
 - `tests/unit/setup-button-css.test.ts` guards the adjacent primary-button sticky tap-state text color issue.
 - The accepted setup rail rule remains: setup pages should stop at the Back/Next rail and must not expose inert bottom scroll space under the rail.

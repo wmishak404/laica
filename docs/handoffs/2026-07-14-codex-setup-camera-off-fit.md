@@ -52,6 +52,7 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - `npm run check` passed after the setup document-scroll-lock patch.
 - `npm run build` passed after the setup document-scroll-lock patch.
 - Wilson loaded exact PR head `6f52420` to Replit and confirmed the setup document-scroll-lock finding solved the Chrome/Replit mobile wrong-location tap behavior.
+- Wilson's human Chrome/Replit mobile validation observed that the inert/extra page railing was gone and that all setup buttons pressed during the validation path executed their expected functions, including bottom Back/Next-style actions and row selections.
 - GitHub exact-head checks passed after marking PR #291 ready for review: `unit`, `e2e_guest_smoke`, `trufflehog_pr`, `npm-audit`, and CodeQL. Earlier draft-created `unit`/`e2e_guest_smoke` runs were skipped by workflow condition, then reran and passed after the PR left draft.
 
 ### Replit mobile Chrome validation
@@ -76,5 +77,5 @@ Do not rebase this branch onto a later `codex/mobile-browser-type-fit` head with
 - Base refreshed: yes, rebased onto fresh `origin/main` after PR #287 and PR #290 merged.
 - Current base: `origin/main` at `9dcb37da4e57f4c655816e6a0c399fa67365f43f`
 - Last Replit-validated at: `6f52420f652c97561c6f6624951e0bd84f841d75` for the Chrome/Replit mobile tap-offset fix; broader mobile-browser setup camera/scroll checklist completed at `eada41353a5c2f7ab24b82606594a211ccb25cbf`.
-- Replit validation lane: completed at `eada413` for this branch's mobile-browser setup camera/scroll containment checklist using Chrome extension mobile viewport validation; Wilson then loaded `6f52420` and validated the later primary-button/document-scroll-lock follow-up for the reported Chrome/Replit mobile tap-offset behavior. Real mobile device full provider/service QA remains outside this branch's claim.
+- Replit validation lane: completed at `eada413` for this branch's mobile-browser setup camera/scroll containment checklist using Chrome extension mobile viewport validation; Wilson then loaded `6f52420` and validated the later primary-button/document-scroll-lock follow-up for the reported Chrome/Replit mobile tap-offset behavior, including that the inert/extra railing was gone and pressed setup buttons performed the expected actions. Real mobile device full provider/service QA remains outside this branch's claim.
 - Notes: intentionally based on Wilson's known-good navigation build rather than the later divergent branch head.
