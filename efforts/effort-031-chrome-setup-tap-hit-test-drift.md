@@ -102,3 +102,7 @@ Resolution evidence:
 - Focused coverage in `tests/unit/user-profiling.test.tsx` verifies the setup document-scroll lock is applied and restored.
 - `tests/unit/setup-button-css.test.ts` guards the adjacent primary-button sticky tap-state text color issue.
 - The accepted setup rail rule remains: setup pages should stop at the Back/Next rail and must not expose inert bottom scroll space under the rail.
+
+## 2026-07-15 - Merge closeout
+
+PR #291 merged into `main` as `766d910` from final head `1c03c21`. The final merge retained the accepted mitigation and the documented human validation: Wilson observed the inert/extra railing was gone and setup buttons pressed during validation executed their expected functions. This Effort remains resolved; EFF-030 separately owns the setup cooking-skill explicit Next-action follow-up, and camera-proportion work remains outside this Effort.
