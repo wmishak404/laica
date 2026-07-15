@@ -22,8 +22,9 @@ The follow-up was not an active Effort. Provenance is `docs/handoffs/2026-04-30-
   - Preserves the same 50px dismissal threshold as Radix.
   - Ignores downward swipes and cancels short left/up drags.
   - Adds Y-axis Radix swipe CSS variable classes so upward gestures get the same move/end styling path as horizontal gestures.
+  - Sets Tailwind exit-animation translate variables for left/up dismissals so the closed-state animation exits in the swipe direction instead of falling back to the default right-side exit.
 - `tests/unit/toast.test.tsx`
-  - Adds jsdom regression coverage for left, up, right, and down swipe behavior.
+  - Adds jsdom regression coverage for left, up, right, and down swipe behavior, including left/up exit-animation direction.
 
 ## Impact on other agents
 
@@ -47,7 +48,7 @@ Local checks on `codex/toast-swipe-directions`:
 
 Coverage reasoning:
 
-- The focused unit test proves the shared primitive calls `onOpenChange(false)` for left, up, and right swipe gestures, and does not call it for down swipes.
+- The focused unit test proves the shared primitive calls `onOpenChange(false)` for left, up, and right swipe gestures, sets left/up closed-state exit direction variables, and does not call dismissal for down swipes.
 - Static and build checks prove the shared client primitive remains type-safe, lint-clean, and production-buildable.
 - This does not prove real-device touch feel, animation polish in mobile Chrome, or every toast callsite's copy/action behavior.
 

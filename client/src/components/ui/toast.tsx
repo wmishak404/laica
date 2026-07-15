@@ -44,11 +44,28 @@ const clearToastSwipeStyles = (toast: HTMLElement) => {
   toast.style.removeProperty("--radix-toast-swipe-move-y")
   toast.style.removeProperty("--radix-toast-swipe-end-x")
   toast.style.removeProperty("--radix-toast-swipe-end-y")
+  toast.style.removeProperty("--tw-exit-translate-x")
+  toast.style.removeProperty("--tw-exit-translate-y")
 }
 
 const cancelToastSwipe = (toast: HTMLElement) => {
   toast.setAttribute("data-swipe", "cancel")
   clearToastSwipeStyles(toast)
+}
+
+const setToastExitDirection = (
+  toast: HTMLElement,
+  direction: ToastSwipeState["direction"]
+) => {
+  if (direction === "left") {
+    toast.style.setProperty("--tw-exit-translate-x", "-100%")
+    toast.style.setProperty("--tw-exit-translate-y", "0")
+  }
+
+  if (direction === "up") {
+    toast.style.setProperty("--tw-exit-translate-x", "0")
+    toast.style.setProperty("--tw-exit-translate-y", "-100%")
+  }
 }
 
 const preventNextToastClick = (toast: HTMLElement) => {
@@ -133,6 +150,7 @@ const Toast = React.forwardRef<
       onPointerDown?.(event)
       if (event.defaultPrevented || event.button !== 0) return
 
+      clearToastSwipeStyles(event.currentTarget)
       swipeStateRef.current = {
         direction: null,
         pointerId: event.pointerId,
@@ -242,6 +260,7 @@ const Toast = React.forwardRef<
           "--radix-toast-swipe-end-y",
           `${delta.y}px`
         )
+        setToastExitDirection(event.currentTarget, swipeState.direction)
         preventNextToastClick(event.currentTarget)
         handleOpenChange(false)
         return

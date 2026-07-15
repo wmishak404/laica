@@ -91,10 +91,10 @@ const swipeToast = (
 
 describe('Toast swipe dismissal', () => {
   it.each([
-    ['left', { x: 20, y: 100 }],
-    ['up', { x: 100, y: 20 }],
-    ['right', { x: 180, y: 100 }],
-  ])('dismisses when swiped %s', async (_direction, end) => {
+    ['left', { x: 20, y: 100 }, { x: '-100%', y: '0' }],
+    ['up', { x: 100, y: 20 }, { x: '0', y: '-100%' }],
+    ['right', { x: 180, y: 100 }, null],
+  ])('dismisses when swiped %s', async (_direction, end, exitTranslate) => {
     const { onOpenChange, toast } = await renderToast();
 
     swipeToast(toast, end);
@@ -102,6 +102,15 @@ describe('Toast swipe dismissal', () => {
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
+
+    if (exitTranslate) {
+      expect(toast.style.getPropertyValue('--tw-exit-translate-x')).toBe(
+        exitTranslate.x
+      );
+      expect(toast.style.getPropertyValue('--tw-exit-translate-y')).toBe(
+        exitTranslate.y
+      );
+    }
   });
 
   it('does not dismiss when swiped down', async () => {
