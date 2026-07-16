@@ -93,6 +93,8 @@ Use this routine before pushing a merged `main` build to production. It is inten
 
 Use `docs/production-validation-registry.md` as the current ledger for the last recorded production smoke, known build-marker gaps, and the next changed-since-last-prod focused smoke list. Update that registry after each production publish or post-publish smoke instead of scattering release state across unrelated handoffs.
 
+Runtime PRs should feed this registry before release day. If a merged branch changes user-visible behavior, shared UI primitives, workflow state, provider/auth/DB/deployment behavior, schema, or validation lanes after the last production-smoked build, its PR or merge closeout must either add the smallest changed-since-last-prod focused smoke case to the registry or explicitly state why an existing active registry item already covers it. This is a production-readiness breadcrumb, not a request to retest the whole app.
+
 Do not use Replit Agent for this routine unless Wilson explicitly approves it. Prefer direct Replit shell, the workspace UI, Chrome, GitHub checks, and app/API evidence. Never print secret values; use masked presence checks that print only `set` or `MISSING`.
 
 ### 1) Select The Exact Build
@@ -121,6 +123,8 @@ Baseline core smoke runs for every production publish because these are core use
 Focused smoke adds the release-specific cases that are most likely to fail:
 
 1. **Changed since the last production push.** Review the commits/PRs merged after the last production-smoked SHA, or after the last known production publish if the smoked SHA is unknown. Select every user-visible, provider, auth, DB, deployment, or workflow surface those changes touched. Name these as `changed-since-last-prod focused smoke` in the validation summary.
+   - Prefer the registry's PR/merge/head entries as the source list. If a runtime merge is missing from the registry, add the smallest focused case before starting the smoke rather than relying on chat memory.
+   - Keep each focused case tied to the changed behavior and its likely production failure symptom. Do not add unrelated screens or full-app tours unless Wilson requested a full regression or a changed shared primitive truly affects them.
 2. **Risk-triggered seams.** Add any route or flow affected by secrets, provider keys, deployment config, DB/schema, auth/session, file uploads, caching, workflow restore, speech/audio, generated media, security headers, or prior weak/skipped evidence.
    - If the release includes runtime rate-limit policy changes, especially changes between source-IP and per-user throttling, include a shared-network smoke. From the same validation network/source IP, exercise the changed normal user flows such as Chef It Up recipe generation, active cooking assistance, live speech transcription, vision scan, or feedback submission as applicable, and confirm normal usage does not return `429 RATE_LIMITED` from source-IP pooling. If admin rate limits changed, separately probe `/api/admin/*` with valid and invalid admin-secret behavior and confirm admin remains IP-limited and non-cacheable.
 3. **Recent production failures or Wilson concerns.** Add the exact failed surface even if the current code change is adjacent rather than direct. The June 2026 production vision failure means production publish validation should include a live vision pantry scan until the secret-propagation lesson is no longer active risk.

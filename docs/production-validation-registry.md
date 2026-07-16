@@ -4,6 +4,12 @@ This is the compact operational ledger for what production has most recently pro
 
 Use `docs/workflows/replit-validation-focus.md` for the full validation routine and evidence report format.
 
+Runtime-change closeout rule: if a PR changes runtime behavior after the last production-smoked build, its PR or merge closeout must update this file before the work is treated as done, or explicitly state why no registry entry is needed. Runtime behavior includes user-visible UI/layout/copy, shared UI primitives, client workflow state, server routes, auth/session, provider calls, DB/persistence, deployment/startup, schema, rate limits, and validation lane changes.
+
+Origin of this rule: PR #293's toast swipe-direction fix and PR #294 / EFF-028's Chef It Up mobile-layout fix were both runtime UI changes that needed changed-since-last-production focused smoke entries. The entries are now present below; keep future runtime fixes from relying on chat memory or ad hoc release archaeology.
+
+Each runtime entry should stay changed-since-last-production: name the changed surface, exact PR/merge/head evidence, the smallest focused production-push check, evidence already available, negative scope, and a future-bug breadcrumb so a production issue after publish can be traced back without replaying chat. Do not turn this registry into a full-app regression list unless Wilson explicitly asks for one.
+
 ## Current Production Smoke Baseline
 
 - Last recorded production smoke date: 2026-06-22.
@@ -17,8 +23,8 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 ## Current Main Candidate
 
 - Registry updated: 2026-07-16 for the PR #293, PR #294, and PR #296 addenda below.
-- Current `origin/main`: `0e7910df11abb7a87f99e2003e4b8410125ba0b4`.
-- Current latest merge: PR #301, `[codex] Record EFF-028 production readiness checks`.
+- Current `origin/main`: `a68e5e82bac13ad50cc1a9399476ef5cca11ab8c`.
+- Current latest merge: PR #302, `[codex] Close out setup skill Next merge`.
 - Current latest user-visible/runtime merge: PR #296, `[codex] Require Next after setup skill selection`.
 
 The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The dated addenda record PR #275, PR #276, PR #293, PR #294, and PR #296 coverage now so the next production-readiness pass does not lose that test signal; they are not a full audit of every intervening merge.

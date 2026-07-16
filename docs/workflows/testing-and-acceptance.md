@@ -109,6 +109,22 @@ Minimum routine:
 
 Record the result in the PR body and handoff, not in a new durable doc for every feature. Update this workflow, an Effort, INIT, PD, or phase record only when the work changes future validation rules, exposes a reusable bug lesson, or adds/removes a validation lane.
 
+## Production Regression Registration
+
+Every implementation PR that changes runtime behavior must declare how the change will be remembered for the next production push. Runtime behavior includes user-visible UI/layout/copy, shared UI primitives, client workflow state, server routes, auth/session, provider calls, DB/persistence, deployment/startup, schema, rate limits, and validation lane changes.
+
+This rule exists because the July 2026 runtime UI fixes for PR #293 toast swipe direction and PR #294 / EFF-028 Chef It Up mobile layout were initially missing from the production-readiness registry until Wilson explicitly asked whether they were captured. Future agents should treat that as the failure mode: if the changed-since-last-production breadcrumb is left only in chat, another release operator may not know what to test or where to look if production regresses after the publish.
+
+Before calling a runtime PR or its post-merge closeout complete, add or update the relevant entry in [`../production-validation-registry.md`](../production-validation-registry.md), or explicitly record why no registry entry is needed because the branch is docs-only/non-runtime or already covered by an active registry item. The registry entry should be concise enough for a release operator to run without rereading the whole PR:
+
+- Changed surface and exact PR/merge/head SHAs.
+- Smallest `changed-since-last-prod focused smoke` case that would catch a regression in the changed behavior.
+- Existing evidence to trust first, such as exact-head CI, Replit/mobile validation, provider canaries, or Wilson spot checks.
+- Evidence limits and negative scope so the release pass does not grow into unrelated testing.
+- Future-bug breadcrumb: the user-visible symptom, route, screen, or provider seam to inspect first if a production issue appears after the publish.
+
+Production readiness is targeted, not app-wide by default. Start from the last production-smoked SHA or build marker and the intended publish SHA, then test baseline core flows plus only the runtime surfaces changed since that production push, risk-triggered canaries, recent production failures or Wilson concerns, and any Wilson-requested full-regression scope. Do not carry stale or unsupported flows forward only because an old checklist mentioned them.
+
 ## Risk Lanes And Human Replit Gates
 
 Human manual Replit validation is no longer the default PR merge gate. Classify the branch before closeout:
