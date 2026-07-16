@@ -1244,7 +1244,6 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
               aria-checked={selected}
               onClick={() => {
                 setProfile((prev) => ({ ...prev, cookingSkill: skill.value }));
-                setCurrentStep(4);
               }}
               data-selected={selected}
               className="setup-choice flex w-full items-center gap-4 p-4 text-left transition"
@@ -1464,17 +1463,15 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
-                {currentStep !== 3 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={handleNext}
-                    disabled={(currentStep !== 1 && !canProceed()) || isCurrentScanAnalyzing}
-                    className="setup-primary-button h-12 flex-[1.4]"
-                  >
-                    {nextLabel}
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleNext}
+                  disabled={(currentStep !== 1 && !canProceed()) || isCurrentScanAnalyzing}
+                  className="setup-primary-button h-12 flex-[1.4]"
+                >
+                  {nextLabel}
+                </Button>
               </div>
             )}
           </div>

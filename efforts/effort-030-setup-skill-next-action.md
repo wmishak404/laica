@@ -1,9 +1,9 @@
 # EFF-030 - Setup cooking-skill Next action consistency
 
-**Status:** Open
+**Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-14
-**Updated:** 2026-07-14
+**Updated:** 2026-07-16
 **Linked Initiatives:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 
 ## One-line summary
@@ -12,7 +12,7 @@ Add an explicit bottom Next action to the first-time setup cooking-comfort page 
 
 ## Context
 
-During mobile-browser validation of the setup viewport work, Wilson noted that the `How comfortable are you with cooking?` page advances when the user taps a skill option, but it is the only setup page in this section without the same bottom Back/Next action pattern. The immediate-selection behavior is useful, but the missing Next action is inconsistent with Pantry, Tools, Dietary, and Ready setup pages.
+During mobile-browser validation of the setup viewport work, Wilson noted that the `How comfortable are you with cooking?` page advances when the user taps a skill option, but it is the only setup page in this section without the same bottom Back/Next action pattern. Wilson later chose consistency across Setup: the user should select a cooking skill first, then tap the bottom `Next` action to advance.
 
 This follow-up is intentionally separate from the 2026-07 browser-viewport repair branch, which is focused on scroll bounds, camera fit, and avoiding newly introduced setup navigation bugs.
 
@@ -22,7 +22,7 @@ This follow-up is intentionally separate from the 2026-07 browser-viewport repai
 
 - Add a bottom Next action beside Back on the cooking-comfort setup page.
 - Keep full-row skill choices tappable and visibly selected.
-- Decide whether tapping a skill should still auto-advance, or whether selecting a skill should enable the explicit Next button.
+- Make tapping a skill select it without auto-advance; the explicit bottom `Next` action advances after a selection.
 - Keep button sizing, typography, and bottom-rail behavior consistent with adjacent setup pages.
 - Add focused regression coverage for the chosen interaction.
 
@@ -36,12 +36,11 @@ This follow-up is intentionally separate from the 2026-07 browser-viewport repai
 
 - Wilson wants this handled later, not inside the current scroll/camera repair scope.
 - The current behavior of tapping an option to proceed is good, but the missing bottom Next action feels inconsistent with the rest of setup.
+- 2026-07-16: Wilson chose consistency across Setup: users select one cooking-skill option first, then click the bottom `Next` button. Row tap should not auto-advance.
 
 ## Open questions
 
-- Should tapping a cooking skill still auto-advance, or should it only select the skill and require Next?
-- If auto-advance remains, should Next appear as a secondary consistency affordance or only after a selection is made?
-- Should returning Settings cooking-profile edits adopt the same explicit action pattern, or is this first-time setup only?
+- Should returning Settings cooking-profile edits adopt the same explicit action pattern later, or should this remain first-time setup only? The current implementation branch keeps returning Settings out of scope.
 
 ## Agent checklist
 
@@ -62,3 +61,13 @@ This Effort is `Resolved` when:
 ## 2026-07-14 - Created from setup mobile-browser validation
 
 Wilson observed the inconsistency while validating the setup browser viewport branch: the cooking-comfort page requires tapping the option itself to continue, unlike the surrounding setup pages that expose a bottom Next action.
+
+## 2026-07-16 - Select-then-Next implementation started
+
+Wilson selected the explicit setup-consistency behavior: the first-time setup cooking-skill page should work like the surrounding setup pages. The implementation branch `codex/setup-skill-next-action` removes row-tap auto-advance, shows the bottom `Next` action on step 3, keeps it disabled until a skill is selected, and advances to Dietary only after `Next`.
+
+Focused regression coverage in `tests/unit/user-profiling.test.tsx` now asserts the selected skill stays on the cooking-comfort page, exposes the selected radio state, enables `Next`, and then advances to `Anything I should avoid?` only after the button is tapped. Returning Settings cooking-profile edits, setup copy, skill option design, camera/scroll behavior, navigation IA, provider calls, schema, and Live Cooking behavior remain out of scope.
+
+## 2026-07-16 - Merge-readiness refresh
+
+PR #294/#298 cleared the dependency-audit blocker that originally kept PR #296 draft. The implementation branch was rebased onto current `origin/main` at `d3051cda`; local `npm ci`, `npm audit --audit-level=high`, focused setup Vitest, full unit suite, `npm run check`, `npm run build`, and diff whitespace checks passed after the rebase. Wilson reported the behavior looked great from his own spot check before the rebase. The first ready-for-review GitHub E2E run then exposed a stale Playwright setup helper that still assumed row-tap auto-advance; the branch now updates that helper to tap `Next` after selecting cooking skill. Exact-head GitHub E2E still needs rerun after push, and exact-head Replit/mobile validation remains deferred unless Wilson requests another PR-level smoke.
