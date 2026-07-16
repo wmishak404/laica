@@ -19,7 +19,7 @@ Wilson's 2026-07-14 mobile Safari/Replit screenshots of the logged-in Settings K
 
 The screenshots are from returning logged-in Settings, not first-time setup. Returning Settings intentionally reuses setup's camera object and action grammar, so the implementation should inspect the shared setup/returning CSS and components before choosing whether the fix belongs in a shared camera/action primitive or in returning Settings-specific layout.
 
-Sequencing note from Wilson: do not implement this Effort until Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, because that release is large and already creating bugs/design drift.
+Sequencing note from Wilson: do not implement this Effort until Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, because that release was large and already creating bugs/design drift. That upstream work is now merged; after the EFF-028 closeout lands, EFF-029 is the next serial adjacent visual/setup target unless Wilson reprioritizes.
 
 This is not the production vision-scan 500 blocker recorded in `docs/handoffs/2026-06-21-codex-prod-vision-scan-investigation-blocked.md`; this Effort is a client layout/visual follow-up.
 
@@ -35,7 +35,7 @@ This is not the production vision-scan 500 blocker recorded in `docs/handoffs/20
 
 Out of scope:
 
-- Implementing before thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges.
+- Reopening EFF-028 or bundling Chef It Up time/Prep Tray follow-up work into this Settings-specific slice.
 - Changing durable bottom-nav IA, icon set, labels, auth-mode visibility, or navigation behavior.
 - Changing scan provider behavior, upload limits, scan rate limits, server routes, schema, or prompt/model logic.
 - Reworking Settings IA beyond Pantry/Tools action clearance.
@@ -47,7 +47,7 @@ Out of scope:
 - Prioritize returning logged-in Settings Pantry and Tools. Shared setup-derived components may be changed only if that is the cleanest fix and first-time setup visual parity is verified.
 - Use a 4:5 camera-object target as the visual direction.
 - Keep bottom actions pinned, but above the main bottom nav.
-- Sequence implementation after Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges.
+- Sequence implementation after EFF-028's merge closeout lands, starting from fresh `origin/main`.
 
 ## Open questions
 
@@ -57,7 +57,7 @@ Out of scope:
 
 ## Agent checklist
 
-- [ ] Confirm Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged before implementation.
+- [ ] Confirm EFF-028's merge closeout has landed, then start from fresh `origin/main` before implementation.
 - [ ] Read this Effort, INIT-001, Phase 2.1, Phase 2.2, PD-005, `design_guidelines.md`, and the relevant recent Settings handoffs before implementation.
 - [ ] Inspect `client/src/components/cooking/user-settings.tsx`, `client/src/components/ui/native-camera.tsx`, `client/src/index.css`, and current tests before choosing the fix location.
 - [ ] Verify Pantry and Tools returning Settings at a narrow mobile viewport with bottom nav visible.
@@ -79,4 +79,8 @@ Codex filed this Effort from Wilson's screenshot-backed request. No runtime impl
 
 ## 2026-07-14 - Phase 4 routing merged
 
-[PR #287](https://github.com/wmishak404/laica/pull/287) merged as `430a5d8` from final head `9051805`, routing this Effort into INIT-001 / Phase 4 as the next adjacent returning Settings camera/action-layout target alongside EFF-028 after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges. The Effort remains `Open`; no runtime implementation has started.
+[PR #287](https://github.com/wmishak404/laica/pull/287) merged as `430a5d8` from final head `9051805`, routing this Effort into INIT-001 / Phase 4 as the next adjacent returning Settings camera/action-layout target alongside EFF-028 after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merged. At that point, the Effort remained `Open` and no runtime implementation had started.
+
+## 2026-07-16 - Next after EFF-028
+
+EFF-028 resolved when PR #294 merged as `4e872deeb494b72f56ce5011a5b1bd213ee9fb29`. After the EFF-028 merge-closeout docs land, EFF-029 is the next serial adjacent INIT-001 visual/setup follow-up unless Wilson reprioritizes. Start from fresh `origin/main` and keep scope to returning Settings Pantry/Tools camera height and pinned-action clearance.
