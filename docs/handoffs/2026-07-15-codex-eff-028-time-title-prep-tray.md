@@ -13,7 +13,7 @@ EFF-028 is implemented but not merged. The branch keeps the post-PR #291 setup/m
 
 The branch started from fresh `origin/main` at `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`. Before editing, Codex verified that PR #291 merged as `766d910b128f84213d2a79a8077100d3df4272d8` and docs closeout PR #292 merged as `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`.
 
-Wilson then requested Chrome/Replit mobile validation. Codex validated the implementation in the Replit preview using Chrome mobile viewport override, without Replit Agent. The app page reported an iPhone-sized CSS viewport of `390 x 844` during the focused EFF-028 smoke.
+Wilson then requested Chrome/Replit mobile validation. Codex validated the implementation in the Replit preview using Chrome mobile viewport override, without Replit Agent. After Wilson rejected the first asymmetric time-title attempt, Codex reran the focused Replit mobile smoke against the revised runtime at `3d70dfb`; the app page reported an iPhone-sized CSS viewport of `390 x 844`.
 
 ## Changes
 
@@ -21,6 +21,7 @@ Wilson then requested Chrome/Replit mobile validation. Codex validated the imple
 - `client/src/index.css`: adds short-mobile process-heading width rules, applies the time-screen-only centered/downward/larger-clock exception, removes ready-state Prep Tray hero padding on short mobile, and forces the ready Prep Tray image slot to fill the hero box with `height: 100%`, `min-height: 0`, and `object-fit: cover`.
 - `tests/e2e/cooking-workflow.test.ts`: adds a mobile time-layout geometry assertion for centered title / vertical Back clearance / enlarged clock and runs the selected-image Prep Tray path at `320x740` so the EFF-028 title and ready-image geometry stays covered by the guest E2E lane once CI runs against a prepared schema.
 - `tests/e2e/linked-dev-auth.test.ts` and `tests/unit/meal-planning.test.tsx`: update Ticket Pass heading expectations to `Recipe suggestions`.
+- `package-lock.json`: updates transitive `websocket-driver` from `0.7.4` to `0.7.5` after GitHub `npm-audit` exposed a critical advisory through Firebase's `@firebase/database -> faye-websocket` path. No direct dependency or runtime source files changed for this audit unblocker.
 - `efforts/effort-028-chef-it-up-time-title-clearance.md`, `efforts/README.md`, `efforts/registry.md`, and `initiatives/INIT-001-mobile-refresh.md`: record the active implementation branch, evidence, negative scope, and pending exact-head E2E gate.
 
 ## Impact on other agents
@@ -31,17 +32,16 @@ This branch intentionally does not change providers, schema, prompts, durable na
 
 ## Open items
 
-- PR #294 is open and needs fresh exact-head GitHub checks after Wilson's revised runtime CSS/copy direction.
+- PR #294 is open and needs fresh exact-head GitHub checks after the docs/audit follow-up commit.
 - Local DB-backed E2E is not claimed because the decrypted local database failed schema health.
-- Chrome/Replit mobile validation passed for the first EFF-028 implementation at runtime head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`, but that evidence is stale for the latest runtime revision because Wilson then rejected the horizontal time-title inset as visually asymmetrical.
-- Current runtime head needs fresh GitHub checks and, if Wilson wants exact Replit proof for the revised time screen, Replit should fetch the latest branch head and re-smoke the time screen. The current built-CSS geometry evidence for the revised layout is recorded below.
+- Chrome/Replit mobile validation passed for the revised EFF-028 runtime at `3d70dfb90c51cba51a492216c7f79078386f9188`; the final PR body should name the post-doc/audit head after Replit fetches it because the follow-up commit is docs/lockfile-only.
 - EFF-029 and EFF-030 remain unstarted here.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`
-- Last Replit-validated at: stale for the latest runtime revision. Prior Chrome/Replit validation covered runtime code SHA `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`; Wilson's later time-screen direction changed runtime CSS/copy, so the current branch head needs a fresh Replit fetch/smoke if Replit-level proof is required before merge.
+- Last Replit-validated at: revised runtime `3d70dfb90c51cba51a492216c7f79078386f9188`; follow-up docs/lockfile commit should be fetched into Replit and named in the PR body before merge.
 - Notes: PR #291 (`766d910b128f84213d2a79a8077100d3df4272d8`) and PR #292 (`05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`) were verified on `origin/main` before branch work began.
 
 ## Verification
@@ -54,6 +54,7 @@ Passed locally:
 - `npm run test:unit` — 49 files / 382 tests passed.
 - `npm run check`
 - `npm run build` — passed with existing Browserslist, Firebase mixed import, and chunk-size warnings.
+- `npm audit --audit-level=high` — initially failed on GitHub/current lockfile because `websocket-driver@0.7.4` had a critical advisory; `npm audit fix --package-lock-only --audit-level=high` updated it to `0.7.5`, then local `npm ci`, `npm audit --audit-level=high`, `npm run test:unit`, `npm run check`, `npm run build`, and `git diff --check` passed.
 - `git diff --check`
 - Current-head built-CSS Chromium geometry at `390x740`: time title lines are centered at `195px` in a `390px` viewport, first line top is `122.390625px` below the Back button bottom `51.1875px`, the enlarged clock is `150.390625 x 150.390625`, and the action dock remains visible. Screenshot saved at `/tmp/laica-eff028-time-revised-css.png`.
 - Earlier compiled-CSS Prep Tray geometry, unchanged by the later time-screen/copy revision, showed the mobile ready slot equal to the hero box at `320 x 132.796875` with zero geometry delta and `object-fit: cover`. Screenshot saved at `/tmp/laica-eff028-compiled-css-mobile.png`.
@@ -74,6 +75,17 @@ Passed on GitHub at first implementation head `8ccd4bd007b7c331b5cbb92d86ad505d5
 - `Analyze (actions)`
 - `Analyze (javascript-typescript)`
 
+Passed on GitHub at revised runtime head `3d70dfb90c51cba51a492216c7f79078386f9188`, except audit before the lockfile-only remediation:
+
+- `unit`
+- `e2e_guest_smoke`
+- `trufflehog_pr`
+- `CodeQL`
+- `Analyze (actions)`
+- `Analyze (javascript-typescript)`
+- `trufflehog_push` skipped as expected
+- `npm-audit` failed on `websocket-driver@0.7.4`; the branch now includes the lockfile-only `0.7.5` remediation and needs fresh GitHub checks after push.
+
 Chrome/Replit mobile validation, without Replit Agent:
 
 - Replit workspace was on `codex/eff-028-time-title-prep-tray` at implementation head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da` before validation.
@@ -91,3 +103,14 @@ Negative scope for the Replit pass:
 
 - Did not click `Cook this`, enter Ready Check, start Live Cooking, test speech/microphone, finish a cooking session, change provider settings, change schema, or use Replit Agent.
 - One setup observation sits outside EFF-028: after manual pantry save, the first setup page can require inner setup scrolling to bring the bottom Back/Next rail fully into view. The rail remained reachable and setup completed, so this handoff does not route it as part of EFF-028.
+
+Revised Chrome/Replit mobile validation after Wilson's time-title correction, without Replit Agent:
+
+- Replit shell fast-forwarded `codex/eff-028-time-title-prep-tray` to `3d70dfb`; the preview was then reloaded.
+- Chrome viewport override used a compensated outer size because the controlled tab reported `devicePixelRatio: 0.8`; the app-reported viewport for the smoke was `innerWidth: 390`, `innerHeight: 844`, `visualViewport.width: 390`, and `visualViewport.height: 843.75`.
+- Time selection showed the centered/symmetrical title below the Back button: heading line centers `194.9951171875` and `195` in the `390px` viewport, first line top `110.771484375px` below Back bottom `75.986328125px`, clock `175.99609375 x 175.99609375`, and action dock visible. Screenshot: `/tmp/laica-eff028-replit-time-revised-iphone390.png`.
+- Adjacent `What sounds good?` still used the centered heading posture with sticky actions visible. Screenshot: `/tmp/laica-eff028-replit-cuisine-revised-iphone390.png`.
+- Ticket Pass heading was exactly `Recipe suggestions`; the old `Recipe suggestions from your pantry` copy was absent. Ticket Pass remained placeholder-only before Prep Tray with `ticketImages: 0`. Screenshot: `/tmp/laica-eff028-replit-ticket-suggestions-iphone390.png`.
+- Prep Tray ready selected image filled the hero: hero, slot, and `img` all measured `356.7578125 x 151.9921875`; image was complete with `naturalWidth: 1024`, `naturalHeight: 1024`, `object-fit: cover`, and source under `/api/recipe-images/...`. Screenshot: `/tmp/laica-eff028-replit-prep-ready-revised-iphone390.png`.
+- Back to Ticket Pass preserved no-bleed behavior: `ticketImages: 0`, and all three Ticket Pass image slots were still `data-has-image="false"` / `data-image-state="placeholder"`. Screenshot: `/tmp/laica-eff028-replit-ticket-back-revised-iphone390.png`.
+- LAICA tab console warnings/errors were empty.

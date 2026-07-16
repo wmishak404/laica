@@ -149,3 +149,20 @@ Additional local evidence after this revision:
 - Built-CSS Chromium geometry at `390x740` showed the revised time title's two text lines centered at `195px` in a `390px` viewport, with the first line starting at `122.390625px` below the Back button bottom at `51.1875px`. The clock measured `150.390625 x 150.390625`, and the action dock remained in view. Screenshot evidence was saved at `/tmp/laica-eff028-time-revised-css.png`.
 
 This revision still does not change provider, schema, prompt, durable navigation, Ticket Pass behavior beyond the heading copy, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, or recipe routes. EFF-029 and EFF-030 remain unstarted.
+
+## 2026-07-16 - Revised Replit mobile validation and audit unblocker
+
+Codex reran Chrome/Replit mobile validation after Wilson's revised direction. Replit was fast-forwarded to runtime head `3d70dfb90c51cba51a492216c7f79078386f9188` on `codex/eff-028-time-title-prep-tray`, and Replit Agent was not used. Chrome's controlled viewport reported `devicePixelRatio: 0.8`, so Codex used a compensated outer viewport to make the app report an iPhone-sized CSS viewport: `innerWidth: 390`, `innerHeight: 844`, `visualViewport.width: 390`, and `visualViewport.height: 843.75`.
+
+Observed revised Replit evidence:
+
+- Time selection kept the title centered/symmetrical and below the Back button: heading line centers `194.9951171875` and `195` in the `390px` viewport, first title line top `110.771484375px` below Back bottom `75.986328125px`, clock `175.99609375 x 175.99609375`, and action dock visible. Screenshot: `/tmp/laica-eff028-replit-time-revised-iphone390.png`.
+- Adjacent `What sounds good?` still kept the centered heading posture with sticky actions visible. Screenshot: `/tmp/laica-eff028-replit-cuisine-revised-iphone390.png`.
+- Ticket Pass heading was exactly `Recipe suggestions`; the old `Recipe suggestions from your pantry` copy was absent. Ticket Pass stayed placeholder-only before Prep Tray with `ticketImages: 0`. Screenshot: `/tmp/laica-eff028-replit-ticket-suggestions-iphone390.png`.
+- Prep Tray ready selected image filled the hero: hero, slot, and image all measured `356.7578125 x 151.9921875`; image was complete with `naturalWidth: 1024`, `naturalHeight: 1024`, and `object-fit: cover`. Screenshot: `/tmp/laica-eff028-replit-prep-ready-revised-iphone390.png`.
+- Back to Ticket Pass preserved no-bleed behavior: `ticketImages: 0`, and all three Ticket Pass image slots stayed `data-has-image="false"` / `data-image-state="placeholder"`. Screenshot: `/tmp/laica-eff028-replit-ticket-back-revised-iphone390.png`.
+- LAICA tab console warnings/errors were empty.
+
+GitHub checks at revised runtime head `3d70dfb90c51cba51a492216c7f79078386f9188` passed `unit`, `e2e_guest_smoke`, `trufflehog_pr`, CodeQL, and both Analyze checks; `trufflehog_push` skipped as expected. `npm-audit` failed because a new critical advisory hit transitive `websocket-driver@0.7.4` through Firebase's `@firebase/database -> faye-websocket` path. Codex ran `npm audit fix --package-lock-only --audit-level=high`, which updated only `package-lock.json` to `websocket-driver@0.7.5`. After the lockfile-only audit remediation, local `npm ci`, `npm audit --audit-level=high`, `npm run test:unit`, `npm run check`, `npm run build`, and `git diff --check` all passed.
+
+Negative scope remains: no provider, schema, prompt, durable navigation, Ticket Pass generation/refresh behavior, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, recipe route, direct dependency, or package manifest changes. The audit fix is a transitive lockfile-only CI unblocker. EFF-029 and EFF-030 remain unstarted.
