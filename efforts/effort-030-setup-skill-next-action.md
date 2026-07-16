@@ -1,6 +1,6 @@
 # EFF-030 - Setup cooking-skill Next action consistency
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-14
 **Updated:** 2026-07-16
@@ -71,3 +71,9 @@ Focused regression coverage in `tests/unit/user-profiling.test.tsx` now asserts 
 ## 2026-07-16 - Merge-readiness refresh
 
 PR #294/#298 cleared the dependency-audit blocker that originally kept PR #296 draft. The implementation branch was rebased onto current `origin/main` at `d3051cda`; local `npm ci`, `npm audit --audit-level=high`, focused setup Vitest, full unit suite, `npm run check`, `npm run build`, and diff whitespace checks passed after the rebase. Wilson reported the behavior looked great from his own spot check before the rebase. The first ready-for-review GitHub E2E run then exposed a stale Playwright setup helper that still assumed row-tap auto-advance; the branch now updates that helper to tap `Next` after selecting cooking skill. Exact-head GitHub E2E still needs rerun after push, and exact-head Replit/mobile validation remains deferred unless Wilson requests another PR-level smoke.
+
+## 2026-07-16 - Resolved by PR #296
+
+PR #296 merged as `fc973996`, resolving this Effort. First-time setup cooking skill now uses the accepted select-then-Next interaction: row tap selects `Beginner`, `Intermediate`, or `Expert`; the bottom `Next` action stays disabled until a skill is selected; and only `Next` advances to Dietary.
+
+Focused component coverage and the GitHub `e2e_guest_smoke` path now cover the interaction. Wilson spot-checked the behavior before merge and said it looked great. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, and CodeQL passed at PR head `06234908` before merge. Human Replit/mobile validation remains deferred to release/batch validation; the production-readiness registry now carries the focused setup regression check.
