@@ -9,15 +9,15 @@
 
 ## Summary
 
-Daily Efforts hygiene found the active pool aligned after EFF-028 merged and selected EFF-029 as the next non-conflicting implementation slice: EFF-017 has open PR #277, EFF-022 remains behind higher-priority INIT-001 work, and EFF-030 is a narrower setup consistency follow-up. This branch fixes first-time setup and returning Settings Pantry/Tools camera proportions, plus returning Settings pinned action clearance, without changing scan behavior, setup step flow, or bottom-nav IA.
+Daily Efforts hygiene found the active pool aligned after EFF-028 merged and selected EFF-029 as the next non-conflicting implementation slice: EFF-017 has open PR #277, EFF-022 remains behind higher-priority INIT-001 work, and EFF-030 has since resolved through PR #296 / PR #302 closeout on `main`. This branch fixes first-time setup and returning Settings Pantry/Tools camera proportions, plus returning Settings pinned action clearance, without changing scan behavior, setup step flow, or bottom-nav IA.
 
 ## Hygiene result
 
-Active Efforts remain EFF-017, EFF-022, EFF-029, and EFF-030. EFF-028 is resolved on `main` by PR #294 / PR #298 closeout. EFF-029 moved from `Open` to `In Progress` on this branch. No additional active Effort was resolved, moved into an INIT, or promoted to a PD/workflow doc. Agent entrypoints still link to `efforts/README.md` and `initiatives/README.md` rather than mirroring active IDs. Blocked handoffs remain unrelated to this slice.
+Active Efforts are now EFF-017, EFF-022, and EFF-029. EFF-028 is resolved on `main` by PR #294 / PR #298 closeout, and EFF-030 is resolved on `main` by PR #296 / PR #302 closeout. EFF-029 moved from `Open` to `In Progress` on this branch. No additional active Effort was resolved, moved into an INIT, or promoted to a PD/workflow doc by this branch. Agent entrypoints still link to `efforts/README.md` and `initiatives/README.md` rather than mirroring active IDs. Blocked handoffs remain unrelated to this slice.
 
 ## Effort implementation choice
 
-EFF-029 was selected because PR #291 cleared its sequencing gate, PR #294 / PR #298 resolved EFF-028, and the reported bug affects Pantry/Tools mobile usability. The initial implementation was returning-Settings-specific, but Wilson clarified during Replit validation that first-time setup Pantry/Tools needs the same camera proportion fix. The branch avoids EFF-028 because it is already resolved, avoids EFF-017 because PR #277 remains the current existing slice, and avoids EFF-022 because runtime fallback work is intentionally behind higher-priority INIT-001 visual/layout fixes.
+EFF-029 was selected because PR #291 cleared its sequencing gate, PR #294 / PR #298 resolved EFF-028, and the reported bug affects Pantry/Tools mobile usability. The initial implementation was returning-Settings-specific, but Wilson clarified during Replit validation that first-time setup Pantry/Tools needs the same camera proportion fix. The branch avoids EFF-028 because it is already resolved, avoids EFF-017 because PR #277 remains the current existing slice, avoids EFF-022 because runtime fallback work is intentionally behind higher-priority INIT-001 visual/layout fixes, and avoids EFF-030 because PR #296 resolved the setup cooking-skill Next-action work on `main`.
 
 ## Changes
 
@@ -45,13 +45,13 @@ EFF-029 was selected because PR #291 cleared its sequencing gate, PR #294 / PR #
 
 ## Impact on other agents
 
-The camera proportion fix now applies to first-time setup and returning Settings Pantry/Tools. The action-rail bottom-nav clearance is still returning-Settings-specific. Do not treat this branch as changing bottom-nav IA, scan providers, upload limits, manual entry behavior, dirty-state prompts, setup step flow, or EFF-030's setup cooking-skill Next-action follow-up.
+The camera proportion fix now applies to first-time setup and returning Settings Pantry/Tools. The action-rail bottom-nav clearance is still returning-Settings-specific. Do not treat this branch as changing bottom-nav IA, scan providers, upload limits, manual entry behavior, dirty-state prompts, setup step flow, or EFF-030's shipped setup cooking-skill Next-action behavior.
 
-EFF-029 should not be duplicated while this branch/PR is active. EFF-030 remains open for the setup cooking-skill explicit bottom Next action.
+EFF-029 should not be duplicated while this branch/PR is active. EFF-030 is resolved by PR #296.
 
 ## Open items
 
-- Replit/Chrome mobile visual validation for first-time setup Pantry/Tools and returning Settings Pantry/Tools is still pending.
+- Changed-since-last-prod production readiness regression should include first-time setup Pantry/Tools and returning Settings Pantry/Tools mobile visual checks if PR #295 ships in the release batch.
 - PR review, exact-head GitHub CI including `e2e_guest_smoke`, and Wilson merge approval are still pending.
 - If this branch merges, close EFF-029 only after final validation and accepted merge state make the resolution criteria true.
 
@@ -69,6 +69,7 @@ EFF-029 should not be duplicated while this branch/PR is active. EFF-030 remains
   - 390 x 740 mobile viewport measured returning camera `338 x 422.5`, ratio `1.25`.
   - Sticky Settings actions measured `92.31px` above the fixed bottom nav.
   - Camera controls stayed inside both frames, and camera-off copy stayed above controls in both frames.
+- Wilson reported a PR-level spot check looked good on 2026-07-16. Exact viewport was not recorded, so the production-readiness registry still carries the focused release-batch visual check.
 - Local dev server start through `PORT=3000 npm run env:run -- npm run dev` failed inside the sandbox on the known `tsx` IPC pipe restriction, then started successfully outside the sandbox and was stopped. The visual check used built CSS rather than live app/Firebase routing.
 - `PORT=3000 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm run env:run -- npm run db:health` failed inside the sandbox on the same `tsx` IPC restriction, then reached the real DB check outside the sandbox and failed because the configured endpoint is disabled. Local DB-backed Playwright E2E was not run; rely on PR CI `e2e_guest_smoke` for exact-head merge-gate E2E.
 
@@ -79,6 +80,6 @@ No server routes, schema, prompts, provider logic, upload limits, scan analysis,
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `d3051cda557142b24d699f253a46587656d91e3e`
-- Last Replit-validated at: not yet validated for this branch
+- Current base: `origin/main` at `3330fa6ead1753686d4b0d3df482a7feb28c809b`
+- Last Replit-validated at: `7450a4269564dc82467a8414e8a8098eca3c15df` for Wilson's PR-level spot check; exact viewport not recorded
 - Notes: branch was renamed to `codex/eff-029-settings-camera-actions` before publish.

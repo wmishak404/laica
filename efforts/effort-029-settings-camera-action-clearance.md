@@ -89,7 +89,7 @@ EFF-028 resolved when PR #294 merged as `4e872deeb494b72f56ce5011a5b1bd213ee9fb2
 
 ## 2026-07-16 - Setup/Settings layout implementation started
 
-Daily Efforts hygiene confirmed PR #291 from Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, clearing the sequencing gate, and PR #294 / PR #298 resolved EFF-028. EFF-017 has open PR #277, EFF-022 remains behind higher-priority INIT-001 work, and EFF-030 is narrower setup consistency work, so this branch selected EFF-029 as the next non-conflicting implementation slice.
+Daily Efforts hygiene confirmed PR #291 from Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, clearing the sequencing gate, and PR #294 / PR #298 resolved EFF-028. EFF-017 has open PR #277, EFF-022 remains behind higher-priority INIT-001 work, and EFF-030 has since resolved through PR #296 / PR #302 closeout, so this branch remains the active adjacent setup/settings layout slice.
 
 Initial implementation kept the camera fix returning-Settings-specific. Wilson clarified during Replit validation that first-time setup Pantry/Tools should receive the same camera proportion treatment, so the branch now shares the camera proportion rules across setup and returning inventory scan surfaces while keeping authenticated bottom-nav action clearance returning-only:
 
@@ -104,6 +104,7 @@ Validation so far:
 - Focused Vitest/CSS guards passed: `npx vitest run tests/unit/user-profiling.test.tsx tests/unit/user-settings-scan-policy.test.tsx tests/unit/setup-button-css.test.ts --testTimeout=15000`.
 - Full local unit and static checks passed after the setup scope correction: `npm run test:unit` (50 files / 387 tests), `npm run check`, `npm run build`, `npm audit --audit-level=high`, and `git diff --check`. Build retained the existing Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - Exact-head built-CSS Chromium geometry at a 390 x 740 mobile viewport measured the first-time setup camera at `336 x 420` (`4 / 5`) and the returning camera at `338 x 422.5` (`4 / 5`); returning sticky actions were `92.31px` above the fixed bottom nav, camera controls stayed inside both frames, and camera-off copy stayed above controls in both frames.
+- Wilson reported a PR-level spot check looked good on 2026-07-16. Exact viewport was not recorded, so `docs/production-validation-registry.md` still carries the focused changed-since-last-prod production readiness check if PR #295 ships in the release batch.
 - Local DB-backed Playwright E2E was not run because `db:health` reached the configured dotenvx database outside the sandbox and failed with `The endpoint has been disabled`. Exact-head GitHub `e2e_guest_smoke` remains the required merge-gate E2E lane for the PR.
 - Fresh PR dependency audit initially failed on the existing transitive `websocket-driver@0.7.4` critical advisory path through Firebase packages. The branch kept that remediation lockfile-only by accepting `npm audit fix`'s `websocket-driver@0.7.5` update; `package.json` did not change, and `npm audit --audit-level=high` then passed.
 
