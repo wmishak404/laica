@@ -109,7 +109,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
-    "@dotenvx/dotenvx": "1.73.1",
+    "@dotenvx/dotenvx": "2.12.0",
     "@replit/vite-plugin-cartographer": "^0.2.0",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.6",
     "@tailwindcss/typography": "^0.5.20",
