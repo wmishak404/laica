@@ -23,9 +23,9 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 ## Current Main Candidate
 
 - Registry updated: 2026-07-16 for the PR #293, PR #294, PR #295, and PR #296 addenda below.
-- Current `origin/main`: `3330fa6ead1753686d4b0d3df482a7feb28c809b`.
-- Current latest merge: PR #303, `Require production regression registration for runtime changes`.
-- Current latest user-visible/runtime merge: PR #296, `[codex] Require Next after setup skill selection`.
+- Current `origin/main`: `edd547ccd623d511d095a5ecb9251bb81850c783`.
+- Current latest merge: PR #295, `[codex] Fix setup and Settings camera action clearance`.
+- Current latest user-visible/runtime merge: PR #295, `[codex] Fix setup and Settings camera action clearance`.
 
 The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The dated addenda record PR #275, PR #276, PR #293, PR #294, PR #295, and PR #296 coverage now so the next production-readiness pass does not lose that test signal; they are not a full audit of every intervening merge.
 
@@ -65,7 +65,8 @@ The row list below still needs the normal changed-since-last-prod review before 
 
 ## 2026-07-16 PR #295 Production-Readiness Addendum
 
-- PR #295 is open on `codex/eff-029-settings-camera-actions` and implements EFF-029's first-time setup plus returning Settings Pantry/Tools camera/action clearance. Include this focused visual check in the next production/release-batch smoke when the release SHA contains the PR #295 merge.
+- PR #295 merged at `edd547ccd623d511d095a5ecb9251bb81850c783` after exact-head GitHub checks passed for head `4c9d8b84f6fd29d8aac5fb20546f2e7836137172`.
+- Include EFF-029's first-time setup plus returning Settings Pantry/Tools camera/action clearance in the next production/release-batch smoke when the release SHA contains this merge.
 - Mobile setup check: first-time setup Pantry and optional Tools camera surfaces should render as taller `4 / 5` inventory camera frames, with camera-off copy and camera controls inside the frame and the Back/Next rail still visible and tappable.
 - Mobile Settings check: returning Settings -> Kitchen Inventory -> Pantry and Tools should render the same taller camera frame, and Save/Reset/action controls should stay fully visible above the fixed Cook/Menu bottom nav.
 - Wilson reported a PR-level spot check looked good on 2026-07-16. Keep this as targeted visual evidence, not as a substitute for the changed-since-last-prod production readiness entry if PR #295 ships in the release batch.
@@ -75,7 +76,7 @@ Merged or pending release-candidate work after the 2026-06-22 production-smoke e
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
 | 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: bottom `Next` should be disabled before skill selection; selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
-| 2026-07-16 | pending PR #295 | EFF-029 setup/settings Pantry/Tools camera/action clearance | If merged into the release SHA, run a mobile visual smoke for first-time setup Pantry/Tools and returning Settings Pantry/Tools: 4:5 camera frames, in-frame camera-off copy/controls, setup Back/Next rail reachability, and Settings actions clear of the bottom nav. |
+| 2026-07-16 | `edd547c` / PR #295 | EFF-029 setup/settings Pantry/Tools camera/action clearance | Run a mobile visual smoke for first-time setup Pantry/Tools and returning Settings Pantry/Tools when this merge is in the release SHA: 4:5 camera frames, in-frame camera-off copy/controls, setup Back/Next rail reachability, and Settings actions clear of the bottom nav. |
 | 2026-07-16 | `4e872de` / PR #294 | EFF-028 Chef It Up time-selection, Ticket Pass heading, and mobile Prep Tray ready-image visuals | Focused mobile visual smoke: time-selection title is centered/clear of Back without bottom bias, Ticket Pass heading reads `Recipe suggestions`, and mobile Prep Tray ready selected image fills the hero area without bleeding back into Ticket Pass. Carry exact-head Replit validation at `127701d99e2f2cd85b37114bb68a5e1774065255` unless later mobile layout changes land. |
 | 2026-07-16 | `d7aadd2` / PR #293 | Shared toast primitive swipe dismissal and direction-matched exit animation | Focused mobile UI smoke: trigger a toast, swipe right/left/up to dismiss, verify the exit animation follows the gesture direction, and verify down swipe does not dismiss. Record the mobile browser or device preset because the pre-merge mobile spot check did not capture it. |
 | 2026-07-10 | `148c881` / PR #275 | Live Cooking `Ask a question` technical/quota failure presentation | Release-batch Live Cooking smoke: deny microphone or force assistance-route failure; verify current step stays visible, separate voice-help retry status appears outside Step guidance, retry clears it, and technical failure copy is not spoken as cooking guidance. |
