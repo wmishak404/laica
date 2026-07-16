@@ -3146,7 +3146,7 @@ html[data-laica-setup-scroll-lock] #root {
     }
 
     .meal-planning-screen.planning-time-screen {
-      --planning-browser-top-clearance: 7.9rem;
+      --planning-browser-top-clearance: clamp(5.35rem, 12svh, 6.35rem);
       min-height: calc(100svh - 4.05rem);
       padding-top: var(--planning-browser-top-clearance);
     }
@@ -3158,7 +3158,7 @@ html[data-laica-setup-scroll-lock] #root {
     .planning-time-screen .planning-time-content {
       flex: 1 1 auto;
       min-height: 0;
-      gap: 1.35rem;
+      gap: clamp(1rem, 2.45svh, 1.35rem);
       justify-content: flex-start;
       padding-bottom: 0;
     }

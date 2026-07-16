@@ -18,7 +18,7 @@ Wilson then requested Chrome/Replit mobile validation. Codex validated the imple
 ## Changes
 
 - `client/src/components/cooking/meal-planning.tsx`: adds a `.planning-process-heading` wrapper to the Chef It Up time, cuisine, and staple process headings so shared heading fit can be adjusted without changing behavior.
-- `client/src/index.css`: adds short-mobile process-heading width rules, applies the time-screen-only centered/downward/larger-clock exception, removes ready-state Prep Tray hero padding on short mobile, and forces the ready Prep Tray image slot to fill the hero box with `height: 100%`, `min-height: 0`, and `object-fit: cover`.
+- `client/src/index.css`: adds short-mobile process-heading width rules, applies the time-screen-only centered/viewport-relative/larger-clock exception, removes ready-state Prep Tray hero padding on short mobile, and forces the ready Prep Tray image slot to fill the hero box with `height: 100%`, `min-height: 0`, and `object-fit: cover`.
 - `tests/e2e/cooking-workflow.test.ts`: adds a mobile time-layout geometry assertion for centered title / vertical Back clearance / enlarged clock and runs the selected-image Prep Tray path at `320x740` so the EFF-028 title and ready-image geometry stays covered by the guest E2E lane once CI runs against a prepared schema.
 - `tests/e2e/linked-dev-auth.test.ts` and `tests/unit/meal-planning.test.tsx`: update Ticket Pass heading expectations to `Recipe suggestions`.
 - `package-lock.json`: updates transitive `websocket-driver` from `0.7.4` to `0.7.5` after GitHub `npm-audit` exposed a critical advisory through Firebase's `@firebase/database -> faye-websocket` path. No direct dependency or runtime source files changed for this audit unblocker.
@@ -32,16 +32,16 @@ This branch intentionally does not change providers, schema, prompts, durable na
 
 ## Open items
 
-- PR #294 is open and needs fresh exact-head GitHub checks after the docs/audit follow-up commit.
+- PR #294 is open and needs fresh exact-head GitHub checks after the physical-iPhone centering follow-up commit.
 - Local DB-backed E2E is not claimed because the decrypted local database failed schema health.
-- Chrome/Replit mobile validation passed for the revised EFF-028 runtime at `3d70dfb90c51cba51a492216c7f79078386f9188`; the final PR body should name the post-doc/audit head after Replit fetches it because the follow-up commit is docs/lockfile-only.
+- Chrome/Replit mobile validation passed for the revised EFF-028 runtime at `3d70dfb90c51cba51a492216c7f79078386f9188`, and final-head reload checks passed at `305e290eca70cbf0980c90dd0f20dd230c96259e`. Wilson then provided a physical iPhone Safari screenshot showing the time composition still too low in that shorter app viewport; the latest branch now needs fresh exact-head GitHub/Replit validation after the viewport-relative centering follow-up.
 - EFF-029 and EFF-030 remain unstarted here.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`
-- Last Replit-validated at: revised runtime `3d70dfb90c51cba51a492216c7f79078386f9188`; follow-up docs/lockfile commit should be fetched into Replit and named in the PR body before merge.
+- Last Replit-validated at: `305e290eca70cbf0980c90dd0f20dd230c96259e`; latest unvalidated follow-up changes time-screen CSS/test guards only and should be fetched into Replit before merge.
 - Notes: PR #291 (`766d910b128f84213d2a79a8077100d3df4272d8`) and PR #292 (`05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`) were verified on `origin/main` before branch work began.
 
 ## Verification
@@ -56,7 +56,8 @@ Passed locally:
 - `npm run build` — passed with existing Browserslist, Firebase mixed import, and chunk-size warnings.
 - `npm audit --audit-level=high` — initially failed on GitHub/current lockfile because `websocket-driver@0.7.4` had a critical advisory; `npm audit fix --package-lock-only --audit-level=high` updated it to `0.7.5`, then local `npm ci`, `npm audit --audit-level=high`, `npm run test:unit`, `npm run check`, `npm run build`, and `git diff --check` passed.
 - `git diff --check`
-- Current-head built-CSS Chromium geometry at `390x740`: time title lines are centered at `195px` in a `390px` viewport, first line top is `122.390625px` below the Back button bottom `51.1875px`, the enlarged clock is `150.390625 x 150.390625`, and the action dock remains visible. Screenshot saved at `/tmp/laica-eff028-time-revised-css.png`.
+- After Wilson's physical iPhone Safari screenshot, `npm run build`, `npm run check`, `npm run test:unit`, and `git diff --check` passed for the viewport-relative centering follow-up. A compiled-CSS Chromium geometry probe covered `390x744`, `390x844`, `375x667`, and `430x740`: at `390x744`, title gap after Back was `34.078125px` and stack center was `45.015625px` above the available center; at `390x844`, stack center was within `3.9921875px` of the available center. Screenshots: `/tmp/laica-eff028-time-css-390x744-balanced.png`, `/tmp/laica-eff028-time-css-390x844-balanced.png`.
+- Earlier built-CSS Chromium geometry after Wilson's first revision at `390x740`: time title lines were centered at `195px` in a `390px` viewport, first line top was `122.390625px` below the Back button bottom `51.1875px`, the enlarged clock was `150.390625 x 150.390625`, and the action dock remained visible. Screenshot saved at `/tmp/laica-eff028-time-revised-css.png`.
 - Earlier compiled-CSS Prep Tray geometry, unchanged by the later time-screen/copy revision, showed the mobile ready slot equal to the hero box at `320 x 132.796875` with zero geometry delta and `object-fit: cover`. Screenshot saved at `/tmp/laica-eff028-compiled-css-mobile.png`.
 - Headless Chromium compiled-CSS geometry at `900x800`: desktop Prep Tray ready slot equals hero box at `900 x 152` with zero geometry delta and `object-fit: cover`.
 

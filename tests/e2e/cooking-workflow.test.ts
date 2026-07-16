@@ -233,13 +233,22 @@ async function expectTimeHeadingLayout(page: Page) {
   const heading = page.getByRole('heading', { name: 'How much time do you have today?' });
   const backButton = page.locator('.planning-back-button').first();
   const clock = page.locator('.planning-clock').first();
+  const sliderCard = page.locator('.planning-slider-card').first();
+  const note = page.locator('.planning-note').first();
+  const actionDock = page.locator('.planning-action-dock').first();
 
   await expect(heading).toBeVisible();
   await expect(backButton).toBeVisible();
   await expect(clock).toBeVisible();
+  await expect(sliderCard).toBeVisible();
+  await expect(note).toBeVisible();
+  await expect(actionDock).toBeVisible();
 
   const backBox = await backButton.boundingBox();
   const clockBox = await clock.boundingBox();
+  const sliderBox = await sliderCard.boundingBox();
+  const noteBox = await note.boundingBox();
+  const actionDockBox = await actionDock.boundingBox();
   const viewportWidth = page.viewportSize()?.width;
   const textLineBoxes = await heading.evaluate((element) => {
     const range = document.createRange();
@@ -258,13 +267,19 @@ async function expectTimeHeadingLayout(page: Page) {
 
   expect(backBox).not.toBeNull();
   expect(clockBox).not.toBeNull();
+  expect(sliderBox).not.toBeNull();
+  expect(noteBox).not.toBeNull();
+  expect(actionDockBox).not.toBeNull();
   expect(viewportWidth).toBeGreaterThan(0);
   expect(textLineBoxes.length).toBeGreaterThan(0);
-  if (!backBox || !clockBox || !viewportWidth) throw new Error('Time screen bounds were unavailable');
+  if (!backBox || !clockBox || !sliderBox || !noteBox || !actionDockBox || !viewportWidth) {
+    throw new Error('Time screen bounds were unavailable');
+  }
 
   const backBottom = backBox.y + backBox.height;
   const textTop = Math.min(...textLineBoxes.map((box) => box.top));
   expect(textTop).toBeGreaterThanOrEqual(backBottom + 8);
+  expect(textTop - backBottom).toBeLessThanOrEqual(64);
 
   const viewportCenter = viewportWidth / 2;
   for (const box of textLineBoxes) {
@@ -274,6 +289,17 @@ async function expectTimeHeadingLayout(page: Page) {
 
   expect(clockBox.width).toBeGreaterThanOrEqual(145);
   expect(clockBox.height).toBeGreaterThanOrEqual(145);
+
+  const stackTop = Math.min(textTop, clockBox.y, sliderBox.y, noteBox.y);
+  const stackBottom = Math.max(
+    Math.max(...textLineBoxes.map((box) => box.bottom)),
+    clockBox.y + clockBox.height,
+    sliderBox.y + sliderBox.height,
+    noteBox.y + noteBox.height,
+  );
+  const stackCenter = (stackTop + stackBottom) / 2;
+  const availableCenter = (backBottom + actionDockBox.y) / 2;
+  expect(stackCenter).toBeLessThanOrEqual(availableCenter + 24);
 }
 
 async function completeChefItUpToStapleSelection(

@@ -46,7 +46,7 @@ Out of scope:
 
 ## Decisions made so far
 
-- Wilson rejected the first horizontal-inset time-title attempt as unpleasingly asymmetrical. The accepted time-selection exception is now centered/symmetrical title, page-specific downward placement, and a larger timer/clock.
+- Wilson rejected the first horizontal-inset time-title attempt as unpleasingly asymmetrical. The accepted time-selection exception is now centered/symmetrical title, viewport-relative page placement, and a larger timer/clock.
 - Shorten the Ticket Pass heading from `Recipe suggestions from your pantry` to `Recipe suggestions`.
 - Treat the comparison screens as `What sounds good?` and `Anything else around?`, not the current covered time-title screenshot.
 - Treat the Prep Tray comparison target as the accepted PR #208/desktop behavior where the ready selected image fills the hero image area. Do not treat the mobile inner-border/gutter screenshot as acceptable ready-state behavior.
@@ -65,7 +65,7 @@ Out of scope:
 - [x] Read this Effort, INIT-001, Phase 3 Planning, Phase 3.1, PD-005, and `design_guidelines.md` before implementation.
 - [x] Inspect the current Chef It Up time, cuisine, and extra-ingredients process-heading markup/CSS before choosing a shared or local fix.
 - [x] Inspect the current Prep Tray image markup/CSS and PR #208-era intent before changing image sizing.
-- [x] Implement the smallest tokenized/scoped layout change that clears the Back button through the accepted time-page exception: centered title, page-specific downward placement, and larger timer/clock.
+- [x] Implement the smallest tokenized/scoped layout change that clears the Back button through the accepted time-page exception: centered title, viewport-relative page placement, and larger timer/clock.
 - [x] Implement the smallest tokenized/scoped image-layout change that makes a ready selected Prep Tray image fill the mobile hero area without altering provider/image-generation behavior.
 - [x] Verify a narrow mobile viewport visually against the time screen, adjacent Chef It Up screens, and a Prep Tray with a ready selected image.
 - [x] Verify desktop Prep Tray remains full-bleed and does not regress while fixing mobile.
@@ -166,3 +166,11 @@ Observed revised Replit evidence:
 GitHub checks at revised runtime head `3d70dfb90c51cba51a492216c7f79078386f9188` passed `unit`, `e2e_guest_smoke`, `trufflehog_pr`, CodeQL, and both Analyze checks; `trufflehog_push` skipped as expected. `npm-audit` failed because a new critical advisory hit transitive `websocket-driver@0.7.4` through Firebase's `@firebase/database -> faye-websocket` path. Codex ran `npm audit fix --package-lock-only --audit-level=high`, which updated only `package-lock.json` to `websocket-driver@0.7.5`. After the lockfile-only audit remediation, local `npm ci`, `npm audit --audit-level=high`, `npm run test:unit`, `npm run check`, `npm run build`, and `git diff --check` all passed.
 
 Negative scope remains: no provider, schema, prompt, durable navigation, Ticket Pass generation/refresh behavior, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, recipe route, direct dependency, or package manifest changes. The audit fix is a transitive lockfile-only CI unblocker. EFF-029 and EFF-030 remain unstarted.
+
+## 2026-07-16 - Physical iPhone centering follow-up
+
+Wilson compared a full physical iPhone Safari screenshot against the desktop browser's iPhone-sized Replit view and found the time-selection composition still looked too low on the real phone because Safari browser chrome leaves a shorter app viewport. Codex changed the short-mobile time-page top clearance from a fixed `7.9rem` shove to `clamp(5.35rem, 12svh, 6.35rem)` and made the time-stack gap viewport-relative with `clamp(1rem, 2.45svh, 1.35rem)`. The intent is still the Wilson-approved page-specific time-selection exception, but it now scales with available mobile height instead of preserving one emulator-biased vertical offset.
+
+The E2E time-layout guard now also checks that the title is not too far below the Back button and that the time-content stack is not biased below the available center above the fixed Next dock. Local validation for this follow-up passed `npm run build`, `npm run check`, `npm run test:unit`, and `git diff --check`. A compiled-CSS Chromium geometry probe covered `390x744`, `390x844`, `375x667`, and `430x740`: at `390x744`, the title gap after the Back button was `34.078125px` and the stack center was `45.015625px` above the available center; at `390x844`, the stack center was within `3.9921875px` of the available center. Screenshots were saved at `/tmp/laica-eff028-time-css-390x744-balanced.png` and `/tmp/laica-eff028-time-css-390x844-balanced.png`.
+
+This follow-up still does not change provider, schema, prompt, durable navigation, Ticket Pass generation/refresh behavior, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, recipe routes, direct dependencies, or package manifest entries. EFF-029 and EFF-030 remain unstarted.
