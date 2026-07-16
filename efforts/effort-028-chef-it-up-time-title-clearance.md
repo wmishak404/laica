@@ -1,6 +1,6 @@
 # EFF-028: Chef It Up mobile visual clearance
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-14
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
@@ -56,8 +56,7 @@ Out of scope:
 
 ## Open questions
 
-- No product or implementation questions remain for the current EFF-028 slice.
-- Merge readiness still needs current-head CI after Wilson's revised runtime CSS/copy direction. The first implementation head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da` passed exact-head GitHub `unit` and `e2e_guest_smoke`, but that predates the accepted centered/downward/larger-clock time screen and shortened Ticket Pass heading. The local decrypted database failed the read-only schema health check, so local DB-backed E2E is not claimed.
+- No open questions remain. EFF-028 resolved when PR #294 merged as `4e872deeb494b72f56ce5011a5b1bd213ee9fb29`.
 
 ## Agent checklist
 
@@ -93,7 +92,7 @@ Implementation should start by checking the existing full-hero intent from Phase
 
 ## 2026-07-14 - Phase 4 routing merged
 
-[PR #287](https://github.com/wmishak404/laica/pull/287) merged as `430a5d8` from final head `9051805`, routing this Effort into INIT-001 / Phase 4 as the next adjacent visual-layout target alongside EFF-029 after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merges. The Effort remains `Open`; no runtime implementation has started.
+[PR #287](https://github.com/wmishak404/laica/pull/287) merged as `430a5d8` from final head `9051805`, routing this Effort into INIT-001 / Phase 4 as the next adjacent visual-layout target alongside EFF-029 after thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` merged. At that point, the Effort remained `Open` and no runtime implementation had started.
 
 ## 2026-07-15 - Implementation branch opened
 
@@ -174,3 +173,11 @@ Wilson compared a full physical iPhone Safari screenshot against the desktop bro
 The E2E time-layout guard now also checks that the title is not too far below the Back button and that the time-content stack is not biased below the available center above the fixed Next dock. Local validation for this follow-up passed `npm run build`, `npm run check`, `npm run test:unit`, and `git diff --check`. A compiled-CSS Chromium geometry probe covered `390x744`, `390x844`, `375x667`, and `430x740`: at `390x744`, the title gap after the Back button was `34.078125px` and the stack center was `45.015625px` above the available center; at `390x844`, the stack center was within `3.9921875px` of the available center. Screenshots were saved at `/tmp/laica-eff028-time-css-390x744-balanced.png` and `/tmp/laica-eff028-time-css-390x844-balanced.png`.
 
 This follow-up still does not change provider, schema, prompt, durable navigation, Ticket Pass generation/refresh behavior, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, recipe routes, direct dependencies, or package manifest entries. EFF-029 and EFF-030 remain unstarted.
+
+## 2026-07-16 - Resolved by PR #294
+
+[PR #294](https://github.com/wmishak404/laica/pull/294) squash-merged into `main` as `4e872deeb494b72f56ce5011a5b1bd213ee9fb29` from final validated head `127701d99e2f2cd85b37114bb68a5e1774065255`.
+
+The merged slice satisfies the EFF-028 resolution criteria: the Chef It Up time-selection title stays centered and clear of the floating Back button across tested mobile heights, the time-page-only exception uses viewport-relative placement with a larger timer/clock, the Ticket Pass heading is shortened to `Recipe suggestions`, and mobile Prep Tray ready selected images fill the hero area while placeholder/pending states remain centered. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze checks passed at `127701d9`; Chrome/Replit mobile validation at the same head covered app-reported `390x744`, `390x844`, and `375x667` viewports without Replit Agent.
+
+Negative scope remains unchanged after merge: no provider, schema, prompt, durable navigation, Ticket Pass generation/refresh behavior, Ready Check behavior, Live Cooking behavior, image-generation/cache behavior, recipe route, direct dependency, or package manifest changes. EFF-029 and EFF-030 remain separate active follow-ups.
