@@ -1,6 +1,6 @@
 # EFF-029: Setup/Settings camera height and action clearance
 
-**Status:** In Progress
+**Status:** Resolved
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-14
 **Updated:** 2026-07-16
@@ -20,7 +20,7 @@ Wilson's 2026-07-14 mobile Safari/Replit screenshots of the logged-in Settings K
 
 The screenshots were first recorded from returning logged-in Settings, but Wilson clarified on 2026-07-16 that the first-time setup Pantry/Tools scan pages need the same camera proportion fix. Returning Settings intentionally reuses setup's camera object and action grammar, so the implementation should inspect the shared setup/returning CSS and components before choosing whether the fix belongs in a shared camera/action primitive or in returning Settings-specific layout.
 
-Sequencing note from Wilson: do not implement this Effort until Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, because that release was large and already creating bugs/design drift. That upstream work, the EFF-028 implementation PR, and the EFF-028 closeout have now landed; EFF-029 is the active adjacent visual/setup target unless Wilson reprioritizes.
+Sequencing note from Wilson: do not implement this Effort until Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, because that release was large and already creating bugs/design drift. That upstream work, the EFF-028 implementation PR, and the EFF-028 closeout landed before PR #295 resolved this Effort.
 
 This is not the production vision-scan 500 blocker recorded in `docs/handoffs/2026-06-21-codex-prod-vision-scan-investigation-blocked.md`; this Effort is a client layout/visual follow-up.
 
@@ -51,11 +51,11 @@ Out of scope:
 - Keep bottom actions pinned, but above the main bottom nav.
 - Sequence implementation after EFF-028's merge closeout lands, starting from fresh `origin/main`.
 
-## Open questions
+## Final implementation choices
 
-- Should the camera frame use a strict `aspect-ratio: 4 / 5`, a responsive min/max height around that ratio, or a returning-Settings-only variant that approximates 4:5 while preserving upload/manual/action visibility?
-- Should the bottom action clearance live in the Settings inventory shell, the shared setup bottom-action pattern, or the authenticated app-shell bottom-nav spacing contract?
-- Should future setup scan pages beyond Pantry/Tools adopt the same explicit `.setup-inventory-camera` wrapper, or should this remain inventory-only until another page needs it?
+- PR #295 uses strict `aspect-ratio: 4 / 5` for first-time setup and returning Settings inventory camera wrappers.
+- Returning bottom action clearance lives in the returning Settings inventory shell through `--returning-bottom-nav-clearance`; the app-shell bottom nav IA is unchanged.
+- The explicit `.setup-inventory-camera` and `.returning-inventory-camera` wrappers stay inventory-only until another setup scan surface needs the same treatment.
 
 ## Agent checklist
 
@@ -108,4 +108,19 @@ Validation so far:
 - Local DB-backed Playwright E2E was not run because `db:health` reached the configured dotenvx database outside the sandbox and failed with `The endpoint has been disabled`. Exact-head GitHub `e2e_guest_smoke` remains the required merge-gate E2E lane for the PR.
 - Fresh PR dependency audit initially failed on the existing transitive `websocket-driver@0.7.4` critical advisory path through Firebase packages. The branch kept that remediation lockfile-only by accepting `npm audit fix`'s `websocket-driver@0.7.5` update; `package.json` did not change, and `npm audit --audit-level=high` then passed.
 
-Remaining before this Effort can close: PR review/merge, exact-head CI, and preferably Replit/Chrome mobile visual validation for returning Settings Pantry and Tools with the real app shell and bottom nav.
+## 2026-07-16 - Resolved by PR #295
+
+[PR #295](https://github.com/wmishak404/laica/pull/295) merged on 2026-07-16 as `edd547ccd623d511d095a5ecb9251bb81850c783` from final head `4c9d8b84f6fd29d8aac5fb20546f2e7836137172`, resolving EFF-029.
+
+Merged behavior:
+
+- First-time setup Pantry/Tools and returning Settings Pantry/Tools now use inventory camera wrappers with strict `4 / 5` camera framing.
+- The camera-off state spacing and icon scale are proportionate inside the taller frames.
+- Returning Settings Pantry/Tools actions stay pinned above the fixed Cook/Menu bottom nav.
+- Upload/manual/scan controls, dirty reminders, save/reset behavior, section switching, bottom-nav IA, provider routes, schema, prompts, and Live Cooking behavior remain unchanged.
+
+Validation and release follow-up:
+
+- Exact-head GitHub checks passed on final head `4c9d8b84`: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, Analyze actions, and Analyze javascript-typescript.
+- Earlier implementation evidence included focused Vitest/CSS guards, full local unit/check/build/audit, and built-CSS Chromium geometry showing setup and returning cameras at `4 / 5` with returning actions `92.31px` above the fixed bottom nav.
+- Wilson reported a PR-level spot check looked good on 2026-07-16. Exact viewport was not recorded, so `docs/production-validation-registry.md` still carries the focused release-batch visual check for PR #295.

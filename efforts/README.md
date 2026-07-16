@@ -74,7 +74,6 @@ Read these before starting work in their governed domains:
 |---|---|---|---|---|
 | [EFF-017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `In Progress` | Wilson / Codex / Claude | 2026-05-05 |
 | [EFF-022](effort-022-cross-cuisine-recommendation-prompts.md) | Cross-cuisine recommendation prompts | `Open` | Wilson / Codex / Claude | 2026-05-23 |
-| [EFF-029](effort-029-settings-camera-action-clearance.md) | Setup/Settings camera height and action clearance | `In Progress` | Wilson / Codex / Claude | 2026-07-14 |
 
 ## Deferred Efforts
 
