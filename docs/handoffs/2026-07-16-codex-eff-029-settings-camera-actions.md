@@ -27,6 +27,8 @@ EFF-029 was selected because PR #291 cleared its sequencing gate and the reporte
   - Overrides only returning inventory cameras to `aspect-ratio: 4 / 5`.
   - Adjusts returning camera-off spacing and icon scale inside the taller frame.
   - Adds `--returning-bottom-nav-clearance` and sticks `.returning-actions` above the fixed Cook/Menu nav.
+- `package-lock.json`
+  - Updates transitive `websocket-driver` from `0.7.4` to `0.7.5` after the fresh PR dependency audit failed on GHSA-mp7j-qc5w-4988 / GHSA-xv26-6w52-cph6. `package.json` did not change.
 - `tests/unit/user-settings-scan-policy.test.tsx`
   - Guards that Pantry and Tools render the returning camera wrapper.
 - `tests/unit/setup-button-css.test.ts`
@@ -56,6 +58,7 @@ EFF-029 should not be duplicated while this branch/PR is active. EFF-030 remains
 - `npm run check` passed.
 - `npm run build` passed with existing Browserslist, Firebase dynamic/static import, and chunk-size warnings.
 - `git diff --check` passed.
+- `npm audit --audit-level=high` passed after `npm audit fix` made the lockfile-only `websocket-driver@0.7.5` remediation.
 - Exact-head local built-CSS Chromium geometry probe passed outside the sandbox after sandboxed Chromium hit a macOS Mach-port permission failure:
   - 390 x 740 mobile viewport measured returning camera `338 x 422.5`, ratio `1.25`.
   - Sticky Settings actions measured `92.31px` above the fixed bottom nav.
@@ -65,7 +68,7 @@ EFF-029 should not be duplicated while this branch/PR is active. EFF-030 remains
 
 ## Negative scope
 
-No server routes, schema, prompts, providers, upload limits, scan analysis, navigation IA, auth-mode visibility, first-time setup flow, EFF-028, EFF-030, or Live Cooking behavior changed.
+No server routes, schema, prompts, provider logic, upload limits, scan analysis, navigation IA, auth-mode visibility, first-time setup flow, EFF-028, EFF-030, or Live Cooking behavior changed. The only dependency change is the lockfile-only transitive `websocket-driver` audit remediation described above.
 
 ## Stack / base status
 
