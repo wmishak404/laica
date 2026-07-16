@@ -1552,6 +1552,7 @@ html[data-laica-setup-scroll-lock] #root {
     --returning-butter: 43 100% 76%;
     --returning-metal: 214 12% 58%;
     --returning-wood: 33 44% 72%;
+    --returning-bottom-nav-clearance: calc(env(safe-area-inset-bottom) + 4.75rem);
     background:
       radial-gradient(circle at 13% 0%, hsl(var(--returning-butter) / 0.22), transparent 16rem),
       radial-gradient(circle at 96% 15%, hsl(var(--returning-teal) / 0.1), transparent 18rem),
@@ -1565,6 +1566,28 @@ html[data-laica-setup-scroll-lock] #root {
       radial-gradient(circle at 10% 2%, hsl(var(--returning-butter) / 0.24), transparent 16rem),
       radial-gradient(circle at 88% 10%, hsl(var(--returning-coral) / 0.12), transparent 17rem),
       linear-gradient(180deg, hsl(37 100% 96%), hsl(31 70% 91%));
+  }
+
+  .returning-ui {
+    padding-bottom: calc(var(--returning-bottom-nav-clearance) + 1.25rem);
+  }
+
+  .returning-inventory-camera .setup-viewfinder > .relative {
+    aspect-ratio: 4 / 5;
+  }
+
+  .returning-inventory-camera .setup-camera-state {
+    gap: clamp(0.75rem, 2.8vw, 1.05rem);
+    padding: clamp(3rem, 10vw, 4.65rem) 1.25rem clamp(6.65rem, 18vw, 8.25rem);
+  }
+
+  .returning-inventory-camera .setup-camera-state-icon {
+    width: clamp(5.7rem, 19vw, 7rem);
+    height: clamp(5.7rem, 19vw, 7rem);
+  }
+
+  .returning-inventory-camera .setup-camera-controls {
+    bottom: clamp(1.25rem, 4vw, 1.75rem);
   }
 
   .returning-display {
@@ -1879,7 +1902,8 @@ html[data-laica-setup-scroll-lock] #root {
 
   .returning-actions {
     position: sticky;
-    bottom: 0;
+    bottom: var(--returning-bottom-nav-clearance);
+    z-index: 20;
     display: grid;
     grid-template-columns: 0.8fr 1.2fr;
     gap: 0.75rem;
@@ -1887,6 +1911,7 @@ html[data-laica-setup-scroll-lock] #root {
     border-top: 1px solid hsl(var(--returning-coral) / 0.12);
     background: linear-gradient(180deg, hsl(var(--returning-cream) / 0.42), hsl(var(--returning-cream) / 0.96));
     padding: 0.85rem 1rem 1rem;
+    box-shadow: 0 -0.85rem 1.8rem hsl(var(--returning-coral) / 0.08);
   }
 
   .history-card {

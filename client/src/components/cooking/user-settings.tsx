@@ -1212,27 +1212,29 @@ export default function UserSettings({
           </div>
 
           <div className="mt-5 space-y-5">
-            <NativeCamera
-              variant="setup"
-              setupTone={isPantry ? 'pantry' : 'kitchen'}
-              title={isPantry ? 'Pantry preview' : 'Tools preview'}
-              captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
-              cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
-              tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
-              tipsDescription={isPantry
-                ? 'Open cabinets, use good light, and scan one area at a time.'
-                : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
-              showUploadButton={false}
-              disabled={isInventoryLocked}
-              onImageCapture={isPantry ? handlePantryImageCapture : handleEquipmentImageCapture}
-              onError={(error) => {
-                toast({
-                  title: 'Camera issue',
-                  description: error,
-                  variant: 'destructive',
-                });
-              }}
-            />
+            <div className="returning-inventory-camera">
+              <NativeCamera
+                variant="setup"
+                setupTone={isPantry ? 'pantry' : 'kitchen'}
+                title={isPantry ? 'Pantry preview' : 'Tools preview'}
+                captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
+                cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
+                tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
+                tipsDescription={isPantry
+                  ? 'Open cabinets, use good light, and scan one area at a time.'
+                  : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
+                showUploadButton={false}
+                disabled={isInventoryLocked}
+                onImageCapture={isPantry ? handlePantryImageCapture : handleEquipmentImageCapture}
+                onError={(error) => {
+                  toast({
+                    title: 'Camera issue',
+                    description: error,
+                    variant: 'destructive',
+                  });
+                }}
+              />
+            </div>
 
             <div className="space-y-3">
               <input
