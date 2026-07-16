@@ -18,4 +18,16 @@ describe('setup button CSS guards', () => {
     expect(hoverRule).toContain('color: hsl(0 0% 100%);');
     expect(stateRule).toContain('color: hsl(0 0% 100%);');
   });
+
+  it('keeps setup and returning Settings inventory cameras at phone-camera proportions', () => {
+    const sharedCameraRule = css.match(/\.setup-inventory-camera \.setup-viewfinder > \.relative,[\s\S]*?\.returning-inventory-camera \.setup-viewfinder > \.relative \{[\s\S]*?\}/)?.[0] ?? '';
+    const mobileSetupCameraRule = css.match(/\.setup-scan-step \.setup-viewfinder > \.relative \{[\s\S]*?\}/)?.[0] ?? '';
+    const actionRule = css.match(/\.returning-actions \{[\s\S]*?\}/)?.[0] ?? '';
+
+    expect(css).toContain('--returning-bottom-nav-clearance');
+    expect(sharedCameraRule).toContain('aspect-ratio: 4 / 5;');
+    expect(mobileSetupCameraRule).toContain('aspect-ratio: 4 / 5;');
+    expect(actionRule).toContain('bottom: var(--returning-bottom-nav-clearance);');
+    expect(actionRule).toContain('z-index: 20;');
+  });
 });
