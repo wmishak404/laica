@@ -852,7 +852,7 @@ export default function MealPlanning({
       </button>
 
       <div className="planning-time-content flex flex-1 flex-col justify-center gap-10">
-        <div className="text-center">
+        <div className="planning-process-heading text-center">
           <h1 className="planning-display text-3xl font-extrabold leading-tight">
             How much time do you have today?
           </h1>
@@ -912,7 +912,7 @@ export default function MealPlanning({
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <div className="text-center">
+      <div className="planning-process-heading text-center">
         <h1 className="planning-display text-3xl font-extrabold leading-tight">What sounds good?</h1>
         <p className="planning-copy mt-3 text-sm font-bold">Pick as many as you like</p>
       </div>
@@ -979,7 +979,7 @@ export default function MealPlanning({
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <div className="text-center">
+      <div className="planning-process-heading text-center">
         <h1 className="planning-display text-3xl font-extrabold leading-tight">Anything else around?</h1>
         <p className="planning-copy mt-3 text-sm font-bold">
           Tap what you have. We&apos;ll save additions when you view suggestions.
@@ -1175,7 +1175,7 @@ export default function MealPlanning({
 
         <div className="text-center">
           <h1 className="planning-display text-3xl font-extrabold leading-tight">
-            Recipe suggestions from your pantry
+            Recipe suggestions
           </h1>
           <Utensils className="mx-auto mt-3 h-5 w-5 text-primary" aria-hidden="true" />
         </div>

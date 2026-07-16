@@ -366,7 +366,7 @@ describe('MealPlanning recipe generation locking', () => {
     advanceToStaples();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
     await waitFor(() => {
       expect(window.localStorage.getItem(storageKey)).toContain('"currentStep":"tickets"');
     });
@@ -417,7 +417,7 @@ describe('MealPlanning recipe generation locking', () => {
     });
     const { container } = renderMealPlanning();
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     expect(resolveSelectedRecipeImageMock).not.toHaveBeenCalled();
     expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
@@ -625,7 +625,7 @@ describe('MealPlanning recipe generation locking', () => {
       await recipesDeferred.promise;
     });
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /back to cuisines/i }));
 
@@ -716,7 +716,7 @@ describe('MealPlanning recipe generation locking', () => {
       await recipesDeferred.promise;
     });
 
-    expect(screen.queryByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeNull();
+    expect(screen.queryByRole('heading', { name: /recipe suggestions/i })).toBeNull();
   });
 
   it('disables cuisine inputs while recipe generation is pending', async () => {
@@ -763,7 +763,7 @@ describe('MealPlanning recipe generation locking', () => {
       await recipesDeferred.promise;
     });
 
-    expect(screen.queryByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeNull();
+    expect(screen.queryByRole('heading', { name: /recipe suggestions/i })).toBeNull();
     expect(screen.getByRole('heading', { name: /how much time do you have today/i })).toBeTruthy();
   });
 
@@ -784,7 +784,7 @@ describe('MealPlanning recipe generation locking', () => {
       await recipesDeferred.promise;
     });
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
     expect(screen.getByText('Pantry Rice Bowl')).toBeTruthy();
     expect(screen.getByText('Spinach Egg Skillet')).toBeTruthy();
     expect(screen.getByText('Rice Frittata')).toBeTruthy();
@@ -797,7 +797,7 @@ describe('MealPlanning recipe generation locking', () => {
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
     expect(container.querySelector('.meal-planning-screen.planning-browser-action-screen.planning-tickets-screen')).toBeTruthy();
     expect(screen.getByRole('button', { name: /view prep tray/i }).closest('.planning-action-dock')).toBeTruthy();
     expect(screen.getByRole('button', { name: /refresh suggestions/i }).closest('.planning-secondary-actions')).toBeTruthy();
@@ -842,7 +842,7 @@ describe('MealPlanning recipe generation locking', () => {
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     await waitFor(() => {
       expect(getRecipeImageSlots(container)).toHaveLength(3);
@@ -858,7 +858,7 @@ describe('MealPlanning recipe generation locking', () => {
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     expect(resolveSelectedRecipeImageMock).not.toHaveBeenCalled();
     expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
@@ -876,7 +876,7 @@ describe('MealPlanning recipe generation locking', () => {
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
 
     expect(await screen.findByRole('heading', { name: /pantry rice bowl/i })).toBeTruthy();
@@ -899,7 +899,7 @@ describe('MealPlanning recipe generation locking', () => {
 
     fireEvent.click(screen.getByLabelText(/back to recipe suggestions/i));
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
     expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
     expect(container.querySelectorAll('.planning-ticket .planning-recipe-image')).toHaveLength(0);
 
@@ -918,7 +918,7 @@ describe('MealPlanning recipe generation locking', () => {
 
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     vi.useFakeTimers();
     try {
@@ -958,7 +958,7 @@ describe('MealPlanning recipe generation locking', () => {
 
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /view prep tray/i }));
 
@@ -983,7 +983,7 @@ describe('MealPlanning recipe generation locking', () => {
 
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     vi.useFakeTimers();
     try {
@@ -1016,7 +1016,7 @@ describe('MealPlanning recipe generation locking', () => {
 
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     vi.useFakeTimers();
     try {
@@ -1035,7 +1035,7 @@ describe('MealPlanning recipe generation locking', () => {
       });
 
       expect(resolveSelectedRecipeImageMock).toHaveBeenCalledTimes(1);
-      expect(screen.getByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+      expect(screen.getByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
     } finally {
       vi.useRealTimers();
     }
@@ -1050,7 +1050,7 @@ describe('MealPlanning recipe generation locking', () => {
     advanceToCuisine();
     fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
     expect(getRecipeImageSlots(container).map((slot) => slot.dataset.hasImage)).toEqual(['false', 'false', 'false']);
     fireEvent.click(screen.getByRole('button', { name: /refresh suggestions/i }));
     expect(await screen.findByText('Leek Carrot Tofu Stir-Fry')).toBeTruthy();
@@ -1077,7 +1077,7 @@ describe('MealPlanning recipe generation locking', () => {
       await recipesDeferred.promise;
     });
 
-    expect(await screen.findByRole('heading', { name: /recipe suggestions from your pantry/i })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
 
     let ticketButtons = getRecipeTicketButtons();
     expect(ticketButtons.map((button) => button.textContent?.match(/Pantry Rice Bowl|Spinach Egg Skillet|Rice Frittata/)?.[0])).toEqual([

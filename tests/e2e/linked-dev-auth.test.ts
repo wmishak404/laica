@@ -365,7 +365,7 @@ test.describe("linked dev auth browser smoke", () => {
     });
     expect(pantryPayload.preferences).toContain("Confirmed staples: tortillas, lime");
 
-    await expect(page.getByRole("heading", { name: "Recipe suggestions from your pantry" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Recipe suggestions" })).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
@@ -379,7 +379,7 @@ test.describe("linked dev auth browser smoke", () => {
     expect(savedPantry.filter((item) => item === "lime")).toHaveLength(1);
 
     await reloadLinkedBrowserSession(page, request);
-    await expect(page.getByRole("heading", { name: "Recipe suggestions from your pantry" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Recipe suggestions" })).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();

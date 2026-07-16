@@ -229,11 +229,90 @@ async function completeGuestSetupToPlanning(page: Page) {
   await expect(page.getByRole('heading', { name: 'What are we cooking today?' })).toBeVisible();
 }
 
-async function completeChefItUpToStapleSelection(page: Page) {
+async function expectTimeHeadingLayout(page: Page) {
+  const heading = page.getByRole('heading', { name: 'How much time do you have today?' });
+  const backButton = page.locator('.planning-back-button').first();
+  const clock = page.locator('.planning-clock').first();
+  const sliderCard = page.locator('.planning-slider-card').first();
+  const note = page.locator('.planning-note').first();
+  const actionDock = page.locator('.planning-action-dock').first();
+
+  await expect(heading).toBeVisible();
+  await expect(backButton).toBeVisible();
+  await expect(clock).toBeVisible();
+  await expect(sliderCard).toBeVisible();
+  await expect(note).toBeVisible();
+  await expect(actionDock).toBeVisible();
+
+  const backBox = await backButton.boundingBox();
+  const clockBox = await clock.boundingBox();
+  const sliderBox = await sliderCard.boundingBox();
+  const noteBox = await note.boundingBox();
+  const actionDockBox = await actionDock.boundingBox();
+  const viewportWidth = page.viewportSize()?.width;
+  const textLineBoxes = await heading.evaluate((element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const boxes = Array.from(range.getClientRects())
+      .filter((rect) => rect.width > 0 && rect.height > 0)
+      .map((rect) => ({
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        bottom: rect.bottom,
+      }));
+    range.detach();
+    return boxes;
+  });
+
+  expect(backBox).not.toBeNull();
+  expect(clockBox).not.toBeNull();
+  expect(sliderBox).not.toBeNull();
+  expect(noteBox).not.toBeNull();
+  expect(actionDockBox).not.toBeNull();
+  expect(viewportWidth).toBeGreaterThan(0);
+  expect(textLineBoxes.length).toBeGreaterThan(0);
+  if (!backBox || !clockBox || !sliderBox || !noteBox || !actionDockBox || !viewportWidth) {
+    throw new Error('Time screen bounds were unavailable');
+  }
+
+  const backBottom = backBox.y + backBox.height;
+  const textTop = Math.min(...textLineBoxes.map((box) => box.top));
+  expect(textTop).toBeGreaterThanOrEqual(backBottom + 8);
+  expect(textTop - backBottom).toBeLessThanOrEqual(64);
+
+  const viewportCenter = viewportWidth / 2;
+  for (const box of textLineBoxes) {
+    const lineCenter = (box.left + box.right) / 2;
+    expect(Math.abs(lineCenter - viewportCenter)).toBeLessThanOrEqual(2);
+  }
+
+  expect(clockBox.width).toBeGreaterThanOrEqual(145);
+  expect(clockBox.height).toBeGreaterThanOrEqual(145);
+
+  const stackTop = Math.min(textTop, clockBox.y, sliderBox.y, noteBox.y);
+  const stackBottom = Math.max(
+    Math.max(...textLineBoxes.map((box) => box.bottom)),
+    clockBox.y + clockBox.height,
+    sliderBox.y + sliderBox.height,
+    noteBox.y + noteBox.height,
+  );
+  const stackCenter = (stackTop + stackBottom) / 2;
+  const availableCenter = (backBottom + actionDockBox.y) / 2;
+  expect(stackCenter).toBeLessThanOrEqual(availableCenter + 24);
+}
+
+async function completeChefItUpToStapleSelection(
+  page: Page,
+  options: { verifyMobileTimeLayout?: boolean } = {},
+) {
   await completeGuestSetupToPlanning(page);
   await page.getByRole('button', { name: 'Chef It Up' }).click();
 
   await expect(page.getByRole('heading', { name: 'How much time do you have today?' })).toBeVisible();
+  if (options.verifyMobileTimeLayout) {
+    await expectTimeHeadingLayout(page);
+  }
   await page.getByRole('button', { name: '1hr' }).click();
   await page.getByRole('button', { name: 'Next' }).click();
 
@@ -265,7 +344,7 @@ async function completeChefItUpToPrepTray(page: Page) {
   expect(pantryPayload.preferences).toContain('Unconfirmed staples: cilantro, cumin; do not assume');
   expect(pantryPayload.timeAvailable).toBe('1 hour');
 
-  await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'Recipe suggestions' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('button', { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Crispy Egg Tortilla Rice/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Soy Lime Rice Skillet/ })).toBeVisible();
@@ -296,6 +375,8 @@ test.describe('Laica Guest E2E Smoke', () => {
   });
 
   test('Guest sees selected recipe preview imagery only after opening Prep Tray', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+
     const imageUrl = '/mock/recipe-image-selected.png';
     const pantryRoutes = await stubPantryRecipes(page, [{
       status: 'ready',
@@ -305,11 +386,11 @@ test.describe('Laica Guest E2E Smoke', () => {
       },
     }]);
 
-    await completeChefItUpToStapleSelection(page);
+    await completeChefItUpToStapleSelection(page, { verifyMobileTimeLayout: true });
 
     await page.getByRole('button', { name: 'View recipe suggestions' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({
+    await expect(page.getByRole('heading', { name: 'Recipe suggestions' })).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.locator('.planning-ticket .planning-recipe-image-slot[data-has-image="true"]')).toHaveCount(0);
