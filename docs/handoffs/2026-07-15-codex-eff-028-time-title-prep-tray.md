@@ -9,7 +9,7 @@
 
 ## Summary
 
-EFF-028 is implemented but not merged. The branch keeps the post-PR #291 setup/mobile-browser baseline intact while addressing only two adjacent Chef It Up visual-fit issues: the narrow-mobile time-selection title now clears the floating Back button through horizontal inset rather than moving the whole page downward, and the mobile Prep Tray ready selected image fills the hero area like the accepted desktop/PR #208 behavior.
+EFF-028 is implemented but not merged. The branch keeps the post-PR #291 setup/mobile-browser baseline intact while addressing only two adjacent Chef It Up visual-fit issues: the narrow-mobile time-selection page now uses Wilson's revised centered/downward/larger-clock exception instead of the rejected asymmetric title inset, and the mobile Prep Tray ready selected image fills the hero area like the accepted desktop/PR #208 behavior. The branch also shortens the Ticket Pass heading to `Recipe suggestions`.
 
 The branch started from fresh `origin/main` at `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`. Before editing, Codex verified that PR #291 merged as `766d910b128f84213d2a79a8077100d3df4272d8` and docs closeout PR #292 merged as `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`.
 
@@ -18,28 +18,30 @@ Wilson then requested Chrome/Replit mobile validation. Codex validated the imple
 ## Changes
 
 - `client/src/components/cooking/meal-planning.tsx`: adds a `.planning-process-heading` wrapper to the Chef It Up time, cuisine, and staple process headings so shared heading fit can be adjusted without changing behavior.
-- `client/src/index.css`: adds short-mobile heading width/inset rules, applies the time-screen-only horizontal offset, removes ready-state Prep Tray hero padding on short mobile, and forces the ready Prep Tray image slot to fill the hero box with `height: 100%`, `min-height: 0`, and `object-fit: cover`.
-- `tests/e2e/cooking-workflow.test.ts`: adds a range-based heading/back-button geometry assertion and runs the selected-image Prep Tray path at `320x740` so the EFF-028 title and ready-image geometry stays covered by the guest E2E lane once CI runs against a prepared schema.
+- `client/src/index.css`: adds short-mobile process-heading width rules, applies the time-screen-only centered/downward/larger-clock exception, removes ready-state Prep Tray hero padding on short mobile, and forces the ready Prep Tray image slot to fill the hero box with `height: 100%`, `min-height: 0`, and `object-fit: cover`.
+- `tests/e2e/cooking-workflow.test.ts`: adds a mobile time-layout geometry assertion for centered title / vertical Back clearance / enlarged clock and runs the selected-image Prep Tray path at `320x740` so the EFF-028 title and ready-image geometry stays covered by the guest E2E lane once CI runs against a prepared schema.
+- `tests/e2e/linked-dev-auth.test.ts` and `tests/unit/meal-planning.test.tsx`: update Ticket Pass heading expectations to `Recipe suggestions`.
 - `efforts/effort-028-chef-it-up-time-title-clearance.md`, `efforts/README.md`, `efforts/registry.md`, and `initiatives/INIT-001-mobile-refresh.md`: record the active implementation branch, evidence, negative scope, and pending exact-head E2E gate.
 
 ## Impact on other agents
 
 Do not start EFF-029 from this thread unless Wilson explicitly expands scope. The serial queue is: finish or block EFF-028 first, then hand off or create the next EFF-029 thread with the current merge facts and validation status.
 
-This branch intentionally does not change providers, schema, prompts, durable navigation, Ticket Pass behavior, Ready Check behavior, Live Cooking behavior, image generation, image cache policy, or recipe routes. Pending/placeholder Prep Tray image states keep their centered slot sizing; only `data-image-state='ready'` on short mobile gets the full-bleed image-slot correction.
+This branch intentionally does not change providers, schema, prompts, durable navigation, Ticket Pass generation/refresh behavior, Ready Check behavior, Live Cooking behavior, image generation, image cache policy, or recipe routes. Pending/placeholder Prep Tray image states keep their centered slot sizing; only `data-image-state='ready'` on short mobile gets the full-bleed image-slot correction.
 
 ## Open items
 
-- PR #294 is open and ready for review. The implementation head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da` passed exact-head GitHub `unit` and `e2e_guest_smoke`; any docs-only validation-record commit after that should be checked again before merge.
+- PR #294 is open and needs fresh exact-head GitHub checks after Wilson's revised runtime CSS/copy direction.
 - Local DB-backed E2E is not claimed because the decrypted local database failed schema health.
-- Chrome/Replit mobile validation passed for the focused EFF-028 surfaces at runtime head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`. See the verification section below for exact evidence and negative scope.
+- Chrome/Replit mobile validation passed for the first EFF-028 implementation at runtime head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`, but that evidence is stale for the latest runtime revision because Wilson then rejected the horizontal time-title inset as visually asymmetrical.
+- Current runtime head needs fresh GitHub checks and, if Wilson wants exact Replit proof for the revised time screen, Replit should fetch the latest branch head and re-smoke the time screen. The current built-CSS geometry evidence for the revised layout is recorded below.
 - EFF-029 and EFF-030 remain unstarted here.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`
-- Last Replit-validated at: runtime code SHA `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`; later docs-only validation-record commits should disclose that the runtime code is unchanged.
+- Last Replit-validated at: stale for the latest runtime revision. Prior Chrome/Replit validation covered runtime code SHA `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`; Wilson's later time-screen direction changed runtime CSS/copy, so the current branch head needs a fresh Replit fetch/smoke if Replit-level proof is required before merge.
 - Notes: PR #291 (`766d910b128f84213d2a79a8077100d3df4272d8`) and PR #292 (`05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`) were verified on `origin/main` before branch work began.
 
 ## Verification
@@ -53,7 +55,8 @@ Passed locally:
 - `npm run check`
 - `npm run build` — passed with existing Browserslist, Firebase mixed import, and chunk-size warnings.
 - `git diff --check`
-- Headless Chromium compiled-CSS geometry at `320x740`: time heading text starts at `54.859375px`, Back button ends at `44px`; mobile Prep Tray ready slot equals hero box at `320 x 132.796875` with zero geometry delta and `object-fit: cover`. Screenshot saved at `/tmp/laica-eff028-compiled-css-mobile.png`.
+- Current-head built-CSS Chromium geometry at `390x740`: time title lines are centered at `195px` in a `390px` viewport, first line top is `122.390625px` below the Back button bottom `51.1875px`, the enlarged clock is `150.390625 x 150.390625`, and the action dock remains visible. Screenshot saved at `/tmp/laica-eff028-time-revised-css.png`.
+- Earlier compiled-CSS Prep Tray geometry, unchanged by the later time-screen/copy revision, showed the mobile ready slot equal to the hero box at `320 x 132.796875` with zero geometry delta and `object-fit: cover`. Screenshot saved at `/tmp/laica-eff028-compiled-css-mobile.png`.
 - Headless Chromium compiled-CSS geometry at `900x800`: desktop Prep Tray ready slot equals hero box at `900 x 152` with zero geometry delta and `object-fit: cover`.
 
 Not claimed:
@@ -61,7 +64,7 @@ Not claimed:
 - `npm run env:run -- npm run db:health` failed read-only schema health against the local decrypted database: missing tables `ai_interactions`, `prompt_versions`, `anonymous_recipe_usage`, `recipe_image_cache`, and missing column `cooking_sessions.recipe_snapshot`. Per the testing workflow, Codex did not run `db:push` against that database.
 - A prior local DB-backed Playwright attempt did not reach the EFF-028 UI assertions because the stale database rejected startup/guest setup with missing `anonymous_recipe_usage`.
 
-Passed on GitHub at exact implementation head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`:
+Passed on GitHub at first implementation head `8ccd4bd007b7c331b5cbb92d86ad505d50e0b3da`, before Wilson's revised runtime CSS/copy direction:
 
 - `unit`
 - `e2e_guest_smoke`

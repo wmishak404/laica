@@ -3082,11 +3082,6 @@ html[data-laica-setup-scroll-lock] #root {
       margin-inline: auto;
     }
 
-    .planning-time-screen .planning-process-heading {
-      width: 100%;
-      padding-left: 3rem;
-    }
-
     .planning-browser-action-screen,
     .slop-bowl-approval-screen {
       --planning-browser-bottom-nav-space: calc(env(safe-area-inset-bottom) + 4.1rem);
@@ -3150,8 +3145,10 @@ html[data-laica-setup-scroll-lock] #root {
       padding-bottom: 0.35rem;
     }
 
-    .planning-time-screen {
+    .meal-planning-screen.planning-time-screen {
+      --planning-browser-top-clearance: 7.9rem;
       min-height: calc(100svh - 4.05rem);
+      padding-top: var(--planning-browser-top-clearance);
     }
 
     .planning-time-screen .planning-back-button {
@@ -3161,23 +3158,23 @@ html[data-laica-setup-scroll-lock] #root {
     .planning-time-screen .planning-time-content {
       flex: 1 1 auto;
       min-height: 0;
-      gap: 1.2rem;
+      gap: 1.35rem;
       justify-content: flex-start;
       padding-bottom: 0;
     }
 
     .planning-time-screen .planning-clock {
-      width: 7.9rem;
-      height: 7.9rem;
-      border-width: 0.48rem;
+      width: 9.4rem;
+      height: 9.4rem;
+      border-width: 0.56rem;
       box-shadow:
         0 0.75rem 1.6rem hsl(var(--planning-coral) / 0.14),
         inset 0 0 0 1px hsl(var(--planning-ticket-edge) / 0.3);
     }
 
     .planning-time-screen .planning-clock svg {
-      width: 3.75rem;
-      height: 3.75rem;
+      width: 4.4rem;
+      height: 4.4rem;
     }
 
     .planning-time-screen .planning-slider-card,

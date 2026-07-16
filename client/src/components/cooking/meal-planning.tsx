@@ -1175,7 +1175,7 @@ export default function MealPlanning({
 
         <div className="text-center">
           <h1 className="planning-display text-3xl font-extrabold leading-tight">
-            Recipe suggestions from your pantry
+            Recipe suggestions
           </h1>
           <Utensils className="mx-auto mt-3 h-5 w-5 text-primary" aria-hidden="true" />
         </div>

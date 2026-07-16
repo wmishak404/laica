@@ -229,14 +229,18 @@ async function completeGuestSetupToPlanning(page: Page) {
   await expect(page.getByRole('heading', { name: 'What are we cooking today?' })).toBeVisible();
 }
 
-async function expectHeadingTextClearsBackButton(page: Page, headingName: string) {
-  const heading = page.getByRole('heading', { name: headingName });
+async function expectTimeHeadingLayout(page: Page) {
+  const heading = page.getByRole('heading', { name: 'How much time do you have today?' });
   const backButton = page.locator('.planning-back-button').first();
+  const clock = page.locator('.planning-clock').first();
 
   await expect(heading).toBeVisible();
   await expect(backButton).toBeVisible();
+  await expect(clock).toBeVisible();
 
   const backBox = await backButton.boundingBox();
+  const clockBox = await clock.boundingBox();
+  const viewportWidth = page.viewportSize()?.width;
   const textLineBoxes = await heading.evaluate((element) => {
     const range = document.createRange();
     range.selectNodeContents(element);
@@ -253,24 +257,35 @@ async function expectHeadingTextClearsBackButton(page: Page, headingName: string
   });
 
   expect(backBox).not.toBeNull();
+  expect(clockBox).not.toBeNull();
+  expect(viewportWidth).toBeGreaterThan(0);
   expect(textLineBoxes.length).toBeGreaterThan(0);
-  if (!backBox) throw new Error('Back button bounds were unavailable');
+  if (!backBox || !clockBox || !viewportWidth) throw new Error('Time screen bounds were unavailable');
 
-  const backRight = backBox.x + backBox.width;
-  const textLeft = Math.min(...textLineBoxes.map((box) => box.left));
-  expect(textLeft).toBeGreaterThanOrEqual(backRight - 1);
+  const backBottom = backBox.y + backBox.height;
+  const textTop = Math.min(...textLineBoxes.map((box) => box.top));
+  expect(textTop).toBeGreaterThanOrEqual(backBottom + 8);
+
+  const viewportCenter = viewportWidth / 2;
+  for (const box of textLineBoxes) {
+    const lineCenter = (box.left + box.right) / 2;
+    expect(Math.abs(lineCenter - viewportCenter)).toBeLessThanOrEqual(2);
+  }
+
+  expect(clockBox.width).toBeGreaterThanOrEqual(145);
+  expect(clockBox.height).toBeGreaterThanOrEqual(145);
 }
 
 async function completeChefItUpToStapleSelection(
   page: Page,
-  options: { verifyMobileTimeHeaderClearance?: boolean } = {},
+  options: { verifyMobileTimeLayout?: boolean } = {},
 ) {
   await completeGuestSetupToPlanning(page);
   await page.getByRole('button', { name: 'Chef It Up' }).click();
 
   await expect(page.getByRole('heading', { name: 'How much time do you have today?' })).toBeVisible();
-  if (options.verifyMobileTimeHeaderClearance) {
-    await expectHeadingTextClearsBackButton(page, 'How much time do you have today?');
+  if (options.verifyMobileTimeLayout) {
+    await expectTimeHeadingLayout(page);
   }
   await page.getByRole('button', { name: '1hr' }).click();
   await page.getByRole('button', { name: 'Next' }).click();
@@ -303,7 +318,7 @@ async function completeChefItUpToPrepTray(page: Page) {
   expect(pantryPayload.preferences).toContain('Unconfirmed staples: cilantro, cumin; do not assume');
   expect(pantryPayload.timeAvailable).toBe('1 hour');
 
-  await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'Recipe suggestions' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole('button', { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Crispy Egg Tortilla Rice/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Soy Lime Rice Skillet/ })).toBeVisible();
@@ -345,11 +360,11 @@ test.describe('Laica Guest E2E Smoke', () => {
       },
     }]);
 
-    await completeChefItUpToStapleSelection(page, { verifyMobileTimeHeaderClearance: true });
+    await completeChefItUpToStapleSelection(page, { verifyMobileTimeLayout: true });
 
     await page.getByRole('button', { name: 'View recipe suggestions' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Recipe suggestions from your pantry' })).toBeVisible({
+    await expect(page.getByRole('heading', { name: 'Recipe suggestions' })).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.locator('.planning-ticket .planning-recipe-image-slot[data-has-image="true"]')).toHaveCount(0);
