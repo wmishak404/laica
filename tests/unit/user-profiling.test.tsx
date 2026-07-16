@@ -57,6 +57,7 @@ describe('UserProfiling setup flow', () => {
 
     expect(screen.getByRole('heading', { name: /start with pantry staples/i })).toBeTruthy();
     expect(container.querySelector('.setup-scan-step')).toBeTruthy();
+    expect(container.querySelector('.setup-inventory-camera .setup-viewfinder')).toBeTruthy();
     expect(container.querySelector('.setup-camera-state')).toBeTruthy();
     expect(container.querySelector('.setup-camera-state-icon')).toBeTruthy();
     expect(container.querySelector('.setup-camera-state-copy')).toBeTruthy();
@@ -159,6 +160,7 @@ describe('UserProfiling setup flow', () => {
 
     expect(screen.getByRole('heading', { name: /tell me what tools you use/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /tools camera/i })).toBeTruthy();
+    expect(document.querySelector('.setup-inventory-camera .setup-viewfinder')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /back/i }));
 

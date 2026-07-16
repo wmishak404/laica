@@ -1572,20 +1572,24 @@ html[data-laica-setup-scroll-lock] #root {
     padding-bottom: calc(var(--returning-bottom-nav-clearance) + 1.25rem);
   }
 
+  .setup-inventory-camera .setup-viewfinder > .relative,
   .returning-inventory-camera .setup-viewfinder > .relative {
     aspect-ratio: 4 / 5;
   }
 
+  .setup-inventory-camera .setup-camera-state,
   .returning-inventory-camera .setup-camera-state {
     gap: clamp(0.75rem, 2.8vw, 1.05rem);
     padding: clamp(3rem, 10vw, 4.65rem) 1.25rem clamp(6.65rem, 18vw, 8.25rem);
   }
 
+  .setup-inventory-camera .setup-camera-state-icon,
   .returning-inventory-camera .setup-camera-state-icon {
     width: clamp(5.7rem, 19vw, 7rem);
     height: clamp(5.7rem, 19vw, 7rem);
   }
 
+  .setup-inventory-camera .setup-camera-controls,
   .returning-inventory-camera .setup-camera-controls {
     bottom: clamp(1.25rem, 4vw, 1.75rem);
   }
@@ -3674,7 +3678,7 @@ html[data-laica-setup-scroll-lock] #root {
     }
 
     .setup-scan-step .setup-viewfinder > .relative {
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 4 / 5;
     }
 
     .setup-scan-step .setup-live-badge {
@@ -3684,14 +3688,14 @@ html[data-laica-setup-scroll-lock] #root {
     }
 
     .setup-scan-step .setup-camera-state {
-      gap: 0.42rem;
+      gap: 0.56rem;
       justify-content: center;
-      padding: 2.05rem 0.95rem 5rem;
+      padding: 2.7rem 0.95rem 5.9rem;
     }
 
     .setup-scan-step .setup-camera-state-icon {
-      width: 4.35rem;
-      height: 4.35rem;
+      width: 4.85rem;
+      height: 4.85rem;
       border-radius: 1.1rem;
     }
 
@@ -3706,7 +3710,7 @@ html[data-laica-setup-scroll-lock] #root {
     }
 
     .setup-scan-step .setup-camera-controls {
-      bottom: 0.7rem;
+      bottom: 0.9rem;
       padding-inline: 1.55rem;
     }
 

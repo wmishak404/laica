@@ -1010,27 +1010,29 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
           </div>
         </div>
 
-        <NativeCamera
-          variant="setup"
-          setupTone={isPantry ? 'pantry' : 'kitchen'}
-          title={isPantry ? 'Pantry preview' : 'Tools preview'}
-          captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
-          cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
-          tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
-          tipsDescription={isPantry
-            ? 'Open cabinets, use good light, and scan one area at a time.'
-            : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
-          showUploadButton={false}
-          disabled={isAnalyzing[type]}
-          onImageCapture={(imageData) => analyzeScanImage(imageData, type)}
-          onError={(error) => {
-            toast({
-              title: 'Camera issue',
-              description: error,
-              variant: 'destructive',
-            });
-          }}
-        />
+        <div className="setup-inventory-camera">
+          <NativeCamera
+            variant="setup"
+            setupTone={isPantry ? 'pantry' : 'kitchen'}
+            title={isPantry ? 'Pantry preview' : 'Tools preview'}
+            captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
+            cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
+            tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
+            tipsDescription={isPantry
+              ? 'Open cabinets, use good light, and scan one area at a time.'
+              : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
+            showUploadButton={false}
+            disabled={isAnalyzing[type]}
+            onImageCapture={(imageData) => analyzeScanImage(imageData, type)}
+            onError={(error) => {
+              toast({
+                title: 'Camera issue',
+                description: error,
+                variant: 'destructive',
+              });
+            }}
+          />
+        </div>
 
         <div className="space-y-3">
           <input

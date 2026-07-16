@@ -89,12 +89,12 @@ EFF-028 resolved when PR #294 merged as `4e872deeb494b72f56ce5011a5b1bd213ee9fb2
 
 ## 2026-07-16 - Setup/Settings layout implementation started
 
-Daily Efforts hygiene confirmed PR #291 from Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, clearing the sequencing gate. EFF-028 already has open implementation PR #294, EFF-017 has open PR #277, EFF-022 remains behind higher-priority INIT-001 work, and EFF-030 is narrower setup consistency work, so this branch selected EFF-029 as the next non-conflicting implementation slice.
+Daily Efforts hygiene confirmed PR #291 from Codex thread `019f3b47-9d04-7a03-8973-2a9cd1bb19b4` has merged, clearing the sequencing gate, and PR #294 / PR #298 resolved EFF-028. EFF-017 has open PR #277, EFF-022 remains behind higher-priority INIT-001 work, and EFF-030 is narrower setup consistency work, so this branch selected EFF-029 as the next non-conflicting implementation slice.
 
 Initial implementation kept the camera fix returning-Settings-specific. Wilson clarified during Replit validation that first-time setup Pantry/Tools should receive the same camera proportion treatment, so the branch now shares the camera proportion rules across setup and returning inventory scan surfaces while keeping authenticated bottom-nav action clearance returning-only:
 
 - `UserProfiling` wraps first-time setup Pantry/Tools `NativeCamera` in `.setup-inventory-camera`.
-- `UserSettings` wraps the Pantry/Tools `NativeCamera` in `.returning-inventory-camera`.
+- `UserSettings` wraps returning Settings Pantry/Tools `NativeCamera` in `.returning-inventory-camera`.
 - CSS overrides both wrappers to restore a strict `4 / 5` camera frame for Pantry/Tools scan surfaces, including the narrow mobile `.setup-scan-step` override that previously forced first-time setup back to `4 / 3`.
 - Returning Settings gets `--returning-bottom-nav-clearance`, and `.returning-actions` sticks above that clearance instead of at viewport bottom so the authenticated Cook/Menu nav no longer covers Save/Settings actions.
 - The camera-off state gets proportionate spacing/icon sizing inside the taller setup and returning inventory frames.
