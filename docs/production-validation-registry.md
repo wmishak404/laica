@@ -16,12 +16,12 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-16 for the PR #294 and PR #296 addenda below.
-- Current `origin/main`: `fc9739960306447f1148405db3e88e04798ea2fc`.
-- Current latest merge: PR #296, `[codex] Require Next after setup skill selection`.
+- Registry updated: 2026-07-16 for the PR #293, PR #294, and PR #296 addenda below.
+- Current `origin/main`: `0e7910df11abb7a87f99e2003e4b8410125ba0b4`.
+- Current latest merge: PR #301, `[codex] Record EFF-028 production readiness checks`.
 - Current latest user-visible/runtime merge: PR #296, `[codex] Require Next after setup skill selection`.
 
-The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The dated addenda record PR #275, PR #276, PR #294, and PR #296 coverage now so the next production-readiness pass does not lose that test signal; they are not a full audit of every intervening merge.
+The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The dated addenda record PR #275, PR #276, PR #293, PR #294, and PR #296 coverage now so the next production-readiness pass does not lose that test signal; they are not a full audit of every intervening merge.
 
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
@@ -34,6 +34,13 @@ The row list below still needs the normal changed-since-last-prod review before 
 - PR #276 merged at `c75d5bb334900549d0b8b00b4ad84d7ef1a5e96e` after exact-head GitHub checks passed for head `14a04d9242c239c497298ef8201b227ebbf2b8b3`.
 - Include the PR #276 linked dev-auth browser smoke in the next production-readiness evidence when the release SHA contains this merge. The smoke signs in the linked `dev-test-linked-browser-ci` profile, completes Chef It Up planning, saves Settings Pantry and Tools inventory, then verifies the linked profile through the authenticated `/api/user/profile` path.
 - No extra manual production smoke is required solely for PR #276 because it added test and documentation coverage only. Add a targeted Settings Pantry/Tools save/reload check if a later release changes auth, linked profiles, Settings inventory persistence, or the E2E lane is stale, skipped, or no longer running at the release SHA.
+
+## 2026-07-16 PR #293 Production-Readiness Addendum
+
+- PR #293 merged at `d7aadd2764abb5e6ba36a77c491e40241ba35211` after exact-head checks passed for head `551eb489f847be1262b3b5d5be930d1e99dfa01d`.
+- Include the shared toast dismissal behavior in the next production/release-batch mobile UI smoke when the release SHA contains this merge: trigger a toast, swipe right, left, and up to dismiss it, confirm the exit animation follows the swipe direction, and confirm downward swipes do not dismiss.
+- Wilson confirmed a mobile browser spot check on 2026-07-16 before merge, but the exact viewport/device preset was not captured. Treat that as supplemental product-feel evidence; the production-readiness regression should still record the mobile browser or device preset used for the formal check.
+- No extra provider, auth, schema, DB, persistence, secrets, deployment, or navigation smoke is required solely for PR #293 because it changes the shared client toast primitive and has focused unit coverage plus exact-head CI.
 
 ## 2026-07-16 PR #294 Production-Readiness Addendum
 
@@ -56,6 +63,7 @@ Merged work after the 2026-06-22 production-smoke evidence that should be review
 |---|---|---|---|
 | 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
 | 2026-07-16 | `4e872de` / PR #294 | EFF-028 Chef It Up time-selection, Ticket Pass heading, and mobile Prep Tray ready-image visuals | Focused mobile visual smoke: time-selection title is centered/clear of Back without bottom bias, Ticket Pass heading reads `Recipe suggestions`, and mobile Prep Tray ready selected image fills the hero area without bleeding back into Ticket Pass. Carry exact-head Replit validation at `127701d99e2f2cd85b37114bb68a5e1774065255` unless later mobile layout changes land. |
+| 2026-07-16 | `d7aadd2` / PR #293 | Shared toast primitive swipe dismissal and direction-matched exit animation | Focused mobile UI smoke: trigger a toast, swipe right/left/up to dismiss, verify the exit animation follows the gesture direction, and verify down swipe does not dismiss. Record the mobile browser or device preset because the pre-merge mobile spot check did not capture it. |
 | 2026-07-10 | `148c881` / PR #275 | Live Cooking `Ask a question` technical/quota failure presentation | Release-batch Live Cooking smoke: deny microphone or force assistance-route failure; verify current step stays visible, separate voice-help retry status appears outside Step guidance, retry clears it, and technical failure copy is not spoken as cooking guidance. |
 | 2026-07-10 | `c75d5bb` / PR #276 | EFF-017 linked dev-auth browser smoke for Chef It Up plus Settings Pantry/Tools persistence | Carry the exact-head GitHub E2E evidence into the production-readiness report. Do not duplicate manually unless later auth/profile/settings work or stale automation makes the release confidence indirect. |
 | 2026-06-30 | `a4450a6` / PR #248 | EFF-022 fallback merge closeout docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
@@ -107,6 +115,11 @@ Run these changed-since-last-prod focused checks for the current candidate:
   - Confirm the row becomes selected and the flow does not auto-advance.
   - Confirm the bottom `Next` action enables after selection and advances to Dietary only after it is tapped.
   - Confirm the setup bottom rail remains usable and visually consistent with adjacent setup pages.
+- PR #293 shared toast swipe dismissal:
+  - Trigger a toast on mobile browser or Chrome device toolbar and record the browser/device preset.
+  - Swipe right, left, and up; confirm each gesture dismisses the toast.
+  - Confirm each dismissal exits in the same direction as the swipe.
+  - Swipe down and confirm the toast remains visible.
 - PR #275 Live Cooking assistance-failure presentation:
   - Deny microphone access or force `/api/cooking/assistance` to fail while in Live Cooking.
   - Confirm the current step remains visible and unchanged.
@@ -145,7 +158,7 @@ If production smoke cannot safely induce the cooking-step failure, record that g
 
 Continue carrying the June 2026 provider-secret lesson as a canary, not a blocker: include one live pantry vision scan in each production publish pass until Wilson retires that risk. Include ElevenLabs speech when Live Cooking or speech remains in the release smoke scope.
 
-Previously deferred low-risk UI checks, such as guest bottom-nav removal, planning toast behavior, and landing auth-control contrast, should not remain separate blockers by default after the 2026-06-22 production smoke. Pull them back into scope only if the recovered production SHA proves they were not included, Wilson requests a full regression or visual pass, or a new change touches those surfaces.
+Previously deferred low-risk UI checks, such as guest bottom-nav removal, planning toast behavior, and landing auth-control contrast, should not remain separate blockers by default after the 2026-06-22 production smoke. Pull them back into scope only if the recovered production SHA proves they were not included, Wilson requests a full regression or visual pass, or a new change touches those surfaces. PR #293 is tracked above because it is a new shared-toast change after that baseline.
 
 ## Update Rule
 
