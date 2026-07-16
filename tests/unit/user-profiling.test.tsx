@@ -102,7 +102,7 @@ describe('UserProfiling setup flow', () => {
     expect(document.body.style.overflow).toBe('visible');
   });
 
-  it('auto-advances from Cooking Skill after one selection', () => {
+  it('requires Next after selecting a Cooking Skill option', () => {
     const onProfileComplete = vi.fn();
     render(<UserProfiling onProfileComplete={onProfileComplete} />);
 
@@ -117,7 +117,16 @@ describe('UserProfiling setup flow', () => {
 
     expect(screen.getByRole('heading', { name: /how comfortable are you with cooking/i })).toBeTruthy();
 
+    const skillNextButton = screen.getByRole('button', { name: /next/i }) as HTMLButtonElement;
+    expect(skillNextButton.disabled).toBe(true);
+
     fireEvent.click(screen.getByRole('radio', { name: /beginner/i }));
+
+    expect(screen.getByRole('heading', { name: /how comfortable are you with cooking/i })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /beginner/i }).getAttribute('aria-checked')).toBe('true');
+    expect(skillNextButton.disabled).toBe(false);
+
+    fireEvent.click(skillNextButton);
 
     expect(screen.getByRole('heading', { name: /anything i should avoid/i })).toBeTruthy();
     expect(onProfileComplete).not.toHaveBeenCalled();
@@ -303,6 +312,7 @@ describe('UserProfiling setup flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     fireEvent.click(screen.getByRole('button', { name: /skip tools/i }));
     fireEvent.click(screen.getByRole('radio', { name: /intermediate/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
     fireEvent.click(screen.getByRole('button', { name: /no restrictions/i }));
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
 

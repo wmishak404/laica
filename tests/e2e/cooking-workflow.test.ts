@@ -217,6 +217,7 @@ async function completeGuestSetupToPlanning(page: Page) {
 
   await expect(page.getByRole('heading', { name: 'How comfortable are you with cooking?' })).toBeVisible();
   await page.getByRole('radio', { name: 'Beginner' }).click();
+  await page.getByRole('button', { name: 'Next' }).click();
 
   await expect(page.getByRole('heading', { name: 'Anything I should avoid?' })).toBeVisible();
   await page.getByRole('button', { name: 'No restrictions' }).click();
