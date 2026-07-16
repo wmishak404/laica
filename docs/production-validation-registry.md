@@ -16,12 +16,12 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-10 for the PR #275 addendum below.
-- Current `origin/main`: `148c881591479d2c5f07c500dd440682989824b4`.
-- Current latest merge: PR #275, `[codex] Show Live Cooking help failures inline`.
-- Current latest user-visible/runtime merge: PR #275, `[codex] Show Live Cooking help failures inline`.
+- Registry updated: 2026-07-16 for the PR #294 and PR #296 addenda below.
+- Current `origin/main`: `fc9739960306447f1148405db3e88e04798ea2fc`.
+- Current latest merge: PR #296, `[codex] Require Next after setup skill selection`.
+- Current latest user-visible/runtime merge: PR #296, `[codex] Require Next after setup skill selection`.
 
-The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The 2026-07-10 addenda record PR #275 and PR #276's automation coverage now so the next production-readiness pass does not lose that test signal.
+The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The dated addenda record PR #275, PR #276, PR #294, and PR #296 coverage now so the next production-readiness pass does not lose that test signal; they are not a full audit of every intervening merge.
 
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
@@ -35,10 +35,27 @@ The row list below still needs the normal changed-since-last-prod review before 
 - Include the PR #276 linked dev-auth browser smoke in the next production-readiness evidence when the release SHA contains this merge. The smoke signs in the linked `dev-test-linked-browser-ci` profile, completes Chef It Up planning, saves Settings Pantry and Tools inventory, then verifies the linked profile through the authenticated `/api/user/profile` path.
 - No extra manual production smoke is required solely for PR #276 because it added test and documentation coverage only. Add a targeted Settings Pantry/Tools save/reload check if a later release changes auth, linked profiles, Settings inventory persistence, or the E2E lane is stale, skipped, or no longer running at the release SHA.
 
+## 2026-07-16 PR #294 Production-Readiness Addendum
+
+- PR #294 merged at `4e872deeb494b72f56ce5011a5b1bd213ee9fb29` after exact-head GitHub checks passed for head `127701d99e2f2cd85b37114bb68a5e1774065255`.
+- Include the EFF-028 mobile visual checks in the next production/release-batch smoke when the release SHA contains this merge: Chef It Up time-selection title centered and clear of the floating Back button in iPhone-like mobile view, the full time-selection stack not biased below the available visual center, Ticket Pass heading shortened to `Recipe suggestions`, mobile Prep Tray ready selected image filling the hero area, and no selected-image bleed when returning to Ticket Pass.
+- Last Replit-validated at `127701d99e2f2cd85b37114bb68a5e1774065255`: Chrome/Replit mobile validation used compensated viewport overrides because the controlled preview tab reported `devicePixelRatio: 0.8`; app-reported `390x744`, `390x844`, and `375x667` viewports passed. Replit Agent was not used.
+- Carry the exact-head Replit validation forward unless a later release changes Chef It Up, Ticket Pass, Prep Tray, shared mobile layout, or release readiness asks for a full visual regression.
+- Negative scope: no provider, schema, prompt, durable navigation, Ticket Pass generation/refresh behavior, Ready Check, Live Cooking, image-generation/cache behavior, recipe route, direct dependency, or package manifest change.
+
+## 2026-07-16 PR #296 Production-Readiness Addendum
+
+- PR #296 merged at `fc9739960306447f1148405db3e88e04798ea2fc` after exact-head GitHub checks passed for head `06234908d88013d79f91a5c79d03125f092222ac`.
+- Include the setup cooking-skill select-then-Next behavior in the next production/release-batch smoke when the release SHA contains this merge: selecting `Beginner`, `Intermediate`, or `Expert` should select the row without auto-advancing, enable the bottom `Next` action, and advance to Dietary only after `Next` is tapped.
+- Exact-head human Replit validation is not claimed after the final rebase; Wilson's spot check before the merge-readiness refresh accepted the behavior, and exact-head GitHub unit/E2E checks passed before merge. Add a targeted mobile setup smoke if later setup-flow changes land, exact-head CI is stale/skipped, or release readiness asks for a full setup regression.
+- Negative scope: no Pantry, Tools, Dietary, Ready, returning Settings, provider route, schema, durable navigation, or Live Cooking change.
+
 Merged work after the 2026-06-22 production-smoke evidence that should be reviewed for the next production push:
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
+| 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
+| 2026-07-16 | `4e872de` / PR #294 | EFF-028 Chef It Up time-selection, Ticket Pass heading, and mobile Prep Tray ready-image visuals | Focused mobile visual smoke: time-selection title is centered/clear of Back without bottom bias, Ticket Pass heading reads `Recipe suggestions`, and mobile Prep Tray ready selected image fills the hero area without bleeding back into Ticket Pass. Carry exact-head Replit validation at `127701d99e2f2cd85b37114bb68a5e1774065255` unless later mobile layout changes land. |
 | 2026-07-10 | `148c881` / PR #275 | Live Cooking `Ask a question` technical/quota failure presentation | Release-batch Live Cooking smoke: deny microphone or force assistance-route failure; verify current step stays visible, separate voice-help retry status appears outside Step guidance, retry clears it, and technical failure copy is not spoken as cooking guidance. |
 | 2026-07-10 | `c75d5bb` / PR #276 | EFF-017 linked dev-auth browser smoke for Chef It Up plus Settings Pantry/Tools persistence | Carry the exact-head GitHub E2E evidence into the production-readiness report. Do not duplicate manually unless later auth/profile/settings work or stale automation makes the release confidence indirect. |
 | 2026-06-30 | `a4450a6` / PR #248 | EFF-022 fallback merge closeout docs | No production UI smoke beyond normal release evidence; included here to keep the current main candidate explicit. |
@@ -78,6 +95,18 @@ Run the baseline core smoke from `docs/workflows/replit-validation-focus.md`:
 
 Run these changed-since-last-prod focused checks for the current candidate:
 
+- PR #294 EFF-028 mobile visual clearance:
+  - In mobile view, prefer iPhone presets or real mobile Safari when available. Include at least one short iPhone-like viewport if doing a full visual regression.
+  - Open Chef It Up time selection and confirm the title is centered, clears the floating Back button, and the full stack is not biased below the available visual center.
+  - Confirm the clock/timer treatment, slider, info card, and bottom `Next` remain visible and usable without page-edge crowding.
+  - Generate or open Ticket Pass and confirm the heading reads `Recipe suggestions`.
+  - Open Prep Tray after the ready selected image resolves and confirm the mobile selected image fills the hero area like desktop.
+  - Return to Ticket Pass when available and confirm the selected image does not bleed into the suggestion-card placeholder art.
+- PR #296 setup cooking-skill explicit Next:
+  - In the first-time setup flow on mobile, select `Beginner`, `Intermediate`, or `Expert`.
+  - Confirm the row becomes selected and the flow does not auto-advance.
+  - Confirm the bottom `Next` action enables after selection and advances to Dietary only after it is tapped.
+  - Confirm the setup bottom rail remains usable and visually consistent with adjacent setup pages.
 - PR #275 Live Cooking assistance-failure presentation:
   - Deny microphone access or force `/api/cooking/assistance` to fail while in Live Cooking.
   - Confirm the current step remains visible and unchanged.
