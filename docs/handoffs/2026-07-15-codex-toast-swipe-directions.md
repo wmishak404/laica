@@ -2,7 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/toast-swipe-directions`
-**PR:** not opened
+**PR:** #293, merged at `d7aadd2764abb5e6ba36a77c491e40241ba35211`
 **Date:** 2026-07-15
 **Initiative:** none
 **INIT updated:** no
@@ -34,8 +34,8 @@ The encrypted `.env` file was already locally modified before this branch and wa
 
 ## Open items
 
-- Human Replit/mobile browser validation was not run. For this low-risk shared UI primitive change, local unit coverage plus type/lint/build evidence should be sufficient for code review; a reviewer can still spot-check the Pantry destructive toast on mobile if desired.
-- No PR has been opened yet.
+- Wilson confirmed a mobile browser spot check on 2026-07-16 before merge, but the exact viewport/device preset was not captured. Treat that as supplemental product-feel evidence, not a formal viewport-recorded Replit validation gate.
+- `docs/production-validation-registry.md` now carries PR #293 as a focused production-readiness regression item: trigger a toast on mobile, verify right/left/up dismissal, verify direction-matched exit animation, verify down swipe does not dismiss, and record the browser or device preset.
 
 ## Verification
 
@@ -50,11 +50,12 @@ Coverage reasoning:
 
 - The focused unit test proves the shared primitive calls `onOpenChange(false)` for left, up, and right swipe gestures, sets left/up closed-state exit direction variables, and does not call dismissal for down swipes.
 - Static and build checks prove the shared client primitive remains type-safe, lint-clean, and production-buildable.
-- This does not prove real-device touch feel, animation polish in mobile Chrome, or every toast callsite's copy/action behavior.
+- Wilson's mobile browser spot check provides supplemental touch-feel signal for the shared behavior.
+- This does not prove every toast callsite's copy/action behavior or replace the formal production-readiness regression, which should still record the mobile browser or device preset used.
 
 ## Stack / base status
 
 - Base refreshed: yes
 - Current base: `origin/main` at `05774085e0bc39c2cebdffd2185ab5a0a86d1e2d`
-- Last Replit-validated at: not required / not run
+- Last Replit-validated at: not required / not run; Wilson mobile browser spot check confirmed on 2026-07-16 with viewport/device not recorded
 - Notes: branch was created fresh from `origin/main`; no active INIT or Effort ownership conflict was found.
