@@ -53,7 +53,7 @@ The row list below still needs the normal changed-since-last-prod review before 
 ## 2026-07-16 PR #296 Production-Readiness Addendum
 
 - PR #296 merged at `fc9739960306447f1148405db3e88e04798ea2fc` after exact-head GitHub checks passed for head `06234908d88013d79f91a5c79d03125f092222ac`.
-- Include the setup cooking-skill select-then-Next behavior in the next production/release-batch smoke when the release SHA contains this merge: selecting `Beginner`, `Intermediate`, or `Expert` should select the row without auto-advancing, enable the bottom `Next` action, and advance to Dietary only after `Next` is tapped.
+- Include the setup cooking-skill select-then-Next behavior in the next production/release-batch smoke when the release SHA contains this merge: bottom `Next` should be disabled before selection; selecting `Beginner`, `Intermediate`, or `Expert` should select the row without auto-advancing, enable the bottom `Next` action, and advance to Dietary only after `Next` is tapped.
 - Exact-head human Replit validation is not claimed after the final rebase; Wilson's spot check before the merge-readiness refresh accepted the behavior, and exact-head GitHub unit/E2E checks passed before merge. Add a targeted mobile setup smoke if later setup-flow changes land, exact-head CI is stale/skipped, or release readiness asks for a full setup regression.
 - Negative scope: no Pantry, Tools, Dietary, Ready, returning Settings, provider route, schema, durable navigation, or Live Cooking change.
 
@@ -61,7 +61,7 @@ Merged work after the 2026-06-22 production-smoke evidence that should be review
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
-| 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
+| 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: bottom `Next` should be disabled before skill selection; selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
 | 2026-07-16 | `4e872de` / PR #294 | EFF-028 Chef It Up time-selection, Ticket Pass heading, and mobile Prep Tray ready-image visuals | Focused mobile visual smoke: time-selection title is centered/clear of Back without bottom bias, Ticket Pass heading reads `Recipe suggestions`, and mobile Prep Tray ready selected image fills the hero area without bleeding back into Ticket Pass. Carry exact-head Replit validation at `127701d99e2f2cd85b37114bb68a5e1774065255` unless later mobile layout changes land. |
 | 2026-07-16 | `d7aadd2` / PR #293 | Shared toast primitive swipe dismissal and direction-matched exit animation | Focused mobile UI smoke: trigger a toast, swipe right/left/up to dismiss, verify the exit animation follows the gesture direction, and verify down swipe does not dismiss. Record the mobile browser or device preset because the pre-merge mobile spot check did not capture it. |
 | 2026-07-10 | `148c881` / PR #275 | Live Cooking `Ask a question` technical/quota failure presentation | Release-batch Live Cooking smoke: deny microphone or force assistance-route failure; verify current step stays visible, separate voice-help retry status appears outside Step guidance, retry clears it, and technical failure copy is not spoken as cooking guidance. |
@@ -111,6 +111,7 @@ Run these changed-since-last-prod focused checks for the current candidate:
   - Open Prep Tray after the ready selected image resolves and confirm the mobile selected image fills the hero area like desktop.
   - Return to Ticket Pass when available and confirm the selected image does not bleed into the suggestion-card placeholder art.
 - PR #296 setup cooking-skill explicit Next:
+  - In the first-time setup flow on mobile, confirm the bottom `Next` action is disabled before selecting a cooking skill.
   - In the first-time setup flow on mobile, select `Beginner`, `Intermediate`, or `Expert`.
   - Confirm the row becomes selected and the flow does not auto-advance.
   - Confirm the bottom `Next` action enables after selection and advances to Dietary only after it is tapped.
