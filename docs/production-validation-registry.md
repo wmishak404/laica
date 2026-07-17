@@ -22,12 +22,29 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-16 for the PR #293, PR #294, PR #295, and PR #296 addenda below.
-- Current `origin/main`: `edd547ccd623d511d095a5ecb9251bb81850c783`.
-- Current latest merge: PR #295, `[codex] Fix setup and Settings camera action clearance`.
+- Registry updated: 2026-07-17 by the full `main` production-readiness regression below.
+- Current `origin/main`: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
+- Current latest merge: PR #277, test-auth profile query scoping.
 - Current latest user-visible/runtime merge: PR #295, `[codex] Fix setup and Settings camera action clearance`.
+- Replit deployed production marker observed on 2026-07-17: `b462c9ba`, shown as published 27 days earlier. The marker does not resolve to a local Git commit, so the production comparison remains date-based from the 2026-06-22 smoke.
+- Release verdict for `2686117a...`: **not ready to publish**.
 
-The row list below still needs the normal changed-since-last-prod review before a production publish because it has not been fully refreshed for every merge after the 2026-06-30 candidate. The dated addenda record PR #275, PR #276, PR #293, PR #294, PR #295, and PR #296 coverage now so the next production-readiness pass does not lose that test signal; they are not a full audit of every intervening merge.
+The 2026-07-17 regression audited the full first-parent merge history after the date-based production baseline. Open PRs remain outside this candidate and must be re-audited if merged before release.
+
+## 2026-07-17 Full `main` Production-Readiness Regression
+
+- Detailed evidence: [`docs/handoffs/2026-07-17-codex-production-readiness-main.md`](handoffs/2026-07-17-codex-production-readiness-main.md).
+- Exact candidate: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
+- Mobile evidence: app-reported iPhone-like `390x844` and Pixel-like `412x915` Replit preview viewports.
+- Exact-head local and Replit install/typecheck/build/unit gates passed; Replit `db:health` passed; GitHub CI guest/linked E2E, dependency audit, secret scan, CodeQL, and exact-head OAuth-start workflow passed.
+- Live provider-backed Chef It Up suggestions, selected Prep Tray image, Ready Check, 11-step cooking guide, timer, CC/session restore, feedback, guest persistence, Google upgrade, and toast gesture paths passed, subject to the blockers below.
+- Release blockers:
+  - First-time setup Back/Next is outside the visual viewport and unrecoverable by scrolling at common iPhone/Pixel heights.
+  - Returning Settings Pantry/Tools sticky Save physically and interactively covers `Enter manually`.
+  - Guest Finish transcript/speech falsely says cooking history was saved while the honest visible toast says sign-up is required.
+- Lower-severity findings: Reset returns a fresh timer to `Resume timer`, and Settings root has a large blank/inert mobile scroll tail.
+- Direct linked image scan, linked Slop Bowl, linked History, microphone assistance, valid/throttled admin, and induced cooking-step failure remained explicit gaps after a native unsaved-changes dialog wedged the controlled signed-in Chrome session. Existing automated/historical evidence is recorded but is not promoted to direct-live pass status.
+- No production publish occurred. After fixes, rerun the exact-head automated gates, both mobile viewport matrices, every explicit gap, and then the custom-domain post-publish smoke only after publish authorization.
 
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
