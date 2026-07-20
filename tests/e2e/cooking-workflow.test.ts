@@ -551,6 +551,16 @@ test.describe('Laica Guest E2E Smoke', () => {
     await expect(page.getByTestId('step-guidance-panel')).not.toContainText("Microphone didn't start");
     await expect(page.getByRole('button', { name: 'Ask a question' })).toBeVisible();
 
+    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'Next' }).click();
+    await expect(page.getByText('Step 3 of 3')).toBeVisible();
+    await page.getByRole('button', { name: 'Finish' }).click();
+
+    const guestCompletionMessage = "Dinner's ready. Sign up to save this session to your cooking history.";
+    await expect(page.getByTestId('text-transcription-full')).toHaveText(guestCompletionMessage);
+    await expect(page.getByText('Sign up to save this session to your cooking history.', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(/Saved to your cooking history/i)).toHaveCount(0);
+
     expect(pantryRoutes.getRequestCount()).toBe(1);
     expect(liveCookingRoutes.getStepsRequestCount()).toBe(1);
     expect(liveCookingRoutes.getAssistanceRequestCount()).toBe(0);

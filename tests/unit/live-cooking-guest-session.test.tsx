@@ -1073,27 +1073,75 @@ describe('LiveCooking guest session boundary', () => {
     expect(mocks.fetchCookingSteps).toHaveBeenCalledTimes(1);
   });
 
-  it('finishes linked cooking sessions without inventing a rating or pantry update', async () => {
-    mocks.authUser = {
-      id: 'linked-user-id',
-      email: 'cook@example.com',
-    };
+  it('finishes guest cooking locally without making any saved-History claim', async () => {
+    vi.useFakeTimers();
+    installAudioMocks();
+    const onCookingComplete = vi.fn();
 
     render(
       <LiveCooking
         selectedMeal={selectedMeal}
         scheduledTime=""
         onBackToPlanning={vi.fn()}
+        onCookingComplete={onCookingComplete}
       />,
     );
 
     await clickReadyCheckStart();
-    expect(await screen.findByText('Warm the rice and beans.')).toBeTruthy();
-    await waitFor(() => expect(mocks.startCookingSession).toHaveBeenCalledTimes(1));
+    expect(screen.getByRole('button', { name: /^finish$/i })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /finish/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^finish$/i }));
+    await flushPromises();
 
-    await waitFor(() => expect(mocks.completeCookingSession).toHaveBeenCalledTimes(1));
+    const transcript = screen.getByTestId('text-transcription-full').textContent;
+    const completionToast = mocks.toast.mock.calls.at(-1)?.[0];
+    const toastMessage = `${completionToast.title} ${completionToast.description}`;
+
+    expect(transcript).toBe("Dinner's ready. Sign up to save this session to your cooking history.");
+    expect(toastMessage).toBe(transcript);
+    expect(transcript).not.toMatch(/saved to your cooking history/i);
+    expect(mocks.completeCookingSession).not.toHaveBeenCalled();
+    expect(onCookingComplete).toHaveBeenCalledTimes(1);
+    expect(window.localStorage.getItem('laica_cooking_session:guest:guest-user-id')).toBeNull();
+
+    await advanceSpeechDelay();
+    expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+  });
+
+  it('announces linked History only after the completion mutation succeeds', async () => {
+    vi.useFakeTimers();
+    installAudioMocks();
+    mocks.authUser = {
+      id: 'linked-user-id',
+      email: 'cook@example.com',
+    };
+    const completion = createDeferred<{ id: number }>();
+    const onCookingComplete = vi.fn();
+    mocks.completeCookingSession.mockReturnValueOnce(completion.promise);
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+        onCookingComplete={onCookingComplete}
+      />,
+    );
+
+    await clickReadyCheckStart();
+    await flushPromises();
+    expect(mocks.startCookingSession).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /^finish$/i }));
+    await flushPromises();
+
+    expect(mocks.completeCookingSession).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: /finishing/i })).toBeDisabled();
+    expect(screen.getByTestId('text-transcription-full').textContent).not.toMatch(/saved to your cooking history/i);
+    expect(mocks.toast).not.toHaveBeenCalled();
+    expect(onCookingComplete).not.toHaveBeenCalled();
+
     const completionPayload = mocks.completeCookingSession.mock.calls[0][0].completionData;
     expect(completionPayload).toEqual(expect.objectContaining({
       ingredientsRemaining: [],
@@ -1102,10 +1150,85 @@ describe('LiveCooking guest session boundary', () => {
     }));
     expect(completionPayload).not.toHaveProperty('userRating');
     expect(completionPayload).not.toHaveProperty('userNotes');
-    expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({
-      title: "Nice, dinner's ready.",
-      description: "Saved to your cooking history. Pantry cleanup comes next.",
-    }));
+
+    completion.resolve({ id: 123 });
+    await flushPromises();
+
+    const transcript = screen.getByTestId('text-transcription-full').textContent;
+    const completionToast = mocks.toast.mock.calls.at(-1)?.[0];
+    const toastMessage = `${completionToast.title} ${completionToast.description}`;
+
+    expect(transcript).toBe("Dinner's ready. Saved to your cooking history. Pantry cleanup comes next.");
+    expect(toastMessage).toBe(transcript);
+    expect(onCookingComplete).toHaveBeenCalledTimes(1);
+    expect(window.localStorage.getItem('laica_cooking_session:linked:linked-user-id')).toBeNull();
+
+    await advanceSpeechDelay();
+    expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+  });
+
+  it('keeps a linked persistence failure honest and retryable across completion surfaces', async () => {
+    vi.useFakeTimers();
+    installAudioMocks();
+    mocks.authUser = {
+      id: 'linked-user-id',
+      email: 'cook@example.com',
+    };
+    const onCookingComplete = vi.fn();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    mocks.completeCookingSession.mockRejectedValueOnce(new Error('database unavailable'));
+
+    render(
+      <LiveCooking
+        selectedMeal={selectedMeal}
+        scheduledTime=""
+        onBackToPlanning={vi.fn()}
+        onCookingComplete={onCookingComplete}
+      />,
+    );
+
+    await clickReadyCheckStart();
+    await flushPromises();
+    expect(mocks.startCookingSession).toHaveBeenCalledTimes(1);
+    expect(window.localStorage.getItem('laica_cooking_session:linked:linked-user-id')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /^finish$/i }));
+    await flushPromises();
+
+    const transcript = screen.getByTestId('text-transcription-full').textContent;
+    const completionToast = mocks.toast.mock.calls.at(-1)?.[0];
+    const toastMessage = `${completionToast.title} ${completionToast.description}`;
+    const status = screen.getByTestId('cooking-completion-status');
+
+    expect(transcript).toBe("Dinner's ready, but this session wasn't saved to your cooking history. Try Finish again.");
+    expect(toastMessage).toBe(transcript);
+    expect(completionToast.variant).toBe('destructive');
+    expect(within(status).getByText(completionToast.title)).toBeTruthy();
+    expect(within(status).getByText(completionToast.description)).toBeTruthy();
+    expect(transcript).not.toMatch(/^.*Dinner's ready\. Saved to your cooking history/i);
+    expect(screen.getByRole('button', { name: /try finish again/i })).toBeEnabled();
+    expect(onCookingComplete).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem('laica_cooking_session:linked:linked-user-id')).toBeTruthy();
+    expect(consoleError).toHaveBeenCalledWith('Failed to complete cooking session:', expect.any(Error));
+
+    await advanceSpeechDelay();
+    expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(1);
+    expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(transcript, {});
+
+    mocks.completeCookingSession.mockResolvedValueOnce({ id: 123 });
+    fireEvent.click(screen.getByRole('button', { name: /try finish again/i }));
+    await flushPromises();
+
+    const recoveredTranscript = screen.getByTestId('text-transcription-full').textContent;
+    expect(recoveredTranscript).toBe("Dinner's ready. Saved to your cooking history. Pantry cleanup comes next.");
+    expect(screen.queryByTestId('cooking-completion-status')).toBeNull();
+    expect(onCookingComplete).toHaveBeenCalledTimes(1);
+    expect(window.localStorage.getItem('laica_cooking_session:linked:linked-user-id')).toBeNull();
+
+    await advanceSpeechDelay();
+    expect(mocks.synthesizeSpeech).toHaveBeenCalledTimes(2);
+    expect(mocks.synthesizeSpeech).toHaveBeenLastCalledWith(recoveredTranscript, {});
   });
 
   it('stops queued cooking audio when leaving before speech playback starts', async () => {
