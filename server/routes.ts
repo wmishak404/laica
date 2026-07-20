@@ -66,11 +66,24 @@ const privateResponseHeaders: RequestHandler = (_req, res, next) => {
   next();
 };
 
-// Multer for handling file uploads
-const upload = multer({ 
+const TRANSCRIPTION_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
+
+// Multer keeps the uploaded audio in memory until the route moves it into an
+// isolated temporary directory for the transcription provider.
+const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }
+  limits: { fileSize: TRANSCRIPTION_UPLOAD_MAX_BYTES },
 });
+
+const parseTranscriptionUpload: RequestHandler = (req, res, next) => {
+  upload.single("audio")(req, res, (error) => {
+    if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({ error: "Audio file exceeds the 10 MB upload limit" });
+    }
+
+    next(error);
+  });
+};
 
 const allowedTranscriptionMimeTypes = new Set([
   "audio/aac",
@@ -860,7 +873,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Speech transcription route using OpenAI Whisper
-  app.post('/api/speech/transcribe', isAuthenticated, speechUserHourLimit, speechUserDayLimit, upload.single('audio'), async (req, res) => {
+  app.post('/api/speech/transcribe', isAuthenticated, speechUserHourLimit, speechUserDayLimit, parseTranscriptionUpload, async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'Audio file is required' });

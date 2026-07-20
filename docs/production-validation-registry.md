@@ -20,6 +20,14 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 
 Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-based baseline, not commit-level proof.
 
+## 2026-07-20 Multer 2.2 Production-Readiness Addendum
+
+- Replacement PR pending from branch `codex/deps-multer-2-2`; its current base is `origin/main` at `04b88c5cd4be383771d690a250cafda5eb031a03` after preserving PR #319's independent EFF-023 closeout. The branch couples `multer` and `@types/multer` at 2.2.0 and changes oversized transcription uploads from the generic server-error path to a scoped HTTP 413 JSON response.
+- If the replacement merges, include one signed-in Live Cooking transcription through the real provider in the next release-batch smoke and confirm it completes without upload parsing, temporary-file, or cleanup errors. This can be combined with the existing PR #244 transcription check.
+- Rely on the replacement PR's exact-head route regression for the deliberate over-limit case: a payload above the 10 MiB file boundary must return `{ "error": "Audio file exceeds the 10 MB upload limit" }` with HTTP 413 and must not construct or call the provider. Do not send a deliberately oversized provider payload during normal production smoke unless the release owner selects that destructive-cost-free boundary check explicitly.
+- Negative scope: no accepted audio MIME list, provider request contract, rate-limit policy, auth/session behavior, transcription output shape, client recording/compression logic, schema, database, navigation, or deployment command changes.
+- Future bug breadcrumb: if transcription failures begin after this upgrade, compare multipart parsing and the 413 response first, then the pre-existing randomized `laica-transcribe-*` temporary-directory write/read/cleanup boundary recorded for PR #244.
+
 ## Current Main Candidate
 
 - Registry updated: 2026-07-16 for the PR #293, PR #294, PR #295, and PR #296 addenda below.

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import express from "express";
 import fsSync from "fs";
+import fs from "fs/promises";
 import { requestHttp, type TestResponse } from "./http-test-client";
 
 const mocks = vi.hoisted(() => {
@@ -158,6 +159,7 @@ describe("provider-boundary route happy paths", () => {
     } else {
       delete process.env.OPENAI_API_KEY;
     }
+    vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 
@@ -276,6 +278,7 @@ describe("provider-boundary route happy paths", () => {
     const server = await startTestServer();
     const boundary = "laica-provider-boundary";
     const fakeAudioStream = { path: "/tmp/audio_provider_boundary.wav" };
+    const writeFileSpy = vi.spyOn(fs, "writeFile");
     const readStreamSpy = vi.spyOn(fsSync, "createReadStream").mockReturnValue(fakeAudioStream as any);
 
     const response = await requestHttp(server, {
@@ -294,6 +297,12 @@ describe("provider-boundary route happy paths", () => {
       success: true,
     });
     expect(mocks.openaiConstructor).toHaveBeenCalledWith({ apiKey: "test-openai-key" });
+    expect(writeFileSpy).toHaveBeenCalledTimes(1);
+    const [writtenPath, writtenAudio, writeOptions] = writeFileSpy.mock.calls[0];
+    expect(String(writtenPath)).toContain("laica-transcribe-");
+    expect(Buffer.isBuffer(writtenAudio)).toBe(true);
+    expect(Buffer.from(writtenAudio as Uint8Array).toString("utf8")).toBe("mock audio bytes");
+    expect(writeOptions).toEqual({ flag: "wx" });
     expect(String(readStreamSpy.mock.calls[0]?.[0])).toContain("laica-transcribe-");
     expect(String(readStreamSpy.mock.calls[0]?.[0])).toMatch(/audio\.wav$/);
     expect(String(readStreamSpy.mock.calls[0]?.[0])).not.toMatch(/audio_\d+\.wav$/);
@@ -321,6 +330,30 @@ describe("provider-boundary route happy paths", () => {
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: "Audio file is required" });
+    expect(mocks.openaiConstructor).not.toHaveBeenCalled();
+    expect(mocks.createTranscription).not.toHaveBeenCalled();
+  });
+
+  it("rejects audio larger than the in-memory upload limit with a stable JSON error", async () => {
+    process.env.OPENAI_API_KEY = "test-openai-key";
+    const server = await startTestServer();
+    const boundary = "laica-provider-boundary-oversized";
+
+    const response = await requestHttp(server, {
+      method: "POST",
+      path: "/api/speech/transcribe",
+      headers: {
+        "Content-Type": `multipart/form-data; boundary=${boundary}`,
+        Authorization: "Bearer test-token",
+      },
+      body: multipartAudioBody(boundary, "a".repeat(10 * 1024 * 1024 + 1)),
+    });
+
+    expect(response.status).toBe(413);
+    expect(response.headers["content-type"]).toContain("application/json");
+    expect(await response.json()).toEqual({
+      error: "Audio file exceeds the 10 MB upload limit",
+    });
     expect(mocks.openaiConstructor).not.toHaveBeenCalled();
     expect(mocks.createTranscription).not.toHaveBeenCalled();
   });
