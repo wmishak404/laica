@@ -123,3 +123,9 @@ Dependabot PR #305 repeated the broad-bundle failure mode with 31 nominally mino
 Branch `codex/deps-bot-lane-alignment` removes the catch-all npm minor group so future minor upgrades open as individual PRs under the existing five-PR concurrency cap. The patch group remains available for routine compatible maintenance. The same branch ignores automated `@types/node` major updates because Node declarations must move with the EFF-017 runtime-alignment slice rather than ahead of the deployed runtime. PR #305 and the declarations-only PR #253 should be closed as superseded after the replacement branch is published.
 
 This does not start the deferred provider, database, UI-foundation, or toolchain modernization work, and it does not change the validation requirements for those future slices.
+
+## 2026-07-20 - Replit cartographer update deferred at its environment boundary
+
+Dependabot PR #316 proposes `@replit/vite-plugin-cartographer` `0.2.0` to `0.6.0`, a pre-1.0 three-minor update. LAICA loads this plugin only when `NODE_ENV !== "production"` and `REPL_ID` is present, so the repository's local macOS and GitHub checks do not execute the changed integration path. The bot head passed install, typecheck/lint, build, unit/coverage, high/critical audit, and PR secret scan; its E2E job stopped at the known Dependabot protected-secret preflight before application setup or browser tests.
+
+PR #316 should remain out of the merge path until a focused same-repository replacement can pair the normal exact-head gates with direct Replit development validation. That validation must start the current Replit workspace with `REPL_ID` present, confirm Vite loads cartographer `0.6.x` without initialization or transform errors, and exercise the Replit visual-editor/cartographer interaction that the plugin exists to support. This is an environment-specific toolchain defer under EFF-023, not evidence that version `0.6.0` is incompatible.
