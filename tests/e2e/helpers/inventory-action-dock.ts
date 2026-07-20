@@ -35,7 +35,9 @@ export async function expectInventoryActionDockLayout(
   const scroll = page.getByTestId('returning-inventory-scroll');
   const dock = page.getByTestId('returning-inventory-actions');
   const nav = page.locator('.app-bottom-nav');
-  const capture = page.getByRole('button', { name: `Capture ${section.toLowerCase()}` });
+  const cameraToggle = page.getByRole('button', {
+    name: new RegExp(`^(Turn on|Turn off) ${section.toLowerCase()} camera$`),
+  });
   const upload = page.getByRole('button', { name: 'Upload photos' });
   const manual = page.getByRole('button', { name: 'Enter manually' });
   const settings = dock.getByRole('button', { name: 'Settings' });
@@ -80,8 +82,8 @@ export async function expectInventoryActionDockLayout(
   expect(geometry.scrollOverflowY).toBe('auto');
   expect(geometry.scrollHasOverflow).toBe(true);
 
-  await capture.scrollIntoViewIfNeeded();
-  await expectCenterPointOwnedBy(capture);
+  await cameraToggle.scrollIntoViewIfNeeded();
+  await expectCenterPointOwnedBy(cameraToggle);
   await upload.scrollIntoViewIfNeeded();
   await expectCenterPointOwnedBy(upload);
   await manual.scrollIntoViewIfNeeded();

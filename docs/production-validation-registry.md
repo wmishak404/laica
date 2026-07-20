@@ -28,7 +28,7 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 - Current latest merge: PR #308, pinned dotenvx 2.15.1 upgrade.
 - Current latest user-visible/runtime merge: PR #295, `[codex] Fix setup and Settings camera action clearance`.
 - Replit deployed production marker observed on 2026-07-17: `b462c9ba`, shown as published 27 days earlier. The marker does not resolve to a local Git commit, so the production comparison remains date-based from the 2026-06-22 smoke.
-- Release verdict: **not ready to publish** until EFF-033 returning Settings action-dock parity and guest Finish honesty are fixed and retested. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
+- Release verdict: **not ready to publish** until draft PR #325 merges for EFF-033, guest Finish honesty is fixed, and the resulting exact head is retested. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
 
 The 2026-07-17 regression audited the full first-parent merge history through `2686117a`. `origin/main` has since added PRs #306-#310 across dependency/security-tool configuration and package changes; this 2026-07-20 planning follow-up rebased over them but did not run a new exact-head production-readiness pass.
 
@@ -55,6 +55,14 @@ The 2026-07-17 regression audited the full first-parent merge history through `2
 - Guest Finish remains a pre-production honesty correction in INIT-003: one outcome-driven completion message should feed transcript, speech, and toast, and linked saved-History copy must wait for persistence success.
 - Timer Reset wording and Settings hub blank scroll remain P2 and are preserved in [EFF-034](../efforts/effort-034-production-readiness-mobile-p2-cleanup.md).
 - No runtime fix or publish occurred in this follow-up.
+
+## 2026-07-20 Draft PR #325 EFF-033 Production-Readiness Addendum
+
+- Draft PR #325 starts from the documented production-readiness commit `08fa856d`; runtime commit `af603822855be23e790769f77969dace803aabd4` replaces returning Settings Pantry/Tools' sticky translucent overlay with a bounded inventory scroller and opaque in-flow action dock.
+- Replit workspace validation at app-reported `390x844` and `412x915` covered guest and linked Pantry/Tools, clean and reversible dirty states, long-list scrolling, computed opacity, active camera/upload/manual/Settings/Save center-point hit ownership, bottom-nav clearance, and focused-input viewport resizing. Replit Agent was not used.
+- Changed-since-last-production focused check: on the release SHA, open returning Settings -> Kitchen Inventory -> Pantry and Tools at both target mobile sizes; confirm content scrolls only above the dock, no content is visible or hit-testable underneath it, the dock is opaque and above Cook/Menu, and Settings/Save plus camera/upload/manual controls remain at least `44px` and tappable in clean and dirty states.
+- Future-bug breadcrumb: if Settings inventory content becomes hidden or clicks resolve to Save/Settings unexpectedly, compare the owned `.returning-inventory-scroll` bottom with `.returning-inventory-actions` top and inspect PR #325 / EFF-033 before adding z-index or padding workarounds.
+- Exact final-head GitHub automation, review, merge, and post-merge closeout remain pending. Negative scope: no first-time setup, EFF-034, Guest Finish, provider, schema, prompt, API/persistence, or durable navigation change.
 
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
@@ -110,6 +118,7 @@ Merged or pending release-candidate work after the 2026-06-22 production-smoke e
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
 | 2026-07-21 | pending / `codex/eff-017-linked-e2e-stability` | Linked Chef It Up Ticket Pass restore after confirmed-staple save | Carry exact-head GitHub linked dev-auth E2E evidence first. If the branch ships and release confidence needs a manual smoke, use a linked account to confirm new staples, reach `Recipe suggestions`, reload immediately, and verify the Ticket Pass restores with the expanded pantry basis. |
+| 2026-07-20 | `af60382` runtime / draft PR #325 | EFF-033 returning Settings Pantry/Tools action containment | On the final release SHA at app-reported `390x844` and `412x915`, confirm Pantry/Tools inventory content remains in the owned scroller above an opaque dock, the dock clears Cook/Menu, and active camera/upload/manual/Settings/Save targets retain center-point ownership in clean and dirty states. Runtime-head guest/linked Replit evidence exists; use the live PR for final exact-head automation and merge evidence. |
 | 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: bottom `Next` should be disabled before skill selection; selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
 | 2026-07-16 | `edd547c` / PR #295 | EFF-029 setup/settings Pantry/Tools camera/action clearance | Run a mobile visual smoke for first-time setup Pantry/Tools and returning Settings Pantry/Tools when this merge is in the release SHA: 4:5 camera frames, in-frame camera-off copy/controls, setup Back/Next rail reachability, and Settings actions clear of the bottom nav. |
 | 2026-07-16 | `4e872de` / PR #294 | EFF-028 Chef It Up time-selection, Ticket Pass heading, and mobile Prep Tray ready-image visuals | Focused mobile visual smoke: time-selection title is centered/clear of Back without bottom bias, Ticket Pass heading reads `Recipe suggestions`, and mobile Prep Tray ready selected image fills the hero area without bleeding back into Ticket Pass. Carry exact-head Replit validation at `127701d99e2f2cd85b37114bb68a5e1774065255` unless later mobile layout changes land. |
@@ -153,6 +162,10 @@ Run the baseline core smoke from `docs/workflows/replit-validation-focus.md`:
 
 Run these changed-since-last-prod focused checks for the current candidate:
 
+- Draft PR #325 EFF-033 returning Settings action containment if its merge is in the release SHA:
+  - In guest and linked Settings -> Kitchen Inventory on mobile, check Pantry and Tools at app-reported `390x844` and `412x915`.
+  - Scroll the camera, upload/manual controls, inventory list, and dirty reminder; confirm the scroll region ends above the opaque Settings/Save dock and no control is visible through or hit-testable under it.
+  - Confirm the dock clears the fixed Cook/Menu nav, active camera/upload/manual/Settings/Save targets are at least `44px`, and clean/dirty Save behavior plus leave/switch prompts remain intact.
 - PR #294 EFF-028 mobile visual clearance:
   - In mobile view, prefer iPhone presets or real mobile Safari when available. Include at least one short iPhone-like viewport if doing a full visual regression.
   - Open Chef It Up time selection and confirm the title is centered, clears the floating Back button, and the full stack is not biased below the available visual center.

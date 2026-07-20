@@ -61,6 +61,14 @@ PR #237 merged the direct [EFF-025](../../../efforts/effort-025-settings-unsaved
 
 Focused local coverage proves linked and session-local save behavior, dirty reminders, scan-added dirty state, and leave/switch prompts. Exact-head GitHub checks passed at `4c24c4f709d499a7c65f25acad0a1b9e9bb8e68a`, and Wilson accepted local before/after screenshot evidence in the Codex thread. EFF-025 is resolved with human Replit validation deferred to release/batch validation.
 
+## 2026-07-20 Implementation Signal - Returning Inventory Action Containment
+
+The production-readiness mobile matrix exposed a Phase 2.2 portability gap that prior desktop and spot-check evidence did not catch: returning Pantry/Tools used a translucent sticky action rail over the same document content it was meant to control. At `390x844`, the visible manual-entry center resolved to Save instead of the manual-entry button.
+
+Draft [PR #325](https://github.com/wmishak404/laica/pull/325) applies the established first-time setup containment principle without merging the two flows. Returning Kitchen Inventory now has one bounded internal scroll body followed by a sibling in-flow, opaque Settings/Save dock. The implementation guardrail is structural: inventory content must end at or above the dock's top edge, the dock must end above the fixed Cook/Menu nav, and visible control centers must hit their owning elements. Z-index or opacity changes alone are not sufficient.
+
+Runtime commit `af603822855be23e790769f77969dace803aabd4` passed Replit workspace checks for guest and linked Pantry/Tools at app-reported `390x844` and `412x915`, including clean and reversible dirty states, long-list scrolling, computed opacity, bottom-nav clearance, center-point hit tests, and focused-input viewport-resize probes. Final exact-head GitHub automation remains live PR evidence; merge and Effort closeout are still pending. The change does not alter inventory semantics, persistence APIs, scan providers, camera/upload/manual behavior, durable navigation, first-time setup, or Guest Finish.
+
 ## Design and UX Gate
 
 - Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../pd-005-ui-governance.md), the full-row selection pattern established in setup, and the [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md).

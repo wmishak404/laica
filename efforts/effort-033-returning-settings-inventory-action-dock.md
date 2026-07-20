@@ -1,6 +1,6 @@
 # EFF-033: Returning Settings inventory action-dock parity
 
-**Status:** Open
+**Status:** In Progress
 **Priority:** Pre-production
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
@@ -34,6 +34,12 @@ Codex controlled-browser reproduction at `390x844`:
 
 ![Codex returning Pantry action overlay at 390x844](../docs/assets/mobile-refresh/2026-07-20-codex-returning-settings-pantry-overlay-390x844.jpg)
 
+Draft PR #325 after-state at app-reported `390x844` and `412x915`:
+
+![Returning Pantry with contained action dock at 390x844](../docs/assets/mobile-refresh/2026-07-20-codex-eff-033-after-linked-pantry-390x844.jpg)
+
+![Returning Tools with contained action dock at 412x915](../docs/assets/mobile-refresh/2026-07-20-codex-eff-033-after-linked-tools-412x915.jpg)
+
 ## Scope
 
 - Target returning Settings -> Kitchen Inventory -> Pantry and Tools for guest and linked modes where the shared returning surface applies.
@@ -59,22 +65,23 @@ Out of scope:
 - Reuse first-time setup containment principles without copying unrelated setup positioning or changing durable navigation.
 - The final rail should not rely on translucency over interactive content. A solid surface plus reserved scroll/content space is preferred over increasing z-index alone.
 
-## Open questions
+## Implementation decisions
 
-- Should returning inventory use a bounded internal scroll body plus an in-flow dock, or can a sticky dock remain if the content has explicit reserved clearance and the surface is fully opaque?
-- Should the action dock share a primitive/token contract with `.setup-bottom-bar`, or remain returning-specific with computed-style parity tests?
-- What safe-area/bottom-nav clearance value works across mobile Safari browser chrome and Pixel Chrome without producing the blank-tail problem tracked in EFF-034?
+- Use a bounded internal inventory scroll body followed by an in-flow dock. This makes the scroller's bottom edge the dock's top edge, so the dock reserves space structurally instead of depending on z-index or content padding.
+- Keep the implementation returning-specific because first-time setup and returning Settings have different top-level shells, but enforce the shared containment principles with DOM, CSS, geometry, opacity, and hit-target regression coverage.
+- Keep the existing returning bottom-nav clearance variable. In the Replit preview, the dock ended `40px` above the Cook/Menu nav at both app-reported target viewports; EFF-034's Settings-hub blank-tail work remains separate.
 
 ## Agent checklist
 
-- [ ] Start from fresh `origin/main` and confirm no open branch owns returning Settings inventory layout.
-- [ ] Read EFF-029, INIT-001, Phase 2.2, PD-005, `design_guidelines.md`, and the 2026-07-20 readiness follow-up.
-- [ ] Inspect `UserSettings`, `.returning-ui`, `.returning-inventory-panel`, `.returning-actions`, `.setup-bottom-bar`, and the app-shell bottom nav together.
-- [ ] Verify Pantry and Tools at `390x844` and `412x915`, including clean and dirty states.
-- [ ] Add geometry/hit-test coverage proving visible manual/upload/list controls are not covered by the dock.
-- [ ] Add computed-style evidence for a visually solid rail and compare it with first-time setup.
-- [ ] Save before/after screenshots in `docs/assets/mobile-refresh/` and link them from the handoff/PR.
-- [ ] Run focused Settings tests, full unit, check, build, exact-head E2E, and Replit mobile validation.
+- [x] Start from the requested production-readiness base `08fa856d` and confirm no open branch owns returning Settings inventory layout.
+- [x] Read EFF-029, INIT-001, Phase 2.2, PD-005, `design_guidelines.md`, and the 2026-07-20 readiness follow-up.
+- [x] Inspect `UserSettings`, `.returning-ui`, `.returning-inventory-panel`, `.returning-actions`, `.setup-bottom-bar`, and the app-shell bottom nav together.
+- [x] Verify Pantry and Tools at `390x844` and `412x915`, including clean and reversible dirty states.
+- [x] Add geometry/hit-test coverage proving visible camera-toggle, manual/upload/list, Settings, and Save controls are not covered by the dock.
+- [x] Add computed-style evidence for a visually solid rail and compare it with first-time setup containment.
+- [x] Save before/after screenshots in `docs/assets/mobile-refresh/` and link them from the handoff/PR.
+- [x] Run focused Settings tests, full unit, check, build, and exact-runtime-head Replit mobile validation.
+- [ ] Confirm the full automated E2E/security gate on the final pushed PR head; live PR #325 is authoritative for this post-push result.
 
 ## Resolution criteria
 
@@ -87,3 +94,11 @@ Out of scope:
 ## 2026-07-20 - Effort filed from production-readiness review
 
 Wilson confirmed the returning Settings action rail must be fixed before production and added opacity/parity to the accepted scope. The original EFF-029 remains resolved history for camera proportion and bottom-nav clearance; this new Effort owns the newly observed content-overlap, floating-dock, and translucent-surface behavior.
+
+## 2026-07-20 — Draft PR #325 implements and validates the contained dock
+
+Draft [PR #325](https://github.com/wmishak404/laica/pull/325) on `codex/eff-033-settings-action-dock` starts from the requested production-readiness commit `08fa856d`. Runtime commit `af603822855be23e790769f77969dace803aabd4` makes returning Pantry and Tools use one bounded `.returning-inventory-scroll` above a sibling `.returning-inventory-actions` dock. The dock is in flow (`position: relative`, `z-index: auto`), has an opaque cream-to-cream-deep surface, and remains inside a Settings root that ends above the existing bottom-nav clearance.
+
+Replit workspace validation used direct shell and browser control without Replit Agent. Guest and linked Pantry/Tools passed at app-reported `390x844` and `412x915`: the scroll bottom equaled the dock top, the dock ended `40px` above bottom navigation, active controls were `48px` to `64px` tall, and center-point hit tests resolved to the active camera toggle, upload/manual controls, Settings, and Save. Clean state, reversible dirty state, long-list scrolling, and focused manual-entry viewport-resize probes (`390x564` and `412x635`) also remained clear of the dock and nav. Computed dock colors were opaque `rgb(255, 248, 235)` plus `linear-gradient(rgb(255, 248, 235), rgb(253, 238, 217))`; no browser warning/error logs appeared.
+
+Local focused Settings coverage passed `17/17`, the full unit suite passed `390/390`, and `npm run check` plus `npm run build` passed. A focused local guest Playwright attempt is not evidence for the dock because anonymous Firebase auth stopped before Settings; the final exact-head GitHub E2E/security gate remains a live PR requirement. EFF-033 stays `In Progress` until PR #325 merges and the mechanical Effort closeout records the merged and exact-head evidence. EFF-032, EFF-034, and Guest Finish remain unchanged.
