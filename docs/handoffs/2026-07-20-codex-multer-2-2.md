@@ -2,6 +2,7 @@
 
 **Agent:** codex
 **Branch:** `codex/deps-multer-2-2`
+**Pull request:** #327
 **Date:** 2026-07-20
 **Initiative:** none
 **INIT updated:** n/a
@@ -64,8 +65,7 @@ Human Replit validation is deferred to release/batch validation. Because this br
 
 ## Open items
 
-- Publish the draft replacement PR, record its number, and mark it ready after local evidence is complete.
-- Monitor required exact-head GitHub checks and place the exact head SHA/run URLs and negative scope in the PR body.
+- Mark PR #327 ready after this PR-number closeout reaches `origin`, then monitor required exact-head GitHub checks and place the exact final head SHA/run URLs and negative scope in the PR body.
 - Once every required replacement check is green, comment on and close Dependabot PR #314 as superseded. Do not merge this replacement branch; the coordinating parent retains that decision/action.
 
 ## Stack / base status
