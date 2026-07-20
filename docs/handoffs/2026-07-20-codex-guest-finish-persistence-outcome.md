@@ -1,10 +1,10 @@
 # Guest Finish persistence outcome correction
 
-**Agent:** codex  
-**Branch:** `codex/guest-finish-persistence-outcome`  
-**Date:** 2026-07-20  
-**Initiative:** INIT-003  
-**INIT updated:** yes  
+**Agent:** codex
+**Branch:** `codex/guest-finish-persistence-outcome`
+**Date:** 2026-07-20
+**Initiative:** INIT-003
+**INIT updated:** yes
 **Resolves blocked handoff:** none
 
 ## Summary
