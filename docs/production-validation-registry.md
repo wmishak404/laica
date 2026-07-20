@@ -22,14 +22,15 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-17 by the full `main` production-readiness regression below.
-- Current `origin/main`: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
-- Current latest merge: PR #277, test-auth profile query scoping.
+- Registry updated: 2026-07-20 by Wilson's severity/Effort review below.
+- Current `origin/main`: `4775ce5fc8c0a4bd6dd5148c8e329eb5f0211038`.
+- Last fully production-readiness-tested candidate: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
+- Current latest merge: PR #308, pinned dotenvx 2.15.1 upgrade.
 - Current latest user-visible/runtime merge: PR #295, `[codex] Fix setup and Settings camera action clearance`.
 - Replit deployed production marker observed on 2026-07-17: `b462c9ba`, shown as published 27 days earlier. The marker does not resolve to a local Git commit, so the production comparison remains date-based from the 2026-06-22 smoke.
-- Release verdict for `2686117a...`: **not ready to publish**.
+- Release verdict: **not ready to publish** until EFF-033 returning Settings action-dock parity and guest Finish honesty are fixed and retested. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
 
-The 2026-07-17 regression audited the full first-parent merge history after the date-based production baseline. Open PRs remain outside this candidate and must be re-audited if merged before release.
+The 2026-07-17 regression audited the full first-parent merge history through `2686117a`. `origin/main` has since added PRs #306-#310 across dependency/security-tool configuration and package changes; this 2026-07-20 planning follow-up rebased over them but did not run a new exact-head production-readiness pass.
 
 ## 2026-07-17 Full `main` Production-Readiness Regression
 
@@ -45,6 +46,15 @@ The 2026-07-17 regression audited the full first-parent merge history after the 
 - Lower-severity findings: Reset returns a fresh timer to `Resume timer`, and Settings root has a large blank/inert mobile scroll tail.
 - Direct linked image scan, linked Slop Bowl, linked History, microphone assistance, valid/throttled admin, and induced cooking-step failure remained explicit gaps after a native unsaved-changes dialog wedged the controlled signed-in Chrome session. Existing automated/historical evidence is recorded but is not promoted to direct-live pass status.
 - No production publish occurred. After fixes, rerun the exact-head automated gates, both mobile viewport matrices, every explicit gap, and then the custom-domain post-publish smoke only after publish authorization.
+
+## 2026-07-20 Wilson Severity and Effort Review
+
+- Detailed follow-up and screenshots: [`docs/handoffs/2026-07-20-codex-production-readiness-effort-routing.md`](handoffs/2026-07-20-codex-production-readiness-effort-routing.md).
+- First-time setup camera/action first-view fit is downgraded from a large blocker to a subset-phone inconvenience. Wilson can scroll on his device; Codex's controlled `390x844` `.setup-scroll-body` had no scroll range. [EFF-032](../efforts/effort-032-setup-inventory-camera-compact-fit.md) owns camera-height reduction plus real Safari/Chrome scroll-owner validation.
+- Returning Settings remains pre-production. Wilson confirmed the pinned actions visually float over camera content and appear translucent relative to first-time setup; controlled hit-testing also resolves visible `Enter manually` to Save. [EFF-033](../efforts/effort-033-returning-settings-inventory-action-dock.md) owns a solid dock, reserved content geometry, bottom-nav clearance, Pantry/Tools parity, and screenshot/hit-target validation.
+- Guest Finish remains a pre-production honesty correction in INIT-003: one outcome-driven completion message should feed transcript, speech, and toast, and linked saved-History copy must wait for persistence success.
+- Timer Reset wording and Settings hub blank scroll remain P2 and are preserved in [EFF-034](../efforts/effort-034-production-readiness-mobile-p2-cleanup.md).
+- No runtime fix or publish occurred in this follow-up.
 
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
