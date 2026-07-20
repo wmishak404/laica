@@ -4,6 +4,7 @@ import {
   MEAL_PLANNING_STORAGE_KEY,
   createPlanningProfileFingerprint,
 } from "../../client/src/lib/planningCache";
+import { expectInventoryActionDockLayout } from "./helpers/inventory-action-dock";
 
 const LINKED_DEV_AUTH_UID = "dev-test-linked-ci";
 const LINKED_DEV_AUTH_BROWSER_UID = "dev-test-linked-browser-ci";
@@ -444,6 +445,7 @@ test.describe("linked dev auth browser smoke", () => {
     await page.getByRole("button", { name: /Kitchen Inventory\s+5 pantry items \+ 1 tool/i }).click();
 
     await expect(page.getByRole("heading", { name: "Pantry" })).toBeVisible();
+    await expectInventoryActionDockLayout(page, "Pantry", { width: 390, height: 844 });
     await page.getByRole("button", { name: "Enter manually" }).click();
     await page.getByLabel("Pantry items").fill("spinach, black beans");
     await page.getByRole("button", { name: "Save ingredients" }).click();
@@ -451,18 +453,21 @@ test.describe("linked dev auth browser smoke", () => {
     await expect(page.getByText("spinach", { exact: true })).toBeVisible();
     await expect(page.getByText("black beans", { exact: true })).toBeVisible();
     await expect(page.getByText("Unsaved pantry changes")).toBeVisible();
+    await expectInventoryActionDockLayout(page, "Pantry", { width: 390, height: 844 });
     await page.getByRole("button", { name: "Save pantry changes" }).click();
     await expect(page.getByText("Pantry saved!", { exact: true })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("button", { name: "Save pantry" })).toBeVisible();
 
     await page.getByRole("tab", { name: "Tools" }).click();
     await expect(page.getByRole("heading", { name: "Tools" })).toBeVisible();
+    await expectInventoryActionDockLayout(page, "Tools", { width: 412, height: 915 });
     await page.getByRole("button", { name: "Enter manually" }).click();
     await page.getByRole("textbox", { name: "Tools" }).fill("sheet pan");
     await page.getByRole("button", { name: "Add tools" }).click();
 
     await expect(page.getByText("sheet pan", { exact: true })).toBeVisible();
     await expect(page.getByText("Unsaved tools changes")).toBeVisible();
+    await expectInventoryActionDockLayout(page, "Tools", { width: 412, height: 915 });
     await page.getByRole("button", { name: "Save tools changes" }).click();
     await expect(page.getByText("Tools saved!", { exact: true })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("button", { name: "Save tools" })).toBeVisible();

@@ -22,12 +22,28 @@ describe('setup button CSS guards', () => {
   it('keeps setup and returning Settings inventory cameras at phone-camera proportions', () => {
     const sharedCameraRule = css.match(/\.setup-inventory-camera \.setup-viewfinder > \.relative,[\s\S]*?\.returning-inventory-camera \.setup-viewfinder > \.relative \{[\s\S]*?\}/)?.[0] ?? '';
     const mobileSetupCameraRule = css.match(/\.setup-scan-step \.setup-viewfinder > \.relative \{[\s\S]*?\}/)?.[0] ?? '';
-    const actionRule = css.match(/\.returning-actions \{[\s\S]*?\}/)?.[0] ?? '';
 
-    expect(css).toContain('--returning-bottom-nav-clearance');
     expect(sharedCameraRule).toContain('aspect-ratio: 4 / 5;');
     expect(mobileSetupCameraRule).toContain('aspect-ratio: 4 / 5;');
-    expect(actionRule).toContain('bottom: var(--returning-bottom-nav-clearance);');
-    expect(actionRule).toContain('z-index: 20;');
+  });
+
+  it('reserves a bounded inventory scroller above an opaque in-flow returning action dock', () => {
+    const inventoryRootRule = css.match(/\.returning-ui\.returning-ui-inventory \{[\s\S]*?\}/)?.[0] ?? '';
+    const inventoryShellRule = css.match(/\.returning-inventory-shell \{[\s\S]*?\}/)?.[0] ?? '';
+    const inventoryScrollerRule = css.match(/\.returning-inventory-scroll \{[\s\S]*?\}/)?.[0] ?? '';
+    const inventoryActionRule = css.match(/\.returning-actions\.returning-inventory-actions \{[\s\S]*?\}/)?.[0] ?? '';
+
+    expect(css).toContain('--returning-bottom-nav-clearance');
+    expect(inventoryRootRule).toContain('inset: 0 0 var(--returning-bottom-nav-clearance);');
+    expect(inventoryRootRule).toContain('overflow: hidden;');
+    expect(inventoryShellRule).toContain('flex: 1 1 auto;');
+    expect(inventoryScrollerRule).toContain('overflow-y: auto;');
+    expect(inventoryActionRule).toContain('position: relative;');
+    expect(inventoryActionRule).toContain('bottom: auto;');
+    expect(inventoryActionRule).toContain('z-index: auto;');
+    expect(inventoryActionRule).toContain('flex: 0 0 auto;');
+    expect(inventoryActionRule).toContain('background-color: hsl(var(--returning-cream));');
+    expect(inventoryActionRule).toContain('hsl(var(--returning-cream-deep))');
+    expect(inventoryActionRule).not.toMatch(/background(?:-color|-image)?:.*\/\s*0\./);
   });
 });

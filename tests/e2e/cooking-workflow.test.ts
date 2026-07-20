@@ -1,4 +1,8 @@
 import { test, expect, type Page } from './e2e-test';
+import {
+  expectFocusedManualEntryViewportClearance,
+  expectInventoryActionDockLayout,
+} from './helpers/inventory-action-dock';
 
 /**
  * End-to-End Smoke Tests (Guest Lane)
@@ -365,6 +369,39 @@ test.describe('Laica Guest E2E Smoke', () => {
     await completeGuestSetupToPlanning(page);
 
     await expect(page.getByRole('button', { name: 'Chef It Up' })).toBeVisible();
+  });
+
+  test('Guest Settings inventory dock preserves Pantry and Tools controls on compact mobile viewports', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await completeGuestSetupToPlanning(page);
+
+    await page.getByRole('button', { name: 'Menu' }).click();
+    await page.getByRole('button', { name: /Settings\s+Pantry, tools, and cooking profile/i }).click();
+    await page.getByRole('button', { name: /Kitchen Inventory/i }).click();
+
+    await expect(page.getByRole('heading', { name: 'Pantry' })).toBeVisible();
+    await expectInventoryActionDockLayout(page, 'Pantry', { width: 390, height: 844 });
+    await page.getByRole('button', { name: 'Enter manually' }).click();
+    await expectFocusedManualEntryViewportClearance(page, 'Pantry items', { width: 390, height: 844 });
+    await page.getByLabel('Pantry items').fill('black beans');
+    await page.getByRole('button', { name: 'Save ingredients' }).click();
+    await expect(page.getByText('Unsaved pantry changes')).toBeVisible();
+    await expectInventoryActionDockLayout(page, 'Pantry', { width: 390, height: 844 });
+    await page.getByRole('button', { name: 'Save pantry changes' }).click();
+    await expect(page.getByRole('button', { name: 'Save pantry' })).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Tools' }).click();
+    await expect(page.getByRole('heading', { name: 'Tools' })).toBeVisible();
+    await expectInventoryActionDockLayout(page, 'Tools', { width: 412, height: 915 });
+    await page.getByRole('button', { name: 'Enter manually' }).click();
+    await expectFocusedManualEntryViewportClearance(page, 'Tools', { width: 412, height: 915 });
+    await page.getByRole('textbox', { name: 'Tools' }).fill('sheet pan');
+    await page.getByRole('button', { name: 'Add tools' }).click();
+    await expect(page.getByText('Unsaved tools changes')).toBeVisible();
+    await expectInventoryActionDockLayout(page, 'Tools', { width: 412, height: 915 });
+    await page.getByRole('button', { name: 'Save tools changes' }).click();
+    await expect(page.getByRole('button', { name: 'Save tools' })).toBeVisible();
   });
 
   test('Guest can request Chef It Up suggestions and open the prep tray with a stubbed AI response', async ({ page }) => {

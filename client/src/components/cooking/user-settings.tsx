@@ -1200,204 +1200,209 @@ export default function UserSettings({
     const hasUnsavedChanges = hasUnsavedInventoryChanges(type);
 
     return (
-      <div className={`returning-setup-anchor space-y-4 ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}>
+      <div className={`returning-setup-anchor returning-inventory-shell ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}>
         <section className="returning-panel returning-inventory-panel">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="returning-kicker">Kitchen Inventory</p>
-              <h1 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">{title}</h1>
-              <p className="setup-copy mt-2 max-w-[20rem] text-sm leading-relaxed">{description}</p>
-            </div>
-            <span className="returning-count">{items.length}</span>
-          </div>
-
-          <div className="mt-5 space-y-5">
-            <div className="returning-inventory-camera">
-              <NativeCamera
-                variant="setup"
-                setupTone={isPantry ? 'pantry' : 'kitchen'}
-                title={isPantry ? 'Pantry preview' : 'Tools preview'}
-                captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
-                cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
-                tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
-                tipsDescription={isPantry
-                  ? 'Open cabinets, use good light, and scan one area at a time.'
-                  : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
-                showUploadButton={false}
-                disabled={isInventoryLocked}
-                onImageCapture={isPantry ? handlePantryImageCapture : handleEquipmentImageCapture}
-                onError={(error) => {
-                  toast({
-                    title: 'Camera issue',
-                    description: error,
-                    variant: 'destructive',
-                  });
-                }}
-              />
+          <div className="returning-inventory-scroll" data-testid="returning-inventory-scroll">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="returning-kicker">Kitchen Inventory</p>
+                <h1 className="setup-display text-[2.25rem] font-extrabold leading-[1.02] text-[hsl(var(--setup-ink))]">{title}</h1>
+                <p className="setup-copy mt-2 max-w-[20rem] text-sm leading-relaxed">{description}</p>
+              </div>
+              <span className="returning-count">{items.length}</span>
             </div>
 
-            <div className="space-y-3">
-              <input
-                id={uploadId}
-                type="file"
-                accept="image/*,.heic,.heif"
-                multiple
-                onChange={(e) => handleMultipleImageUpload(e, type)}
-                disabled={isInventoryLocked}
-                className="hidden"
-              />
-              <div className="grid gap-3">
-                <Button
-                  type="button"
-                  className="setup-secondary-button h-14 w-full justify-start px-4"
-                  variant="ghost"
-                  onClick={() => document.getElementById(uploadId)?.click()}
+            <div className="mt-5 space-y-5">
+              <div className="returning-inventory-camera">
+                <NativeCamera
+                  variant="setup"
+                  setupTone={isPantry ? 'pantry' : 'kitchen'}
+                  title={isPantry ? 'Pantry preview' : 'Tools preview'}
+                  captureLabel={isPantry ? 'Capture pantry' : 'Capture tools'}
+                  cameraToggleLabel={isPantry ? 'Pantry camera' : 'Tools camera'}
+                  tipsTitle={isPantry ? 'Pantry scan tips' : 'Tools scan tips'}
+                  tipsDescription={isPantry
+                    ? 'Open cabinets, use good light, and scan one area at a time.'
+                    : 'Point at tools and appliances you actually cook with. Fixed fixtures can stay out.'}
+                  showUploadButton={false}
                   disabled={isInventoryLocked}
-                >
-                  <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.85)] text-primary ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
-                    <ImagePlus className="h-4 w-4" />
-                  </span>
-                  <span className="flex flex-col items-start leading-tight">
-                    <span className="setup-action-title">Upload photos</span>
-                  </span>
-                </Button>
-
-                <Button
-                  type="button"
-                  className="setup-secondary-button h-14 w-full justify-start px-4"
-                  variant="ghost"
-                  onClick={() => setManualOpen(prev => ({ ...prev, [type]: !prev[type] }))}
-                  aria-expanded={manualOpen[type]}
-                  aria-pressed={manualOpen[type]}
-                  data-active={manualOpen[type] ? 'true' : undefined}
-                  disabled={isInventoryLocked}
-                >
-                  <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))] ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
-                    <Package className="h-4 w-4" />
-                  </span>
-                  <span className="flex flex-col items-start leading-tight">
-                    <span className="setup-action-title">Enter manually</span>
-                  </span>
-                </Button>
+                  onImageCapture={isPantry ? handlePantryImageCapture : handleEquipmentImageCapture}
+                  onError={(error) => {
+                    toast({
+                      title: 'Camera issue',
+                      description: error,
+                      variant: 'destructive',
+                    });
+                  }}
+                />
               </div>
 
-              {manualOpen[type] && (
-                <div className="setup-surface space-y-3 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`setup-illustration flex h-12 w-12 shrink-0 items-center justify-center text-primary ${!isPantry ? 'setup-kitchen-illustration' : ''}`}>
-                      <Package className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-extrabold text-[hsl(var(--setup-ink))]">
-                        {isPantry ? 'Add pantry items' : 'Add tools'}
-                      </p>
-                      <p className="setup-copy text-xs">Use short names so the list stays easy to skim.</p>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <Input
-                      id={manualId}
-                      aria-label={isPantry ? 'Pantry items' : 'Tools'}
-                      value={manualEntry[type]}
-                      onChange={(event) => setManualEntry(prev => ({ ...prev, [type]: event.target.value }))}
-                      placeholder={placeholder}
-                      className={`h-12 rounded-2xl border-primary/20 bg-white/75 text-base font-bold placeholder:text-muted-foreground ${!isPantry ? 'setup-kitchen-input' : ''}`}
-                      disabled={isInventoryLocked}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                          event.preventDefault();
-                          handleManualEntry(type);
-                        }
-                      }}
-                    />
-                    {isPantry && <p className="setup-copy px-1 text-xs">Separate pantry items with commas.</p>}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className={`setup-primary-button h-12 w-full ${!isPantry ? 'setup-kitchen-primary-button' : ''}`}
-                      onClick={() => handleManualEntry(type)}
-                      disabled={isInventoryLocked}
-                    >
-                      {isPantry ? 'Save ingredients' : 'Add tools'}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {isAnalyzing && (
-              <div className="setup-surface p-4 text-center text-primary">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--setup-coral-soft)/0.9)]">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                </div>
-                <p className="mt-2 text-sm font-extrabold">
-                  {progress
-                    ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'tools'} photos...`
-                    : isPantry ? 'Scanning pantry photos...' : 'Scanning tools photos...'}
-                </p>
-                <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
-              </div>
-            )}
-
-            <div className="setup-surface space-y-3 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-extrabold text-[hsl(var(--setup-ink))]">{isPantry ? 'Your pantry list' : 'Your tools list'}</p>
-                  <p className="setup-copy text-xs">Remove anything you do not want used for suggestions.</p>
-                </div>
-                {items.length > 0 && (
+              <div className="space-y-3">
+                <input
+                  id={uploadId}
+                  type="file"
+                  accept="image/*,.heic,.heif"
+                  multiple
+                  onChange={(e) => handleMultipleImageUpload(e, type)}
+                  disabled={isInventoryLocked}
+                  className="hidden"
+                />
+                <div className="grid gap-3">
                   <Button
                     type="button"
+                    className="setup-secondary-button h-14 w-full justify-start px-4"
                     variant="ghost"
-                    size="sm"
-                    onClick={handleReset}
-                    className="setup-ghost-button text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => document.getElementById(uploadId)?.click()}
                     disabled={isInventoryLocked}
                   >
-                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                    Reset
+                    <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-coral-soft)/0.85)] text-primary ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
+                      <ImagePlus className="h-4 w-4" />
+                    </span>
+                    <span className="flex flex-col items-start leading-tight">
+                      <span className="setup-action-title">Upload photos</span>
+                    </span>
                   </Button>
+
+                  <Button
+                    type="button"
+                    className="setup-secondary-button h-14 w-full justify-start px-4"
+                    variant="ghost"
+                    onClick={() => setManualOpen(prev => ({ ...prev, [type]: !prev[type] }))}
+                    aria-expanded={manualOpen[type]}
+                    aria-pressed={manualOpen[type]}
+                    data-active={manualOpen[type] ? 'true' : undefined}
+                    disabled={isInventoryLocked}
+                  >
+                    <span className={`setup-action-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--setup-butter)/0.42)] text-[hsl(var(--setup-herb))] ${!isPantry ? 'setup-kitchen-action-icon' : ''}`}>
+                      <Package className="h-4 w-4" />
+                    </span>
+                    <span className="flex flex-col items-start leading-tight">
+                      <span className="setup-action-title">Enter manually</span>
+                    </span>
+                  </Button>
+                </div>
+
+                {manualOpen[type] && (
+                  <div className="setup-surface space-y-3 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`setup-illustration flex h-12 w-12 shrink-0 items-center justify-center text-primary ${!isPantry ? 'setup-kitchen-illustration' : ''}`}>
+                        <Package className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-extrabold text-[hsl(var(--setup-ink))]">
+                          {isPantry ? 'Add pantry items' : 'Add tools'}
+                        </p>
+                        <p className="setup-copy text-xs">Use short names so the list stays easy to skim.</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Input
+                        id={manualId}
+                        aria-label={isPantry ? 'Pantry items' : 'Tools'}
+                        value={manualEntry[type]}
+                        onChange={(event) => setManualEntry(prev => ({ ...prev, [type]: event.target.value }))}
+                        placeholder={placeholder}
+                        className={`h-12 rounded-2xl border-primary/20 bg-white/75 text-base font-bold placeholder:text-muted-foreground ${!isPantry ? 'setup-kitchen-input' : ''}`}
+                        disabled={isInventoryLocked}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.preventDefault();
+                            handleManualEntry(type);
+                          }
+                        }}
+                      />
+                      {isPantry && <p className="setup-copy px-1 text-xs">Separate pantry items with commas.</p>}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className={`setup-primary-button h-12 w-full ${!isPantry ? 'setup-kitchen-primary-button' : ''}`}
+                        onClick={() => handleManualEntry(type)}
+                        disabled={isInventoryLocked}
+                      >
+                        {isPantry ? 'Save ingredients' : 'Add tools'}
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              {items.length === 0 ? (
-                <div className="returning-empty min-h-24">
-                  <Package className="h-8 w-8 text-primary/70" />
-                  <p className="setup-copy text-sm">{isPantry ? 'No pantry items saved yet.' : 'No tools saved yet.'}</p>
+              {isAnalyzing && (
+                <div className="setup-surface p-4 text-center text-primary">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--setup-coral-soft)/0.9)]">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  </div>
+                  <p className="mt-2 text-sm font-extrabold">
+                    {progress
+                      ? `Analyzing ${progress.completed} of ${progress.total} ${isPantry ? 'pantry' : 'tools'} photos...`
+                      : isPantry ? 'Scanning pantry photos...' : 'Scanning tools photos...'}
+                  </p>
+                  <p className="setup-copy mt-1 text-xs">Keeping only visible food and cooking items.</p>
                 </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {items.map((item, index) => {
-                    const wasRecentlyCorrected = isPantry
-                      && recentlyCorrectedPantryKeys.has(normalizeEntryDuplicateKey(item));
+              )}
 
-                    return (
-                      <InventoryReviewChip
-                        key={`${item}-${index}`}
-                        item={item}
-                        state={getInventoryReviewChipState(inventoryReviewState, type, item)}
-                        wasRecentlyCorrected={wasRecentlyCorrected}
-                        disabled={isInventoryLocked}
-                        onRemove={() => updateInventoryItems(type, items.filter((_, i) => i !== index))}
-                      />
-                    );
-                  })}
+              <div className="setup-surface space-y-3 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-extrabold text-[hsl(var(--setup-ink))]">{isPantry ? 'Your pantry list' : 'Your tools list'}</p>
+                    <p className="setup-copy text-xs">Remove anything you do not want used for suggestions.</p>
+                  </div>
+                  {items.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleReset}
+                      className="setup-ghost-button text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      disabled={isInventoryLocked}
+                    >
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                      Reset
+                    </Button>
+                  )}
+                </div>
+
+                {items.length === 0 ? (
+                  <div className="returning-empty min-h-24">
+                    <Package className="h-8 w-8 text-primary/70" />
+                    <p className="setup-copy text-sm">{isPantry ? 'No pantry items saved yet.' : 'No tools saved yet.'}</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {items.map((item, index) => {
+                      const wasRecentlyCorrected = isPantry
+                        && recentlyCorrectedPantryKeys.has(normalizeEntryDuplicateKey(item));
+
+                      return (
+                        <InventoryReviewChip
+                          key={`${item}-${index}`}
+                          item={item}
+                          state={getInventoryReviewChipState(inventoryReviewState, type, item)}
+                          wasRecentlyCorrected={wasRecentlyCorrected}
+                          disabled={isInventoryLocked}
+                          onRemove={() => updateInventoryItems(type, items.filter((_, i) => i !== index))}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {hasUnsavedChanges && (
+                <div className="returning-unsaved-reminder" role="status" aria-live="polite">
+                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                  <div>
+                    <p>{isPantry ? 'Unsaved pantry changes' : 'Unsaved tools changes'}</p>
+                    <span>{isPantry ? 'Save pantry before leaving this list.' : 'Save tools before leaving this list.'}</span>
+                  </div>
                 </div>
               )}
             </div>
-
-            {hasUnsavedChanges && (
-              <div className="returning-unsaved-reminder" role="status" aria-live="polite">
-                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                <div>
-                  <p>{isPantry ? 'Unsaved pantry changes' : 'Unsaved tools changes'}</p>
-                  <span>{isPantry ? 'Save pantry before leaving this list.' : 'Save tools before leaving this list.'}</span>
-                </div>
-              </div>
-            )}
           </div>
 
-          <div className="returning-actions">
+          <div
+            className="returning-actions returning-inventory-actions"
+            data-testid="returning-inventory-actions"
+          >
             <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => handleSectionChange('hub')}>
               Settings
             </Button>
@@ -1533,8 +1538,8 @@ export default function UserSettings({
   );
 
   return (
-    <main className="returning-ui min-h-screen pb-24">
-      <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5">
+    <main className={`returning-ui min-h-screen pb-24 ${activeSection === 'inventory' ? 'returning-ui-inventory' : ''}`}>
+      <div className="returning-settings-shell mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5">
         <div
           className={`returning-settings-header ${
             activeSection === 'inventory' && !showCrossSectionScanNotice

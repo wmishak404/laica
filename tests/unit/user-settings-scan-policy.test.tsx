@@ -89,6 +89,11 @@ describe('UserSettings scan upload policy', () => {
     expect(container.querySelector('.setup-camera-state-copy')).toBeTruthy();
     expect(container.querySelector('.setup-camera-controls')).toBeTruthy();
     expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
+    const pantryScroll = screen.getByTestId('returning-inventory-scroll');
+    const pantryActions = screen.getByTestId('returning-inventory-actions');
+    expect(pantryScroll.contains(pantryActions)).toBe(false);
+    expect(pantryScroll.parentElement).toBe(pantryActions.parentElement);
+    expect(container.querySelector('.returning-ui-inventory')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
 
@@ -96,6 +101,10 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByRole('tab', { name: /^tools$/i }).getAttribute('aria-selected')).toBe('true');
     expect(container.querySelector('.returning-inventory-camera .setup-viewfinder')).toBeTruthy();
     expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
+    const toolsScroll = screen.getByTestId('returning-inventory-scroll');
+    const toolsActions = screen.getByTestId('returning-inventory-actions');
+    expect(toolsScroll.contains(toolsActions)).toBe(false);
+    expect(toolsScroll.parentElement).toBe(toolsActions.parentElement);
 
     rerender(
       <UserSettings
