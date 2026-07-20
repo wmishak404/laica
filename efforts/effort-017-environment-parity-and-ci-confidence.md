@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-07-10
+**Updated:** 2026-07-20
 
 ## One-line summary
 
@@ -30,8 +30,8 @@ Key external constraints (provenance):
   - https://support.google.com/firebase/answer/6400741?hl=en
 - Identity Platform can generate authorization URIs for configured identity providers, which is useful for a production-domain start preflight:
   - https://cloud.google.com/identity-platform/docs/reference/rest/v1/accounts/createAuthUri
-- Node 20 is EOL 2026-04-30; Node 22 is supported until 2027-04-30:
-  - https://github.com/nodejs/Release
+- Node 20 reached EOL on 2026-03-24; Node 22 remains an LTS line:
+  - https://nodejs.org/en/about/previous-releases
 
 ## Scope
 
@@ -764,3 +764,9 @@ The daily Efforts hygiene pass found no active-list, registry, agent-entrypoint,
 Branch `codex/efforts-hygiene-2026-07-09` adds focused `useAuth` / `useUserProfile` coverage proving that guest session users do not fetch linked-only profile data and linked profile queries are keyed by authenticated user id.
 
 This is a test-only confidence slice. It does not change runtime behavior, provider canaries, Replit automation, OAuth configuration, coverage thresholds, schema, prompts, or validation authority. EFF-017 remains `In Progress`.
+
+## 2026-07-20 — Node declaration upgrade held for runtime alignment
+
+Open Dependabot PR #253 proposed changing only `@types/node` from the Node 20 declaration line to Node 26 while LAICA's local pin, Replit module, and routine CI still run Node 20. That would make TypeScript model APIs the deployed runtime does not provide, and it would also skip the accepted Node 22 LTS direction recorded in this Effort.
+
+PR #253 should therefore be closed without applying its package change. The future runtime-alignment slice remains responsible for moving `.nvmrc`, Replit runtime configuration, Actions/runtime checks, package engines, and `@types/node` together, with targeted Replit startup validation. This dependency triage does not implement or reprioritize that higher-risk runtime change.

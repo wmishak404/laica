@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-06-08
+**Updated:** 2026-07-20
 
 ## One-line summary
 
@@ -43,12 +43,12 @@ Because this repository is public, do not copy exact security-advisory details, 
 - Narrow security maintenance should be handled separately from broad modernization batches.
 - PR #134 was closed unmerged and should not be reopened as-is.
 - Broad modernization should be handled as intentionally scoped branches, not a single large package update.
+- Routine patch updates may remain grouped, but minor updates should open individually so provider, UI, runtime, database, and toolchain changes do not share one upgrade unit.
 
 ## Open questions
 
 - Which domain should be modernized first after current INIT-003 production gates settle?
 - Do provider SDK upgrades require Replit validation with real OpenAI and ElevenLabs routes before merge?
-- Should Dependabot grouping rules be changed so future version-update batches arrive in smaller risk domains?
 
 ## Agent checklist
 
@@ -115,3 +115,11 @@ After #150 merged, PR #147 was closed as superseded and PR #134 was closed unmer
 After PR #113 merged, GitHub still reported one moderate default-branch dependency alert. Because this repository is public, do not publish the exact advisory details, package path, or reproduction notes in public docs; use the GitHub Security/Dependabot alert UI and local private scan output when an authorized maintainer needs the specifics.
 
 This is accepted as deferred dependency hygiene, not an urgent security blocker, because there are no high/critical findings. If someone picks this up later, prefer a narrow dependency PR with standard local checks and Replit smoke only if runtime middleware behavior changes.
+
+## 2026-07-20 - Broad minor bundle superseded by individual upgrade lanes
+
+Dependabot PR #305 repeated the broad-bundle failure mode with 31 nominally minor updates spanning provider SDKs, browser/E2E tooling, Radix UI primitives, Firebase, database schema tooling, routing, linting, and build packages. Its exact-head `unit` job failed during typecheck because the bundled `drizzle-zod` update introduced a Zod 3/4 type boundary, while the same PR also carried unrelated provider and UI changes. The failure is evidence that the bundle is not a reviewable or independently attributable upgrade unit.
+
+Branch `codex/deps-bot-lane-alignment` removes the catch-all npm minor group so future minor upgrades open as individual PRs under the existing five-PR concurrency cap. The patch group remains available for routine compatible maintenance. The same branch ignores automated `@types/node` major updates because Node declarations must move with the EFF-017 runtime-alignment slice rather than ahead of the deployed runtime. PR #305 and the declarations-only PR #253 should be closed as superseded after the replacement branch is published.
+
+This does not start the deferred provider, database, UI-foundation, or toolchain modernization work, and it does not change the validation requirements for those future slices.
