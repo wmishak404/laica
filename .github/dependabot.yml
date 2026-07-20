@@ -16,12 +16,10 @@ updates:
           - "*"
         update-types:
           - "patch"
-      npm-minor-version-updates:
-        applies-to: "version-updates"
-        patterns:
-          - "*"
+    ignore:
+      - dependency-name: "@types/node"
         update-types:
-          - "minor"
+          - "version-update:semver-major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
