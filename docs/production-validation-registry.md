@@ -87,6 +87,14 @@ The 2026-07-17 regression audited the full first-parent merge history through `2
 - Changed-since-last-production focus remains the Pantry/Tools release-SHA check below because no production publish or full release-matrix rerun occurred. EFF-033 is resolved; the separate INIT-003 Guest Finish correction and resulting exact-head mobile matrix remain release work.
 - Negative scope: no EFF-032, EFF-034, Guest Finish, provider, schema, prompt, API/persistence, auth, durable navigation, deployment, custom-domain publish, or production smoke change.
 
+## 2026-07-20 PR #324 Guest Finish Outcome Correction
+
+- Draft [PR #324](https://github.com/wmishak404/laica/pull/324), initial runtime head `5d41870b`, changes Live Cooking Finish so the visible and spoken claim follows the actual persistence result instead of auth mode alone.
+- Focused production-push check: at app-reported iPhone-like `390x844` and Pixel-like `412x915`, finish one guest cook and confirm transcript, speech, and toast say `Dinner's ready. Sign up to save this session to your cooking history.` with no saved-History claim. For a linked cook, confirm no saved wording appears while the mutation is pending, then confirm it appears after success. Force one linked completion failure, confirm the session remains recoverable with `Try Finish again`, and retry successfully.
+- Evidence already available: focused Live Cooking unit coverage proves guest rejection of saved-History copy, mutation-before-claim ordering, linked failure/retry, local recovery retention, and exact speech/transcript/toast/status consistency. The guest Playwright smoke now finishes cooking and rejects saved-History wording. Exact-head GitHub E2E and Replit mobile evidence are still pending.
+- Negative scope: no pantry mutation, rating/notes invention, server route/schema/provider/prompt/auth/navigation change, guest History import, Phase 5 cleanup, Slop Bowl behavior, EFF-032, EFF-033, or EFF-034 change.
+- Future-bug breadcrumb: if a cook sees contradictory completion messages, a guest sees saved-to-History wording, or a failed linked Finish exits/loses retry state, inspect the typed completion outcome and the ordering around `completeSessionMutation` before treating it as an authorization or History-query bug.
+
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
 - PR #275 merged at `148c881591479d2c5f07c500dd440682989824b4` after exact-head GitHub checks passed for head `eb364ee7127f86c2b46c826e74619d48719b1c50`.
