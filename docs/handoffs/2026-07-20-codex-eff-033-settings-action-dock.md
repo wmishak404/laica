@@ -10,17 +10,18 @@
 
 ## Summary
 
-EFF-033's runtime fix is implemented and mobile-validated: returning Settings Pantry and Tools now share one bounded inventory scroller followed by an opaque, in-flow Settings/Save dock above Cook/Menu navigation. This removes the content-and-dock geometry collision that previously sent a visible `Enter manually` center-point hit to `Save pantry`; the fix does not depend on raising z-index or making the old overlay more opaque.
+EFF-033's corrected runtime fix is implemented and mobile-validated: returning Settings Pantry and Tools now keep one bounded inventory scroller inside the centered content shell while an opaque, in-flow Settings/Save dock is owned directly by the fixed page, spans the viewport, and meets Cook/Menu navigation with no spacer band. This removes the content-and-dock collision and the first pass's panel-contained, 40px-gap visual mismatch without depending on z-index.
 
-The durable lesson added to Phase 2.2 is structural. A returning inventory action dock must own reserved layout space, and its scroll viewport must end at the dock's top edge. Setup containment is the reference principle, while setup and returning Settings keep distinct top-level flows. Draft PR #325 remains unmerged pending Wilson's review; exact final-head GitHub gates are live PR evidence after the final docs push.
+The durable lesson added to Phase 2.2 is structural and hierarchical. A returning inventory action dock must own reserved layout space at the page layer, not inherit the inventory card's width or radius; its bottom must equal the bottom nav's top, and its content scroller must still end before the dock. Setup containment is the reference principle, while setup and returning Settings keep distinct top-level flows. Draft PR #325 remains unmerged pending Wilson's review; exact final-head GitHub gates are live PR evidence after the final docs push.
 
 ## Stack / base status
 
 - Base refreshed: yes, to the exact user-requested production-readiness branch head.
 - Current implementation base: `codex/production-readiness-2026-07-17` at `08fa856d028c00f577f4e6dd3492efa8c00639de`.
 - PR target: `main` at PR-open base `4775ce5fc8c0a4bd6dd5148c8e329eb5f0211038`; the PR intentionally includes the two production-readiness documentation commits that introduced EFF-033.
-- Runtime implementation commit: `af603822855be23e790769f77969dace803aabd4`.
-- Last Replit-validated at: `af603822855be23e790769f77969dace803aabd4` for the runtime change; the final follow-up docs head requires a short exact-head resync/recheck before review.
+- Initial containment commit: `af603822855be23e790769f77969dace803aabd4`.
+- Corrected page-level runtime head: `3a42ad6b0deef46b59457e5a505adc617292146c`.
+- Last Replit-validated at: `3a42ad6b0deef46b59457e5a505adc617292146c`; the final follow-up docs/screenshots head requires a short exact-head resync/recheck before review.
 - Replit Agent: not used. Replit was updated through the direct shell and inspected through the workspace preview.
 
 ## Bug investigation evidence
@@ -31,6 +32,7 @@ Observed before implementation:
 - `elementFromPoint()` at the visible manual-entry center returned `Save pantry`.
 - Source inspection showed `.returning-actions` was `position: sticky`, `z-index: 20`, and began its background gradient at 42% cream opacity, while first-time setup placed `.setup-bottom-bar` in flow after `.setup-scroll-body`.
 - The reported issue was therefore a content-geometry and surface-containment defect, not only a bottom-nav or paint-order defect.
+- Wilson's 2026-07-21 review showed the first fix still failed visual hierarchy: the dock remained inside the centered rounded panel and left a permanent `40px` band above Cook/Menu. Existing committed first-pass screenshots and rendered geometry corroborated the new report.
 
 Before evidence:
 
@@ -41,14 +43,15 @@ Before evidence:
 
 - `client/src/components/cooking/user-settings.tsx`
   - wraps returning inventory content in `.returning-inventory-scroll`
-  - renders `.returning-inventory-actions` as a sibling after the scroller for both Pantry and Tools
+  - renders `.returning-inventory-actions` outside `.returning-settings-shell` as a direct child of the inventory page for both Pantry and Tools
+  - preserves `returning-setup-anchor` on the new rail so shared button tokens and specificity remain valid
   - scopes the bounded Settings shell only to the inventory section, leaving the Settings hub and Cooking Profile action behavior unchanged
 - `client/src/index.css`
-  - bounds returning Kitchen Inventory above the existing bottom-nav clearance
+  - bounds returning Kitchen Inventory to the shared rendered app-nav height
   - gives the inventory panel a single flex-owned `overflow-y: auto` region
-  - overrides only the inventory action dock to `position: relative`, `z-index: auto`, and an opaque cream surface
+  - makes the inventory action dock a full-width page flex child with a centered inner grid, `position: relative`, `z-index: auto`, and an opaque cream surface
 - `tests/e2e/helpers/inventory-action-dock.ts`
-  - asserts scroller/dock/nav geometry, opaque computed surface, 44px minimum targets, and `elementFromPoint()` ownership
+  - asserts scroller/dock/nav geometry, direct page ownership, viewport-wide bounds, zero dock/nav gap, opaque computed surface, 44px minimum targets, and `elementFromPoint()` ownership
   - probes the focused manual-entry field after a 280px viewport-height reduction as an automated virtual-keyboard/resized-viewport analogue
 - `tests/e2e/cooking-workflow.test.ts`
   - adds guest Pantry/Tools coverage at exact `390x844` and `412x915`, including clean/dirty state and save behavior
@@ -58,9 +61,11 @@ Before evidence:
   - guard the bounded scroller, in-flow opaque dock, and sibling DOM containment contract
 - EFF-033, INIT-001, the Phase 2.2 record, Efforts read list, production-validation registry, screenshots, and this handoff carry the implementation and validation signal.
 
-## Replit mobile evidence
+## Initial contained-dock Replit evidence (superseded geometry)
 
 Target: Replit workspace preview at runtime head `af603822855be23e790769f77969dace803aabd4`. Chrome's controlled tab reported `devicePixelRatio: 0.8`, so the linked pass used compensated outer overrides and recorded the app-reported viewport. The separate guest pass used exact in-app viewport overrides. Both modes loaded the new EFF-033 test IDs and shared layout.
+
+This pass remains useful for the original overlap/opacity regression, but Wilson's 2026-07-21 review rejected its panel-level placement and `40px` dock/nav gap. It is not final visual acceptance; the corrected page-level evidence below supersedes those geometry claims.
 
 | Mode / section | App viewport | Scroll bottom / dock top | Dock bottom / nav top | Center-point hit result |
 |---|---:|---:|---:|---|
@@ -83,6 +88,19 @@ After evidence:
 
 - [Linked Pantry after-state at `390x844`](../assets/mobile-refresh/2026-07-20-codex-eff-033-after-linked-pantry-390x844.jpg)
 - [Linked Tools after-state at `412x915`](../assets/mobile-refresh/2026-07-20-codex-eff-033-after-linked-tools-412x915.jpg)
+- [Corrected page-level Pantry at `390x844`](../assets/mobile-refresh/2026-07-21-codex-eff-033-page-dock-pantry-390x844.jpg)
+- [Corrected page-level Tools at `412x915`](../assets/mobile-refresh/2026-07-21-codex-eff-033-page-dock-tools-412x915.jpg)
+
+## 2026-07-21 corrected page-level Replit evidence
+
+Wilson rejected the initial in-panel implementation because it did not match FTUE's page-owned rail and wasted `40px` above bottom navigation. The correction was verified through the direct Replit shell and browser without Replit Agent at runtime head `3a42ad6b0deef46b59457e5a505adc617292146c`.
+
+| Mode / section | App viewport | Dock horizontal bounds | Dock bottom / nav top | Result |
+|---|---:|---:|---:|---|
+| Returning session-local Pantry | `390x844` | `0 / 390` | `786.758 / 786.758` | direct page child; opaque cream rail; coral Save; 48px Settings/Save centers owned |
+| Returning session-local Tools | `412x915` | `0 / 412.5` rendered | `858.008 / 858.008` | direct page child; opaque cream rail; metal Save; camera/upload/manual/Settings/Save centers owned |
+
+The bounded scroller still ended before the rail (`16.621px` separation from the rounded content panel), so content was neither covered nor hit-intercepted. At reduced `412x635`, the focused Tools input ended at `465.293px`, before dock top `499.795px`, and the dock remained flush to nav. This pass proves the shared returning/session-local surface; exact-head CI owns the linked persistence mode and full regression lane.
 
 ## Verification
 
@@ -97,13 +115,14 @@ After evidence:
 | E2E discovery | `npx playwright test --list --project=chromium` | 9 tests discovered, including new guest and linked dock coverage | Playwright compiles and registers the new cases | Does not execute them |
 | Focused local guest E2E attempt | dotenvx Playwright against local server | Blocked before Settings: anonymous Firebase auth never reached `Get started` | Confirms the local failure is an auth/environment precondition, not dock evidence | Not counted as a layout pass |
 | Replit workspace mobile lane | direct Replit shell + guest/linked browser passes at runtime head `af603822` | Passed as detailed above | Real Replit origin, auth modes, rendered geometry, computed styles, scrolling, resized focused input, nav clearance, and hit targets | No camera permission/capture, upload/provider call, production deployment, or custom-domain publish |
+| Corrected Replit page-level mobile lane | direct Replit shell + session-local returning browser pass at runtime head `3a42ad6b` | Passed at `390x844`, `412x915`, and focused-input `412x635` | Exact viewport-wide page ownership, zero dock/nav gap, computed button styles, hit targets, and reduced-viewport clearance | Linked mode is assigned to exact-head CI; no camera permission/capture, upload/provider call, production deployment, or custom-domain publish |
 | Exact final-head GitHub gates | PR #325 | Pending after the final docs/evidence push | Required shared CI, disposable DB, full guest E2E, audit, secret scan, and code analysis as configured | Live PR is authoritative; a docs commit cannot contain its own post-push result |
 
 ## Impact on other agents
 
 - Keep Pantry and Tools on `renderInventorySection`; do not fork separate layout paths.
-- Inventory content belongs inside `.returning-inventory-scroll`; inventory actions belong after it as `.returning-inventory-actions`.
-- Do not fix future overlap by increasing dock z-index, restoring translucency, or adding per-control bottom padding. Compare the scroller bottom, dock top, dock bottom, and nav top first.
+- Inventory content belongs inside `.returning-inventory-scroll`; inventory actions belong outside the centered `.returning-settings-shell` as a direct page child with a centered `.returning-inventory-actions-inner` grid.
+- Do not fix future overlap by increasing dock z-index, restoring translucency, or adding per-control bottom padding. Compare the scroller bottom, dock top, viewport-wide dock bounds, direct page parent, dock bottom, and nav top first.
 - EFF-033 remains `In Progress` until PR #325 merges. The merge owner must perform the normal Effort closeout from fresh `main`: mark it Resolved, remove it from the active read list, update the Effort registry/INIT/phase record as warranted, and push a merge-closeout handoff.
 
 ## Open items

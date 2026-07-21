@@ -69,6 +69,12 @@ Draft [PR #325](https://github.com/wmishak404/laica/pull/325) applies the establ
 
 Runtime commit `af603822855be23e790769f77969dace803aabd4` passed Replit workspace checks for guest and linked Pantry/Tools at app-reported `390x844` and `412x915`, including clean and reversible dirty states, long-list scrolling, computed opacity, bottom-nav clearance, center-point hit tests, and focused-input viewport-resize probes. Final exact-head GitHub automation remains live PR evidence; merge and Effort closeout are still pending. The change does not alter inventory semantics, persistence APIs, scan providers, camera/upload/manual behavior, durable navigation, first-time setup, or Guest Finish.
 
+## 2026-07-21 Correction Signal - Page-Level Dock Ownership
+
+Wilson rejected PR #325's first contained-dock pass because containment inside the rounded inventory panel was still the wrong hierarchy and left a permanent `40px` band above Cook/Menu. The accepted Phase 2.2 contract is now explicit: returning inventory content remains in the centered bounded scroller, but the action dock is a direct child of the fixed inventory page, its surface spans the viewport, and its rendered bottom equals the fixed bottom nav's rendered top. The buttons may remain centered to the normal content maximum within that full-width rail.
+
+Runtime head `3a42ad6b0deef46b59457e5a505adc617292146c` passed direct-shell Replit validation on the returning session-local surface at app-reported `390x844` and `412x915`. Pantry measured dock left/right `0/390` and dock bottom/nav top `786.758/786.758`; Tools measured `0/412.5` and `858.008/858.008`. The dock remained opaque, Save retained computed coral/metal backgrounds under the reused setup-style specificity contract, active targets owned their center points, and the focused Tools field remained above the dock at reduced `412x635`. Exact-head CI owns linked-mode execution and the full regression gate.
+
 ## Design and UX Gate
 
 - Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../pd-005-ui-governance.md), the full-row selection pattern established in setup, and the [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md).

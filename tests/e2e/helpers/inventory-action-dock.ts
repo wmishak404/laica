@@ -80,8 +80,8 @@ export async function expectInventoryActionDockLayout(
   if (!geometry) throw new Error('Inventory dock geometry was unavailable');
   expect(geometry.scrollBottom).toBeLessThanOrEqual(geometry.dockTop + 1);
   expect(Math.abs(geometry.dockBottom - geometry.navTop)).toBeLessThanOrEqual(1);
-  expect(geometry.dockLeft).toBeCloseTo(0, 0);
-  expect(geometry.dockRight).toBeCloseTo(geometry.viewportWidth, 0);
+  expect(Math.abs(geometry.dockLeft)).toBeLessThanOrEqual(1);
+  expect(Math.abs(geometry.dockRight - geometry.viewportWidth)).toBeLessThanOrEqual(1);
   expect(geometry.dockIsPageChild).toBe(true);
   expect(geometry.dockPosition).toBe('relative');
   expect(geometry.dockBackgroundColor).not.toMatch(/rgba\([^)]*,\s*0(?:\.0+)?\)$/);

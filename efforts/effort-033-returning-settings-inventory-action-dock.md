@@ -4,7 +4,7 @@
 **Priority:** Pre-production
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
-**Updated:** 2026-07-20
+**Updated:** 2026-07-21
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Linked Effort history:** [EFF-029 - Setup/Settings camera height and action clearance](effort-029-settings-camera-action-clearance.md)
 **Related docs:** [Phase 2.2 Returning Setup / Settings](../product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md), [PD-005 UI Governance](../product-decisions/pd-005-ui-governance.md), [design guidelines](../design_guidelines.md), [production-readiness follow-up](../docs/handoffs/2026-07-20-codex-production-readiness-effort-routing.md)
@@ -34,11 +34,17 @@ Codex controlled-browser reproduction at `390x844`:
 
 ![Codex returning Pantry action overlay at 390x844](../docs/assets/mobile-refresh/2026-07-20-codex-returning-settings-pantry-overlay-390x844.jpg)
 
-Draft PR #325 after-state at app-reported `390x844` and `412x915`:
+Draft PR #325 first-pass after-state at app-reported `390x844` and `412x915` (superseded after Wilson's 2026-07-21 review because the dock was still panel-contained with a permanent nav gap):
 
 ![Returning Pantry with contained action dock at 390x844](../docs/assets/mobile-refresh/2026-07-20-codex-eff-033-after-linked-pantry-390x844.jpg)
 
 ![Returning Tools with contained action dock at 412x915](../docs/assets/mobile-refresh/2026-07-20-codex-eff-033-after-linked-tools-412x915.jpg)
+
+Corrected page-level after-state:
+
+![Returning Pantry with a full-width page dock flush to navigation at 390x844](../docs/assets/mobile-refresh/2026-07-21-codex-eff-033-page-dock-pantry-390x844.jpg)
+
+![Returning Tools with a full-width page dock flush to navigation at 412x915](../docs/assets/mobile-refresh/2026-07-21-codex-eff-033-page-dock-tools-412x915.jpg)
 
 ## Scope
 
@@ -47,7 +53,8 @@ Draft PR #325 after-state at app-reported `390x844` and `412x915`:
 - Give the Settings action rail a visually solid/opaque surface so camera or list content does not show through it.
 - Apply the first-time setup principles that matter here: a distinct rail surface, clear border/separation, stable action containment, and one owned scrolling region above the rail.
 - Reserve enough content space or restructure the shell so `Upload photos`, `Enter manually`, list controls, and dirty reminders never sit underneath the action dock.
-- Keep Settings and Save/Save changes buttons readable, tappable, and visually attached to the Settings surface rather than floating over camera content.
+- Keep Settings and Save/Save changes buttons readable and tappable on a page-level rail that spans the viewport rather than inheriting the inventory card's width or rounded containment.
+- Make the action rail's bottom edge meet the Cook/Menu nav's top edge with no permanent spacer band.
 - Verify Pantry and Tools, clean and dirty states, section switching, Back/leave prompts, and bottom-nav clearance.
 - Save before/after screenshots at the tested iPhone- and Pixel-like viewports.
 
@@ -67,9 +74,9 @@ Out of scope:
 
 ## Implementation decisions
 
-- Use a bounded internal inventory scroll body followed by an in-flow dock. This makes the scroller's bottom edge the dock's top edge, so the dock reserves space structurally instead of depending on z-index or content padding.
+- Use a bounded internal inventory scroll body in the centered Settings content shell, followed by a separate in-flow dock that is a direct child of the fixed inventory page. This keeps content containment while giving the rail viewport-wide page ownership.
 - Keep the implementation returning-specific because first-time setup and returning Settings have different top-level shells, but enforce the shared containment principles with DOM, CSS, geometry, opacity, and hit-target regression coverage.
-- Keep the existing returning bottom-nav clearance variable. In the Replit preview, the dock ended `40px` above the Cook/Menu nav at both app-reported target viewports; EFF-034's Settings-hub blank-tail work remains separate.
+- Share an explicit `--app-bottom-nav-height` boundary between the inventory page and Cook/Menu nav. The inventory page ends exactly at the nav's top edge, so its page-level dock is flush to navigation without overlapping it. The broader returning-page breathing-space token remains unchanged for non-inventory Settings surfaces.
 
 ## Agent checklist
 
@@ -79,17 +86,19 @@ Out of scope:
 - [x] Verify Pantry and Tools at `390x844` and `412x915`, including clean and reversible dirty states.
 - [x] Add geometry/hit-test coverage proving visible camera-toggle, manual/upload/list, Settings, and Save controls are not covered by the dock.
 - [x] Add computed-style evidence for a visually solid rail and compare it with first-time setup containment.
+- [x] Verify the dock is a direct page child, spans the viewport horizontally, and has zero rendered gap to Cook/Menu navigation.
 - [x] Save before/after screenshots in `docs/assets/mobile-refresh/` and link them from the handoff/PR.
 - [x] Run focused Settings tests, full unit, check, build, and exact-runtime-head Replit mobile validation.
 - [ ] Confirm the full automated E2E/security gate on the final pushed PR head; live PR #325 is authoritative for this post-push result.
 
 ## Resolution criteria
 
-1. Returning Pantry and Tools actions render on a distinct, visually solid dock above the fixed app nav.
+1. Returning Pantry and Tools actions render on a distinct, visually solid, viewport-wide page dock immediately above the fixed app nav.
 2. No camera, upload/manual, list, dirty-reminder, or other interactive content is visible through or hit-testable underneath the dock.
 3. `elementFromPoint()` at visible control centers resolves to the intended control at `390x844` and `412x915`.
 4. Save, Save changes, Settings, leave/switch prompts, scanning, upload, manual entry, and bottom-nav behavior remain correct.
 5. First-time/returning visual comparison and before/after screenshots are committed with exact viewport provenance.
+6. The dock is not nested in the centered inventory content shell, and its rendered bottom equals the bottom nav's rendered top within one CSS pixel.
 
 ## 2026-07-20 - Effort filed from production-readiness review
 
@@ -102,3 +111,11 @@ Draft [PR #325](https://github.com/wmishak404/laica/pull/325) on `codex/eff-033-
 Replit workspace validation used direct shell and browser control without Replit Agent. Guest and linked Pantry/Tools passed at app-reported `390x844` and `412x915`: the scroll bottom equaled the dock top, the dock ended `40px` above bottom navigation, active controls were `48px` to `64px` tall, and center-point hit tests resolved to the active camera toggle, upload/manual controls, Settings, and Save. Clean state, reversible dirty state, long-list scrolling, and focused manual-entry viewport-resize probes (`390x564` and `412x635`) also remained clear of the dock and nav. Computed dock colors were opaque `rgb(255, 248, 235)` plus `linear-gradient(rgb(255, 248, 235), rgb(253, 238, 217))`; no browser warning/error logs appeared.
 
 Local focused Settings coverage passed `17/17`, the full unit suite passed `390/390`, and `npm run check` plus `npm run build` passed. A focused local guest Playwright attempt is not evidence for the dock because anonymous Firebase auth stopped before Settings; the final exact-head GitHub E2E/security gate remains a live PR requirement. EFF-033 stays `In Progress` until PR #325 merges and the mechanical Effort closeout records the merged and exact-head evidence. EFF-032, EFF-034, and Guest Finish remain unchanged.
+
+## 2026-07-21 — Wilson rejects panel-contained first pass; page-level dock validated
+
+Wilson's review of the first-pass Replit build established that overlap prevention alone was insufficient. The opaque dock still inherited the rounded inventory panel's horizontal bounds and ended `40px` above Cook/Menu, unlike FTUE's page-owned bottom rail. Source and rendered evidence separated the causes: the dock remained nested under `.returning-inventory-panel`, the fixed inventory page used a `4.75rem` clearance while the rendered nav was approximately `3.5625rem` high, and the centered Settings shell retained bottom padding.
+
+Runtime commits `6fa2ee9d0601c42b698a31763530c01b62899e2a` and `3a42ad6b0deef46b59457e5a505adc617292146c` move the dock outside the centered content shell as a direct child of `main.returning-ui-inventory`, preserve the bounded inventory scroller, and share `--app-bottom-nav-height` with `.app-bottom-nav`. The dock's outer surface is viewport-wide while its two-button grid remains centered to the normal content maximum. The follow-up style commit restores the `returning-setup-anchor` variable/specificity contract on the new page-level dock after Replit computed-style inspection caught a transparent Save background.
+
+Direct-shell Replit validation at runtime head `3a42ad6b0deef46b59457e5a505adc617292146c` used a returning guest/session-local Settings state. Pantry at app-reported `390x844` measured dock left/right `0/390`, dock bottom/nav top `786.758/786.758`, opaque cream background, coral Save background, and owned 48px Settings/Save center hits. Tools at app-reported `412x915` measured dock left/right `0/412.5`, dock bottom/nav top `858.008/858.008`, opaque cream background, metal Save background, and owned 48px Settings/Save center hits; camera, upload, and manual-entry targets were 56px and owned their centers. With the Tools field focused at `412x635`, the input ended at `465.293px`, before the dock at `499.795px`, while the dock remained flush to navigation. Linked-account execution remains assigned to the exact-head GitHub E2E lane because this Replit browser session was session-local.
