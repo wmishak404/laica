@@ -1410,7 +1410,7 @@ export default function UserSettings({
 
     return (
       <div
-        className={`returning-inventory-actions ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}
+        className={`returning-setup-anchor returning-inventory-actions ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}
         data-testid="returning-inventory-actions"
       >
         <div className="returning-inventory-actions-inner">

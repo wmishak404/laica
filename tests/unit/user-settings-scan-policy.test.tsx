@@ -95,6 +95,7 @@ describe('UserSettings scan upload policy', () => {
     const inventoryPage = container.querySelector('main.returning-ui-inventory');
     expect(inventoryPage).toBeTruthy();
     expect(pantryActions.parentElement).toBe(inventoryPage);
+    expect(pantryActions.classList.contains('returning-setup-anchor')).toBe(true);
     expect(pantryScroll.closest('.returning-settings-shell')?.contains(pantryActions)).toBe(false);
 
     fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
