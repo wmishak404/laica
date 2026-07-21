@@ -89,7 +89,7 @@ Out of scope:
 - [x] Verify the dock is a direct page child, spans the viewport horizontally, and has zero rendered gap to Cook/Menu navigation.
 - [x] Save before/after screenshots in `docs/assets/mobile-refresh/` and link them from the handoff/PR.
 - [x] Run focused Settings tests, full unit, check, build, and exact-runtime-head Replit mobile validation.
-- [ ] Confirm the full automated E2E/security gate on the final pushed PR head; live PR #325 is authoritative for this post-push result.
+- [x] Execute and inspect the full automated E2E/security gate on the rebased pushed PR head; both EFF-033 tests pass, while the unrelated linked recipe-persistence/sign-in test remains the sole red check. Live PR #325 is authoritative for the final post-handoff head.
 
 ## Resolution criteria
 
@@ -119,3 +119,9 @@ Wilson's review of the first-pass Replit build established that overlap preventi
 Runtime commits `6fa2ee9d0601c42b698a31763530c01b62899e2a` and `3a42ad6b0deef46b59457e5a505adc617292146c` move the dock outside the centered content shell as a direct child of `main.returning-ui-inventory`, preserve the bounded inventory scroller, and share `--app-bottom-nav-height` with `.app-bottom-nav`. The dock's outer surface is viewport-wide while its two-button grid remains centered to the normal content maximum. The follow-up style commit restores the `returning-setup-anchor` variable/specificity contract on the new page-level dock after Replit computed-style inspection caught a transparent Save background.
 
 Direct-shell Replit validation at runtime head `3a42ad6b0deef46b59457e5a505adc617292146c` used a returning guest/session-local Settings state. Pantry at app-reported `390x844` measured dock left/right `0/390`, dock bottom/nav top `786.758/786.758`, opaque cream background, coral Save background, and owned 48px Settings/Save center hits. Tools at app-reported `412x915` measured dock left/right `0/412.5`, dock bottom/nav top `858.008/858.008`, opaque cream background, metal Save background, and owned 48px Settings/Save center hits; camera, upload, and manual-entry targets were 56px and owned their centers. With the Tools field focused at `412x635`, the input ended at `465.293px`, before the dock at `499.795px`, while the dock remained flush to navigation. Linked-account execution remains assigned to the exact-head GitHub E2E lane because this Replit browser session was session-local.
+
+## 2026-07-21 — Rebased merge-review preparation
+
+After PRs #322, #319, and #329 advanced `main`, PR #325 rebased cleanly onto `origin/main` `cbeae19d2c29b111c8bf9e4b37a834844e465b4d` and force-pushed review head `2e314fb0a70c97d1499a4a450f0bf97b2f7ad980`. Local `npm ci`, check, build, 390/390 unit tests, high/critical audit, and diff checks passed. Wilson accepted the corrected visual result, and exact-head direct-shell Replit validation repeated the Pantry `390x844`, Tools `412x915`, and focused-input `412x635` hierarchy, opacity, zero-gap, and hit-ownership fingerprint without Replit Agent.
+
+The exact-head GitHub run `29861211868` passed unit/typecheck/build/coverage, dependency audit, secret scan, and CodeQL. Its schema-backed Chromium job executed all nine tests; the EFF-033 guest and linked inventory cases passed, and the sole failure was again the unrelated linked recipe-persistence test at `Recipe suggestions`, followed by retry timeouts during linked sign-in before Settings. PR #325 is ready for review but remains merge-blocked by that red required check and the absence of an explicit merge instruction. This Effort stays `In Progress` until merge and the required mechanical closeout.
