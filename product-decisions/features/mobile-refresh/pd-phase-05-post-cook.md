@@ -21,6 +21,15 @@ Help users come back for a second cook by keeping pantry inventory accurate with
 - Do this later leaves cleanup pending and prompts again before the next Planning flow.
 - The pre-planning prompt is a soft gate: it interrupts but still allows "Skip this time."
 
+### Phase 4 completion entry contract
+
+- [PR #324](https://github.com/wmishak404/laica/pull/324) merged as `af36e8f03d8cdbb2d3c2178d2726eb8ea8e6bf6a` and defines the typed Phase 4 outcome that future Phase 5 runtime work must consume.
+- Only a confirmed `linked-saved` outcome may enter the linked returning-user cleanup, History, cook-again, and taste-memory flow.
+- A `linked-save-failed` outcome remains in Live Cooking with its recovery record and `Try Finish again`; Phase 5 must not render cleanup or History success for that cook.
+- A `guest-local` outcome completes the browser-local cooking flow but remains outside durable History, cleanup, and taste memory. Promotion remains a separate user-consented sign-up/save path.
+- Phase 5 must use the canonical completion outcome rather than infer eligibility from auth mode, callback timing, transcript, speech, or toast copy.
+- This merged entry contract does not implement the Phase 5 cleanup prompt, `pending_cleanup`, taste signal, returning-user navigation, guest History import, cook-again, or next-meal behavior.
+
 ### Pantry write moments
 
 | Moment | Writes pantry? | Notes |
@@ -122,7 +131,7 @@ flowchart TD
 
 ## Acceptance Criteria
 
-- Finish leads to the post-cook cleanup prompt.
+- A confirmed `linked-saved` Finish leads to the post-cook cleanup prompt; `linked-save-failed` and `guest-local` do not enter Phase 5.
 - Review pantry shows used ingredients with conservative default "Still have."
 - Approve pantry removes only explicitly confirmed ran-out items and adds only confirmed new rescan items.
 - Do this later leaves cleanup pending.
