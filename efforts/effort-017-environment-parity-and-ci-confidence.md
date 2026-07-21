@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-07-20
+**Updated:** 2026-07-21
 
 ## One-line summary
 
@@ -780,3 +780,17 @@ Branch `codex/eff-017-linked-e2e-stability` fixes a narrow Chef It Up restore ra
 This is a client workflow-state and harness-confidence slice. It does not change provider canaries, OAuth preflight configuration, coverage thresholds, schema, prompts, route contracts, validation authority, or Replit automation. EFF-017 remains `In Progress`.
 
 Local validation passed: focused `npx vitest run tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run test:unit`, `npm run build`, and `git diff --check`. Local service-backed E2E was not claimed because `npm run env:run -- npm run db:health` reached the configured dotenvx database and reported that the endpoint is disabled; the exact-head GitHub ephemeral-Neon `e2e_guest_smoke` lane remains the required E2E proof after the branch is pushed.
+
+## 2026-07-21 — E2E Vite/app-asset limiter capacity correction
+
+PR #325 added one browser case and fresh context, taking the schema-backed Chromium lane from eight to nine tests. Its exact-head run then failed before the linked UI could render. Direct local reproduction on that branch measured 112 localhost responses for one cold Vite page load; the eighth cold load began receiving `429` for module assets and the ninth navigation itself received `429`. Source inspection confirmed the causal path: Playwright runs `npm run dev`, `server/vite.ts` applies `appRequestLimit` ahead of Vite/app assets, and the broad limiter defaults to 1,000 requests per IP per 15 minutes. This is a pre-existing harness-capacity defect exposed by the added context, not evidence that EFF-033 changed linked auth or planning runtime.
+
+Branch `codex/e2e-rate-limit-capacity` starts from the verified PR #328 merge at `origin/main` `0dcb9b7208c4c8ad3315444fd80206fdb6feb76c` and keeps the correction test-only:
+
+- Playwright-managed dev servers set an explicit broad app-asset limiter bypass.
+- The bypass is rejected when `NODE_ENV=production`; the production/default 1,000-request limit is unchanged.
+- API and user/provider-specific limiters remain active.
+- Focused localhost middleware coverage sends more than 1,000 requests through the E2E configuration, proves the default broad limit still returns `429` after request 1,000, proves the API limit still returns `429` after request 300, and retains the existing recipe-user and distributed-limit coverage.
+- A shared Playwright fixture reports any unexpected browser `429` with URL, method, resource type, frame/test/project/retry context, attaches JSON diagnostics, and the E2E job uploads `test-results/` on failure.
+
+This is automation-primary CI/test-infrastructure work. It does not change production limiter defaults, route behavior, auth/session, provider calls, schema, product UI, or validation authority, so no human Replit validation or changed-since-last-production registry case is required. After this harness PR merges, PR #325 must rebase and rerun its exact-head nine-test schema-backed lane for the authoritative combined proof. EFF-017 remains `In Progress` for its broader provider-canary, automated Replit-environment, OAuth-preflight, coverage-ratchet, and live-surface goals.

@@ -34,8 +34,9 @@ const RATE_LIMIT_BUCKET_PRUNE_INTERVAL_MS = 60_000;
 const DISTRIBUTED_RATE_LIMIT_PRUNE_INTERVAL_MS = 60 * 60 * 1000;
 const DISTRIBUTED_RATE_LIMIT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
-const isTestEnv = process.env.NODE_ENV === "test";
 const passthrough: RequestHandler = (_req, _res, next) => next();
+
+export const E2E_APP_REQUEST_LIMIT_BYPASS_ENV = "LAICA_E2E_APP_REQUEST_LIMIT_BYPASS";
 
 const buckets = new Map<string, Bucket>();
 let lastBucketPruneAt = 0;
@@ -152,9 +153,14 @@ export function getRateLimitEnvKey(key: RateLimitKey, window: RateLimitWindow): 
   return `RATE_LIMIT_${toRateLimitEnvSegment(key)}_${toRateLimitEnvSegment(window)}`;
 }
 
-export function getConfiguredRateLimit(key: RateLimitKey, window: RateLimitWindow, fallback: number): number {
+export function getConfiguredRateLimit(
+  key: RateLimitKey,
+  window: RateLimitWindow,
+  fallback: number,
+  env: NodeJS.ProcessEnv = process.env,
+): number {
   const envKey = getRateLimitEnvKey(key, window);
-  const rawValue = process.env[envKey];
+  const rawValue = env[envKey];
   const parsed = rawValue ? Number.parseInt(rawValue, 10) : Number.NaN;
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
@@ -297,29 +303,56 @@ const standardRateLimitResponse = {
   message: "Too many requests. Try again later.",
 };
 
-// NOTE: `express-rate-limit` depends on real socket behavior; in unit tests we
-// run in-memory request harnesses that don't bind a TCP port. Disable these
-// two global middleware in tests, while keeping our custom in-process
-// rate-limit utilities testable via `tests/unit/rate-limit.test.ts`.
-export const appRequestLimit: RequestHandler = isTestEnv
-  ? passthrough
-  : rateLimit({
-      windowMs: FIFTEEN_MINUTES,
-      limit: getConfiguredRateLimit("app", "short", 1000),
-      standardHeaders: "draft-8",
-      legacyHeaders: false,
-      message: standardRateLimitResponse,
-    });
+export function isE2eAppRequestLimitBypassEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  const bypassRequested = env[E2E_APP_REQUEST_LIMIT_BYPASS_ENV] === "true";
+  if (!bypassRequested) {
+    return false;
+  }
 
-export const apiRequestLimit: RequestHandler = isTestEnv
-  ? passthrough
-  : rateLimit({
-      windowMs: FIFTEEN_MINUTES,
-      limit: getConfiguredRateLimit("api", "short", 300),
-      standardHeaders: "draft-8",
-      legacyHeaders: false,
-      message: standardRateLimitResponse,
-    });
+  if (env.NODE_ENV === "production") {
+    throw new Error(
+      `[rate-limit] ${E2E_APP_REQUEST_LIMIT_BYPASS_ENV}=true is forbidden when NODE_ENV=production`,
+    );
+  }
+
+  return true;
+}
+
+// NOTE: `express-rate-limit` depends on real socket behavior; most unit tests
+// run in-memory request harnesses that don't bind a TCP port. The exported
+// factories let the focused capacity suite exercise the real middleware with
+// localhost-shaped requests while ordinary NODE_ENV=test imports keep using
+// passthroughs.
+export function createAppRequestLimit(env: NodeJS.ProcessEnv = process.env): RequestHandler {
+  if (env.NODE_ENV === "test" || isE2eAppRequestLimitBypassEnabled(env)) {
+    return passthrough;
+  }
+
+  return rateLimit({
+    windowMs: FIFTEEN_MINUTES,
+    limit: getConfiguredRateLimit("app", "short", 1000, env),
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: standardRateLimitResponse,
+  });
+}
+
+export function createApiRequestLimit(env: NodeJS.ProcessEnv = process.env): RequestHandler {
+  if (env.NODE_ENV === "test") {
+    return passthrough;
+  }
+
+  return rateLimit({
+    windowMs: FIFTEEN_MINUTES,
+    limit: getConfiguredRateLimit("api", "short", 300, env),
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: standardRateLimitResponse,
+  });
+}
+
+export const appRequestLimit = createAppRequestLimit();
+export const apiRequestLimit = createApiRequestLimit();
 
 export const adminIpLimit = createRateLimit({
   name: "admin:ip:hour",

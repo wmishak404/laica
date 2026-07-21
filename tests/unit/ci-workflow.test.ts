@@ -23,4 +23,12 @@ describe("CI workflow Firebase secret lanes", () => {
     expect(workflow).not.toContain("secrets.VITE_FIREBASE_PROJECT_ID");
     expect(workflow).not.toContain("secrets.VITE_FIREBASE_APP_ID");
   });
+
+  it("retains Playwright diagnostics when the schema-backed E2E lane fails", () => {
+    expect(workflow).toContain("name: Upload E2E failure diagnostics");
+    expect(workflow).toContain("if: ${{ failure() }}");
+    expect(workflow).toContain("name: e2e-playwright-diagnostics");
+    expect(workflow).toContain("path: test-results/");
+    expect(workflow).toContain("retention-days: 14");
+  });
 });
