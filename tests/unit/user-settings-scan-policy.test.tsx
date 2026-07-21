@@ -92,8 +92,10 @@ describe('UserSettings scan upload policy', () => {
     const pantryScroll = screen.getByTestId('returning-inventory-scroll');
     const pantryActions = screen.getByTestId('returning-inventory-actions');
     expect(pantryScroll.contains(pantryActions)).toBe(false);
-    expect(pantryScroll.parentElement).toBe(pantryActions.parentElement);
-    expect(container.querySelector('.returning-ui-inventory')).toBeTruthy();
+    const inventoryPage = container.querySelector('main.returning-ui-inventory');
+    expect(inventoryPage).toBeTruthy();
+    expect(pantryActions.parentElement).toBe(inventoryPage);
+    expect(pantryScroll.closest('.returning-settings-shell')?.contains(pantryActions)).toBe(false);
 
     fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
 
@@ -104,7 +106,8 @@ describe('UserSettings scan upload policy', () => {
     const toolsScroll = screen.getByTestId('returning-inventory-scroll');
     const toolsActions = screen.getByTestId('returning-inventory-actions');
     expect(toolsScroll.contains(toolsActions)).toBe(false);
-    expect(toolsScroll.parentElement).toBe(toolsActions.parentElement);
+    expect(toolsActions.parentElement).toBe(container.querySelector('main.returning-ui-inventory'));
+    expect(toolsScroll.closest('.returning-settings-shell')?.contains(toolsActions)).toBe(false);
 
     rerender(
       <UserSettings

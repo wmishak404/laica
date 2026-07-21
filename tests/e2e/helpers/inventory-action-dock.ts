@@ -64,6 +64,10 @@ export async function expectInventoryActionDockLayout(
       dockTop: dockRect.top,
       dockBottom: dockRect.bottom,
       navTop: navRect.top,
+      dockLeft: dockRect.left,
+      dockRight: dockRect.right,
+      viewportWidth: window.innerWidth,
+      dockIsPageChild: dockElement.parentElement?.matches('main.returning-ui-inventory') ?? false,
       dockPosition: dockStyle.position,
       dockBackgroundColor: dockStyle.backgroundColor,
       dockBackgroundImage: dockStyle.backgroundImage,
@@ -75,7 +79,10 @@ export async function expectInventoryActionDockLayout(
   expect(geometry).not.toBeNull();
   if (!geometry) throw new Error('Inventory dock geometry was unavailable');
   expect(geometry.scrollBottom).toBeLessThanOrEqual(geometry.dockTop + 1);
-  expect(geometry.dockBottom).toBeLessThanOrEqual(geometry.navTop + 1);
+  expect(Math.abs(geometry.dockBottom - geometry.navTop)).toBeLessThanOrEqual(1);
+  expect(geometry.dockLeft).toBeCloseTo(0, 0);
+  expect(geometry.dockRight).toBeCloseTo(geometry.viewportWidth, 0);
+  expect(geometry.dockIsPageChild).toBe(true);
   expect(geometry.dockPosition).toBe('relative');
   expect(geometry.dockBackgroundColor).not.toMatch(/rgba\([^)]*,\s*0(?:\.0+)?\)$/);
   expect(geometry.dockBackgroundImage).not.toBe('none');
@@ -126,7 +133,7 @@ export async function expectFocusedManualEntryViewportClearance(
   expect(evidence).not.toBeNull();
   if (!evidence) throw new Error('Focused manual-entry geometry was unavailable');
   expect(evidence.inputBottom).toBeLessThanOrEqual(evidence.dockTop + 1);
-  expect(evidence.dockBottom).toBeLessThanOrEqual(evidence.navTop + 1);
+  expect(Math.abs(evidence.dockBottom - evidence.navTop)).toBeLessThanOrEqual(1);
   expect(evidence.hitIsOwned).toBe(true);
 
   await page.setViewportSize(viewport);

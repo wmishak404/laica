@@ -1194,7 +1194,6 @@ export default function UserSettings({
       ? 'Food you have at home, including cabinets, fridge, and freezer.'
       : 'Optional tools and appliances that shape what Laica suggests.';
     const placeholder = isPantry ? 'rice, eggs, spinach' : 'oven, blender, sheet pan';
-    const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
     const handleReset = isPantry ? handleResetPantry : handleResetEquipment;
     const progress = scanProgress[type];
     const hasUnsavedChanges = hasUnsavedInventoryChanges(type);
@@ -1399,26 +1398,37 @@ export default function UserSettings({
             </div>
           </div>
 
-          <div
-            className="returning-actions returning-inventory-actions"
-            data-testid="returning-inventory-actions"
-          >
-            <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => handleSectionChange('hub')}>
-              Settings
-            </Button>
-            <Button
-              variant="ghost"
-              className={`setup-primary-button h-12 ${isPantry ? '' : 'setup-kitchen-primary-button'}`}
-              onClick={handleSave}
-              disabled={isInventoryLocked}
-              data-dirty={hasUnsavedChanges ? 'true' : undefined}
-            >
-              {hasUnsavedChanges
-                ? isPantry ? 'Save pantry changes' : 'Save tools changes'
-                : isPantry ? 'Save pantry' : 'Save tools'}
-            </Button>
-          </div>
         </section>
+      </div>
+    );
+  };
+
+  const renderInventoryActions = (type: 'pantry' | 'kitchen') => {
+    const isPantry = type === 'pantry';
+    const hasUnsavedChanges = hasUnsavedInventoryChanges(type);
+    const handleSave = isPantry ? handleSavePantry : handleSaveEquipment;
+
+    return (
+      <div
+        className={`returning-inventory-actions ${isPantry ? '' : 'setup-ui-kitchen returning-kitchen-tone'}`}
+        data-testid="returning-inventory-actions"
+      >
+        <div className="returning-inventory-actions-inner">
+          <Button variant="ghost" className="setup-secondary-button h-12" onClick={() => handleSectionChange('hub')}>
+            Settings
+          </Button>
+          <Button
+            variant="ghost"
+            className={`setup-primary-button h-12 ${isPantry ? '' : 'setup-kitchen-primary-button'}`}
+            onClick={handleSave}
+            disabled={hasActiveScan}
+            data-dirty={hasUnsavedChanges ? 'true' : undefined}
+          >
+            {hasUnsavedChanges
+              ? isPantry ? 'Save pantry changes' : 'Save tools changes'
+              : isPantry ? 'Save pantry' : 'Save tools'}
+          </Button>
+        </div>
       </div>
     );
   };
@@ -1539,7 +1549,7 @@ export default function UserSettings({
 
   return (
     <main className={`returning-ui min-h-screen pb-24 ${activeSection === 'inventory' ? 'returning-ui-inventory' : ''}`}>
-      <div className="returning-settings-shell mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5">
+      <div className={`returning-settings-shell mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 ${activeSection === 'inventory' ? 'pb-0 pt-5' : 'py-5'}`}>
         <div
           className={`returning-settings-header ${
             activeSection === 'inventory' && !showCrossSectionScanNotice
@@ -1566,6 +1576,7 @@ export default function UserSettings({
 
         {renderActiveSection()}
       </div>
+      {activeSection === 'inventory' && renderInventoryActions(activeInventoryType)}
     </main>
   );
 }
