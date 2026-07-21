@@ -46,6 +46,12 @@ Corrected page-level after-state:
 
 ![Returning Tools with a full-width page dock flush to navigation at 412x915](../docs/assets/mobile-refresh/2026-07-21-codex-eff-033-page-dock-tools-412x915.jpg)
 
+Finalization screenshots after the PR #330 harness repair and current-main rebase:
+
+![Final review-head Pantry at 390x844](../docs/assets/mobile-refresh/2026-07-21-codex-eff-033-final-head-pantry-390x844.jpg)
+
+![Final review-head Tools at 412x915](../docs/assets/mobile-refresh/2026-07-21-codex-eff-033-final-head-tools-412x915.jpg)
+
 ## Scope
 
 - Target returning Settings -> Kitchen Inventory -> Pantry and Tools for guest and linked modes where the shared returning surface applies.
@@ -90,7 +96,7 @@ Out of scope:
 - [x] Save before/after screenshots in `docs/assets/mobile-refresh/` and link them from the handoff/PR.
 - [x] Run focused Settings tests, full unit, check, build, and exact-runtime-head Replit mobile validation.
 - [x] Execute and inspect the pre-harness-correction full automated E2E/security gate; both EFF-033 tests passed, while the added ninth browser context exposed the shared Vite/app-asset limiter and left the lane at 8/9. This was not evidence of a linked auth/planning runtime regression.
-- [ ] Re-run the full automated gate on the final rebased PR #325 head after merged PR #330; all nine Playwright tests must pass before merge readiness is claimed.
+- [x] Re-run the full automated gate on the rebased PR #325 review head after merged PR #330; GitHub run `29865935383` executed and passed all nine Playwright tests. Repeat this gate after the evidence-only handoff commit so the final pushed head also has exact-head evidence.
 
 ## Resolution criteria
 
@@ -128,3 +134,13 @@ After PRs #322, #319, and #329 advanced `main`, PR #325 rebased cleanly onto `or
 The exact-head GitHub run `29861211868` passed unit/typecheck/build/coverage, dependency audit, secret scan, and CodeQL. Its schema-backed Chromium job executed all nine tests; the EFF-033 guest and linked inventory cases passed, while the last linked browser case timed out after reload and then before first render on retries. Follow-up investigation proved this was not an unrelated linked recipe/sign-in defect: PR #325's added browser context crossed the Playwright-managed Vite server's broad 1,000-request app-asset limit. A cold load measured 112 localhost responses; the eighth load began receiving module-asset `429` responses and the ninth navigation received `429`. PR #330 merged the explicit E2E-only app-asset limiter bypass while retaining production/default and API/user-specific limits.
 
 PR #325 rebased once onto `origin/main` `1c40069ee4a497decd8ac67158f8b832616a8398`, which contains PR #328's linked Ticket Pass restore fix and PR #330's harness correction. The prior red run is retained as causal harness evidence, not merge evidence. Final local checks, all-nine exact-head automation, refreshed Replit geometry evidence, pushed provenance, and explicit merge approval remain required. This Effort stays `In Progress` until merge and the required mechanical closeout.
+
+## 2026-07-21 — Repaired all-nine gate and refreshed Replit finalization evidence
+
+Rebased review head `e85f8b328b11dd82dbf65a53b2ce0d0847e5277c` passed `npm ci`, `npm run check`, `npm run build`, full `npm run test:unit` (51 files / 397 tests), focused Settings plus limiter coverage (4 files / 35 tests), `npm audit --audit-level=high`, `git diff --check`, and nine-test Chromium discovery. GitHub run [`29865935383`](https://github.com/wmishak404/laica/actions/runs/29865935383) then reported `Running 9 tests using 1 worker` and `9 passed (51.9s)` in the combined guest + linked dev-auth job; unit, audit, secret scan, and CodeQL passed too. This replaces the historical 8/9 causal run as current automated evidence.
+
+The shared Replit workspace was clean and detached before direct-shell fetch/switch. It loaded `e85f8b328b11dd82dbf65a53b2ce0d0847e5277c`, restarted through Replit's normal Run control, and was inspected without Replit Agent. Pantry at app-reported `390x844` measured scroll bottom `691.924`, dock `708.545–786.758`, nav top `786.758`, and horizontal bounds `0–390`. Tools at `412x915` measured scroll bottom `763.174`, dock `779.795–858.008`, nav top `858.008`, and horizontal bounds `0–412.5`. Both docks were direct page children with opaque `rgb(255, 248, 235)` plus the cream gradient; the bounded scrollers reached their true maximum while remaining `16.621px` before the dock. Camera, upload, manual-entry, Settings, and Save centers resolved to their intended controls, with active targets `48–56px` high.
+
+Reduced-height focused-input probes also passed: Pantry `390x564` input bottom `272.168` remained before dock top `428.545`; Tools `412x635` input bottom `307.793` remained before dock top `499.795`. In both cases the dock stayed flush to navigation and the input center remained owned. The Replit browser represented the available returning/session-local state; guest and linked-account save/persistence behavior ran in the exact-head combined CI lane. No camera permission/capture, upload/provider request, production deployment, custom-domain publish, EFF-032, EFF-034, or Guest Finish behavior was exercised or changed.
+
+The screenshots and this durable evidence are an evidence-only follow-up commit. Under stale-validation policy, its final pushed SHA must receive the short Replit geometry/hit repeat and a fresh all-nine GitHub gate, recorded in PR #325, before the PR is called ready to merge. Wilson's explicit merge approval is still required.

@@ -72,6 +72,13 @@ The 2026-07-17 regression audited the full first-parent merge history through `2
 - Focused release check now requires all three hierarchy facts: `.returning-inventory-actions` is a direct child of `main.returning-ui-inventory`, its horizontal bounds match the viewport, and its bottom equals `.app-bottom-nav` top within one CSS pixel. Continue to verify content/hit clearance above it.
 - Exact-head linked/full CI, review, merge, and post-merge closeout remain pending. Negative scope is unchanged.
 
+## 2026-07-21 Draft PR #325 Rebased Finalization Evidence
+
+- PR #325 rebased onto `origin/main` `1c40069ee4a497decd8ac67158f8b832616a8398`. Review head `e85f8b328b11dd82dbf65a53b2ce0d0847e5277c` passed GitHub run `29865935383`: the combined schema-backed guest + linked lane ran and passed all nine Playwright tests, and unit, audit, secret scan, and CodeQL passed.
+- Direct-shell Replit loaded the same review head and repeated Pantry `390x844`, Tools `412x915`, focused Pantry `390x564`, and focused Tools `412x635` without Replit Agent. Direct page ownership, viewport-wide opaque dock, `16.621px` scroller separation, zero dock/nav gap, bottom scrolling, 48–56px targets, and `elementFromPoint()` ownership passed. Fresh screenshots live in EFF-033 and its handoff.
+- Release focus is unchanged: verify Pantry and Tools on the release SHA at both compact sizes, scroll to the true bottom, focus manual entry under a reduced viewport, and confirm the dock spans the page, is opaque, meets Cook/Menu, and owns only its own Settings/Save hit region.
+- The evidence-only handoff/screenshots commit requires its own exact-head GitHub all-nine gate and short Replit fingerprint before merge readiness is claimed. Review, merge, and post-merge Effort/INIT closeout remain pending; Wilson's explicit merge approval is required. Negative scope remains no EFF-032, EFF-034, Guest Finish, provider, schema, prompt, API/persistence, auth, navigation, deployment, or publish change.
+
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
 - PR #275 merged at `148c881591479d2c5f07c500dd440682989824b4` after exact-head GitHub checks passed for head `eb364ee7127f86c2b46c826e74619d48719b1c50`.
