@@ -9,7 +9,7 @@
 
 ## Summary
 
-Draft [PR #324](https://github.com/wmishak404/laica/pull/324) makes every Live Cooking completion claim follow the actual persistence outcome. Guest Finish remains a valid browser-local completion and asks the cook to sign up before saving History. Linked Finish does not claim History was saved until its mutation succeeds. A linked persistence failure keeps the local recovery record and presents an honest retry. Transcript, speech, toast, and persistent retry status all derive from the same typed outcome.
+Ready-for-review [PR #324](https://github.com/wmishak404/laica/pull/324) makes every Live Cooking completion claim follow the actual persistence outcome. Guest Finish remains a valid browser-local completion and asks the cook to sign up before saving History. Linked Finish does not claim History was saved until its mutation succeeds. A linked persistence failure keeps the local recovery record and presents an honest retry. Transcript, speech, toast, and persistent retry status all derive from the same typed outcome.
 
 This closes the implementation gap found by the 2026-07-17 production-readiness run without changing the accepted linked-only durability boundary. INIT-003, the Phase 4 cooking contract, and the production validation registry now carry the same rule. Local gates, the full GitHub E2E lane, direct Replit checks, and both required phone viewports have passed; the PR carries the exact final-head workflow results after this evidence commit.
 
@@ -73,7 +73,7 @@ This closes the implementation gap found by the 2026-07-17 production-readiness 
 
 - Required base: `codex/production-readiness-2026-07-17` at `08fa856d028c00f577f4e6dd3492efa8c00639de`.
 - Initial implementation commit before base refresh: `5d41870b7fc01ba959d06925a94fab9755bc68aa`.
-- Rebased implementation commit: `d71daecc`; pre-handoff evidence head: `8721683dab1354b3864b6a948e9d9f41deba65f0`.
+- Final-base-refresh implementation commit: `3719fe2c`; mobile evidence head before the base refresh: `8721683dab1354b3864b6a948e9d9f41deba65f0`.
 - PR #322 merged the lockfile-only audit remediation as `b4236b6f`. The branch was then rebased onto that fresh `origin/main`, replaying the required production-readiness commits and retargeting PR #324 to `main`.
 - Local install used the committed lockfile through `npm ci`.
 - Local tests exercise the checked-out source directly; GitHub E2E uses a schema-pushed ephemeral Neon branch and the PR head.
@@ -123,11 +123,11 @@ No pantry mutation, rating/notes invention, server route, schema, provider promp
 ## Open items
 
 - Treat the exact final-head GitHub workflow results and compact Replit resync as live PR evidence; no repository edit should follow them before review.
-- Keep PR #324 draft after validation. Wilson's explicit approval is required before merge.
+- PR #324 is ready for review after the final base refresh and exact-head gates. Wilson's explicit approval is still required before merge.
 
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `b4236b6f88b02c3bc3d2b69191a3a71b48a99675`
+- Current base: `origin/main` at `cbeae19d2c29b111c8bf9e4b37a834844e465b4d`
 - Last Replit-validated at: `8721683dab1354b3864b6a948e9d9f41deba65f0` before this evidence-only commit; PR #324 records the compact final-head resync.
-- Notes: work started from required `08fa856d`, then rebased after audit-remediation PR #322 merged. The rebase replayed the two production-readiness documentation commits plus this implementation, so PR #324 now targets fresh `main` without losing the delegated evidence baseline.
+- Notes: work started from required `08fa856d`, rebased after audit-remediation PR #322 merged, then rebased again onto current `main` for merge readiness after unrelated docs-only PRs #319 and #329. The final refresh replayed the production-readiness documentation and implementation without conflicts or loss of the delegated evidence baseline.
