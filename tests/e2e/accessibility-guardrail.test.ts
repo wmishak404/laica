@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Locator } from "@playwright/test";
+import { expect, test, type Locator } from "./e2e-test";
 
 const MIN_TAP_TARGET_PX = 44;
 

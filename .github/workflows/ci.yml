@@ -130,6 +130,15 @@ jobs:
           VITE_LAICA_DEV_AUTH_BROWSER: "true"
         run: npm run test:e2e
 
+      - name: Upload E2E failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-playwright-diagnostics
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Delete Neon Branch
         if: ${{ always() && steps.neon.outputs.branch_id != '' }}
         uses: neondatabase/delete-branch-action@v3

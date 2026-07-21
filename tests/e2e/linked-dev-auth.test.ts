@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page } from "./e2e-test";
 import {
   MEAL_PLANNING_DISMISSAL_STORAGE_KEY,
   MEAL_PLANNING_STORAGE_KEY,

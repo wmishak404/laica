@@ -55,6 +55,9 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev',
+    env: {
+      LAICA_E2E_APP_REQUEST_LIMIT_BYPASS: 'true',
+    },
     url: baseURL,
     reuseExistingServer: !isCI,
     timeout: 120 * 1000,
