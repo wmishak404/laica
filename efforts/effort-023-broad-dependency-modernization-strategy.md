@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-07-20
+**Updated:** 2026-07-21
 
 ## One-line summary
 
@@ -44,6 +44,8 @@ Because this repository is public, do not copy exact security-advisory details, 
 - PR #134 was closed unmerged and should not be reopened as-is.
 - Broad modernization should be handled as intentionally scoped branches, not a single large package update.
 - Routine patch updates may remain grouped, but minor updates should open individually so provider, UI, runtime, database, and toolchain changes do not share one upgrade unit.
+- A newer dependency version is not, by itself, sufficient reason to merge. Routine maintenance should have a concrete trigger: a relevant security finding, an observed bug or incompatibility, a platform deprecation or enforcement signal, or an explicitly accepted modernization/release objective.
+- Passing compatibility automation establishes evidence about an update; it does not establish that taking the update now has more value than its change risk. When no concrete trigger exists, close the maintenance PR and reassess from fresh `main` when the trigger appears.
 
 ## Open questions
 
@@ -129,3 +131,15 @@ This does not start the deferred provider, database, UI-foundation, or toolchain
 Dependabot PR #316 proposes `@replit/vite-plugin-cartographer` `0.2.0` to `0.6.0`, a pre-1.0 three-minor update. LAICA loads this plugin only when `NODE_ENV !== "production"` and `REPL_ID` is present, so the repository's local macOS and GitHub checks do not execute the changed integration path. The bot head passed install, typecheck/lint, build, unit/coverage, high/critical audit, and PR secret scan; its E2E job stopped at the known Dependabot protected-secret preflight before application setup or browser tests.
 
 PR #316 should remain out of the merge path until a focused same-repository replacement can pair the normal exact-head gates with direct Replit development validation. That validation must start the current Replit workspace with `REPL_ID` present, confirm Vite loads cartographer `0.6.x` without initialization or transform errors, and exercise the Replit visual-editor/cartographer interaction that the plugin exists to support. This is an environment-specific toolchain defer under EFF-023, not evidence that version `0.6.0` is incompatible.
+
+## 2026-07-21 - Preventive maintenance batch closed pending a concrete trigger
+
+Wilson decided that dependency updates should not merge only because newer compatible versions are available. After the exact-head validation work completed, PRs #320 (`actions/setup-node`), #321 (routine npm patch group), #323 (`express-rate-limit`), #326 (unused context-menu cleanup), and #327 (Multer runtime/types alignment) were closed unmerged. Each PR records its specific deferral rationale.
+
+The accepted distinction is:
+
+- PR #322 was narrow remediation for a current high-severity audit gate and remains the correct example of security-triggered maintenance.
+- PRs #320, #321, #323, #326, and #327 had no current high/critical finding, observed production failure, platform enforcement, or accepted release objective that outweighed taking change now.
+- PR #316 remains separately deferred because its Replit-only integration path lacks the environment-specific validation required to justify the update.
+
+Future security scans and dependency automation may open new work, but agents should reassess the then-current versions, advisories, platform requirements, and product need from fresh `origin/main`. Do not reopen or merge these historical heads merely because their earlier checks passed; their evidence becomes stale as the base and external dependency ecosystem change.
