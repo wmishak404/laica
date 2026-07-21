@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Mic, MicOff, Play, Pause, SkipForward, SkipBack, AlertTriangle, Info, CheckCircle, ExternalLink, Volume2, VolumeX, Clock, ArrowLeft, Repeat, StopCircle, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 import { fetchCookingSteps, fetchCookingAssistance } from '@/lib/openai';
 import { apiFetch } from '@/lib/queryClient';
@@ -69,6 +69,42 @@ interface StepLoadIssue {
 interface AssistanceIssue {
   title: string;
   description: string;
+}
+
+type CookingCompletionOutcomeKind = 'guest-local' | 'linked-saved' | 'linked-save-failed';
+
+interface CookingCompletionOutcome {
+  kind: CookingCompletionOutcomeKind;
+  title: string;
+  description: string;
+  retryable: boolean;
+  toastVariant?: 'destructive';
+}
+
+const COOKING_COMPLETION_OUTCOMES: Record<CookingCompletionOutcomeKind, CookingCompletionOutcome> = {
+  'guest-local': {
+    kind: 'guest-local',
+    title: "Dinner's ready.",
+    description: 'Sign up to save this session to your cooking history.',
+    retryable: false,
+  },
+  'linked-saved': {
+    kind: 'linked-saved',
+    title: "Dinner's ready.",
+    description: 'Saved to your cooking history. Pantry cleanup comes next.',
+    retryable: false,
+  },
+  'linked-save-failed': {
+    kind: 'linked-save-failed',
+    title: "Dinner's ready, but this session wasn't saved to your cooking history.",
+    description: 'Try Finish again.',
+    retryable: true,
+    toastVariant: 'destructive',
+  },
+};
+
+function formatCookingCompletionMessage(outcome: CookingCompletionOutcome) {
+  return `${outcome.title} ${outcome.description}`;
 }
 
 interface RecipeRecommendation {
@@ -603,6 +639,8 @@ export default function LiveCooking({
   const [isLoadingSteps, setIsLoadingSteps] = useState(false);
   const [stepLoadIssue, setStepLoadIssue] = useState<StepLoadIssue | null>(null);
   const [assistanceIssue, setAssistanceIssue] = useState<AssistanceIssue | null>(null);
+  const [completionOutcome, setCompletionOutcome] = useState<CookingCompletionOutcome | null>(null);
+  const [isCompletingCookingSession, setIsCompletingCookingSession] = useState(false);
   const [stepLoadAttempt, setStepLoadAttempt] = useState(0);
   const [useElevenLabs, setUseElevenLabs] = useState(true);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(COOKING_VOICE_SETTINGS);
@@ -651,6 +689,8 @@ export default function LiveCooking({
   const isAudioEnabledRef = useRef(isAudioEnabled);
   const isVoiceRecordingRef = useRef(isVoiceRecording);
   const voiceAvailableRef = useRef(voiceAvailable);
+  const isMountedRef = useRef(true);
+  const isCompletingCookingSessionRef = useRef(false);
 
   assistantResponseRef.current = assistantResponse;
   isAudioEnabledRef.current = isAudioEnabled;
@@ -1004,40 +1044,36 @@ export default function LiveCooking({
     }
   };
 
-  const completeCookingSession = async () => {
-    stopCookingAudioLifecycle();
-    // Clear saved cooking session on completion
-    clearCookingSession();
-    onCookingComplete?.();
-
+  const completeCookingSession = async (): Promise<CookingCompletionOutcome> => {
     if (isGuest) {
-      toast({
-        title: "Nice, dinner's ready.",
-        description: "Sign up before saving cooking history.",
-      });
-      return;
+      clearCookingSession();
+      onCookingComplete?.();
+      return COOKING_COMPLETION_OUTCOMES['guest-local'];
     }
-    
-    if (cookingSessionId && cookingStartTime) {
-      try {
-        const duration = Math.floor((Date.now() - cookingStartTime.getTime()) / 1000 / 60); // in minutes
-        
-        await completeSessionMutation.mutateAsync({
-          sessionId: cookingSessionId,
-          completionData: {
-            ingredientsRemaining: [], // This could be enhanced to ask user for remaining ingredients
-            cookingDuration: duration,
-            completedSteps: loadedRecipeSteps.length,
-          }
-        });
-        
-        toast({
-          title: "Nice, dinner's ready.",
-          description: "Saved to your cooking history. Pantry cleanup comes next.",
-        });
-      } catch (error) {
-        console.error('Failed to complete cooking session:', error);
-      }
+
+    if (!cookingSessionId || !cookingStartTime) {
+      console.error('Failed to complete cooking session: the durable session is not ready.');
+      return COOKING_COMPLETION_OUTCOMES['linked-save-failed'];
+    }
+
+    try {
+      const duration = Math.floor((Date.now() - cookingStartTime.getTime()) / 1000 / 60); // in minutes
+
+      await completeSessionMutation.mutateAsync({
+        sessionId: cookingSessionId,
+        completionData: {
+          ingredientsRemaining: [], // This could be enhanced to ask user for remaining ingredients
+          cookingDuration: duration,
+          completedSteps: loadedRecipeSteps.length,
+        }
+      });
+
+      clearCookingSession();
+      onCookingComplete?.();
+      return COOKING_COMPLETION_OUTCOMES['linked-saved'];
+    } catch (error) {
+      console.error('Failed to complete cooking session:', error);
+      return COOKING_COMPLETION_OUTCOMES['linked-save-failed'];
     }
   };
 
@@ -1548,10 +1584,43 @@ export default function LiveCooking({
     setHasStartedCookingGuide(true);
   };
 
+  const presentCookingCompletionOutcome = (outcome: CookingCompletionOutcome) => {
+    const message = formatCookingCompletionMessage(outcome);
+    audioLifecycleActiveRef.current = true;
+    setCompletionOutcome(outcome);
+    setSpokenAssistantResponse(message);
+    toast({
+      title: outcome.title,
+      description: outcome.description,
+      ...(outcome.toastVariant ? { variant: outcome.toastVariant } : {}),
+    });
+  };
+
+  const finishCookingSession = async () => {
+    if (isCompletingCookingSessionRef.current) return;
+
+    isCompletingCookingSessionRef.current = true;
+    setIsCompletingCookingSession(true);
+    setCompletionOutcome(null);
+    stopCookingAudioLifecycle();
+
+    try {
+      const outcome = await completeCookingSession();
+      if (!isMountedRef.current) return;
+      presentCookingCompletionOutcome(outcome);
+    } finally {
+      isCompletingCookingSessionRef.current = false;
+      if (isMountedRef.current) {
+        setIsCompletingCookingSession(false);
+      }
+    }
+  };
+
   const nextStep = () => {
     if (currentStepIndex < currentRecipeSteps.length - 1) {
       const newStepIndex = currentStepIndex + 1;
       setCurrentStepIndex(newStepIndex);
+      setCompletionOutcome(null);
       const nextStepData = currentRecipeSteps[newStepIndex];
       setTimer(0);
       setIsTimerRunning(false);
@@ -1563,9 +1632,7 @@ export default function LiveCooking({
       // Update cooking progress
       updateCookingProgress(newStepIndex + 1);
     } else {
-      setSpokenAssistantResponse("Nice, dinner's ready. Saved to your cooking history. Pantry cleanup comes next.");
-      
-      completeCookingSession();
+      void finishCookingSession();
     }
   };
 
@@ -1573,6 +1640,7 @@ export default function LiveCooking({
     if (currentStepIndex > 0) {
       const newStepIndex = currentStepIndex - 1;
       setCurrentStepIndex(newStepIndex);
+      setCompletionOutcome(null);
       const prevStepData = currentRecipeSteps[newStepIndex];
       setTimer(0);
       setIsTimerRunning(false);
@@ -1620,7 +1688,10 @@ export default function LiveCooking({
 
   // Clean up audio on component unmount or page navigation
   useEffect(() => {
+    isMountedRef.current = true;
+
     return () => {
+      isMountedRef.current = false;
       stopCookingAudioLifecycle();
     };
   }, []);
@@ -2351,7 +2422,7 @@ export default function LiveCooking({
         <div className="grid grid-cols-2 gap-3">
           <Button
             onClick={previousStep}
-            disabled={currentStepIndex === 0}
+            disabled={currentStepIndex === 0 || isCompletingCookingSession}
             variant="outline"
           >
             <SkipBack className="h-4 w-4 mr-1" />
@@ -2359,9 +2430,15 @@ export default function LiveCooking({
           </Button>
           <Button
             onClick={nextStep}
-            disabled={currentRecipeSteps.length === 0}
+            disabled={currentRecipeSteps.length === 0 || isCompletingCookingSession}
           >
-            {isFinalStep ? 'Finish' : 'Next'}
+            {isFinalStep
+              ? isCompletingCookingSession
+                ? 'Finishing...'
+                : completionOutcome?.retryable
+                  ? 'Try Finish again'
+                  : 'Finish'
+              : 'Next'}
             {!isFinalStep && <SkipForward className="h-4 w-4 ml-1" />}
           </Button>
         </div>
@@ -2438,6 +2515,14 @@ export default function LiveCooking({
             </p>
           )}
         </section>
+
+        {completionOutcome?.retryable && (
+          <Alert variant="destructive" data-testid="cooking-completion-status">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>{completionOutcome.title}</AlertTitle>
+            <AlertDescription>{completionOutcome.description}</AlertDescription>
+          </Alert>
+        )}
 
         {assistanceIssue && (
           <section

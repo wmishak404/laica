@@ -205,8 +205,11 @@ These are priority/resume routing notes, not new Phase 4 cooking behavior. They 
 - When a timer reaches zero, the timer control itself shows a visible `Time's up` completion state. CC remains reserved for voice/transcript display and is not auto-opened as the timer alert.
 - Live Cooking should use a warm focus-mode cooking surface that visually relates to the coral/rust setup and planning surfaces without becoming a heavy marketing/hero composition.
 - Active timer controls remain visible together; the minimize/collapse affordance was removed after Wilson found it displaced pause/reset and made the timer harder to understand.
-- Finish creates or updates cooking history but does not change pantry inventory.
-- Guest Finish never creates durable cooking history unless the user has linked Google first.
+- Finish creates or updates cooking history for linked users only after the completion mutation succeeds; it does not change pantry inventory.
+- Guest Finish remains a legitimate browser-local completion and never creates or claims durable cooking history unless the user has linked Google first. Its completion direction is `Dinner's ready. Sign up to save this session to your cooking history.`
+- Linked saved-to-History wording must not appear while persistence is pending. It may appear only after the completion mutation confirms success.
+- A linked completion failure must preserve the scoped local cooking recovery record, avoid every saved-History success claim, and retain an honest `Try Finish again` path.
+- Transcript, speech, toast, and any persistent completion status must be rendered from one typed guest-local / linked-saved / linked-save-failed outcome so simultaneous completion surfaces cannot contradict one another.
 - Completion sends no hidden `5` rating when the user has not rated.
 - Cooking assistance route is authenticated, rate-limited, and prompt-injection guarded.
 - Cooking-step generation failure has an inline retry/recovery state.
