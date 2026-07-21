@@ -1,6 +1,6 @@
 # Mobile Refresh Phase 2.2 - Returning Setup, Settings, and History IA
 
-**Status:** Accepted / Merged PR #30; Kitchen Inventory revision merged PR #170 and polish merged PR #171
+**Status:** Accepted / Merged PR #30; Kitchen Inventory revision merged PR #170 and polish merged PR #171; returning inventory action dock merged PR #325
 **Document kind:** Feature Phase Record
 **Phase owner:** Wilson
 **Date:** 2026-05-01
@@ -74,6 +74,12 @@ Runtime commit `af603822855be23e790769f77969dace803aabd4` passed Replit workspac
 Wilson rejected PR #325's first contained-dock pass because containment inside the rounded inventory panel was still the wrong hierarchy and left a permanent `40px` band above Cook/Menu. The accepted Phase 2.2 contract is now explicit: returning inventory content remains in the centered bounded scroller, but the action dock is a direct child of the fixed inventory page, its surface spans the viewport, and its rendered bottom equals the fixed bottom nav's rendered top. The buttons may remain centered to the normal content maximum within that full-width rail.
 
 Runtime head `3a42ad6b0deef46b59457e5a505adc617292146c` passed direct-shell Replit validation on the returning session-local surface at app-reported `390x844` and `412x915`. Pantry measured dock left/right `0/390` and dock bottom/nav top `786.758/786.758`; Tools measured `0/412.5` and `858.008/858.008`. The dock remained opaque, Save retained computed coral/metal backgrounds under the reused setup-style specificity contract, active targets owned their center points, and the focused Tools field remained above the dock at reduced `412x635`. Exact-head CI owns linked-mode execution and the full regression gate.
+
+## 2026-07-21 Merge Signal - Returning Inventory Action Dock
+
+Wilson approved [PR #325](https://github.com/wmishak404/laica/pull/325), and it squash-merged into `main` as `ad3738e68a6df0a3984135be04532f412799785c` from final validated head `b84eb83ac7a5468bee8c5035ad4264d0738514df`. GitHub run `29866748380` passed all nine combined guest + linked Playwright tests plus unit, dependency audit, secret scan, and CodeQL. Direct-shell Replit validation at the same head repeated the accepted dock geometry, opacity, scrolling, reduced-viewport clearance, target sizing, and `elementFromPoint()` ownership at Pantry `390x844` and Tools `412x915` without Replit Agent.
+
+This merge adds implementation and validation signal without changing the accepted Phase 2.2 direction. EFF-033 is resolved. First-time setup, EFF-032, EFF-034, Guest Finish, providers, schema, prompts, persistence APIs, auth behavior, and durable navigation remain outside this change.
 
 ## Design and UX Gate
 
