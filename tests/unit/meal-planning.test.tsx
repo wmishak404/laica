@@ -134,6 +134,7 @@ const refreshedRecipeResponse = {
 
 interface RenderMealPlanningOptions {
   savePantryIngredients?: boolean;
+  deferProfileUpdateAfterPantrySave?: boolean;
   sessionScopeKey?: string;
   initialProfile?: {
     cookingSkill: string;
@@ -165,6 +166,7 @@ function makeMealPlanningProfile(overrides: Partial<{
 
 function renderMealPlanning({
   savePantryIngredients = true,
+  deferProfileUpdateAfterPantrySave = false,
   sessionScopeKey = 'linked:user-1',
   initialProfile,
   onEditPantry,
@@ -177,7 +179,7 @@ function renderMealPlanning({
     const [profile, setProfile] = useState(initialProfile ?? makeMealPlanningProfile());
 
     onPantryIngredientsAdded.mockImplementation(async (ingredients: string[]) => {
-      if (savePantryIngredients) {
+      if (savePantryIngredients && !deferProfileUpdateAfterPantrySave) {
         setProfile((previousProfile) => ({
           ...previousProfile,
           pantryIngredients: mergeUniqueEntries(previousProfile.pantryIngredients, ingredients),
@@ -586,6 +588,40 @@ describe('MealPlanning recipe generation locking', () => {
     expect(fetchPantryRecipesMock.mock.calls[0][1]).toContain('Unconfirmed staples: lime, cilantro, cumin, lemon; do not assume');
     expect(fetchPantryRecipesMock.mock.calls[0][1]).not.toContain('feta');
     expect(fetchPantryRecipesMock.mock.calls[0][1]).not.toContain('parsley');
+  });
+
+  it('persists generated tickets against the saved staple pantry basis before profile refetch settles', async () => {
+    const initialProfile = makeMealPlanningProfile();
+    const sessionScopeKey = 'linked:user-delayed-profile';
+    fetchPantryRecipesMock.mockResolvedValue(recipeResponse);
+    const { onPantryIngredientsAdded } = renderMealPlanning({
+      deferProfileUpdateAfterPantrySave: true,
+      initialProfile,
+      sessionScopeKey,
+    });
+
+    advanceToStaples();
+
+    const rows = getStapleRows();
+    fireEvent.click(within(rows).getByRole('button', { name: /^tortillas$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /view recipe suggestions/i }));
+
+    expect(await screen.findByRole('heading', { name: /recipe suggestions/i })).toBeTruthy();
+    expect(onPantryIngredientsAdded).toHaveBeenCalledWith(['tortillas']);
+
+    const expectedFingerprint = createPlanningProfileFingerprint({
+      ...initialProfile,
+      pantryIngredients: mergeUniqueEntries(initialProfile.pantryIngredients, ['tortillas']),
+    });
+
+    await waitFor(() => {
+      const saved = JSON.parse(
+        window.localStorage.getItem(`${MEAL_PLANNING_STORAGE_KEY}:${sessionScopeKey}`) || '{}',
+      ) as { currentStep?: unknown; profileFingerprint?: unknown };
+
+      expect(saved.currentStep).toBe('tickets');
+      expect(saved.profileFingerprint).toBe(expectedFingerprint);
+    });
   });
 
   it('marks saved Added staples and does not save them again when returning to staples', async () => {

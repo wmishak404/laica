@@ -2,6 +2,7 @@ import { expect, test, type APIRequestContext, type Page } from "@playwright/tes
 import {
   MEAL_PLANNING_DISMISSAL_STORAGE_KEY,
   MEAL_PLANNING_STORAGE_KEY,
+  createPlanningProfileFingerprint,
 } from "../../client/src/lib/planningCache";
 
 const LINKED_DEV_AUTH_UID = "dev-test-linked-ci";
@@ -208,6 +209,17 @@ async function stubPantryRecipes(page: Page) {
   });
 }
 
+function waitForLinkedBrowserGet(page: Page, path: string) {
+  return page.waitForResponse(
+    (response) => {
+      const request = response.request();
+      const url = new URL(response.url());
+      return request.method() === "GET" && url.pathname === path && response.status() === 200;
+    },
+    { timeout: 30_000 },
+  );
+}
+
 async function signBrowserInWithCustomToken(page: Page, customToken: string, expectedPantryCount = 3) {
   await page.addInitScript(
     ({ key, token, bootstrappedKey }) => {
@@ -225,7 +237,11 @@ async function signBrowserInWithCustomToken(page: Page, customToken: string, exp
     },
   );
 
+  const sessionResponsePromise = waitForLinkedBrowserGet(page, "/api/auth/session");
+  const profileResponsePromise = waitForLinkedBrowserGet(page, "/api/user/profile");
   await page.goto("/");
+  await sessionResponsePromise;
+  await profileResponsePromise;
 
   await expect(page.getByRole("heading", { name: "What are we cooking today?" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(/Right now I see/)).toContainText(`${expectedPantryCount} pantry items`, {
@@ -249,25 +265,31 @@ async function reloadLinkedBrowserSession(page: Page, request: APIRequestContext
     "Linked Browser Dev User",
   );
   await queueDevAuthTokenForNextLoad(page, reloadTokenPayload.customToken!);
+  const sessionResponsePromise = waitForLinkedBrowserGet(page, "/api/auth/session");
+  const profileResponsePromise = waitForLinkedBrowserGet(page, "/api/user/profile");
   await page.reload();
+  await sessionResponsePromise;
+  await profileResponsePromise;
 }
 
-async function waitForLinkedMealPlanningSession(page: Page) {
+async function waitForLinkedMealPlanningSession(page: Page, expectedProfileFingerprint: string) {
   const storageKey = `${MEAL_PLANNING_STORAGE_KEY}:linked:${LINKED_DEV_AUTH_BROWSER_UID}`;
 
   await page.waitForFunction(
-    ({ key }) => {
+    ({ key, profileFingerprint }) => {
       const raw = window.localStorage.getItem(key);
       if (!raw) return false;
 
       try {
         const session = JSON.parse(raw) as {
           currentStep?: unknown;
+          profileFingerprint?: unknown;
           recommendations?: Array<{ recipeName?: unknown }>;
           savedAt?: unknown;
         };
 
         return session.currentStep === "tickets"
+          && session.profileFingerprint === profileFingerprint
           && typeof session.savedAt === "number"
           && Array.isArray(session.recommendations)
           && session.recommendations.some((recipe) => recipe.recipeName === "Soy Rice Breakfast Bowl");
@@ -275,7 +297,7 @@ async function waitForLinkedMealPlanningSession(page: Page) {
         return false;
       }
     },
-    { key: storageKey },
+    { key: storageKey, profileFingerprint: expectedProfileFingerprint },
     { timeout: 30_000 },
   );
 }
@@ -364,12 +386,19 @@ test.describe("linked dev auth browser smoke", () => {
       timeAvailable: "1 hour",
     });
     expect(pantryPayload.preferences).toContain("Confirmed staples: tortillas, lime");
+    const expectedTicketSessionFingerprint = createPlanningProfileFingerprint({
+      cookingSkill: "Beginner",
+      dietaryRestrictions: ["No restrictions"],
+      pantryIngredients: ["rice", "eggs", "soy sauce", "tortillas", "lime"],
+      kitchenEquipment: ["skillet"],
+      favoriteChefs: [],
+    });
 
     await expect(page.getByRole("heading", { name: "Recipe suggestions" })).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByRole("button", { name: /Soy Rice Breakfast Bowl/ })).toBeVisible();
-    await waitForLinkedMealPlanningSession(page);
+    await waitForLinkedMealPlanningSession(page, expectedTicketSessionFingerprint);
 
     const profile = await readLinkedProfile(request, idToken);
     const savedPantry = profile.user?.pantryIngredients ?? [];
