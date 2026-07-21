@@ -112,7 +112,8 @@ This closes the implementation gap found by the 2026-07-17 production-readiness 
 ## Impact on other agents
 
 - Treat the outcome type in Live Cooking as the canonical completion presentation boundary; do not add auth-specific completion copy outside it.
-- Phase 5 cleanup can build on confirmed linked completion, but this PR does not define cleanup state or guest import.
+- INIT-001 Phase 5 now records the returning-user entry gate explicitly: only `linked-saved` may advance into future post-cook cleanup/History/cook-again/taste-memory behavior; `linked-save-failed` remains in retryable Live Cooking, and `guest-local` remains outside durable post-cook memory.
+- This PR does not define Phase 5 cleanup state, returning-user navigation, cook-again/taste-memory behavior, or guest History import.
 - EFF-032 and EFF-034 remain explicitly deferred. EFF-033 and returning Settings layout remain owned by their separate thread and are untouched here.
 
 ## Negative scope
