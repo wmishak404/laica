@@ -198,6 +198,11 @@ export default function MealPlanning({
     () => createPlanningProfileFingerprint(userProfile),
     [userProfile],
   );
+  const [sessionProfileFingerprint, setSessionProfileFingerprint] = useState(profileFingerprint);
+
+  useEffect(() => {
+    setSessionProfileFingerprint(profileFingerprint);
+  }, [profileFingerprint]);
 
   const validateSession = (data: any): SavedMealPlanningSession | null => {
     try {
@@ -290,7 +295,7 @@ export default function MealPlanning({
       recommendations: recommendations.slice(0, 3),
       selectedMeal,
       savedAt: Date.now(),
-      profileFingerprint,
+      profileFingerprint: sessionProfileFingerprint,
     };
 
     localStorage.setItem(mealPlanningStorageKey, JSON.stringify(session));
@@ -303,7 +308,7 @@ export default function MealPlanning({
     selectedMeal,
     sessionRestored,
     mealPlanningStorageKey,
-    profileFingerprint,
+    sessionProfileFingerprint,
   ]);
 
   useEffect(() => {
@@ -696,6 +701,11 @@ export default function MealPlanning({
             description: "We'll still use them for these recipes. You can add them later in Settings.",
             variant: 'destructive',
           });
+        } else {
+          setSessionProfileFingerprint(createPlanningProfileFingerprint({
+            ...requestProfile,
+            pantryIngredients: pantryIngredientsForRequest,
+          }));
         }
       } catch {
         if (!isActiveGeneration(runId, controller)) return;

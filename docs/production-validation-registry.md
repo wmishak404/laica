@@ -71,10 +71,18 @@ The row list below still needs the normal changed-since-last-prod review before 
 - Mobile Settings check: returning Settings -> Kitchen Inventory -> Pantry and Tools should render the same taller camera frame, and Save/Reset/action controls should stay fully visible above the fixed Cook/Menu bottom nav.
 - Wilson reported a PR-level spot check looked good on 2026-07-16. Keep this as targeted visual evidence, not as a substitute for the changed-since-last-prod production readiness entry if PR #295 ships in the release batch.
 
+## 2026-07-21 EFF-017 Linked Ticket Pass Restore Addendum
+
+- Branch `codex/eff-017-linked-e2e-stability` starts from `origin/main` `04b88c5`; the PR body records the exact pushed head before review.
+- Include the linked Ticket Pass restore path in the next production/release-batch smoke if the release SHA contains this branch: linked user starts Chef It Up with a saved pantry, confirms new staples, reaches `Recipe suggestions`, reloads immediately, and returns to the same Ticket Pass with the saved pantry basis intact.
+- Exact-head GitHub `e2e_guest_smoke` should be the primary PR evidence because it runs the linked dev-auth browser smoke against a schema-pushed ephemeral Neon branch. Local service-backed E2E is not claimed for this branch because the configured dotenvx database endpoint is disabled.
+- Negative scope: no provider, schema, prompt, Google popup OAuth, durable navigation, Settings layout, production identity preflight, or validation-authority change. This is client workflow-state persistence plus linked E2E harness hardening.
+
 Merged or pending release-candidate work after the 2026-06-22 production-smoke evidence that should be reviewed for the next production push:
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
+| 2026-07-21 | pending / `codex/eff-017-linked-e2e-stability` | Linked Chef It Up Ticket Pass restore after confirmed-staple save | Carry exact-head GitHub linked dev-auth E2E evidence first. If the branch ships and release confidence needs a manual smoke, use a linked account to confirm new staples, reach `Recipe suggestions`, reload immediately, and verify the Ticket Pass restores with the expanded pantry basis. |
 | 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: bottom `Next` should be disabled before skill selection; selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
 | 2026-07-16 | `edd547c` / PR #295 | EFF-029 setup/settings Pantry/Tools camera/action clearance | Run a mobile visual smoke for first-time setup Pantry/Tools and returning Settings Pantry/Tools when this merge is in the release SHA: 4:5 camera frames, in-frame camera-off copy/controls, setup Back/Next rail reachability, and Settings actions clear of the bottom nav. |
 | 2026-07-16 | `4e872de` / PR #294 | EFF-028 Chef It Up time-selection, Ticket Pass heading, and mobile Prep Tray ready-image visuals | Focused mobile visual smoke: time-selection title is centered/clear of Back without bottom bias, Ticket Pass heading reads `Recipe suggestions`, and mobile Prep Tray ready selected image fills the hero area without bleeding back into Ticket Pass. Carry exact-head Replit validation at `127701d99e2f2cd85b37114bb68a5e1774065255` unless later mobile layout changes land. |

@@ -770,3 +770,13 @@ This is a test-only confidence slice. It does not change runtime behavior, provi
 Open Dependabot PR #253 proposed changing only `@types/node` from the Node 20 declaration line to Node 26 while LAICA's local pin, Replit module, and routine CI still run Node 20. That would make TypeScript model APIs the deployed runtime does not provide, and it would also skip the accepted Node 22 LTS direction recorded in this Effort.
 
 PR #253 should therefore be closed without applying its package change. The future runtime-alignment slice remains responsible for moving `.nvmrc`, Replit runtime configuration, Actions/runtime checks, package engines, and `@types/node` together, with targeted Replit startup validation. This dependency triage does not implement or reprioritize that higher-risk runtime change.
+
+## 2026-07-21 — Linked Ticket Pass restore stability slice
+
+The daily Efforts hygiene pass found no active-list, registry, agent-entrypoint, or ownership drift on `origin/main` `04b88c5`. EFF-022 remains active, but open PR #274 already owns adjacent prompt/eval work and the runtime cuisine-fallback threshold remains separate. EFF-017 stayed the highest-leverage standalone lane because current open Settings/action-dock work was blocked partly by linked E2E stability noise.
+
+Branch `codex/eff-017-linked-e2e-stability` fixes a narrow Chef It Up restore race: when a linked user confirms pantry staples before requesting recipe suggestions, the persisted MealPlanning Ticket Pass session now records the post-save pantry fingerprint immediately after the pantry save succeeds. That keeps hard reload recovery aligned with the durable profile basis even if the parent profile query/refetch has not settled yet. The linked browser smoke now waits for the app's linked `/api/auth/session` and `/api/user/profile` responses, then requires the saved Ticket Pass session to carry the expected updated fingerprint before testing reload restore.
+
+This is a client workflow-state and harness-confidence slice. It does not change provider canaries, OAuth preflight configuration, coverage thresholds, schema, prompts, route contracts, validation authority, or Replit automation. EFF-017 remains `In Progress`.
+
+Local validation passed: focused `npx vitest run tests/unit/meal-planning.test.tsx`, `npm run check`, `npm run test:unit`, `npm run build`, and `git diff --check`. Local service-backed E2E was not claimed because `npm run env:run -- npm run db:health` reached the configured dotenvx database and reported that the endpoint is disabled; the exact-head GitHub ephemeral-Neon `e2e_guest_smoke` lane remains the required E2E proof after the branch is pushed.
