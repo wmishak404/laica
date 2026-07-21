@@ -22,15 +22,15 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-21 by the PR #325 merge closeout.
-- Current runtime candidate at closeout start: `ad3738e68a6df0a3984135be04532f412799785c`. The closeout branch changes documentation only.
+- Registry updated: 2026-07-21 by the PR #324 merge closeout.
+- Current runtime candidate at closeout start: `af36e8f03d8cdbb2d3c2178d2726eb8ea8e6bf6a`. The closeout branch changes documentation only.
 - Last fully production-readiness-tested candidate: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
-- Current latest merge: PR #325, EFF-033 returning Settings inventory action dock.
-- Current latest user-visible/runtime merge: PR #325, EFF-033 returning Settings inventory action dock.
+- Current latest merge: PR #324, Guest Finish persistence-outcome truthfulness.
+- Current latest user-visible/runtime merge: PR #324, Guest Finish persistence-outcome truthfulness.
 - Replit deployed production marker observed on 2026-07-17: `b462c9ba`, shown as published 27 days earlier. The marker does not resolve to a local Git commit, so the production comparison remains date-based from the 2026-06-22 smoke.
-- Release verdict: **not ready to publish** until guest Finish honesty is fixed and the resulting exact head completes the requested mobile matrix. PR #325 has merged and EFF-033 is resolved. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
+- Release verdict: the recorded EFF-033 and Guest Finish code blockers are merged with exact-head evidence. No production publish or full release-matrix rerun occurred. Before any separately authorized publish, select the then-current `main` SHA and complete the baseline plus changed-since-last-production checks below. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
 
-The 2026-07-17 regression audited the full first-parent merge history through `2686117a`. `origin/main` has since added dependency/security-tool configuration, test-harness, and runtime work through PR #325. PR #325 has exact-head automated and focused Replit mobile evidence, but no new full production-readiness pass or production publish has occurred.
+The 2026-07-17 regression audited the full first-parent merge history through `2686117a`. `origin/main` has since added dependency/security-tool configuration, test-harness, and runtime work through PR #324. PR #325 and PR #324 have exact-head automated plus focused Replit mobile evidence, but no new full production-readiness pass or production publish has occurred.
 
 ## 2026-07-17 Full `main` Production-Readiness Regression
 
@@ -84,14 +84,14 @@ The 2026-07-17 regression audited the full first-parent merge history through `2
 - Wilson approved PR #325, and GitHub squash-merged final head `b84eb83ac7a5468bee8c5035ad4264d0738514df` into `main` as `ad3738e68a6df0a3984135be04532f412799785c`.
 - Final exact-head GitHub run `29866748380` reported all nine combined guest + linked Playwright tests passing in `54.1s`; unit, dependency audit, secret scan, and CodeQL also passed.
 - Direct-shell Replit validation at the same head passed Pantry `390x844`, Tools `412x915`, focused Pantry `390x564`, and focused Tools `412x635`: the dock was a direct page child, viewport-wide and opaque, flush to Cook/Menu, separated from the bounded scroller, and owned only its own 48–56px center-hit region. Replit Agent was not used.
-- Changed-since-last-production focus remains the Pantry/Tools release-SHA check below because no production publish or full release-matrix rerun occurred. EFF-033 is resolved; the separate INIT-003 Guest Finish correction and resulting exact-head mobile matrix remain release work.
+- At this closeout, changed-since-last-production focus remained the Pantry/Tools release-SHA check below because no production publish or full release-matrix rerun had occurred. EFF-033 was resolved; the then-separate INIT-003 Guest Finish correction and exact-head mobile matrix were completed later by PR #324.
 - Negative scope: no EFF-032, EFF-034, Guest Finish, provider, schema, prompt, API/persistence, auth, durable navigation, deployment, custom-domain publish, or production smoke change.
 
-## 2026-07-20 PR #324 Guest Finish Outcome Correction
+## 2026-07-21 PR #324 Guest Finish Merge Closeout
 
-- [PR #324](https://github.com/wmishak404/laica/pull/324), final accumulated-main implementation `79b50efc` rebased onto `df322296` and earlier mobile evidence head `8721683d`, changes Live Cooking Finish so the visible and spoken claim follows the actual persistence result instead of auth mode alone. The runtime implementation is unchanged by the final rebase; exact-head schema-backed automation and the targeted Replit mobile refresh remain live PR evidence before review readiness is reclaimed.
-- Focused production-push check: at app-reported iPhone-like `390x844` and Pixel-like `412x915`, finish one guest cook and confirm transcript, speech, and toast say `Dinner's ready. Sign up to save this session to your cooking history.` with no saved-History claim. For a linked cook, confirm no saved wording appears while the mutation is pending, then confirm it appears after success. Force one linked completion failure, confirm the session remains recoverable with `Try Finish again`, and retry successfully.
-- Evidence already available: final-base local install/check/build/audit passed; focused Live Cooking Vitest passed 46 tests and the combined full unit suite passed 51 files / 399 tests. Replit at `8721683d` passed a real linked provider-backed Finish with a new matching History entry, plus guest provider-backed Finish at app-reported `390x844` and `412x915`; toast and transcript used the same honest guest copy and guest History remained disabled. Retained screenshots: [`390x844`](assets/mobile-refresh/2026-07-20-codex-guest-finish-honest-390x844.jpg) and [`412x915`](assets/mobile-refresh/2026-07-20-codex-guest-finish-honest-412x915.jpg). Final exact-head schema-backed workflows and stale-validation-policy Replit refresh remain live PR evidence.
+- Wilson approved [PR #324](https://github.com/wmishak404/laica/pull/324), and GitHub squash-merged final head `c34380abd786f65487ed2aad504f4415a336559a` into `main` as `af36e8f03d8cdbb2d3c2178d2726eb8ea8e6bf6a`. Live Cooking Finish now makes its visible and spoken claim follow the actual typed persistence outcome instead of auth mode alone.
+- Focused production-push check: at app-reported iPhone-like `390x844` and Pixel-like `412x915`, finish one guest cook and confirm transcript, speech, and toast say `Dinner's ready. Sign up to save this session to your cooking history.` with no saved-History claim and usable completion layout. For a linked cook, confirm no saved wording appears while persistence is pending, then confirm it appears only after success and the cook is present in History. Do not induce a live database failure for this lane; retain the deterministic exact-head unit evidence for linked failure/retry and canonical transcript/speech/toast/status consistency.
+- Exact-head evidence: GitHub run `29869916652` passed unit and all nine schema-backed guest + linked Playwright tests; dependency audit `29869916626`, secret scan `29869916744`, and CodeQL `29869913857` passed. Direct-shell Replit at final head `c34380a` passed a real guest provider-backed Finish at app-reported `390x844` and `412x915`; toast and transcript used the same honest copy, zero saved-History claims were present, the completion controls/layout remained usable, and Replit Agent was not used. Earlier linked Replit evidence at `8721683d` passed a real persisted Finish with a matching History entry; the exact-head linked schema-backed lane confirms the combined current product. Retained screenshots: [`390x844`](assets/mobile-refresh/2026-07-20-codex-guest-finish-honest-390x844.jpg) and [`412x915`](assets/mobile-refresh/2026-07-20-codex-guest-finish-honest-412x915.jpg).
 - Negative scope: no pantry mutation, rating/notes invention, server route/schema/provider/prompt/auth/navigation change, guest History import, Phase 5 cleanup, Slop Bowl behavior, EFF-032, EFF-033, or EFF-034 change.
 - Future-bug breadcrumb: if a cook sees contradictory completion messages, a guest sees saved-to-History wording, or a failed linked Finish exits/loses retry state, inspect the typed completion outcome and the ordering around `completeSessionMutation` before treating it as an authorization or History-query bug.
 
@@ -148,6 +148,7 @@ Merged or pending release-candidate work after the 2026-06-22 production-smoke e
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
+| 2026-07-21 | `af36e8f` / PR #324 | Guest/local, linked-save-success, and linked-save-failure Finish outcome truthfulness | On the selected release SHA, repeat honest guest Finish at app-reported `390x844` and `412x915`, confirm no saved-History claim across transcript/speech/toast, and confirm completion layout remains usable. Confirm linked saved wording appears only after persistence succeeds and History contains the cook. Do not induce a live DB failure; carry the exact-head deterministic failure/retry and canonical-surface evidence. |
 | 2026-07-21 | pending / `codex/eff-017-linked-e2e-stability` | Linked Chef It Up Ticket Pass restore after confirmed-staple save | Carry exact-head GitHub linked dev-auth E2E evidence first. If the branch ships and release confidence needs a manual smoke, use a linked account to confirm new staples, reach `Recipe suggestions`, reload immediately, and verify the Ticket Pass restores with the expanded pantry basis. |
 | 2026-07-21 | `ad3738e` / PR #325 | EFF-033 returning Settings Pantry/Tools page-level action containment | On the final release SHA at app-reported `390x844` and `412x915`, confirm Pantry/Tools inventory content remains in the owned scroller above an opaque viewport-wide page dock, dock bottom equals Cook/Menu top, and active camera/upload/manual/Settings/Save targets retain center-point ownership in clean and dirty states. Final head `b84eb83a` has all-nine Playwright plus exact-head focused Replit geometry/hit evidence. |
 | 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: bottom `Next` should be disabled before skill selection; selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
@@ -193,6 +194,11 @@ Run the baseline core smoke from `docs/workflows/replit-validation-focus.md`:
 
 Run these changed-since-last-prod focused checks for the current candidate:
 
+- PR #324 / `af36e8f` Guest Finish outcome truthfulness:
+  - At app-reported `390x844` and `412x915`, complete a guest cook and confirm transcript, speech, and toast use `Dinner's ready. Sign up to save this session to your cooking history.` with no saved-History wording.
+  - Confirm the completion controls remain visible, tappable, and scroll-fit at both mobile sizes.
+  - Complete a linked cook, verify saved wording appears only after persistence succeeds, and confirm the matching History entry.
+  - Do not induce a live DB failure. Cite PR #324's deterministic exact-head unit evidence for the retryable `linked-save-failed` state and canonical transcript/speech/toast/status consistency.
 - PR #325 / `ad3738e` EFF-033 returning Settings action containment:
   - In guest and linked Settings -> Kitchen Inventory on mobile, check Pantry and Tools at app-reported `390x844` and `412x915`.
   - Scroll the camera, upload/manual controls, inventory list, and dirty reminder; confirm the scroll region ends above the opaque Settings/Save dock and no control is visible through or hit-testable under it.
