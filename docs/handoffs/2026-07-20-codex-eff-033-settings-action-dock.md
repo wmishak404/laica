@@ -12,12 +12,13 @@
 
 EFF-033's corrected runtime fix is implemented and mobile-validated: returning Settings Pantry and Tools now keep one bounded inventory scroller inside the centered content shell while an opaque, in-flow Settings/Save dock is owned directly by the fixed page, spans the viewport, and meets Cook/Menu navigation with no spacer band. This removes the content-and-dock collision and the first pass's panel-contained, 40px-gap visual mismatch without depending on z-index.
 
-The durable lesson added to Phase 2.2 is structural and hierarchical. A returning inventory action dock must own reserved layout space at the page layer, not inherit the inventory card's width or radius; its bottom must equal the bottom nav's top, and its content scroller must still end before the dock. Setup containment is the reference principle, while setup and returning Settings keep distinct top-level flows. Wilson accepted the corrected visual result on 2026-07-21, and PR #325 is ready for review but remains unmerged pending explicit merge approval. The full exact-head gate executed; both EFF-033 cases passed, while the same unrelated linked recipe-persistence/sign-in test remains the sole red check.
+The durable lesson added to Phase 2.2 is structural and hierarchical. A returning inventory action dock must own reserved layout space at the page layer, not inherit the inventory card's width or radius; its bottom must equal the bottom nav's top, and its content scroller must still end before the dock. Setup containment is the reference principle, while setup and returning Settings keep distinct top-level flows. Wilson accepted the corrected visual result on 2026-07-21, and PR #325 remains unmerged pending refreshed exact-head evidence and explicit merge approval. The prior 8/9 gate was caused by the added ninth browser context exhausting the Playwright Vite server's broad app-asset limiter, not by a linked auth/planning runtime regression; merged PR #330 now provides the E2E-only capacity correction.
 
 ## Stack / base status
 
 - Requested implementation starting point: `codex/production-readiness-2026-07-17` at `08fa856d028c00f577f4e6dd3492efa8c00639de`.
 - Rebased onto current `origin/main` after PRs #322, #319, and #329: `cbeae19d2c29b111c8bf9e4b37a834844e465b4d`.
+- Finalization rebase target after PRs #328 and #330: `origin/main` `1c40069ee4a497decd8ac67158f8b832616a8398`.
 - The PR intentionally retains the two production-readiness documentation commits that introduced EFF-033.
 - Rebased initial containment commit: `d8bde7bafa54c7b2c97755e599e38ec3e5b3eb6d`.
 - Rebased corrected page-level runtime commits: `16a668ecd4e6a68a30c8d20418f5e61c01343266` and `afdcac6e130d6b03afb01189adf8dc4557dd8090`.
@@ -116,7 +117,7 @@ The bounded scroller still ended before the rail (`16.621px` separation from the
 | Focused local guest E2E attempt | dotenvx Playwright against local server | Blocked before Settings: anonymous Firebase auth never reached `Get started` | Confirms the local failure is an auth/environment precondition, not dock evidence | Not counted as a layout pass |
 | Replit workspace mobile lane | direct Replit shell + guest/linked browser passes at runtime head `af603822` | Passed as detailed above | Real Replit origin, auth modes, rendered geometry, computed styles, scrolling, resized focused input, nav clearance, and hit targets | No camera permission/capture, upload/provider call, production deployment, or custom-domain publish |
 | Corrected Replit page-level mobile lane | direct Replit shell + session-local returning browser pass at rebased review head `2e314fb0` | Passed at `390x844`, `412x915`, and focused-input `412x635` | Exact viewport-wide page ownership, zero dock/nav gap, computed button styles, hit targets, and reduced-viewport clearance after current-main rebase | No camera permission/capture, upload/provider call, production deployment, or custom-domain publish |
-| Exact rebased-head GitHub gates | PR #325 / [run `29861211868`](https://github.com/wmishak404/laica/actions/runs/29861211868) | Unit/typecheck/build/coverage, audit, secret scan, and CodeQL passed; full schema-backed Chromium ran 9 tests with 8 passed | Both EFF-033 guest and linked dock cases execute successfully in the shared lane | Sole failure is the pre-existing unrelated linked recipe-persistence test: initial attempt timed out on `Recipe suggestions`; retries timed out during linked sign-in before Settings |
+| Historical pre-harness-correction GitHub gate | PR #325 / [run `29861211868`](https://github.com/wmishak404/laica/actions/runs/29861211868) | Unit/typecheck/build/coverage, audit, secret scan, and CodeQL passed; full schema-backed Chromium ran 9 tests with 8 passed | Both EFF-033 guest and linked dock cases executed successfully | Added ninth context exhausted the broad Vite/app-asset limit: module/navigation `429` responses caused the last test's reload/first-render timeouts; this run is causal evidence, not current merge evidence |
 
 ## Impact on other agents
 
@@ -127,11 +128,17 @@ The bounded scroller still ended before the rail (`16.621px` separation from the
 
 ## Open items
 
-- Resync this final evidence-only handoff commit into Replit and repeat the focused geometry fingerprint; record that self-unrepresentable final SHA and final CI run in the live PR body.
-- The full gate remains red only on the repeatedly failing unrelated linked recipe-persistence/sign-in case. Do not broaden EFF-033 to modify that flow without Wilson's explicit scope approval; a green required check or an explicit repository-level disposition remains necessary before merge.
+- Push the once-rebased, evidence-corrected branch with lease and run the all-nine exact-head gate.
+- Resync the final pushed head into Replit and repeat the compact-mobile geometry, opacity, scrolling, reduced-viewport, and hit fingerprint without Replit Agent.
 - Wilson must explicitly approve merge. This task does not grant merge or production-publish authority.
 - Production is still blocked independently by the INIT-003 Guest Finish honesty correction and the exact-head release mobile-matrix rerun. EFF-032 and EFF-034 remain deferred/out of scope.
 
 ## Negative scope
 
 No bottom-nav item/order/visibility change; no provider, scan, camera, upload, manual-entry, inventory semantic, prompt, API, schema, persistence, auth, first-time setup, timer, Settings-hub blank-tail, History, Live Cooking, or Guest Finish change.
+
+## 2026-07-21 harness root-cause correction and finalization rebase
+
+The earlier handoff incorrectly called the final linked-browser timeout unrelated to EFF-033. Investigation connected it to this branch's test impact: adding the ninth Playwright case added a fresh Vite cold load, one cold load produced 112 localhost responses, the eighth began receiving module `429` responses, and the ninth navigation received `429`. The linked test's initial reload timeout and retry failure before first render were therefore downstream symptoms of the shared 1,000-request app-asset bucket. PR #330 merged an E2E-only bypass guarded against production, retained the API and user/provider limits, and added immediate unexpected-`429` diagnostics.
+
+EFF-033 then rebased once onto `origin/main` `1c40069ee4a497decd8ac67158f8b832616a8398`, preserving both the merged diagnostic wrapper and the inventory geometry helper. The rebased tree passed `npm ci` (1,053 packages), `npm run check`, `npm run build`, full `npm run test:unit` (51 files / 397 tests), focused Settings plus limiter Vitest (4 files / 35 tests), `npm audit --audit-level=high` with only one low and one moderate advisory remaining, `git diff --check`, and nine-test Chromium discovery. The rebase and local checks do not refresh merge evidence: the pushed all-nine GitHub gate and exact-final-head Replit geometry evidence remain pending in this in-progress handoff section.
