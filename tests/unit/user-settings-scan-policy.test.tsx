@@ -89,6 +89,14 @@ describe('UserSettings scan upload policy', () => {
     expect(container.querySelector('.setup-camera-state-copy')).toBeTruthy();
     expect(container.querySelector('.setup-camera-controls')).toBeTruthy();
     expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
+    const pantryScroll = screen.getByTestId('returning-inventory-scroll');
+    const pantryActions = screen.getByTestId('returning-inventory-actions');
+    expect(pantryScroll.contains(pantryActions)).toBe(false);
+    const inventoryPage = container.querySelector('main.returning-ui-inventory');
+    expect(inventoryPage).toBeTruthy();
+    expect(pantryActions.parentElement).toBe(inventoryPage);
+    expect(pantryActions.classList.contains('returning-setup-anchor')).toBe(true);
+    expect(pantryScroll.closest('.returning-settings-shell')?.contains(pantryActions)).toBe(false);
 
     fireEvent.click(screen.getByRole('tab', { name: /^tools$/i }));
 
@@ -96,6 +104,11 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByRole('tab', { name: /^tools$/i }).getAttribute('aria-selected')).toBe('true');
     expect(container.querySelector('.returning-inventory-camera .setup-viewfinder')).toBeTruthy();
     expect(container.querySelector('.setup-viewfinder-corner')).toBeNull();
+    const toolsScroll = screen.getByTestId('returning-inventory-scroll');
+    const toolsActions = screen.getByTestId('returning-inventory-actions');
+    expect(toolsScroll.contains(toolsActions)).toBe(false);
+    expect(toolsActions.parentElement).toBe(container.querySelector('main.returning-ui-inventory'));
+    expect(toolsScroll.closest('.returning-settings-shell')?.contains(toolsActions)).toBe(false);
 
     rerender(
       <UserSettings

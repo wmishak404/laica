@@ -72,6 +72,7 @@ html[data-laica-setup-scroll-lock] #root {
   --sidebar-accent-foreground: 222 14.3% 19.1%;
   --sidebar-border: 220 13% 28%;
   --sidebar-ring: 240 4.9% 83.9%;
+  --app-bottom-nav-height: calc(env(safe-area-inset-bottom) + 3.5625rem);
   --chart-1: 0 80% 71%;
   --chart-2: 174 60% 56%;
   --chart-3: 43 100% 71%;
@@ -1572,6 +1573,52 @@ html[data-laica-setup-scroll-lock] #root {
     padding-bottom: calc(var(--returning-bottom-nav-clearance) + 1.25rem);
   }
 
+  .returning-ui.returning-ui-inventory {
+    position: fixed;
+    inset: 0 0 var(--app-bottom-nav-height);
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
+  .returning-ui-inventory .returning-settings-shell {
+    height: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .returning-ui-inventory .returning-settings-header,
+  .returning-ui-inventory .returning-settings-shell > .mb-4 {
+    flex-shrink: 0;
+  }
+
+  .returning-inventory-shell {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .returning-inventory-panel {
+    display: flex;
+    min-height: 0;
+    width: 100%;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .returning-inventory-scroll {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-block: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .setup-inventory-camera .setup-viewfinder > .relative,
   .returning-inventory-camera .setup-viewfinder > .relative {
     aspect-ratio: 4 / 5;
@@ -1918,6 +1965,33 @@ html[data-laica-setup-scroll-lock] #root {
     box-shadow: 0 -0.85rem 1.8rem hsl(var(--returning-coral) / 0.08);
   }
 
+  .returning-inventory-actions {
+    position: relative;
+    z-index: auto;
+    flex: 0 0 auto;
+    width: 100%;
+    margin: 0;
+    border-top: 1px solid hsl(var(--returning-coral) / 0.12);
+    background-color: hsl(var(--returning-cream));
+    background-image: linear-gradient(
+      180deg,
+      hsl(var(--returning-cream)),
+      hsl(var(--returning-cream-deep))
+    );
+    padding: 0.85rem 1rem 1rem;
+    box-shadow: 0 -0.45rem 1.2rem hsl(var(--returning-coral) / 0.08);
+    isolation: isolate;
+  }
+
+  .returning-inventory-actions-inner {
+    display: grid;
+    width: 100%;
+    max-width: 36rem;
+    margin: 0 auto;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 0.75rem;
+  }
+
   .history-card {
     cursor: pointer;
     padding: 1rem;
@@ -1952,6 +2026,7 @@ html[data-laica-setup-scroll-lock] #root {
     background: hsl(0 0% 100% / 0.94);
     box-shadow: 0 -0.8rem 2rem hsl(0 0% 0% / 0.05);
     backdrop-filter: blur(14px);
+    min-height: var(--app-bottom-nav-height);
     padding: 0.5rem 1rem calc(env(safe-area-inset-bottom) + 0.5rem);
   }
 
