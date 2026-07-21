@@ -89,6 +89,6 @@ Known difference from the PR #246 plan: this report is a committed static Markdo
 
 ## Next Actions
 
-- After PR #264 merges, rebase PR #263 onto fresh `origin/main` and confirm this report still reflects the final runtime prompt provenance.
-- If Wilson wants judge behavior evidence, run the optional three-run judge smoke and attach the generated report as an uncalibrated follow-up artifact.
+- Post-merge note: PR #263 later merged as `2eaf393` from final head `9da99d5`; the final merged fixture corpus has 19 public fixtures overall and 9 `live_cooking_step_previews` fixtures after the multi-ingredient prep-label follow-up. Preserve this report as the earlier synthetic fixture-validation snapshot, and use the PR #263 body / INIT closeout handoff for final exact-head validation evidence.
+- If Wilson wants new judge behavior evidence, run the optional three-run judge smoke and attach the generated report as an uncalibrated follow-up artifact.
 - Keep `live_cooking_step_previews` separate from broad `cooking_steps` and recipe-generation pass rates.
