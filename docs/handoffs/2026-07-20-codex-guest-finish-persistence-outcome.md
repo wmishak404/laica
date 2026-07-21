@@ -73,7 +73,8 @@ This closes the implementation gap found by the 2026-07-17 production-readiness 
 
 - Required base: `codex/production-readiness-2026-07-17` at `08fa856d028c00f577f4e6dd3492efa8c00639de`.
 - Initial implementation commit before base refresh: `5d41870b7fc01ba959d06925a94fab9755bc68aa`.
-- Final-base-refresh implementation commit: `3719fe2c`; mobile evidence head before the base refresh: `8721683dab1354b3864b6a948e9d9f41deba65f0`.
+- Earlier base-refresh implementation commit: `3719fe2c`; mobile evidence head before that refresh: `8721683dab1354b3864b6a948e9d9f41deba65f0`.
+- Final accumulated-main rebase implementation commit: `79b50efc`, replayed onto `origin/main` `df322296e4b985251698114998558f9828d41dc0` after PR #330, PR #325, and the EFF-033 closeout. Runtime implementation and focused Guest Finish unit coverage are unchanged from the previously validated head; the combined E2E file now also contains the merged EFF-033/harness cases.
 - PR #322 merged the lockfile-only audit remediation as `b4236b6f`. The branch was then rebased onto that fresh `origin/main`, replaying the required production-readiness commits and retargeting PR #324 to `main`.
 - Local install used the committed lockfile through `npm ci`.
 - Local tests exercise the checked-out source directly; GitHub E2E uses a schema-pushed ephemeral Neon branch and the PR head.
@@ -85,7 +86,7 @@ This closes the implementation gap found by the 2026-07-17 production-readiness 
 - Post-fix focused Live Cooking suite: pass, 46 tests.
 - `npm run check`: pass.
 - `npm run build`: pass with existing stale Browserslist, Firebase mixed-import, and bundle-size warnings.
-- `npm run test:unit`: pass, 50 files / 391 tests.
+- Final accumulated-main `npm run test:unit`: pass, 51 files / 399 tests.
 - `git diff --check`: pass.
 - Local `db:health`: the configured development DB endpoint is disabled after the sandbox IPC restriction was separately ruled out, so local DB-backed E2E is not promoted as merge evidence.
 - Initial GitHub run `29784569592` at pre-rebase head `b99d021a`: typecheck/lint, build, unit, coverage baseline, ephemeral-Neon schema push/health, and full guest + linked dev-auth Playwright smoke passed. Secret scan run `29784569599` passed.
@@ -114,7 +115,7 @@ This closes the implementation gap found by the 2026-07-17 production-readiness 
 - Treat the outcome type in Live Cooking as the canonical completion presentation boundary; do not add auth-specific completion copy outside it.
 - INIT-001 Phase 5 now records the returning-user entry gate explicitly: only `linked-saved` may advance into future post-cook cleanup/History/cook-again/taste-memory behavior; `linked-save-failed` remains in retryable Live Cooking, and `guest-local` remains outside durable post-cook memory.
 - This PR does not define Phase 5 cleanup state, returning-user navigation, cook-again/taste-memory behavior, or guest History import.
-- EFF-032 and EFF-034 remain explicitly deferred. EFF-033 and returning Settings layout remain owned by their separate thread and are untouched here.
+- EFF-032 and EFF-034 remain explicitly deferred. EFF-033 is resolved on the accumulated base through PR #325 / PR #331; Guest Finish does not modify returning Settings layout.
 
 ## Negative scope
 
@@ -122,12 +123,12 @@ No pantry mutation, rating/notes invention, server route, schema, provider promp
 
 ## Open items
 
-- Treat the exact final-head GitHub workflow results and compact Replit resync as live PR evidence; no repository edit should follow them before review.
-- PR #324 is ready for review after the final base refresh and exact-head gates. Wilson's explicit approval is still required before merge.
+- Treat the exact final-head GitHub workflow results and targeted Replit resync as live PR evidence; no repository edit should follow them before review.
+- The final accumulated-main rebase and local install/check/build/audit/unit gates are complete. PR #324 returns to ready-for-review only after its new exact-head schema-backed automation and stale-validation-policy Replit lane pass. Wilson's explicit approval is still required before merge.
 
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `cbeae19d2c29b111c8bf9e4b37a834844e465b4d`
-- Last Replit-validated at: `8721683dab1354b3864b6a948e9d9f41deba65f0` before this evidence-only commit; PR #324 records the compact final-head resync.
-- Notes: work started from required `08fa856d`, rebased after audit-remediation PR #322 merged, then rebased again onto current `main` for merge readiness after unrelated docs-only PRs #319 and #329. The final refresh replayed the production-readiness documentation and implementation without conflicts or loss of the delegated evidence baseline.
+- Current base: `origin/main` at `df322296e4b985251698114998558f9828d41dc0`
+- Last Replit-validated at: `8721683dab1354b3864b6a948e9d9f41deba65f0` before this evidence-only commit; PR #324 records the targeted final-head mobile refresh.
+- Notes: work started from required `08fa856d`, rebased after audit-remediation PR #322, and then received one final accumulated-main rebase after PR #330, PR #325, and PR #331. Conflicts were limited to older production-readiness/INIT/Effort facts; the rebase retained the newer resolved EFF-033 history and did not change accepted Guest Finish behavior.
