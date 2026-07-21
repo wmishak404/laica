@@ -1,6 +1,6 @@
 # EFF-033: Returning Settings inventory action-dock parity
 
-**Status:** In Progress
+**Status:** Resolved
 **Priority:** Pre-production
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
@@ -96,7 +96,7 @@ Out of scope:
 - [x] Save before/after screenshots in `docs/assets/mobile-refresh/` and link them from the handoff/PR.
 - [x] Run focused Settings tests, full unit, check, build, and exact-runtime-head Replit mobile validation.
 - [x] Execute and inspect the pre-harness-correction full automated E2E/security gate; both EFF-033 tests passed, while the added ninth browser context exposed the shared Vite/app-asset limiter and left the lane at 8/9. This was not evidence of a linked auth/planning runtime regression.
-- [x] Re-run the full automated gate on the rebased PR #325 review head after merged PR #330; GitHub run `29865935383` executed and passed all nine Playwright tests. Repeat this gate after the evidence-only handoff commit so the final pushed head also has exact-head evidence.
+- [x] Re-run the full automated gate after merged PR #330. Final PR head `b84eb83ac7a5468bee8c5035ad4264d0738514df` passed GitHub run `29866748380`, including all nine Playwright tests.
 
 ## Resolution criteria
 
@@ -144,3 +144,11 @@ The shared Replit workspace was clean and detached before direct-shell fetch/swi
 Reduced-height focused-input probes also passed: Pantry `390x564` input bottom `272.168` remained before dock top `428.545`; Tools `412x635` input bottom `307.793` remained before dock top `499.795`. In both cases the dock stayed flush to navigation and the input center remained owned. The Replit browser represented the available returning/session-local state; guest and linked-account save/persistence behavior ran in the exact-head combined CI lane. No camera permission/capture, upload/provider request, production deployment, custom-domain publish, EFF-032, EFF-034, or Guest Finish behavior was exercised or changed.
 
 The screenshots and this durable evidence are an evidence-only follow-up commit. Under stale-validation policy, its final pushed SHA must receive the short Replit geometry/hit repeat and a fresh all-nine GitHub gate, recorded in PR #325, before the PR is called ready to merge. Wilson's explicit merge approval is still required.
+
+## 2026-07-21 — Resolved by PR #325
+
+Wilson approved [PR #325](https://github.com/wmishak404/laica/pull/325), and GitHub squash-merged it into `main` as `ad3738e68a6df0a3984135be04532f412799785c` from final validated head `b84eb83ac7a5468bee8c5035ad4264d0738514df`.
+
+The final head passed GitHub run [`29866748380`](https://github.com/wmishak404/laica/actions/runs/29866748380): the combined guest + linked dev-auth lane ran all nine Playwright tests and reported `9 passed (54.1s)`; unit, dependency audit, secret scan, and CodeQL also passed. Direct-shell Replit validation at that same SHA passed Pantry `390x844`, Tools `412x915`, focused Pantry `390x564`, and focused Tools `412x635` geometry, opacity, scrolling, zero dock/nav gap, 48–56px hit-target, and `elementFromPoint()` ownership checks without Replit Agent.
+
+All six resolution criteria are satisfied. Returning Pantry and Tools now share the page-owned, viewport-wide, opaque dock contract while preserving the bounded content scroller and intended actions. EFF-032, EFF-034, Guest Finish, production publish, camera permission/capture, upload/provider requests, and custom-domain validation were not part of PR #325 and remain in their existing homes.

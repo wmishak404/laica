@@ -22,15 +22,15 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-20 by Wilson's severity/Effort review below.
-- Current `origin/main`: `4775ce5fc8c0a4bd6dd5148c8e329eb5f0211038`.
+- Registry updated: 2026-07-21 by the PR #325 merge closeout.
+- Current runtime candidate at closeout start: `ad3738e68a6df0a3984135be04532f412799785c`. The closeout branch changes documentation only.
 - Last fully production-readiness-tested candidate: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
-- Current latest merge: PR #308, pinned dotenvx 2.15.1 upgrade.
-- Current latest user-visible/runtime merge: PR #295, `[codex] Fix setup and Settings camera action clearance`.
+- Current latest merge: PR #325, EFF-033 returning Settings inventory action dock.
+- Current latest user-visible/runtime merge: PR #325, EFF-033 returning Settings inventory action dock.
 - Replit deployed production marker observed on 2026-07-17: `b462c9ba`, shown as published 27 days earlier. The marker does not resolve to a local Git commit, so the production comparison remains date-based from the 2026-06-22 smoke.
-- Release verdict: **not ready to publish** until draft PR #325 merges for EFF-033, guest Finish honesty is fixed, and the resulting exact head is retested. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
+- Release verdict: **not ready to publish** until guest Finish honesty is fixed and the resulting exact head completes the requested mobile matrix. PR #325 has merged and EFF-033 is resolved. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
 
-The 2026-07-17 regression audited the full first-parent merge history through `2686117a`. `origin/main` has since added PRs #306-#310 across dependency/security-tool configuration and package changes; this 2026-07-20 planning follow-up rebased over them but did not run a new exact-head production-readiness pass.
+The 2026-07-17 regression audited the full first-parent merge history through `2686117a`. `origin/main` has since added dependency/security-tool configuration, test-harness, and runtime work through PR #325. PR #325 has exact-head automated and focused Replit mobile evidence, but no new full production-readiness pass or production publish has occurred.
 
 ## 2026-07-17 Full `main` Production-Readiness Regression
 
@@ -78,6 +78,14 @@ The 2026-07-17 regression audited the full first-parent merge history through `2
 - Direct-shell Replit loaded the same review head and repeated Pantry `390x844`, Tools `412x915`, focused Pantry `390x564`, and focused Tools `412x635` without Replit Agent. Direct page ownership, viewport-wide opaque dock, `16.621px` scroller separation, zero dock/nav gap, bottom scrolling, 48–56px targets, and `elementFromPoint()` ownership passed. Fresh screenshots live in EFF-033 and its handoff.
 - Release focus is unchanged: verify Pantry and Tools on the release SHA at both compact sizes, scroll to the true bottom, focus manual entry under a reduced viewport, and confirm the dock spans the page, is opaque, meets Cook/Menu, and owns only its own Settings/Save hit region.
 - The evidence-only handoff/screenshots commit requires its own exact-head GitHub all-nine gate and short Replit fingerprint before merge readiness is claimed. Review, merge, and post-merge Effort/INIT closeout remain pending; Wilson's explicit merge approval is required. Negative scope remains no EFF-032, EFF-034, Guest Finish, provider, schema, prompt, API/persistence, auth, navigation, deployment, or publish change.
+
+## 2026-07-21 PR #325 Merge Closeout
+
+- Wilson approved PR #325, and GitHub squash-merged final head `b84eb83ac7a5468bee8c5035ad4264d0738514df` into `main` as `ad3738e68a6df0a3984135be04532f412799785c`.
+- Final exact-head GitHub run `29866748380` reported all nine combined guest + linked Playwright tests passing in `54.1s`; unit, dependency audit, secret scan, and CodeQL also passed.
+- Direct-shell Replit validation at the same head passed Pantry `390x844`, Tools `412x915`, focused Pantry `390x564`, and focused Tools `412x635`: the dock was a direct page child, viewport-wide and opaque, flush to Cook/Menu, separated from the bounded scroller, and owned only its own 48–56px center-hit region. Replit Agent was not used.
+- Changed-since-last-production focus remains the Pantry/Tools release-SHA check below because no production publish or full release-matrix rerun occurred. EFF-033 is resolved; the separate INIT-003 Guest Finish correction and resulting exact-head mobile matrix remain release work.
+- Negative scope: no EFF-032, EFF-034, Guest Finish, provider, schema, prompt, API/persistence, auth, durable navigation, deployment, custom-domain publish, or production smoke change.
 
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
@@ -133,7 +141,7 @@ Merged or pending release-candidate work after the 2026-06-22 production-smoke e
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
 | 2026-07-21 | pending / `codex/eff-017-linked-e2e-stability` | Linked Chef It Up Ticket Pass restore after confirmed-staple save | Carry exact-head GitHub linked dev-auth E2E evidence first. If the branch ships and release confidence needs a manual smoke, use a linked account to confirm new staples, reach `Recipe suggestions`, reload immediately, and verify the Ticket Pass restores with the expanded pantry basis. |
-| 2026-07-21 | `3a42ad6` runtime / draft PR #325 | EFF-033 returning Settings Pantry/Tools page-level action containment | On the final release SHA at app-reported `390x844` and `412x915`, confirm Pantry/Tools inventory content remains in the owned scroller above an opaque viewport-wide page dock, dock bottom equals Cook/Menu top, and active camera/upload/manual/Settings/Save targets retain center-point ownership in clean and dirty states. Corrected runtime-head session-local Replit evidence exists; use live PR CI for linked/full exact-head evidence. |
+| 2026-07-21 | `ad3738e` / PR #325 | EFF-033 returning Settings Pantry/Tools page-level action containment | On the final release SHA at app-reported `390x844` and `412x915`, confirm Pantry/Tools inventory content remains in the owned scroller above an opaque viewport-wide page dock, dock bottom equals Cook/Menu top, and active camera/upload/manual/Settings/Save targets retain center-point ownership in clean and dirty states. Final head `b84eb83a` has all-nine Playwright plus exact-head focused Replit geometry/hit evidence. |
 | 2026-07-16 | `fc97399` / PR #296 | First-time setup cooking-skill select-then-Next behavior | Focused mobile setup smoke: bottom `Next` should be disabled before skill selection; selecting a cooking-skill row should not auto-advance, should enable the bottom `Next` action, and `Next` should advance to Dietary. Rely on exact-head GitHub unit/E2E evidence unless later setup-flow changes or stale automation make release confidence indirect. |
 | 2026-07-16 | `edd547c` / PR #295 | EFF-029 setup/settings Pantry/Tools camera/action clearance | Run a mobile visual smoke for first-time setup Pantry/Tools and returning Settings Pantry/Tools when this merge is in the release SHA: 4:5 camera frames, in-frame camera-off copy/controls, setup Back/Next rail reachability, and Settings actions clear of the bottom nav. |
 | 2026-07-16 | `4e872de` / PR #294 | EFF-028 Chef It Up time-selection, Ticket Pass heading, and mobile Prep Tray ready-image visuals | Focused mobile visual smoke: time-selection title is centered/clear of Back without bottom bias, Ticket Pass heading reads `Recipe suggestions`, and mobile Prep Tray ready selected image fills the hero area without bleeding back into Ticket Pass. Carry exact-head Replit validation at `127701d99e2f2cd85b37114bb68a5e1774065255` unless later mobile layout changes land. |
@@ -177,7 +185,7 @@ Run the baseline core smoke from `docs/workflows/replit-validation-focus.md`:
 
 Run these changed-since-last-prod focused checks for the current candidate:
 
-- Draft PR #325 EFF-033 returning Settings action containment if its merge is in the release SHA:
+- PR #325 / `ad3738e` EFF-033 returning Settings action containment:
   - In guest and linked Settings -> Kitchen Inventory on mobile, check Pantry and Tools at app-reported `390x844` and `412x915`.
   - Scroll the camera, upload/manual controls, inventory list, and dirty reminder; confirm the scroll region ends above the opaque Settings/Save dock and no control is visible through or hit-testable under it.
   - Confirm the dock clears the fixed Cook/Menu nav, active camera/upload/manual/Settings/Save targets are at least `44px`, and clean/dirty Save behavior plus leave/switch prompts remain intact.
