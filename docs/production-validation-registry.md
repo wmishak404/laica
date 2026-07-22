@@ -13,20 +13,21 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 ## Current Production Smoke Baseline
 
 - Last full production regression: 2026-07-22 against `https://cookwithlaica.com`.
+- Latest focused post-publish smoke: 2026-07-22 after the EFF-036 repair publish; detailed security-state results and exact Replit deployment identifiers are intentionally omitted from this public registry.
 - Evidence source: [`docs/handoffs/2026-07-22-codex-post-publish-production-regression.md`](handoffs/2026-07-22-codex-post-publish-production-regression.md).
 - Tested deployment fingerprint: one stable cache-busted asset set; exact response and asset identifiers are intentionally omitted from the public registry.
 - Source correlation: Replit workspace reported `main` at `742694d9d209dba04674ce7188319d7f449c4a6e`; live CSS was byte-identical to a clean build from that SHA, and live JavaScript carried its Guest Finish/EFF-033 runtime markers. Build-time environment substitution prevents a byte-identical JavaScript claim.
 - Exact deployed Git SHA/marker: not exposed by the custom-domain app or current Replit deployment-status surface.
-- Current verdict: **BLOCKED** for admin production access/security. The currently published custom-domain deployment rejected the trusted credential and predates PR #335's merged limiter/comparison repair. Current `main` contains the fix, but it has not been republished or production-smoked. Exact operational details are omitted from the public registry. See EFF-036.
+- Current verdict: **BLOCKED** for admin production access/security. The post-PR #335 publish completed, but the focused acceptance gate remains unsatisfied. Detailed security-state results are retained privately rather than in this public registry. See EFF-036.
 - Accepted non-blocking exceptions: EFF-035 generalized setup viewport reachability (P1 immediate patch) and EFF-034 timer/Settings mobile cleanup (P2). EFF-037 is a newly recorded P2 Feedback length-contract defect.
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-22 by the EFF-036 merge closeout.
-- Current `origin/main`: `7c98c5bdd28c77cafa4bfd7c1f849cb5a9da71ec` (`Implement EFF-036 admin access hardening (#335)`).
+- Registry updated: 2026-07-22 by the failed EFF-036 post-publish smoke.
+- Current `origin/main`: `d8a85c27f6a2c7c88de7e35c63f262d16b0244a0` (`Close out EFF-036 merge evidence (#336)`).
 - Fresh production correlation and full custom-domain regression now supersede the older date-only baseline for the tested deployment fingerprint above.
 - The documentation-only pre-publish evidence branch ended at `1923ea0021b1e186a9e0db2df96c74a4d18af9d8` and used runtime base `742694d9`; it is evidence provenance, not a different deployed runtime.
-- Do not call the current deployment release-complete until the merged EFF-036 repair is published with Wilson's separate authority and passes the exact production admin gate.
+- The deployment is not release-complete until an owner-authorized Production-app configuration review and focused rerun satisfy EFF-036's resolution criteria.
 
 ## 2026-07-22 Full Post-Publish Production Regression
 
@@ -45,6 +46,14 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - Focused production-push check: after explicit republish authority, use a trusted process to verify one valid request succeeds, missing/invalid requests remain equivalent and non-cacheable, and the deployed source marker matches the approved head. Do not expose the credential or flood the live route to prove the automated threshold case.
 - Replit/config evidence: a masked configuration inspection completed without revealing or changing the credential. Exact operational state is intentionally omitted from the public registry. No secret edit, sync-state mutation, relink, rotation, or republish was performed.
 - Negative scope and breadcrumb: no admin feature redesign, schema, eval-report contract, provider, client, or public product-flow change. If authorized admin access still fails after publish, inspect deployment secret propagation/startup before changing authentication code again.
+
+### EFF-036 post-publish acceptance status
+
+- Replit reported a successful new deployment and the focused production gate was rerun.
+- The gate did not satisfy EFF-036's resolution criteria. Production admin success and full live throttle behavior are not claimed.
+- Detailed security-state results, operational identifiers, and request evidence were delivered privately to Wilson and are intentionally excluded here.
+- No secret display/transfer, configuration change, relink, rotation, threshold flood, or additional publish occurred; temporary artifacts were deleted.
+- Smallest next action: owner-authorized masked Production-app configuration review, then one controlled publish and repetition of the documented focused smoke.
 
 ## 2026-07-17 Full `main` Production-Readiness Regression
 

@@ -43,9 +43,7 @@ Out of scope:
 
 ## Open questions
 
-- Did the publish snapshot omit the rotated deployment secret, or is production reading a different secret source?
-- Should the dedicated limiter remain per-instance memory, or must production autoscaling use a shared store before this gate can be considered durable?
-- What authorized reset mechanism should the post-deploy smoke use without weakening the route?
+- What owner-authorized production configuration action is required to satisfy the remaining acceptance gate without exposing or manually transferring secret material?
 
 ## Agent checklist
 
@@ -53,7 +51,7 @@ Out of scope:
 - [x] Restore the timing-safe comparison and mount the dedicated limiter while preserving no-cache headers.
 - [x] Add regression coverage that preserves PR #246's eval-report routes.
 - [x] Run focused admin/rate-limit tests, full unit, check, build, exact-head E2E, and security checks.
-- [ ] Obtain Wilson's publish authority before changing production.
+- [x] Obtain Wilson's publish authority before changing production.
 - [ ] Rerun valid, invalid, missing, threshold/reset, and no-cache production checks from a trusted process.
 
 ## Resolution criteria
@@ -88,3 +86,9 @@ Wilson explicitly approved merging [PR #335](https://github.com/wmishak404/laica
 Before merge, the exact detached PR head ran in Replit. The focused admin/rate-limit suite passed 3 files / 22 tests. A trusted three-request preview probe confirmed valid authorization succeeded, missing and invalid credentials received equivalent denials, every response remained non-cacheable and varied on the credential header, and the dedicated limiter was active. No credential value was viewed, entered, printed, copied, or persisted; no live threshold flood was performed. GitHub exact-head CI/E2E, dependency audit, and secret scan also passed.
 
 EFF-036 remains `In Progress` because the merged code has not been republished and the custom domain has not yet passed the focused production admin smoke. Wilson's separate publish authority is still required. After an authorized publish, verify the deployed marker, one valid success, equivalent missing/invalid denial, and cache controls from a trusted process; deterministic automation remains the threshold/reset proof.
+
+## 2026-07-22 — Post-publish acceptance remains blocked
+
+Wilson published the validated runtime and the focused production gate was rerun. The gate did not satisfy EFF-036's resolution criteria, so production success is not claimed. Detailed security-state results and operational identifiers were delivered privately to Wilson and are intentionally excluded from this public record.
+
+No secret value was viewed, entered, printed, copied, or retained; no configuration change, relink, rotation, threshold flood, or additional publish occurred. EFF-036 remains `In Progress`. The smallest next step is an owner-authorized masked Production-app configuration review, followed by one controlled publish and a repeat of the documented focused smoke.
