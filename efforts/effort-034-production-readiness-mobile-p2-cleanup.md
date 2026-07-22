@@ -88,5 +88,6 @@ Deterministic evidence added in this branch:
 - `tests/unit/user-settings-scan-policy.test.tsx` proves the Settings hub root carries `.returning-ui-hub`, does not carry `.returning-ui-inventory`, and does not use the page-level `pb-24` clearance.
 - `tests/unit/setup-button-css.test.ts` guards the hub root/shell CSS that removes the unnecessary blank tail.
 - Local full unit, typecheck/UI lint, production build, high/critical audit, and diff whitespace gates passed on 2026-07-22 before PR creation.
+- Local service-backed browser validation is not claimed because `npm run env:run -- npm run db:health` failed with the configured database endpoint disabled after `.env.keys` was linked.
 
 Exact-head GitHub E2E and phone-viewport after screenshots remain pending until the PR is opened and the final review head is known. The existing before screenshot remains [`docs/assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg`](../docs/assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg).

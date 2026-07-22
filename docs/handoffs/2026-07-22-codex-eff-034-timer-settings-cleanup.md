@@ -53,6 +53,7 @@ Future Settings inventory work should preserve the separation between `.returnin
 
 - Open the PR and let exact-head GitHub `unit`, `e2e_guest_smoke`, dependency audit, secret scan, and CodeQL run.
 - Capture or defer phone-viewport after evidence for Settings hub at `390x844` and `412x915`, and timer Reset before/after evidence, per EFF-034. The existing before screenshot is [`2026-07-20-codex-settings-root-blank-scroll-390x844.jpg`](../assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg).
+- Do not claim local service-backed browser validation from this worktree unless the database endpoint is re-enabled or a disposable local sandbox is prepared.
 - Wilson's explicit merge approval is required because this is a runtime UI/product-behavior PR.
 
 ## Verification
@@ -66,5 +67,10 @@ Checks passed during implementation:
 - `npm run build`
 - `npm audit --audit-level=high` (passed the high/critical gate; npm still reports one low and one moderate advisory)
 - `git diff --check`
+- `npm run setup:worktree` linked `.env.keys` without printing secrets.
+
+Local service-backed browser validation is not claimed:
+
+- `npm run env:run -- npm run db:health` failed because the configured database endpoint is disabled.
 
 Exact-head GitHub evidence and phone-viewport after evidence are pending before merge readiness is claimed.
