@@ -556,6 +556,23 @@ describe('LiveCooking guest session boundary', () => {
     expect(screen.queryByRole('button', { name: /show timer controls/i })).toBeNull();
   });
 
+  it('returns a reset timer to the fresh Start action instead of paused Resume', async () => {
+    mocks.fetchCookingSteps.mockResolvedValue(multiStepResponse);
+
+    await renderCookingGuide();
+
+    fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
+    expect(screen.getByRole('button', { name: /pause timer/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /pause timer/i }));
+    expect(screen.getByRole('button', { name: /resume timer/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /reset 1 min timer/i }));
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:01:00');
+    expect(screen.getByRole('button', { name: /start 1 min timer/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /resume timer/i })).toBeNull();
+  });
+
   it('uses the recipe step duration when a prep step has a timer-worthy duration', async () => {
     mocks.fetchCookingSteps.mockResolvedValue({
       steps: [

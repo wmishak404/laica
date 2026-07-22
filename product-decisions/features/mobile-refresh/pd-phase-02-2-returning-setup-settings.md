@@ -81,6 +81,12 @@ Wilson approved [PR #325](https://github.com/wmishak404/laica/pull/325), and it 
 
 This merge adds implementation and validation signal without changing the accepted Phase 2.2 direction. EFF-033 is resolved. First-time setup, EFF-032, EFF-034, Guest Finish, providers, schema, prompts, persistence APIs, auth behavior, and durable navigation remain outside this change.
 
+## 2026-07-22 EFF-034 Settings hub fit cleanup in review
+
+Branch `codex/eff-034-timer-settings-cleanup` addresses the separate Settings hub blank-tail finding from the 2026-07-17 production-readiness run. The hub now carries an explicit `.returning-ui-hub` root contract, drops the generic page-level `pb-24` clearance, and keeps the inner Settings shell from forcing a second full viewport of height under the fixed Cook/Menu nav.
+
+This is distinct from the EFF-033 returning Pantry/Tools inventory dock contract. Inventory still uses `.returning-ui-inventory`, the fixed page, bounded scroller, and viewport-wide opaque action dock. The hub cleanup does not change Pantry/Tools/Profile save semantics, camera/upload/manual behavior, Settings navigation, auth, persistence APIs, providers, prompts, first-time setup, or durable navigation. Deterministic component/CSS guards cover the root classes and hub fit rules; phone-viewport after evidence remains PR/release-batch validation scope.
+
 ## Design and UX Gate
 
 - Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../pd-005-ui-governance.md), the full-row selection pattern established in setup, and the [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md).

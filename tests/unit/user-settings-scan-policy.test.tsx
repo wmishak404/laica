@@ -133,6 +133,23 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByRole('heading', { name: /^tools$/i })).toBeTruthy();
   });
 
+  it('keeps the Settings hub on the hub-specific fit contract', () => {
+    const { container } = render(
+      <UserSettings
+        userProfile={baseProfile()}
+        onProfileUpdate={vi.fn()}
+        onBackToPlanning={vi.fn()}
+        initialSection="hub"
+      />,
+    );
+
+    const root = container.querySelector('main.returning-ui');
+    expect(root?.classList.contains('returning-ui-hub')).toBe(true);
+    expect(root?.classList.contains('returning-ui-inventory')).toBe(false);
+    expect(root?.classList.contains('pb-24')).toBe(false);
+    expect(container.querySelector('.returning-settings-shell')).toBeTruthy();
+  });
+
   it('uses the same inventory header tabs for session-only Settings access', () => {
     const { container, rerender } = render(
       <UserSettings

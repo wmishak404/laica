@@ -1681,7 +1681,7 @@ export default function LiveCooking({
       return;
     }
 
-    setTimer(timerDuration);
+    setTimer(0);
     setIsTimerRunning(false);
     setIsTimerComplete(false);
   };

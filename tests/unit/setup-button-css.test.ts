@@ -52,4 +52,13 @@ describe('setup button CSS guards', () => {
     expect(inventoryActionInnerRule).toContain('max-width: 36rem;');
     expect(inventoryActionInnerRule).toContain('margin: 0 auto;');
   });
+
+  it('keeps the returning Settings hub from adding inert blank mobile tail', () => {
+    const hubRootRule = css.match(/\.returning-ui\.returning-ui-hub \{[\s\S]*?\}/)?.[0] ?? '';
+    const hubShellRule = css.match(/\.returning-ui-hub \.returning-settings-shell \{[\s\S]*?\}/)?.[0] ?? '';
+
+    expect(hubRootRule).toContain('min-height: calc(100svh - var(--app-bottom-nav-height));');
+    expect(hubRootRule).toContain('padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);');
+    expect(hubShellRule).toContain('min-height: 0;');
+  });
 });

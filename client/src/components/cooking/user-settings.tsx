@@ -1546,9 +1546,14 @@ export default function UserSettings({
   const showCrossSectionScanNotice = activeScanRows.some((row) =>
     activeSection !== 'inventory' || activeInventoryType !== row.id
   );
+  const returningModeClass = activeSection === 'inventory'
+    ? 'returning-ui-inventory'
+    : activeSection === 'hub'
+      ? 'returning-ui-hub'
+      : '';
 
   return (
-    <main className={`returning-ui min-h-screen pb-24 ${activeSection === 'inventory' ? 'returning-ui-inventory' : ''}`}>
+    <main className={`returning-ui min-h-screen ${activeSection === 'hub' ? '' : 'pb-24'} ${returningModeClass}`}>
       <div className={`returning-settings-shell mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 ${activeSection === 'inventory' ? 'pb-0 pt-5' : 'py-5'}`}>
         <div
           className={`returning-settings-header ${
