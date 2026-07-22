@@ -571,3 +571,15 @@ PR #325 squash-merged into `main` as `ad3738e68a6df0a3984135be04532f412799785c`,
 Phase 5 should consume this canonical completion outcome rather than infer eligibility from auth mode, callback timing, or presentation copy. PR #324 does not implement Phase 5 cleanup state, returning-user navigation, guest History import, cook-again, or taste-memory behavior; it only makes their future entry prerequisite explicit and truthful.
 
 Exact-head GitHub run `29869916652` passed unit plus all nine schema-backed guest + linked Playwright tests; dependency audit `29869916626`, secret scan `29869916744`, and CodeQL `29869913857` passed. Direct-shell Replit at final head `c34380a` passed honest guest Finish at app-reported `390x844` and `412x915` without Replit Agent. Retained linked runtime evidence covers confirmed persistence/History success; deterministic unit evidence covers failure/retry and canonical transcript/speech/toast/status consistency without inducing a live database failure. PR #324 did not implement Phase 5 cleanup state, returning-user navigation, guest History import, cook-again, or taste-memory behavior; it only merged their truthful entry prerequisite.
+
+### 2026-07-22 - Post-publish production regression signal
+
+The custom-domain regression against the newly published asset set freshly exercised the Mobile Refresh surface rather than inheriting preview results. Landing, guest setup/manual persistence, Chef It Up time/cuisine planning, provider suggestions, Ticket Pass reload, Prep Tray imagery, Ready Check, Live Cooking, timer start/reset, captions/session restore, Repeat, question-listening start/cancel, guest Finish, returning Pantry/Tools, toast gestures, linked Slop Bowl, linked Finish/History, and reversible linked Pantry persistence all completed on production. The EFF-033 returning dock remained fixed: the bounded inventory scroller reached its true bottom while the page-level Settings/Save dock stayed above Cook/Menu with owned hit targets.
+
+Three scoped follow-ups remain distinct:
+
+- [EFF-035](../efforts/effort-035-universal-setup-viewport-resilience.md) is the accepted immediate post-production P1 patch. Production freshly reproduced Pantry and Tools action rails below the zero-range `390x844` setup viewport and slight Pantry clipping at `412x915`; EFF-032 is superseded, not implemented.
+- [EFF-034](../efforts/effort-034-production-readiness-mobile-p2-cleanup.md) remains P2. Production freshly reproduced timer Reset returning `Resume timer` and the Settings hub blank scroll tail.
+- [EFF-037](../efforts/effort-037-feedback-length-contract.md) records a new P2 client/server Feedback length mismatch found during the same pass.
+
+Production also confirmed the PR #296 Cooking Skill select-then-`Next` behavior, and the Phase 2.1 record now supersedes its stale auto-advance wording. The production verdict is nevertheless blocked by the separate admin security/operability failures in EFF-036; that blocker does not change INIT-001 product acceptance or Phase 5 scope.

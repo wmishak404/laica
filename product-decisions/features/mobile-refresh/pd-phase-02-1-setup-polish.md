@@ -32,7 +32,7 @@ Accepted durable outcomes:
 - Text-only screenshots, lists, receipts, menus, recipes, documents, and notes are rejected as inventory evidence; physical pantry/kitchen photos with visible products/tools remain valid.
 - Manual entries are normalized, deduped, length-clamped, stripped of common prompt markers, and split on commas. Periods also recover common comma-like typos.
 - Pantry requires at least 3 ingredients before setup can continue.
-- Cooking Skill auto-advances after one full-row single-choice selection; multi-select screens keep explicit continuation.
+- Cooking Skill requires one full-row single-choice selection, then an explicit enabled `Next`; multi-select screens keep explicit continuation. PR #296 superseded the original auto-advance interaction.
 - Exact and near-exact duplicate scan labels are skipped; duplicate-only scans show `Already saved`.
 - Deeper semantic/label-drift duplicate refinement is deferred to [EFF-014](../../../efforts/effort-014-scan-session-diff-and-duplicate-refinement.md).
 
@@ -85,12 +85,16 @@ Replit validation covered:
 ## Effort and Governance Interactions
 
 - [PD-005](../../pd-005-ui-governance.md) / [`design_guidelines.md`](../../../design_guidelines.md): Setup typography and visual utilities remain scoped and documented as a pilot, not a silent global primitive/font change.
-- Full-row selection pattern: Single-choice setup rows may auto-advance; multi-select screens retain explicit continuation.
+- Full-row selection pattern: Cooking Skill uses select-then-`Next`; multi-select screens retain explicit continuation. Do not restore Cooking Skill auto-advance without a new accepted product decision.
 - [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md): Phase 2.1 is the feature-level acceptance pattern for combining local gates, Replit prerequisites, visual review, and merge acceptance.
 - Scan feedback: Pantry and Kitchen scans must show explicit no-detection feedback for valid zero-result photos.
 - Shared manual-entry parser: Comma-separated manual entry stays shared; Phase 2.1 also accepts period-as-comma typo recovery for manual entry.
 - [EFF-010](../../../efforts/effort-010-local-db-schema-strategy.md): Phase 2.1 did not add DB schema changes or reopen the validated Phase 2 data contract.
 - INIT-001 future scan-review work: latest-scan chip states and deeper duplicate/overlap refinement remain deferred in the Mobile Refresh phase records.
+
+### 2026-07-22 production conformance note
+
+The post-publish custom-domain regression freshly confirmed the PR #296 behavior: Cooking Skill `Next` was disabled before a choice, selecting `Beginner` did not auto-advance, and `Next` became enabled. This corrects the older Phase 2.1 wording so implementation, tests, and the durable acceptance record agree.
 
 ## Deferrals
 

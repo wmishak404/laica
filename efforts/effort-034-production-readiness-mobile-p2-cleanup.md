@@ -4,7 +4,7 @@
 **Priority:** After pre-production blockers; preserve for the next readiness closeout
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
-**Updated:** 2026-07-20
+**Updated:** 2026-07-22
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Related docs:** [Phase 2.2 Returning Setup / Settings](../product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md), [Phase 4 Cooking](../product-decisions/features/mobile-refresh/pd-phase-04-cooking.md), [production-readiness follow-up](../docs/handoffs/2026-07-20-codex-production-readiness-effort-routing.md)
 
@@ -72,3 +72,12 @@ Out of scope:
 ## 2026-07-20 - Effort filed from production-readiness review
 
 Wilson accepted the P2 severity and asked that both lower-priority findings remain discoverable in a related Effort while pre-production Settings and guest-Finish work proceeds separately.
+
+## 2026-07-22 - Fresh production reproduction
+
+The post-publish custom-domain regression freshly reproduced both accepted P2 findings on `https://cookwithlaica.com`:
+
+- After starting and resetting the 12-minute Step 2 timer, the readout returned to `0:12:00` but the action read `Resume timer` instead of `Start 12 min timer` at `390x844`.
+- Settings hub measured `1020px` document height at `390x844` with its last card ending near `480px`, and `1091px` at `412x915`, leaving the same large inert scroll tail.
+
+Production screenshots: [`timer Reset`](../docs/assets/production-regression/2026-07-22/production-eff034-timer-reset-390x844.jpg), [`Settings 390x844`](../docs/assets/production-regression/2026-07-22/production-eff034-settings-blank-scroll-390x844.jpg), and [`Settings 412x915`](../docs/assets/production-regression/2026-07-22/production-eff034-settings-blank-scroll-412x915.jpg). The findings remain non-blocking P2 follow-up; production evidence does not claim either is fixed.

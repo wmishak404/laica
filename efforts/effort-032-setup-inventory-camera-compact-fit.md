@@ -1,10 +1,10 @@
 # EFF-032: First-time setup inventory camera compact fit
 
-**Status:** Open
-**Priority:** Follow-up; not a standalone production blocker per Wilson's 2026-07-20 review
+**Status:** Resolved
+**Priority:** Historical evidence; superseded by EFF-035, not implemented
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
-**Updated:** 2026-07-20
+**Updated:** 2026-07-22
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Linked Effort history:** [EFF-029 - Setup/Settings camera height and action clearance](effort-029-settings-camera-action-clearance.md)
 **Related docs:** [Phase 2.1 Setup Polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md), [PD-005 UI Governance](../product-decisions/pd-005-ui-governance.md), [design guidelines](../design_guidelines.md), [production-readiness follow-up](../docs/handoffs/2026-07-20-codex-production-readiness-effort-routing.md)
@@ -76,3 +76,7 @@ Out of scope:
 ## 2026-07-20 - Effort filed from production-readiness review
 
 Wilson downgraded the first-time setup finding from a large blocker to a compact-phone inconvenience and requested a linked Effort to reduce the camera's vertical dimensions. The controlled-browser no-scroll evidence is preserved as one reproduction, while Wilson's successful device scrolling is equally preserved so implementation begins by identifying the correct browser-specific scroll behavior.
+
+## 2026-07-22 - Superseded by generalized viewport-resilience scope
+
+The release-candidate rerun and post-publish production regression proved the reachability problem is not a camera-size issue tied to one phone class. At `390x844`, Pantry and Tools actions begin below a locked viewport with no intended scroll range; at `412x915`, the Pantry rail is still clipped; at `375x667`, the bounded body gains real overflow. EFF-035 now owns one generalized overflow, dynamic-viewport, keyboard, and safe-area correction. EFF-032 is resolved as superseded historical evidence, not as shipped behavior.
