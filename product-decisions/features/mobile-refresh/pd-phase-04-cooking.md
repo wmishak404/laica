@@ -168,7 +168,7 @@ Local evidence: `npm ci`, `npx vitest run tests/unit/live-cooking-guest-session.
 
 ## 2026-07-22 EFF-034 timer reset cleanup in review
 
-Branch `codex/eff-034-timer-settings-cleanup` addresses the lower-severity timer finding from the 2026-07-17 production-readiness run without reopening PR #269's timer model. Reset now returns the countdown to the fresh full-duration display while clearing the active elapsed/paused state, so the primary action reads `Start <duration> timer` rather than `Resume timer`.
+[PR #333](https://github.com/wmishak404/laica/pull/333) / branch `codex/eff-034-timer-settings-cleanup` addresses the lower-severity timer finding from the 2026-07-17 production-readiness run without reopening PR #269's timer model. Reset now returns the countdown to the fresh full-duration display while clearing the active elapsed/paused state, so the primary action reads `Start <duration> timer` rather than `Resume timer`.
 
 This is a state-machine correction inside the accepted explicit-start timer contract. It does not change timer-worthy detection, duration extraction, visible `Time's up`, speech/transcript behavior, provider schema, route contracts, durable session storage, Finish semantics, navigation, or Phase 5 cleanup. Focused Vitest coverage proves Start -> Pause -> Resume and Start -> Reset -> Start semantics before the branch is considered for merge.
 

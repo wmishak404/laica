@@ -75,7 +75,7 @@ Wilson accepted the P2 severity and asked that both lower-priority findings rema
 
 ## 2026-07-22 - Timer reset and Settings hub implementation started
 
-Branch `codex/eff-034-timer-settings-cleanup` starts from fresh `origin/main` `742694d9d209dba04674ce7188319d7f449c4a6e`, after PR #325 and PR #324 merged and their closeouts landed. Open PR triage found PR #281, PR #274, PR #272, and PR #265 still open/owned; none own this EFF-034 timer/reset or Settings hub-tail slice.
+Branch `codex/eff-034-timer-settings-cleanup` / [PR #333](https://github.com/wmishak404/laica/pull/333) starts from fresh `origin/main` `742694d9d209dba04674ce7188319d7f449c4a6e`, after PR #325 and PR #324 merged and their closeouts landed. Open PR triage found PR #281, PR #274, PR #272, and PR #265 still open/owned; none own this EFF-034 timer/reset or Settings hub-tail slice.
 
 Implementation in review changes two user-visible P2 behaviors:
 
@@ -90,4 +90,4 @@ Deterministic evidence added in this branch:
 - Local full unit, typecheck/UI lint, production build, high/critical audit, and diff whitespace gates passed on 2026-07-22 before PR creation.
 - Local service-backed browser validation is not claimed because `npm run env:run -- npm run db:health` failed with the configured database endpoint disabled after `.env.keys` was linked.
 
-Exact-head GitHub E2E and phone-viewport after screenshots remain pending until the PR is opened and the final review head is known. The existing before screenshot remains [`docs/assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg`](../docs/assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg).
+Exact-head GitHub E2E and phone-viewport after screenshots remain pending on PR #333. The existing before screenshot remains [`docs/assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg`](../docs/assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg).

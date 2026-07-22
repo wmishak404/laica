@@ -83,7 +83,7 @@ This merge adds implementation and validation signal without changing the accept
 
 ## 2026-07-22 EFF-034 Settings hub fit cleanup in review
 
-Branch `codex/eff-034-timer-settings-cleanup` addresses the separate Settings hub blank-tail finding from the 2026-07-17 production-readiness run. The hub now carries an explicit `.returning-ui-hub` root contract, drops the generic page-level `pb-24` clearance, and keeps the inner Settings shell from forcing a second full viewport of height under the fixed Cook/Menu nav.
+[PR #333](https://github.com/wmishak404/laica/pull/333) / branch `codex/eff-034-timer-settings-cleanup` addresses the separate Settings hub blank-tail finding from the 2026-07-17 production-readiness run. The hub now carries an explicit `.returning-ui-hub` root contract, drops the generic page-level `pb-24` clearance, and keeps the inner Settings shell from forcing a second full viewport of height under the fixed Cook/Menu nav.
 
 This is distinct from the EFF-033 returning Pantry/Tools inventory dock contract. Inventory still uses `.returning-ui-inventory`, the fixed page, bounded scroller, and viewport-wide opaque action dock. The hub cleanup does not change Pantry/Tools/Profile save semantics, camera/upload/manual behavior, Settings navigation, auth, persistence APIs, providers, prompts, first-time setup, or durable navigation. Deterministic component/CSS guards cover the root classes and hub fit rules; phone-viewport after evidence remains PR/release-batch validation scope.
 

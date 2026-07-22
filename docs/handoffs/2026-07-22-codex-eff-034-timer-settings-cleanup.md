@@ -5,7 +5,7 @@
 **Date:** 2026-07-22
 **Initiative:** [INIT-001 - Mobile Refresh](../../initiatives/INIT-001-mobile-refresh.md)
 **Effort:** [EFF-034 - Production-readiness mobile P2 cleanup](../../efforts/effort-034-production-readiness-mobile-p2-cleanup.md)
-**PR:** pending
+**PR:** [#333](https://github.com/wmishak404/laica/pull/333)
 **Base:** `origin/main` at `742694d9d209dba04674ce7188319d7f449c4a6e`
 **INIT updated:** yes
 **Resolves blocked handoff:** none
@@ -38,7 +38,7 @@ No Wilson decision was needed because EFF-034 already documented the scope and s
 
 ## Impact on other agents
 
-Treat `codex/eff-034-timer-settings-cleanup` as the active EFF-034 implementation branch. Do not start a parallel timer reset or Settings hub-tail branch unless this PR is abandoned.
+Treat [PR #333](https://github.com/wmishak404/laica/pull/333) / `codex/eff-034-timer-settings-cleanup` as the active EFF-034 implementation branch. Do not start a parallel timer reset or Settings hub-tail branch unless this PR is abandoned.
 
 Future Settings inventory work should preserve the separation between `.returning-ui-hub` and `.returning-ui-inventory`. The inventory branch still owns fixed-page dock geometry; the hub branch only owns the card-list page fit.
 
@@ -51,7 +51,7 @@ Future Settings inventory work should preserve the separation between `.returnin
 
 ## Open Items
 
-- Open the PR and let exact-head GitHub `unit`, `e2e_guest_smoke`, dependency audit, secret scan, and CodeQL run.
+- Let exact-head GitHub `unit`, `e2e_guest_smoke`, dependency audit, secret scan, and CodeQL run on PR #333.
 - Capture or defer phone-viewport after evidence for Settings hub at `390x844` and `412x915`, and timer Reset before/after evidence, per EFF-034. The existing before screenshot is [`2026-07-20-codex-settings-root-blank-scroll-390x844.jpg`](../assets/mobile-refresh/2026-07-20-codex-settings-root-blank-scroll-390x844.jpg).
 - Do not claim local service-backed browser validation from this worktree unless the database endpoint is re-enabled or a disposable local sandbox is prepared.
 - Wilson's explicit merge approval is required because this is a runtime UI/product-behavior PR.
