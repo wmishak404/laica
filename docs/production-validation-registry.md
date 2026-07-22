@@ -12,25 +12,31 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 
 ## Current Production Smoke Baseline
 
-- Last recorded production smoke date: 2026-06-22.
-- Evidence source: `docs/handoffs/2026-06-22-codex-prod-vision-scan-resolution.md`.
-- Recorded passed production surfaces: production app load, Google sign-in/profile, pantry image scan via `/api/vision/analyze`, Chef It Up suggestions, Prep Tray selected image, cooking steps/session, speech, and feedback write.
-- Live vision evidence: pantry review chips were shown for `oysters`, `herb butter`, and `salt`.
-- Last production-smoked SHA/build marker: not recorded in the 2026-06-22 handoff. The next production validation pass must identify and record the deployed build marker or exact SHA before comparing changed-since-last-prod scope.
-
-Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-based baseline, not commit-level proof.
+- Last full production regression: 2026-07-22 against `https://cookwithlaica.com`.
+- Evidence source: [`docs/handoffs/2026-07-22-codex-post-publish-production-regression.md`](handoffs/2026-07-22-codex-post-publish-production-regression.md).
+- Tested deployment fingerprint: one stable cache-busted asset set; exact response and asset identifiers are intentionally omitted from the public registry.
+- Source correlation: Replit workspace reported `main` at `742694d9d209dba04674ce7188319d7f449c4a6e`; live CSS was byte-identical to a clean build from that SHA, and live JavaScript carried its Guest Finish/EFF-033 runtime markers. Build-time environment substitution prevents a byte-identical JavaScript claim.
+- Exact deployed Git SHA/marker: not exposed by the custom-domain app or current Replit deployment-status surface.
+- Current verdict: **BLOCKED** for admin production access/security. The trusted credential behaves differently between preview and the custom domain, and current source lacks the required admin-specific limiter and timing-safe comparison. Exact operational details are omitted from the public registry. See EFF-036.
+- Accepted non-blocking exceptions: EFF-035 generalized setup viewport reachability (P1 immediate patch) and EFF-034 timer/Settings mobile cleanup (P2). EFF-037 is a newly recorded P2 Feedback length-contract defect.
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-21 by the PR #324 merge closeout.
-- Current runtime candidate at closeout start: `af36e8f03d8cdbb2d3c2178d2726eb8ea8e6bf6a`. The closeout branch changes documentation only.
-- Last fully production-readiness-tested candidate: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
-- Current latest merge: PR #324, Guest Finish persistence-outcome truthfulness.
-- Current latest user-visible/runtime merge: PR #324, Guest Finish persistence-outcome truthfulness.
-- Replit deployed production marker observed on 2026-07-17: `b462c9ba`, shown as published 27 days earlier. The marker does not resolve to a local Git commit, so the production comparison remains date-based from the 2026-06-22 smoke.
-- Release verdict: the recorded EFF-033 and Guest Finish code blockers are merged with exact-head evidence. No production publish or full release-matrix rerun occurred. Before any separately authorized publish, select the then-current `main` SHA and complete the baseline plus changed-since-last-production checks below. Wilson does not treat EFF-032 setup compact fit or EFF-034 P2 cleanup as standalone blockers.
+- Registry updated: 2026-07-22 by the post-publish production regression.
+- Current `origin/main`: `742694d9d209dba04674ce7188319d7f449c4a6e` (`Close Guest Finish merge documentation (#332)`).
+- Fresh production correlation and full custom-domain regression now supersede the older date-only baseline for the tested deployment fingerprint above.
+- The documentation-only pre-publish evidence branch ended at `1923ea0021b1e186a9e0db2df96c74a4d18af9d8` and used runtime base `742694d9`; it is evidence provenance, not a different deployed runtime.
+- Do not republish or call this deployment release-complete until EFF-036 restores valid admin access and dedicated hardening, then reruns the exact production admin gate. Wilson's explicit authority remains required for any publish.
 
-The 2026-07-17 regression audited the full first-parent merge history through `2686117a`. `origin/main` has since added dependency/security-tool configuration, test-harness, and runtime work through PR #324. PR #325 and PR #324 have exact-head automated plus focused Replit mobile evidence, but no new full production-readiness pass or production publish has occurred.
+## 2026-07-22 Full Post-Publish Production Regression
+
+- Detailed matrix, screenshots, cleanup, and negative scope: [`docs/handoffs/2026-07-22-codex-post-publish-production-regression.md`](handoffs/2026-07-22-codex-post-publish-production-regression.md).
+- Passed: HTTPS/custom-domain load and stable new assets; public landing and guest start; manual Pantry/Tools setup and reload; synthetic production vision upload; Cooking Skill select-then-Next; Chef It Up time/cuisine; provider suggestions; Ticket Pass reload; Prep Tray image and no bleed; Ready Check; Live Cooking; timer start; captions/session restore; Repeat transcript; question listening start/cancel; honest guest Finish; guest/linked persistence; Google promotion/import consent; linked Slop Bowl; linked Finish/History write and exact-row deletion; returning Pantry/Tools dock and true-bottom scroll; all four toast directions; short feedback write; auth sign-out.
+- Blockers: EFF-036. The trusted credential succeeded in preview but was denied by the custom domain; repository history proves the dedicated admin limiter and timing-safe comparison were lost after PR #244. Missing/invalid requests remained safely denied with the required cache controls. Exact endpoint, header, threshold, and response details are intentionally omitted. No live request flood was performed.
+- Accepted exceptions: EFF-035 reproduced at `390x844` and `412x915`; EFF-034 reproduced at `390x844` and `412x915`.
+- New non-blocker: EFF-037, client accepts a 289-character feedback draft that the 280-character server rejects with generic retry copy; a short labeled production write succeeded.
+- Human/hardware boundary: no fresh objective audible-output, camera-capture hardware, or recognized spoken-question claim. Production Repeat updated the transcript without console failure; question mode entered/canceled `Listening...`; synthetic image upload returned four correct visible-product detections. Wilson's earlier main-branch physical audio/camera evidence remains bounded context only.
+- Cleanup: guest and linked synthetic Pantry/Tools entries were removed and reload-confirmed; the linked production History row was deleted; the isolated vision guest list was cleared; the Google test account was signed out. One labeled feedback row remains because the product exposes no delete path.
 
 ## 2026-07-17 Full `main` Production-Readiness Regression
 

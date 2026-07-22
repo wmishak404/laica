@@ -321,3 +321,15 @@ PR #324 implements that contract. Guest completion clears only the browser-local
 Wilson approved PR #324, and GitHub squash-merged final head `c34380abd786f65487ed2aad504f4415a336559a` into `main` as `af36e8f03d8cdbb2d3c2178d2726eb8ea8e6bf6a`. Exact-head GitHub automation passed unit, all nine guest + linked Playwright tests against an ephemeral schema, dependency audit, secret scan, and CodeQL. Direct-shell Replit at the same head passed honest guest Finish at app-reported `390x844` and `412x915` without Replit Agent. Retained linked runtime evidence confirms successful History persistence; deterministic unit evidence covers linked failure/retry and canonical transcript/speech/toast/status consistency without inducing a live database failure.
 
 The merge completes the production-readiness honesty correction but does not publish production, implement Phase 5 cleanup, import guest cooks into History, or change EFF-032/EFF-034. The initiative now resumes at its existing Phase 5/later-promotion checkpoint after INIT-001 Phase 5 has real merged semantics.
+
+### 2026-07-22 — Post-publish production boundary validation
+
+Fresh custom-domain production evidence confirms the initiative's core boundaries on the published build:
+
+- Guest Slop Bowl stayed gated and guest History remained disabled.
+- Guest Finish kept one honest transcript/toast outcome: `Dinner's ready. Sign up to save this session to your cooking history.` No saved-History claim appeared.
+- The existing-Google promotion path presented explicit import consent, completed sign-in, loaded the linked kitchen without overwriting it, and preserved a reversible linked Pantry write across reload.
+- Linked Slop Bowl generated a live provider-backed bowl and 13-step guide; linked Finish claimed History only after persistence, the new History row appeared, and the exact synthetic row was deleted.
+- Signing out returned to the public landing surface.
+
+The guest-to-existing-account link emitted Firebase's expected `auth/credential-already-in-use` console error before the implemented consent/fallback path completed successfully. This is recorded as recoverable diagnostic noise, not promoted to a user-facing failure. Physical spoken output, camera capture hardware, and recognized microphone speech were not objectively proven by this browser run; Repeat updated the transcript without console error, the question control entered and canceled `Listening...`, and a separate synthetic image upload proved the production vision route. Wilson's earlier owner-confirmed main-branch audio and camera evidence remains bounded context rather than a fresh production hardware claim.
