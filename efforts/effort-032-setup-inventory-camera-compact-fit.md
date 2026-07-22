@@ -1,11 +1,12 @@
 # EFF-032: First-time setup inventory camera compact fit
 
-**Status:** Open
-**Priority:** Follow-up; not a standalone production blocker per Wilson's 2026-07-20 review
+**Status:** Resolved
+**Priority:** Superseded by EFF-035; historical evidence only
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
 **Updated:** 2026-07-22
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
+**Successor:** [EFF-035 - Universal mobile viewport resilience for first-time setup](effort-035-universal-setup-viewport-resilience.md)
 **Linked Effort history:** [EFF-029 - Setup/Settings camera height and action clearance](effort-029-settings-camera-action-clearance.md)
 **Related docs:** [Phase 2.1 Setup Polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md), [PD-005 UI Governance](../product-decisions/pd-005-ui-governance.md), [design guidelines](../design_guidelines.md), [production-readiness follow-up](../docs/handoffs/2026-07-20-codex-production-readiness-effort-routing.md)
 
@@ -84,3 +85,9 @@ The full regression rerun on `main` `742694d9` reproduced Pantry and optional To
 A focused `375x667` comparison produced the opposite result: `.setup-scroll-body` measured `501px` client height, `607px` scroll height, and normal activation of Enter manually moved it to `scrollTop 106.5`. This confirms Wilson's successful scrolling and the controlled no-scroll reproduction can both be correct on different height/breakpoint conditions. The accepted priority remains unchanged: this is not a standalone production blocker. Future implementation should make the scroll owner deliberate across phone widths and use evidence-backed height-responsive camera sizing rather than assuming one universal browser behavior.
 
 Fresh screenshots are retained in the 2026-07-22 regression report for Pantry and Tools. Live camera permission/capture was excluded by Wilson; manual entry and camera-off layout were exercised.
+
+## 2026-07-22 - Resolved as superseded by EFF-035
+
+Wilson accepted the current viewport-height limitation for the production release and chose a generalized overflow/safe-area correction as an immediate post-production patch. That scope is broader and more durable than EFF-032's camera-height framing: it covers the setup scroll owner, dynamic viewport height, safe areas, browser chrome, orientation, keyboard, and text scaling while preserving the current UI.
+
+The underlying product work is not shipped. EFF-032 is resolved only to eliminate duplicate active ownership; all reproduction evidence and camera-fit context remain here as history. [EFF-035](effort-035-universal-setup-viewport-resilience.md) is the single active implementation home.

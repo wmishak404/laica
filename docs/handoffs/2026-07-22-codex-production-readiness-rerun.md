@@ -11,11 +11,11 @@
 
 Fresh `origin/main` at `742694d9d209dba04674ce7188319d7f449c4a6e` passed exact-head local, GitHub, Replit build/database, core guest, provider, mobile, EFF-033, and guest Finish checks. This run did not inherit the recent fixes as assumed passes: returning Settings Pantry/Tools and guest Finish were exercised again on the combined current candidate at app-reported `390x844` and `412x915`. Both corrected behaviors passed.
 
-No new product defect was found. The two accepted non-blocking findings remain reproducible: EFF-032's first-time Pantry/Tools action rail is outside an unscrollable `390x844` composition, and EFF-034's Settings hub has a large blank mobile scroll tail. The rerun added useful EFF-032 breakpoint evidence: at `375x667`, `.setup-scroll-body` does have scroll range and normal control interaction scrolls it, while at `390x844` and `412x915` the same page reports no scroll owner. That reconciles Wilson's successful scrolling with the controlled no-scroll reproduction instead of treating either as universal.
+No new product defect was found. The two accepted non-blocking findings remain reproducible: the first-time Pantry/Tools action rail is outside an unscrollable `390x844` composition, and EFF-034's Settings hub has a large blank mobile scroll tail. The rerun added useful setup-breakpoint evidence: at `375x667`, `.setup-scroll-body` does have scroll range and normal control interaction scrolls it, while at `390x844` and `412x915` the same page reports no scroll owner. That reconciles Wilson's successful scrolling with the controlled no-scroll reproduction instead of treating either as universal. EFF-035 now owns the generalized setup correction and preserves EFF-032 as superseded historical evidence.
 
 The fresh real-Google linked matrix was recovered and completed rather than inferred from automation. Google upgrade reached Wilson's linked profile; linked Pantry and Tools persisted across reload and cleanup; Slop Bowl generated; Ticket Pass restored the same three provider suggestions after reload; a 14-step linked cook finished with saved-History wording; and the resulting History row appeared and was then removed. The browser logged Firebase's expected `auth/credential-already-in-use` collision while converting the anonymous session to Wilson's already-linked account, but the visible recovery completed with `Account successfully connected and signed in. Your kitchen is saved.` and authenticated API-backed behavior passed. A linked local-file upload could not be repeated because Chrome's ChatGPT extension lacks `Allow access to file URLs`; this is a browser-control permission, not a LAICA failure, and the same exact preview's real vision route already passed through the guest browser.
 
-The remaining mandatory direct-live gap is valid/throttled admin behavior through the Replit-secret shell path. Missing/invalid live rejection and no-cache passed, while the encrypted local `ADMIN_SECRET` is intentionally stale relative to Replit. Chrome repeatedly failed to attach to the already-open Replit workspace, and the isolated browser was not signed into Replit; no secret value was requested, printed, or copied. Production was not published.
+Wilson reviewed the remaining evidence boundaries and accepted the candidate as ready for production. Valid-secret and controlled-throttle admin behavior is a mandatory post-deploy smoke, not a pre-publish blocker: the exact code-level success/throttle guardrails have deterministic coverage, while missing/invalid live rejection and no-cache passed against Replit. Audible TTS and one real spoken microphone question are Wilson-owned manual acceptance checks in `main`. The viewport-height issue is an explicit release exception routed to EFF-035 as an immediate post-production structural patch. Production was not published by this task.
 
 Wilson excluded only flows that require live camera access. Image upload/vision remained in scope and passed with a repository-owned synthetic kitchen image.
 
@@ -32,7 +32,7 @@ Wilson excluded only flows that require live camera access. Image upload/vision 
 
 ## Scope provenance
 
-The matrix was rebuilt from [`replit-validation-focus.md`](../workflows/replit-validation-focus.md), [`production-validation-registry.md`](../production-validation-registry.md), INIT-001, INIT-003, active EFF-032/EFF-034, and first-parent merges after the prior readiness candidate `2686117a`.
+The matrix was rebuilt from [`replit-validation-focus.md`](../workflows/replit-validation-focus.md), [`production-validation-registry.md`](../production-validation-registry.md), INIT-001, INIT-003, the then-active EFF-032/EFF-034 evidence, and first-parent merges after the prior readiness candidate `2686117a`. Wilson's resulting release decision superseded EFF-032 with EFF-035 as the active implementation home.
 
 The accumulated-main delta after that candidate was explicitly audited:
 
@@ -50,12 +50,12 @@ The accumulated-main delta after that candidate was explicitly audited:
 | Exact-head local gates | Pass | `npm ci`, check, build, 51 files / 399 unit tests, and high/critical audit gate passed. |
 | Exact-head GitHub gates | Pass | Current-main CI ran nine guest + linked schema-backed Playwright tests and passed; audit, secret scan, CodeQL, and scheduled OAuth-start preflight also passed. |
 | Exact-head Replit gates | Pass | Install, check, build, 51 / 399 unit, DB health, app start, provider recipes/steps/image, feedback, and live rejection/security probes passed. |
-| Core guest mobile journey | Pass with known non-blockers | Setup behavior, planning, recipe, imagery, Ready Check, eight-step cooking, session restore, transcript controls, speech request, Finish, Settings, feedback, and gestures were exercised. EFF-032/EFF-034 remain. |
+| Core guest mobile journey | Pass with accepted exception | Setup behavior, planning, recipe, imagery, Ready Check, eight-step cooking, session restore, transcript controls, speech request, Finish, Settings, feedback, and gestures were exercised. The height-dependent setup limitation is accepted for this release and routed to EFF-035; EFF-034 remains post-release polish. |
 | Recently fixed behavior | Pass | EFF-033 and guest Finish were freshly re-tested on the combined current candidate; neither result was inherited from its implementation PR. |
 | Linked direct-live journey | Pass, except duplicate linked upload | Real Google upgrade/profile, linked Pantry/Tools reload persistence, Slop Bowl, Ticket Pass reload restore, 14-step cook, linked Finish, and History persistence passed. A duplicate linked local-file upload was blocked by Chrome extension permission; exact-preview guest vision already passed. |
-| Admin direct-live lane | Partial | Missing/invalid rejection and no-cache passed. Valid-secret and controlled throttle need the Replit-secret shell path. |
-| New product findings | None | Every observed product issue maps to already-open EFF-032 or EFF-034. |
-| Overall | **Conditionally ready; do not publish yet** | No new code blocker was found. Complete the mandatory valid/throttled admin probe before any authorized publish; retain the explicit human/audio and safe-failure gaps below. |
+| Admin direct-live lane | Pre-publish guardrails pass; post-deploy smoke required | Missing/invalid rejection and no-cache passed; exact deterministic valid-secret/throttle coverage passed. Exercise the real deployed secret and throttle after publish. |
+| New product findings | None | Every observed product issue maps to EFF-035 or EFF-034; EFF-032 is retained only as superseded historical evidence. |
+| Overall | **Ready for production** | Wilson accepted the remaining validation ownership: voice is a manual `main` check, admin valid/throttle is a mandatory post-deploy smoke, and EFF-035 is an immediate post-production release-exception patch. Separate publish authorization is still required. |
 
 ## Fresh regression results
 
@@ -64,9 +64,9 @@ The accumulated-main delta after that candidate was explicitly audited:
 | Case | Result | Evidence / reasoning |
 |---|---|---|
 | Landing and guest entry | Pass | Landing CTA and proof content rendered at mobile sizes; a real anonymous session entered setup. |
-| Pantry manual entry | Functional pass / known EFF-032 fit issue | Three items saved correctly. At `390x844`, Upload and manual controls fit, but Back/Next start at `845.78px`; no document or intended internal scroll owner has range. |
-| Optional Tools | Functional pass / known EFF-032 fit issue | Optional screen fit and Add Tools manual entry saved `whisk`. The expanded Tools inventory has the same unreachable action rail at `390x844`. |
-| Compact-browser scroll comparison | Adds EFF-032 evidence | At `375x667`, `.setup-scroll-body` measured `501px` client / `607px` scroll height; activating Enter manually moved it to `scrollTop 106.5`. At `390x844` and `412x915`, the same page reported no scroll owner. |
+| Pantry manual entry | Functional pass / accepted EFF-035 release exception | Three items saved correctly. At `390x844`, Upload and manual controls fit, but Back/Next start at `845.78px`; no document or intended internal scroll owner has range. |
+| Optional Tools | Functional pass / accepted EFF-035 release exception | Optional screen fit and Add Tools manual entry saved `whisk`. The expanded Tools inventory has the same unreachable action rail at `390x844`. |
+| Compact-browser scroll comparison | EFF-035 evidence | At `375x667`, `.setup-scroll-body` measured `501px` client / `607px` scroll height; activating Enter manually moved it to `scrollTop 106.5`. At `390x844` and `412x915`, the same page reported no scroll owner. |
 | Cooking skill select-then-Next | Pass | Next was disabled before selection; Beginner selected without auto-advancing; Next enabled and then advanced to Dietary. |
 | Dietary and completion | Pass | No restrictions selected; final summary correctly showed Pantry 3, Tools skipped in the first pass, beginner, and no restrictions; Planning loaded. |
 | Live camera | Excluded | Per Wilson, camera-access paths are deferred for his own validation. No release failure is assigned. |
@@ -140,9 +140,9 @@ The accumulated-main delta after that candidate was explicitly audited:
 
 ## Existing non-blockers and recommendations
 
-### EFF-032 — first-time setup compact fit
+### EFF-035 — universal setup viewport resilience
 
-Fresh screenshots and measurements confirm this is still real at `390x844`, while the `375x667` comparison confirms why some phones can scroll. Retain Wilson's accepted non-blocking severity. The later fix should apply one bounded setup shell and intentional scroll owner across phone widths, then use height-responsive camera sizing/spacing as the compact treatment. Add rendered Safari/Chrome geometry at `375x667`, `390x844`, and `412x915`; do not paper over it with z-index or forced clicks.
+Fresh screenshots and measurements confirm the limitation is real at `390x844`, while the `375x667` comparison confirms why some viewport-height combinations can scroll. Wilson explicitly accepted it for this release because the generalized fix changes structural layout behavior. EFF-035 now owns the immediate post-production patch: one intentional scroll owner, dynamic viewport height, safe-area clearance, and normal-interaction evidence across height, orientation, keyboard, browser-chrome, and text-scaling cases without changing the visual design or adding device-specific breakpoints. EFF-032 is resolved as superseded, not as implemented.
 
 ### EFF-034 — timer wording and Settings blank tail
 
@@ -152,23 +152,23 @@ The Settings blank tail reproduced unchanged. The timer case was not present in 
 
 The high/critical audit gate is green. A narrow maintenance PR can update transitive `body-parser@1.20.5` through Express and `protobufjs@7.6.4` through Firebase/Google dependencies after compatibility checks. They are not elevated to release blockers by this run.
 
-## Explicit direct-live gaps
+## Manual and post-deploy validation ownership
 
-These are not product failures and not passes:
+These are not pre-publish product blockers under Wilson's accepted release decision:
 
 | Gap | Strongest current evidence | Smallest remaining action |
 |---|---|---|
-| Valid-secret and controlled admin throttle | Live missing/invalid/no-cache passed; focused exact-head admin/rate-limit unit suite passed. Local encrypted admin secret correctly failed against Replit because Replit owns the current secret. | From Replit shell, use the secret only in-process and print status/header summaries, not the value. Use a controlled limiter override or isolated test so the shared preview is not locked for an hour. |
-| Spoken microphone question and audible TTS | Mic start/cancel and Repeat request passed; provider/unit evidence green. | Ask one real question and listen to one response in the signed-in browser. |
-| Induced step/assistance failure | Exact deterministic unit coverage passed; normal provider path passed. | Use a safe per-browser response intercept or documented non-production failure hook; do not damage shared DB/runtime state. |
-| Exact-candidate custom-domain smoke | Production was not published. | After explicit publish authorization and only after the gaps above, record the deployed marker and repeat the focused custom-domain smoke. |
+| Valid-secret and controlled admin throttle | Live missing/invalid/no-cache passed; focused exact-head admin/rate-limit unit suite passed, including valid-secret and throttling behavior with controlled test configuration. | Mandatory post-deploy smoke: use the deployed secret only in-process, confirm valid succeeds/invalid fails, trigger a controlled throttle, verify non-cacheable responses and recovery without exposing the secret. |
+| Spoken microphone question and audible TTS | Mic start/cancel and Repeat request passed; provider/unit evidence green. | Wilson will ask one real question and listen to one response manually in `main` before production. |
+| Induced step/assistance failure | Exact deterministic unit coverage passed; normal provider path passed. | Retain as resilience coverage; use a safe non-production failure hook in a later focused pass rather than damaging shared runtime state. |
+| Exact-candidate custom-domain smoke | Production was not published by this task. | After explicit publish authorization, record the deployed marker and run the focused custom-domain smoke, including the admin checks above. |
 
 ## Screenshot evidence
 
 | Evidence | Screenshot |
 |---|---|
-| Fresh EFF-032 Pantry `390x844` reproduction | [`first-time-pantry-actions-unreachable-390x844.jpg`](../assets/production-readiness/2026-07-22/first-time-pantry-actions-unreachable-390x844.jpg) |
-| Fresh EFF-032 Tools `390x844` reproduction | [`first-time-tools-actions-unreachable-390x844.jpg`](../assets/production-readiness/2026-07-22/first-time-tools-actions-unreachable-390x844.jpg) |
+| Fresh setup Pantry `390x844` reproduction (EFF-035; originally EFF-032 evidence) | [`first-time-pantry-actions-unreachable-390x844.jpg`](../assets/production-readiness/2026-07-22/first-time-pantry-actions-unreachable-390x844.jpg) |
+| Fresh setup Tools `390x844` reproduction (EFF-035; originally EFF-032 evidence) | [`first-time-tools-actions-unreachable-390x844.jpg`](../assets/production-readiness/2026-07-22/first-time-tools-actions-unreachable-390x844.jpg) |
 | Fresh EFF-033 Pantry true-bottom clearance | [`guest-settings-pantry-scrolled-390x844.jpg`](../assets/production-readiness/2026-07-22/guest-settings-pantry-scrolled-390x844.jpg) |
 | Fresh EFF-033 Tools true-bottom clearance | [`guest-settings-tools-scrolled-412x915.jpg`](../assets/production-readiness/2026-07-22/guest-settings-tools-scrolled-412x915.jpg) |
 | Fresh guest Finish honest transcript `390x844` | [`guest-finish-transcript-390x844.jpg`](../assets/production-readiness/2026-07-22/guest-finish-transcript-390x844.jpg) |
@@ -184,25 +184,26 @@ Additional evidence in the same folder covers Planning, time selection, Ticket P
 ## Changes
 
 - Added this all-in-one exact-candidate regression report and screenshot set.
-- Updated the production validation registry with the rerun verdict, current evidence, known findings, and explicit gaps.
-- Added fresh evidence to EFF-032 and EFF-034 without changing their accepted priority or scope.
+- Updated the production validation registry with the rerun verdict, accepted release decision, validation ownership, and post-deploy smoke.
+- Preserved EFF-032 as historical evidence, superseded it with the broader EFF-035 immediate post-production patch, and retained EFF-034 as post-release polish.
 - Updated INIT-001 and INIT-003 validation/resume points.
 
 No runtime, product, UI, test, workflow-policy, dependency, schema, deployment, or production-publish change was made.
 
 ## Impact on other agents
 
-- Treat `742694d9` as the latest broadly tested candidate, not as a published build.
+- Treat `742694d9` as the latest broadly tested and production-ready candidate, not as an already published build.
 - Do not reopen EFF-033 or Guest Finish from stale assumptions; fresh combined-candidate evidence passed. Investigate only if new contrary evidence appears.
-- Real-Google linked release behavior now has fresh direct-live proof. Do not call the release fully cleared until the valid/throttled admin direct-live gap is completed.
-- Keep EFF-032 and EFF-034 as their existing non-blocking follow-up homes; do not create duplicate Efforts.
+- Real-Google linked release behavior has fresh direct-live proof. Admin valid/throttle is now a mandatory post-deploy smoke rather than a pre-publish hold.
+- EFF-035 is the single active home for the immediate post-production setup viewport patch; EFF-032 is resolved as superseded, and EFF-034 remains post-release polish.
 - Camera permission/capture remains explicitly deferred to Wilson.
 
 ## Open items
 
-- Run masked valid/throttled admin probes from the Replit-secret shell path.
+- Wilson performs audible TTS and one spoken microphone check in `main`.
+- Obtain separate publish authorization, then run the mandatory masked valid/invalid/throttled admin and custom-domain smoke after deployment.
+- Implement EFF-035 as the immediate post-production patch, with EFF-034 following as normal polish.
 - Delete the clearly labeled synthetic feedback row if desired.
-- Obtain separate publish authorization, publish only after the evidence gaps close, then run exact-deployment custom-domain smoke.
 
 ## Verification
 
@@ -212,4 +213,14 @@ No runtime, product, UI, test, workflow-policy, dependency, schema, deployment, 
 - exact-main fetch/ancestor check
 - exact-head local, GitHub, Replit, provider, and mobile evidence as recorded above
 
-This report deliberately separates observed facts, indirect evidence, and remaining direct-live gaps. It does not claim camera validation, a duplicate linked local-file upload, valid/throttled admin success, audible speech, induced live failures, a production publish, or a candidate custom-domain pass.
+This report deliberately separates observed facts from Wilson-owned manual acceptance and post-deploy smoke. It does not claim camera validation, a duplicate linked local-file upload, real audible speech, a production publish, production-secret success/throttling, or a custom-domain pass.
+
+## 2026-07-22 — Wilson production-readiness decision
+
+Wilson accepted `742694d9` as ready for production based on the exact-head automated, Replit, provider, guest, linked, persistence, and mobile evidence above. The release decision assigns the remaining work instead of treating it as one undifferentiated hold:
+
+- admin valid-secret and controlled-throttle behavior is a mandatory post-deploy smoke because the real deployed secret/environment is the authoritative target;
+- audible TTS and one spoken microphone question are Wilson-owned manual checks in `main`;
+- the height-dependent setup limitation is accepted for this release and moves to EFF-035 as an immediate post-production generalized viewport/overflow/safe-area patch;
+- EFF-034 remains normal post-release polish;
+- publishing still requires a separate explicit instruction and this task did not publish production.

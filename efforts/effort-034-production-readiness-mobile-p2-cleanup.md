@@ -1,7 +1,7 @@
 # EFF-034: Production-readiness mobile P2 cleanup
 
 **Status:** Open
-**Priority:** After pre-production blockers; preserve for the next readiness closeout
+**Priority:** Post-release polish; not a release blocker
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
 **Updated:** 2026-07-22
@@ -38,7 +38,7 @@ Wilson asked on 2026-07-20 that both findings be saved in a separate related Eff
 Out of scope:
 
 - Returning inventory action-dock overlap/opacity; [EFF-033](effort-033-returning-settings-inventory-action-dock.md) owns that pre-production work.
-- First-time setup camera sizing; [EFF-032](effort-032-setup-inventory-camera-compact-fit.md) owns that follow-up.
+- First-time setup viewport resilience; [EFF-035](effort-035-universal-setup-viewport-resilience.md) owns that immediate post-production patch, with EFF-032 retained only as superseded history.
 - Timer duration extraction, server schema/provider changes, bottom-nav IA, or broader Settings redesign.
 
 ## Decisions made so far
@@ -78,3 +78,7 @@ Wilson accepted the P2 severity and asked that both lower-priority findings rema
 The full `main` rerun at `742694d9` reproduced the Settings hub blank/inert tail at app-reported `390x844`: document height remained about `1020px` for content that visually ends well above the fixed Cook/Menu navigation. The fresh full-page screenshot is linked from [`docs/handoffs/2026-07-22-codex-production-readiness-rerun.md`](../docs/handoffs/2026-07-22-codex-production-readiness-rerun.md).
 
 The real provider-generated guide in this rerun contained no timer-bearing step, so Reset -> Start semantics could not be freshly exercised live. The existing finding and deterministic coverage remain authoritative; absence of a timer in this guide is not evidence that the issue is resolved. EFF-034's P2 priority and scope remain unchanged and do not reopen the resolved EFF-033 dock.
+
+## 2026-07-22 - Release decision keeps EFF-034 as post-release polish
+
+Wilson accepted the Settings blank-scroll and timer wording items as normal post-release polish. They do not block publishing the validated candidate. EFF-034 remains the active home and retains its existing scope; no pre-release runtime change is requested.

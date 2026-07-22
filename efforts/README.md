@@ -74,8 +74,8 @@ Read these before starting work in their governed domains:
 |---|---|---|---|---|
 | [EFF-017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `In Progress` | Wilson / Codex / Claude | 2026-05-05 |
 | [EFF-022](effort-022-cross-cuisine-recommendation-prompts.md) | Cross-cuisine recommendation prompts | `Open` | Wilson / Codex / Claude | 2026-05-23 |
-| [EFF-032](effort-032-setup-inventory-camera-compact-fit.md) | First-time setup inventory camera compact fit | `Open` | Wilson / Codex / Claude | 2026-07-20 |
 | [EFF-034](effort-034-production-readiness-mobile-p2-cleanup.md) | Production-readiness mobile P2 cleanup | `Open` | Wilson / Codex / Claude | 2026-07-20 |
+| [EFF-035](effort-035-universal-setup-viewport-resilience.md) | Universal mobile viewport resilience for first-time setup | `Open` | Wilson / Codex / Claude | 2026-07-22 |
 
 ## Deferred Efforts
 
