@@ -74,6 +74,9 @@ describe('UserSettings scan upload policy', () => {
     expect(screen.getByRole('button', { name: /kitchen inventory/i })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /^kitchen$/i })).toBeNull();
     expect(screen.queryByRole('tablist', { name: /kitchen inventory sections/i })).toBeNull();
+    expect(container.querySelector('main.returning-ui')?.className).not.toContain('min-h-screen');
+    expect(container.querySelector('main.returning-ui')?.className).not.toContain('pb-24');
+    expect(container.querySelector('.returning-settings-shell')?.className).not.toContain('min-h-screen');
 
     fireEvent.click(screen.getByRole('button', { name: /kitchen inventory/i }));
 

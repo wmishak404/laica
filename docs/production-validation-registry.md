@@ -22,8 +22,8 @@ Until the exact production-smoked SHA is recovered, treat 2026-06-22 as a date-b
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-21 by the PR #324 merge closeout.
-- Current runtime candidate at closeout start: `af36e8f03d8cdbb2d3c2178d2726eb8ea8e6bf6a`. The closeout branch changes documentation only.
+- Registry updated: 2026-07-22 by the EFF-034 implementation branch.
+- Current runtime candidate on `origin/main`: `af36e8f03d8cdbb2d3c2178d2726eb8ea8e6bf6a`. Pending runtime branches are listed separately below and are not current-main evidence until they merge.
 - Last fully production-readiness-tested candidate: `2686117a202607f2e6b25b2f891d717372e0a6c4`.
 - Current latest merge: PR #324, Guest Finish persistence-outcome truthfulness.
 - Current latest user-visible/runtime merge: PR #324, Guest Finish persistence-outcome truthfulness.
@@ -95,6 +95,14 @@ The 2026-07-17 regression audited the full first-parent merge history through `2
 - Negative scope: no pantry mutation, rating/notes invention, server route/schema/provider/prompt/auth/navigation change, guest History import, Phase 5 cleanup, Slop Bowl behavior, EFF-032, EFF-033, or EFF-034 change.
 - Future-bug breadcrumb: if a cook sees contradictory completion messages, a guest sees saved-to-History wording, or a failed linked Finish exits/loses retry state, inspect the typed completion outcome and the ordering around `completeSessionMutation` before treating it as an authorization or History-query bug.
 
+## 2026-07-22 EFF-034 Timer and Settings Hub Addendum
+
+- Branch `codex/efforts-hygiene-2026-07-22` starts from `origin/main` `742694d9` and implements the preserved P2 findings from the 2026-07-17 production-readiness pass: Live Cooking Reset returns a paused timer to the fresh Start state, and the returning Settings hub no longer carries an inert blank mobile scroll tail.
+- Focused production-push check: on the selected release SHA at app-reported `390x844` and `412x915`, open a duration-bearing Live Cooking step, Start, Pause, Reset, and confirm the primary timer action reads `Start <duration> timer` while ordinary Pause still shows `Resume timer`; then open returning `Menu -> Settings` and confirm the Settings hub document height does not exceed the viewport except for real safe-area/nav clearance, the bottom nav remains visible, and the last Settings card is not covered.
+- Local exact-branch evidence before PR: focused Live Cooking/Settings/CSS Vitest, full unit, `npm run check`, `npm run build`, high audit gate, `git diff --check`, and Chromium test discovery passed. UI-only Playwright screenshots at `390x844` used auth/provider route stubs because the configured local Neon endpoint is disabled; that probe measured Settings `scrollTail: 0` and timer reset state `ready`.
+- Negative scope: no provider, schema, prompt, auth/session contract, durable navigation, inventory dock, camera sizing, persistence, speech quota, deployment, or production publish change.
+- Future-bug breadcrumb: if Reset shows `Resume timer` after a reset, inspect `resetTimer` and the elapsed timer state in `LiveCooking`; if returning Settings gets a blank tail again, inspect the `settings` phase wrapper in `client/src/pages/app.tsx` and the non-inventory `.returning-ui` bottom-nav clearance before adding one-off padding.
+
 ## 2026-07-10 PR #275 Production-Readiness Addendum
 
 - PR #275 merged at `148c881591479d2c5f07c500dd440682989824b4` after exact-head GitHub checks passed for head `eb364ee7127f86c2b46c826e74619d48719b1c50`.
@@ -148,6 +156,7 @@ Merged or pending release-candidate work after the 2026-06-22 production-smoke e
 
 | Date | Commit / PR | Surface | Production validation implication |
 |---|---|---|---|
+| 2026-07-22 | pending / `codex/efforts-hygiene-2026-07-22` | EFF-034 Live Cooking timer Reset and returning Settings hub blank-tail cleanup | Carry exact-head GitHub E2E evidence first. If this branch ships in the release SHA, run the focused mobile check above for timer Reset -> Start semantics and Settings hub no-scroll-tail at `390x844` and `412x915`. |
 | 2026-07-21 | `af36e8f` / PR #324 | Guest/local, linked-save-success, and linked-save-failure Finish outcome truthfulness | On the selected release SHA, repeat honest guest Finish at app-reported `390x844` and `412x915`, confirm no saved-History claim across transcript/speech/toast, and confirm completion layout remains usable. Confirm linked saved wording appears only after persistence succeeds and History contains the cook. Do not induce a live DB failure; carry the exact-head deterministic failure/retry and canonical-surface evidence. |
 | 2026-07-21 | pending / `codex/eff-017-linked-e2e-stability` | Linked Chef It Up Ticket Pass restore after confirmed-staple save | Carry exact-head GitHub linked dev-auth E2E evidence first. If the branch ships and release confidence needs a manual smoke, use a linked account to confirm new staples, reach `Recipe suggestions`, reload immediately, and verify the Ticket Pass restores with the expanded pantry basis. |
 | 2026-07-21 | `ad3738e` / PR #325 | EFF-033 returning Settings Pantry/Tools page-level action containment | On the final release SHA at app-reported `390x844` and `412x915`, confirm Pantry/Tools inventory content remains in the owned scroller above an opaque viewport-wide page dock, dock bottom equals Cook/Menu top, and active camera/upload/manual/Settings/Save targets retain center-point ownership in clean and dirty states. Final head `b84eb83a` has all-nine Playwright plus exact-head focused Replit geometry/hit evidence. |

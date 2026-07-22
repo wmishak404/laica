@@ -77,6 +77,42 @@ type LinkedProfileSeed = {
   favoriteChefs?: string[];
 };
 
+async function expectSettingsHubNoBlankTail(page: Page) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("heading", { name: "Keep Laica matched to your kitchen." })).toBeVisible();
+
+  const evidence = await page.evaluate(() => {
+    const nav = document.querySelector<HTMLElement>(".app-bottom-nav");
+    const root = document.querySelector<HTMLElement>("main.returning-ui");
+    const shell = document.querySelector<HTMLElement>(".returning-settings-shell");
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".returning-hub-card"));
+    const lastCard = cards.at(-1);
+    if (!nav || !root || !shell || !lastCard) return null;
+
+    const navRect = nav.getBoundingClientRect();
+    const rootStyle = getComputedStyle(root);
+    const shellStyle = getComputedStyle(shell);
+    const lastCardRect = lastCard.getBoundingClientRect();
+
+    return {
+      documentHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+      rootPaddingBottom: Number.parseFloat(rootStyle.paddingBottom),
+      shellMinHeight: shellStyle.minHeight,
+      lastCardBottom: lastCardRect.bottom,
+      navTop: navRect.top,
+      navHeight: navRect.height,
+    };
+  });
+
+  expect(evidence).not.toBeNull();
+  if (!evidence) throw new Error("Settings hub geometry was unavailable");
+  expect(evidence.documentHeight - evidence.viewportHeight).toBeLessThanOrEqual(4);
+  expect(evidence.rootPaddingBottom).toBeGreaterThanOrEqual(evidence.navHeight);
+  expect(evidence.lastCardBottom).toBeLessThanOrEqual(evidence.navTop - 8);
+  expect(evidence.shellMinHeight).not.toBe("844px");
+}
+
 function missingApiEnvNames() {
   return [
     "LAICA_DEV_AUTH_ENABLED",
@@ -442,6 +478,7 @@ test.describe("linked dev auth browser smoke", () => {
     await page.getByRole("button", { name: /Settings\s+Pantry, tools, and cooking profile/i }).click();
 
     await expect(page.getByRole("heading", { name: "Keep Laica matched to your kitchen." })).toBeVisible();
+    await expectSettingsHubNoBlankTail(page);
     await page.getByRole("button", { name: /Kitchen Inventory\s+5 pantry items \+ 1 tool/i }).click();
 
     await expect(page.getByRole("heading", { name: "Pantry" })).toBeVisible();
