@@ -4,7 +4,7 @@
 **Priority:** After pre-production blockers; preserve for the next readiness closeout
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
-**Updated:** 2026-07-20
+**Updated:** 2026-07-22
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Related docs:** [Phase 2.2 Returning Setup / Settings](../product-decisions/features/mobile-refresh/pd-phase-02-2-returning-setup-settings.md), [Phase 4 Cooking](../product-decisions/features/mobile-refresh/pd-phase-04-cooking.md), [production-readiness follow-up](../docs/handoffs/2026-07-20-codex-production-readiness-effort-routing.md)
 
@@ -72,3 +72,9 @@ Out of scope:
 ## 2026-07-20 - Effort filed from production-readiness review
 
 Wilson accepted the P2 severity and asked that both lower-priority findings remain discoverable in a related Effort while pre-production Settings and guest-Finish work proceeds separately.
+
+## 2026-07-22 - Exact-candidate regression retained both P2 findings
+
+The full `main` rerun at `742694d9` reproduced the Settings hub blank/inert tail at app-reported `390x844`: document height remained about `1020px` for content that visually ends well above the fixed Cook/Menu navigation. The fresh full-page screenshot is linked from [`docs/handoffs/2026-07-22-codex-production-readiness-rerun.md`](../docs/handoffs/2026-07-22-codex-production-readiness-rerun.md).
+
+The real provider-generated guide in this rerun contained no timer-bearing step, so Reset -> Start semantics could not be freshly exercised live. The existing finding and deterministic coverage remain authoritative; absence of a timer in this guide is not evidence that the issue is resolved. EFF-034's P2 priority and scope remain unchanged and do not reopen the resolved EFF-033 dock.

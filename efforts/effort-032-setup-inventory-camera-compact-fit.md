@@ -4,7 +4,7 @@
 **Priority:** Follow-up; not a standalone production blocker per Wilson's 2026-07-20 review
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-20
-**Updated:** 2026-07-20
+**Updated:** 2026-07-22
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Linked Effort history:** [EFF-029 - Setup/Settings camera height and action clearance](effort-029-settings-camera-action-clearance.md)
 **Related docs:** [Phase 2.1 Setup Polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md), [PD-005 UI Governance](../product-decisions/pd-005-ui-governance.md), [design guidelines](../design_guidelines.md), [production-readiness follow-up](../docs/handoffs/2026-07-20-codex-production-readiness-effort-routing.md)
@@ -76,3 +76,11 @@ Out of scope:
 ## 2026-07-20 - Effort filed from production-readiness review
 
 Wilson downgraded the first-time setup finding from a large blocker to a compact-phone inconvenience and requested a linked Effort to reduce the camera's vertical dimensions. The controlled-browser no-scroll evidence is preserved as one reproduction, while Wilson's successful device scrolling is equally preserved so implementation begins by identifying the correct browser-specific scroll behavior.
+
+## 2026-07-22 - Exact-candidate regression clarified the height breakpoint
+
+The full regression rerun on `main` `742694d9` reproduced Pantry and optional Tools at app-reported `390x844`: upload/manual controls fit, but Back/Next or Back/Skip begin at `845.78px`; `html`, `body`, and the intended setup containers report no overflow owner. At `412x915`, the action rail is clipped by about `6px`, while expanding manual Pantry entry moves it to about `1040px` with no scroll owner.
+
+A focused `375x667` comparison produced the opposite result: `.setup-scroll-body` measured `501px` client height, `607px` scroll height, and normal activation of Enter manually moved it to `scrollTop 106.5`. This confirms Wilson's successful scrolling and the controlled no-scroll reproduction can both be correct on different height/breakpoint conditions. The accepted priority remains unchanged: this is not a standalone production blocker. Future implementation should make the scroll owner deliberate across phone widths and use evidence-backed height-responsive camera sizing rather than assuming one universal browser behavior.
+
+Fresh screenshots are retained in the 2026-07-22 regression report for Pantry and Tools. Live camera permission/capture was excluded by Wilson; manual entry and camera-off layout were exercised.
