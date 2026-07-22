@@ -52,7 +52,7 @@ Out of scope:
 - [x] Verify current production secret presence through a masked presence-only check.
 - [x] Restore the timing-safe comparison and mount the dedicated limiter while preserving no-cache headers.
 - [x] Add regression coverage that preserves PR #246's eval-report routes.
-- [ ] Run focused admin/rate-limit tests, full unit, check, build, exact-head E2E, and security checks.
+- [x] Run focused admin/rate-limit tests, full unit, check, build, exact-head E2E, and security checks.
 - [ ] Obtain Wilson's publish authority before changing production.
 - [ ] Rerun valid, invalid, missing, threshold/reset, and no-cache production checks from a trusted process.
 
@@ -80,3 +80,11 @@ Focused route coverage now proves valid success, equivalent missing/invalid deni
 The masked Replit Publishing inspection completed without revealing or changing the credential. No edit, sync-state mutation, relink, value entry, or publish action was performed, and Wilson does not need to copy the value into chat. Exact operational configuration details remain outside this public record. The remaining custom-domain mismatch needs a separately authorized runtime validation and, if approved, republish/restart plus secret-safe smoke.
 
 The public PR was also sanitized before implementation: the Replit workspace screenshot was removed, operational request details were redacted, and the branch was rewritten to a sanitized evidence commit. No secret value was ever captured. GitHub may retain unreachable objects or cached PR references after a force-push; permanent cached-reference removal, if Wilson wants it for the non-secret workspace metadata, is a GitHub Support action.
+
+## 2026-07-22 — PR #335 merged after exact-head Replit validation
+
+Wilson explicitly approved merging [PR #335](https://github.com/wmishak404/laica/pull/335). GitHub squash-merged validated head `b04d9b4053226ef7802c4d5b19cc7a66369480b0` into `main` as `7c98c5bdd28c77cafa4bfd7c1f849cb5a9da71ec`.
+
+Before merge, the exact detached PR head ran in Replit. The focused admin/rate-limit suite passed 3 files / 22 tests. A trusted three-request preview probe confirmed valid authorization succeeded, missing and invalid credentials received equivalent denials, every response remained non-cacheable and varied on the credential header, and the dedicated limiter was active. No credential value was viewed, entered, printed, copied, or persisted; no live threshold flood was performed. GitHub exact-head CI/E2E, dependency audit, and secret scan also passed.
+
+EFF-036 remains `In Progress` because the merged code has not been republished and the custom domain has not yet passed the focused production admin smoke. Wilson's separate publish authority is still required. After an authorized publish, verify the deployed marker, one valid success, equivalent missing/invalid denial, and cache controls from a trusted process; deterministic automation remains the threshold/reset proof.

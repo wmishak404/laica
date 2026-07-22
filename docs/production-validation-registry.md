@@ -17,16 +17,16 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - Tested deployment fingerprint: one stable cache-busted asset set; exact response and asset identifiers are intentionally omitted from the public registry.
 - Source correlation: Replit workspace reported `main` at `742694d9d209dba04674ce7188319d7f449c4a6e`; live CSS was byte-identical to a clean build from that SHA, and live JavaScript carried its Guest Finish/EFF-033 runtime markers. Build-time environment substitution prevents a byte-identical JavaScript claim.
 - Exact deployed Git SHA/marker: not exposed by the custom-domain app or current Replit deployment-status surface.
-- Current verdict: **BLOCKED** for admin production access/security. The trusted credential behaves differently between preview and the custom domain, and current source lacks the required admin-specific limiter and timing-safe comparison. Exact operational details are omitted from the public registry. See EFF-036.
+- Current verdict: **BLOCKED** for admin production access/security. The currently published custom-domain deployment rejected the trusted credential and predates PR #335's merged limiter/comparison repair. Current `main` contains the fix, but it has not been republished or production-smoked. Exact operational details are omitted from the public registry. See EFF-036.
 - Accepted non-blocking exceptions: EFF-035 generalized setup viewport reachability (P1 immediate patch) and EFF-034 timer/Settings mobile cleanup (P2). EFF-037 is a newly recorded P2 Feedback length-contract defect.
 
 ## Current Main Candidate
 
-- Registry updated: 2026-07-22 by the post-publish production regression.
-- Current `origin/main`: `742694d9d209dba04674ce7188319d7f449c4a6e` (`Close Guest Finish merge documentation (#332)`).
+- Registry updated: 2026-07-22 by the EFF-036 merge closeout.
+- Current `origin/main`: `7c98c5bdd28c77cafa4bfd7c1f849cb5a9da71ec` (`Implement EFF-036 admin access hardening (#335)`).
 - Fresh production correlation and full custom-domain regression now supersede the older date-only baseline for the tested deployment fingerprint above.
 - The documentation-only pre-publish evidence branch ended at `1923ea0021b1e186a9e0db2df96c74a4d18af9d8` and used runtime base `742694d9`; it is evidence provenance, not a different deployed runtime.
-- Do not republish or call this deployment release-complete until EFF-036 restores valid admin access and dedicated hardening, then reruns the exact production admin gate. Wilson's explicit authority remains required for any publish.
+- Do not call the current deployment release-complete until the merged EFF-036 repair is published with Wilson's separate authority and passes the exact production admin gate.
 
 ## 2026-07-22 Full Post-Publish Production Regression
 
@@ -40,8 +40,8 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 
 ### EFF-036 implementation — PR #335
 
-- Changed surface: protected admin middleware in [PR #335](https://github.com/wmishak404/laica/pull/335), runtime commit `763a1eba2e7fe9566e1bf53779235b4a80579611`. The route now uses timing-safe credential comparison and the existing dedicated limiter while preserving no-cache handling and eval-report routes.
-- Existing evidence: focused admin/rate-limit tests, full unit, typecheck/lint, build, and the high/critical dependency gate pass locally. Production mode uses the existing shared database-backed limiter path; deterministic reset remains test-only. Exact-head GitHub E2E/security results are pending the final PR push.
+- Changed surface: protected admin middleware in [PR #335](https://github.com/wmishak404/laica/pull/335), squash-merged as `7c98c5bdd28c77cafa4bfd7c1f849cb5a9da71ec` from validated head `b04d9b4053226ef7802c4d5b19cc7a66369480b0`. The route now uses timing-safe credential comparison and the existing dedicated limiter while preserving no-cache handling and eval-report routes.
+- Existing evidence: focused admin/rate-limit tests, full unit, typecheck/lint, build, high/critical dependency gate, exact-head GitHub CI/E2E, dependency audit, and secret scan passed. Exact-head Replit preview validation confirmed valid success, equivalent missing/invalid denial, non-cacheable responses, and an active dedicated limiter without revealing the credential or flooding the route. Production mode uses the existing shared database-backed limiter path; deterministic reset remains test-only.
 - Focused production-push check: after explicit republish authority, use a trusted process to verify one valid request succeeds, missing/invalid requests remain equivalent and non-cacheable, and the deployed source marker matches the approved head. Do not expose the credential or flood the live route to prove the automated threshold case.
 - Replit/config evidence: a masked configuration inspection completed without revealing or changing the credential. Exact operational state is intentionally omitted from the public registry. No secret edit, sync-state mutation, relink, rotation, or republish was performed.
 - Negative scope and breadcrumb: no admin feature redesign, schema, eval-report contract, provider, client, or public product-flow change. If authorized admin access still fails after publish, inspect deployment secret propagation/startup before changing authentication code again.
