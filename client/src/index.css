@@ -1570,7 +1570,12 @@ html[data-laica-setup-scroll-lock] #root {
   }
 
   .returning-ui {
-    padding-bottom: calc(var(--returning-bottom-nav-clearance) + 1.25rem);
+    min-height: calc(100dvh - var(--app-bottom-nav-height) - 0.75rem);
+    padding-bottom: calc(var(--app-bottom-nav-height) + 0.75rem);
+  }
+
+  .returning-ui:not(.returning-ui-inventory) .returning-settings-shell {
+    min-height: calc(100dvh - var(--app-bottom-nav-height) - 0.75rem);
   }
 
   .returning-ui.returning-ui-inventory {

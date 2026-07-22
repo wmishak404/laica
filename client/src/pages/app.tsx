@@ -1427,16 +1427,14 @@ export default function MobileApp() {
         
       case 'settings':
         return (
-          <div className="pb-20">
-            <UserSettings
-              userProfile={userProfile}
-              onProfileUpdate={handleSettingsProfileUpdate}
-              onBackToPlanning={handleBackToPlanning}
-              onSectionChange={rememberSettingsSection}
-              initialSection={settingsSection}
-              persistenceMode={isGuest ? 'session' : 'linked'}
-            />
-          </div>
+          <UserSettings
+            userProfile={userProfile}
+            onProfileUpdate={handleSettingsProfileUpdate}
+            onBackToPlanning={handleBackToPlanning}
+            onSectionChange={rememberSettingsSection}
+            initialSection={settingsSection}
+            persistenceMode={isGuest ? 'session' : 'linked'}
+          />
         );
 
       case 'history':

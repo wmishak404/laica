@@ -52,4 +52,14 @@ describe('setup button CSS guards', () => {
     expect(inventoryActionInnerRule).toContain('max-width: 36rem;');
     expect(inventoryActionInnerRule).toContain('margin: 0 auto;');
   });
+
+  it('keeps non-inventory Settings height tied to the bottom nav instead of an extra screen', () => {
+    const returningRootRule = css.match(/\.returning-ui \{[\s\S]*?\}/)?.[0] ?? '';
+    const returningShellRule = css.match(/\.returning-ui:not\(\.returning-ui-inventory\) \.returning-settings-shell \{[\s\S]*?\}/)?.[0] ?? '';
+
+    expect(returningRootRule).toContain('min-height: calc(100dvh - var(--app-bottom-nav-height) - 0.75rem);');
+    expect(returningRootRule).toContain('padding-bottom: calc(var(--app-bottom-nav-height) + 0.75rem);');
+    expect(returningShellRule).toContain('min-height: calc(100dvh - var(--app-bottom-nav-height) - 0.75rem);');
+    expect(returningRootRule).not.toContain('var(--returning-bottom-nav-clearance) + 1.25rem');
+  });
 });

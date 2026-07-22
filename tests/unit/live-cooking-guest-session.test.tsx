@@ -524,6 +524,15 @@ describe('LiveCooking guest session boundary', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /start 1 min timer/i }));
     expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:01:00');
+    expect(screen.getByRole('button', { name: /pause timer/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /pause timer/i }));
+    expect(screen.getByRole('button', { name: /resume timer/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /reset 1 min timer/i }));
+    expect(screen.getByTestId('live-cooking-timer')).toHaveTextContent('0:01:00');
+    expect(screen.getByRole('button', { name: /start 1 min timer/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /resume timer/i })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
     await flushPromises();

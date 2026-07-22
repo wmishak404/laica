@@ -81,6 +81,12 @@ Wilson approved [PR #325](https://github.com/wmishak404/laica/pull/325), and it 
 
 This merge adds implementation and validation signal without changing the accepted Phase 2.2 direction. EFF-033 is resolved. First-time setup, EFF-032, EFF-034, Guest Finish, providers, schema, prompts, persistence APIs, auth behavior, and durable navigation remain outside this change.
 
+## 2026-07-22 Implementation Signal - Settings Hub Scroll Ownership
+
+Branch `codex/efforts-hygiene-2026-07-22` applies the EFF-034 returning Settings hub cleanup without changing Phase 2.2 IA. The Settings hub no longer inherits a generic app-phase `pb-20` wrapper or component-level `min-h-screen` / `pb-24`; non-inventory `.returning-ui` now owns only the bottom-nav clearance needed by the Cook/Menu shell.
+
+The implementation guardrail is ownership, not visual padding: `Menu -> Settings` should fit the root viewport without a large inert document tail, while the fixed bottom nav remains visible and the last Settings card stays above it. The local `390x844` UI-only screenshot probe measured `documentHeight: 844`, `viewportHeight: 844`, and `scrollTail: 0`; exact-head GitHub E2E and review remain branch evidence. Kitchen Inventory, EFF-033's page-level dock, first-time setup, inventory persistence, auth, durable navigation, providers, schemas, and prompts are unchanged.
+
 ## Design and UX Gate
 
 - Follow [`design_guidelines.md`](../../../design_guidelines.md), [PD-005](../../pd-005-ui-governance.md), the full-row selection pattern established in setup, and the [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md).
