@@ -15,7 +15,7 @@ No new product defect was found. The two accepted non-blocking findings remain r
 
 The fresh real-Google linked matrix was recovered and completed rather than inferred from automation. Google upgrade reached Wilson's linked profile; linked Pantry and Tools persisted across reload and cleanup; Slop Bowl generated; Ticket Pass restored the same three provider suggestions after reload; a 14-step linked cook finished with saved-History wording; and the resulting History row appeared and was then removed. The browser logged Firebase's expected `auth/credential-already-in-use` collision while converting the anonymous session to Wilson's already-linked account, but the visible recovery completed with `Account successfully connected and signed in. Your kitchen is saved.` and authenticated API-backed behavior passed. A linked local-file upload could not be repeated because Chrome's ChatGPT extension lacks `Allow access to file URLs`; this is a browser-control permission, not a LAICA failure, and the same exact preview's real vision route already passed through the guest browser.
 
-Wilson reviewed the remaining evidence boundaries and accepted the candidate as ready for production. Valid-secret and controlled-throttle admin behavior is a mandatory post-deploy smoke, not a pre-publish blocker: the exact code-level success/throttle guardrails have deterministic coverage, while missing/invalid live rejection and no-cache passed against Replit. Audible TTS and one real spoken microphone question are Wilson-owned manual acceptance checks in `main`. The viewport-height issue is an explicit release exception routed to EFF-035 as an immediate post-production structural patch. Production was not published by this task.
+Wilson reviewed the remaining evidence boundaries and accepted the candidate as ready for production. Valid-secret and controlled-throttle admin behavior is a mandatory post-deploy smoke, not a pre-publish blocker: the exact code-level success/throttle guardrails have deterministic coverage, while missing/invalid live rejection and no-cache passed against Replit. Wilson subsequently confirmed audible TTS works on `main`; one real spoken microphone question remains a separate manual check. The viewport-height issue is an explicit release exception routed to EFF-035 as an immediate post-production structural patch. Production was not published by this task.
 
 Wilson excluded only flows that require live camera access. Image upload/vision remained in scope and passed with a repository-owned synthetic kitchen image.
 
@@ -55,7 +55,7 @@ The accumulated-main delta after that candidate was explicitly audited:
 | Linked direct-live journey | Pass, except duplicate linked upload | Real Google upgrade/profile, linked Pantry/Tools reload persistence, Slop Bowl, Ticket Pass reload restore, 14-step cook, linked Finish, and History persistence passed. A duplicate linked local-file upload was blocked by Chrome extension permission; exact-preview guest vision already passed. |
 | Admin direct-live lane | Pre-publish guardrails pass; post-deploy smoke required | Missing/invalid rejection and no-cache passed; exact deterministic valid-secret/throttle coverage passed. Exercise the real deployed secret and throttle after publish. |
 | New product findings | None | Every observed product issue maps to EFF-035 or EFF-034; EFF-032 is retained only as superseded historical evidence. |
-| Overall | **Ready for production** | Wilson accepted the remaining validation ownership: voice is a manual `main` check, admin valid/throttle is a mandatory post-deploy smoke, and EFF-035 is an immediate post-production release-exception patch. Separate publish authorization is still required. |
+| Overall | **Ready for production** | Wilson confirmed audible TTS on `main`; spoken microphone input remains a separate manual check, admin valid/throttle is a mandatory post-deploy smoke, and EFF-035 is an immediate post-production release-exception patch. Separate publish authorization is still required. |
 
 ## Fresh regression results
 
@@ -159,7 +159,8 @@ These are not pre-publish product blockers under Wilson's accepted release decis
 | Gap | Strongest current evidence | Smallest remaining action |
 |---|---|---|
 | Valid-secret and controlled admin throttle | Live missing/invalid/no-cache passed; focused exact-head admin/rate-limit unit suite passed, including valid-secret and throttling behavior with controlled test configuration. | Mandatory post-deploy smoke: use the deployed secret only in-process, confirm valid succeeds/invalid fails, trigger a controlled throttle, verify non-cacheable responses and recovery without exposing the secret. |
-| Spoken microphone question and audible TTS | Mic start/cancel and Repeat request passed; provider/unit evidence green. | Wilson will ask one real question and listen to one response manually in `main` before production. |
+| Audible TTS playback | **Owner-confirmed pass on `main`**: Wilson reported that TTS works. This is human playback evidence rather than an automation claim. | None for pre-publish readiness. |
+| Spoken microphone question | Mic start/cancel passed; provider/unit evidence is green, but no real spoken sample was supplied during the controlled rerun. | Wilson may ask one real question manually in `main`; do not infer microphone capture from the separate TTS pass. |
 | Induced step/assistance failure | Exact deterministic unit coverage passed; normal provider path passed. | Retain as resilience coverage; use a safe non-production failure hook in a later focused pass rather than damaging shared runtime state. |
 | Exact-candidate custom-domain smoke | Production was not published by this task. | After explicit publish authorization, record the deployed marker and run the focused custom-domain smoke, including the admin checks above. |
 
@@ -200,7 +201,7 @@ No runtime, product, UI, test, workflow-policy, dependency, schema, deployment, 
 
 ## Open items
 
-- Wilson performs audible TTS and one spoken microphone check in `main`.
+- Wilson's audible TTS check in `main` passed; one real spoken microphone check remains separate.
 - Obtain separate publish authorization, then run the mandatory masked valid/invalid/throttled admin and custom-domain smoke after deployment.
 - Implement EFF-035 as the immediate post-production patch, with EFF-034 following as normal polish.
 - Delete the clearly labeled synthetic feedback row if desired.
@@ -213,14 +214,18 @@ No runtime, product, UI, test, workflow-policy, dependency, schema, deployment, 
 - exact-main fetch/ancestor check
 - exact-head local, GitHub, Replit, provider, and mobile evidence as recorded above
 
-This report deliberately separates observed facts from Wilson-owned manual acceptance and post-deploy smoke. It does not claim camera validation, a duplicate linked local-file upload, real audible speech, a production publish, production-secret success/throttling, or a custom-domain pass.
+This report deliberately separates observed facts from Wilson-owned manual acceptance and post-deploy smoke. Wilson's manual audible-TTS pass is recorded, but the report does not claim camera validation, a duplicate linked local-file upload, real spoken microphone input, a production publish, production-secret success/throttling, or a custom-domain pass.
 
 ## 2026-07-22 — Wilson production-readiness decision
 
 Wilson accepted `742694d9` as ready for production based on the exact-head automated, Replit, provider, guest, linked, persistence, and mobile evidence above. The release decision assigns the remaining work instead of treating it as one undifferentiated hold:
 
 - admin valid-secret and controlled-throttle behavior is a mandatory post-deploy smoke because the real deployed secret/environment is the authoritative target;
-- audible TTS and one spoken microphone question are Wilson-owned manual checks in `main`;
+- audible TTS is owner-confirmed working on `main`; one spoken microphone question remains a separate manual check;
 - the height-dependent setup limitation is accepted for this release and moves to EFF-035 as an immediate post-production generalized viewport/overflow/safe-area patch;
 - EFF-034 remains normal post-release polish;
 - publishing still requires a separate explicit instruction and this task did not publish production.
+
+## 2026-07-22 — Owner-confirmed TTS pass
+
+Wilson reported that TTS works on `main`. This closes the audible-playback acceptance item as a human-confirmed pass. It does not establish microphone capture or spoken-question transcription, which remains separately unclaimed, and it does not change the post-deploy admin smoke, EFF-035 release exception, EFF-034 polish scope, or production publish status.
