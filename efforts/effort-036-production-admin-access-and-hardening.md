@@ -1,6 +1,6 @@
 # EFF-036: Restore production admin access and route hardening
 
-**Status:** Open
+**Status:** In Progress
 **Priority:** P0 — production security and operability blocker
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-22
@@ -49,9 +49,9 @@ Out of scope:
 
 ## Agent checklist
 
-- [ ] Verify current production secret presence through a masked presence-only check.
-- [ ] Restore the timing-safe comparison and mount the dedicated limiter while preserving no-cache headers.
-- [ ] Add regression coverage that preserves PR #246's eval-report routes.
+- [x] Verify current production secret presence through a masked presence-only check.
+- [x] Restore the timing-safe comparison and mount the dedicated limiter while preserving no-cache headers.
+- [x] Add regression coverage that preserves PR #246's eval-report routes.
 - [ ] Run focused admin/rate-limit tests, full unit, check, build, exact-head E2E, and security checks.
 - [ ] Obtain Wilson's publish authority before changing production.
 - [ ] Rerun valid, invalid, missing, threshold/reset, and no-cache production checks from a trusted process.
@@ -68,3 +68,15 @@ Out of scope:
 ## 2026-07-22 — Filed from post-publish blocker evidence
 
 The trusted Replit credential succeeded in preview but was denied by the custom domain. Repository history also identified the hardening regression between PR #244 and PR #246. Exact operational details are intentionally omitted from this public record. No product fix, secret change, republish, or live throttle flood was attempted in the regression task.
+
+## 2026-07-22 — PR #335 implementation and masked configuration check
+
+Wilson explicitly directed EFF-036 implementation into [PR #335](https://github.com/wmishak404/laica/pull/335). Runtime commit `763a1eba2e7fe9566e1bf53779235b4a80579611` restores SHA-256-normalized timing-safe credential comparison and mounts the existing dedicated admin limiter between no-cache handling and authentication. This preserves the eval-report routes added by PR #246.
+
+Production-mode `createRateLimit` already uses the shared database-backed bucket store by default, so the mounted admin limiter is shared across autoscale instances during normal operation. The existing database-error fallback remains in-memory and therefore weaker across multiple instances; that availability fallback is negative scope, not evidence of an unconditionally global limiter. The reset used by regression tests is deliberately test-only. No production reset endpoint was added.
+
+Focused route coverage now proves valid success, equivalent missing/invalid denial, no-cache behavior on success/denial/throttle, rejection before protected handlers, the throttle boundary, deterministic in-process reset, and continued JSON/markdown eval-report behavior. Local focused tests, the full 401-test unit suite, typecheck/lint, build, high/critical audit gate, and diff checks passed. Exact-head GitHub E2E/security evidence remains pending until the final documentation commit is pushed.
+
+The masked Replit Publishing view showed the production credential entry present and offered the action to unsync it from the workspace value. That is direct UI evidence that the deployment entry is already synchronized to the workspace secret, so no edit, unsync, relink, value reveal, or publish action was performed. The remaining custom-domain mismatch needs a separately authorized republish/restart and secret-safe smoke; it does not require Wilson to copy the value into chat.
+
+The public PR was also sanitized before implementation: the Replit workspace screenshot was removed, operational request details were redacted, and the branch was rewritten to a sanitized evidence commit. No secret value was ever captured. GitHub may retain unreachable objects or cached PR references after a force-push; permanent cached-reference removal, if Wilson wants it for the non-secret workspace metadata, is a GitHub Support action.

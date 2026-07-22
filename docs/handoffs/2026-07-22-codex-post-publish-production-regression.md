@@ -172,8 +172,16 @@ This is height/overflow/safe-area behavior, not a named-device or camera-only bu
 
 ## Required next actions
 
-1. **EFF-036 first:** diagnose production secret drift and restore admin hardening on a fresh implementation branch; obtain Wilson's explicit publish authority; rerun the secret-safe admin production matrix.
+1. **EFF-036 first:** finish PR #335 exact-head gates and manual Replit-before-merge validation; obtain Wilson's explicit merge and later publish authority; rerun the secret-safe admin production matrix after publish.
 2. **EFF-035 immediately after/parallel-safe:** implement the generalized setup viewport patch with exact-head mobile geometry and real-device browser/keyboard/safe-area evidence.
 3. Keep EFF-034 and EFF-037 as non-blocking P2 follow-up.
 4. Owner cleanup: delete the single labeled production feedback row if desired.
 5. Do not merge, republish, or call the release complete from this evidence-only branch without Wilson's explicit authority.
+
+## EFF-036 implementation follow-up in PR #335
+
+Wilson explicitly redirected EFF-036 implementation into this PR instead of waiting for the evidence-only branch to merge first. Runtime commit `763a1eba2e7fe9566e1bf53779235b4a80579611` restores timing-safe credential comparison and mounts the dedicated admin limiter while preserving no-cache handling and the existing eval-report routes. Focused and full local automation passed; exact-head GitHub evidence remains pending the final push.
+
+The masked Replit Publishing view showed that the production credential entry is already synchronized to the workspace value. No value was viewed, copied, edited, unsynced, or re-linked, and no publish occurred. The remaining deployment mismatch therefore stays blocked on a separately authorized republish/restart and secret-safe smoke rather than manual secret transfer.
+
+Before implementation, PR #335 was sanitized: the Replit workspace screenshot was removed, operational request details were redacted, and the branch was rewritten. No secret value was ever captured. GitHub may retain unreachable objects or cached PR references after a force-push; GitHub Support owns permanent cached-reference removal if Wilson wants that additional cleanup for the non-secret workspace metadata.
