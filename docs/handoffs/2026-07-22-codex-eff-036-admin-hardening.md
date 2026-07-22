@@ -11,7 +11,7 @@
 
 [PR #335](https://github.com/wmishak404/laica/pull/335) now restores the lost admin route hardening without exposing or changing the credential. Runtime commit `763a1eba2e7fe9566e1bf53779235b4a80579611` reinstates timing-safe comparison and mounts the existing dedicated limiter before authentication while keeping no-cache handling and PR #246's eval-report routes intact.
 
-The masked Replit Publishing configuration shows the production credential entry is already synchronized to the workspace value. No secret copy, reveal, edit, unsync, relink, rotation, republish, or production request was performed. Release acceptance remains blocked until a separately authorized publish/restart and custom-domain smoke proves the corrected deployment.
+The masked Replit Publishing inspection completed without revealing, copying, editing, relinking, rotating, or otherwise changing the credential. Exact operational configuration details remain outside this public handoff. Release acceptance remains blocked until separately authorized runtime validation and, if approved, publish/restart plus custom-domain smoke prove the corrected deployment.
 
 ## Changes
 
@@ -25,7 +25,7 @@ The masked Replit Publishing configuration shows the production credential entry
 
 - Production `createRateLimit` uses the existing shared database-backed bucket store by default, so the mounted admin limiter is shared across normal autoscale instances. Its existing database-error fallback is in-memory and therefore weaker across instances; do not overclaim unconditional global enforcement during a database limiter failure.
 - `resetRateLimitBucketsForTest()` is the deterministic test reset. No production reset endpoint was added because that would expand the protected surface and weaken the design.
-- Do not ask Wilson to copy the credential. The masked publishing entry is already synchronized to the workspace value.
+- Do not ask Wilson to copy the credential. The masked inspection did not require manual secret transfer; exact operational configuration details remain private.
 - The prior standalone EFF-036 task was paused to preserve single-branch ownership after Wilson redirected implementation into PR #335.
 
 ## Open items
