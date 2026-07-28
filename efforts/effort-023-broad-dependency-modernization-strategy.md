@@ -149,3 +149,9 @@ Future security scans and dependency automation may open new work, but agents sh
 A registry metadata update caused the high/critical dependency audit to fail on docs-only PR #344 even though that PR does not change the package graph. Wilson authorized addressing the gate before merging the viewport-priority documentation.
 
 The remediation follows the accepted PR #322 pattern: use npm's current audit metadata to update only `package-lock.json`, keep direct dependency declarations and runtime code unchanged, and validate install, compile, build, unit, audit, and exact-head GitHub gates. The broad patch-update PR #339 remains a separate maintenance lane and is not the remediation unit. Advisory identifiers, package paths, and scanner detail remain in private/security tooling and GitHub Actions logs.
+
+## 2026-07-28 - Audit remediation merged; broad strategy remains deferred
+
+PR #345 merged as `6272b5d68de9269bf9f2fe85e6f90160ce595df4` from exact head `b2f9e2b7a45109ac89313bd7663175f522099985`. The merge updated the lockfile's transitive resolution without changing `package.json` or direct dependency declarations. Exact-head dependency audit, secret scan, unit/typecheck/build, and all nine schema-backed Playwright tests passed before merge.
+
+This completed the concrete security-gate trigger without reopening broad modernization. PR #339 and other routine update proposals remain separate, current-need-based decisions; do not infer merge readiness for them from PR #345.
