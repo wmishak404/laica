@@ -77,3 +77,9 @@ The custom-domain regression reproduced the same geometry on the published build
 ## 2026-07-28 — Deferred after deployment and testing
 
 Wilson directed agents to stop selecting viewport work for new Effort or INIT assignments and to move to other pipeline work. EFF-035 is therefore `Deferred`, not resolved: the production findings above remain valid historical evidence, but they no longer justify proactive implementation on their own. Reopen only when Wilson supplies user feedback that the current viewport experience is unsatisfactory or new production regression evidence materially changes the accepted risk. Existing mobile-first validation requirements remain in force for unrelated UI work.
+
+## 2026-07-28 — Deprioritization merged
+
+PR #344 merged as `31a4806bf8ce04942f99b402fa4745dfda0be14b` from final head `1938f44c62084abc79486a8c312f35e69c900d22`, based on the merged gate remediation at `6272b5d68de9269bf9f2fe85e6f90160ce595df4`. Exact-head dependency audit, secret scan, unit/typecheck/build, `db:health`, all nine Playwright tests, and disposable-branch cleanup passed before merge.
+
+EFF-035 remains `Deferred`. The active INIT triage automation carries the non-viewport selection rule; the matching Efforts-hygiene automation change remains a protected-setting suggestion for Wilson to review. Neither automation is authoritative over this Effort header and INIT-001.

@@ -587,3 +587,9 @@ Production also confirmed the PR #296 Cooking Skill select-then-`Next` behavior,
 ### 2026-07-28 - Viewport work deprioritized
 
 Wilson accepted the deployed viewport experience as the current baseline after production testing and directed daily Effort/INIT agents to move on to other pipeline work. EFF-035 is now deferred rather than the default P1 assignment. Agents must not create or select new viewport-only work unless Wilson supplies user feedback that the current experience is unsatisfactory or new production evidence materially changes the accepted risk. Continue mobile viewport validation for unrelated UI work where the testing workflow requires it; this decision pauses proactive viewport implementation, not evidence collection.
+
+### 2026-07-28 - Viewport prioritization boundary merged
+
+PR #344 merged as `31a4806bf8ce04942f99b402fa4745dfda0be14b` from exact head `1938f44c62084abc79486a8c312f35e69c900d22` after the prerequisite gate-remediation PR #345 merged as `6272b5d68de9269bf9f2fe85e6f90160ce595df4`. The final PR #344 head passed dependency audit, secret scan, unit/typecheck/build, `db:health`, all nine Playwright tests, and disposable Neon cleanup.
+
+The current resume point is non-viewport work from fresh `origin/main`, subject to live PR ownership and each INIT/Effort's documented decision gates. EFF-035 stays deferred until Wilson supplies unsatisfactory user feedback or accepts materially changed production evidence. Mobile-first evidence requirements remain in force for unrelated UI changes.

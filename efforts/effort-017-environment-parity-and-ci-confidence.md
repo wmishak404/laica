@@ -808,3 +808,9 @@ The workflow now makes up to three bounded branch-creation attempts with the sam
 - schema push, `db:health`, Playwright, and cleanup remain required once provisioning succeeds.
 
 This is an EFF-017 reliability improvement, not broader E2E coverage and not proof of application behavior until the full exact-head job passes.
+
+## 2026-07-28 — Neon retry and audit remediation merged
+
+PR #345 merged as `6272b5d68de9269bf9f2fe85e6f90160ce595df4` from exact head `b2f9e2b7a45109ac89313bd7663175f522099985`. The required CI run `30389777931` passed unit/typecheck/build and all nine schema-backed Playwright tests. Its first Neon branch-creation call hit the action's 10-second timeout, the second bounded attempt recovered the same run-specific branch, `db:health` passed, and branch cleanup completed. Dependency-audit run `30389781094` and secret-scan run `30389777774` also passed.
+
+This merge proves the bounded retry path under the failure mode that triggered it. It does not change EFF-017's status or expand coverage: provider canaries, automated Replit-environment work, coverage ratcheting, and other remaining confidence lanes stay separately owned.
