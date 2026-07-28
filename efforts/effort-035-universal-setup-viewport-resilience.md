@@ -1,10 +1,10 @@
 # EFF-035: Universal mobile viewport resilience for first-time setup
 
-**Status:** Open
-**Priority:** P1 — immediate post-production patch; explicitly accepted as a release exception
+**Status:** Deferred
+**Priority:** Deferred — do not assign proactively; reopen only from Wilson-supplied user feedback or new production regression evidence
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-22
-**Updated:** 2026-07-22
+**Updated:** 2026-07-28
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Supersedes:** [EFF-032 - First-time setup inventory camera compact fit](effort-032-setup-inventory-camera-compact-fit.md)
 **Related docs:** [post-publish production regression](../docs/handoffs/2026-07-22-codex-post-publish-production-regression.md), [Phase 2.1 Setup Polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md), [PD-005 UI Governance](../product-decisions/pd-005-ui-governance.md), [design guidelines](../design_guidelines.md)
@@ -17,7 +17,7 @@ Make first-time setup actions reachable across supported mobile viewport-height 
 
 The pre-publish release-candidate rerun and fresh production custom-domain regression reproduced a height-dependent setup trap. At `390x844`, first-time Pantry and optional Tools actions begin outside the viewport and no intended scroll owner has range. At `412x915`, the Pantry rail remains slightly clipped. At `375x667`, `.setup-scroll-body` does have substantial scroll range. Different effective heights can arise from phones, browsers, orientations, keyboards, accessibility settings, and browser chrome; this is not an “older iPhone” defect.
 
-Wilson accepted the current behavior as a bounded release exception so the structural layout change would not be rushed into the publish. EFF-035 is the immediate post-production patch home.
+Wilson accepted the current behavior as a bounded release exception so the structural layout change would not be rushed into the publish. After deployment and post-publish testing, Wilson reprioritized EFF-035 on 2026-07-28: preserve the current production viewport behavior and stop assigning proactive viewport work until Wilson supplies user feedback that the experience is unsatisfactory or new production evidence materially changes the risk.
 
 Production evidence: [`Pantry 390x844`](../docs/assets/production-regression/2026-07-22/production-eff035-pantry-unreachable-390x844.jpg), [`Tools 390x844`](../docs/assets/production-regression/2026-07-22/production-eff035-tools-unreachable-390x844.jpg), and [`Pantry 412x915`](../docs/assets/production-regression/2026-07-22/production-eff035-pantry-412x915.jpg).
 
@@ -38,10 +38,11 @@ Out of scope:
 ## Decisions made so far
 
 - The production release shipped with this accepted exception.
-- Implement one generalized viewport/overflow/safe-area correction immediately after production validation.
+- Preserve the generalized viewport/overflow/safe-area correction as documented future scope, but do not implement it proactively while the Effort is deferred.
 - Test layout constraints and effective viewport heights, not device names.
 - Preserve the current UI; this is a reachability patch, not a design refresh.
 - EFF-032 remains historical evidence and is resolved as superseded, not implemented.
+- The pause affects viewport work selection, not LAICA's mobile-first validation discipline: unrelated UI changes should still use the representative mobile checks required by the testing workflow.
 
 ## Open questions
 
@@ -72,3 +73,7 @@ Out of scope:
 ## 2026-07-22 — Fresh production confirmation
 
 The custom-domain regression reproduced the same geometry on the published build. At `390x844`, Pantry and Tools Back/Next rails began at approximately `845.78px`; `documentElement` and `.setup-scroll-body` both had zero range. At `412x915`, Pantry actions ended near `921.28px`, about six pixels beyond the viewport. At `375x667`, expanded manual entry produced real bounded scrolling. The release-exception decision remains accepted, and EFF-035 is now backed by production rather than preview-only evidence.
+
+## 2026-07-28 — Deferred after deployment and testing
+
+Wilson directed agents to stop selecting viewport work for new Effort or INIT assignments and to move to other pipeline work. EFF-035 is therefore `Deferred`, not resolved: the production findings above remain valid historical evidence, but they no longer justify proactive implementation on their own. Reopen only when Wilson supplies user feedback that the current viewport experience is unsatisfactory or new production regression evidence materially changes the accepted risk. Existing mobile-first validation requirements remain in force for unrelated UI work.
