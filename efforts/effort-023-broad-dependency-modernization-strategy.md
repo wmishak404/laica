@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-07-21
+**Updated:** 2026-07-28
 
 ## One-line summary
 
@@ -143,3 +143,9 @@ The accepted distinction is:
 - PR #316 remains separately deferred because its Replit-only integration path lacks the environment-specific validation required to justify the update.
 
 Future security scans and dependency automation may open new work, but agents should reassess the then-current versions, advisories, platform requirements, and product need from fresh `origin/main`. Do not reopen or merge these historical heads merely because their earlier checks passed; their evidence becomes stale as the base and external dependency ecosystem change.
+
+## 2026-07-28 - New audit gate triggered narrow lockfile remediation
+
+A registry metadata update caused the high/critical dependency audit to fail on docs-only PR #344 even though that PR does not change the package graph. Wilson authorized addressing the gate before merging the viewport-priority documentation.
+
+The remediation follows the accepted PR #322 pattern: use npm's current audit metadata to update only `package-lock.json`, keep direct dependency declarations and runtime code unchanged, and validate install, compile, build, unit, audit, and exact-head GitHub gates. The broad patch-update PR #339 remains a separate maintenance lane and is not the remediation unit. Advisory identifiers, package paths, and scanner detail remain in private/security tooling and GitHub Actions logs.
