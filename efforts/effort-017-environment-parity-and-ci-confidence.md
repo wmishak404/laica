@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-07-21
+**Updated:** 2026-07-28
 
 ## One-line summary
 
@@ -794,3 +794,17 @@ Branch `codex/e2e-rate-limit-capacity` starts from the verified PR #328 merge at
 - A shared Playwright fixture reports any unexpected browser `429` with URL, method, resource type, frame/test/project/retry context, attaches JSON diagnostics, and the E2E job uploads `test-results/` on failure.
 
 This is automation-primary CI/test-infrastructure work. It does not change production limiter defaults, route behavior, auth/session, provider calls, schema, product UI, or validation authority, so no human Replit validation or changed-since-last-production registry case is required. After this harness PR merges, PR #325 must rebase and rerun its exact-head nine-test schema-backed lane for the authoritative combined proof. EFF-017 remains `In Progress` for its broader provider-canary, automated Replit-environment, OAuth-preflight, coverage-ratchet, and live-surface goals.
+
+## 2026-07-28 — Neon branch provisioning retries preserve the exact-head gate
+
+PR #345 exposed a CI-infrastructure flake while repairing the dependency-audit gate: three consecutive `e2e_guest_smoke` attempts stopped before install, schema application, or Playwright because `neondatabase/create-branch-action@v6` timed out after 10 seconds while creating the disposable schema-only branch. Preflight secrets passed, the independent unit/typecheck/build job passed, and Neon's public status page reported project/branch operations and the Console API operational at the time.
+
+The workflow now makes up to three bounded branch-creation attempts with the same per-run branch name. This preserves the gate rather than bypassing it:
+
+- the third failure still fails the job;
+- later steps consume the first successful action output;
+- branch deletion consumes the same successful branch id;
+- fork/draft/private-configuration guards are unchanged;
+- schema push, `db:health`, Playwright, and cleanup remain required once provisioning succeeds.
+
+This is an EFF-017 reliability improvement, not broader E2E coverage and not proof of application behavior until the full exact-head job passes.
