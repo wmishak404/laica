@@ -104,6 +104,8 @@ Direct-shell Replit validation of implementation head `70f27d9b89fdd0d650295b9d9
 
 Wilson validated the resulting PR through desktop and mobile views and reported that it looks great, accepting the visible correction. This acceptance does not erase the separately documented physical keyboard-open and increased-text-size evidence gaps.
 
+PR #347 then squash-merged the correction into `main` as `736ee6bdc1eece81558d04c0c45daf5a184e86b2` from final validated head `2788a9585e6155ebe1282f00300de5bfe095ac12`. The focused post-publish Pantry/Tools check remains in the production validation registry; no setup order, camera/provider, scan policy, returning Settings dock, durable navigation, or design direction changed.
+
 ## Deferrals
 
 - Semantic scan-session duplicate cleanup and latest-scan chip states.

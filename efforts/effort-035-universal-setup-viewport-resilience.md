@@ -1,7 +1,7 @@
 # EFF-035: Universal setup viewport resilience
 
-**Status:** In Progress
-**Priority:** P1 — reopened by Wilson-supplied production feedback
+**Status:** Resolved
+**Priority:** Resolved P1
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-22
 **Updated:** 2026-07-29
@@ -104,3 +104,9 @@ Validation completed at implementation head `70f27d9b89fdd0d650295b9d9a6be975729
 Direct-shell Replit validation loaded the same implementation head without Replit Agent. At `1024x600`, all five setup pages exposed bounded `.setup-scroll-body` range when needed and normal wheel interaction reached each true bottom while Back/Next stayed inside the viewport. Pantry also passed with expanded manual entry and a three-item saved list. Representative mobile evidence passed at `390x844` and `412x915`; short landscape evidence passed at `844x390`, including expanded Pantry and the long Dietary Restrictions page. The tested root remained locked while the inner setup body remained the sole `overflow-y: auto` owner. Physical Safari/Chrome keyboard-open and increased-text-size behavior, plus the unrepresented matrix widths, remain explicit gaps; EFF-035 stays `In Progress` until merge and closeout.
 
 Wilson then validated the PR result through desktop and mobile views and reported that it looks great. This is the human acceptance signal for the visible setup-scroll correction. Because exact viewport presets and keyboard-open/increased-text-size conditions were not supplied, the objective matrix and physical-browser gaps above remain bounded rather than being silently promoted to tested.
+
+## 2026-07-29 — Resolved by PR #347
+
+PR #347 squash-merged into `main` as `736ee6bdc1eece81558d04c0c45daf5a184e86b2` from final head `2788a9585e6155ebe1282f00300de5bfe095ac12`. The final head passed unit/typecheck/build, schema-backed guest plus linked Playwright smoke, dependency audit, secret scan, and CodeQL. Replit loaded the final head without Replit Agent and repeated the short `1024x600` and `390x844` scroll fingerprint after the full implementation-head matrix; Wilson accepted the desktop and mobile result.
+
+EFF-035 is resolved because the merged base setup contract restores a real bounded inner scroll owner across the accepted desktop/mobile matrix while keeping Back/Next reachable and the outer root locked. Physical keyboard-open and increased-text-size behavior remains unvalidated, and the production validation registry retains the focused post-publish check; those bounded gaps do not reopen this Effort without new regression evidence.
