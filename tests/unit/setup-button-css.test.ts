@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-describe('setup button CSS guards', () => {
+describe('setup CSS guards', () => {
   const css = readFileSync('client/src/index.css', 'utf8');
 
   it('keeps setup primary button text white in mobile tap states', () => {
@@ -51,5 +51,28 @@ describe('setup button CSS guards', () => {
     expect(inventoryActionRule).not.toMatch(/background(?:-color|-image)?:.*\/\s*0\./);
     expect(inventoryActionInnerRule).toContain('max-width: 36rem;');
     expect(inventoryActionInnerRule).toContain('margin: 0 auto;');
+  });
+
+  it('constrains the setup frame at every viewport width so its body can scroll', () => {
+    const setupUiRule = css.match(/\.setup-ui \{[\s\S]*?\}/)?.[0] ?? '';
+    const setupShellRule = css.match(/\.setup-shell \{[\s\S]*?\}/)?.[0] ?? '';
+    const setupFrameRule = css.match(/\.setup-phone-frame \{[\s\S]*?\}/)?.[0] ?? '';
+    const setupScrollBodyRule = css.match(/\.setup-scroll-body \{[\s\S]*?\}/)?.[0] ?? '';
+
+    expect(setupUiRule).toContain('position: fixed;');
+    expect(setupUiRule).toContain('height: 100dvh;');
+    expect(setupUiRule).toContain('max-height: 100dvh;');
+    expect(setupUiRule).toContain('overflow: hidden;');
+
+    expect(setupShellRule).toContain('height: 100dvh;');
+    expect(setupShellRule).toContain('min-height: 0;');
+    expect(setupShellRule).toContain('overflow: hidden;');
+
+    expect(setupFrameRule).toContain('height: 100%;');
+    expect(setupFrameRule).toContain('min-height: 0;');
+    expect(setupFrameRule).toContain('overflow: hidden;');
+
+    expect(setupScrollBodyRule).toContain('min-height: 0;');
+    expect(setupScrollBodyRule).toContain('overflow-y: auto;');
   });
 });

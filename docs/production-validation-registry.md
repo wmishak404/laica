@@ -19,7 +19,7 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - Source correlation: Replit workspace reported `main` at `742694d9d209dba04674ce7188319d7f449c4a6e`; live CSS was byte-identical to a clean build from that SHA, and live JavaScript carried its Guest Finish/EFF-033 runtime markers. Build-time environment substitution prevents a byte-identical JavaScript claim.
 - Exact deployed Git SHA/marker: not exposed by the custom-domain app or current Replit deployment-status surface.
 - Current verdict: **BLOCKED** for admin production access/security. The post-PR #335 publish completed, but the focused acceptance gate remains unsatisfied. Detailed security-state results are retained privately rather than in this public registry. See EFF-036.
-- Accepted non-blocking exceptions: EFF-035 generalized setup viewport reachability (P1 immediate patch) and EFF-034 timer/Settings mobile cleanup (P2). EFF-037 is a newly recorded P2 Feedback length-contract defect.
+- Accepted non-blocking exceptions: EFF-034 timer/Settings mobile cleanup (P2). EFF-035 setup viewport reachability was reopened on 2026-07-29 by Wilson's desktop production report and now has a pending focused correction; EFF-037 remains a P2 Feedback length-contract defect.
 
 ## Current Main Candidate
 
@@ -38,6 +38,13 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - New non-blocker: EFF-037, client accepts a 289-character feedback draft that the 280-character server rejects with generic retry copy; a short labeled production write succeeded.
 - Human/hardware boundary: no fresh objective audible-output, camera-capture hardware, or recognized spoken-question claim. Production Repeat updated the transcript without console failure; question mode entered/canceled `Listening...`; synthetic image upload returned four correct visible-product detections. Wilson's earlier main-branch physical audio/camera evidence remains bounded context only.
 - Cleanup: guest and linked synthetic Pantry/Tools entries were removed and reload-confirmed; the linked production History row was deleted; the isolated vision guest list was cleared; the Google test account was signed out. One labeled feedback row remains because the product exposes no delete path.
+
+### EFF-035 setup viewport correction — pending branch
+
+- Changed surface: `codex/desktop-setup-scroll` moves the first-time setup fixed-height frame and bounded `.setup-scroll-body` contract out of the narrow/short media query so it applies at constrained desktop widths and the previously affected taller mobile heights.
+- Existing evidence: Wilson's 2026-07-29 desktop production screenshots reproduce the unreachable content; production Planning, Settings hub, and Kitchen Inventory retained working scroll paths at constrained desktop height. Focused setup Vitest, typecheck/UI lint, build, and a rendered `1024x600` local fixture pass on the branch.
+- Focused production-push check: first-time Pantry and optional Tools at a constrained desktop height plus `390x844`, `412x915`, and one short mobile/landscape height; confirm normal wheel/touch scrolling reaches Upload, Manual, list content, and Back/Next without adding document scroll under the fixed setup frame.
+- Negative scope and breadcrumb: no setup step/order, camera/provider, scan policy, returning Settings dock, durable navigation, or design refresh. If content is still unreachable, record `.setup-ui`, `.setup-shell`, `.setup-phone-frame`, `.setup-scroll-body`, root/document client/scroll heights, action bounds, and effective viewport dimensions before changing density.
 
 ### EFF-036 implementation — PR #335
 
