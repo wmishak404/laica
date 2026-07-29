@@ -58,10 +58,10 @@ Out of scope:
 - [x] Start from fresh `origin/main` and confirm no open branch owns setup viewport structure.
 - [x] Read EFF-032 history, EFF-029, INIT-001, Phase 2.1, PD-005, `design_guidelines.md`, and the post-publish regression.
 - [x] Identify the full height/flex/overflow chain before editing.
-- [ ] Measure client height, scroll height, scroll position, action bounds, dock clearance, and safe-area contribution.
+- [x] Measure client height, scroll height, scroll position, action bounds, dock clearance, and safe-area contribution.
 - [ ] Add normal-interaction reachability coverage at `390x844`, `393x852`, `375x667`, `360x640`, `412x915`, and a short landscape height.
 - [ ] Include keyboard, browser-chrome, orientation, and text-scaling checks where tools can represent them faithfully.
-- [ ] Run focused setup tests, full unit, check, build, exact-head E2E, and final-head mobile Replit validation.
+- [x] Run focused setup tests, full unit, check, build, exact-head E2E, and final-head mobile Replit validation.
 
 ## Resolution criteria
 
@@ -99,4 +99,6 @@ Investigation on production and current `origin/main` separated the paths:
 
 Branch `codex/desktop-setup-scroll` moves the frame-height/flex/overflow contract into the base setup rules and leaves only compact visual adjustments in the narrow/short media query. It adds a CSS structural guard and a Playwright regression case at `1024x600`. A rendered local fixture at `1024x600` visibly exposed the setup scrollbar, accepted normal wheel scrolling from the camera to Upload/Manual/entry controls, and kept Back/Next fixed within the viewport.
 
-Validation completed so far: focused setup Vitest (22 tests), `npm run check`, `npm run build`, and `git diff --check` passed. The build retained existing stale Browserslist, Firebase mixed-import, and bundle-size warnings. The configured disposable local E2E database variables were missing, and the default local database returned an auth-session 500, so local end-to-end execution is not claimed. Exact-head GitHub E2E plus focused final-head mobile/desktop browser validation remain required before merge.
+Validation completed at implementation head `70f27d9b89fdd0d650295b9d9a6be97572982bde`: focused setup Vitest (22 tests), full unit (51 files / 402 tests), `npm run check`, `npm run build`, `git diff --check`, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze passed. The build retained existing stale Browserslist, Firebase mixed-import, and bundle-size warnings. The configured disposable local E2E database variables were missing, and the default local database returned an auth-session 500, so local end-to-end execution is not claimed.
+
+Direct-shell Replit validation loaded the same implementation head without Replit Agent. At `1024x600`, all five setup pages exposed bounded `.setup-scroll-body` range when needed and normal wheel interaction reached each true bottom while Back/Next stayed inside the viewport. Pantry also passed with expanded manual entry and a three-item saved list. Representative mobile evidence passed at `390x844` and `412x915`; short landscape evidence passed at `844x390`, including expanded Pantry and the long Dietary Restrictions page. The tested root remained locked while the inner setup body remained the sole `overflow-y: auto` owner. Physical Safari/Chrome keyboard-open and increased-text-size behavior, plus the unrepresented matrix widths, remain explicit gaps; EFF-035 stays `In Progress` until merge and closeout.

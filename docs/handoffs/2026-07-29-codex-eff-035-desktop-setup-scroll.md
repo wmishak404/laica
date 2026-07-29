@@ -41,10 +41,9 @@ This branch moves the setup height/flex/overflow contract into the base setup ru
 
 ## Open items
 
-- Exact-head GitHub `e2e_guest_smoke` is still required for review/merge evidence.
-- Final-head browser validation should cover first-time Pantry and optional Tools at a constrained desktop height, `390x844`, `412x915`, and one short mobile or landscape height. Confirm normal wheel/touch reachability to Upload, Manual, list content, and Back/Next.
 - Physical Safari/Chrome keyboard-open and increased-text-size behavior remains unvalidated. Keep EFF-035 `In Progress` until its accepted matrix and final-head evidence justify resolution.
-- Human Replit validation: required before merge because this fixes a production browser reachability regression across responsive breakpoints.
+- The evidence-only documentation head needs the short exact-head Replit fingerprint and exact-head GitHub gate required by the stale-validation policy.
+- Wilson's explicit merge approval and the focused post-publish production check remain required. This branch has not been published.
 
 ## Verification
 
@@ -53,7 +52,15 @@ This branch moves the setup height/flex/overflow contract into the base setup ru
 - Static: `npm run check` — TypeScript and UI lint passed.
 - Build: `npm run build` — passed; retained existing stale Browserslist, Firebase mixed-import, and bundle-size warnings.
 - Formatting: `git diff --check` — passed.
+- Exact implementation head `70f27d9b89fdd0d650295b9d9a6be97572982bde`: GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze passed.
 - Rendered local fixture at `1024x600`: setup scrollbar visibly rendered; a normal wheel interaction moved from the camera to Upload/Manual/manual-entry content while Back/Next stayed fixed inside the viewport.
+- Direct-shell Replit validation at exact implementation head `70f27d9b89fdd0d650295b9d9a6be97572982bde` used the guest preview and did not use Replit Agent.
+  - `1024x600`: Pantry collapsed measured `420px` client / `784px` scroll height and reached its `364px` maximum; expanded manual entry measured `420px` / `1026px` and reached its `606px` maximum. Tools, Cooking Skill, Dietary Restrictions, and Confirmation measured maximum scroll ranges of `96px`, `82px`, `550px`, and `98px`; normal wheel interaction reached each true bottom.
+  - The setup root remained locked (`documentElement` `overflow-y: hidden`), `.setup-scroll-body` remained `overflow-y: auto`, and the Back/Next rail ended exactly at the `600px` viewport edge while content ended above it.
+  - `390x844`: Confirmation fit its `664px` scroll body; Dietary Restrictions measured `970px` content inside `664px` and reached its `306px` maximum.
+  - `412x915`: Dietary Restrictions measured `970px` content inside `735px`, retained `overflow-y: auto`, and kept the rail at the `915px` viewport edge.
+  - `844x390`: Dietary Restrictions reached its `760px` maximum; expanded Pantry reached its `960px` maximum with saved-list content and Back/Next visibly reachable.
+  - Last Replit-validated at: `70f27d9b89fdd0d650295b9d9a6be97572982bde`. A short final-head fingerprint is required after this evidence-only commit.
 - Production constrained-desktop audit:
   - Planning fit the viewport without a hidden overflow path.
   - Settings hub document scrolling moved from `0` to approximately `176px`.
