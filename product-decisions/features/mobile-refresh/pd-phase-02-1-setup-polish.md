@@ -96,6 +96,14 @@ Replit validation covered:
 
 The post-publish custom-domain regression freshly confirmed the PR #296 behavior: Cooking Skill `Next` was disabled before a choice, selecting `Beginner` did not auto-advance, and `Next` became enabled. This corrects the older Phase 2.1 wording so implementation, tests, and the durable acceptance record agree.
 
+### 2026-07-29 setup scroll contract correction
+
+Wilson's production desktop screenshots reopened EFF-035 after first-time Pantry content extended below the visible window without a working scroll range. The root cause was structural: setup locked the outer document at every width, but the corresponding fixed-height frame and bounded `.setup-scroll-body` contract existed only under the narrow-and-short viewport media query. Setup must keep one bounded inner content scroller above the Back/Next rail at every viewport width, including constrained desktop windows; compact media queries may adjust density but must not own the scroll structure.
+
+Direct-shell Replit validation of implementation head `70f27d9b89fdd0d650295b9d9a6be97572982bde` exercised every setup step at `1024x600`, portrait checks at `390x844` and `412x915`, and short-landscape Pantry/Dietary checks at `844x390`. Normal scrolling reached every measured true bottom while the action rail remained in-viewport; the setup root stayed locked and `.setup-scroll-body` remained the sole bounded content scroller. Replit Agent was not used.
+
+Wilson validated the resulting PR through desktop and mobile views and reported that it looks great, accepting the visible correction. This acceptance does not erase the separately documented physical keyboard-open and increased-text-size evidence gaps.
+
 ## Deferrals
 
 - Semantic scan-session duplicate cleanup and latest-scan chip states.

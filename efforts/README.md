@@ -75,6 +75,7 @@ Read these before starting work in their governed domains:
 | [EFF-017](effort-017-environment-parity-and-ci-confidence.md) | Environment parity + CI confidence | `In Progress` | Wilson / Codex / Claude | 2026-05-05 |
 | [EFF-022](effort-022-cross-cuisine-recommendation-prompts.md) | Cross-cuisine recommendation prompts | `Open` | Wilson / Codex / Claude | 2026-05-23 |
 | [EFF-034](effort-034-production-readiness-mobile-p2-cleanup.md) | Production-readiness mobile P2 cleanup | `Open` | Wilson / Codex / Claude | 2026-07-20 |
+| [EFF-035](effort-035-universal-setup-viewport-resilience.md) | Universal setup viewport resilience | `In Progress` | Wilson / Codex / Claude | 2026-07-22 |
 | [EFF-036](effort-036-production-admin-access-and-hardening.md) | Restore production admin access and route hardening | `In Progress` | Wilson / Codex / Claude | 2026-07-22 |
 | [EFF-037](effort-037-feedback-length-contract.md) | Align feedback length contract and recovery copy | `Open` | Wilson / Codex / Claude | 2026-07-22 |
 
@@ -85,7 +86,6 @@ Deferred Efforts are intentionally not part of the default active read list:
 | ID | Title | Status | Owner | Created |
 |---|---|---|---|---|
 | [EFF-023](effort-023-broad-dependency-modernization-strategy.md) | Broad dependency modernization strategy | `Deferred` | Wilson / Codex / Claude | 2026-05-26 |
-| [EFF-035](effort-035-universal-setup-viewport-resilience.md) | Universal mobile viewport resilience for first-time setup | `Deferred` | Wilson / Codex / Claude | 2026-07-22 |
 
 ## Resolved History
 

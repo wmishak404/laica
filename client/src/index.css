@@ -929,7 +929,15 @@ html[data-laica-setup-scroll-lock] #root {
     --setup-teal: 174 50% 46%;
     --setup-metal: 214 12% 60%;
     --setup-wood: 33 46% 72%;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
     background:
       radial-gradient(circle at 14% 2%, hsl(var(--setup-butter) / 0.36), transparent 18rem),
       radial-gradient(circle at 96% 18%, hsl(var(--setup-teal) / 0.12), transparent 17rem),
@@ -939,7 +947,11 @@ html[data-laica-setup-scroll-lock] #root {
   }
 
   .setup-shell {
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    max-height: 100dvh;
+    overflow: hidden;
   }
 
   .setup-ui-kitchen {
@@ -958,6 +970,9 @@ html[data-laica-setup-scroll-lock] #root {
 
   .setup-phone-frame {
     position: relative;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
     overflow: hidden;
     border-radius: 1.75rem 1.75rem 0 0;
     border: 1px solid hsl(var(--setup-coral-strong) / 0.18);
@@ -3678,41 +3693,13 @@ html[data-laica-setup-scroll-lock] #root {
       font-size: 0.875rem;
     }
 
-    .setup-ui {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100svh;
-      height: 100dvh;
-      min-height: 100svh;
-      min-height: 100dvh;
-      max-height: 100dvh;
-      overflow: hidden;
-    }
-
-    .setup-shell {
-      height: 100svh;
-      height: 100dvh;
-      min-height: 0;
-      max-height: 100dvh;
-      padding-top: 0;
-      overflow: hidden;
-    }
-
     .setup-phone-frame {
-      height: 100%;
-      min-height: 0;
-      max-height: none;
-      overflow: hidden;
       border-radius: 1.35rem 1.35rem 0 0;
       padding-top: 0.55rem;
     }
 
-    .setup-scroll-body {
-      min-height: 0;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch;
+    .setup-shell {
+      padding-top: 0;
     }
 
     .setup-progress-shell {

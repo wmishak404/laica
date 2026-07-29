@@ -371,6 +371,49 @@ test.describe('Laica Guest E2E Smoke', () => {
     await expect(page.getByRole('button', { name: 'Chef It Up' })).toBeVisible();
   });
 
+  test('Guest setup keeps its content scrollable at a short desktop viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 });
+    await page.goto('/');
+
+    await page.getByRole('button', { name: 'Start cooking now' }).click();
+    await expect(page.getByRole('button', { name: 'Get started' })).toBeVisible({ timeout: 30_000 });
+    await page.getByRole('button', { name: 'Get started' }).click();
+    await expect(page.getByRole('heading', { name: 'Start with pantry staples.' })).toBeVisible();
+
+    const setupScrollBody = page.locator('.setup-scroll-body');
+    const setupBottomBar = page.locator('.setup-bottom-bar');
+    const layout = await setupScrollBody.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const styles = getComputedStyle(element);
+      return {
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight,
+        overflowY: styles.overflowY,
+        top: rect.top,
+        bottom: rect.bottom,
+        viewportHeight: window.innerHeight,
+        rootOverflowY: getComputedStyle(document.documentElement).overflowY,
+      };
+    });
+
+    expect(layout.overflowY).toBe('auto');
+    expect(layout.scrollHeight).toBeGreaterThan(layout.clientHeight);
+    expect(layout.top).toBeGreaterThanOrEqual(0);
+    expect(layout.bottom).toBeLessThanOrEqual(layout.viewportHeight);
+    expect(layout.rootOverflowY).toBe('hidden');
+
+    await setupScrollBody.evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+    });
+    await expect.poll(() => setupScrollBody.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await expect(page.getByRole('button', { name: 'Enter manually' })).toBeVisible();
+
+    const bottomBarBox = await setupBottomBar.boundingBox();
+    expect(bottomBarBox).not.toBeNull();
+    if (!bottomBarBox) throw new Error('Setup bottom action bar bounds were unavailable');
+    expect(bottomBarBox.y + bottomBarBox.height).toBeLessThanOrEqual(600);
+  });
+
   test('Guest Settings inventory dock preserves Pantry and Tools controls on compact mobile viewports', async ({ page }) => {
     test.setTimeout(120_000);
     await page.setViewportSize({ width: 390, height: 844 });

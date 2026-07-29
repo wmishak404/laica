@@ -68,7 +68,7 @@ Mobile browser flows must end intentionally. When a page has terminal navigation
 
 Step-based mobile-browser flows must reset their owned scrollport on every step or view transition. A bottom-scrolled confirmation screen should never leak its scroll position into earlier setup pages, especially when browser chrome reduces the visible viewport.
 
-Step-based setup flows that use a fixed phone frame and internal content scrollport must also lock the outer document/root scroll while mounted. Do not allow `html`, `body`, or `#root` to retain an independent scroll range under the setup rail; mobile browser hit testing can drift when the visible setup frame and document scroll offset disagree.
+Step-based setup flows that use a fixed phone frame and internal content scrollport must also lock the outer document/root scroll while mounted. Do not allow `html`, `body`, or `#root` to retain an independent scroll range under the setup rail; mobile browser hit testing can drift when the visible setup frame and document scroll offset disagree. The matching fixed-height flex contract and bounded inner scroll owner must apply at every viewport width, including constrained desktop windows; do not place that structural contract only inside a narrow-device media query.
 
 ## Surface Taxonomy
 

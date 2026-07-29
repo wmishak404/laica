@@ -1,17 +1,17 @@
-# EFF-035: Universal mobile viewport resilience for first-time setup
+# EFF-035: Universal setup viewport resilience
 
-**Status:** Deferred
-**Priority:** Deferred — do not assign proactively; reopen only from Wilson-supplied user feedback or new production regression evidence
+**Status:** In Progress
+**Priority:** P1 — reopened by Wilson-supplied production feedback
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-22
-**Updated:** 2026-07-28
+**Updated:** 2026-07-29
 **Linked Initiative:** [INIT-001 - Mobile Refresh](../initiatives/INIT-001-mobile-refresh.md)
 **Supersedes:** [EFF-032 - First-time setup inventory camera compact fit](effort-032-setup-inventory-camera-compact-fit.md)
 **Related docs:** [post-publish production regression](../docs/handoffs/2026-07-22-codex-post-publish-production-regression.md), [Phase 2.1 Setup Polish](../product-decisions/features/mobile-refresh/pd-phase-02-1-setup-polish.md), [PD-005 UI Governance](../product-decisions/pd-005-ui-governance.md), [design guidelines](../design_guidelines.md)
 
 ## One-line summary
 
-Make first-time setup actions reachable across supported mobile viewport-height combinations with one generalized overflow and safe-area strategy, while preserving the production UI and avoiding device-specific breakpoints.
+Make first-time setup actions reachable across supported viewport widths and heights with one generalized overflow and safe-area strategy, while preserving the production UI and avoiding device-specific breakpoints.
 
 ## Context
 
@@ -21,9 +21,12 @@ Wilson accepted the current behavior as a bounded release exception so the struc
 
 Production evidence: [`Pantry 390x844`](../docs/assets/production-regression/2026-07-22/production-eff035-pantry-unreachable-390x844.jpg), [`Tools 390x844`](../docs/assets/production-regression/2026-07-22/production-eff035-tools-unreachable-390x844.jpg), and [`Pantry 412x915`](../docs/assets/production-regression/2026-07-22/production-eff035-pantry-412x915.jpg).
 
+Wilson supplied the documented reopen trigger on 2026-07-29: production desktop screenshots showed first-time Pantry content extending below the visible window with no scroll response, requiring the browser window to be expanded to reach the lower controls. This is the same setup-shell defect at a wider breakpoint, not a separate desktop-only bug.
+
 ## Scope
 
 - Cover the first-time setup shell, especially Pantry and optional Tools.
+- Cover constrained desktop heights as well as representative mobile portrait, mobile landscape, browser-chrome, and keyboard-open heights.
 - Establish one deliberate document or bounded-content scroll owner.
 - Prefer `min-height`, dynamic viewport units, and evidence-backed flex constraints over fixed-height assumptions.
 - Respect safe-area insets, browser-chrome changes, keyboard focus, orientation, and increased text size.
@@ -43,23 +46,22 @@ Out of scope:
 - Preserve the current UI; this is a reachability patch, not a design refresh.
 - EFF-032 remains historical evidence and is resolved as superseded, not implemented.
 - The pause affects viewport work selection, not LAICA's mobile-first validation discipline: unrelated UI changes should still use the representative mobile checks required by the testing workflow.
+- Keep `.setup-scroll-body` as the one bounded setup content scroll owner at every viewport width while the outer document/root remains locked. The fixed-height frame contract must not live only inside a narrow-device media query.
 
 ## Open questions
 
-- Should the whole setup document scroll, or should `.setup-scroll-body` remain the only bounded scroll owner?
-- Which fixed height, flex minimum, or overflow rule creates the `390x844` zero-range state?
-- Which `100vh` fallback plus `100dvh` strategy behaves consistently across supported Safari and Chrome?
+- Does the `100vh` fallback plus `100dvh` strategy behave consistently across supported physical Safari and Chrome after the structural fix?
 - How should keyboard-open and increased-text-size evidence be captured repeatably?
 
 ## Agent checklist
 
-- [ ] Start from fresh `origin/main` and confirm no open branch owns setup viewport structure.
-- [ ] Read EFF-032 history, EFF-029, INIT-001, Phase 2.1, PD-005, `design_guidelines.md`, and the post-publish regression.
-- [ ] Identify the full height/flex/overflow chain before editing.
-- [ ] Measure client height, scroll height, scroll position, action bounds, dock clearance, and safe-area contribution.
+- [x] Start from fresh `origin/main` and confirm no open branch owns setup viewport structure.
+- [x] Read EFF-032 history, EFF-029, INIT-001, Phase 2.1, PD-005, `design_guidelines.md`, and the post-publish regression.
+- [x] Identify the full height/flex/overflow chain before editing.
+- [x] Measure client height, scroll height, scroll position, action bounds, dock clearance, and safe-area contribution.
 - [ ] Add normal-interaction reachability coverage at `390x844`, `393x852`, `375x667`, `360x640`, `412x915`, and a short landscape height.
 - [ ] Include keyboard, browser-chrome, orientation, and text-scaling checks where tools can represent them faithfully.
-- [ ] Run focused setup tests, full unit, check, build, exact-head E2E, and final-head mobile Replit validation.
+- [x] Run focused setup tests, full unit, check, build, exact-head E2E, and final-head mobile Replit validation.
 
 ## Resolution criteria
 
@@ -83,3 +85,22 @@ Wilson directed agents to stop selecting viewport work for new Effort or INIT as
 PR #344 merged as `31a4806bf8ce04942f99b402fa4745dfda0be14b` from final head `1938f44c62084abc79486a8c312f35e69c900d22`, based on the merged gate remediation at `6272b5d68de9269bf9f2fe85e6f90160ce595df4`. Exact-head dependency audit, secret scan, unit/typecheck/build, `db:health`, all nine Playwright tests, and disposable-branch cleanup passed before merge.
 
 EFF-035 remains `Deferred`. The active INIT triage automation carries the non-viewport selection rule; the matching Efforts-hygiene automation change remains a protected-setting suggestion for Wilson to review. Neither automation is authoritative over this Effort header and INIT-001.
+
+## 2026-07-29 — Reopened by desktop production feedback
+
+Wilson reported that the deployed first-time Pantry setup screen could not scroll at desktop width and required expanding the browser window to reach the lower content. The supplied screenshots show the tall `4 / 5` camera and subsequent actions extending below the visible viewport while Back/Next remain outside the reachable region.
+
+Investigation on production and current `origin/main` separated the paths:
+
+- Production Planning used normal document sizing and fit the constrained desktop viewport.
+- Production Settings hub used working document scrolling.
+- Production Kitchen Inventory used a working `.returning-inventory-scroll` inner scrollport; a wheel interaction moved it from `0` to approximately `491px`.
+- First-time setup uniquely locked `html`, `body`, and `#root`, but its fixed-height `.setup-ui` / `.setup-shell` / `.setup-phone-frame` contract existed only under `@media (max-width: 480px) and (max-height: 790px)`. At wider widths, or mobile heights above `790px`, `.setup-scroll-body` expanded to content height and had no scroll range while the outer page remained locked.
+
+Branch `codex/desktop-setup-scroll` moves the frame-height/flex/overflow contract into the base setup rules and leaves only compact visual adjustments in the narrow/short media query. It adds a CSS structural guard and a Playwright regression case at `1024x600`. A rendered local fixture at `1024x600` visibly exposed the setup scrollbar, accepted normal wheel scrolling from the camera to Upload/Manual/entry controls, and kept Back/Next fixed within the viewport.
+
+Validation completed at implementation head `70f27d9b89fdd0d650295b9d9a6be97572982bde`: focused setup Vitest (22 tests), full unit (51 files / 402 tests), `npm run check`, `npm run build`, `git diff --check`, and GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, and Analyze passed. The build retained existing stale Browserslist, Firebase mixed-import, and bundle-size warnings. The configured disposable local E2E database variables were missing, and the default local database returned an auth-session 500, so local end-to-end execution is not claimed.
+
+Direct-shell Replit validation loaded the same implementation head without Replit Agent. At `1024x600`, all five setup pages exposed bounded `.setup-scroll-body` range when needed and normal wheel interaction reached each true bottom while Back/Next stayed inside the viewport. Pantry also passed with expanded manual entry and a three-item saved list. Representative mobile evidence passed at `390x844` and `412x915`; short landscape evidence passed at `844x390`, including expanded Pantry and the long Dietary Restrictions page. The tested root remained locked while the inner setup body remained the sole `overflow-y: auto` owner. Physical Safari/Chrome keyboard-open and increased-text-size behavior, plus the unrepresented matrix widths, remain explicit gaps; EFF-035 stays `In Progress` until merge and closeout.
+
+Wilson then validated the PR result through desktop and mobile views and reported that it looks great. This is the human acceptance signal for the visible setup-scroll correction. Because exact viewport presets and keyboard-open/increased-text-size conditions were not supplied, the objective matrix and physical-browser gaps above remain bounded rather than being silently promoted to tested.
