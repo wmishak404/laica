@@ -42,7 +42,7 @@ This branch moves the setup height/flex/overflow contract into the base setup ru
 ## Open items
 
 - Physical Safari/Chrome keyboard-open and increased-text-size behavior remains unvalidated. Keep EFF-035 `In Progress` until its accepted matrix and final-head evidence justify resolution.
-- The evidence-only documentation head needs the short exact-head Replit fingerprint and exact-head GitHub gate required by the stale-validation policy.
+- This acceptance-evidence documentation head needs the short exact-head Replit fingerprint and exact-head GitHub gate required by the stale-validation policy.
 - Wilson's explicit merge approval and the focused post-publish production check remain required. This branch has not been published.
 
 ## Verification
@@ -60,7 +60,8 @@ This branch moves the setup height/flex/overflow contract into the base setup ru
   - `390x844`: Confirmation fit its `664px` scroll body; Dietary Restrictions measured `970px` content inside `664px` and reached its `306px` maximum.
   - `412x915`: Dietary Restrictions measured `970px` content inside `735px`, retained `overflow-y: auto`, and kept the rail at the `915px` viewport edge.
   - `844x390`: Dietary Restrictions reached its `760px` maximum; expanded Pantry reached its `960px` maximum with saved-list content and Back/Next visibly reachable.
-  - Last Replit-validated at: `70f27d9b89fdd0d650295b9d9a6be97572982bde`. A short final-head fingerprint is required after this evidence-only commit.
+  - The evidence-only head `c135e39a9e9cfea54743cfbb62b1e96302646fc5` then passed a short `1024x600` and `390x844` Replit fingerprint: root locking, inner scroll ownership/range, true-bottom wheel reachability, and in-viewport actions remained intact. Last Replit-validated at: `c135e39a9e9cfea54743cfbb62b1e96302646fc5`.
+- Wilson subsequently validated the final PR result through desktop and mobile views and reported that it “looks great.” Exact viewport presets and keyboard-open/increased-text-size conditions were not supplied, so this is recorded as human visual/interaction acceptance without expanding the objective matrix claim.
 - Production constrained-desktop audit:
   - Planning fit the viewport without a hidden overflow path.
   - Settings hub document scrolling moved from `0` to approximately `176px`.
