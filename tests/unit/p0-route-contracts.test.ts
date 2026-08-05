@@ -2,6 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import express from "express";
 import { requestHttp, type TestResponse } from "./http-test-client";
 import { resetRateLimitBucketsForTest } from "../../server/rate-limit";
+import {
+  FEEDBACK_TEXT_MAX_LENGTH,
+  FEEDBACK_TEXT_TOO_LONG_CODE,
+  FEEDBACK_TEXT_TOO_LONG_MESSAGE,
+} from "../../shared/feedback";
 
 const mocks = vi.hoisted(() => ({
   firebaseUser: {
@@ -240,6 +245,36 @@ describe("P0 user-facing route contracts", () => {
     });
   });
 
+  it("accepts feedback at the shared length boundary", async () => {
+    const boundaryFeedback = "x".repeat(FEEDBACK_TEXT_MAX_LENGTH);
+
+    const response = await postJson("/api/feedback", {
+      currentPage: "/cook",
+      feedbackText: boundaryFeedback,
+    });
+
+    expect(response.status).toBe(200);
+    expect(mocks.dbValues).toHaveBeenCalledWith({
+      currentPage: "/cook",
+      feedbackText: boundaryFeedback,
+      authUserId: "linked-user-id",
+    });
+  });
+
+  it("rejects feedback over the shared length boundary with actionable copy", async () => {
+    const response = await postJson("/api/feedback", {
+      currentPage: "/cook",
+      feedbackText: "x".repeat(FEEDBACK_TEXT_MAX_LENGTH + 1),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      code: FEEDBACK_TEXT_TOO_LONG_CODE,
+      message: FEEDBACK_TEXT_TOO_LONG_MESSAGE,
+    });
+    expect(mocks.dbInsert).not.toHaveBeenCalled();
+  });
+
   it("rejects invalid feedback before writing", async () => {
     const response = await postJson("/api/feedback", {
       currentPage: "",
@@ -247,7 +282,10 @@ describe("P0 user-facing route contracts", () => {
     });
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ message: "Invalid feedback request" });
+    expect(await response.json()).toEqual({
+      code: "INVALID_FEEDBACK_REQUEST",
+      message: "Invalid feedback request",
+    });
     expect(mocks.dbInsert).not.toHaveBeenCalled();
   });
 

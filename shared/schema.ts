@@ -2,6 +2,7 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, ind
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 import { z } from "zod";
+import { feedbackCurrentPageSchema, feedbackTextSchema } from "./feedback";
 
 // Session storage table for Replit Auth
 export const sessions = pgTable(
@@ -392,6 +393,9 @@ export const insertFeedbackSchema = createInsertSchema(feedback).pick({
   authUserId: true,
   currentPage: true,
   feedbackText: true,
+}).extend({
+  currentPage: feedbackCurrentPageSchema,
+  feedbackText: feedbackTextSchema,
 });
 
 export type Feedback = typeof feedback.$inferSelect;

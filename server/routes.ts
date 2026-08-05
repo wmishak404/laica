@@ -35,6 +35,10 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { feedback } from "@shared/schema";
+import {
+  FEEDBACK_TEXT_TOO_LONG_CODE,
+  FEEDBACK_TEXT_TOO_LONG_MESSAGE,
+} from "@shared/feedback";
 import { PLANNING_TIME_VALUES } from "@shared/planning";
 import { z } from "zod";
 import heicConvert from "heic-convert";
@@ -124,6 +128,24 @@ function invalidRequestResponse(res: Response, error: z.ZodError, message: strin
   return res.status(400).json({
     code: zodRequestCode(error),
     message,
+  });
+}
+
+function feedbackRequestErrorResponse(res: Response, error: z.ZodError) {
+  const hasFeedbackLengthIssue = error.issues.some((issue) =>
+    issue.path.includes("feedbackText") && issue.code === "too_big"
+  );
+
+  if (hasFeedbackLengthIssue) {
+    return res.status(400).json({
+      code: FEEDBACK_TEXT_TOO_LONG_CODE,
+      message: FEEDBACK_TEXT_TOO_LONG_MESSAGE,
+    });
+  }
+
+  return res.status(400).json({
+    code: "INVALID_FEEDBACK_REQUEST",
+    message: "Invalid feedback request",
   });
 }
 
@@ -1201,10 +1223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         setPrivateResponseHeaders(res);
       }
 
-      const feedbackData = insertFeedbackSchema.extend({
-        currentPage: z.string().trim().min(1).max(120),
-        feedbackText: shortTextSchema,
-      }).parse(req.body);
+      const feedbackData = insertFeedbackSchema.parse(req.body);
       
       // Optional: add user ID if authenticated (not required per user specs)
       let authUserId = null;
@@ -1231,7 +1250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error submitting feedback:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid feedback request" });
+        return feedbackRequestErrorResponse(res, error);
       }
       res.status(500).json({ message: "Failed to submit feedback" });
     }
