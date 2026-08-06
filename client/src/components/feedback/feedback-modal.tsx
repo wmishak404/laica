@@ -3,7 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { ApiRequestError, apiRequest } from "@/lib/queryClient";
+import {
+  FEEDBACK_TEXT_MAX_LENGTH,
+  FEEDBACK_TEXT_TOO_LONG_CODE,
+  FEEDBACK_TEXT_TOO_LONG_MESSAGE,
+} from "@shared/feedback";
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -17,7 +22,9 @@ export function FeedbackModal({ isOpen, onClose, currentPage }: FeedbackModalPro
   const { toast } = useToast();
 
   const handleSubmit = async () => {
-    if (!feedback.trim()) {
+    const trimmedFeedback = feedback.trim();
+
+    if (!trimmedFeedback) {
       toast({
         title: "Please enter your feedback",
         description: "We need your feedback before we can submit it.",
@@ -26,10 +33,10 @@ export function FeedbackModal({ isOpen, onClose, currentPage }: FeedbackModalPro
       return;
     }
 
-    if (feedback.length > 300) {
+    if (trimmedFeedback.length > FEEDBACK_TEXT_MAX_LENGTH) {
       toast({
         title: "Feedback too long",
-        description: "Please keep your feedback to 300 characters or less.",
+        description: FEEDBACK_TEXT_TOO_LONG_MESSAGE,
         variant: "destructive"
       });
       return;
@@ -38,7 +45,7 @@ export function FeedbackModal({ isOpen, onClose, currentPage }: FeedbackModalPro
     setIsSubmitting(true);
     try {
       await apiRequest('POST', '/api/feedback', {
-        feedbackText: feedback.trim(),
+        feedbackText: trimmedFeedback,
         currentPage: currentPage
       });
 
@@ -51,9 +58,14 @@ export function FeedbackModal({ isOpen, onClose, currentPage }: FeedbackModalPro
       setFeedback("");
       onClose();
     } catch (error) {
+      const isLengthError = error instanceof ApiRequestError
+        && error.code === FEEDBACK_TEXT_TOO_LONG_CODE;
+
       toast({
-        title: "Feedback did not send",
-        description: "I couldn't send Feedback right now. Try again later.",
+        title: isLengthError ? "Feedback too long" : "Feedback did not send",
+        description: isLengthError
+          ? error.body?.message || FEEDBACK_TEXT_TOO_LONG_MESSAGE
+          : "I couldn't send Feedback right now. Try again later.",
         variant: "destructive"
       });
     } finally {
@@ -80,11 +92,8 @@ export function FeedbackModal({ isOpen, onClose, currentPage }: FeedbackModalPro
           <Textarea
             placeholder="Share your thoughts, suggestions, or report any issues..."
             value={feedback}
-            onChange={(e) => {
-              if (e.target.value.length <= 300) {
-                setFeedback(e.target.value);
-              }
-            }}
+            onChange={(e) => setFeedback(e.target.value)}
+            maxLength={FEEDBACK_TEXT_MAX_LENGTH}
             rows={4}
             className="resize-none"
           />
