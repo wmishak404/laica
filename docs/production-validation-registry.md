@@ -19,12 +19,12 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - Source correlation: Replit workspace reported `main` at `742694d9d209dba04674ce7188319d7f449c4a6e`; live CSS was byte-identical to a clean build from that SHA, and live JavaScript carried its Guest Finish/EFF-033 runtime markers. Build-time environment substitution prevents a byte-identical JavaScript claim.
 - Exact deployed Git SHA/marker: not exposed by the custom-domain app or current Replit deployment-status surface.
 - Current verdict: **BLOCKED** for admin production access/security. The post-PR #335 publish completed, but the focused acceptance gate remains unsatisfied. Detailed security-state results are retained privately rather than in this public registry. See EFF-036.
-- Accepted non-blocking exceptions: EFF-034 timer/Settings mobile cleanup (P2) and EFF-037 Feedback length-contract mismatch (P2; implementation branch pending review). EFF-035's correction merged in PR #347 and awaits the focused production-push check below.
+- Accepted non-blocking exceptions: EFF-034 timer/Settings mobile cleanup (P2). EFF-035's correction merged in PR #347 and EFF-037's feedback contract fix merged in PR #350; both await the focused production-push checks below.
 
 ## Current Main Candidate
 
-- Registry updated: 2026-08-05 by the EFF-037 implementation branch.
-- Current `origin/main`: `06259699ec837681c19fb15bced1b7053d93b249` (`Close out EFF-035 merge evidence (#348)`). The latest runtime candidate remains PR #347's `736ee6bdc1eece81558d04c0c45daf5a184e86b2`; PR #348 is a docs-only closeout.
+- Registry updated: 2026-08-06 by the EFF-037 merge closeout.
+- Current `origin/main`: `677d2c3dcabd86271bcf735ec4d4ce8577377429` (`Fix EFF-037 feedback length contract (#350)`). This is the latest runtime candidate after PR #350.
 - Fresh production correlation and full custom-domain regression now supersede the older date-only baseline for the tested deployment fingerprint above.
 - The documentation-only pre-publish evidence branch ended at `1923ea0021b1e186a9e0db2df96c74a4d18af9d8` and used runtime base `742694d9`; it is evidence provenance, not a different deployed runtime.
 - The deployment is not release-complete until an owner-authorized Production-app configuration review and focused rerun satisfy EFF-036's resolution criteria.
@@ -46,10 +46,10 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - Focused production-push check: first-time Pantry and optional Tools at a constrained desktop height plus `390x844`, `412x915`, and one short mobile/landscape height; confirm normal wheel/touch scrolling reaches Upload, Manual, list content, and Back/Next without adding document scroll under the fixed setup frame.
 - Negative scope and breadcrumb: no setup step/order, camera/provider, scan policy, returning Settings dock, durable navigation, or design refresh. If content is still unreachable, record `.setup-ui`, `.setup-shell`, `.setup-phone-frame`, `.setup-scroll-body`, root/document client/scroll heights, action bounds, and effective viewport dimensions before changing density.
 
-### EFF-037 feedback length contract — branch pending review
+### EFF-037 feedback length contract — merged, pending production push
 
-- Changed surface: branch `codex/eff-037-feedback-contract` changes the Feedback modal and `/api/feedback` request validation to share a 300-character feedback maximum through `shared/feedback.ts`, with typed `FEEDBACK_TEXT_TOO_LONG` server copy and draft-preserving modal recovery. It also includes lockfile-only transitive audit remediation for `brace-expansion`, `ip-address`, `postcss`, and `nanoid`; no direct dependency declarations changed.
-- Existing evidence: focused local route and modal tests pass for max, max + 1, typed server copy, and draft preservation. Local `npm audit --audit-level=high` reports zero vulnerabilities after the lockfile update. Full local and GitHub exact-head checks remain pending before PR review/merge.
+- Changed surface: PR #350 squash-merged as `677d2c3dcabd86271bcf735ec4d4ce8577377429` from final head `44ced5e2e5cc02a6cd424ccc1b6fc16cadbb46b0`, changing the Feedback modal and `/api/feedback` request validation to share a 300-character feedback maximum through `shared/feedback.ts`, with typed `FEEDBACK_TEXT_TOO_LONG` server copy and draft-preserving modal recovery. It also includes lockfile-only transitive audit remediation for `brace-expansion`, `ip-address`, `postcss`, and `nanoid`; no direct dependency declarations changed.
+- Existing evidence: focused local route and modal tests passed for max, max + 1, typed server copy, and draft preservation. Local `npm ci`, `npm run check`, full `npm run test:unit`, `npm run build`, `npm audit --audit-level=high`, and whitespace checks passed. Exact-head GitHub checks passed before merge: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, `Analyze (actions)`, and `Analyze (javascript-typescript)`.
 - Focused production-push check: on the selected release SHA, open Feedback on the custom domain, confirm a 300-character draft submits successfully or receives only expected non-length production failures, confirm an over-limit draft cannot submit as valid, and confirm any server-side length rejection says the draft is too long while keeping the text available to edit. Also submit one short labeled probe to prove the write path still works, then clean up the row if owner tooling allows it.
 - Negative scope and breadcrumb: no feedback moderation, admin delete workflow, auth requirement, rate-limit policy, DB schema migration, provider route, modal redesign, or production cleanup tooling. If users report false transient Feedback failures near the character limit, inspect `shared/feedback.ts`, `insertFeedbackSchema`, `/api/feedback` Zod issues, and `FeedbackModal` typed error handling before changing storage or rate limits.
 
