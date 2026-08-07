@@ -1,10 +1,10 @@
 # EFF-037: Align feedback length contract and recovery copy
 
-**Status:** In Progress
+**Status:** Resolved
 **Priority:** P2 — production form reliability
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-07-22
-**Updated:** 2026-08-05
+**Updated:** 2026-08-06
 **Related docs:** [post-publish production regression](../docs/handoffs/2026-07-22-codex-post-publish-production-regression.md)
 
 ## One-line summary
@@ -44,7 +44,7 @@ Out of scope:
 - [x] Confirm no active PR or INIT phase already owns Feedback contracts.
 - [x] Establish one shared maximum and remove duplicated literals.
 - [x] Add client/server boundary and error-copy coverage.
-- [ ] Run focused tests, unit, check, build, and the feedback production lane after authorized publish.
+- [x] Run focused tests, unit, check, build, and exact-head GitHub checks. The feedback production lane remains tracked in the production validation registry after authorized publish.
 
 ## Resolution criteria
 
@@ -70,4 +70,12 @@ Branch `codex/eff-037-feedback-contract` implements the smallest contract fix:
 - Focused route and modal tests cover max, max + 1, typed copy, and draft preservation.
 - During validation, `npm audit --audit-level=high` exposed current-main transitive advisories. The branch includes the lockfile-only `npm audit fix` result for `brace-expansion`, `ip-address`, `postcss`, and `nanoid`; no direct dependency declarations changed, and broad dependency modernization remains deferred.
 
-This branch does not resolve EFF-037 until review/merge and a later authorized production push verifies the feedback form on the custom domain. No feedback moderation, admin workflow, delete API, broader modal redesign, auth, provider, schema migration, or deployment behavior changed.
+At branch handoff time, EFF-037 remained open pending review and merge. No feedback moderation, admin workflow, delete API, broader modal redesign, auth, provider, schema migration, or deployment behavior changed.
+
+## 2026-08-06 — PR #350 merge closeout
+
+Wilson approved merging PR #350. GitHub squash-merged final head `44ced5e2e5cc02a6cd424ccc1b6fc16cadbb46b0` into `main` as `677d2c3dcabd86271bcf735ec4d4ce8577377429`.
+
+Exact-head GitHub checks passed before merge: `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL, `Analyze (actions)`, and `Analyze (javascript-typescript)`. `trufflehog_push` skipped as expected for the PR event. Local validation from the implementation branch also passed: `npm ci`, focused route/modal Vitest, full unit, `npm run check`, `npm run build`, `npm audit --audit-level=high`, and whitespace checks.
+
+The merged implementation satisfies EFF-037's client/server boundary and recovery-copy criteria. No production publish occurred during this closeout; the custom-domain Feedback smoke remains a changed-since-last-production release check in `docs/production-validation-registry.md`, not an active standalone Effort. Negative scope remains unchanged: no feedback moderation, admin workflow, delete API, broader modal redesign, auth requirement, provider route, schema migration, rate-limit policy, or deployment behavior changed.
