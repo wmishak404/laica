@@ -4,28 +4,27 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    # Disable routine version PRs without disabling Dependabot security updates.
+    open-pull-requests-limit: 0
     groups:
-      npm-security:
+      npm-production-security:
         applies-to: "security-updates"
+        dependency-type: "production"
         patterns:
           - "*"
-      npm-patch-version-updates:
-        applies-to: "version-updates"
+      npm-development-security:
+        applies-to: "security-updates"
+        dependency-type: "development"
         patterns:
           - "*"
-        update-types:
-          - "patch"
-    ignore:
-      - dependency-name: "@types/node"
-        update-types:
-          - "version-update:semver-major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    cooldown:
+      default-days: 14
     groups:
       github-actions-security:
         applies-to: "security-updates"
