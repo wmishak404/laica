@@ -50,5 +50,5 @@ Automated evidence and limits:
 - PR #342: GitHub `unit` and dependency-audit jobs failed during `npm ci` with the OpenAI/Zod peer conflict; E2E separately stopped at protected-secret preflight.
 - PR #343: GitHub install reported zero vulnerabilities, then typecheck failed on the calendar wrapper's removed API keys; E2E separately stopped at protected-secret preflight.
 - No local package commands were used as merge evidence. A local `npm audit` attempt could not reach the registry inside the sandbox; exact-head GitHub audit evidence is the authoritative observed result for this review.
-- `git diff --check origin/main...HEAD` is required before publishing this docs-only closeout.
+- `git diff --check` passed before the closeout commit, and the committed scope contains only EFF-023 plus this handoff.
 - Replit validation: not required. This task closed unmerged PRs and changes only EFF-023 chronology plus coordination evidence; it does not change runtime behavior or the dependency graph.
