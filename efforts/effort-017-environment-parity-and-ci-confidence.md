@@ -819,6 +819,6 @@ This merge proves the bounded retry path under the failure mode that triggered i
 
 Branch `codex/dependency-security-lane-2026-08-11` schedules the existing high/critical npm audit every day and retains pull-request, `main` push, and manual-dispatch triggers. This closes a confidence gap in which a newly published advisory could remain invisible until another repository change happened to run the workflow.
 
-The same branch adds deterministic workflow-policy tests. In particular, the unit lane now requires the TruffleHog action wrapper and its explicit scanner-image input to carry identical versions in both PR and push jobs. This turns the partial-update defect observed in closed Dependabot PR #338 into a locally reproducible failure instead of relying on review to notice it.
+The same branch adds deterministic workflow-policy tests. In particular, the unit lane now requires both TruffleHog jobs to use one identical full-length action commit SHA and requires each human-readable action version to match its explicit scanner-image version. This turns both the partial-update defect observed in closed Dependabot PR #338 and a future regression to a movable action tag into locally reproducible failures instead of relying on review to notice them.
 
 This is repository security-automation work. It does not change LAICA runtime behavior, provider calls, auth/session, schema, UI, deployment startup, validation authority, or the remaining EFF-017 provider/Replit/coverage work. EFF-017 remains `In Progress`.

@@ -9,20 +9,20 @@
 
 ## Summary
 
-LAICA now has a narrower security-maintenance path: Dependabot keeps npm security updates while routine npm version PRs stop consuming the queue, GitHub Actions maintenance is cooled instead of disabled, the high/critical audit runs daily, and the accepted TruffleHog security release updates the wrapper and scanner image together. Unit guards preserve these invariants so future automation drift fails before review.
+LAICA now has a narrower security-maintenance path: Dependabot keeps npm security updates while routine npm version PRs stop consuming the queue, GitHub Actions maintenance is cooled instead of disabled, the high/critical audit runs daily, and the accepted TruffleHog security release uses an immutable action commit with an aligned scanner image version. Unit guards preserve these invariants so future automation drift fails before review.
 
 ## Changes
 
 - `.github/dependabot.yml` disables npm version-update PRs while retaining production and development security groups; it retains GitHub Actions security and patch/minor groups with a 14-day cooldown.
 - `.github/workflows/dependency-audit.yml` adds daily and manual triggers to the existing PR/`main` high/critical audit.
-- `.github/workflows/secret-scan.yml` aligns both TruffleHog action refs and explicit scanner inputs on `3.96.0`.
-- `tests/unit/dependency-security-workflow.test.ts` guards scanner-version alignment, daily/on-demand audit triggers, security-only npm automation, and cooled Actions maintenance.
+- `.github/workflows/secret-scan.yml` pins both TruffleHog action wrappers to the full signed `v3.96.0` commit and aligns both explicit scanner inputs on `3.96.0`.
+- `tests/unit/dependency-security-workflow.test.ts` requires identical full-length TruffleHog SHA pins, scanner-version alignment, daily/on-demand audit triggers, security-only npm automation, and cooled Actions maintenance.
 - EFF-017 records the new time-based CI signal; EFF-023 records the security-only dependency posture and preserves deferred migration boundaries.
 
 ## Impact on other agents
 
 - Do not restore routine npm patch/minor groups without a newly accepted maintenance objective; npm security PRs remain active despite the zero version-PR limit.
-- Keep each TruffleHog `uses` ref paired with the same explicit `version` input. The unit test is the mechanical guard.
+- Keep each TruffleHog `uses` SHA's same-line version comment paired with the same explicit `version` input. The unit test rejects movable tags, divergent SHAs, and version drift. Dependabot can update SHA-pinned Actions when the version comment stays on the same line.
 - GitHub Actions version updates remain a review source after the 14-day cooldown; security updates are not delayed by that cooldown.
 - New high/critical advisories can now fail the scheduled audit without a repository change. Remediate from fresh `main` using the smallest lockfile or dependency slice that clears the current finding.
 
@@ -31,6 +31,7 @@ LAICA now has a narrower security-maintenance path: Dependabot keeps npm securit
 - Broad modernization remains deferred under EFF-023, including Zod 4 and react-day-picker 10 migrations.
 - This PR is stacked on dependency-closeout PR #353 because both add chronology to EFF-023. After #353 merges, rebase this branch onto fresh `origin/main`, retarget the PR, and rerun exact-head checks.
 - Human merge approval remains required because this changes dependency/security repository configuration.
+- GitHub repository settings were verified read-only on 2026-08-12: dependency graph, Dependabot alerts, and Dependabot security updates are enabled. Malware alerts are disabled, and GitHub's preset rule auto-dismisses low-impact development-scoped alerts; changing either setting requires a separate explicit repository-security decision.
 
 ## Verification
 
