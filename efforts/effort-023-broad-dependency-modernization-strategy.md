@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-08-11
+**Updated:** 2026-08-12
 
 ## One-line summary
 
@@ -180,3 +180,9 @@ Branch `codex/dependency-security-lane-2026-08-11` follows the queue review with
 - A daily high/critical npm audit checks the current lockfile even when no PR or push occurs, and a unit guard makes future wrapper-SHA/image-version drift or regression to a movable action tag fail deterministically.
 
 This does not reactivate broad package modernization. Zod 4, react-day-picker 10, Radix maintenance, provider SDK upgrades, and other routine npm version changes remain separate, trigger-driven slices with validation sized to their actual compatibility surface.
+
+## 2026-08-12 - Security maintenance lane merged; broad strategy remains deferred
+
+PR #354 merged as `12840c571a00ba77c2ed4cb8752b7b4ad29c72e8` from exact validated head `c71d6f42a5607b2a70e616657f74d5bb7c163054`. Required CI, daily/manual dependency-audit workflow validation, immutable TruffleHog secret scanning, and both CodeQL analyses passed before merge.
+
+The accepted security-only posture is now on `main`: npm version-update PRs are disabled while Dependabot security updates remain enabled; GitHub Actions security and cooled patch/minor maintenance remain enabled; TruffleHog is aligned on the triggered `3.96.0` security release with an immutable action SHA; and the high/critical lockfile audit runs daily. The first default-branch Dependabot evaluation remains the operational confirmation of the new configuration. Broad modernization remains `Deferred`; this merge does not authorize Zod 4, react-day-picker 10, Radix, provider SDK, or other untriggered upgrades.
