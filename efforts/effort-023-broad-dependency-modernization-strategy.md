@@ -169,3 +169,14 @@ The six open Dependabot PRs were reviewed against current `main` at `2ef2b62163c
 For PRs #338, #340, #341, and #352, the red CI result came only from the known Dependabot protected-secret preflight, before DB setup, install, or Playwright in the E2E job. That is missing E2E evidence rather than proof of a dependency regression. PRs #342 and #343 had independent deterministic failures in the unit lane in addition to the same protected-secret boundary.
 
 After the close actions, live GitHub search reported zero open Dependabot PRs. No dependency, lockfile, application, workflow, schema, runtime, or deployment file changed as part of this closeout. Future work should start from fresh `origin/main` and use the smallest triggered slice rather than reopening these historical heads.
+
+## 2026-08-11 - Security maintenance lane narrowed and repaired
+
+Branch `codex/dependency-security-lane-2026-08-11` follows the queue review with a focused security-automation replacement:
+
+- npm Dependabot version updates are disabled with `open-pull-requests-limit: 0`, while security updates remain enabled and are grouped separately for production and development dependencies. GitHub documents that this setting disables version-update PRs without changing the separate security-update limit: https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#open-pull-requests-limit
+- GitHub Actions version updates remain enabled because action/scanner releases can be security-relevant, but routine updates receive a 14-day cooldown. Dependabot security updates bypass cooldown: https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#cooldown
+- TruffleHog moves from `3.95.9` to `3.96.0` with both action wrappers pinned to the release's full signed commit `6f3c981e7b77f235fd2702dd74af25fc4b72bf11` and both explicit scanner-image inputs aligned. The upstream release labels a dependency security update, providing the concrete trigger that closed PR #338's incomplete proposal lacked: https://github.com/trufflesecurity/trufflehog/releases/tag/v3.96.0
+- A daily high/critical npm audit checks the current lockfile even when no PR or push occurs, and a unit guard makes future wrapper-SHA/image-version drift or regression to a movable action tag fail deterministically.
+
+This does not reactivate broad package modernization. Zod 4, react-day-picker 10, Radix maintenance, provider SDK upgrades, and other routine npm version changes remain separate, trigger-driven slices with validation sized to their actual compatibility surface.

@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-07-28
+**Updated:** 2026-08-11
 
 ## One-line summary
 
@@ -814,3 +814,11 @@ This is an EFF-017 reliability improvement, not broader E2E coverage and not pro
 PR #345 merged as `6272b5d68de9269bf9f2fe85e6f90160ce595df4` from exact head `b2f9e2b7a45109ac89313bd7663175f522099985`. The required CI run `30389777931` passed unit/typecheck/build and all nine schema-backed Playwright tests. Its first Neon branch-creation call hit the action's 10-second timeout, the second bounded attempt recovered the same run-specific branch, `db:health` passed, and branch cleanup completed. Dependency-audit run `30389781094` and secret-scan run `30389777774` also passed.
 
 This merge proves the bounded retry path under the failure mode that triggered it. It does not change EFF-017's status or expand coverage: provider canaries, automated Replit-environment work, coverage ratcheting, and other remaining confidence lanes stay separately owned.
+
+## 2026-08-11 — Dependency security checks gain a time-based lane
+
+Branch `codex/dependency-security-lane-2026-08-11` schedules the existing high/critical npm audit every day and retains pull-request, `main` push, and manual-dispatch triggers. This closes a confidence gap in which a newly published advisory could remain invisible until another repository change happened to run the workflow.
+
+The same branch adds deterministic workflow-policy tests. In particular, the unit lane now requires both TruffleHog jobs to use one identical full-length action commit SHA and requires each human-readable action version to match its explicit scanner-image version. This turns both the partial-update defect observed in closed Dependabot PR #338 and a future regression to a movable action tag into locally reproducible failures instead of relying on review to notice them.
+
+This is repository security-automation work. It does not change LAICA runtime behavior, provider calls, auth/session, schema, UI, deployment startup, validation authority, or the remaining EFF-017 provider/Replit/coverage work. EFF-017 remains `In Progress`.
