@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-08-11
+**Updated:** 2026-08-12
 
 ## One-line summary
 
@@ -822,3 +822,9 @@ Branch `codex/dependency-security-lane-2026-08-11` schedules the existing high/c
 The same branch adds deterministic workflow-policy tests. In particular, the unit lane now requires both TruffleHog jobs to use one identical full-length action commit SHA and requires each human-readable action version to match its explicit scanner-image version. This turns both the partial-update defect observed in closed Dependabot PR #338 and a future regression to a movable action tag into locally reproducible failures instead of relying on review to notice them.
 
 This is repository security-automation work. It does not change LAICA runtime behavior, provider calls, auth/session, schema, UI, deployment startup, validation authority, or the remaining EFF-017 provider/Replit/coverage work. EFF-017 remains `In Progress`.
+
+## 2026-08-12 — Time-based dependency security lane merged
+
+PR #354 merged as `12840c571a00ba77c2ed4cb8752b7b4ad29c72e8` from exact validated head `c71d6f42a5607b2a70e616657f74d5bb7c163054`. Required CI, dependency-audit, SHA-pinned secret-scan, and both CodeQL analyses passed before merge. The schema-backed E2E job created its disposable Neon branch, applied and checked the schema, passed guest + linked dev-auth smoke, and completed cleanup.
+
+The scheduled high/critical audit and workflow-policy guard are now on `main`. This merge adds a time-based dependency-security signal but does not resolve EFF-017 or change validation authority; provider canaries, automated Replit-environment work, coverage ratcheting, and other remaining confidence lanes stay separately owned.
