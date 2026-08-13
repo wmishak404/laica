@@ -46,7 +46,13 @@ Local validation on Node `24.14.1` passed:
 - `npm audit --audit-level=high` — zero vulnerabilities reported
 - `git diff --check` — passed
 
-The final pushed head still requires the repository's GitHub checks. The PR check records are authoritative for GitHub workflow parsing, the updated TruffleHog scanner, the high/critical audit, and the schema-backed Playwright lane; do not merge if any exact-head check is missing or failing.
+The first rebased head, `7c8fb93e3585c33e55793163b8cf9c1528dc35a5`, passed the repository-owned checks:
+
+- CI run `31655563103` — unit/typecheck/lint/build/coverage and schema-backed guest + linked dev-auth Playwright passed; disposable Neon creation, schema application/health, and cleanup also passed
+- Dependency audit run `31655563093` — passed
+- SHA-pinned TruffleHog secret scan run `31655563145` — passed
+
+GitHub still reported required CodeQL contexts `Analyze (actions)` and `Analyze (javascript-typescript)` as expected rather than completed because the force-push occurred before PR #354 was retargeted from the merged lower-stack branch to `main`; retargeting and draft/ready transitions did not trigger those analyses. This provenance update provides a normal synchronized PR head. All repository-owned and CodeQL checks must pass again on that new exact head before merge; the PR check records are authoritative.
 
 Replit validation is not required: this changes repository automation and scanner configuration, not application runtime behavior, deployment startup, secrets, schema, provider calls, auth/session, or UI. No production-validation registry entry is required for the same reason.
 
@@ -55,4 +61,4 @@ Replit validation is not required: this changes repository automation and scanne
 - Base refreshed: yes
 - Current base: `origin/main` at `d793ae43af295b8bde5a8389b040f1d7077615e8` after PR #353 merged
 - Last Replit-validated at: not applicable; repository automation only
-- Notes: rebased after PR #353 merged; exact-head checks must rerun after the rewritten branch is pushed and PR #354 is retargeted to `main`
+- Notes: rebased after PR #353 merged and retargeted to `main`; exact-head checks must pass on the provenance-update commit before PR #354 merges
