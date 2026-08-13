@@ -29,9 +29,10 @@ LAICA now has a narrower security-maintenance path: Dependabot keeps npm securit
 ## Open items
 
 - Broad modernization remains deferred under EFF-023, including Zod 4 and react-day-picker 10 migrations.
-- This PR is stacked on dependency-closeout PR #353 because both add chronology to EFF-023. After #353 merges, rebase this branch onto fresh `origin/main`, retarget the PR, and rerun exact-head checks.
-- Human merge approval remains required because this changes dependency/security repository configuration.
-- GitHub repository settings were verified read-only on 2026-08-12: dependency graph, Dependabot alerts, and Dependabot security updates are enabled. Malware alerts are disabled, and GitHub's preset rule auto-dismisses low-impact development-scoped alerts; changing either setting requires a separate explicit repository-security decision.
+- PR #353 merged as `d793ae43af295b8bde5a8389b040f1d7077615e8`. This branch dropped the two duplicate lower-stack commits during rebase and now contains only the dependency-security changes relative to fresh `origin/main`.
+- Wilson approved the recommended merge sequence and repository security posture on 2026-08-12. PR #354 may merge after its rebased exact-head checks pass.
+- GitHub repository settings were verified on 2026-08-12: dependency graph, Dependabot alerts, and Dependabot security updates are enabled. GitHub's preset rule continues to auto-dismiss low-impact development-scoped alerts.
+- Malware alerts remain disabled. Wilson approved enabling them, but two attempts against the visible GitHub setting failed before browser command dispatch and did not mutate the setting. Smallest next action: open `Settings → Advanced Security` and click `Enable` beside `Dependabot malware alerts`.
 
 ## Verification
 
@@ -52,6 +53,6 @@ Replit validation is not required: this changes repository automation and scanne
 ## Stack / base status
 
 - Base refreshed: yes
-- Current base: `origin/main` at `2ef2b62163c0fada0fc858fdd10442e3a573cda4`, plus lower-stack PR #353 head `5120356bbf60f87378eff9549509bea4100511cc`
+- Current base: `origin/main` at `d793ae43af295b8bde5a8389b040f1d7077615e8` after PR #353 merged
 - Last Replit-validated at: not applicable; repository automation only
-- Notes: intentionally stacked on PR #353 due to the shared EFF-023 chronology; must rebase onto current `origin/main` after #353 merges
+- Notes: rebased after PR #353 merged; exact-head checks must rerun after the rewritten branch is pushed and PR #354 is retargeted to `main`
