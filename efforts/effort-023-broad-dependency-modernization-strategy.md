@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-07-28
+**Updated:** 2026-08-11
 
 ## One-line summary
 
@@ -155,3 +155,17 @@ The remediation follows the accepted PR #322 pattern: use npm's current audit me
 PR #345 merged as `6272b5d68de9269bf9f2fe85e6f90160ce595df4` from exact head `b2f9e2b7a45109ac89313bd7663175f522099985`. The merge updated the lockfile's transitive resolution without changing `package.json` or direct dependency declarations. Exact-head dependency audit, secret scan, unit/typecheck/build, and all nine schema-backed Playwright tests passed before merge.
 
 This completed the concrete security-gate trigger without reopening broad modernization. PR #339 and other routine update proposals remain separate, current-need-based decisions; do not infer merge readiness for them from PR #345.
+
+## 2026-08-11 - Dependabot queue resolved without untriggered upgrades
+
+The six open Dependabot PRs were reviewed against current `main` at `2ef2b62163c0fada0fc858fdd10442e3a573cda4`, their exact-head GitHub workflow evidence, and the trigger-driven maintenance rule above. All six were closed unmerged:
+
+- PR #338 changed the TruffleHog action wrapper to `3.96.0` but left both explicit scanner-version inputs on `3.95.9`. Its successful scan therefore did not validate scanner `3.96.0`; a future triggered replacement must align both fields.
+- PR #352's patch wave passed install, typecheck/lint, build, unit/coverage, dependency audit, and secret scan, but it bundled 17 Radix UI primitives with `ws` and Node declarations without a current security, defect, platform, or accepted modernization trigger.
+- PRs #340 and #341 passed the same non-E2E compatibility lanes for their focused Radix Avatar and Checkbox updates, but both had become conflicted with current `main` and neither had a concrete maintenance trigger. Their affected live surfaces are profile/avatar rendering and cooking/grocery checkbox interactions.
+- PR #342 was not a valid standalone Zod 4 upgrade: `npm ci` failed because the current OpenAI SDK requires the Zod 3 peer range. Zod remains a coordinated schema/provider modernization boundary rather than a package-only update.
+- PR #343 installed cleanly but failed TypeScript because `client/src/components/ui/calendar.tsx` still uses react-day-picker v8 class and component keys. A future upgrade requires a focused calendar-wrapper migration and interaction evidence.
+
+For PRs #338, #340, #341, and #352, the red CI result came only from the known Dependabot protected-secret preflight, before DB setup, install, or Playwright in the E2E job. That is missing E2E evidence rather than proof of a dependency regression. PRs #342 and #343 had independent deterministic failures in the unit lane in addition to the same protected-secret boundary.
+
+After the close actions, live GitHub search reported zero open Dependabot PRs. No dependency, lockfile, application, workflow, schema, runtime, or deployment file changed as part of this closeout. Future work should start from fresh `origin/main` and use the smallest triggered slice rather than reopening these historical heads.
