@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-08-12
+**Updated:** 2026-08-20
 
 ## One-line summary
 
@@ -828,3 +828,9 @@ This is repository security-automation work. It does not change LAICA runtime be
 PR #354 merged as `12840c571a00ba77c2ed4cb8752b7b4ad29c72e8` from exact validated head `c71d6f42a5607b2a70e616657f74d5bb7c163054`. Required CI, dependency-audit, SHA-pinned secret-scan, and both CodeQL analyses passed before merge. The schema-backed E2E job created its disposable Neon branch, applied and checked the schema, passed guest + linked dev-auth smoke, and completed cleanup.
 
 The scheduled high/critical audit and workflow-policy guard are now on `main`. This merge adds a time-based dependency-security signal but does not resolve EFF-017 or change validation authority; provider canaries, automated Replit-environment work, coverage ratcheting, and other remaining confidence lanes stay separately owned.
+
+## 2026-08-20 — Audit gate detected a new registry finding
+
+The repository-wide high/critical audit failed on docs-only PR #356 even though that branch did not change the package graph. Branch `codex/npm-audit-nanoid` starts from the same current `origin/main` base and applies npm's lockfile-only correction to one transitive resolution within its existing compatible range.
+
+This is positive evidence that the audit lane detects registry findings independently of the feature or documentation scope that happens to trigger it. It is not application-behavior evidence: PR #356 still needs to refresh from the remediated `main` and rerun its own exact-head checks after the dependency fix merges. EFF-017 remains `In Progress`, and its provider, automated Replit-environment, coverage-ratchet, and broader confidence work is unchanged.
