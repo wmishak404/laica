@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-08-12
+**Updated:** 2026-08-20
 
 ## One-line summary
 
@@ -186,3 +186,9 @@ This does not reactivate broad package modernization. Zod 4, react-day-picker 10
 PR #354 merged as `12840c571a00ba77c2ed4cb8752b7b4ad29c72e8` from exact validated head `c71d6f42a5607b2a70e616657f74d5bb7c163054`. Required CI, daily/manual dependency-audit workflow validation, immutable TruffleHog secret scanning, and both CodeQL analyses passed before merge.
 
 The accepted security-only posture is now on `main`: npm version-update PRs are disabled while Dependabot security updates remain enabled; GitHub Actions security and cooled patch/minor maintenance remain enabled; TruffleHog is aligned on the triggered `3.96.0` security release with an immutable action SHA; and the high/critical lockfile audit runs daily. The first default-branch Dependabot evaluation remains the operational confirmation of the new configuration. Broad modernization remains `Deferred`; this merge does not authorize Zod 4, react-day-picker 10, Radix, provider SDK, or other untriggered upgrades.
+
+## 2026-08-20 - Current audit gate triggered another narrow lockfile slice
+
+Docs-only PR #356 surfaced a new high-severity registry finding inherited from current `main`. Branch `codex/npm-audit-nanoid` follows the established narrow-remediation pattern: npm 10.9.0 changed only one transitive lockfile resolution within the dependency's existing compatible range, while `package.json`, direct dependency declarations, application code, and broad modernization scope remain unchanged.
+
+After this focused remediation merges, PR #356 must refresh from fresh `origin/main` and rerun its exact-head audit. This security trigger does not reactivate the deferred Zod, calendar, Radix, provider SDK, or other routine modernization work tracked by this Effort.
