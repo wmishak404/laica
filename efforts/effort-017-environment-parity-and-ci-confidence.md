@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-08-20
+**Updated:** 2026-08-21
 
 ## One-line summary
 
@@ -834,3 +834,9 @@ The scheduled high/critical audit and workflow-policy guard are now on `main`. T
 The repository-wide high/critical audit failed on docs-only PR #356 even though that branch did not change the package graph. Branch `codex/npm-audit-nanoid` starts from the same current `origin/main` base and applies npm's lockfile-only correction to one transitive resolution within its existing compatible range.
 
 This is positive evidence that the audit lane detects registry findings independently of the feature or documentation scope that happens to trigger it. It is not application-behavior evidence: PR #356 still needs to refresh from the remediated `main` and rerun its own exact-head checks after the dependency fix merges. EFF-017 remains `In Progress`, and its provider, automated Replit-environment, coverage-ratchet, and broader confidence work is unchanged.
+
+## 2026-08-21 — Current audit remediation merged
+
+PR #357 merged as `e371044d026de4bf70ef4653a74d1493cb6800cd` from exact validated head `58eceabe64398cf065e647557f47d0dc4d88b131`. The dependency audit, secret scan, CodeQL analyses, unit/typecheck/build/coverage job, and 10-test schema-backed guest + linked dev-auth E2E job all passed; the disposable Neon branch was deleted successfully.
+
+The shared high/critical audit gate is clear on the remediated package graph. PR #356 may now refresh from fresh `origin/main` and rerun its own exact-head checks. This merge does not change EFF-017's `In Progress` status, validation authority, or its remaining provider, automated Replit-environment, and coverage work.
