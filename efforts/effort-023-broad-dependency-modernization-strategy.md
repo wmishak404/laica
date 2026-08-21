@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-08-20
+**Updated:** 2026-08-21
 
 ## One-line summary
 
@@ -192,3 +192,9 @@ The accepted security-only posture is now on `main`: npm version-update PRs are 
 Docs-only PR #356 surfaced a new high-severity registry finding inherited from current `main`. Branch `codex/npm-audit-nanoid` follows the established narrow-remediation pattern: npm 10.9.0 changed only one transitive lockfile resolution within the dependency's existing compatible range, while `package.json`, direct dependency declarations, application code, and broad modernization scope remain unchanged.
 
 After this focused remediation merges, PR #356 must refresh from fresh `origin/main` and rerun its exact-head audit. This security trigger does not reactivate the deferred Zod, calendar, Radix, provider SDK, or other routine modernization work tracked by this Effort.
+
+## 2026-08-21 - Focused audit remediation merged
+
+PR #357 merged as `e371044d026de4bf70ef4653a74d1493cb6800cd` from exact validated head `58eceabe64398cf065e647557f47d0dc4d88b131`. The merge changes one transitive lockfile resolution within its existing compatible range; `package.json`, direct dependency declarations, application code, and the broader maintenance posture remain unchanged.
+
+Required exact-head dependency, secret-scan, CodeQL, unit/typecheck/build/coverage, and schema-backed E2E checks passed before merge. This completes the current concrete security trigger without reactivating broad modernization; EFF-023 remains `Deferred`.
