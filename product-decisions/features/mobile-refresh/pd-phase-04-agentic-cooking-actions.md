@@ -7,6 +7,10 @@
 **Initiative:** [INIT-001 - Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
 **Related docs:** [Phase 4 cooking guidance](pd-phase-04-cooking.md), [AI privacy, prompt-injection, and abuse rules](pd-cross-phase-ai-privacy.md), [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md), [Evaluations Workflow](../../../docs/workflows/evaluations.md)
 
+## Merge Status
+
+Published through PR #356, merged as `d6300aa6` from final head `ce5428de` after rebasing onto `origin/main` `7bba5bf3`. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL actions, CodeQL JavaScript/TypeScript, and standalone CodeQL passed before merge. Replit validation was not required because the PR was docs-only and changed no runtime UI, route, provider, schema, auth/session, persistence, or deployment behavior.
+
 ## Goal
 
 Evolve Live Cooking's existing `Ask a question` flow into the action surface for agent-assisted cooking changes, without making the UI feel heavier. A cook should still ask naturally, but Laica may answer with a proposed action when the safest next step is to start a timer, correct pantry/profile facts, patch the current guide, or restart/replan.
