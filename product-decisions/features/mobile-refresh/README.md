@@ -16,7 +16,7 @@ This folder records feature phase records for the Laica mobile-refresh work. It 
 | 3 | Planning: Chef It Up, Slop Bowl, Ticket Pass | Accepted / Merged PR #38 + #45 | [pd-phase-03-planning.md](pd-phase-03-planning.md) | [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png), [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 3.1 | Phase 3 design facelift and async recipe imagery | In progress / slices merged | [pd-phase-03-1-recipe-imagery.md](pd-phase-03-1-recipe-imagery.md) | Builds on [Planning flow](../../../docs/assets/mobile-refresh/phase-03-planning-flow.png) and [Ticket Pass](../../../docs/assets/mobile-refresh/phase-03-ticket-pass.png) |
 | 3.2 | Progressive Chef It Up pantry staple check | Accepted / Merged PR #46 | [pd-phase-03-2-progressive-staples.md](pd-phase-03-2-progressive-staples.md) | Builds on Phase 3 staple check and PR #45 cancellation lock |
-| 4 | Cooking guidance | Accepted / agentic actions in draft planning | [pd-phase-04-cooking.md](pd-phase-04-cooking.md), [pd-phase-04-agentic-cooking-actions.md](pd-phase-04-agentic-cooking-actions.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
+| 4 | Cooking guidance | Accepted / agentic actions draft plan merged | [pd-phase-04-cooking.md](pd-phase-04-cooking.md), [pd-phase-04-agentic-cooking-actions.md](pd-phase-04-agentic-cooking-actions.md) | [Cooking mockup](../../../docs/assets/mobile-refresh/phase-04-cooking.png) |
 | 5 | Post-cook cleanup and retention | Accepted | [pd-phase-05-post-cook.md](pd-phase-05-post-cook.md) | [Post-cook mockup](../../../docs/assets/mobile-refresh/phase-05-post-cook.png) |
 
 ## Implementation Sequence
