@@ -242,6 +242,16 @@ Nutrition-preference fit is excluded, not deferred. Current client UI, routes, a
 
 Judge calibration is a run/reporting concern. Phase 4 should compare judge verdicts to Wilson labels with TPR/TNR, but `judge_calibration` is not a fixture label. `BORDERLINE` human-review rows are useful for rubric tuning and score-threshold decisions, but should stay out of binary PASS/FAIL TPR/TNR until Wilson defines whether the specific pattern should block acceptance.
 
+### 2026-07-08 addendum — `dish_identity`
+
+Wilson's 2026-07-08 production report (a frittata suggested from an egg-free pantry with eggs parked in `additionalIngredientsNeeded`) added a criterion label to the accepted set:
+
+| Label | Applies to | Definition | First check type |
+|---|---|---|---|
+| `dish_identity` | Recipe and Slop Bowl surfaces | The dish named in `recipeName` is honestly that dish when cooked from `pantryIngredientsUsed` alone. Defining ingredients implied by the name (eggs for a frittata, rice for fried rice, noodles for ramen, steak for a steak dish, tortillas for tacos, plus any ingredient the name itself states) must be used and can never be optional. Honest adapted names using `-style`, `-inspired`, or `-ish` are exempt per the accepted EFF-022 labeling direction. | Deterministic precision-first name/definer rules in `server/eval-dish-identity.ts`, plus human/judge for recall on dishes the rule map does not cover |
+
+`dish_identity` is distinct from `optional_ingredient_contract`: a "Fried Rice (No Rice Version)" suggestion violates dish identity without listing rice as optional at all, and an honest optional list cannot repair a dishonest name.
+
 ## First Wilson-Label Target Set
 
 The first human-label batch should stay small and targeted. Public fixtures should be synthetic or reviewed redacted derivatives unless Wilson explicitly approves a private fixture for local-only labeling.

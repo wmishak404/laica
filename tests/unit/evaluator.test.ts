@@ -239,7 +239,7 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
       sourceClass: "synthetic fixture validation",
       promptRuntimeVersion: "prompt_version_7",
       judgeDecision: "FAIL",
-      criteria: ["wrong_cuisine", "dietary_violation", "pantry_mismatch", "optional_ingredient_required", "skill_mismatch"],
+      criteria: ["wrong_cuisine", "dietary_violation", "pantry_mismatch", "optional_ingredient_required", "dish_identity_mismatch", "skill_mismatch"],
       humanVerdict: "TBD",
     });
     expect(artifact.rows[0].outputUnderTest.length).toBeLessThanOrEqual(1200);
@@ -249,6 +249,7 @@ describe("INIT-004 criteria-aware eval queue selection", () => {
       dietary_violation: { total: 1, passed: 0, failed: 1 },
       pantry_mismatch: { total: 1, passed: 0, failed: 1 },
       optional_ingredient_required: { total: 1, passed: 0, failed: 1 },
+      dish_identity_mismatch: { total: 1, passed: 0, failed: 1 },
       skill_mismatch: { total: 1, passed: 0, failed: 1 },
     });
     expect(artifact.metrics.passRate).toBe(0);

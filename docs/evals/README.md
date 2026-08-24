@@ -84,7 +84,10 @@ Current fixture foundation commands:
 ```bash
 npm run eval:fixtures
 npx vitest run tests/unit/eval-fixtures.test.ts
+npm run env:run -- npm run eval:dish-identity   # live-provider dish-identity probe
 ```
+
+`npm run eval:dish-identity` drives real `gpt-4.1` generations with the request payloads of the committed dish-identity fixtures and scores them with the shared deterministic dish-name rules (`server/eval-dish-identity.ts`). It calls OpenAI directly and never writes `ai_interactions` rows. `ARM=both` compares the working-tree recipe prompt against `BASE_REF` (default `origin/main`); results belong in a registry-indexed intake record, not in durable docs as bare claims.
 
 `npm run eval:fixtures` is the focused public-fixture validation lane for PR evidence. `npx vitest run tests/unit/eval-fixtures.test.ts` validates the fixture validator behavior, deterministic structure/count/max-time checks, expected deterministic failures, public-fixture privacy guards, committed fixture loading, and the source-level guard that live generation modules do not read eval fixture stores.
 
@@ -115,6 +118,12 @@ Current committed public fixture set:
 - `chef-it-up-suggestions-dietary-halal-pork`
 - `chef-it-up-suggestions-optional-extras-required`
 - `chef-it-up-suggestions-max-time-30-to-60`
+- `chef-it-up-suggestions-dish-identity-frittata-no-eggs`
+- `chef-it-up-suggestions-dish-identity-fried-rice-no-rice`
+- `chef-it-up-suggestions-dish-identity-ramen-no-noodles`
+- `chef-it-up-suggestions-dish-identity-honest-rename`
+- `recipe-suggestions-dish-identity-steak-tacos`
+- `slop-bowl-suggestions-dish-identity-ramen`
 - `slop-bowl-suggestions-current-shape`
 - `live-cooking-step-previews-client-rescue`
 - `live-cooking-step-previews-duplicate-labels`
