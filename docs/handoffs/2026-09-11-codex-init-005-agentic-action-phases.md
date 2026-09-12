@@ -19,6 +19,8 @@ INIT-001 remains the stable Live Cooking baseline but no longer owns or sequence
 - Moved the source plan into `product-decisions/features/agentic-cooking-actions/` and added a dedicated feature index.
 - Added seven phases: foundation/guardrails, timer prototype, session and pantry/profile corrections, recipe patching/History, restart/replan safety, voice/integration interface, and controlled rollout.
 - Added the Action Registry, Action Ledger, capability/status API shape, caller scoping, and trace lifecycle to the accepted plan.
+- Recorded that a direct, unambiguous timer-start command is itself authorization and receives no redundant confirmation; inferred or ambiguous timer behavior remains non-mutating, while recipe and durable-data changes require exact confirmation.
+- Recorded the explicit non-goal that INIT-005 is not a general-purpose personal agent and remains limited to the active cooking task, that user's own data, and approved capabilities.
 - Updated INIT-001 and Mobile Refresh docs so they preserve historical provenance without owning or gating INIT-005.
 
 ## Impact on other agents
@@ -29,7 +31,7 @@ Read INIT-005 before any agentic cooking action, action proposal/confirmation ro
 
 - Wilson has not yet approved spawning implementation tasks or starting runtime work.
 - Phase 1 still needs a fresh audit of Live Cooking, routes, shared schemas, action-adjacent storage, authentication/session ownership, rate limits, and open PR overlap.
-- The exact Action Ledger persistence model and voice-confirmation policy remain implementation/product decisions.
+- The exact Action Ledger persistence model and future voice transcript-confidence/ambiguity thresholds remain implementation/product decisions.
 
 ## Verification
 
