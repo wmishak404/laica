@@ -1,21 +1,25 @@
-# Mobile Refresh Phase 4 - Agentic Cooking Actions
+# Agentic Cooking Actions Plan
 
-**Status:** Draft plan
-**Document kind:** Feature Phase Record
-**Phase owner:** Wilson
+**Status:** Accepted phased plan; implementation not started
+**Document kind:** Feature initiative plan
+**Owner:** Wilson
 **Date:** 2026-08-20
-**Initiative:** [INIT-001 - Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md)
-**Related docs:** [Phase 4 cooking guidance](pd-phase-04-cooking.md), [AI privacy, prompt-injection, and abuse rules](pd-cross-phase-ai-privacy.md), [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md), [Evaluations Workflow](../../../docs/workflows/evaluations.md)
+**Last revised:** 2026-09-11
+**Initiative:** [INIT-005 - Agentic Cooking Actions](../../../initiatives/INIT-005-agentic-cooking-actions.md)
+**Related initiatives:** [INIT-001 - Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md), [INIT-003 - Anonymous Trial and Account Upgrade](../../../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md), [INIT-004 - AI Output Quality Evals and Prompt Improvement](../../../initiatives/INIT-004-ai-output-quality-evals.md)
+**Related docs:** [Live Cooking baseline](../mobile-refresh/pd-phase-04-cooking.md), [AI privacy, prompt-injection, and abuse rules](../mobile-refresh/pd-cross-phase-ai-privacy.md), [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md), [Evaluations Workflow](../../../docs/workflows/evaluations.md)
 
 ## Merge Status
 
 Published through PR #356, merged as `d6300aa6` from final head `ce5428de` after rebasing onto `origin/main` `7bba5bf3`. Exact-head GitHub `unit`, `e2e_guest_smoke`, `npm-audit`, `trufflehog_pr`, CodeQL actions, CodeQL JavaScript/TypeScript, and standalone CodeQL passed before merge. Replit validation was not required because the PR was docs-only and changed no runtime UI, route, provider, schema, auth/session, persistence, or deployment behavior.
 
+PR #356 originally published this work as a future Mobile Refresh Phase 4 extension. On 2026-09-11 Wilson reclassified it as the independent [INIT-005](../../../initiatives/INIT-005-agentic-cooking-actions.md) because the work has its own architecture, security, eval, voice, integration, and rollout phases and should not be blocked by remaining INIT-001 closeout. INIT-001 supplies the stable Live Cooking surface and existing contracts; it does not own or sequence INIT-005 implementation.
+
 ## Goal
 
 Evolve Live Cooking's existing `Ask a question` flow into the action surface for agent-assisted cooking changes, without making the UI feel heavier. A cook should still ask naturally, but Laica may answer with a proposed action when the safest next step is to start a timer, correct pantry/profile facts, patch the current guide, or restart/replan.
 
-The near-term engineering goal is a typed, guardrail-first action interface that the current tap-to-talk assistant and a future voice agent can both use. The model may propose actions; deterministic server/client code must validate, confirm, execute, audit, and fail closed.
+The near-term engineering goal is a typed, guardrail-first action interface that the current tap-to-talk assistant, a future voice agent, and explicitly authorized future integrations can all use. The model may propose actions; deterministic server/client code must discover allowed capabilities, validate, bind direct authorization or required confirmation, execute, audit, and fail closed.
 
 ## Current Baseline
 
@@ -29,8 +33,10 @@ The near-term engineering goal is a typed, guardrail-first action interface that
 ## Product Decisions
 
 - Keep `Ask a question` as the user-facing action surface. Do not add a second command mode or heavier voice-agent label for v1.
+- INIT-005 does not create a general-purpose personal agent. Laica's agency remains limited to the active cooking task, that user's own cooking data, and deliberately approved capabilities.
 - Every user-visible action must stay within the active cooking task. The assistant must not discuss internal app systems, secrets, Wilson's operating details, other users, payments, third-party app data, repository internals, or broad security/admin/deployment topics.
 - Guardrails are equal priority with action functionality. A slice is not done if it can act but cannot prove context limits, confirmation, authorization, auditability, and fail-closed behavior.
+- A direct, unambiguous request to start a valid in-session timer is itself authorization and must not trigger a redundant confirmation. Inferred, suggested, or ambiguous timer actions wait for user action or clarification. Recipe, pantry/profile, History, and restart/replan mutations require an exact action-bound confirmation.
 - History should show the final patched recipe when a linked session is changed and completed. The original recipe and action log are internal audit/debug data, not the v1 user-facing History view.
 - Pantry/profile corrections should sync durably when the user clearly states saved inventory/profile facts are wrong, such as `I'm out of soy sauce` or `my chicken is old`. Ambiguous, one-time, or current-cook-only facts stay session scoped unless the user confirms a durable profile change.
 - Future evals need a separate `cooking_action_proposal` lane. Do not blend action-proposal quality into INIT-004's existing cooking-step or assistance surfaces, though INIT-004 can still coordinate eval discipline.
@@ -50,16 +56,18 @@ The near-term engineering goal is a typed, guardrail-first action interface that
 
 Forbidden context for all packs: auth tokens, emails, Firebase UIDs, raw session IDs, secrets, environment names/values, payment data, admin/security/deployment details, unrelated profile fields, other users' information, raw audio, raw images, full unredacted transcripts, repository docs, and private build/process details about Wilson or agents.
 
-## Confirmation Model
+## Authorization and Confirmation Model
 
-Tap confirmation means the user presses a visible, action-bound control such as `Start timer`, `Update recipe`, `Remove from pantry`, or `Restart recipe`. Voice confirmation means the user says yes/no to a visible or spoken proposal. V1 should default to tap confirmation because it is more reliable, replay-resistant, and easy to bind to the exact action.
+An explicit request can itself authorize a low-impact action. `Start a timer for five minutes` should start that timer after normal duration, session, policy, idempotency, and audit checks; Laica should not ask `Are you sure?`. A question such as `How long should this cook?` is not a timer command and must not start one. `Start the timer` requires clarification when the current step does not have one unambiguous duration.
+
+For actions that still need confirmation, tap confirmation means the user presses a visible, action-bound control such as `Update recipe`, `Remove from pantry`, or `Restart recipe`. Voice confirmation means the user says yes/no to a visible or spoken proposal. Consequential actions should default to an exact visible confirmation in v1 because it is reliable, replay-resistant, and easy to bind to the precise change.
 
 Balance usefulness and annoyance with risk tiers:
 
 | Tier | Examples | Confirmation rule |
 |---|---|---|
 | `none` | Cooking explanation, substitution advice with no state change | No confirmation; answer only |
-| `light` | Start/pause/reset/cancel an in-session timer | One compact proposal card; one tap executes; future voice confirmation may be allowed after action-bound replay protection |
+| `light` | Start an in-session timer | A direct, unambiguous user command is the authorization and executes without a second confirmation. An inferred, suggested, or ambiguous timer waits for user action or clarification |
 | `standard` | Save session fact, patch recipe steps, update visible guide | Explicit proposal card with exact before/after summary; batch related changes into one confirmation |
 | `durable` | Remove/add pantry item, update equipment/profile, save patched recipe snapshot | Explicit confirmation tied to the exact durable write; show the user-facing consequence and offer undo where product-safe |
 | `safety_critical` | Spoiled protein, allergy conflict, unsafe temperature/process, risky substitution | Safety answer first; no unsafe override. Confirm only safe discard/remove/restart actions |
@@ -74,7 +82,7 @@ Initial allowed action kinds should be versioned and schema-validated:
 | Action kind | Scope | Notes |
 |---|---|---|
 | `answer_only` | No mutation | Existing assistance behavior with stronger context packaging |
-| `timer.start` | Current session only | Use parsed explicit duration or current step duration. Never auto-start without confirmation from an Ask proposal |
+| `timer.start` | Current session only | Use a valid user-provided duration or one unambiguous current-step duration. A direct start command needs no second confirmation; questions, suggestions, or ambiguous durations never auto-start |
 | `timer.pause` / `timer.resume` / `timer.reset` / `timer.cancel` | Current session only | Must respect current timer ownership and PR #269/EFF-034 timer semantics |
 | `session.fact.set` / `session.fact.clear` | Current cook only | Example: warm rice from rice cooker exists for this cook; do not automatically save to pantry |
 | `pantry.item.add` / `pantry.item.remove` / `pantry.item.replace` | Linked profile | User-stated inventory correction only. Guest users get local guidance or a sign-in boundary, not durable profile mutation |
@@ -86,6 +94,42 @@ Initial allowed action kinds should be versioned and schema-validated:
 | `action.blocking_report.create` | Internal only | Records fail-closed reason for eval/debug. Never exposes secrets or raw transcript/audio |
 
 Everything outside this allowlist is rejected, not improvised.
+
+## Action Platform and Traceability
+
+The action taxonomy must be implemented as a versioned platform rather than one-off assistant behaviors. Two indexes form the shared source of truth:
+
+### Action Registry
+
+The registry describes what Laica can do. Each action definition must include:
+
+- stable action kind and version, such as `timer.start.v1`
+- input and result schemas
+- owning executor
+- user and session scope
+- allowed caller types
+- required context pack
+- risk tier and confirmation rule
+- authorization, safety, expiration, and idempotency requirements
+- whether the action is available to guests, linked users, voice agents, or approved integrations
+
+The canonical registry is server-controlled. Capability discovery returns only the safe, user-facing subset allowed for the current caller and cooking session; it never exposes internal executors, prompts, policies, hidden tools, or privileged actions.
+
+### Action Ledger
+
+The ledger records what happened to each proposed action using one stable action/proposal identifier and a bounded lifecycle:
+
+`proposed` -> (`authorized_by_request` or `awaiting_confirmation` -> `confirmed`) -> `executing` -> `succeeded` / `blocked` / `failed` / `cancelled` / `expired`
+
+Each event records only the redacted action parameters, caller type, user/session scope, registry/action version, policy version, confirmation method, timestamps, result, and safe reason code needed for support and evals. It must not become a cross-user transcript store or expose secrets, raw audio, full transcripts, internal reasoning, or unrelated personal data.
+
+The exact persistence mechanism remains an implementation audit decision. Regardless of storage, proposal state, execution result, and fail-closed reason must be traceable without relying on model prose or client-only state.
+
+### Integration Boundary
+
+Current Live Cooking and future voice/integration callers use the same narrow orchestration interface. Callers may discover their scoped capabilities, request a proposal, present it, return confirmation, cancel it, and read its status. They never call pantry, recipe, History, timer, or other executors directly.
+
+Future integrations receive an explicitly approved capability subset. Adding a caller does not grant it every registered action, and no third-party integration ships without a separate product, privacy, security, authorization, retention, and failure-handling decision.
 
 ## Guardrail Contract
 
@@ -171,83 +215,143 @@ Examples:
 - `My chicken smells really bad` is safety-critical: do not use it. Confirm removal from pantry if linked and user wants that inventory corrected; patch only if a safe alternate protein exists, otherwise restart/replan.
 - `Can I switch chicken with fish?` requires verifying fish availability and then adjusting cook times, heat, doneness cues, and safety. If the original technique is too chicken-specific, restart/replan.
 
-## Proposed API Shape
+## Proposed API and Tool Shape
 
 The future voice agent and current Live Cooking client should use the same action interface:
 
-1. `POST /api/cooking/actions/propose`
+1. `GET /api/cooking/actions/capabilities`
+   - Input context: authenticated or guest cooking-session scope.
+   - Output: only the caller/session's currently allowed action names, versions, user-facing descriptions, required inputs, and confirmation levels.
+2. `POST /api/cooking/actions/propose`
    - Input: cooking session reference, current client state checksum, user utterance/transcript, optional selected action intent from the client.
-   - Output: answer text, zero or one action proposal, risk tier, confirmation requirement, safe user-facing summary, redacted blocking report if blocked.
-2. `POST /api/cooking/actions/confirm`
+   - Output: answer text, zero or one action proposal or completed low-impact action, stable action id, risk tier, authorization/confirmation source, safe user-facing summary, redacted blocking report if blocked.
+   - A direct low-impact command may execute through the deterministic action path without another user interaction only when policy marks it `authorized_by_request`. Model prose alone never supplies that authorization.
+3. `POST /api/cooking/actions/confirm`
    - Input: proposal id, action-bound confirmation token, current session state checksum, idempotency key.
    - Server re-runs policy and authorization, then executes deterministic adapters.
-3. Executor adapters
+4. `POST /api/cooking/actions/cancel`
+   - Input: proposal id and current session scope.
+   - Cancels only a cancellable, non-terminal action owned by the caller.
+5. `GET /api/cooking/actions/:actionId`
+   - Output: the redacted status and safe result for one caller-owned action. It is not a cross-user event-listing endpoint.
+6. Executor adapters
    - Timer adapter owned by Live Cooking state.
    - Session-fact adapter owned by cooking session state.
    - Pantry/profile adapter owned by authenticated profile storage.
    - Recipe-patch adapter owned by cooking-session snapshot and current guide state.
    - History adapter runs only through the existing completion boundary.
 
-The API should make the voice agent boring: it can ask for a proposal, present the proposal, and confirm it. It must not need separate privileged tools.
+The API should make the voice agent boring: its callable tools are narrow wrappers around capability discovery, proposal, confirmation, cancellation, and status. It must not receive separate privileged tools or direct executor access.
 
 ## Smallest Prototype Slice
 
-Start with `Ask a question` -> `timer.start` proposal.
+Start with an explicit `Ask a question` timer command -> validated `timer.start` execution.
 
 Why this slice:
 
-- It proves the propose/confirm/execute/audit pattern without durable pantry/profile writes.
+- It proves the propose/authorize/execute/audit pattern without durable pantry/profile writes.
 - It uses the current UI surface and current timer control.
 - It can be tested deterministically from a typed/voice transcript such as `Start a timer for five minutes` or `Can you start the timer for this step?`.
-- It creates the confirmation-card pattern that later pantry and recipe patches can reuse.
+- It proves that direct low-impact commands and consequential confirmation-required actions can share one policy and ledger without forcing the same interaction onto both.
 
 Prototype acceptance:
 
 - The assistant can still answer non-action cooking questions with no proposal.
-- A timer action proposal is shown only when a duration exists or the user provides a valid duration.
-- The timer never starts from the model response alone.
-- Confirmation is one tap in v1 and is bound to the exact duration/action.
-- Failed schema, policy, confirmation, timer-state, or audit checks create a redacted blocking report and do not start the timer.
+- An explicit request with a valid duration, or an unambiguous reference to the current step's duration, starts without a second confirmation.
+- A question about timing does not start a timer, and an ambiguous start request asks for the missing duration.
+- The timer never starts from model prose or an assistant suggestion alone; deterministic policy must bind execution to the user's direct request.
+- Failed schema, policy, direct-request binding, timer-state, idempotency, or audit checks create a redacted blocking report and do not start the timer.
 - Existing Repeat/audio/caption/speech arbitration remains intact.
 
-## Execution Plan
+## Numbered Delivery Phases
 
-1. Planning and branch hygiene
-   - Keep this plan draft local until Wilson approves promotion.
-   - Before implementation, fetch fresh `origin/main`, check open PRs touching Live Cooking/timer/schema, and decide whether PR #281 or PR #334 must merge, rebase, or be superseded.
-2. Action schema and policy contract
-   - Add shared Zod schemas for proposal, confirmation, risk tier, context pack, action kinds, blocking report, and policy version.
-   - Add tests for invalid actions, forbidden categories, prompt-injection attempts, and fail-closed behavior.
-3. Proposal route without execution
-   - Add the propose route, context builder, model prompt, structured output validation, and redacted action/audit logging.
-   - Return answer-only behavior for non-action questions.
-4. Timer prototype execution
-   - Add confirmation path for `timer.start` and current-session timer control.
-   - Add client proposal card under the existing `Ask a question` response/status area.
-   - Validate with focused Live Cooking tests, route tests, check/build, and no Replit Agent.
-5. Pantry/profile correction
-   - Add linked-only pantry/profile correction proposals with exact item matching, user-stated provenance, confirmation, undo where product-safe, and guest boundary copy.
-   - Include examples for `out of soy sauce`, `chicken is old`, and equipment corrections.
-6. Recipe patching
-   - Resolve durable step schema shape first, especially action labels and final patched snapshot.
-   - Add recipe patch proposals for localized substitutions, safety removals, cue/timer changes, and current/future step patches.
-   - Store final patched recipe for History on linked completion and keep original/diff internal.
-7. Restart/replan
-   - Add restart/replan proposals when patching is unsafe or too broad.
-   - Make the transition explicit so the user understands the current guide is being replaced.
-8. Evals and security regression
-   - Create a separate `cooking_action_proposal` eval lane with fixtures for timer, pantry correction, substitutions, safety, prompt injection, forbidden requests, and blocking-report quality.
+These are Phase 1 through Phase 7 of INIT-005. Phase order is the default dependency order. A later phase may start early only when its relationship is explicitly classified under the INIT sequencing rule and it cannot bypass a guardrail, ownership, or evidence dependency.
 
-## Proposed Work Threads After Approval
+Every phase must update the registry and ledger contracts for its actions, add separate `cooking_action_proposal` eval fixtures, prove authorization and session ownership, exercise applicable direct-request and confirmation paths plus fail-closed behavior, and leave exact-head implementation evidence. Guardrails and evals are phase exit criteria, not a final hardening pass.
 
-- Thread A - Action contract and guardrails: shared schemas, risk tiers, context packs, forbidden categories, blocking-report shape, and policy tests.
-- Thread B - Proposal API and audit plumbing: propose route, structured model output, redacted logging, and answer-only compatibility.
-- Thread C - Timer action prototype: confirmation card, timer executor, component tests, and Live Cooking regression coverage.
-- Thread D - Pantry/profile correction actions: linked profile executor, guest boundary, item matching, undo/recovery, and profile tests.
-- Thread E - Recipe patching and History snapshot: session patch format, step/state reconciliation, original-vs-final audit storage, and History display contract.
-- Thread F - Action eval lane: `cooking_action_proposal` fixtures, adversarial/security cases, failure/blocking reports, and recurring eval report shape.
+### Phase 1 - Action Foundation and Guardrails
 
-Do not spawn these threads until Wilson approves the plan and chooses the first implementation slice.
+**Goal:** Establish one callable and traceable action platform before any mutating assistant action ships.
+
+**Deliverables:** Shared typed schemas; versioned Action Registry; scoped capability discovery; Action Ledger lifecycle; context packs; risk tiers; direct-request authorization and consequential-action confirmation binding; policy/safety/authorization gates; expiration and idempotency; redacted blocking reports; answer-only proposal compatibility; initial prompt-injection, forbidden-category, cross-user, and failure eval fixtures.
+
+**Boundary:** No timer, pantry/profile, recipe, History, or external integration mutation ships in this phase.
+
+**Exit gate:** Invalid or forbidden actions cannot reach an executor; allowed capabilities are caller/session scoped; every proposal and block has a traceable redacted lifecycle; audit failure blocks action execution.
+
+### Phase 2 - Timer Action Prototype
+
+**Goal:** Prove the first user-visible propose/authorize/execute/audit loop through the existing `Ask a question` surface without adding redundant confirmation.
+
+**Deliverables:** `timer.start` registry entry and executor; direct-command authorization; valid and ambiguous-duration handling; clear started status and existing pause/reset controls; timer/client-state checksum protection; successful and blocked ledger outcomes; focused route, policy, component, speech-arbitration, and action-eval coverage. Start with `timer.start`; decide pause/resume/reset/cancel interaction rules only after the start path meets the phase gate.
+
+**Boundary:** No durable user/profile or recipe mutation. The model response alone never controls the timer.
+
+**Exit gate:** One direct, unambiguous request starts only the intended duration once with no second confirmation; timing questions and assistant suggestions remain non-mutating; ambiguous, stale, duplicate, malformed, unauthorized, or unauditable requests do not start it.
+
+### Phase 3 - Session Facts and Pantry/Profile Corrections
+
+**Goal:** Let cooks correct relevant facts while preserving the distinction between this cook and durable account data.
+
+**Deliverables:** Session fact set/clear; linked-user pantry add/remove/replace; equipment add/remove; exact item matching and user-stated provenance; guest boundary; bundled confirmation for a related current-guide and pantry correction; recovery/undo behavior chosen before durable writes ship.
+
+**Boundary:** Ambiguous or one-cook facts remain session scoped. Guests cannot perform durable profile writes.
+
+**Exit gate:** Durable changes require action-bound confirmation, are user-owned and traceable, and cannot silently convert inference into saved profile truth.
+
+### Phase 4 - Localized Recipe Patching and Final History
+
+**Goal:** Adapt the active guide without losing step integrity, current progress, or the final recipe the user actually cooked.
+
+**Deliverables:** Versioned ingredient and step patch schemas; localized changes to future ingredients, steps, durations, cues, and doneness guidance; current-progress reconciliation; before/after confirmation; final patched linked History snapshot; internal original/diff/action provenance.
+
+**Boundary:** Patch only when dish identity, safety, and interpretable progress remain intact. No silent rewrite of completed steps.
+
+**Exit gate:** The accepted patch is coherent from the current step forward, blocked patches leave the active guide unchanged, and completed linked History shows the final patched recipe only.
+
+### Phase 5 - Restart/Replan and Safety Escalation
+
+**Goal:** Replace the current guide cleanly when localized patching would be unsafe or unreliable.
+
+**Deliverables:** Deterministic patch-versus-restart policy; maintained food-safety policy references; explicit restart/replan proposal and transition; spoiled-food, allergy/dietary, protein-swap, unavailable-core-ingredient, and already-passed-step cases; safe pantry correction combinations.
+
+**Boundary:** There is no unsafe override. Safety guidance is delivered before asking the user to confirm a safe remove, discard, substitute, or restart action.
+
+**Exit gate:** High-risk cases consistently choose a safe path, the old guide is never ambiguously mixed with the replacement, and every blocked or restarted path is traceable.
+
+### Phase 6 - Voice Agent and Integration Interface
+
+**Goal:** Let approved callers use the same platform without receiving direct or broad application privileges.
+
+**Deliverables:** Voice-agent tool schemas around scoped capabilities, propose, confirm, cancel, and status; caller identity and capability scoping; replay-resistant confirmation design; confidence and interruption handling; integration-specific rate limits and audit attribution; documented onboarding contract for future callers.
+
+**Boundary:** Clear voice timer commands may use direct-request authorization only after transcript confidence, replay, binding, interruption, accessibility, and eval gates are met. Voice confirmation for consequential actions remains separately gated. Third-party integrations remain disabled until separately approved.
+
+**Exit gate:** A caller can use only its granted capabilities, cannot bypass confirmation or policy, and produces the same ledger and blocking-report evidence as the Live Cooking client.
+
+### Phase 7 - Controlled Rollout and Expansion
+
+**Goal:** Validate the complete action system under production-like conditions before broadening availability or adding new actions/integrations.
+
+**Deliverables:** Full separate action-eval suite; adversarial and prompt-injection regression; cross-user and excessive-agency tests; food-safety review; blocking-report review workflow; provider and voice failure canaries; feature flags/kill switch; targeted Replit and production validation plan; registry review process for adding or deprecating actions.
+
+**Boundary:** No capability expansion based only on model quality demos. Each new action or caller follows the same registry, policy, confirmation, ledger, and eval requirements.
+
+**Exit gate:** Wilson reviews rollout evidence and explicitly approves the enabled action/caller set. Deferred integrations remain unavailable, not merely undocumented.
+
+## Phase Status
+
+| INIT-005 phase | Status | First implementation slice |
+|---|---|---|
+| Phase 1 - Action Foundation and Guardrails | Planned; next | Registry, ledger, capability discovery, typed proposal and blocking contracts; no mutation |
+| Phase 2 - Timer Action Prototype | Planned; depends on Phase 1 | Direct, unambiguous `timer.start` through `Ask a question`; no second confirmation |
+| Phase 3 - Session Facts and Pantry/Profile Corrections | Planned; depends on Phases 1-2 | Session fact plus one linked pantry correction |
+| Phase 4 - Localized Recipe Patching and Final History | Planned; depends on Phases 1-3 and stable step/session shape | One localized ingredient/step patch |
+| Phase 5 - Restart/Replan and Safety Escalation | Planned; depends on patch boundary evidence | One explicit safe restart/replan path |
+| Phase 6 - Voice Agent and Integration Interface | Planned; depends on stable core actions | Scoped voice-agent wrapper; no third-party launch |
+| Phase 7 - Controlled Rollout and Expansion | Planned; depends on prior enabled phases | Wilson-approved capability/caller rollout |
+
+Do not spawn implementation threads until Wilson explicitly approves implementation. When approved, start INIT-005 Phase 1 from fresh `origin/main`; the first user-visible action remains the Phase 2 timer prototype.
 
 ## Validation Checklist
 
@@ -263,7 +367,7 @@ Before any implementation PR is considered ready:
 
 ## Open Decisions
 
-- Whether voice confirmation is allowed in v1 for light timer actions, or kept behind tap confirmation until a later voice-agent slice has replay protection and confidence thresholds.
+- The transcript-confidence and ambiguity thresholds required before a future voice agent may treat a clear timer command as direct authorization; ambiguous commands ask for clarification rather than adding confirmation to clear ones.
 - Whether pantry/profile durable updates should offer one-step undo from the cooking surface or route users to Settings for reversal.
 - The exact data model for original recipe, patched recipe, and internal action log.
 - The precise threshold where `chicken -> fish` remains a patch versus becomes a restart for different cooking methods.

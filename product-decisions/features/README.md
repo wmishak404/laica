@@ -38,5 +38,6 @@ Suggested phases:
 
 ## Current Feature Folders
 
+- [Agentic Cooking Actions](agentic-cooking-actions/README.md)
 - [Slop Bowl](slop-bowl/README.md)
 - [Mobile Refresh](mobile-refresh/README.md)

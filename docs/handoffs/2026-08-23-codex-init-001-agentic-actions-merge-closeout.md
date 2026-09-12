@@ -13,8 +13,8 @@ PR #356 merged the Phase 4 agentic cooking actions draft plan into `main`. The d
 
 ## Changes
 
-- `product-decisions/features/mobile-refresh/pd-phase-04-agentic-cooking-actions.md`: records PR #356 merge status, final head, exact-head validation, and docs-only Replit rationale.
-- `product-decisions/features/mobile-refresh/README.md`: marks Phase 4 agentic action planning as merged draft-plan scope.
+- `product-decisions/features/agentic-cooking-actions/pd-agentic-cooking-actions-plan.md`: records PR #356 merge status, final head, exact-head validation, and docs-only Replit rationale; the source plan moved when Wilson reclassified the work as INIT-005 on 2026-09-11.
+- `product-decisions/features/mobile-refresh/README.md`: originally marked Phase 4 agentic action planning as merged draft-plan scope; current ownership moved to INIT-005 on 2026-09-11.
 - `initiatives/INIT-001-mobile-refresh.md`: records PR #356 in Phase 4 progress, updates the current resume point, and appends the merge chronology entry.
 - `initiatives/registry.md`: updates INIT-001's latest signal to the PR #356 merge.
 - `docs/handoffs/2026-08-23-codex-init-001-agentic-actions-merge-closeout.md`: preserves this closeout record for future agents.

@@ -47,7 +47,7 @@ The current Phase 4 baseline is tap-to-talk, not a realtime voice agent. Any fut
 
 Anything outside the allowlist is handled as a non-mutating cooking question or rejected.
 
-Future agentic cooking actions must route through the typed proposal/confirmation/execution contract in [Phase 4 agentic cooking actions](pd-phase-04-agentic-cooking-actions.md). The model may propose an action, but deterministic policy and executor code must enforce context packs, action allowlists, confirmation, authorization, idempotency, audit logging, and fail-closed behavior.
+Future agentic cooking actions must route through the typed proposal/confirmation/execution contract in the [INIT-005 Agentic Cooking Actions plan](../agentic-cooking-actions/pd-agentic-cooking-actions-plan.md). The model may propose an action, but deterministic policy and executor code must enforce context packs, action allowlists, confirmation, authorization, idempotency, audit logging, and fail-closed behavior.
 
 ## Agentic Action Guardrails
 
