@@ -4,6 +4,7 @@
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-09-11
 **Current phase:** Phase 1 - Action Foundation and Guardrails
+**Planning foundation:** Merged in PR #363 as `b208ef28a686ae43045ee83712a7319d43a3e6f2`; implementation not started
 
 ## Overview
 
@@ -31,7 +32,7 @@ Before each INIT-005 implementation phase, audit current Live Cooking and open P
 
 ## Current Status
 
-The accepted plan was first published through PR #356 as a future Mobile Refresh Phase 4 extension. Wilson reclassified the work as an independent initiative on 2026-09-11 because its seven phases span architecture, guardrails, action execution, persistent user facts, recipe state, voice/integration access, evals, and rollout beyond INIT-001's remaining scope.
+The accepted plan was first published through PR #356 as a future Mobile Refresh Phase 4 extension. Wilson reclassified the work as an independent initiative on 2026-09-11 because its seven phases span architecture, guardrails, action execution, persistent user facts, recipe state, voice/integration access, evals, and rollout beyond INIT-001's remaining scope. PR #363 merged that reclassification and numbered plan as `b208ef28a686ae43045ee83712a7319d43a3e6f2`.
 
 No INIT-005 runtime implementation, API, tool, schema, storage, voice integration, or production behavior has started. Phase 1 is the next proposed implementation phase; the first user-visible mutation remains the Phase 2 direct timer-start prototype, where a clear command needs no second confirmation.
 
@@ -68,7 +69,7 @@ Guardrails and separate action evals are required exit evidence in every phase, 
 | Item | Status | Scope |
 |---|---|---|
 | [PR #356](https://github.com/wmishak404/laica/pull/356) | Merged as `d6300aa6` | Original action plan, then classified under INIT-001 Phase 4 |
-| `codex/init-005-agentic-action-phases` | Active docs branch | Reclassifies the plan as INIT-005 and adds the numbered phase system |
+| [PR #363](https://github.com/wmishak404/laica/pull/363) | Merged as `b208ef28` | Reclassifies the plan as INIT-005 and adds the numbered phase system |
 
 No implementation branch or task has been started.
 
@@ -89,7 +90,7 @@ No implementation branch or task has been started.
 
 ## Validation State
 
-This reclassification is documentation only. It changes no runtime UI, API, tool, schema, storage, model/provider, auth/session, pantry/profile, recipe, History, deployment, or production behavior. Implementation validation has not started.
+This reclassification is documentation only. It changes no runtime UI, API, tool, schema, storage, model/provider, auth/session, pantry/profile, recipe, History, deployment, or production behavior. PR #363 exact head `071e973d6b96d8fc4aef3e0515793c8a791c1096` passed unit/typecheck/build/coverage, schema-backed guest + linked E2E with disposable Neon cleanup, dependency audit, secret scan, and all CodeQL analyses before merge. Implementation validation has not started.
 
 Before Phase 1 is ready, its branch must prove registry/schema validation, caller/session capability scoping, proposal lifecycle traceability, prompt-injection and forbidden-action rejection, cross-user isolation, redacted blocking reports, fail-closed audit behavior, and answer-only compatibility.
 
@@ -110,3 +111,7 @@ PR #356 published the draft agentic cooking actions plan and merged as `d6300aa6
 Wilson accepted the Action Registry, Action Ledger, capability discovery, integration-scoping direction, and requested a numbered phase program. He then reclassified the work from a Mobile Refresh Phase 4 extension to independent INIT-005 because INIT-001 is nearly complete and the new platform no longer depends on its remaining sequence.
 
 Wilson also clarified the confirmation model: an explicit, unambiguous timer-start command is itself authorization and does not need a second tap, while inferred or ambiguous timer behavior stays non-mutating until the user acts or clarifies. Recipe and durable-data changes retain exact action-bound confirmation. He confirmed that the initiative remains a cooking-specific agent, not a general-purpose personal agent.
+
+### 2026-09-11 - Independent INIT plan merged
+
+PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2` from exact validated head `071e973d6b96d8fc4aef3e0515793c8a791c1096` after the separate dependency gate remediation and closeout merged to `main`. The initiative remains in `Planning`: Phase 1 is the documented next phase, but Wilson has not yet authorized implementation tasks or runtime work.

@@ -38,3 +38,7 @@ Read INIT-005 before any agentic cooking action, action proposal/confirmation ro
 - Documentation-only change; no runtime behavior changed.
 - Validate internal links, stale path references, `git diff --check`, and exact-head GitHub checks before merge.
 - Human Replit validation and production-registry updates are not required for this docs-only reclassification.
+
+## Post-merge update
+
+PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2` from exact validated head `071e973d6b96d8fc4aef3e0515793c8a791c1096`. Required GitHub checks passed, including schema-backed guest + linked E2E and disposable Neon cleanup. The final planning status and Phase 1 resume point are recorded in [`2026-09-11-codex-init-005-plan-merge-closeout.md`](2026-09-11-codex-init-005-plan-merge-closeout.md).

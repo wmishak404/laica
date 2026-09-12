@@ -15,6 +15,8 @@ Published through PR #356, merged as `d6300aa6` from final head `ce5428de` after
 
 PR #356 originally published this work as a future Mobile Refresh Phase 4 extension. On 2026-09-11 Wilson reclassified it as the independent [INIT-005](../../../initiatives/INIT-005-agentic-cooking-actions.md) because the work has its own architecture, security, eval, voice, integration, and rollout phases and should not be blocked by remaining INIT-001 closeout. INIT-001 supplies the stable Live Cooking surface and existing contracts; it does not own or sequence INIT-005 implementation.
 
+PR #363 merged the independent INIT-005 reclassification and seven-phase plan as `b208ef28a686ae43045ee83712a7319d43a3e6f2` from exact validated head `071e973d6b96d8fc4aef3e0515793c8a791c1096`. Required unit/typecheck/build/coverage, schema-backed guest + linked E2E, dependency audit, secret scan, and CodeQL checks passed before merge. This merge accepts the planning foundation; it does not start Phase 1 implementation.
+
 ## Goal
 
 Evolve Live Cooking's existing `Ask a question` flow into the action surface for agent-assisted cooking changes, without making the UI feel heavier. A cook should still ask naturally, but Laica may answer with a proposed action when the safest next step is to start a timer, correct pantry/profile facts, patch the current guide, or restart/replan.
