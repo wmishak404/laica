@@ -198,3 +198,9 @@ After this focused remediation merges, PR #356 must refresh from fresh `origin/m
 PR #357 merged as `e371044d026de4bf70ef4653a74d1493cb6800cd` from exact validated head `58eceabe64398cf065e647557f47d0dc4d88b131`. The merge changes one transitive lockfile resolution within its existing compatible range; `package.json`, direct dependency declarations, application code, and the broader maintenance posture remain unchanged.
 
 Required exact-head dependency, secret-scan, CodeQL, unit/typecheck/build/coverage, and schema-backed E2E checks passed before merge. This completes the current concrete security trigger without reactivating broad modernization; EFF-023 remains `Deferred`.
+
+## 2026-09-11 - Current audit trigger authorizes a narrow lockfile repair
+
+Docs-only PR #363 surfaced new high-severity registry findings inherited from current `main`. Branch `codex/npm-audit-2026-09-11` follows the accepted trigger-driven pattern by updating only compatible lockfile resolutions. It does not change `package.json`, direct dependency declarations, the current Express major, application code, or product behavior.
+
+This branch is not a vehicle for the deferred provider, schema, UI, database, toolchain, or broad dependency-modernization work. Advisory identities, dependency paths, and reproduction detail remain in GitHub security tooling and private scan output. EFF-023 remains `Deferred`; after this focused security change merges, PR #363 must refresh from remediated `main` and pass its own exact-head checks.
