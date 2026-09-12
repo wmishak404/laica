@@ -29,6 +29,13 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - The documentation-only pre-publish evidence branch ended at `1923ea0021b1e186a9e0db2df96c74a4d18af9d8` and used runtime base `742694d9`; it is evidence provenance, not a different deployed runtime.
 - The deployment is not release-complete until an owner-authorized Production-app configuration review and focused rerun satisfy EFF-036's resolution criteria.
 
+### Dependency audit remediation — branch pending review
+
+- Changed surface: branch `codex/npm-audit-2026-09-11` updates only compatible lockfile resolutions after the shared high/critical audit gate detected new registry findings. `package.json`, direct dependency declarations, application source, and route contracts are unchanged; current upload/transcription behavior is intended to remain unchanged.
+- Existing evidence: clean install, high/critical production and full-graph audits, typecheck/UI lint, build, 411 unit tests, and 27 focused multipart/provider-boundary tests pass locally. Exact-head GitHub CI/E2E, dependency audit, secret scan, and CodeQL remain pending until the branch is pushed.
+- Focused production-push check: on the next selected release containing the remediation, submit one authenticated short audio question through the existing Live Cooking Ask flow and confirm the normal transcription result or expected provider/service response occurs without an upload/parser failure. Do not send malformed, oversized, or adversarial payloads to production.
+- Negative scope and breadcrumb: no route code, upload limits, provider model, UI, schema, auth/session, deployment configuration, or product decision changes. If audio upload fails after publish, inspect the `/api/speech/transcribe` multipart boundary and the deployed dependency resolution before changing provider behavior.
+
 ## 2026-07-22 Full Post-Publish Production Regression
 
 - Detailed matrix, screenshots, cleanup, and negative scope: [`docs/handoffs/2026-07-22-codex-post-publish-production-regression.md`](handoffs/2026-07-22-codex-post-publish-production-regression.md).
