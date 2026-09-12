@@ -204,3 +204,9 @@ Required exact-head dependency, secret-scan, CodeQL, unit/typecheck/build/covera
 Docs-only PR #363 surfaced new high-severity registry findings inherited from current `main`. Branch `codex/npm-audit-2026-09-11` follows the accepted trigger-driven pattern by updating only compatible lockfile resolutions. It does not change `package.json`, direct dependency declarations, the current Express major, application code, or product behavior.
 
 This branch is not a vehicle for the deferred provider, schema, UI, database, toolchain, or broad dependency-modernization work. Advisory identities, dependency paths, and reproduction detail remain in GitHub security tooling and private scan output. EFF-023 remains `Deferred`; after this focused security change merges, PR #363 must refresh from remediated `main` and pass its own exact-head checks.
+
+## 2026-09-11 - Focused audit remediation merged
+
+PR #364 merged as `008d2e32bd9ae8fb4feac05bc65ec22f40c0b3f4` from exact validated head `9923564dde4f9f2a009d87db321a802ead5d8a17`. The merge updates compatible lockfile resolutions without changing `package.json`, direct dependency declarations, application source, or the current Express major.
+
+Required exact-head dependency audit, secret scan, CodeQL, unit/typecheck/build/coverage, and schema-backed guest + linked E2E checks passed before merge. This completes the current concrete security trigger without reactivating broad modernization; EFF-023 remains `Deferred`.

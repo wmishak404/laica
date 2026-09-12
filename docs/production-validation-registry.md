@@ -23,16 +23,16 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 
 ## Current Main Candidate
 
-- Registry updated: 2026-08-06 by the EFF-037 merge closeout.
-- Current `origin/main`: `677d2c3dcabd86271bcf735ec4d4ce8577377429` (`Fix EFF-037 feedback length contract (#350)`). This is the latest runtime candidate after PR #350.
+- Registry updated: 2026-09-11 by the PR #364 dependency-remediation closeout.
+- Current runtime candidate on `origin/main`: `008d2e32bd9ae8fb4feac05bc65ec22f40c0b3f4` (`Build: refresh audited dependency resolutions (#364)`). This is the latest runtime-affecting candidate; the application source and direct dependency declarations remain unchanged.
 - Fresh production correlation and full custom-domain regression now supersede the older date-only baseline for the tested deployment fingerprint above.
 - The documentation-only pre-publish evidence branch ended at `1923ea0021b1e186a9e0db2df96c74a4d18af9d8` and used runtime base `742694d9`; it is evidence provenance, not a different deployed runtime.
 - The deployment is not release-complete until an owner-authorized Production-app configuration review and focused rerun satisfy EFF-036's resolution criteria.
 
-### Dependency audit remediation — branch pending review
+### Dependency audit remediation — PR #364 merged, pending production push
 
-- Changed surface: branch `codex/npm-audit-2026-09-11` updates only compatible lockfile resolutions after the shared high/critical audit gate detected new registry findings. `package.json`, direct dependency declarations, application source, and route contracts are unchanged; current upload/transcription behavior is intended to remain unchanged.
-- Existing evidence: clean install, high/critical production and full-graph audits, typecheck/UI lint, build, 411 unit tests, and 27 focused multipart/provider-boundary tests pass locally. Exact-head GitHub CI/E2E, dependency audit, secret scan, and CodeQL remain pending until the branch is pushed.
+- Changed surface: PR #364 merged as `008d2e32bd9ae8fb4feac05bc65ec22f40c0b3f4` from exact validated head `9923564dde4f9f2a009d87db321a802ead5d8a17`, updating only compatible lockfile resolutions after the shared high/critical audit gate detected new registry findings. `package.json`, direct dependency declarations, application source, and route contracts are unchanged; current upload/transcription behavior is intended to remain unchanged.
+- Existing evidence: local clean install, high/critical production and full-graph audits, typecheck/UI lint, build, 411 unit tests, and 27 focused multipart/provider-boundary tests passed. Exact-head GitHub unit/typecheck/build/coverage, dependency audit, secret scan, all CodeQL analyses, and schema-backed guest + linked E2E passed; disposable Neon cleanup succeeded.
 - Focused production-push check: on the next selected release containing the remediation, submit one authenticated short audio question through the existing Live Cooking Ask flow and confirm the normal transcription result or expected provider/service response occurs without an upload/parser failure. Do not send malformed, oversized, or adversarial payloads to production.
 - Negative scope and breadcrumb: no route code, upload limits, provider model, UI, schema, auth/session, deployment configuration, or product decision changes. If audio upload fails after publish, inspect the `/api/speech/transcribe` multipart boundary and the deployed dependency resolution before changing provider behavior.
 
