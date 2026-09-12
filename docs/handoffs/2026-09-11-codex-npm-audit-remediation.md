@@ -64,3 +64,7 @@ Evidence reasoning and limits:
 - Clean installation, both enforced-threshold audits, compile, build, full unit, and focused multipart/provider-boundary tests show that the lockfile resolves deterministically and preserves the local contracts exercised around the affected runtime and development paths.
 - Exact-head GitHub schema-backed guest + linked E2E, audit, secret scan, CodeQL, and CI-runner behavior remain pending until the branch is pushed.
 - No claim is made about unrelated future registry findings, production provider availability, malformed live traffic, Replit deployment behavior, or the product content of PR #363.
+
+## Post-merge update
+
+PR #364 merged as `008d2e32bd9ae8fb4feac05bc65ec22f40c0b3f4` from exact validated head `9923564dde4f9f2a009d87db321a802ead5d8a17`. Required GitHub checks passed, including schema-backed guest + linked E2E and disposable Neon cleanup. The remaining PR #363 refresh sequence is recorded in [`2026-09-11-codex-npm-audit-remediation-closeout.md`](2026-09-11-codex-npm-audit-remediation-closeout.md).

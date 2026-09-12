@@ -846,3 +846,9 @@ The shared high/critical audit gate is clear on the remediated package graph. PR
 Docs-only PR #363 failed the repository-wide high/critical dependency gate even though its branch does not change the package graph. Branch `codex/npm-audit-2026-09-11` starts from the same current `origin/main` base and applies npm's compatible lockfile-only remediation, with direct dependency declarations and application code unchanged.
 
 Local clean-install, high/critical audit, typecheck/lint, build, full unit, and focused multipart/provider-boundary checks pass on the resulting graph. Exact-head GitHub evidence remains required before this dependency branch is merge-ready. After it merges, PR #363 must refresh from fresh `origin/main` and rerun its own exact-head checks; the dependency change must not be recreated on the docs branch. EFF-017 remains `In Progress`, and its broader provider, automated Replit-environment, coverage-ratchet, and confidence work is unchanged.
+
+## 2026-09-11 — Current audit remediation merged
+
+PR #364 merged as `008d2e32bd9ae8fb4feac05bc65ec22f40c0b3f4` from exact validated head `9923564dde4f9f2a009d87db321a802ead5d8a17`. Required unit/typecheck/build/coverage, dependency audit, secret scan, CodeQL, and schema-backed guest + linked E2E checks passed; the disposable Neon branch was deleted successfully.
+
+The shared high/critical audit gate is clear on the remediated graph. PR #363 may now refresh from fresh `origin/main` and rerun its own exact-head checks. This merge does not change EFF-017's `In Progress` status, validation authority, or remaining provider, automated Replit-environment, coverage-ratchet, and confidence work.
