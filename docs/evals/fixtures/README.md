@@ -25,6 +25,12 @@ Committed public fixture set:
 - `live-cooking-step-previews-singular-plural-agreement.json` - synthetic judge-smoke fixture for grammar agreement, such as `Prep Leek` when the step prepares multiple leeks.
 - `live-cooking-step-previews-stale-final-garnish-label.json` - synthetic judge-smoke fixture for stale generic final labels, such as `Cook Vegetables` when the milestone is garnish and serve.
 - `live-cooking-step-previews-wrong-milestone.json` - synthetic judge-smoke fixture for setup-only labels that miss the actual cooking milestone.
+- `chef-it-up-suggestions-dish-identity-frittata-no-eggs.json` - synthetic negative guard re-expressing the real 2026-07-08 production failure: a frittata suggested from an egg-free pantry with eggs parked in additionalIngredientsNeeded.
+- `chef-it-up-suggestions-dish-identity-fried-rice-no-rice.json` - synthetic negative guard for fried-rice names without rice, including the "(No Rice Version)" disclaimer pattern where the definer is not even listed as optional.
+- `chef-it-up-suggestions-dish-identity-ramen-no-noodles.json` - synthetic negative guard for ramen names with the ramen noodles parked as optional.
+- `chef-it-up-suggestions-dish-identity-honest-rename.json` - synthetic positive guard: the same egg-free pantry as the frittata failure, named honestly (skillet, bake, yogurt bowl) so dish-identity fixes cannot over-correct into refusing honest suggestions.
+- `recipe-suggestions-dish-identity-steak-tacos.json` - synthetic negative guard on the general suggestions surface covering two defining-ingredient families at once: steak tacos without steak or tortillas.
+- `slop-bowl-suggestions-dish-identity-ramen.json` - synthetic negative guard extending the dish-name identity check to the Slop Bowl surface.
 
 Expected deterministic failures are allowed only when the matching resolved criterion label is also `fail`. Fixture schema, privacy class, privacy scan, output-required, and deterministic label expectation failures still make the artifact invalid.
 
@@ -51,6 +57,11 @@ When adding or materially changing fixtures, keep the fixture data readable and 
 - `Value claim`: Live Cooking step-preview evals should protect hands-busy cooks from small-card labels that are measurement fragments, generic duplicates, ungrammatical snippets, or labels for the wrong milestone.
 - `Evidence`: `live-cooking-step-previews-client-rescue`, the seven focused judge-smoke fixtures, and `live-cooking-step-previews-rendered-fragments` load as public synthetic fixtures under `live_cooking_step_previews`; deterministic validation checks output shape, final rendered-label word/character limits, measurement-free labels, and sibling-label distinctness while preserving provider-versus-rendered quality labels. The synthetic rendering constraints mirror the PR #260 merged runtime limits of 5 words and 24 characters, and the newest fixtures mirror PR #264's prompt direction plus Wilson's 2026-07-08 calibration finding that a multi-ingredient prep step should not label only one meaningful object.
 - `Evidence limits`: The current validation lane proves schema, privacy posture, deterministic rendered-label checks, label preservation, and judge-smoke report plumbing only. It does not prove live provider behavior, PR #260 runtime fallback behavior, pixel/visual card fit, Wilson re-labeling of these exact synthetic outputs, or calibrated LLM judge quality.
+2026-07-08 dish-identity batch:
+
+- `Value claim`: A recipe name is a promise. Suggestions must never name a dish whose defining ingredient is missing from `pantryIngredientsUsed` or parked in `additionalIngredientsNeeded` — no frittata without eggs, no fried rice without rice, no ramen without noodles, no steak tacos without steak or tortillas.
+- `Evidence`: the six dish-identity fixtures above load as public synthetic fixtures under the new deterministic `dish_identity` check (`server/eval-dish-identity.ts`); `chef-it-up-suggestions-optional-extras-required` and `chef-it-up-suggestions-dietary-halal-pork` gained `dish_identity: fail` labels because their intentionally bad outputs also violate the new check; the honest-rename positive guard protects against over-correction.
+- `Evidence limits`: rules are precision-first (named ingredients plus common dish forms, with "-style", "-inspired", and "-ish" adapted-name exemptions per the accepted EFF-022 labeling direction), so unlisted dishes escape the deterministic lane and stay with human/judge recall. Fixtures do not prove live model rates; see intake `dish-identity-prompt-ab-2026-07-08` for the live probe evidence.
 
 Current harness commands:
 
@@ -58,6 +69,7 @@ Current harness commands:
 npm run eval:fixtures
 npm run env:run -- npm run eval:step-preview-judge-smoke -- --runs 3 --out /tmp/laica-step-preview-judge-smoke.md
 npx vitest run tests/unit/eval-fixtures.test.ts
+npm run env:run -- npm run eval:dish-identity   # live-provider probe; calls OpenAI, never writes eval rows
 ```
 
 `npm run eval:fixtures` is the focused fixture-corpus validation lane for PR evidence. It loads committed public fixtures, applies the canonical schema/privacy/surface checks, allows only labeled expected deterministic failures, and prints a compact fixture/surface summary.

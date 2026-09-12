@@ -1,0 +1,38 @@
+{
+  "id": "chef-it-up-suggestions-dish-identity-honest-rename",
+  "surface": "chef_it_up_suggestions",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "positive-guard"],
+  "sourceRefs": ["wilson-frittata-report-2026-07-08", "dish-identity-prompt-ab-2026-07-08"],
+  "request": {
+    "preferences": "Selected cuisines: no preference. Cooking skill: beginner. Ready in 45 minutes. Dietary restrictions: none. Use pantry ingredients first; additional ingredients are optional enhancements only.",
+    "ingredients": ["sausages", "leeks", "carrots", "cubed cheese", "plain yogurt", "fresh sage"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 45,
+    "cuisines": ["No preference"],
+    "skill": "beginner",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "oven", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Sausage, Leek & Carrot Skillet with Sage\",\"description\":\"Browned sausages with sweet leeks, carrots, and crisped sage.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"sausages\",\"leeks\",\"carrots\",\"fresh sage\"],\"additionalIngredientsNeeded\":[\"chili flakes\"],\"overview\":\"Brown the sausages, soften the vegetables, and finish with sage.\",\"instructions\":[\"Brown sausages, add sliced leeks and carrots, cook until tender, and finish with sage.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Cheesy Sausage & Vegetable Bake\",\"description\":\"Sausage, leeks, and carrots baked with melting cheese cubes.\",\"difficulty\":\"Easy\",\"cookTime\":45,\"pantryIngredientsUsed\":[\"sausages\",\"leeks\",\"carrots\",\"cubed cheese\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Roast the sausage and vegetables, then bake with cheese until golden.\",\"instructions\":[\"Roast sausages, leeks, and carrots, scatter over the cheese cubes, and bake until melted and golden.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Warm Sausage & Veggie Yogurt Bowl\",\"description\":\"Seared sausage and vegetables over cool herbed yogurt.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"sausages\",\"carrots\",\"leeks\",\"plain yogurt\",\"fresh sage\"],\"additionalIngredientsNeeded\":[\"lemon\"],\"overview\":\"Sear the sausage and vegetables and spoon them over sage yogurt.\",\"instructions\":[\"Sear sausage with carrots and leeks, stir sage into yogurt, and spoon the hot mixture over the yogurt.\"],\"cuisine\":\"Pantry\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "dish-identity-guard-candidate",
+    "capturedAt": "2026-07-08"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "dish_identity": "pass",
+    "optional_ingredient_contract": "pass",
+    "pantry_grounding": "pass",
+    "recipe_usefulness": "pass"
+  },
+  "labelProvenance": {
+    "labeledBy": "claude-synthetic-from-wilson-dish-identity-report",
+    "labeledAt": "2026-07-08"
+  },
+  "notes": "Positive guard from candidate-prompt captures over the same egg-free pantry as the frittata failure: every dish is named for what the pantry can actually make (skillet, bake, yogurt bowl), so prompt fixes must not over-correct into refusing honest suggestions."
+}

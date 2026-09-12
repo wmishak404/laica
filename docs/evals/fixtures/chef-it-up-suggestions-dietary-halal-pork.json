@@ -27,7 +27,8 @@
     "max_time_adherence": "pass",
     "dietary_compliance": "fail",
     "pantry_grounding": "fail",
-    "optional_ingredient_contract": "fail"
+    "optional_ingredient_contract": "fail",
+    "dish_identity": "fail"
   },
   "labelProvenance": {
     "labeledBy": "codex-synthetic-from-wilson-target-set",

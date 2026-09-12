@@ -12,6 +12,7 @@ import {
   normalizeEvalFeatureType,
   type EvalFeatureType,
 } from "./ai-feature-types";
+import { checkDishIdentity, formatDishIdentityViolations } from "./eval-dish-identity";
 
 export const PUBLIC_EVAL_FIXTURE_DIR = path.resolve(process.cwd(), "docs/evals/fixtures");
 
@@ -30,6 +31,7 @@ const criterionLabelSchema = z.enum([
   "dietary_compliance",
   "pantry_grounding",
   "optional_ingredient_contract",
+  "dish_identity",
   "cuisine_fit",
   "inspired_or_fusion_labeling",
   "recipe_usefulness",
@@ -216,6 +218,7 @@ function validateRecipeSurface(fixture: EvalFixture): EvalFixtureCheck[] {
       check("structure_contract", "fail", parsed.error),
       check("suggestion_count", "not_applicable", "Suggestion count cannot be checked without valid JSON."),
       check("max_time_adherence", "not_applicable", "Max-time check requires valid recipe suggestions."),
+      check("dish_identity", "not_applicable", "Dish-identity check requires valid recipe suggestions."),
     ];
   }
 
@@ -225,6 +228,7 @@ function validateRecipeSurface(fixture: EvalFixture): EvalFixtureCheck[] {
       check("structure_contract", "fail", schemaResult.error.issues[0]?.message ?? "Invalid recipe suggestion shape."),
       check("suggestion_count", "fail", "Recipe suggestion fixtures must contain exactly three recipes."),
       check("max_time_adherence", "not_applicable", "Max-time check requires valid recipe suggestions."),
+      check("dish_identity", "not_applicable", "Dish-identity check requires valid recipe suggestions."),
     ];
   }
 
@@ -236,18 +240,26 @@ function validateRecipeSurface(fixture: EvalFixture): EvalFixtureCheck[] {
   const maxTimeMinutes = fixture.constraints.maxTimeMinutes;
   if (typeof maxTimeMinutes !== "number") {
     checks.push(check("max_time_adherence", "not_applicable", "Fixture has no bounded max-time constraint."));
-    return checks;
+  } else {
+    const allowedMinutes = maxTimeMinutes + 15;
+    const slowRecipes = schemaResult.data.recipes.filter((recipe) => recipe.cookTime > allowedMinutes);
+    checks.push(
+      slowRecipes.length === 0
+        ? check("max_time_adherence", "pass", `All recipe cook times are <= ${allowedMinutes} minutes.`)
+        : check("max_time_adherence", "fail", `${slowRecipes.length} recipe(s) exceed ${allowedMinutes} minutes.`),
+    );
   }
 
-  const allowedMinutes = maxTimeMinutes + 15;
-  const slowRecipes = schemaResult.data.recipes.filter((recipe) => recipe.cookTime > allowedMinutes);
-  checks.push(
-    slowRecipes.length === 0
-      ? check("max_time_adherence", "pass", `All recipe cook times are <= ${allowedMinutes} minutes.`)
-      : check("max_time_adherence", "fail", `${slowRecipes.length} recipe(s) exceed ${allowedMinutes} minutes.`),
-  );
+  checks.push(dishIdentityCheck(schemaResult.data.recipes));
 
   return checks;
+}
+
+function dishIdentityCheck(recipes: Array<Record<string, unknown>>): EvalFixtureCheck {
+  const violations = checkDishIdentity(recipes);
+  return violations.length === 0
+    ? check("dish_identity", "pass", "Every dish name is satisfied by pantryIngredientsUsed defining ingredients.")
+    : check("dish_identity", "fail", `Dish-name identity violations: ${formatDishIdentityViolations(violations)}.`);
 }
 
 function validateSlopBowlSurface(fixture: EvalFixture): EvalFixtureCheck[] {
@@ -257,10 +269,13 @@ function validateSlopBowlSurface(fixture: EvalFixture): EvalFixtureCheck[] {
   }
 
   const schemaResult = slopBowlResponseSchema.safeParse(parsed.value);
+  if (!schemaResult.success) {
+    return [check("structure_contract", "fail", schemaResult.error.issues[0]?.message ?? "Invalid Slop Bowl shape.")];
+  }
+
   return [
-    schemaResult.success
-      ? check("structure_contract", "pass", "Slop Bowl output matches the { recipe } contract.")
-      : check("structure_contract", "fail", schemaResult.error.issues[0]?.message ?? "Invalid Slop Bowl shape."),
+    check("structure_contract", "pass", "Slop Bowl output matches the { recipe } contract."),
+    dishIdentityCheck([schemaResult.data.recipe]),
   ];
 }
 

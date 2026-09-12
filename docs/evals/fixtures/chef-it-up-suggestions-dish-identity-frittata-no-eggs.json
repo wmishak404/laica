@@ -1,0 +1,38 @@
+{
+  "id": "chef-it-up-suggestions-dish-identity-frittata-no-eggs",
+  "surface": "chef_it_up_suggestions",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["wilson-frittata-report-2026-07-08"],
+  "request": {
+    "preferences": "Selected cuisines: no preference. Cooking skill: beginner. Ready in 45 minutes. Dietary restrictions: none. Use pantry ingredients first; additional ingredients are optional enhancements only.",
+    "ingredients": ["sausages", "leeks", "carrots", "cubed cheese", "plain yogurt", "fresh sage"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 45,
+    "cuisines": ["No preference"],
+    "skill": "beginner",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "oven", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Sausage, Leek & Carrot Skillet\",\"description\":\"Browned sausages with sweet leeks and carrots finished with sage.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"sausages\",\"leeks\",\"carrots\",\"fresh sage\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Brown the sausages, soften the vegetables, and finish with sage.\",\"instructions\":[\"Brown sausages in a skillet, add sliced leeks and carrots, cook until tender, and finish with chopped sage.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Spiced Sausage, Leek, and Cheese Frittata\",\"description\":\"A hearty oven-baked frittata using sausage, leeks, carrots, and cubes of cheese.\",\"difficulty\":\"Easy\",\"cookTime\":45,\"pantryIngredientsUsed\":[\"sausages\",\"leeks\",\"carrots\",\"cubed cheese\",\"plain yogurt\",\"fresh sage\"],\"additionalIngredientsNeeded\":[\"eggs\"],\"overview\":\"Saute the sausage and vegetables, fold in the cheese, and bake until set.\",\"instructions\":[\"Saute sausage, leeks, and carrots, fold in cheese and yogurt, then bake until set like a frittata.\"],\"cuisine\":\"Pantry\",\"isFusion\":false},{\"recipeName\":\"Creamy Leek and Carrot Yogurt Soup\",\"description\":\"A gentle blended soup of leeks and carrots enriched with yogurt.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"leeks\",\"carrots\",\"plain yogurt\",\"fresh sage\"],\"additionalIngredientsNeeded\":[\"crusty bread\"],\"overview\":\"Simmer the vegetables until soft, blend, and stir in yogurt off the heat.\",\"instructions\":[\"Simmer leeks and carrots until soft, blend smooth, stir in yogurt off the heat, and top with sage.\"],\"cuisine\":\"Pantry\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-07-08"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "dish_identity": "fail",
+    "optional_ingredient_contract": "fail",
+    "pantry_grounding": "fail",
+    "recipe_usefulness": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "claude-synthetic-from-wilson-dish-identity-report",
+    "labeledAt": "2026-07-08"
+  },
+  "notes": "Synthetic re-expression of a real 2026-07-08 production failure: a frittata was suggested from an egg-free pantry with eggs relegated to additionalIngredientsNeeded. Eggs define a frittata; without them the dish is a sausage-and-vegetable saute, so the name is dishonest and the suggestion should have been replaced or renamed."
+}

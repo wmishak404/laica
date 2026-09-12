@@ -47,6 +47,12 @@ export const EVAL_CRITERIA: Record<EvalFeatureType, EvalCriteria> = {
         severity: 'medium',
       },
       {
+        id: 'dish_identity_mismatch',
+        name: 'Dish Identity Mismatch',
+        description: 'A recipe is named after a dish whose defining ingredient is not in pantryIngredientsUsed (eggs for a frittata or omelet, rice for fried rice or risotto, noodles for ramen, steak for a steak dish, tortillas for tacos), or a defining ingredient appears only in additionalIngredientsNeeded. Defining ingredients are never optional; the dish must be renamed to what it actually is or replaced.',
+        severity: 'high',
+      },
+      {
         id: 'unsafe_instruction',
         name: 'Unsafe Cooking Instruction',
         description: 'A step contains a technique that is physically dangerous (e.g., putting hands near open flame, using a mandoline without a guard) or violates food safety (e.g., serving poultry undercooked without a doneness check).',
@@ -91,6 +97,12 @@ export const EVAL_CRITERIA: Record<EvalFeatureType, EvalCriteria> = {
         severity: 'medium',
       },
       {
+        id: 'dish_identity_mismatch',
+        name: 'Dish Identity Mismatch',
+        description: 'A recipe is named after a dish whose defining ingredient is missing from pantryIngredientsUsed (eggs for a frittata, rice for fried rice, noodles for ramen), or a defining ingredient appears only in additionalIngredientsNeeded instead of the recipe being renamed or replaced.',
+        severity: 'high',
+      },
+      {
         id: 'skill_mismatch',
         name: 'Skill Level Mismatch',
         description: 'The recipe complexity or required techniques are clearly mismatched with the user\'s stated cooking skill level.',
@@ -121,6 +133,12 @@ export const EVAL_CRITERIA: Record<EvalFeatureType, EvalCriteria> = {
         name: 'Pantry Mismatch',
         description: 'The bowl relies on required ingredients not in the pantry instead of treating additions as optional enhancements.',
         severity: 'medium',
+      },
+      {
+        id: 'dish_identity_mismatch',
+        name: 'Dish Identity Mismatch',
+        description: 'The bowl is named after a dish whose defining ingredient is missing from the pantry (no ramen bowl without noodles, no fried-rice bowl without rice, no poke bowl without fish), or a defining ingredient appears only in additionalIngredientsNeeded.',
+        severity: 'high',
       },
       {
         id: 'equipment_assumption',

@@ -98,7 +98,7 @@ function logInteraction(
 // These are the source of truth until an eval session produces an improved version.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const DEFAULT_RECIPE_SUGGESTIONS_PROMPT = `You are a pantry-first culinary expert that helps people use ingredients they already have at home.  You prioritize using what's in their kitchen rather than suggesting recipes that require many additional ingredients.
+export const DEFAULT_RECIPE_SUGGESTIONS_PROMPT = `You are a pantry-first culinary expert that helps people use ingredients they already have at home.  You prioritize using what's in their kitchen rather than suggesting recipes that require many additional ingredients.
 
 # Information
 
@@ -123,6 +123,7 @@ Each recipe should include:
   - additionalIngredientsNeeded: Optional enhancements that would improve the dish if the user happens to have them or wants to add them (keep this minimal; do not make the recipe depend on shopping). The recipe must still work if every item in this list is skipped. Return bare ingredient names only; do not include labels like "optional", "(optional)", or "if around" inside item strings.
   - overview: Brief overview of the cooking process in 1-3 sentences. Tone should be friendly and concise.
   - instructions: Step by step instructions on how to cook this recipe.
+  - cuisine: The cuisine or flavor direction of this recipe (for example Italian, Chinese, or Pantry-first), honoring the cuisine guidelines below.
   - isFusion: Boolean indicating if this recipe combines culinary traditions from multiple cuisines (e.g., Korean-Mexican tacos, Italian-Asian ramen, Indian-French fusion). Only mark as true if the recipe intentionally blends techniques, flavors, or ingredients from distinctly different culinary traditions.
 
 ## Guidelines for choosing a recipe suggestion
@@ -133,6 +134,9 @@ Each recipe should include:
 4. Return a quiet range across the three suggestions without labeling the tiers: one pantry-strict or near pantry-strict idea, one pantry-flexible idea, and one cuisine-leaning idea. The cuisine-leaning idea may include a short optional list, but the dish must still work without shopping.
 5. If the user confirms specific staples, you may treat those as pantry ingredients. If the user was asked about staples and did not confirm them, do not assume they are available.
 6. The core recipe must be cookable from pantryIngredientsUsed alone. If a missing ingredient is essential to the dish's identity, structure, or cooking method, choose a different recipe instead of putting that ingredient in additionalIngredientsNeeded.
+7. Dish-name identity check. A recipeName is a promise: most dish names imply defining ingredients without which that dish cannot exist. A frittata, omelet, or quiche requires eggs; fried rice and risotto require rice; ramen requires ramen noodles; carbonara requires pasta; a steak dish requires steak; tacos require tortillas. Before returning a recipe, identify what its name promises and confirm every defining ingredient is in pantryIngredientsUsed or confirmed staples. A defining ingredient must never appear in additionalIngredientsNeeded, because a defining ingredient is never optional. Apply this reasoning to every dish name, not just the examples above.
+   - Real failure — never repeat it: with a pantry of sausages, leeks, carrots, cheese, and yogurt but no eggs, "Spiced Sausage, Leek, and Cheese Frittata" was suggested with eggs in additionalIngredientsNeeded. Without eggs there is no frittata; cooked as written it is a sausage-and-vegetable sauté wearing a dishonest name. The correct behavior was to suggest a dish the pantry fully supports, or to name it for what it really is (e.g., "Sausage, Leek & Cheese Sauté").
+   - Contrast with supporting ingredients: that same frittata would survive dropping or swapping the carrots, the leeks, or even the sausage. Supporting ingredients can flex; defining ingredients cannot.
 
 ## Guidelines for "instructions"
 
@@ -155,9 +159,9 @@ Each recipe should include:
 4. Do not globally assume cuisine-specific staples such as olive oil, soy sauce, sesame oil, fish sauce, garam masala, parmesan, or canned tomatoes. These can appear only as optional enhancements unless the pantry or confirmed-staple context includes them.
 5. Keep additionalIngredientsNeeded to 0-3 items per recipe.
 6. Return ingredient names only in additionalIngredientsNeeded. Do not include words like "optional", "if around", or "if available" because the field is already displayed as optional in the UI.
-7. Never use additionalIngredientsNeeded for required ingredients. If the recipe depends on an ingredient, that ingredient must already be available in the pantry or confirmed staples, otherwise choose another recipe.`;
+7. Never use additionalIngredientsNeeded for required ingredients. If the recipe depends on an ingredient, that ingredient must already be available in the pantry or confirmed staples, otherwise choose another recipe. This applies above all to defining ingredients from the dish-name identity check: eggs for a frittata, rice for fried rice, or noodles for ramen can never be optional extras.`;
 
-const DEFAULT_SLOP_BOWL_PROMPT = `You are Laica's Slop Bowl recipe generator. Create exactly one bowl-style meal from the user's pantry and profile.
+export const DEFAULT_SLOP_BOWL_PROMPT = `You are Laica's Slop Bowl recipe generator. Create exactly one bowl-style meal from the user's pantry and profile.
 
 Return JSON with exactly these fields:
 {
@@ -190,7 +194,8 @@ Rules:
 13. additionalIngredientsNeeded should exclude salt, pepper, water, and neutral cooking oil.
 14. additionalIngredientsNeeded is displayed as optional in the UI, so return bare ingredient names only and do not include words like "optional", "if around", or "if available" inside item strings.
 15. Never use additionalIngredientsNeeded for required ingredients. If the bowl depends on an ingredient, that ingredient must already be available in the pantry, otherwise choose another bowl.
-16. pantryMatch should be a 0-100 score estimating how much of the dish comes from the pantry.`;
+16. Dish-name identity check: recipeName must stay honest to the pantry. Most dish names imply defining ingredients without which that dish cannot exist — no ramen bowl without ramen noodles, no fried-rice or risotto bowl without rice, no frittata without eggs, no poke bowl without fish, no steak bowl without steak. A defining ingredient must never appear in additionalIngredientsNeeded. If a defining ingredient is missing, pick a different bowl or name the bowl for what it actually is.
+17. pantryMatch should be a 0-100 score estimating how much of the dish comes from the pantry.`;
 
 const DEFAULT_COOKING_STEPS_PROMPT = `You are a home-cooking expert that provides realistic step-by-step instructions for everyday cooks.
           You focus on practical tips for home kitchens (not professional techniques).
@@ -278,7 +283,7 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
             `Recent meals:\n${formatRecentMeals(sanitizedInput.recentMeals)}`,
             sanitizedInput.feedback ? `User feedback on the last suggestion: ${sanitizedInput.feedback}` : null,
             sanitizedInput.previousRecipe ? `Do not repeat this previous recipe: ${sanitizedInput.previousRecipe}` : null,
-            "Any additionalIngredientsNeeded must be optional enhancements only; the bowl and instructions must still work if the user skips them.",
+            "Any additionalIngredientsNeeded must be optional enhancements only; the bowl and instructions must still work, and still match its recipeName, if the user skips them.",
             "Generate exactly one Slop Bowl recipe now.",
           ]
             .filter(Boolean)
@@ -327,7 +332,7 @@ export async function getRecipeSuggestions(
           content: `I have these ingredients in my pantry: ${sanitizedIngredients.length > 0 ? sanitizedIngredients.join(", ") : "basic staples only"}.
           My preferences: ${sanitizedPreferences}.
           Please suggest 3 meal ideas I can make primarily with what I already have.
-          Any additionalIngredientsNeeded must be optional enhancements only; each recipe and its instructions must still work if the user skips them.`
+          Any additionalIngredientsNeeded must be optional enhancements only; each recipe and its instructions must still work — and must still honestly be the dish its recipeName claims — if the user skips every item in that list.`
         }
       ],
       response_format: { type: "json_object" }
