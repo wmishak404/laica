@@ -4,6 +4,8 @@ Agentic Cooking Actions is the feature decision area for [INIT-005](../../../ini
 
 This work originated as a Mobile Refresh Phase 4 extension but became an independent initiative on 2026-09-11. INIT-001 supplies the shipped Live Cooking baseline; remaining INIT-001 work does not sequence or own INIT-005.
 
+The independent initiative and numbered plan merged through PR #363 as `b208ef28a686ae43045ee83712a7319d43a3e6f2`. Runtime implementation has not started; Phase 1 remains the next approval and execution point.
+
 ## Source Plan
 
 - [Agentic Cooking Actions Plan](pd-agentic-cooking-actions-plan.md)
