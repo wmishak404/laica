@@ -1,6 +1,6 @@
 # INIT-005 Phase 1 - Action Foundation and Guardrails
 
-**Status:** Foundation implementation on `codex/init-005-action-foundation`; review and service validation pending
+**Status:** Implemented in PR #369; awaiting Wilson code/schema review
 **Owner:** Codex; product owner Wilson
 **Date:** 2026-09-24
 **Initiative:** [INIT-005](../../../initiatives/INIT-005-agentic-cooking-actions.md)
@@ -116,12 +116,17 @@ Provider contract sources checked 2026-09-25: [Structured Outputs](https://devel
 
 PR #367 merged the specification as `16b47bcc069d6ad2559a44a8a65236850762590b`; authorized mechanical closeout PR #368 merged as `45bd7e7912eb0b5748ee7d79dc8621fa8641b3ab`. This foundation branch starts from that fresh main commit.
 
-Local typecheck/lint/build, 463 unit tests, and all 27 public fixture validations pass. Of those, eight fixtures exercise the separate action lane: three positive commands match their authored proposals, zero of three require clarification, and five blocking examples propose no action. These are deterministic synthetic results, not live model/speech metrics. Fifty-two focused tests cover policy/lifecycle, HTTP/provider privacy, and the action eval lane. The full E2E gate adds three real PostgreSQL tests for concurrent duplicates, transaction rollback, retention, and cascade deletion, plus verified linked-user empty-capability checks.
+Local typecheck/lint/build, 465 unit tests, and all 27 public fixture validations pass. Of those, eight fixtures exercise the separate action lane: three positive commands match their authored proposals, zero of three require clarification, and five blocking examples propose no action. These are deterministic synthetic results, not live model/speech metrics. Fifty-four focused tests cover policy/lifecycle, HTTP/provider privacy, and the action eval lane. The full E2E gate adds three real PostgreSQL tests for concurrent duplicates, transaction rollback, retention, and cascade deletion, plus verified linked-user empty-capability checks.
 
-Local live-provider canary returned `provider_auth` (HTTP 401 category), without logging payloads or changing credentials. Replit validation and exact review-head CI remain required. See the [foundation handoff](../../../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md) and review PR for current evidence. Do not merge without explicit Wilson review/approval and required Replit proof; do not start Phase 2 before that gate.
+Local live-provider canary returned `provider_auth` (HTTP 401 category), without logging payloads or changing credentials. Replit targeted checks and source-head CI passed; the final review-head rerun and exact evidence are tracked in PR #369. See the [foundation handoff](../../../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md) and review PR for current evidence. Do not merge without explicit Wilson review/approval and required Replit proof; do not start Phase 2 before that gate.
 
 ### Live-provider learning: narration is not authorization
 
 The initial Replit canary at `35defa0b` generated a well-formed timer proposal for one narrated recipe instruction despite the negative-intent prompt. The deterministic whole-utterance binder rejects that text; it does not receive authority from the model. The follow-up adds explicit narrated-command and timing-question prompt examples plus exact service regression cases. Keep these cases separate from positive-command usefulness metrics. A schema-valid provider result is never evidence of user authorization; future action kinds require their own code-level source binding before executor registration.
 
 The v2 negative examples suppressed all three supported positive commands in the next Replit canary. The v3 refinement balances explicit positive shapes with blocking examples and distinguishes the current utterance from recipe reference material. Positive correctness and clarification are independent checks; suppressing all action proposals is not an acceptable quality fix. Keep the deterministic server gate unchanged while refining model behavior.
+
+
+### Review checkpoint
+
+[PR #369](https://github.com/wmishak404/laica/pull/369) contains the implementation. At source head `1f71b03e`, 465 unit tests and 13 schema-backed E2E cases passed; Replit install/typecheck/build/schema health, auth-denial/private response and retention probes passed. The v3 live canary returned correct proposals for 3/3 positive commands and none for 5/5 negative cases. The two additive tables were applied to Replit development after reviewing the exact DDL; its primary publication history and preview were preserved. Final-head evidence lives in the PR and handoff. Phase 1 remains open until Wilson approves the code/schema merge; timer UI, speech/hardware, real browser receipt application and production activation remain Phase 2.

@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-09-11
-**Current phase:** Phase 1 - Action Foundation and Guardrails; implementation in review preparation
+**Current phase:** Phase 1 - Action Foundation and Guardrails; PR #369 awaiting Wilson review
 **Planning foundation:** PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2`; execution authorized 2026-09-24; foundation branch started 2026-09-25
 
 ## Overview
@@ -72,7 +72,7 @@ Guardrails and separate action evals are required exit evidence in every phase, 
 | [PR #356](https://github.com/wmishak404/laica/pull/356) | Merged as `d6300aa6` | Original action plan, then classified under INIT-001 Phase 4 |
 | [PR #363](https://github.com/wmishak404/laica/pull/363) | Merged as `b208ef28` | Reclassifies the plan as INIT-005 and adds the numbered phase system |
 
-[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. PR #368 merged the specification closeout as `45bd7e79`. Foundation review branch: `codex/init-005-action-foundation`.
+[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. PR #368 merged the specification closeout as `45bd7e79`. Foundation review: [PR #369](https://github.com/wmishak404/laica/pull/369), branch `codex/init-005-action-foundation`.
 
 ## Efforts and Governance
 
@@ -98,7 +98,7 @@ The September 24 specification task is also docs-only; it does not inherit runti
 
 ## Current Resume Point
 
-Review `codex/init-005-action-foundation` after exact-head CI and required Replit validation. The specification (#367) and mechanical closeout (#368) are merged. Foundation implementation supplies strict contracts, a metadata-only transaction ledger, auth/scope gates, receipt reconciliation, disabled rollout, and separate synthetic evals. Local compile/build and 463 tests pass; the local live-provider canary is blocked by `provider_auth`. See the foundation handoff for point-in-time proof and missing service evidence. Wilson must approve the code merge; Phase 2 timer work and pilot activation remain gated.
+Review [PR #369](https://github.com/wmishak404/laica/pull/369) and its final-head evidence. The specification (#367) and mechanical closeout (#368) are merged. Foundation implementation supplies strict contracts, a metadata-only transaction ledger, auth/scope gates, receipt reconciliation, disabled rollout, and separate synthetic evals. Local compile/build and 465 tests pass. Source-head CI passed 13 E2E cases; Replit schema/provider/auth-denial/retention checks passed, including a 3/3 positive and 0/5 forbidden-proposal canary. Local credentials still return `provider_auth`, while Replit works. See the foundation handoff for point-in-time proof and missing service evidence. Wilson must approve the code merge; Phase 2 timer work and pilot activation remain gated.
 
 The first deployment target is a private production pilot after Phase 2 and Replit validation, not a Replit-only prototype or an all-user launch. Initial eligibility is explicitly allowlisted linked accounts; actual enrollment happens privately at activation. PR #334/EFF-034 and PR #281 are shared-surface/contract coordination points before timer work, not hard prerequisites for the Phase 1 foundation.
 
@@ -129,3 +129,7 @@ Wilson authorized the annotated next step to merge the specification and begin P
 ### 2026-09-25 - Foundation implementation prepared
 
 Codex reused the isolated worktree on fresh `codex/init-005-action-foundation` from main `45bd7e79` after merging #368. The phase record now documents implementation defaults and failure/replay semantics. The branch adds no real executor or UI. Local deterministic validation passes; exact-head CI, Replit service proof, and human code review remain before merge. [Foundation handoff](../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md).
+
+### 2026-09-25 - Foundation reaches review checkpoint
+
+PR #369 source head `1f71b03e` passed 465 unit tests, 13 E2E cases with disposable Neon cleanup, and security checks. Isolated Replit validation passed compile/build, additive schema health, live provider canary (3/3 correct positive commands, no proposals in five negative cases), auth rejection/private headers, empty production registry, and retention. Prompt learning and evidence limits are in the phase record/handoff. Replit development contains the two new tables; primary publication history and preview are preserved. Final evidence-only documentation triggers fresh CI/Replit checks recorded in the PR. Wilson's code/schema merge decision is the next gate; no real executor, enrollment or production publish has occurred.

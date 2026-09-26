@@ -19,7 +19,7 @@ PR #363 merged the independent INIT-005 reclassification and seven-phase plan as
 
 ## First Release Decision - 2026-09-23 / 2026-09-24
 
-Wilson selected a **private production pilot**, correcting an accidental Replit-preview-only selection, and chose the existing tap-to-talk `Ask a question` button. On 2026-09-24 he authorized starting INIT-005. PR #367 merged the reviewed specification as `16b47bcc`; Closeout #368 merged as `45bd7e79`; foundation implementation is prepared on `codex/init-005-action-foundation` with review and service validation pending.
+Wilson selected a **private production pilot**, correcting an accidental Replit-preview-only selection, and chose the existing tap-to-talk `Ask a question` button. On 2026-09-24 he authorized starting INIT-005. PR #367 merged the reviewed specification as `16b47bcc`; Closeout #368 merged as `45bd7e79`; foundation PR #369 has passed source-head CI and targeted Replit validation and awaits Wilson review.
 
 Deliver the first release in three sequential PRs: specification, Phase 1 foundation with actions disabled, then Phase 2 timer execution. Phases 1-2 are the private-pilot release boundary; Phase 7 broadens availability and capabilities after evidence, rather than introducing the first rollout controls. The pilot engineering default is explicitly allowlisted linked accounts, initially Wilson's account. Guest and non-pilot assistance remains answer-only; guest action enablement is a later rollout decision under INIT-003.
 
@@ -368,7 +368,7 @@ Every phase must update the registry and ledger contracts for its actions, add s
 
 | INIT-005 phase | Status | First implementation slice |
 |---|---|---|
-| Phase 1 - Action Foundation and Guardrails | Implemented; review/validation pending | Registry, ledger, scoped capabilities, rollout controls, typed proposal/receipt and blocking contracts; no cooking mutation |
+| Phase 1 - Action Foundation and Guardrails | PR #369 awaiting Wilson review | Registry, ledger, scoped capabilities, rollout controls, typed proposal/receipt and blocking contracts; no cooking mutation |
 | Phase 2 - Timer Action Prototype | Planned; depends on Phase 1 | Direct, unambiguous `timer.start` through `Ask a question`; no second confirmation |
 | Phase 3 - Session Facts and Pantry/Profile Corrections | Planned; depends on Phases 1-2 | Session fact plus one linked pantry correction |
 | Phase 4 - Localized Recipe Patching and Final History | Planned; depends on Phases 1-3 and stable step/session shape | One localized ingredient/step patch |

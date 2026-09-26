@@ -32,29 +32,29 @@ The primary local checkout's pre-existing encrypted `.env` edit was left alone. 
 
 **Value claim:** the infrastructure withholds authority until owner/policy/audit checks pass and keeps dispatch evidence distinct from reported application. No user-visible timer benefit is claimed in Phase 1.
 
-**Local evidence:** Node 24.14.1/npm 11.11.0, `npm ci`, `npm run check`, `npm run build`, `npm run test:unit` (57 files / 463 tests), `npm run eval:fixtures` (27 fixtures, eight action-lane cases), `git diff --check`. Relevant source: `tests/unit/cooking-actions.test.ts`, `cooking-action-routes.test.ts`, `cooking-action-provider.test.ts`, `cooking-action-evals.test.ts`. Existing 411-test baseline remains included. Build retains existing bundle-size/dynamic-import warnings; locked dependencies report five moderate audit findings, with no dependency changes in this branch.
+**Local evidence:** Node 24.14.1/npm 11.11.0, `npm ci`, `npm run check`, `npm run build`, `npm run test:unit` (57 files / 465 tests), `npm run eval:fixtures` (27 fixtures, eight action-lane cases), `git diff --check`. Relevant source: `tests/unit/cooking-actions.test.ts`, `cooking-action-routes.test.ts`, `cooking-action-provider.test.ts`, `cooking-action-evals.test.ts`. Existing 411-test baseline remains included. Build retains existing bundle-size/dynamic-import warnings; locked dependencies report five moderate audit findings, with no dependency changes in this branch.
 
-**Test impact:** deterministic gates, malformed/injected inputs, owner isolation, stale/changed scope, confirmation expiry/replay, all pre-dispatch audit failure points, concurrency, late/conflicting receipts, retention and privacy are covered. Synthetic positive commands: 3/3 authored proposals match, clarification 0/3; five negative fixtures propose no action. Fifty-two focused tests are infrastructure evidence, not a live-provider benchmark.
+**Test impact:** deterministic gates, malformed/injected inputs, owner isolation, stale/changed scope, confirmation expiry/replay, all pre-dispatch audit failure points, concurrency, late/conflicting receipts, retention and privacy are covered. Synthetic positive commands: 3/3 authored proposals match, clarification 0/3; five negative fixtures propose no action. Fifty-four focused tests are infrastructure evidence, not a live-provider benchmark.
 
 **Exact-head CI:** full unit and schema-backed guest/linked E2E gates must run after each pushed review head. The new E2E file exercises real PostgreSQL locks/transactions/cascades with a synthetic provider/dispatcher; it does not activate the production registry. Record final run/head/results in this handoff follow-up and the review PR; no merge readiness is claimed while pending/skipped/failed.
 
-**Live provider diagnostic:** `npm run env:run -- npm run check:action-provider` returned `provider_auth` (HTTP 401 category) before any completed case. Errors are categorical; no provider payloads/transcripts or credential values were retained. Local credential replacement is not part of this branch. No live model accuracy is claimed.
+**Live provider diagnostic:** local dotenvx credentials returned `provider_auth` (HTTP 401 category); credentials were left unchanged. Replit succeeded after the prompt refinement: all three positive commands correct, zero positive clarifications and zero proposals across five negative examples. This is one eight-case synthetic canary, not a speech or broad model-quality benchmark.
 
-**Evidence limits:** no production publish, pilot enrollment, real action execution, audible speech, Google popup/App Check production proof, or mobile change. Replit schema/provider/auth proof remains required before merge under the Phase 1 contract. No local/shared `.env` database schema push was performed. No Replit Agent was used.
+**Evidence limits:** no production publish, pilot enrollment, real action execution, audible speech, Google popup/App Check production proof, or mobile change. The targeted Replit schema/provider/auth-denial/retention checks below passed; positive linked-token capability checks are CI evidence, not a claimed Replit Google/App Check end-to-end test. No local/shared `.env` database schema push was performed. No Replit Agent was used.
 
 ## Stack / base status
 
 - Base refreshed: yes; foundation started after #367/#368 merged.
 - Current base: `origin/main` at `45bd7e7912eb0b5748ee7d79dc8621fa8641b3ab`.
-- Last Replit-validated at: not yet validated.
+- Last Replit-validated at: `1f71b03e92d9cb7b3700ad8f1b98e811bc406535` (implementation head; see final-head rule below).
 - Replit read-only inspection: clean `main` with a local `Published your App` commit (not replaced). Preserve this history when preparing isolated validation.
 
 ## Open items / resume
 
-1. Inspect exact-head CI including the three new PostgreSQL cases and cleanup; resolve code failures before review handoff.
-2. Validate in Replit using direct shell/UI, preserving its local publication history; verify key presence only, schema health, private empty-capability/auth behavior, ordinary assistance, and the synthetic provider canary. No Replit Agent without separate approval.
-3. Wilson reviews and explicitly approves the code/schema PR once the required evidence is complete. Then perform the immediate INIT docs closeout from fresh main.
-4. Start Phase 2 only after the foundation gate; audit #334/#281 ownership and retain disabled rollout until explicit activation approval.
+1. Final review artifact: [PR #369](https://github.com/wmishak404/laica/pull/369). This evidence-only follow-up triggers a fresh full CI gate. Final review-head SHA, CI result and post-documentation Replit rerun are recorded in the PR body after this commit, avoiding an endless evidence-only commit loop. Do not infer final-head validation from the previous source-head evidence below.
+2. Wilson reviews and explicitly approves the code/schema merge. The selected Replit scope is schema/provider/auth rejection/private responses/empty production registry/retention; linked Firebase tokens and real DB lifecycle are tested in CI. No production publish, pilot enrollment, UI or audible-speech claim. Replit positive Google/App Check interaction and full mobile timer acceptance remain the Phase 2/release lane.
+3. After an approved merge, perform immediate INIT docs closeout from fresh main; then audit #334/#281 ownership before Phase 2.
+4. Replit development now has the two additive foundation tables. Its main checkout and running preview remain on the pre-existing publication commit `896f6ef8a7389f9a12cf8c64d9914ca19d2a6fc6`; do not overwrite that history. Isolated `/tmp/laica-init005-validation` is a validation checkout, not the deployed source. Local credentials still fail the optional provider diagnostic; Replit credentials work.
 
 ## Replit live-provider learning — first review head
 
@@ -69,3 +69,17 @@ Head `35defa0bdaeb110efea95478438c8c819c0f5b47` passed [CI run 36205229471](http
 ## Canary refinement — balance authorization and useful proposals
 
 The v2 prompt at `b9b6fb522bdc803e61f13dd51a97a9780350d699` eliminated the five negative proposals but also returned advice for all three supported positive commands. This fails the positive-command canary and is not accepted as a fix. The v3 prompt explicitly identifies the current utterance field, distinguishes proposing from executing, gives positive response shapes alongside blocking examples, and scopes the shared cooking-style prompt to advice text. Neither change weakens the deterministic authorization gate. Replit `db:health` at v2 reported only the two expected new tables missing (`cooking_actions`, `cooking_action_events`).
+
+## Implementation-head evidence — ready for human review
+
+**Review PR:** [#369](https://github.com/wmishak404/laica/pull/369)
+**Source head:** `1f71b03e92d9cb7b3700ad8f1b98e811bc406535`
+**Base:** `45bd7e7912eb0b5748ee7d79dc8621fa8641b3ab`, fresh `origin/main`
+
+- [CI run 36205711697](https://github.com/wmishak404/laica/actions/runs/36205711697): typecheck/lint/build; 57 unit files / 465 tests; coverage rerun passed. All 13 E2E cases passed in 59.8 seconds, including three PostgreSQL lifecycle cases and linked-token empty-capability assertions. Neon schema creation/push/health and branch deletion succeeded. CodeQL, dependency audit and PR secret scan passed; push secret scan was skipped by event policy.
+- Replit direct shell, Node 20.20.0/npm 10.8.2: isolated detached checkout of this exact source head; locked install, typecheck/UI lint and build passed. `npm run db:push -- --strict --verbose` was reviewed before execution: exactly two CREATE TABLE statements, their two foreign keys and three indexes; no existing table/data changes. The additive development schema applied and `npm run db:health` passed.
+- `npm run check:action-provider` using Replit-injected credentials and `gpt-4.1-mini` / `action-proposal-v3` / `timer-intent-1`: 3/3 explicit durations correct, positive clarification 0/3, forbidden proposals 0/5. Only fixture IDs, type and bounded duration/aggregate metrics were printed. No transcript, free-form model answer, auth identity or provider payload was retained in action/eval artifacts.
+- One-shot loopback probe (`node --import tsx --input-type=module`, Express `registerRoutes`, ephemeral `127.0.0.1` port): missing/invalid Bearer tokens returned 401 with `Cache-Control: private, no-store`; production-registry capability discovery returned an empty list without invoking the provider; `createPostgresActionLedger().prune()` succeeded. Probe server and pool closed. Output: `authDenials=2`, `privateResponses=2`, `productionCapabilities=0`, `retention=passed`.
+- Replit primary `git status --short` remained empty and HEAD remained `896f6ef8a7389f9a12cf8c64d9914ca19d2a6fc6`. No running preview branch switch, flag activation, pilot UID enrollment, production republish or Replit Agent task.
+
+**Evidence limits:** eight synthetic prompts are a targeted provider contract/quality canary. They are not randomized accuracy evidence, a fresh Replit Google sign-in/App Check enforcement proof, microphone/audio testing, or timer application/reload/background correctness. All real timer execution is absent by construction and belongs to Phase 2. The final evidence-doc commit requires a fresh exact-head CI and Replit rerun recorded in PR #369 before approval/merge readiness is claimed.
