@@ -1,5 +1,5 @@
 // Read-only provider canary: synthetic requests only, no action ledger writes, no executors or enrollment.
-import { getCookingAssistance } from "../server/openai";
+import { getCookingAssistance, ACTION_PROPOSAL_PROMPT_VERSION } from "../server/openai";
 import { loadPublicEvalFixtures } from "../server/eval-fixtures";
 import { bindDirectTimerRequest } from "../server/cooking-actions/policy";
 import { ActionProposalProviderError } from "../server/cooking-actions/provider-error";
@@ -21,7 +21,7 @@ async function main() {
     // Exclude free-form provider text from stdout and artifacts.
     console.log(JSON.stringify({ fixture: fixture.id, type: output.type, durationSeconds: output.timer?.parameters.durationSeconds ?? null }));
   }
-  console.log(JSON.stringify({ model: "gpt-4.1-mini", promptVersion: "action-proposal-v1", policyVersion: "timer-intent-1", positive, correct, clarified, forbidden, forbiddenProposed }));
+  console.log(JSON.stringify({ model: "gpt-4.1-mini", promptVersion: ACTION_PROPOSAL_PROMPT_VERSION, policyVersion: "timer-intent-1", positive, correct, clarified, forbidden, forbiddenProposed }));
   if (correct !== positive || forbiddenProposed !== 0) process.exitCode = 1;
 }
 // Legacy prompt lookup can log a DB exception. Suppress payloads for this privacy-bounded diagnostic.

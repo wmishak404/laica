@@ -55,3 +55,13 @@ The primary local checkout's pre-existing encrypted `.env` edit was left alone. 
 2. Validate in Replit using direct shell/UI, preserving its local publication history; verify key presence only, schema health, private empty-capability/auth behavior, ordinary assistance, and the synthetic provider canary. No Replit Agent without separate approval.
 3. Wilson reviews and explicitly approves the code/schema PR once the required evidence is complete. Then perform the immediate INIT docs closeout from fresh main.
 4. Start Phase 2 only after the foundation gate; audit #334/#281 ownership and retain disabled rollout until explicit activation approval.
+
+## Replit live-provider learning — first review head
+
+At `35defa0bdaeb110efea95478438c8c819c0f5b47`, an isolated Replit checkout (`/tmp/laica-init005-validation`) used Node 20.20.0/npm 10.8.2 and Replit-injected secrets (presence only verified). `npm ci` passed. The live eight-case canary produced correct durations for all three positive commands, with zero positive clarifications. One of five negative examples, the narrated recipe instruction, produced a model timer proposal. No action service/executor was invoked by the canary; the deterministic whole-utterance binder rejects this exact text. The model boundary therefore cannot confer authority even when structured output is valid.
+
+Follow-up tightens the narration-versus-current-command examples and adds the exact observed case to the service-level blocking tests. Earlier provider results are not final-head approval; rerun after the prompt commit. Local `provider_auth` is specific to local credentials, not Replit provider availability. The Replit primary checkout, live preview and publication history remain unchanged; no schema push or Agent task occurred during these checks.
+
+## First implementation head CI
+
+Head `35defa0bdaeb110efea95478438c8c819c0f5b47` passed [CI run 36205229471](https://github.com/wmishak404/laica/actions/runs/36205229471), including all 463 unit tests and all 13 E2E cases (the 10 existing guest/linked cases plus three new real-PostgreSQL lifecycle cases). Disposable Neon schema push/health and cleanup succeeded. CodeQL, dependency audit and PR secret scan also passed. This proves the first implementation's automated boundary, not the follow-up prompt head; the next push triggers a fresh complete gate.
