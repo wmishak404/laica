@@ -1,5 +1,6 @@
 // Read-only provider canary: synthetic requests only, no action ledger writes, no executors or enrollment.
-import { getCookingAssistance, ACTION_PROPOSAL_PROMPT_VERSION } from "../server/openai";
+import { getCookingAssistance } from "../server/openai";
+import { ACTION_PROPOSAL_PROMPT_VERSION } from "../server/cooking-actions/proposal-prompt";
 import { loadPublicEvalFixtures } from "../server/eval-fixtures";
 import { bindDirectTimerRequest } from "../server/cooking-actions/policy";
 import { ActionProposalProviderError } from "../server/cooking-actions/provider-error";

@@ -65,3 +65,7 @@ Follow-up tightens the narration-versus-current-command examples and adds the ex
 ## First implementation head CI
 
 Head `35defa0bdaeb110efea95478438c8c819c0f5b47` passed [CI run 36205229471](https://github.com/wmishak404/laica/actions/runs/36205229471), including all 463 unit tests and all 13 E2E cases (the 10 existing guest/linked cases plus three new real-PostgreSQL lifecycle cases). Disposable Neon schema push/health and cleanup succeeded. CodeQL, dependency audit and PR secret scan also passed. This proves the first implementation's automated boundary, not the follow-up prompt head; the next push triggers a fresh complete gate.
+
+## Canary refinement — balance authorization and useful proposals
+
+The v2 prompt at `b9b6fb522bdc803e61f13dd51a97a9780350d699` eliminated the five negative proposals but also returned advice for all three supported positive commands. This fails the positive-command canary and is not accepted as a fix. The v3 prompt explicitly identifies the current utterance field, distinguishes proposing from executing, gives positive response shapes alongside blocking examples, and scopes the shared cooking-style prompt to advice text. Neither change weakens the deterministic authorization gate. Replit `db:health` at v2 reported only the two expected new tables missing (`cooking_actions`, `cooking_action_events`).
