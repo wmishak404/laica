@@ -4,7 +4,7 @@ Agentic Cooking Actions is the feature decision area for [INIT-005](../../../ini
 
 This work originated as a Mobile Refresh Phase 4 extension but became an independent initiative on 2026-09-11. INIT-001 supplies the shipped Live Cooking baseline; remaining INIT-001 work does not sequence or own INIT-005.
 
-The independent initiative and numbered plan merged through PR #363 as `b208ef28a686ae43045ee83712a7319d43a3e6f2`. Wilson authorized starting INIT-005 on 2026-09-24 after selecting a private production pilot using existing tap-to-talk. The first task records the reviewed specification; runtime implementation follows its merge. See INIT-005 for the current resume point.
+The independent initiative and numbered plan merged through PR #363 as `b208ef28a686ae43045ee83712a7319d43a3e6f2`. Wilson authorized starting INIT-005 on 2026-09-24 after selecting a private production pilot using existing tap-to-talk. PR #367 merged the reviewed specification as `16b47bcc`; Phase 1 runtime implementation is next after mechanical closeout. See INIT-005 for the current resume point.
 
 ## Source Plan
 
@@ -14,7 +14,7 @@ The independent initiative and numbered plan merged through PR #363 as `b208ef28
 
 | Phase | Scope | Status |
 |---|---|---|
-| 1 | [Action Foundation and Guardrails](pd-phase-01-action-foundation.md) | Specification task in progress; runtime next |
+| 1 | [Action Foundation and Guardrails](pd-phase-01-action-foundation.md) | Specification merged; runtime next |
 | 2 | Timer Action Prototype | Planned |
 | 3 | Session Facts and Pantry/Profile Corrections | Planned |
 | 4 | Localized Recipe Patching and Final History | Planned |
