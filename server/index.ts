@@ -1,3 +1,4 @@
+import { createPostgresActionLedger, startActionLedgerRetention } from "./cooking-actions/postgres-ledger";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { createSecurityHeaders, getPublicErrorMessage } from "./security";
@@ -7,8 +8,10 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(createSecurityHeaders(app.get("env")));
 
+const actionJsonParser = express.json({ limit: "16kb" });
 const standardJsonParser = express.json({ limit: "1mb" });
 app.use((req, res, next) => {
+  if (req.path.startsWith("/api/cooking/actions")) return actionJsonParser(req, res, next);
   if (req.path === "/api/vision/analyze") {
     return next();
   }
@@ -19,7 +22,8 @@ app.use(express.urlencoded({ extended: false, limit: "1mb" }));
 
 app.use((req, res, next) => {
   const start = Date.now();
-  const path = req.path;
+  // Never put action IDs or secrets from a supplied path into stdout.
+  const path = req.path.startsWith("/api/cooking/actions") ? "/api/cooking/actions" : req.path;
 
   res.on("finish", () => {
     const duration = Date.now() - start;
@@ -33,6 +37,8 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+  const stopActionRetention = startActionLedgerRetention(createPostgresActionLedger());
+  server.on("close", stopActionRetention);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

@@ -315,6 +315,14 @@ test.describe("linked dev auth smoke", () => {
     const idToken = await exchangeCustomTokenForIdToken(tokenPayload.customToken!);
     const authHeaders = { Authorization: `Bearer ${idToken}` };
 
+    // Production registry stays empty even for a verified linked caller; the provider is not needed.
+    const capabilities = await request.get("/api/cooking/actions/capabilities?sessionId=1", { headers: authHeaders });
+    expect(capabilities.status()).toBe(200);
+    expect(await capabilities.json()).toEqual({ version: 1, capabilities: [] });
+    expect(capabilities.headers()["cache-control"]).toContain("no-store");
+    const anonymousCapabilities = await request.get("/api/cooking/actions/capabilities?sessionId=1");
+    expect(anonymousCapabilities.status()).toBe(401);
+
     const sessionResponse = await request.get("/api/auth/session", {
       headers: authHeaders,
     });

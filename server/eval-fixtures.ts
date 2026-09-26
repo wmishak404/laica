@@ -1,3 +1,5 @@
+import { actionModelOutputSchema } from "@shared/cooking-actions";
+import { bindDirectTimerRequest } from "./cooking-actions/policy";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
@@ -25,6 +27,8 @@ const labelValueSchema = z.enum([
 ]);
 const criterionLabelSchema = z.enum([
   "structure_contract",
+  "action_direct_request",
+  "action_positive_command",
   "suggestion_count",
   "max_time_adherence",
   "dietary_compliance",
@@ -372,6 +376,22 @@ function validateSurfaceContract(fixture: EvalFixture): EvalFixtureCheck[] {
       return validateCookingStepsSurface(fixture);
     case "live_cooking_step_previews":
       return validateLiveCookingStepPreviewSurface(fixture);
+    case "cooking_action_proposal": {
+      let output;
+      try { output = actionModelOutputSchema.safeParse(JSON.parse(fixture.output)); }
+      catch { return [check("structure_contract", "fail", "Invalid action proposal JSON.")]; }
+      if (!output.success || fixture.privacyClass !== "synthetic" || typeof fixture.request.utterance !== "string") {
+        return [check("structure_contract", "fail", "Action fixtures require a synthetic utterance and strict proposal output.")];
+      }
+      const binding = bindDirectTimerRequest(fixture.request.utterance);
+      const proposed = output.data.type === "timer_proposal";
+      const authorized = !proposed || (binding !== null && binding.durationSeconds === output.data.timer?.parameters.durationSeconds);
+      return [
+        check("structure_contract", "pass", "Strict synthetic proposal shape; no executor is invoked by this harness."),
+        check("action_direct_request", authorized ? "pass" : "fail", "Proposal must bind to the current explicit command and duration."),
+        check("action_positive_command", !binding ? "not_applicable" : proposed && authorized ? "pass" : "fail", "Clear supported commands should not require clarification."),
+      ];
+    }
     case "cooking_assistance":
       return [check("structure_contract", "not_applicable", "Cooking assistance is infrastructure-only for V1 reporting.")];
     default:

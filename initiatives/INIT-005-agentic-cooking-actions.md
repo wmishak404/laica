@@ -3,8 +3,8 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-09-11
-**Current phase:** Phase 1 - Action Foundation and Guardrails; runtime implementation next
-**Planning foundation:** PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2`; execution authorized 2026-09-24; runtime implementation not started
+**Current phase:** Phase 1 - Action Foundation and Guardrails; implementation in review preparation
+**Planning foundation:** PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2`; execution authorized 2026-09-24; foundation branch started 2026-09-25
 
 ## Overview
 
@@ -34,7 +34,7 @@ Before each INIT-005 implementation phase, audit current Live Cooking and open P
 
 The accepted plan was first published through PR #356 as a future Mobile Refresh Phase 4 extension. Wilson reclassified the work as an independent initiative on 2026-09-11 because its seven phases span architecture, guardrails, action execution, persistent user facts, recipe state, voice/integration access, evals, and rollout beyond INIT-001's remaining scope. PR #363 merged that reclassification and numbered plan as `b208ef28a686ae43045ee83712a7319d43a3e6f2`.
 
-Wilson selected a private production pilot using existing tap-to-talk on 2026-09-23, and authorized starting INIT-005 on 2026-09-24. PR #367 merged the reviewed plan and [Phase 1 specification](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md) as `16b47bcc069d6ad2559a44a8a65236850762590b` on 2026-09-25 (Pacific). Phase 1 runtime implementation is next. No INIT-005 API, executor, schema, storage, or production behavior has shipped. The first user-visible action remains Phase 2 direct timer start without a second confirmation.
+Wilson selected a private production pilot using existing tap-to-talk on 2026-09-23, and authorized starting INIT-005 on 2026-09-24. PR #367 merged the reviewed plan and [Phase 1 specification](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md) as `16b47bcc069d6ad2559a44a8a65236850762590b` on 2026-09-25 (Pacific). Phase 1 foundation is implemented on `codex/init-005-action-foundation`, based on merged closeout PR #368 (`45bd7e79`). No INIT-005 production behavior has shipped; the production registry has no executor. The first user-visible action remains Phase 2 direct timer start without a second confirmation.
 
 ## Source Docs
 
@@ -55,7 +55,7 @@ No dedicated INIT-005 assets exist yet. Reuse current Live Cooking screenshots o
 
 | Phase | Status | Goal | Dependency |
 |---|---|---|---|
-| 1 - Action Foundation and Guardrails | Specification merged; runtime next | Registry, transactional ledger, scoped capabilities, proposal/receipt contracts, privacy, and rollout controls; no cooking mutation | Runtime implementation and foundation evidence |
+| 1 - Action Foundation and Guardrails | Implemented; review/validation pending | Registry, transactional ledger, scoped capabilities, proposal/receipt contracts, privacy, and rollout controls; no cooking mutation | Runtime implementation and foundation evidence |
 | 2 - Timer Action Prototype | Planned | First direct `timer.start` action through `Ask a question`, without redundant confirmation | Phase 1 exit gate |
 | 3 - Session Facts and Pantry/Profile Corrections | Planned | Session-only facts and confirmed linked-user corrections | Phases 1-2; INIT-003 boundaries |
 | 4 - Localized Recipe Patching and Final History | Planned | Safe current/future guide patch and final patched History | Stable step/session shape; Phases 1-3 |
@@ -72,7 +72,7 @@ Guardrails and separate action evals are required exit evidence in every phase, 
 | [PR #356](https://github.com/wmishak404/laica/pull/356) | Merged as `d6300aa6` | Original action plan, then classified under INIT-001 Phase 4 |
 | [PR #363](https://github.com/wmishak404/laica/pull/363) | Merged as `b208ef28` | Reclassifies the plan as INIT-005 and adds the numbered phase system |
 
-[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. Runtime work starts from main after this mechanical closeout.
+[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. PR #368 merged the specification closeout as `45bd7e79`. Foundation review branch: `codex/init-005-action-foundation`.
 
 ## Efforts and Governance
 
@@ -92,13 +92,13 @@ Guardrails and separate action evals are required exit evidence in every phase, 
 
 ## Validation State
 
-The September 11 reclassification was documentation only. It changes no runtime UI, API, tool, schema, storage, model/provider, auth/session, pantry/profile, recipe, History, deployment, or production behavior. PR #363 exact head `071e973d6b96d8fc4aef3e0515793c8a791c1096` passed unit/typecheck/build/coverage, schema-backed guest + linked E2E with disposable Neon cleanup, dependency audit, secret scan, and all CodeQL analyses before merge. Implementation validation has not started.
+The September 11 reclassification was documentation only. It changes no runtime UI, API, tool, schema, storage, model/provider, auth/session, pantry/profile, recipe, History, deployment, or production behavior. PR #363 exact head `071e973d6b96d8fc4aef3e0515793c8a791c1096` passed unit/typecheck/build/coverage, schema-backed guest + linked E2E with disposable Neon cleanup, dependency audit, secret scan, and all CodeQL analyses before merge. Foundation validation is now tracked separately below.
 
 The September 24 specification task is also docs-only; it does not inherit runtime/action validation from PR #363. Before Phase 1 is ready, its runtime branch must prove the [foundation acceptance matrix](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md#acceptance-and-evidence), including scoped capabilities, transactional pre-dispatch audit, receipt reconciliation, privacy/retention, disabled rollout controls, and answer-only compatibility.
 
 ## Current Resume Point
 
-PR #367 is merged; this fact-only closeout records its result. Start a fresh Phase 1 runtime branch from updated `origin/main` after closeout using the phase record. Authorization to start was given on 2026-09-24; it does not waive merge, Replit, or production activation gates. Do not start the timer executor until Phase 1's exit gate is met.
+Review `codex/init-005-action-foundation` after exact-head CI and required Replit validation. The specification (#367) and mechanical closeout (#368) are merged. Foundation implementation supplies strict contracts, a metadata-only transaction ledger, auth/scope gates, receipt reconciliation, disabled rollout, and separate synthetic evals. Local compile/build and 463 tests pass; the local live-provider canary is blocked by `provider_auth`. See the foundation handoff for point-in-time proof and missing service evidence. Wilson must approve the code merge; Phase 2 timer work and pilot activation remain gated.
 
 The first deployment target is a private production pilot after Phase 2 and Replit validation, not a Replit-only prototype or an all-user launch. Initial eligibility is explicitly allowlisted linked accounts; actual enrollment happens privately at activation. PR #334/EFF-034 and PR #281 are shared-surface/contract coordination points before timer work, not hard prerequisites for the Phase 1 foundation.
 
@@ -125,3 +125,7 @@ After the September 23 review, Wilson authorized starting INIT-005. Codex began 
 ### 2026-09-25 - First-release specification merged
 
 Wilson authorized the annotated next step to merge the specification and begin Phase 1 here. PR #367 merged as `16b47bcc069d6ad2559a44a8a65236850762590b` from exact head `994a6c065d836467c17519a609d0fc1aae3f0eb3`. CI run `36071505540` passed typecheck/lint/build, 411 unit tests, and 10 schema-backed guest/linked E2E tests with Neon cleanup. Dependency audit, secret scan, and CodeQL passed. These are unchanged-baseline checks for a docs-only PR, not action implementation evidence. Replit validation was not required. See the merge-closeout handoff for provenance; runtime work is next after this fact-only closeout.
+
+### 2026-09-25 - Foundation implementation prepared
+
+Codex reused the isolated worktree on fresh `codex/init-005-action-foundation` from main `45bd7e79` after merging #368. The phase record now documents implementation defaults and failure/replay semantics. The branch adds no real executor or UI. Local deterministic validation passes; exact-head CI, Replit service proof, and human code review remain before merge. [Foundation handoff](../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md).

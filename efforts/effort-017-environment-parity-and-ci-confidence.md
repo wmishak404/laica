@@ -852,3 +852,7 @@ Local clean-install, high/critical audit, typecheck/lint, build, full unit, and 
 PR #364 merged as `008d2e32bd9ae8fb4feac05bc65ec22f40c0b3f4` from exact validated head `9923564dde4f9f2a009d87db321a802ead5d8a17`. Required unit/typecheck/build/coverage, dependency audit, secret scan, CodeQL, and schema-backed guest + linked E2E checks passed; the disposable Neon branch was deleted successfully.
 
 The shared high/critical audit gate is clear on the remediated graph. PR #363 may now refresh from fresh `origin/main` and rerun its own exact-head checks. This merge does not change EFF-017's `In Progress` status, validation authority, or remaining provider, automated Replit-environment, coverage-ratchet, and confidence work.
+
+## 2026-09-25 — INIT-005 foundation adds database lifecycle evidence
+
+The `codex/init-005-action-foundation` branch adds CI-only PostgreSQL tests to the existing disposable schema-only Neon E2E lane: concurrent idempotency, transaction rollback, retention, and session/event cascades. The linked dev-auth smoke also checks the production registry exposes no capabilities. This conforms to EFF-017 and adds a narrow service-backed evidence surface; it does not expand merge authority or replace Replit validation. Local OpenAI canary returned a sanitized `provider_auth` result, demonstrating why local credentials and mocked provider tests cannot establish Replit readiness. See the [foundation handoff](../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md) for exact-head evidence and remaining checks.
