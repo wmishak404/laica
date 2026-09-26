@@ -1,6 +1,6 @@
 # INIT-005 Phase 1 - Action Foundation and Guardrails
 
-**Status:** Specification task in progress; runtime implementation not started
+**Status:** Specification merged in PR #367; runtime implementation next
 **Owner:** Codex; product owner Wilson
 **Date:** 2026-09-24
 **Initiative:** [INIT-005](../../../initiatives/INIT-005-agentic-cooking-actions.md)
@@ -102,4 +102,4 @@ Phase 2 must add real tap-to-talk/provider tests, mobile checks at 390x844 and 4
 
 This task changes documentation only. No dependency install, provider call, schema push, executor, account enrollment, Replit validation, or production change is part of it. Documentation checks and point-in-time evidence belong in the handoff and PR.
 
-Next: merge this specification, perform INIT closeout, then create a fresh `codex/` foundation branch from updated `origin/main`. Build registry/types and scope checks, transactional ledger and privacy enforcement, orchestration routes and disabled rollout controls, then deterministic acceptance/eval coverage. Do not start Phase 2's timer executor before the Phase 1 gate passes.
+PR #367 merged this specification as `16b47bcc069d6ad2559a44a8a65236850762590b` from exact validated head `994a6c065d836467c17519a609d0fc1aae3f0eb3`. After its mechanical INIT closeout, create a fresh `codex/` foundation branch from updated `origin/main`. Build registry/types and scope checks, transactional ledger and privacy enforcement, orchestration routes and disabled rollout controls, then deterministic acceptance/eval coverage. Do not start Phase 2's timer executor before the Phase 1 gate passes.
