@@ -7,6 +7,7 @@ export const EVAL_FEATURE_TYPES = [
   "cooking_steps",
   "live_cooking_step_previews",
   "cooking_assistance",
+  "cooking_action_proposal",
 ] as const;
 
 export type EvalFeatureType = (typeof EVAL_FEATURE_TYPES)[number];

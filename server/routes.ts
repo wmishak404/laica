@@ -1,5 +1,6 @@
 import express, { type Express, type RequestHandler, type Response } from "express";
 import { createServer, type Server } from "http";
+import { registerCookingActionRoutes } from "./cooking-actions/routes";
 import { registerAdminRoutes } from "./admin-routes";
 import { storage, type AnonymousRecipeQuota, type AnonymousRecipeQuotaReservation } from "./storage";
 import { getFirebaseUserFromRequest, verifyFirebaseToken, type FirebaseUser } from "./firebaseAuth";
@@ -351,6 +352,7 @@ async function getRecentCookingSessionsOrEmpty(userId: string, limit: number, co
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', requestIdMiddleware, apiRequestLimit);
+  registerCookingActionRoutes(app, isAuthenticated);
 
   app.post('/api/dev/auth/linked-token', handleLinkedDevAuthTokenRequest);
 
