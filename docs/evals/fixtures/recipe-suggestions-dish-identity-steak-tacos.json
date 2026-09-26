@@ -1,0 +1,37 @@
+{
+  "id": "recipe-suggestions-dish-identity-steak-tacos",
+  "surface": "recipe_suggestions",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["wilson-frittata-report-2026-07-08"],
+  "request": {
+    "preferences": "Selected cuisines: Mexican. Cooking skill: intermediate. Ready in 30 minutes. Dietary restrictions: none.",
+    "ingredients": ["ground turkey", "black beans", "bell peppers", "onion", "salsa", "shredded cheese"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 30,
+    "cuisines": ["Mexican"],
+    "skill": "intermediate",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "oven", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Sizzling Steak Tacos\",\"description\":\"Charred steak strips in warm tortillas with salsa and peppers.\",\"difficulty\":\"Medium\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"bell peppers\",\"onion\",\"salsa\"],\"additionalIngredientsNeeded\":[\"flank steak\",\"tortillas\"],\"overview\":\"Sear the steak, char the peppers, and build tacos with salsa.\",\"instructions\":[\"Sear steak strips with peppers and onion, warm the tortillas, and assemble with salsa.\"],\"cuisine\":\"Mexican\",\"isFusion\":false},{\"recipeName\":\"Turkey and Black Bean Skillet\",\"description\":\"A one-pan Mexican-spiced skillet of turkey, beans, and melted cheese.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"ground turkey\",\"black beans\",\"onion\",\"salsa\",\"shredded cheese\"],\"additionalIngredientsNeeded\":[\"cilantro\"],\"overview\":\"Brown the turkey, simmer with beans and salsa, and melt the cheese on top.\",\"instructions\":[\"Brown ground turkey with onion, stir in black beans and salsa, top with cheese, and cover until melted.\"],\"cuisine\":\"Mexican\",\"isFusion\":false},{\"recipeName\":\"Stuffed Bell Peppers with Turkey and Beans\",\"description\":\"Bell peppers baked with a turkey, bean, and salsa filling under cheese.\",\"difficulty\":\"Medium\",\"cookTime\":45,\"pantryIngredientsUsed\":[\"bell peppers\",\"ground turkey\",\"black beans\",\"onion\",\"shredded cheese\",\"salsa\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Fill halved peppers with the turkey-bean mixture and bake until tender.\",\"instructions\":[\"Brown turkey with onion, mix with beans and salsa, fill halved peppers, top with cheese, and bake until tender.\"],\"cuisine\":\"Mexican\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-07-08"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "dish_identity": "fail",
+    "optional_ingredient_contract": "fail",
+    "pantry_grounding": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "claude-synthetic-from-wilson-dish-identity-report",
+    "labeledAt": "2026-07-08"
+  },
+  "notes": "Synthetic negative guard on the general recipe_suggestions surface covering two defining-ingredient families at once: steak tacos suggested with neither steak nor tortillas in the pantry, both parked in additionalIngredientsNeeded. The other two suggestions show honest pantry-supported alternatives."
+}

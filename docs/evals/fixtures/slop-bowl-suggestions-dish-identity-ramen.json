@@ -1,0 +1,37 @@
+{
+  "id": "slop-bowl-suggestions-dish-identity-ramen",
+  "surface": "slop_bowl_suggestions",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["wilson-frittata-report-2026-07-08"],
+  "request": {
+    "ingredients": ["chicken broth", "pork belly", "scallions", "eggs", "baby spinach"],
+    "cookingSkill": "intermediate",
+    "dietaryRestrictions": [],
+    "kitchenEquipment": ["stovetop", "pot"],
+    "recentMeals": []
+  },
+  "constraints": {
+    "maxTimeMinutes": 30,
+    "skill": "intermediate",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "pot"]
+  },
+  "output": "{\"recipe\":{\"recipeName\":\"Cozy Pork Belly Ramen Bowl\",\"description\":\"A brothy ramen-style bowl of pork belly, spinach, and soft egg.\",\"cookTime\":30,\"difficulty\":\"Easy\",\"cuisine\":\"Japanese\",\"pantryIngredientsUsed\":[\"chicken broth\",\"pork belly\",\"scallions\",\"eggs\",\"baby spinach\"],\"additionalIngredientsNeeded\":[\"ramen noodles\"],\"overview\":\"Simmer the broth with pork belly, wilt in spinach, and finish with egg and scallions.\",\"instructions\":[\"Simmer broth with pork belly until tender.\",\"Wilt in spinach and add a soft-cooked egg.\",\"Top with scallions and serve ramen-style.\"],\"isFusion\":false,\"pantryMatch\":85}}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-07-08"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "dish_identity": "fail",
+    "optional_ingredient_contract": "fail",
+    "pantry_grounding": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "claude-synthetic-from-wilson-dish-identity-report",
+    "labeledAt": "2026-07-08"
+  },
+  "notes": "Synthetic negative guard extending the dish-name identity check to the Slop Bowl surface: a bowl named ramen with the ramen noodles parked in additionalIngredientsNeeded. Without noodles this is a pork and spinach soup and should be named as one."
+}
