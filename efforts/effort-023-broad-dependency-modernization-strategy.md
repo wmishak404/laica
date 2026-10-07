@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-08-21
+**Updated:** 2026-10-07
 
 ## One-line summary
 
@@ -210,3 +210,9 @@ This branch is not a vehicle for the deferred provider, schema, UI, database, to
 PR #364 merged as `008d2e32bd9ae8fb4feac05bc65ec22f40c0b3f4` from exact validated head `9923564dde4f9f2a009d87db321a802ead5d8a17`. The merge updates compatible lockfile resolutions without changing `package.json`, direct dependency declarations, application source, or the current Express major.
 
 Required exact-head dependency audit, secret scan, CodeQL, unit/typecheck/build/coverage, and schema-backed guest + linked E2E checks passed before merge. This completes the current concrete security trigger without reactivating broad modernization; EFF-023 remains `Deferred`.
+
+## 2026-10-07 - Compatible audit slice and separately gated foundation decision
+
+The fresh audit gate on INIT-005 documentation closeout #371 requires separate remediation before the closeout and Phase 2 can proceed. Branch `codex/init-005-audit-remediation` starts at merged Phase 1 main `96ec567a` and updates six lockfile resolutions within existing ranges. It reuses #370's narrow correction, leaves the unapproved major scope in #361 untouched, and adds actual-SDK credential/key-signing compatibility coverage. Direct declarations, overrides and the high/critical gate are unchanged.
+
+Full and production audit results improve to five high and zero critical package entries, but a foundation-level dependency path still prevents merge. A major stylesheet-foundation migration and browser-support acceptance require Wilson's decision; waiting for an upstream compatible fix is the alternative. This trigger does not authorize broad modernization or a security exception. Scope, validation, Phase 2 overlap preparation and exact resume steps are in the [blocked handoff](../docs/handoffs/2026-10-07-codex-init-005-compatible-audit-remediation-blocked.md). EFF-023 stays Deferred.
