@@ -1,10 +1,10 @@
 # Agentic Cooking Actions Plan
 
-**Status:** First-release specification merged in PR #367; runtime implementation next
+**Status:** Phase 1 merged in PR #369; Phase 2 timer implementation next
 **Document kind:** Feature initiative plan
 **Owner:** Wilson
 **Date:** 2026-08-20
-**Last revised:** 2026-09-24
+**Last revised:** 2026-10-07 (merge closeout; accepted scope unchanged)
 **Initiative:** [INIT-005 - Agentic Cooking Actions](../../../initiatives/INIT-005-agentic-cooking-actions.md)
 **Related initiatives:** [INIT-001 - Mobile Refresh](../../../initiatives/INIT-001-mobile-refresh.md), [INIT-003 - Anonymous Trial and Account Upgrade](../../../initiatives/INIT-003-anonymous-trial-and-account-upgrade.md), [INIT-004 - AI Output Quality Evals and Prompt Improvement](../../../initiatives/INIT-004-ai-output-quality-evals.md)
 **Related docs:** [Live Cooking baseline](../mobile-refresh/pd-phase-04-cooking.md), [AI privacy, prompt-injection, and abuse rules](../mobile-refresh/pd-cross-phase-ai-privacy.md), [Testing and Acceptance Workflow](../../../docs/workflows/testing-and-acceptance.md), [Evaluations Workflow](../../../docs/workflows/evaluations.md)
@@ -19,7 +19,7 @@ PR #363 merged the independent INIT-005 reclassification and seven-phase plan as
 
 ## First Release Decision - 2026-09-23 / 2026-09-24
 
-Wilson selected a **private production pilot**, correcting an accidental Replit-preview-only selection, and chose the existing tap-to-talk `Ask a question` button. On 2026-09-24 he authorized starting INIT-005. PR #367 merged the reviewed specification as `16b47bcc`; Closeout #368 merged as `45bd7e79`; foundation PR #369 has passed source-head CI and targeted Replit validation and awaits Wilson review.
+Wilson selected a **private production pilot**, correcting an accidental Replit-preview-only selection, and chose the existing tap-to-talk `Ask a question` button. On 2026-09-24 he authorized starting INIT-005. PR #367 merged the reviewed specification as `16b47bcc`; Closeout #368 merged as `45bd7e79`; foundation PR #369 merged as `96ec567a` on 2026-10-07 after Wilson approval and final-head CI/Replit validation at `e56cc6dd`.
 
 Deliver the first release in three sequential PRs: specification, Phase 1 foundation with actions disabled, then Phase 2 timer execution. Phases 1-2 are the private-pilot release boundary; Phase 7 broadens availability and capabilities after evidence, rather than introducing the first rollout controls. The pilot engineering default is explicitly allowlisted linked accounts, initially Wilson's account. Guest and non-pilot assistance remains answer-only; guest action enablement is a later rollout decision under INIT-003.
 
@@ -368,15 +368,15 @@ Every phase must update the registry and ledger contracts for its actions, add s
 
 | INIT-005 phase | Status | First implementation slice |
 |---|---|---|
-| Phase 1 - Action Foundation and Guardrails | PR #369 awaiting Wilson review | Registry, ledger, scoped capabilities, rollout controls, typed proposal/receipt and blocking contracts; no cooking mutation |
-| Phase 2 - Timer Action Prototype | Planned; depends on Phase 1 | Direct, unambiguous `timer.start` through `Ask a question`; no second confirmation |
+| Phase 1 - Action Foundation and Guardrails | Complete; PR #369 merged | Registry, ledger, scoped capabilities, rollout controls, typed proposal/receipt and blocking contracts; no cooking mutation |
+| Phase 2 - Timer Action Prototype | Next; Phase 1 merged; audit #334/#281 overlap | Direct, unambiguous `timer.start` through `Ask a question`; no second confirmation |
 | Phase 3 - Session Facts and Pantry/Profile Corrections | Planned; depends on Phases 1-2 | Session fact plus one linked pantry correction |
 | Phase 4 - Localized Recipe Patching and Final History | Planned; depends on Phases 1-3 and stable step/session shape | One localized ingredient/step patch |
 | Phase 5 - Restart/Replan and Safety Escalation | Planned; depends on patch boundary evidence | One explicit safe restart/replan path |
 | Phase 6 - Voice Agent and Integration Interface | Planned; depends on stable core actions | Scoped voice-agent wrapper; no third-party launch |
 | Phase 7 - Controlled Rollout and Expansion | Planned; depends on prior enabled phases | Wilson-approved capability/caller rollout |
 
-Wilson authorized starting INIT-005 on 2026-09-24. The first specification PR #367 is merged. Mechanical closeout #368 is merged and the Phase 1 implementation branch is prepared. Complete exact-head CI, required Replit validation, and Wilson code review before merging. The first user-visible action remains the Phase 2 timer prototype; it may not bypass the Phase 1 exit gate. A new user-visible task is optional coordination, not an additional prerequisite.
+Wilson authorized starting INIT-005 on 2026-09-24 and approved merging Phase 1 PR #369 on 2026-10-07. Specification #367, specification closeout #368 and foundation #369 are merged. Phase 1 exit evidence is recorded in its phase record and merge handoff. The next work is the existing Phase 2 timer scope after a fresh ownership/contract audit; next-phase merge and pilot activation retain their approval gates. A new user-visible task is optional coordination, not an additional prerequisite.
 
 ## Validation Checklist
 

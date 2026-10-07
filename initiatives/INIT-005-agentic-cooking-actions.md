@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-09-11
-**Current phase:** Phase 1 - Action Foundation and Guardrails; PR #369 awaiting Wilson review
+**Current phase:** Phase 2 - Timer Action Prototype; ownership/contract audit is the next implementation step
 **Planning foundation:** PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2`; execution authorized 2026-09-24; foundation branch started 2026-09-25
 
 ## Overview
@@ -34,7 +34,7 @@ Before each INIT-005 implementation phase, audit current Live Cooking and open P
 
 The accepted plan was first published through PR #356 as a future Mobile Refresh Phase 4 extension. Wilson reclassified the work as an independent initiative on 2026-09-11 because its seven phases span architecture, guardrails, action execution, persistent user facts, recipe state, voice/integration access, evals, and rollout beyond INIT-001's remaining scope. PR #363 merged that reclassification and numbered plan as `b208ef28a686ae43045ee83712a7319d43a3e6f2`.
 
-Wilson selected a private production pilot using existing tap-to-talk on 2026-09-23, and authorized starting INIT-005 on 2026-09-24. PR #367 merged the reviewed plan and [Phase 1 specification](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md) as `16b47bcc069d6ad2559a44a8a65236850762590b` on 2026-09-25 (Pacific). Phase 1 foundation is implemented on `codex/init-005-action-foundation`, based on merged closeout PR #368 (`45bd7e79`). No INIT-005 production behavior has shipped; the production registry has no executor. The first user-visible action remains Phase 2 direct timer start without a second confirmation.
+Wilson selected a private production pilot using existing tap-to-talk on 2026-09-23, and authorized starting INIT-005 on 2026-09-24. PR #367 merged the reviewed plan and [Phase 1 specification](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md) as `16b47bcc069d6ad2559a44a8a65236850762590b` on 2026-09-25 (Pacific). Wilson approved merging Phase 1 on 2026-10-07. [PR #369](https://github.com/wmishak404/laica/pull/369) merged as `96ec567a6f55639473d3209376fa180b2dd1f924` from validated head `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b`. No INIT-005 production behavior has shipped; the production registry has no executor. The first user-visible action remains Phase 2 direct timer start without a second confirmation.
 
 ## Source Docs
 
@@ -55,8 +55,8 @@ No dedicated INIT-005 assets exist yet. Reuse current Live Cooking screenshots o
 
 | Phase | Status | Goal | Dependency |
 |---|---|---|---|
-| 1 - Action Foundation and Guardrails | Implemented; review/validation pending | Registry, transactional ledger, scoped capabilities, proposal/receipt contracts, privacy, and rollout controls; no cooking mutation | Runtime implementation and foundation evidence |
-| 2 - Timer Action Prototype | Planned | First direct `timer.start` action through `Ask a question`, without redundant confirmation | Phase 1 exit gate |
+| 1 - Action Foundation and Guardrails | Complete; PR #369 merged | Registry, transactional ledger, scoped capabilities, proposal/receipt contracts, privacy, and rollout controls; no cooking mutation | Runtime implementation and foundation evidence |
+| 2 - Timer Action Prototype | Next; ownership/contract audit | First direct `timer.start` action through `Ask a question`, without redundant confirmation | Phase 1 exit gate |
 | 3 - Session Facts and Pantry/Profile Corrections | Planned | Session-only facts and confirmed linked-user corrections | Phases 1-2; INIT-003 boundaries |
 | 4 - Localized Recipe Patching and Final History | Planned | Safe current/future guide patch and final patched History | Stable step/session shape; Phases 1-3 |
 | 5 - Restart/Replan and Safety Escalation | Planned | Explicit safe replacement when patching is unreliable | Patch-boundary evidence |
@@ -72,7 +72,7 @@ Guardrails and separate action evals are required exit evidence in every phase, 
 | [PR #356](https://github.com/wmishak404/laica/pull/356) | Merged as `d6300aa6` | Original action plan, then classified under INIT-001 Phase 4 |
 | [PR #363](https://github.com/wmishak404/laica/pull/363) | Merged as `b208ef28` | Reclassifies the plan as INIT-005 and adds the numbered phase system |
 
-[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. PR #368 merged the specification closeout as `45bd7e79`. Foundation review: [PR #369](https://github.com/wmishak404/laica/pull/369), branch `codex/init-005-action-foundation`.
+[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. PR #368 merged the specification closeout as `45bd7e79`. Foundation [PR #369](https://github.com/wmishak404/laica/pull/369) merged as `96ec567a6f55639473d3209376fa180b2dd1f924`. See the [merge closeout](../docs/handoffs/2026-10-07-codex-init-005-phase1-merge-closeout.md) for exact-head evidence and the Phase 2 resume point.
 
 ## Efforts and Governance
 
@@ -94,13 +94,17 @@ Guardrails and separate action evals are required exit evidence in every phase, 
 
 The September 11 reclassification was documentation only. It changes no runtime UI, API, tool, schema, storage, model/provider, auth/session, pantry/profile, recipe, History, deployment, or production behavior. PR #363 exact head `071e973d6b96d8fc4aef3e0515793c8a791c1096` passed unit/typecheck/build/coverage, schema-backed guest + linked E2E with disposable Neon cleanup, dependency audit, secret scan, and all CodeQL analyses before merge. Foundation validation is now tracked separately below.
 
-The September 24 specification task is also docs-only; it does not inherit runtime/action validation from PR #363. Before Phase 1 is ready, its runtime branch must prove the [foundation acceptance matrix](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md#acceptance-and-evidence), including scoped capabilities, transactional pre-dispatch audit, receipt reconciliation, privacy/retention, disabled rollout controls, and answer-only compatibility.
+The September 24 specification task is also docs-only; it does not inherit runtime/action validation from PR #363. Phase 1 evidence is recorded in [PR #369](https://github.com/wmishak404/laica/pull/369) and the [merge closeout](../docs/handoffs/2026-10-07-codex-init-005-phase1-merge-closeout.md). The reviewed branch exercised the [foundation acceptance matrix](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md#acceptance-and-evidence), including scoped capabilities, transactional pre-dispatch audit, receipt reconciliation, privacy/retention, disabled rollout controls, and answer-only compatibility.
 
 ## Current Resume Point
 
-Review [PR #369](https://github.com/wmishak404/laica/pull/369) and its final-head evidence. The specification (#367) and mechanical closeout (#368) are merged. Foundation implementation supplies strict contracts, a metadata-only transaction ledger, auth/scope gates, receipt reconciliation, disabled rollout, and separate synthetic evals. Local compile/build and 465 tests pass. Source-head CI passed 13 E2E cases; Replit schema/provider/auth-denial/retention checks passed, including a 3/3 positive and 0/5 forbidden-proposal canary. Local credentials still return `provider_auth`, while Replit works. See the foundation handoff for point-in-time proof and missing service evidence. Wilson must approve the code merge; Phase 2 timer work and pilot activation remain gated.
+Start Phase 2 from fresh `origin/main` after the Phase 1 documentation closeout. Phase 1 [PR #369](https://github.com/wmishak404/laica/pull/369) is merged as `96ec567a6f55639473d3209376fa180b2dd1f924`. Final reviewed head `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b` passed 465 unit tests and 13 E2E cases in [CI run 36206169633](https://github.com/wmishak404/laica/actions/runs/36206169633), with schema health and disposable Neon cleanup. Last Replit-validated at: `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b`. Targeted development checks covered schema/provider/auth-denial/private responses/retention; the provider canary returned 3/3 correct positive durations and 0/5 forbidden proposals. The merge tree matches the reviewed head. This is foundation evidence, not deployed timer acceptance.
 
-The first deployment target is a private production pilot after Phase 2 and Replit validation, not a Replit-only prototype or an all-user launch. Initial eligibility is explicitly allowlisted linked accounts; actual enrollment happens privately at activation. PR #334/EFF-034 and PR #281 are shared-surface/contract coordination points before timer work, not hard prerequisites for the Phase 1 foundation.
+First audit the current Live Cooking owner and open PRs: #334/EFF-034 still owns timer Reset-to-Start plus unrelated Settings work, and #281 still owns step normalization/session snapshot changes as of 2026-10-07. Classify these as shared-surface/contract coordination points; neither is assumed merged, approved for merge, or an automatic prerequisite. Keep other branches intact. Record a scoped integration plan before overlapping edits.
+
+Then implement the accepted `timer.start` flow through existing tap-to-talk `Ask a question`, using one timer controller, execution-time browser/cook/revision checks, an applied-action journal, and bounded receipt reconciliation. Derive the Phase 2 acceptance matrix from the master plan, including explicit and unambiguous step-derived duration, non-command/ambiguous rejection, active/paused timer protection, replay/reload/multi-tab/background handling, ordinary advice/manual controls, speech arbitration, and mobile layout. Give Wilson the change-specific cases separately from the full automated gate.
+
+The first deployment target remains a private production pilot after Phase 2 and the applicable Replit/deployment checks. Implementation can continue under Wilson's instruction; the next code merge, production publish, private account enrollment/activation, and Replit Agent use retain their separate approval boundaries. Replit primary publication history was preserved during Phase 1; re-inspect it before future synchronization. See the [closeout handoff](../docs/handoffs/2026-10-07-codex-init-005-phase1-merge-closeout.md) for environment limitations and source reads.
 
 ## Chronology
 
@@ -133,3 +137,7 @@ Codex reused the isolated worktree on fresh `codex/init-005-action-foundation` f
 ### 2026-09-25 - Foundation reaches review checkpoint
 
 PR #369 source head `1f71b03e` passed 465 unit tests, 13 E2E cases with disposable Neon cleanup, and security checks. Isolated Replit validation passed compile/build, additive schema health, live provider canary (3/3 correct positive commands, no proposals in five negative cases), auth rejection/private headers, empty production registry, and retention. Prompt learning and evidence limits are in the phase record/handoff. Replit development contains the two new tables; primary publication history and preview are preserved. Final evidence-only documentation triggers fresh CI/Replit checks recorded in the PR. Wilson's code/schema merge decision is the next gate; no real executor, enrollment or production publish has occurred.
+
+### 2026-10-07 - Phase 1 merged; Phase 2 handoff prepared
+
+Wilson approved merging #369 and continuing the planned work. GitHub confirmed squash merge `96ec567a6f55639473d3209376fa180b2dd1f924` from `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b` after a fresh base, checks, review-thread and overlap audit. The branch was current with main and had no unresolved reviews/comments. The immediate fact-only closeout records Phase 1 completion and carries the existing Phase 2 scope forward. No production publish, pilot enrollment, executor activation or Phase 2 implementation is claimed.

@@ -1,6 +1,6 @@
 # INIT-005 Phase 1 - Action Foundation and Guardrails
 
-**Status:** Implemented in PR #369; awaiting Wilson code/schema review
+**Status:** Complete; PR #369 merged on 2026-10-07 after Wilson approval
 **Owner:** Codex; product owner Wilson
 **Date:** 2026-09-24
 **Initiative:** [INIT-005](../../../initiatives/INIT-005-agentic-cooking-actions.md)
@@ -10,9 +10,9 @@
 
 ## Purpose and Authorization
 
-Wilson selected a private production pilot and existing tap-to-talk on 2026-09-23, then authorized starting INIT-005 on 2026-09-24. This is the first task: record the reviewed plan and Phase 1 implementation contract. Merge this specification before a fresh Phase 1 runtime branch starts from updated `origin/main`.
+Wilson selected a private production pilot and existing tap-to-talk on 2026-09-23, then authorized starting INIT-005 on 2026-09-24. The specification merged in #367 before implementation started from updated `origin/main`; the foundation merged in #369 after Wilson approval on 2026-10-07.
 
-The first release is Phase 1 foundation followed by Phase 2 `timer.start`. The seven-phase roadmap remains intact. This record owns foundation contracts; the master plan owns Phase 2 timer acceptance and later phases. The engineering defaults below implement the reviewed approach; they are not claims that runtime behavior exists or has passed validation.
+The first release is Phase 1 foundation followed by Phase 2 `timer.start`. The seven-phase roadmap remains intact. This record owns foundation contracts; the master plan owns Phase 2 timer acceptance and later phases. The engineering defaults below define the merged foundation; validation and remaining product boundaries are recorded below.
 
 Phase 1 may write action metadata but must not mutate a timer, current-cook fact, profile, recipe, or History. No real executor is available through a production route. Future consequential-action confirmation is tested with synthetic adapters, not a temporary user-facing mutation.
 
@@ -114,11 +114,11 @@ Provider contract sources checked 2026-09-25: [Structured Outputs](https://devel
 
 ## Current Delivery State and Resume
 
-PR #367 merged the specification as `16b47bcc069d6ad2559a44a8a65236850762590b`; authorized mechanical closeout PR #368 merged as `45bd7e7912eb0b5748ee7d79dc8621fa8641b3ab`. This foundation branch starts from that fresh main commit.
+PR #367 merged the specification as `16b47bcc069d6ad2559a44a8a65236850762590b`; authorized mechanical closeout PR #368 merged as `45bd7e7912eb0b5748ee7d79dc8621fa8641b3ab`. Foundation #369 started from that main commit and merged as `96ec567a6f55639473d3209376fa180b2dd1f924` from `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b`.
 
 Local typecheck/lint/build, 465 unit tests, and all 27 public fixture validations pass. Of those, eight fixtures exercise the separate action lane: three positive commands match their authored proposals, zero of three require clarification, and five blocking examples propose no action. These are deterministic synthetic results, not live model/speech metrics. Fifty-four focused tests cover policy/lifecycle, HTTP/provider privacy, and the action eval lane. The full E2E gate adds three real PostgreSQL tests for concurrent duplicates, transaction rollback, retention, and cascade deletion, plus verified linked-user empty-capability checks.
 
-Local live-provider canary returned `provider_auth` (HTTP 401 category), without logging payloads or changing credentials. Replit targeted checks and source-head CI passed; the final review-head rerun and exact evidence are tracked in PR #369. See the [foundation handoff](../../../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md) and review PR for current evidence. Do not merge without explicit Wilson review/approval and required Replit proof; do not start Phase 2 before that gate.
+Local live-provider canary returned `provider_auth` (HTTP 401 category), without logging payloads or changing credentials. Final head `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b` passed CI run 36206169633 (465 unit / 13 E2E cases, schema health and Neon cleanup) and targeted Replit checks. Last Replit-validated at: `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b`. Wilson approved the merge on 2026-10-07. See the [merge closeout](../../../docs/handoffs/2026-10-07-codex-init-005-phase1-merge-closeout.md) for evidence and the Phase 2 ownership audit resume point.
 
 ### Live-provider learning: narration is not authorization
 
@@ -127,6 +127,6 @@ The initial Replit canary at `35defa0b` generated a well-formed timer proposal f
 The v2 negative examples suppressed all three supported positive commands in the next Replit canary. The v3 refinement balances explicit positive shapes with blocking examples and distinguishes the current utterance from recipe reference material. Positive correctness and clarification are independent checks; suppressing all action proposals is not an acceptable quality fix. Keep the deterministic server gate unchanged while refining model behavior.
 
 
-### Review checkpoint
+### Merged foundation checkpoint
 
-[PR #369](https://github.com/wmishak404/laica/pull/369) contains the implementation. At source head `1f71b03e`, 465 unit tests and 13 schema-backed E2E cases passed; Replit install/typecheck/build/schema health, auth-denial/private response and retention probes passed. The v3 live canary returned correct proposals for 3/3 positive commands and none for 5/5 negative cases. The two additive tables were applied to Replit development after reviewing the exact DDL; its primary publication history and preview were preserved. Final-head evidence lives in the PR and handoff. Phase 1 remains open until Wilson approves the code/schema merge; timer UI, speech/hardware, real browser receipt application and production activation remain Phase 2.
+[PR #369](https://github.com/wmishak404/laica/pull/369) merged as `96ec567a`. At final reviewed head `e56cc6dd`, 465 unit tests and 13 schema-backed E2E cases passed; Replit install/typecheck/build/schema health, auth-denial/private response and retention probes passed. The v3 live canary returned correct proposals for 3/3 positive commands and none for 5/5 negative cases. The two additive tables were applied to Replit development after reviewing the exact DDL; its primary publication history and preview were preserved. Final-head evidence lives in the PR and merge-closeout handoff. Phase 1 is complete; timer UI, speech/hardware, real browser receipt application and production activation remain Phase 2.
