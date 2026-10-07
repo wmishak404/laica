@@ -1,0 +1,37 @@
+{
+  "id": "chef-it-up-suggestions-dish-identity-ramen-no-noodles",
+  "surface": "chef_it_up_suggestions",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["wilson-frittata-report-2026-07-08", "dish-identity-prompt-ab-2026-07-08"],
+  "request": {
+    "preferences": "Selected cuisines: Japanese. Cooking skill: intermediate. Ready in 45 minutes. Dietary restrictions: none. Use pantry ingredients first; additional ingredients are optional enhancements only.",
+    "ingredients": ["chicken broth", "pork belly", "scallions", "eggs", "garlic", "baby spinach", "soy sauce"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 45,
+    "cuisines": ["Japanese"],
+    "skill": "intermediate",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "pot", "skillet"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Quick Pork Belly Ramen Bowl\",\"description\":\"A brothy ramen bowl with pork belly, soft egg, and spinach.\",\"difficulty\":\"Medium\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"chicken broth\",\"pork belly\",\"scallions\",\"eggs\",\"garlic\",\"baby spinach\",\"soy sauce\"],\"additionalIngredientsNeeded\":[\"ramen noodles\",\"toasted sesame oil\"],\"overview\":\"Simmer the broth with pork belly, add spinach and a soft egg, and serve ramen-style.\",\"instructions\":[\"Simmer broth with garlic and soy, crisp the pork belly, add spinach, and finish with a soft egg and scallions.\"],\"cuisine\":\"Japanese\",\"isFusion\":false},{\"recipeName\":\"Japanese-Style Pork and Spinach Soup\",\"description\":\"A clean soy-seasoned soup of pork belly, spinach, and scallions.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"chicken broth\",\"pork belly\",\"baby spinach\",\"scallions\",\"soy sauce\"],\"additionalIngredientsNeeded\":[],\"overview\":\"Simmer pork belly in seasoned broth and wilt in the spinach.\",\"instructions\":[\"Simmer pork belly in soy-seasoned broth until tender, wilt in spinach, and top with scallions.\"],\"cuisine\":\"Japanese\",\"isFusion\":false},{\"recipeName\":\"Garlic Pork Belly and Spinach Stir-Fry\",\"description\":\"Crisped pork belly stir-fried with garlic, spinach, and a soy glaze.\",\"difficulty\":\"Easy\",\"cookTime\":25,\"pantryIngredientsUsed\":[\"pork belly\",\"garlic\",\"baby spinach\",\"scallions\",\"soy sauce\",\"eggs\"],\"additionalIngredientsNeeded\":[\"sesame seeds\"],\"overview\":\"Crisp the pork belly, stir-fry the aromatics and spinach, and finish with soy.\",\"instructions\":[\"Crisp pork belly, add garlic and spinach, glaze with soy sauce, and top with a fried egg and scallions.\"],\"cuisine\":\"Japanese\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-07-08"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "dish_identity": "fail",
+    "optional_ingredient_contract": "fail",
+    "pantry_grounding": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "claude-synthetic-from-wilson-dish-identity-report",
+    "labeledAt": "2026-07-08"
+  },
+  "notes": "Synthetic re-expression of live baseline-prompt captures from the 2026-07-08 dish-identity probe: ramen requires ramen noodles, but the first suggestion names a ramen bowl while listing the noodles as an optional extra. The soup and stir-fry recipes show honest names for the same pantry."
+}

@@ -1,0 +1,37 @@
+{
+  "id": "chef-it-up-suggestions-dish-identity-fried-rice-no-rice",
+  "surface": "chef_it_up_suggestions",
+  "privacyClass": "synthetic",
+  "roles": ["regression", "calibration-probe"],
+  "sourceRefs": ["wilson-frittata-report-2026-07-08", "dish-identity-prompt-ab-2026-07-08"],
+  "request": {
+    "preferences": "Selected cuisines: Chinese. Cooking skill: intermediate. Ready in 30 minutes. Dietary restrictions: none. Use pantry ingredients first; additional ingredients are optional enhancements only.",
+    "ingredients": ["chicken thighs", "eggs", "soy sauce", "frozen peas", "white onion", "bell peppers", "garlic"]
+  },
+  "constraints": {
+    "maxTimeMinutes": 30,
+    "cuisines": ["Chinese"],
+    "skill": "intermediate",
+    "dietaryRestrictions": [],
+    "equipment": ["stovetop", "wok"]
+  },
+  "output": "{\"recipes\":[{\"recipeName\":\"Simple Chicken Fried Rice\",\"description\":\"A weeknight fried rice with chicken, peas, and scrambled egg.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"chicken thighs\",\"eggs\",\"soy sauce\",\"frozen peas\",\"white onion\",\"garlic\"],\"additionalIngredientsNeeded\":[\"cooked rice\",\"green onions\"],\"overview\":\"Stir-fry chicken and vegetables, scramble in the egg, and toss with rice and soy sauce.\",\"instructions\":[\"Stir-fry chicken, add onion, garlic, and peas, scramble in eggs, then toss with rice and soy sauce.\"],\"cuisine\":\"Chinese\",\"isFusion\":false},{\"recipeName\":\"Chinese-Style Chicken Fried Rice (No Rice Version)\",\"description\":\"All the fried-rice flavors built from chicken, egg, and vegetables without the rice.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"chicken thighs\",\"eggs\",\"white onion\",\"bell peppers\",\"frozen peas\",\"garlic\",\"soy sauce\"],\"additionalIngredientsNeeded\":[\"sesame oil\"],\"overview\":\"Cook everything fried-rice style even though there is no rice in the pan.\",\"instructions\":[\"Stir-fry chicken and vegetables, scramble in eggs, season with soy sauce, and serve fried-rice style.\"],\"cuisine\":\"Chinese\",\"isFusion\":false},{\"recipeName\":\"Chicken and Vegetable Stir-Fry\",\"description\":\"A pantry-honest soy-garlic stir-fry of chicken, peppers, and peas.\",\"difficulty\":\"Easy\",\"cookTime\":30,\"pantryIngredientsUsed\":[\"chicken thighs\",\"bell peppers\",\"white onion\",\"frozen peas\",\"soy sauce\",\"garlic\"],\"additionalIngredientsNeeded\":[\"sesame oil\"],\"overview\":\"Sear the chicken, stir-fry the vegetables, and glaze with garlic and soy.\",\"instructions\":[\"Sear chicken pieces, stir-fry peppers, onion, and peas, then glaze with garlic and soy sauce.\"],\"cuisine\":\"Chinese\",\"isFusion\":false}]}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "promptVersion": "default",
+    "capturedAt": "2026-07-08"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "suggestion_count": "pass",
+    "max_time_adherence": "pass",
+    "dish_identity": "fail",
+    "optional_ingredient_contract": "fail",
+    "pantry_grounding": "fail"
+  },
+  "labelProvenance": {
+    "labeledBy": "claude-synthetic-from-wilson-dish-identity-report",
+    "labeledAt": "2026-07-08"
+  },
+  "notes": "Synthetic re-expression of live baseline-prompt captures from the 2026-07-08 dish-identity probe: rice is the defining ingredient of fried rice, but the first suggestion lists rice as an optional extra and the second names fried rice with no rice anywhere. The third recipe shows the honest alternative naming."
+}
