@@ -1,6 +1,6 @@
 # INIT-005 Phase 1 - Action Foundation and Guardrails
 
-**Status:** Specification merged in PR #367; runtime implementation next
+**Status:** Implemented in PR #369; awaiting Wilson code/schema review
 **Owner:** Codex; product owner Wilson
 **Date:** 2026-09-24
 **Initiative:** [INIT-005](../../../initiatives/INIT-005-agentic-cooking-actions.md)
@@ -98,8 +98,35 @@ For runtime work, run focused unit/route tests, `npm run check`, `npm run build`
 
 Phase 2 must add real tap-to-talk/provider tests, mobile checks at 390x844 and 412x915, speech arbitration, background/resume, timer-on-untimed-step, and loss/replay tests. Keep its production rollout disabled until baseline smoke and explicit pilot activation approval. Runtime PRs register changed-since-production breadcrumbs.
 
+## Implemented Foundation Defaults — 2026-09-25
+
+- The production registry contains the `timer.start` v1 contract with **no executor**. Global `COOKING_ACTIONS_ENABLED=false`, empty `COOKING_ACTIONS_PILOT_UIDS`, and `COOKING_ACTION_TIMER_START_ENABLED=false` remain the defaults. Environment changes alone cannot enable a Phase 1 action. No UI, enrollment, or production activation occurs in this branch.
+- `shared/cooking-actions.ts` defines strict requests/results; `server/cooking-actions/` owns policy, service, routes, and the transactional ledger. A verified request maps to the server-owned `live_cooking` caller. Opaque browser/cook IDs, numeric session, step index, state checksum, and active-timer signal bind each stored proposal. Client state remains untrusted; Phase 2 must recheck it at application time.
+- PostgreSQL locks the owned cooking-session row before reading or changing its action records. A unique `(session_id, idempotency_key)` prevents duplicate records within that session. Request identity contains parsed duration, scope, and request time, never an utterance or utterance hash. Changing parameters/browser/state within that namespace rejects the request. Keys are session-scoped; a different session is a separate namespace.
+- A request carries `requestedAt`; new proposals accept at most a 120-second age and five seconds of future clock skew. This prevents an old request from creating new authority after its 90-day ledger record is removed. The proposal expires 120 seconds after that request time; a slow provider cannot extend it. The provider has a 15-second timeout, zero SDK retries, and 700 output tokens.
+- The deterministic binder accepts one whole explicit timer command with integer digits or supported English numbers and seconds/minutes/hours, bounded to 1–86,400 seconds. Questions, negation, quoted instructions, ranges, bundled commands, decimal durations, and unsupported number phrases do not authorize. Step-derived duration is deferred to Phase 2's step/controller contract; "start the timer" currently requires clarification. This is a conservative grammar, not a claim about spoken recognition quality.
+- Confirmation and receipt tokens are random, hashed at rest, and returned only by the committing request. Confirmation consumes the stored hash. Duplicate proposal/status calls return safe status, never a replayed token/directive; if a confirmation token response is lost, cancel and make a fresh proposal. Losing a dispatch response becomes an unknown outcome; Phase 2 must reconcile from its applied-action journal, never rerun a status result.
+- Missing receipts become `outcome_unknown` on status/receipt access after 30 seconds. Matching late receipts resolve the original action; conflicting receipts append a diagnostic without overwriting the result. Revoking flags/eligibility stops dispatch while owner status and receipts remain accessible. Status and receipts have independent hourly budgets of 300/120; the proposal/confirmation routes retain voice hour/day budgets.
+- Record reads reject ages over 90 days. A startup and hourly sweep deletes old records of every status and cascades their events; physical deletion can lag the cutoff by one sweep interval while the process is running. Session deletion cascades both tables. No raw UID copy or free-form payload exists in the ledger/event shape.
+- Both interfaces use `getCookingAssistance`; action mode adds a strict structured-output contract and omits input/output eval logging. The model remains `gpt-4.1-mini`. Action-path access logs suppress IDs; API errors expose safe enums only. The separate `cooking_action_proposal` eval lane contains eight synthetic fixtures; no live utterances are exported.
+
+Provider contract sources checked 2026-09-25: [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) and [GPT-4.1 mini](https://developers.openai.com/api/docs/models/gpt-4.1-mini). Local SDK compatibility is covered by provider-boundary tests; a live contract canary must succeed before treating real provider availability as proven.
+
 ## Current Delivery State and Resume
 
-This task changes documentation only. No dependency install, provider call, schema push, executor, account enrollment, Replit validation, or production change is part of it. Documentation checks and point-in-time evidence belong in the handoff and PR.
+PR #367 merged the specification as `16b47bcc069d6ad2559a44a8a65236850762590b`; authorized mechanical closeout PR #368 merged as `45bd7e7912eb0b5748ee7d79dc8621fa8641b3ab`. This foundation branch starts from that fresh main commit.
 
-PR #367 merged this specification as `16b47bcc069d6ad2559a44a8a65236850762590b` from exact validated head `994a6c065d836467c17519a609d0fc1aae3f0eb3`. After its mechanical INIT closeout, create a fresh `codex/` foundation branch from updated `origin/main`. Build registry/types and scope checks, transactional ledger and privacy enforcement, orchestration routes and disabled rollout controls, then deterministic acceptance/eval coverage. Do not start Phase 2's timer executor before the Phase 1 gate passes.
+Local typecheck/lint/build, 465 unit tests, and all 27 public fixture validations pass. Of those, eight fixtures exercise the separate action lane: three positive commands match their authored proposals, zero of three require clarification, and five blocking examples propose no action. These are deterministic synthetic results, not live model/speech metrics. Fifty-four focused tests cover policy/lifecycle, HTTP/provider privacy, and the action eval lane. The full E2E gate adds three real PostgreSQL tests for concurrent duplicates, transaction rollback, retention, and cascade deletion, plus verified linked-user empty-capability checks.
+
+Local live-provider canary returned `provider_auth` (HTTP 401 category), without logging payloads or changing credentials. Replit targeted checks and source-head CI passed; the final review-head rerun and exact evidence are tracked in PR #369. See the [foundation handoff](../../../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md) and review PR for current evidence. Do not merge without explicit Wilson review/approval and required Replit proof; do not start Phase 2 before that gate.
+
+### Live-provider learning: narration is not authorization
+
+The initial Replit canary at `35defa0b` generated a well-formed timer proposal for one narrated recipe instruction despite the negative-intent prompt. The deterministic whole-utterance binder rejects that text; it does not receive authority from the model. The follow-up adds explicit narrated-command and timing-question prompt examples plus exact service regression cases. Keep these cases separate from positive-command usefulness metrics. A schema-valid provider result is never evidence of user authorization; future action kinds require their own code-level source binding before executor registration.
+
+The v2 negative examples suppressed all three supported positive commands in the next Replit canary. The v3 refinement balances explicit positive shapes with blocking examples and distinguishes the current utterance from recipe reference material. Positive correctness and clarification are independent checks; suppressing all action proposals is not an acceptable quality fix. Keep the deterministic server gate unchanged while refining model behavior.
+
+
+### Review checkpoint
+
+[PR #369](https://github.com/wmishak404/laica/pull/369) contains the implementation. At source head `1f71b03e`, 465 unit tests and 13 schema-backed E2E cases passed; Replit install/typecheck/build/schema health, auth-denial/private response and retention probes passed. The v3 live canary returned correct proposals for 3/3 positive commands and none for 5/5 negative cases. The two additive tables were applied to Replit development after reviewing the exact DDL; its primary publication history and preview were preserved. Final-head evidence lives in the PR and handoff. Phase 1 remains open until Wilson approves the code/schema merge; timer UI, speech/hardware, real browser receipt application and production activation remain Phase 2.

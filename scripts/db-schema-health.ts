@@ -14,6 +14,8 @@ const REQUIREMENTS: Requirement[] = [
   { table: "prompt_versions" },
   { table: "anonymous_recipe_usage" },
   { table: "recipe_image_cache" },
+  { table: "cooking_actions", column: "record" },
+  { table: "cooking_action_events", column: "action_id" },
 
   // Core runtime tables used by authenticated flows.
   { table: "auth_users" },

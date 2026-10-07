@@ -14,7 +14,9 @@ type RateLimitKey =
   | "ai"
   | "voice"
   | "speech"
-  | "feedback";
+  | "feedback"
+  | "actionStatus"
+  | "actionReceipt";
 type RateLimitWindow = "short" | "burst" | "hour" | "day";
 
 interface RateLimitOptions {
@@ -544,4 +546,14 @@ export const speechUserDayLimit = createRateLimit({
   windowMs: ONE_DAY,
   max: getConfiguredRateLimit("speech", "day", 360),
   keyGenerator: getUserRateLimitKey,
+});
+
+// Reconciliation has independent budgets; exhausting voice proposals cannot consume these buckets.
+export const actionStatusUserLimit = createRateLimit({
+  name: "action-status:user:hour", windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("actionStatus", "hour", 300), keyGenerator: getUserRateLimitKey,
+});
+export const actionReceiptUserLimit = createRateLimit({
+  name: "action-receipt:user:hour", windowMs: ONE_HOUR,
+  max: getConfiguredRateLimit("actionReceipt", "hour", 120), keyGenerator: getUserRateLimitKey,
 });

@@ -160,6 +160,27 @@ export const cookingSessions = pgTable("cooking_sessions", {
   completedAt: timestamp("completed_at"),
 });
 
+// Metadata-only action ledger. Ownership resolves through cooking_sessions, never a duplicated UID.
+export const cookingActions = pgTable("cooking_actions", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  sessionId: integer("session_id").notNull().references(() => cookingSessions.id, { onDelete: "cascade" }),
+  idempotencyKey: varchar("idempotency_key", { length: 36 }).notNull(),
+  record: jsonb("record").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+}, table => [
+  uniqueIndex("UQ_cooking_action_request").on(table.sessionId, table.idempotencyKey),
+  index("IDX_cooking_action_retention").on(table.createdAt),
+]);
+
+export const cookingActionEvents = pgTable("cooking_action_events", {
+  id: serial("id").primaryKey(),
+  actionId: varchar("action_id", { length: 36 }).notNull().references(() => cookingActions.id, { onDelete: "cascade" }),
+  event: varchar("event", { length: 32 }).notNull(),
+  status: varchar("status", { length: 32 }).notNull(),
+  reason: varchar("reason", { length: 40 }).notNull(),
+  createdAt: timestamp("created_at").notNull(),
+}, table => [index("IDX_cooking_action_event_action").on(table.actionId)]);
+
 // User settings table for preferences and app settings
 export const userSettings = pgTable("user_settings", {
   id: serial("id").primaryKey(),

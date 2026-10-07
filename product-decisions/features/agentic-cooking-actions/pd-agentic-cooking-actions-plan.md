@@ -19,7 +19,7 @@ PR #363 merged the independent INIT-005 reclassification and seven-phase plan as
 
 ## First Release Decision - 2026-09-23 / 2026-09-24
 
-Wilson selected a **private production pilot**, correcting an accidental Replit-preview-only selection, and chose the existing tap-to-talk `Ask a question` button. On 2026-09-24 he authorized starting INIT-005. PR #367 merged the reviewed specification as `16b47bcc`; Phase 1 runtime work follows its mechanical closeout on `main`.
+Wilson selected a **private production pilot**, correcting an accidental Replit-preview-only selection, and chose the existing tap-to-talk `Ask a question` button. On 2026-09-24 he authorized starting INIT-005. PR #367 merged the reviewed specification as `16b47bcc`; Closeout #368 merged as `45bd7e79`; foundation PR #369 has passed source-head CI and targeted Replit validation and awaits Wilson review.
 
 Deliver the first release in three sequential PRs: specification, Phase 1 foundation with actions disabled, then Phase 2 timer execution. Phases 1-2 are the private-pilot release boundary; Phase 7 broadens availability and capabilities after evidence, rather than introducing the first rollout controls. The pilot engineering default is explicitly allowlisted linked accounts, initially Wilson's account. Guest and non-pilot assistance remains answer-only; guest action enablement is a later rollout decision under INIT-003.
 
@@ -368,7 +368,7 @@ Every phase must update the registry and ledger contracts for its actions, add s
 
 | INIT-005 phase | Status | First implementation slice |
 |---|---|---|
-| Phase 1 - Action Foundation and Guardrails | Specification merged; runtime next after closeout | Registry, ledger, scoped capabilities, rollout controls, typed proposal/receipt and blocking contracts; no cooking mutation |
+| Phase 1 - Action Foundation and Guardrails | PR #369 awaiting Wilson review | Registry, ledger, scoped capabilities, rollout controls, typed proposal/receipt and blocking contracts; no cooking mutation |
 | Phase 2 - Timer Action Prototype | Planned; depends on Phase 1 | Direct, unambiguous `timer.start` through `Ask a question`; no second confirmation |
 | Phase 3 - Session Facts and Pantry/Profile Corrections | Planned; depends on Phases 1-2 | Session fact plus one linked pantry correction |
 | Phase 4 - Localized Recipe Patching and Final History | Planned; depends on Phases 1-3 and stable step/session shape | One localized ingredient/step patch |
@@ -376,7 +376,7 @@ Every phase must update the registry and ledger contracts for its actions, add s
 | Phase 6 - Voice Agent and Integration Interface | Planned; depends on stable core actions | Scoped voice-agent wrapper; no third-party launch |
 | Phase 7 - Controlled Rollout and Expansion | Planned; depends on prior enabled phases | Wilson-approved capability/caller rollout |
 
-Wilson authorized starting INIT-005 on 2026-09-24. The first specification PR #367 is merged. Complete its mechanical closeout, then start Phase 1 runtime work from fresh `origin/main`. The first user-visible action remains the Phase 2 timer prototype; it may not bypass the Phase 1 exit gate. A new user-visible task is optional coordination, not an additional prerequisite.
+Wilson authorized starting INIT-005 on 2026-09-24. The first specification PR #367 is merged. Mechanical closeout #368 is merged and the Phase 1 implementation branch is prepared. Complete exact-head CI, required Replit validation, and Wilson code review before merging. The first user-visible action remains the Phase 2 timer prototype; it may not bypass the Phase 1 exit gate. A new user-visible task is optional coordination, not an additional prerequisite.
 
 ## Validation Checklist
 

@@ -36,6 +36,13 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 - Focused production-push check: on the next selected release containing the remediation, submit one authenticated short audio question through the existing Live Cooking Ask flow and confirm the normal transcription result or expected provider/service response occurs without an upload/parser failure. Do not send malformed, oversized, or adversarial payloads to production.
 - Negative scope and breadcrumb: no route code, upload limits, provider model, UI, schema, auth/session, deployment configuration, or product decision changes. If audio upload fails after publish, inspect the `/api/speech/transcribe` multipart boundary and the deployed dependency resolution before changing provider behavior.
 
+### INIT-005 action foundation — branch pending review, not production-validated
+
+- Changed surface: [PR #369](https://github.com/wmishak404/laica/pull/369), `codex/init-005-action-foundation` from `45bd7e79`; additive action/event tables, authenticated action routes, strict proposal mode on the existing assistance service, retention startup job, and server-only rollout flags. Review-head SHA/checks live in the [foundation handoff](handoffs/2026-09-25-codex-init-005-action-foundation.md) and its PR. No real executor exists and all pilot flags default off.
+- Focused production-push check after approved merge/schema rollout: verify schema health and bounded retention diagnostics; verified linked and guest callers see no mutating capabilities; ordinary Ask/manual timer behavior remains unchanged. Do not activate a pilot or test adversarial requests in production. Phase 2 adds the actual timer/replay/mobile smoke before enrollment.
+- Evidence/negative scope: source head `1f71b03e` passed 465 unit tests and 13 E2E cases with Neon cleanup; Replit compile/build, two additive development tables/schema health, auth-denial/private headers, retention and eight-case live provider canary passed. Final-head proof is tracked in PR #369. Local credentials return `provider_auth`; production publish, signed-in Replit Google/App Check and timer/speech/mobile acceptance remain unclaimed. No UI/mobile/speech quality claim.
+- Future-bug breadcrumb: inspect `/api/cooking/actions` scope/status handling, transactional events, retention and shared `getCookingAssistance` mode selection if advice breaks or an action appears to have run without a receipt. Consult the Phase 1 record before retrying unknown outcomes.
+
 ## 2026-07-22 Full Post-Publish Production Regression
 
 - Detailed matrix, screenshots, cleanup, and negative scope: [`docs/handoffs/2026-07-22-codex-post-publish-production-regression.md`](handoffs/2026-07-22-codex-post-publish-production-regression.md).

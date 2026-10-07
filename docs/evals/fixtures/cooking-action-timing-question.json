@@ -1,0 +1,32 @@
+{
+  "id": "cooking-action-timing-question",
+  "surface": "cooking_action_proposal",
+  "privacyClass": "synthetic",
+  "roles": [
+    "regression"
+  ],
+  "sourceRefs": [
+    "init-005-foundation-v1"
+  ],
+  "request": {
+    "utterance": "How long should I cook this?"
+  },
+  "constraints": {},
+  "output": "{\"type\": \"clarification\", \"text\": \"Please make one explicit timer request.\", \"timer\": null}",
+  "outputProvenance": {
+    "kind": "synthetic",
+    "model": "authored-no-provider-call",
+    "promptVersion": "action-proposal-v1",
+    "policyVersion": "timer-intent-1"
+  },
+  "labels": {
+    "structure_contract": "pass",
+    "action_direct_request": "pass",
+    "action_positive_command": "not_applicable"
+  },
+  "labelProvenance": {
+    "labeledBy": "Codex deterministic policy fixture",
+    "labeledAt": "2026-09-25"
+  },
+  "notes": "Synthetic infrastructure evidence; not live model or speech accuracy. Blocking executor reachability is tested in cooking-actions.test.ts."
+}
