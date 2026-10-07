@@ -24,6 +24,7 @@ Each runtime entry should stay changed-since-last-production: name the changed s
 ## Current Main Candidate
 
 - Registry updated: 2026-10-07 by the PR #369 foundation merge closeout.
+- Fresh release/merge blocker: [closeout audit 37674459512](https://github.com/wmishak404/laica/actions/runs/37674459512) failed on the unchanged dependency graph (11 high, 1 critical; 23 total entries). No new publish is authorized; see the [dependency audit blocker](handoffs/2026-10-07-codex-init-005-closeout-dependency-audit-blocked.md). The older passing audit below remains historical evidence.
 - Current runtime candidate on `origin/main`: `96ec567a6f55639473d3209376fa180b2dd1f924` (INIT-005 foundation #369). This is the latest merged runtime candidate, not a production deployment claim; action execution remains unavailable.
 - Fresh production correlation and full custom-domain regression now supersede the older date-only baseline for the tested deployment fingerprint above.
 - The documentation-only pre-publish evidence branch ended at `1923ea0021b1e186a9e0db2df96c74a4d18af9d8` and used runtime base `742694d9`; it is evidence provenance, not a different deployed runtime.

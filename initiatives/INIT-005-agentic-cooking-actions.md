@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-09-11
-**Current phase:** Phase 2 - Timer Action Prototype; ownership/contract audit is the next implementation step
+**Current phase:** Phase 2 - Timer Action Prototype next; Phase 1 closeout #371 merge blocked by dependency audit
 **Planning foundation:** PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2`; execution authorized 2026-09-24; foundation branch started 2026-09-25
 
 ## Overview
@@ -98,6 +98,8 @@ The September 24 specification task is also docs-only; it does not inherit runti
 
 ## Current Resume Point
 
+Closeout [PR #371](https://github.com/wmishak404/laica/pull/371) is pushed but cannot merge: its fresh high/critical dependency audit failed on the unchanged package graph. See the [blocked handoff](../docs/handoffs/2026-10-07-codex-init-005-closeout-dependency-audit-blocked.md) for the exact failure, dependency ownership and smallest next steps. Complete dependency triage/remediation with the applicable approval, then rebase #371 onto remediated main and rerun its gates before Phase 2 implementation.
+
 Start Phase 2 from fresh `origin/main` after the Phase 1 documentation closeout. Phase 1 [PR #369](https://github.com/wmishak404/laica/pull/369) is merged as `96ec567a6f55639473d3209376fa180b2dd1f924`. Final reviewed head `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b` passed 465 unit tests and 13 E2E cases in [CI run 36206169633](https://github.com/wmishak404/laica/actions/runs/36206169633), with schema health and disposable Neon cleanup. Last Replit-validated at: `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b`. Targeted development checks covered schema/provider/auth-denial/private responses/retention; the provider canary returned 3/3 correct positive durations and 0/5 forbidden proposals. The merge tree matches the reviewed head. This is foundation evidence, not deployed timer acceptance.
 
 First audit the current Live Cooking owner and open PRs: #334/EFF-034 still owns timer Reset-to-Start plus unrelated Settings work, and #281 still owns step normalization/session snapshot changes as of 2026-10-07. Classify these as shared-surface/contract coordination points; neither is assumed merged, approved for merge, or an automatic prerequisite. Keep other branches intact. Record a scoped integration plan before overlapping edits.
@@ -141,3 +143,5 @@ PR #369 source head `1f71b03e` passed 465 unit tests, 13 E2E cases with disposab
 ### 2026-10-07 - Phase 1 merged; Phase 2 handoff prepared
 
 Wilson approved merging #369 and continuing the planned work. GitHub confirmed squash merge `96ec567a6f55639473d3209376fa180b2dd1f924` from `e56cc6dd70e7c7569e82bc8057cecd79fe7a265b` after a fresh base, checks, review-thread and overlap audit. The branch was current with main and had no unresolved reviews/comments. The immediate fact-only closeout records Phase 1 completion and carries the existing Phase 2 scope forward. No production publish, pilot enrollment, executor activation or Phase 2 implementation is claimed.
+
+The closeout's fresh audit at `0ec3b67e` subsequently reported 23 vulnerable dependency entries (11 moderate, 11 high, 1 critical), while its functional CI passed. This is an existing package-graph finding, not a dependency change from #369/#371. Closeout merge is deferred to Codex after dependency remediation/approval and fresh gates; Phase 1 code remains merged and nothing was deployed.
