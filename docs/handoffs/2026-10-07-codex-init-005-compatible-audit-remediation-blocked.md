@@ -16,7 +16,7 @@ Unresolved advisory details and dependency paths remain in private local investi
 
 ## Changes
 
-- `package-lock.json`: five existing-range transitive patch resolutions and Firebase Admin 13.8.0 to 13.10.0 within the existing declaration. Direct dependency declarations and overrides are unchanged. The within-major SDK release removes an affected dependency and uses native private-key parsing; signing remains native.
+- `package-lock.json`: five transitive patch resolutions permitted by existing declarations and overrides, and Firebase Admin 13.8.0 to 13.10.0 within the existing declaration. Direct dependency declarations and overrides are unchanged. The within-major SDK release removes an affected dependency and uses native private-key parsing; signing remains native.
 - `tests/unit/firebase-admin-credentials.test.ts`: actual installed SDK, generated ephemeral RSA credentials, both PEM encodings, signed custom-token binding, tamper rejection, and malformed-key rejection. No real credential or network call.
 - `efforts/effort-023-broad-dependency-modernization-strategy.md`: narrow audit-triggered scope and the separately gated foundation migration; no Effort status change.
 - `docs/production-validation-registry.md`: focused dependency/runtime breadcrumb for the next approved release.
