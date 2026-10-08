@@ -25,7 +25,7 @@ export default function AuthWrapper({ onSuccess }: AuthWrapperProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br/srgb from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4">
       {mode === "login" ? (
         <LoginForm
           onSuccess={handleAuthSuccess}

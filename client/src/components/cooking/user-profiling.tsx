@@ -936,7 +936,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
   const renderWelcomeStep = () => (
     <div className="flex min-h-[66vh] flex-col justify-center gap-6 py-5 text-center">
-      <div className="setup-illustration mx-auto flex h-32 w-32 items-center justify-center text-primary shadow-sm">
+      <div className="setup-illustration mx-auto flex h-32 w-32 items-center justify-center text-primary shadow-xs">
         <div className="relative">
           <ChefHat className="h-14 w-14" />
           <ScanLine className="absolute -left-7 top-7 h-7 w-7 rotate-[-10deg] text-[hsl(var(--setup-teal))]" />
@@ -1181,7 +1181,7 @@ export default function UserProfiling({ onProfileComplete, existingProfile, menu
 
   const renderToolsIntroStep = () => (
     <div className="flex min-h-[58vh] flex-col justify-center gap-5 py-5">
-      <div className="setup-illustration mx-auto flex h-28 w-28 items-center justify-center text-primary shadow-sm">
+      <div className="setup-illustration mx-auto flex h-28 w-28 items-center justify-center text-primary shadow-xs">
         <div className="relative">
           <CookingPot className="h-12 w-12" />
           <Check className="absolute -right-5 -top-3 h-7 w-7 rounded-full bg-primary p-1 text-primary-foreground" />

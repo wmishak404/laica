@@ -6,6 +6,8 @@ Follow [operating-principles.md](operating-principles.md): evidence first, no un
 
 This workflow captures the reusable security lessons from the May 2026 Replit scan fixes without turning every feature into a broad audit.
 
+**Wilson's timing update, 2026-10-08:** Replit shell/browser checks below run at full/release regression unless Wilson explicitly requests earlier validation. Risk classification does not move them earlier. Required exact-head automated CI/E2E and security checks remain independent; record missing Replit-only proof and its deferred checks under [testing-and-acceptance.md](testing-and-acceptance.md).
+
 ## Plain-English Rule
 
 When a change touches auth, user-owned data, provider spend, admin data, AI prompt inputs, response caching, or production HTML/security headers, do a focused security pass for that surface and add the smallest test or Replit check that would catch the same class of bug next time.
@@ -21,7 +23,7 @@ Use this checklist only for surfaces touched by the branch.
 | If the change touches... | Check for... | Preferred coverage |
 |---|---|---|
 | User settings, profile, pantry, sessions, feedback, or saved app state | Caller-supplied IDs must not override the authenticated Firebase UID; reads/writes must be scoped to the owner | Unit test with a malicious `authUserId` or owner field in the body and an authenticated different user |
-| Authenticated audio, generated content, admin JSON, or private API responses | Private responses must not be publicly cacheable; authenticated variants should include the relevant `Vary` header | Route/header unit test; human Replit `curl -i` before merge only when the risk lane requires live header proof, otherwise defer to release/batch validation |
+| Authenticated audio, generated content, admin JSON, or private API responses | Private responses must not be publicly cacheable; authenticated variants should include the relevant `Vary` header | Route/header unit test; record live header proof for full/release regression, with earlier Replit `curl -i` only at Wilson's explicit request |
 | `client/index.html`, CSP, external scripts, analytics, embeds, or production HTML | Avoid third-party scripts with signed-in page access unless explicitly accepted; CSP must match the real production allowlist | Static test/assertion over HTML and CSP headers |
 | AI, speech, vision, recipe generation, or other paid-provider routes | Abuse limits must be server-side and shared across production instances when running on autoscale; client limits are UX only | Unit test for the limiter contract and either accepted automated provider/Replit canary evidence or targeted human Replit smoke before release |
 | AI logs, eval data, feedback, transcripts, or user text flowing into prompts | Treat logged/user content as untrusted data; neutralize prompt markers and tell prompt-writing models not to obey examples | Unit test for prompt construction/sanitization when practical; admin workflow smoke when provider-backed |
@@ -48,7 +50,7 @@ When a future feature touches one of the focus areas, prefer adding a targeted r
 - Add limiter tests for provider routes, including image-count or multi-request accounting where relevant.
 - Add prompt-construction tests when user/logged content is repackaged for an AI prompt.
 
-If the behavior depends on Replit-only services, real Firebase Google sign-in, Replit deployment secrets, production DB schema, ElevenLabs, OpenAI, or autoscale behavior, record the missing live-service proof instead of pretending local mocks fully prove it. That proof can be human Replit validation, accepted automated Replit-environment CI, a provider canary, or a deferred release-batch check depending on the risk lane in [`testing-and-acceptance.md`](testing-and-acceptance.md).
+If the behavior depends on Replit-only services, real Firebase Google sign-in, Replit deployment secrets, production DB schema, ElevenLabs, OpenAI, or autoscale behavior, record the missing live-service proof instead of pretending local mocks fully prove it. That proof can be human Replit validation, accepted automated Replit-environment CI, a provider canary, or a deferred release-batch check under [`testing-and-acceptance.md`](testing-and-acceptance.md). Replit collection follows the full/release regression timing rule above; an uncovered seam narrows the supported claim or requires a concrete decision, rather than automatically triggering an earlier Replit check.
 
 ## Secret Rotation After Exposure
 

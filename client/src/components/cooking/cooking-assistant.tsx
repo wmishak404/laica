@@ -121,7 +121,7 @@ export default function CookingAssistant({ currentStep, isStepChanging = false }
           <Input
             type="text" 
             placeholder="Ask a question about this step..." 
-            className="w-full p-3 pr-10 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="w-full p-3 pr-10 border border-gray-200 rounded-full focus:outline-hidden focus:ring-2 focus:ring-primary/50"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendQuestion()}

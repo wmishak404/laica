@@ -1448,9 +1448,9 @@ export default function UserSettings({
           </p>
 
           <div className="mt-6 space-y-5">
-            <div className="space-y-3">
+            <div>
               <Label className="text-sm font-extrabold text-[hsl(var(--setup-ink))]">Cooking skill</Label>
-              <div role="radiogroup" aria-label="Cooking skill level" className="space-y-3">
+              <div role="radiogroup" aria-label="Cooking skill level" className="mt-3 space-y-3">
                 {skillLevels.map((skill) => {
                   const selected = profile.cookingSkill === skill.value;
                   return (
@@ -1477,14 +1477,14 @@ export default function UserSettings({
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div>
               <Label className="text-sm font-extrabold text-[hsl(var(--setup-ink))]">Dietary notes</Label>
               <button
                 type="button"
                 aria-pressed={selectedDietary.has('No restrictions')}
                 data-selected={selectedDietary.has('No restrictions')}
                 onClick={() => handleDietaryChange('No restrictions')}
-                className="setup-choice setup-none-choice mb-5 flex w-full items-center gap-4 p-4 text-left transition"
+                className="setup-choice setup-none-choice mt-3 flex w-full items-center gap-4 p-4 text-left transition"
               >
                 <span className="setup-illustration-token h-14 w-14 shrink-0" aria-hidden="true">
                   {noRestrictionsOption.illustration}
@@ -1498,7 +1498,7 @@ export default function UserSettings({
                 </span>
               </button>
 
-              <div className="space-y-2">
+              <div className="mt-3 space-y-2">
                 {remainingDietaryOptions.map((diet) => {
                   const selected = selectedDietary.has(diet.label);
                   return (

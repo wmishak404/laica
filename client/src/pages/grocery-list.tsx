@@ -177,7 +177,7 @@ export default function GroceryList() {
   return (
     <>
       <main>
-        <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-6 md:py-8">
+        <section className="bg-linear-to-r/srgb from-primary/10 to-secondary/10 py-6 md:py-8">
           <div className="container mx-auto px-4">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Smart Grocery Lists</h1>
             <p className="text-lg mb-4">Generate shopping lists based on your meal plans with smart suggestions</p>
@@ -200,7 +200,7 @@ export default function GroceryList() {
               
               <TabsContent value="current">
                 {listGenerated && (
-                  <Card className="shadow-sm">
+                  <Card className="shadow-xs">
                     <CardContent className="p-6 md:p-8">
                       <div className="flex flex-col lg:flex-row gap-8">
                         <div className="lg:w-2/3">
@@ -262,7 +262,7 @@ export default function GroceryList() {
                           
                           <div className="space-y-4">
                             {suggestions.map((suggestion, idx) => (
-                              <Card key={idx} className="shadow-sm">
+                              <Card key={idx} className="shadow-xs">
                                 <CardContent className="p-4">
                                   {suggestion.type === 'budget' && (
                                     <>
@@ -272,7 +272,7 @@ export default function GroceryList() {
                                           <p className="text-gray-500 text-sm line-through">{suggestion.original}</p>
                                           <p className="text-primary text-sm font-medium">{suggestion.alternative}</p>
                                         </div>
-                                        <Button variant="default" size="sm" className="text-xs bg-primary text-white px-2 py-1 rounded hover:bg-primary/90 transition">
+                                        <Button variant="default" size="sm" className="text-xs bg-primary text-white px-2 py-1 rounded-sm hover:bg-primary/90 transition">
                                           Swap
                                         </Button>
                                       </div>
@@ -287,7 +287,7 @@ export default function GroceryList() {
                                           <p className="text-gray-500 text-sm">You already have {suggestion.item}</p>
                                           <p className="text-secondary text-xs">Last purchased {suggestion.lastPurchased}</p>
                                         </div>
-                                        <Button variant="default" size="sm" className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 transition">
+                                        <Button variant="default" size="sm" className="text-xs bg-secondary text-white px-2 py-1 rounded-sm hover:bg-secondary/90 transition">
                                           Remove
                                         </Button>
                                       </div>
@@ -302,7 +302,7 @@ export default function GroceryList() {
                                           <p className="text-gray-500 text-sm">Add {suggestion.item} (in season)</p>
                                           <p className="text-secondary text-xs">{suggestion.note}</p>
                                         </div>
-                                        <Button variant="default" size="sm" className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 transition">
+                                        <Button variant="default" size="sm" className="text-xs bg-secondary text-white px-2 py-1 rounded-sm hover:bg-secondary/90 transition">
                                           Add
                                         </Button>
                                       </div>

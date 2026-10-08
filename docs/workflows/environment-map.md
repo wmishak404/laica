@@ -9,11 +9,12 @@ This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance
 | Environment | Primary use | Database | Auth path | Good evidence for | Not good evidence for |
 |---|---|---|---|---|---|
 | Local static/unit loop | Fast implementation confidence | Usually none; unit tests mock or isolate dependencies | Mocked Firebase/auth hooks or mocked route auth | TypeScript, lint, build, component logic, route contracts under mocks | Real browser auth, real DB schema, Replit/domain behavior |
+| Local fixture-browser comparison | Change-specific mobile style/interaction evidence | None; Vite only with fail-closed synthetic APIs | Test-only synthetic Firebase module; no real login | Actual app/component CSS, mobile bounds, styles, animations and fixture interactions | Real auth/persistence/provider/speech/Replit proof; replacement for the service-backed E2E gate |
 | Local browser with default `.env` | Quick visual/debug workbench | Remote Neon URL decrypted from local `.env`; may drift behind `main` | Real Firebase client -> backend `/api/auth/session` -> Firebase Admin | Layout, copy, interaction feel when `db:health` passes | Merge-gate E2E when DB is stale; guest quota/auth confidence when schema drifts |
 | Local diagnostics sandbox | Optional local browser/Playwright with clean schema | Disposable/non-production Neon/Postgres URL from `LAICA_LOCAL_SANDBOX_DATABASE_URL` | Same local Firebase/dotenvx auth config; child process overrides only `DATABASE_URL` | Interactive local debugging that needs real auth/session and current schema | Routine merge evidence unless provenance matches accepted non-production E2E requirements |
 | GitHub CI unit job | Required PR baseline | None for most checks; mocked or isolated test state | Mocked/unit-level | Typecheck, lint, build, full unit suite, coverage measurement | Real Firebase popup, live DB/browser, Replit secrets/deployment |
 | GitHub CI `e2e_guest_smoke` | Preferred routine merge-gate E2E | Disposable schema-only Neon branch; CI pushes schema, runs `db:health`, then deletes branch | CI Firebase test project; real anonymous auth plus guarded linked dev-auth users | Guest smoke, linked dev-auth smoke, DB schema/current-app browser contract on exact PR head | Real Google popup completion, production OAuth domain, live OpenAI/ElevenLabs quality, Replit deploy behavior |
-| Replit workspace/preview | Primary runtime/secrets/deployment environment; risk-triggered or batched validation | Replit-provisioned app database via Replit env/secrets | Real Firebase anonymous/Google on Replit domain/config | Environment seams: secrets, Firebase authorized domains, deployed runtime behavior, human visual judgement | Cheap every-PR smoke; local implementation speed |
+| Replit workspace/preview | Primary runtime/secrets/deployment environment; full regression/release validation | Replit-provisioned app database via Replit env/secrets | Real Firebase anonymous/Google on Replit domain/config | Environment seams: secrets, Firebase authorized domains, deployed runtime behavior, human visual judgement | Cheap every-PR smoke; local implementation speed |
 | Production/deployed Replit | Release confidence after publish | Production deployment database | Real production Firebase/provider config on public domain | Post-publish smoke and user-facing release verification | Branch debugging or experimental schema work |
 
 ## Cost and Bandwidth Guidance
@@ -22,7 +23,7 @@ This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance
 - Prefer **GitHub CI `e2e_guest_smoke`** for routine DB-backed browser confidence because it already creates and deletes the prepared Neon branch once per pushed review head.
 - Avoid spinning up **local diagnostics sandbox** by default. It is useful when a human needs interactive local browser review or an agent needs to debug a browser/auth issue before pushing, but it duplicates the remote DB/schema work CI already does.
 - Do not mutate the default decrypted `.env` database to save time. If it is stale, classify that as local environment drift and use CI or a disposable sandbox instead.
-- Replit and production checks should stay targeted. Use them when the risk lane needs real domain/secrets/provider/deployment proof, not as a reflex after every small UI copy change.
+- Per Wilson's 2026-10-08 rule update, defer Replit validation to the full regression/release stage unless Wilson explicitly requests it earlier. Keep those checks targeted to real domain/secrets/provider/deployment gaps. The full automated exact-head CI gate remains an individual-PR requirement.
 
 ## Environment Details
 
@@ -70,7 +71,7 @@ This is not a replacement for [testing-and-acceptance.md](testing-and-acceptance
 
 - **Database:** Replit-provisioned app database through Replit env/secrets.
 - **Auth path:** real Firebase on Replit domain/config.
-- **Use when:** risk lane needs real runtime proof, environment seams, secrets, provider availability, or human visual judgement.
+- **Use when:** the full regression/release stage needs real runtime proof, environment seams, secrets, provider availability, or human visual judgement; earlier only at Wilson's explicit request.
 - **Caution:** Replit Agent can spend credits; prefer direct shell/UI/GitHub automation before asking for Agent help.
 
 ### Production/deployed Replit

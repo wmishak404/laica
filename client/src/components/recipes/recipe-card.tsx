@@ -11,7 +11,7 @@ interface RecipeCardProps {
 
 export default function RecipeCard({ recipe, className = '' }: RecipeCardProps) {
   return (
-    <Card className={`overflow-hidden shadow-sm hover:shadow-md transition ${className}`}>
+    <Card className={`overflow-hidden shadow-xs hover:shadow-md transition ${className}`}>
       <img 
         src={recipe.imageUrl || `https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500`} 
         alt={recipe.name} 

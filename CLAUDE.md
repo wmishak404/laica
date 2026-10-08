@@ -27,7 +27,7 @@ See [docs/adr/0001-replit-primary-local-agents.md](docs/adr/0001-replit-primary-
 4. **One agent per branch** — never share a branch with Codex or a human session.
 5. **Local checks OK** — `npm run check`, `npm run build` work on macOS.
 6. **Local dev OK** — full app runs locally via dotenvx (see Secrets below).
-7. **Human Replit validation is targeted** — routine low-risk PRs can rely on automation when the PR records evidence, risk, and deferred manual Replit scope; higher-risk or cross-functional changes still need targeted human Replit validation before merge. Future automated Replit-environment checks may become PR gates once their evidence lane is accepted.
+7. **Replit validation waits for full/release regression** — Wilson's 2026-10-08 rule defers Replit shell/browser checks from individual PR preparation and merge readiness; only his explicit request moves them earlier. Required exact-head CI/E2E remains independent and does not itself trigger Replit. Record exact deferred checks and keep Replit-only claims unvalidated under [`testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md).
 8. **Chrome Replit validation is mobile-first** — when validating the app UI on a Replit URL through Chrome, use Chrome's mobile viewport / device toolbar by default, record the viewport or device preset, and check pinned navigation bars, back buttons, sticky CTAs, scroll fit, and visual element layout in mobile view. Add desktop viewport checks only when the changed surface is desktop-specific or responsive risk calls for both.
 9. **Replit Agent spends credits** — when accessing Replit through Chrome, use direct shell commands, the workspace UI, local tooling, and GitHub automation first. Ask Wilson for explicit approval before starting or continuing a Replit Agent task unless a current instruction already authorizes it. Record approved Replit Agent use in the PR or handoff evidence with the reason direct validation was insufficient.
 
@@ -55,6 +55,8 @@ When automated tests, CI, Playwright, `db:health`, or future eval runs are used 
 ## Bug investigation evidence
 
 Before fixing a reported bug, follow the bug investigation evidence protocol in [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md). Collect the relevant browser, Replit, server, DB/cache, and env-presence evidence; separate observed facts from inference; and ask Wilson for the exact missing logs, screenshots, or Network Response bodies when the initial report is incomplete. Do not prescribe a fix from screenshots alone when route responses, server logs, environment presence, cache rows, or current branch/SHA are needed.
+
+New Replit shell/browser evidence collection follows the full/release regression timing rule above; use already supplied evidence in the meantime and mark missing Replit-only facts unvalidated unless Wilson explicitly requests earlier collection.
 
 ## Project structure
 
@@ -200,4 +202,4 @@ This prevents orphaned work and ensures clean git history.
 - AI prompts are versioned in the database via `prompt_versions` table.
 - Run Claude from the repo root or from a dedicated feature checkout for the task you are handling.
 - Keep personal overrides in `.claude/settings.local.json` and any user-only memory outside tracked project files.
-- Treat Replit as the final verification environment before production release for database-backed, auth-backed, and deployment-bound changes. Do not make human Replit validation a default PR gate when accepted automation and risk notes are sufficient.
+- Treat Replit as the final environment verification lane at full/release regression for database-backed, auth-backed, and deployment-bound changes. Defer its shell/browser checks during individual PR preparation and merge readiness unless Wilson explicitly requests them earlier; required exact-head automation and existing approval rules remain in force.

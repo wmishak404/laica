@@ -15,7 +15,7 @@ See the full shared workflow in [docs/adr/0001-replit-primary-local-agents.md](d
 - Only one agent/session should actively own a branch or checked-out worktree at a time.
 - Prefer Codex app worktrees for parallel Codex tasks. Codex-managed worktrees live under `$CODEX_HOME/worktrees`; manually managed worktrees for this repo live under `/Users/wilsonishak-macbookpro/src/laica-worktrees`.
 - Shared Codex local-environment files belong in the repo-root `.codex` folder.
-- Local macOS work is for editing, reviews, refactors, and compile-time checks. Full local dev is now possible via dotenvx (see Secrets below). Human manual Replit validation is reserved for production deployment readiness and PRs whose risk lane requires it.
+- Local macOS work is for editing, reviews, refactors, and compile-time checks. Full local dev is now possible via dotenvx (see Secrets below). Replit shell/browser validation is deferred to the full regression or release regression stage by default; only Wilson's explicit request moves it earlier.
 
 ## Local checks
 
@@ -30,15 +30,19 @@ Run these locally when the task does not depend on Replit-only services:
 
 When automated tests, CI, Playwright, `db:health`, or future eval runs are used as merge-readiness evidence, the PR or handoff must include the evidence report required by [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md): claimed behavior, command/check provenance, source provenance, observed result, reasoning, and negative scope. Do not conclude a code PR is correct from "tests passed" or "CI green" alone.
 
-Every pushed implementation build/head intended for review or merge must run or trigger the full automated E2E gate for that exact head. Human manual Replit smoke is complementary deployment/release validation, not a substitute for a missing, skipped, or failed automated E2E gate. Future automated Replit-environment checks may become PR gates when their evidence lane is documented and accepted.
+Every pushed implementation build/head intended for review or merge must run or trigger the full automated E2E gate for that exact head. Passing or running the full automated CI/E2E gate does not itself trigger Replit validation. Replit smoke is complementary full/release regression evidence and cannot replace a missing, skipped, or failed automated E2E gate. An earlier Replit-environment PR gate requires Wilson's explicit request as well as a documented and accepted evidence lane.
 
 ## Bug investigation evidence
 
 Before fixing a reported bug, follow the bug investigation evidence protocol in [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md). Collect the relevant browser, Replit, server, DB/cache, and env-presence evidence; separate observed facts from inference; and ask Wilson for the exact missing logs, screenshots, or Network Response bodies when the initial report is incomplete. Do not prescribe a fix from screenshots alone when route responses, server logs, environment presence, cache rows, or current branch/SHA are needed.
 
-## Human Replit validation policy
+New Replit shell/browser evidence collection follows the full/release regression timing rule below; use already supplied evidence in the meantime and mark missing Replit-only facts unvalidated unless Wilson explicitly requests earlier collection.
 
-Human manual Replit validation is no longer the default PR merge gate for every deployment-bound change. Use [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md) to classify the validation lane.
+## Replit validation timing policy
+
+**Wilson's rule update, 2026-10-08:** defer Replit shell/browser validation to the full regression or release regression stage. Do not run it for individual PR preparation or merge readiness unless Wilson explicitly requests earlier Replit validation. Risk, schema/auth/provider changes, and passing the full automated suite do not independently move Replit earlier. Use [`docs/workflows/testing-and-acceptance.md`](docs/workflows/testing-and-acceptance.md) to classify the evidence and deferred checks.
+
+Keep Replit-only behavior explicitly unvalidated until that stage, with exact deferred checks in the PR/handoff and the relevant production-validation registry entry. This timing rule leaves required exact-head CI/E2E, code/dependency merge approval, production publish approval, pilot activation approval, and the Replit Agent credit guard unchanged.
 
 When Replit validation uses Chrome for app UI, default to Chrome's mobile viewport / device toolbar because LAICA's primary users are mobile. Record the viewport or device preset in the PR/handoff evidence, and explicitly check pinned navigation bars, back buttons, sticky CTAs, scroll fit, and visual element layout in mobile view. Add desktop viewport checks only when the changed surface is desktop-specific or responsive risk calls for both.
 
@@ -46,13 +50,11 @@ When Replit validation uses Chrome for app UI, default to Chrome's mobile viewpo
 
 When accessing Replit through Chrome, do not use Replit Agent by default because it spends Replit credits. Prefer direct Replit shell commands, the workspace UI, local tooling, and GitHub automation first. If Replit Agent looks necessary because direct shell/UI paths are blocked or substantially unsafe, stop and ask Wilson for explicit approval before starting or continuing a Replit Agent task. Document any approved Replit Agent use in the PR or handoff evidence, including why direct validation was insufficient.
 
-For low-risk, narrowly scoped changes with strong automated evidence, PRs may defer human Replit validation to a batched pre-production/release pass. The PR or handoff must annotate the risk, automated evidence, negative scope, and the exact deferred manual checks so future debugging can trace a regression back to the enhancement without bloating durable docs.
-
-Require human Replit validation before PR merge only when the change is higher risk or cross-functional, changes schema/secrets/deployment/runtime startup, changes auth/session/provider behavior in a way CI or automated Replit-environment checks do not exercise, has weak or skipped automated evidence, or Wilson explicitly asks for PR-level manual validation.
+For every runtime change with Replit-only evidence gaps, the PR or handoff must annotate the risk, exact-head automated evidence, negative scope, and exact deferred full/release regression checks. Weak or skipped automated evidence still blocks its required gate; a Replit smoke cannot turn that into a pass. If an uncovered seam prevents a claim from being supported, narrow the claim or bring the concrete decision to Wilson without starting earlier Replit validation.
 
 **Production regression registration rule.** Any PR or post-merge closeout that changes runtime behavior after the last production-smoked build must leave a changed-since-last-production breadcrumb before the work is treated as done. Runtime behavior includes user-visible UI/layout/copy, shared UI primitives, client workflow state, server routes, auth/session, provider calls, DB/persistence, deployment/startup, schema, rate limits, and validation lane changes. Add or update the smallest relevant entry in [`docs/production-validation-registry.md`](docs/production-validation-registry.md) with the focused production-push check, exact PR/merge/head evidence, negative scope, and future-bug breadcrumb, or explicitly state in the PR/handoff why no registry entry is needed because the change is docs-only/non-runtime or already covered by an existing active registry item. Do not expand this into a full regression by default; production push validation runs baseline core smoke plus only the surfaces changed since the last production push, risk-triggered canaries, and Wilson-requested full-regression scope.
 
-Before production publish, sync the merged validation batch into Replit and verify the selected focus areas manually or through an accepted automated Replit-environment lane:
+At the full/release regression stage, before production publish, sync the merged validation batch into Replit and verify the selected focus areas manually or through an accepted automated Replit-environment lane:
 
 - Use `docs/workflows/replit-validation-focus.md` to choose *targeted* Replit validation steps based on what changed locally.
 - Firebase sign-in
@@ -70,15 +72,15 @@ When work spans phased or dependent PRs, two rules backstop stale Replit validat
 - `git fetch origin`
 - Rebase the branch onto fresh `origin/main`
 - `git push --force-with-lease`
-- Have Replit fetch the rebased branch before any preview or smoke test
+- At the scheduled full/release regression stage, have Replit fetch the rebased branch before any preview or smoke test; do not sync or validate an individual PR early unless Wilson explicitly requests it
 
 The branch owner performs this rebase, triggered by the lower-stack merge handoff. Pair `--force-with-lease` with the one-agent-per-branch rule so rewritten branch history stays safe.
 
-**2. Re-validate if new commits land after validation.** PR descriptions and handoffs for work that claims Replit validation must include `Last Replit-validated at: <commit-sha>` or clearly say `Human Replit validation: deferred to release/batch validation`. If new commits arrive after a claimed Replit-validated SHA, that validation is stale by definition for the affected batch. There are no exceptions for "small" cosmetic commits because that judgment call is where regressions slip in.
+**2. Re-validate if new commits land after validation.** PR descriptions and handoffs for work that claims Replit validation must include `Last Replit-validated at: <commit-sha>` or clearly say `Replit validation: deferred to full/release regression; Replit-only behavior unvalidated`. If new commits arrive after a claimed Replit-validated SHA, that validation is stale by definition for the affected batch. Refresh it at the scheduled full/release regression stage, or earlier only at Wilson's explicit request. There are no exceptions for "small" cosmetic commits because that judgment call is where regressions slip in.
 
 **Audit hygiene.** When auditing PR scope, compare against `origin/main...HEAD`, never a stale local `main` or old merge base.
 
-**Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include either the last Replit-validated commit SHA or the deferred release/batch validation status.
+**Handoff disclosure.** Handoffs and PR descriptions for stacked branches must explicitly state whether the branch has been rebased onto current `origin/main` after lower-stack merges, include the base SHA, and include either the last Replit-validated commit SHA or the deferred full/release regression status.
 
 ## Agent merge authority
 

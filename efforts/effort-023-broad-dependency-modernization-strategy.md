@@ -50,7 +50,7 @@ Because this repository is public, do not copy exact security-advisory details, 
 ## Open questions
 
 - Which domain should be modernized first after current INIT-003 production gates settle?
-- Do provider SDK upgrades require Replit validation with real OpenAI and ElevenLabs routes before merge?
+- Provider SDK validation timing is governed by Wilson's 2026-10-08 harness update: defer real Replit/provider checks to full/release regression unless explicitly requested earlier; required exact-head automated gates and upgrade/merge approval remain unchanged.
 
 ## Agent checklist
 
@@ -216,3 +216,9 @@ Required exact-head dependency audit, secret scan, CodeQL, unit/typecheck/build/
 The fresh audit gate on INIT-005 documentation closeout #371 requires separate remediation before the closeout and Phase 2 can proceed. Branch `codex/init-005-audit-remediation` starts at merged Phase 1 main `96ec567a` and updates six lockfile resolutions within existing ranges. It reuses #370's narrow correction, leaves the unapproved major scope in #361 untouched, and adds actual-SDK credential/key-signing compatibility coverage. Direct declarations, overrides and the high/critical gate are unchanged.
 
 Full and production audit results improve to five high and zero critical package entries, but a foundation-level dependency path still prevents merge. A major stylesheet-foundation migration and browser-support acceptance require Wilson's decision; waiting for an upstream compatible fix is the alternative. This trigger does not authorize broad modernization or a security exception. Scope, validation, Phase 2 overlap preparation and exact resume steps are in the [blocked handoff](../docs/handoffs/2026-10-07-codex-init-005-compatible-audit-remediation-blocked.md). EFF-023 stays Deferred.
+
+## 2026-10-08 — Approved preparation of a separate stylesheet migration
+
+Wilson selected a separate Tailwind 4 migration to resolve the remaining audit prerequisite, accepting Safari 16.4+, Chrome 111+, and Firefox 128+ as the minimum supported browsers. `codex/tailwind-4-audit-remediation` is stacked on compatible candidate #372; its package changes are limited to the stylesheet engine, Vite integration, compatible class merging and animation replacement. It preserves existing brand tokens, utility colors, layout and motion rather than introducing a design refresh.
+
+This is preparation authority only. The unchanged full high/critical audit gate, exact-head full regression, mobile Chromium/WebKit comparison remain required. Wilson's subsequent 2026-10-08 harness update defers Replit validation to the full regression/release stage; record its exact focused scope without blocking individual PR preparation on it. Explicit approval is needed before dependency/code merges, publication or pilot activation. The separate #371 documentation closeout and INIT-005 Phase 2 follow only after approved remediation lands. This narrow trigger does not reactivate broad dependency modernization; EFF-023 remains Deferred.

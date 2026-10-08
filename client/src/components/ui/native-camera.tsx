@@ -251,7 +251,7 @@ export function NativeCamera({
   };
 
   return (
-    <div className={isSetup ? `setup-camera-card ${setupToneClass} space-y-3 p-3` : 'space-y-4'}>
+    <div className={isSetup ? `setup-camera-card ${setupToneClass} [&>:not([hidden])~:not([hidden])]:mt-3 [&>:not([hidden])~:not([hidden])]:mb-0 p-3` : '[&>:not([hidden])~:not([hidden])]:mt-4 [&>:not([hidden])~:not([hidden])]:mb-0'}>
       <input
         ref={fileInputRef}
         type="file"
@@ -280,7 +280,7 @@ export function NativeCamera({
         </div>
       )}
 
-      <div className={isSetup ? 'setup-viewfinder text-sidebar-foreground' : 'overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-sm'}>
+      <div className={isSetup ? 'setup-viewfinder text-sidebar-foreground' : 'overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-xs'}>
         <div className="relative aspect-[4/5] w-full">
           <video
             ref={videoRef}
@@ -350,7 +350,7 @@ export function NativeCamera({
 
           {isSetup ? (
             <>
-              {cameraState === 'ready' && <span className="setup-focus-ring pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2" />}
+              {cameraState === 'ready' && <span className="setup-focus-ring pointer-events-none absolute left-1/2 top-1/2 h-28 w-28 [transform:translate(-50%,-50%)]" />}
             </>
           ) : (
             <div className="pointer-events-none absolute inset-3 rounded-lg border-2 border-white/70" />

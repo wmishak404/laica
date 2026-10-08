@@ -72,13 +72,13 @@ If the task is stacked on another branch or follows a recently merged lower phas
 
 - Base refreshed: yes/no
 - Current base: origin/main at <sha>
-- Last Replit-validated at: <sha> / not yet validated
+- Last Replit-validated at: <sha> / deferred to full/release regression; Replit-only behavior unvalidated
 - Notes: rebased after PR #<number> merged, or explain why not
 ```
 
-Before Replit validation, stacked branches should be rebased onto current `origin/main` and pushed with `--force-with-lease`. Replit should fetch that updated branch so preview and smoke testing reflect the actual post-merge state.
+Before Replit validation at the full/release regression stage, stacked branches should be rebased onto current `origin/main` and pushed with `--force-with-lease`. Replit should fetch that updated branch so preview and smoke testing reflect the actual post-merge state. Only Wilson's explicit request moves Replit shell/browser checks earlier; see [`testing-and-acceptance.md`](../workflows/testing-and-acceptance.md).
 
-If any commit lands after the `Last Replit-validated at` SHA, validation is stale and must be re-run before merge. Use `origin/main...HEAD` when listing PR scope.
+If any commit lands after the `Last Replit-validated at` SHA, that evidence is stale for the affected surface. Re-run the relevant Replit checks at full/release regression, or earlier only at Wilson's explicit request. Required automated CI/E2E still needs the exact current head and does not itself trigger Replit. Use `origin/main...HEAD` when listing PR scope.
 
 ## PR descriptions
 

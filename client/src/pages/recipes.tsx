@@ -148,7 +148,7 @@ export default function Recipes() {
   return (
     <>
       <main>
-        <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-8 md:py-12">
+        <section className="bg-linear-to-r/srgb from-primary/10 to-secondary/10 py-8 md:py-12">
           <div className="container mx-auto px-4">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Discover Recipes</h1>
             <p className="text-lg mb-6">Find the perfect recipe for your next meal or get personalized suggestions</p>
@@ -237,7 +237,7 @@ export default function Recipes() {
                 {recipeSuggestions.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {recipeSuggestions.map((suggestion, idx) => (
-                      <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                      <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-xs hover:shadow-md transition">
                         <div className="p-5">
                           <div className="flex justify-between items-start mb-3">
                             <h3 className="recipe-title text-lg font-bold">{suggestion.name}</h3>

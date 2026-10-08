@@ -9,6 +9,8 @@ Follow [operating-principles.md](operating-principles.md): evidence first, no un
 **Scope:** LAICA repo runtime + developer environments  
 **Primary goal:** Same behavior whether developing on Replit or locally (Codex/Claude on macOS), with drift actively prevented and detected.
 
+**Validation timing update — Wilson, 2026-10-08:** this draft's proposed Replit gates do not override the accepted [testing-and-acceptance workflow](testing-and-acceptance.md). Replit shell/browser validation is deferred to full/release regression unless Wilson explicitly requests it earlier. Exact-head automated CI/E2E remains required and does not itself trigger Replit; keep Replit-only behavior unvalidated until its scheduled check runs.
+
 This spec is intentionally exhaustive. It defines what “parity” means for LAICA, enumerates every known drift vector, and proposes explicit decisions, options, checks, and revisit criteria so the project can converge on a single reproducible setup.
 
 ---
