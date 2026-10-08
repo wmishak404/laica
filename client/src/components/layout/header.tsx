@@ -112,7 +112,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm border-b border-gray-100 dark:border-gray-800">
+    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-xs border-b border-gray-100 dark:border-gray-800">
       <div className="w-full px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <UtensilsCrossed className="h-7 w-7 text-primary" />

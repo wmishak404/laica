@@ -110,9 +110,9 @@ export default function CookingSteps({ recipeName, onStepChange }: CookingStepsP
         {isLoading ? (
           <div className="border-t border-gray-200 pt-4">
             <div className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-200 rounded-sm mb-4 w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded-sm mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded-sm w-5/6"></div>
             </div>
           </div>
         ) : (
@@ -142,12 +142,12 @@ export default function CookingSteps({ recipeName, onStepChange }: CookingStepsP
                 size="sm" 
                 onClick={handlePrevStep}
                 disabled={currentStep <= 1}
-                className="px-4 py-2 border border-gray-200 rounded text-sm hover:bg-gray-50 transition"
+                className="px-4 py-2 border border-gray-200 rounded-sm text-sm hover:bg-gray-50 transition"
               >
                 <StepBack className="h-4 w-4 mr-1" /> Previous
               </Button>
               <Button 
-                className="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition flex-1"
+                className="px-4 py-2 bg-primary text-white rounded-sm text-sm hover:bg-primary/90 transition flex-1"
                 size="sm"
                 onClick={handleNextStep}
                 disabled={currentStep >= steps.length}

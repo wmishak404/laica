@@ -25,7 +25,7 @@ export function FirebaseAuthSetup() {
         <div className="space-y-4">
           <div>
             <h4 className="font-semibold mb-2">Exact Domain to Add:</h4>
-            <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
+            <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-sm text-sm">
               {currentDomain}
             </code>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -50,7 +50,7 @@ export function FirebaseAuthSetup() {
               <li>Select your project</li>
               <li>Go to <strong>Authentication</strong> → <strong>Settings</strong> → <strong>Authorized domains</strong></li>
               <li>Click <strong>"Add domain"</strong></li>
-              <li>Add: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">{currentDomain}</code></li>
+              <li>Add: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded-sm">{currentDomain}</code></li>
               <li>Click <strong>"Add"</strong> to save</li>
               <li>Refresh this page and try signing in again</li>
             </ol>

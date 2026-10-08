@@ -21,6 +21,12 @@ Favicon, PWA, and app-icon assets use the spatula mark from the `i` in the canon
 5. **Playful specificity, not noise.** Personality comes from precise wording, object shapes, small stickers/labels, and occasional food-native emoji. Avoid decorative clutter, constant animation, vague hype.
 6. **Calm confidence when cooking.** Cooking mode is a different register from Planning — clear, calm, cue-driven, readable while hands and attention are busy.
 
+## Browser compatibility
+
+Wilson approved the Tailwind 4 audit-remediation migration on 2026-10-08 with a minimum of Safari 16.4, Chrome 111, and Firefox 128. Preserve the accepted design during the migration; validate mobile Chromium and WebKit, shared controls and motion, and the exact-head automated regression gate. Per Wilson's 2026-10-08 validation-rule update, Replit validation is deferred to the full regression/release stage. This decision authorizes preparation, not merge, publication, or pilot activation.
+
+Keep authored app selectors in the utilities layer before generated utilities, retaining their existing specificity and utility-wins-ties order. Preserve existing palette values, system font stacks, exact rem line heights, radius/shadow scales and touch hover treatment. Compare rendered controls and animation frames against the accepted source; matching class names alone does not catch spacing-selector or independent-transform changes. Tailwind's [upgrade guide](https://tailwindcss.com/docs/upgrade-guide) documents these changed defaults.
+
 ## Tokens
 
 Brand colors live as CSS variables in `client/src/index.css` and are exposed to Tailwind via `bg-primary`, `text-secondary`, `bg-accent`, etc.

@@ -23,7 +23,7 @@ For the detailed “Replit vs local macOS” parity spec (drift vectors, decisio
 - Do not work directly on `main`.
 - Use `codex/<task-name>` for Codex branches.
 - Use `claude/<task-name>` for Claude branches.
-- Merge to GitHub first, then sync the merged result back into Replit.
+- Merge to GitHub first, then sync the selected merged batch into Replit at full/release regression. Do not sync or validate each individual PR early unless Wilson explicitly requests it.
 
 ## Local commands
 
@@ -62,7 +62,9 @@ Configure it with:
 
 ## Replit validation gate
 
-Before deployment, validate the merged code inside Replit:
+**Wilson's rule update, 2026-10-08:** defer Replit shell/browser validation to full regression or release regression unless Wilson explicitly requests it earlier. The required full automated exact-head CI/E2E gate remains independent and does not itself trigger Replit. Keep Replit-only behavior unvalidated and record its exact deferred checks in the PR/handoff and production registry. Code/dependency merges, production publishing, pilot activation and Replit Agent use retain their explicit approval requirements. See [testing-and-acceptance.md](testing-and-acceptance.md).
+
+At full/release regression, before deployment, validate the selected merged code inside Replit:
 
 - app boot
 - Firebase sign-in

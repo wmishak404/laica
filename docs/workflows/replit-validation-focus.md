@@ -6,9 +6,9 @@ Follow [operating-principles.md](operating-principles.md): evidence first, no un
 
 This doc exists to make Replit validation *targeted*.
 
-After a feature is validated locally or in CI, Replit validation should focus on the **environmental differences** that can still cause failures (ports/origins, deployment secrets, dev-vs-prod database separation, Firebase OAuth domains, etc.), not re-test everything every time.
+At the full regression or release regression stage, Replit validation should focus on the **environmental differences** that can still cause failures (ports/origins, deployment secrets, dev-vs-prod database separation, Firebase OAuth domains, etc.). Earlier local/CI evidence helps select that scope.
 
-Human manual Replit validation is not the default PR gate. Use this guide when a PR's risk lane requires manual Replit validation before merge, when a low-risk batch is ready for pre-production/release validation, or when an accepted automated Replit-environment lane needs focus areas and expected evidence.
+**Wilson's rule update, 2026-10-08:** defer Replit shell/browser validation to full regression or release regression. Individual PR preparation, merge readiness, higher risk, or a full automated CI/E2E run does not trigger it. Only Wilson's explicit request moves Replit validation earlier. Use this guide to record exact deferred checks and run them when that stage begins; keep Replit-only behavior explicitly unvalidated until then. Required exact-head automated CI/E2E and existing code/dependency merge, production publish, pilot activation, and Replit Agent approvals remain unchanged. An accepted automated Replit-environment lane follows the same timing rule.
 
 ## Mobile-First Chrome Rule
 
@@ -41,7 +41,7 @@ Reference: Replit ports model and autoscale constraints. https://docs.replit.com
 - OAuth / Firebase “authorized domains” checks are based on the browser origin. A flow that works on `http://localhost:3000` can fail on `https://<app>.replit.app` with `auth/unauthorized-domain` if the domain isn’t whitelisted.
 - Hard-coded absolute URLs, assumptions about `localhost`, or mixed-content assumptions can break only on Replit.
 
-**When to focus Replit validation here:**
+**When to include this in the deferred regression focus:**
 - Any change touching auth redirects, URL building, routing, base URL detection, cookies/session, CORS, or server listen/bind behavior.
 
 ### 2) Workspace vs Published Deployment environment separation
@@ -89,11 +89,11 @@ Replit runs on Linux; local dev is usually macOS (often ARM64). Native modules a
 
 ## Production Publish Validation Routine
 
-Use this routine before pushing a merged `main` build to production. It is intentionally split between checks that should be trusted from automation and checks that still need Replit or the deployed production runtime because they depend on secrets, provider network access, deployment domains, or human judgment.
+Use this routine at the full/release regression stage before pushing a merged `main` build to production, or earlier only at Wilson's explicit request. It separates checks that should be trusted from automation from checks that still need Replit or the deployed production runtime because they depend on secrets, provider network access, deployment domains, or human judgment. A green exact-head automated gate by itself does not start this routine.
 
 Use `docs/production-validation-registry.md` as the current ledger for the last recorded production smoke, known build-marker gaps, and the next changed-since-last-prod focused smoke list. Update that registry after each production publish or post-publish smoke instead of scattering release state across unrelated handoffs.
 
-Runtime PRs should feed this registry before release day. If a merged branch changes user-visible behavior, shared UI primitives, workflow state, provider/auth/DB/deployment behavior, schema, or validation lanes after the last production-smoked build, its PR or merge closeout must either add the smallest changed-since-last-prod focused smoke case to the registry or explicitly state why an existing active registry item already covers it. This is a production-readiness breadcrumb, not a request to retest the whole app.
+Runtime PRs should feed this registry before release day. If a merged branch changes user-visible behavior, shared UI primitives, workflow state, provider/auth/DB/deployment behavior, schema, or validation lanes after the last production-smoked build, its PR or merge closeout must either add the smallest changed-since-last-prod focused smoke case to the registry or explicitly state why an existing active registry item already covers it. Registering a deferred case does not trigger an individual-PR Replit pass. Keep its Replit-only claim unvalidated until the scheduled regression check runs.
 
 Do not use Replit Agent for this routine unless Wilson explicitly approves it. Prefer direct Replit shell, the workspace UI, Chrome, GitHub checks, and app/API evidence. Never print secret values; use masked presence checks that print only `set` or `MISSING`.
 
@@ -130,7 +130,7 @@ Focused smoke adds the release-specific cases that are most likely to fail:
 3. **Recent production failures or Wilson concerns.** Add the exact failed surface even if the current code change is adjacent rather than direct. The June 2026 production vision failure means production publish validation should include a live vision pantry scan until the secret-propagation lesson is no longer active risk.
 4. **Enhancement test-impact review output.** If a PR records a deferred manual/release check, include that case in the next release batch unless a later PR replaced it with accepted automation.
 
-If Wilson asks for a **full regression**, do not imply the baseline smoke is full coverage. A full regression should deliberately enumerate supported user-visible product areas and then run or assign them, including at minimum: setup/onboarding, guest path, Google sign-in/linking, Settings inventory/profile edits, pantry/kitchen scan and manual entry, Chef It Up, Slop Bowl, Prep Tray image generation, Live Cooking, speech ask/repeat/mute behavior, History, feedback, auth/session reload/restore, mobile pinned-nav/back-button/visual layout checks, and any explicitly relevant desktop viewport checks. Remove hidden, retired, or unsupported flows from this list rather than preserving checklist bloat.
+If Wilson asks for a **full regression**, do not imply the baseline smoke is full coverage. A full regression should deliberately enumerate supported user-visible product areas and then run or assign them, including at minimum: setup/onboarding, guest path, Google sign-in/linking, Settings inventory/profile edits, pantry/kitchen scan and manual entry, Chef It Up, Slop Bowl, Prep Tray image generation, Live Cooking, speech ask/repeat/mute behavior, History, feedback, auth/session reload/restore, mobile pinned-nav/back-button/visual layout checks, and any explicitly relevant desktop viewport checks. Remove hidden, retired, or unsupported flows from this list rather than preserving checklist bloat. Running all automated tests alone is the required automated lane, not an instruction to begin Replit validation.
 
 ### 3) Automated Evidence To Trust First
 
@@ -150,7 +150,7 @@ If an automated lane is skipped, pending, stale, or unavailable, report it as `B
 
 ### 4) Replit Workspace Pre-Publish Validation
 
-Run this after automation is green or after recording the exact automation gap. The goal is to prove Replit-specific runtime seams before publishing.
+Run this at the full/release regression stage after automation is green or after recording the exact automation gap, or earlier only at Wilson's explicit request. Do not start it during individual PR preparation just because automation completed. The goal is to prove the selected Replit-specific runtime seams before publishing.
 
 1. Sync Replit workspace to the validated `origin/main` SHA.
 2. Record Replit shell provenance: branch, `git status --short --branch`, `git rev-parse HEAD`, and the matching remote SHA.
@@ -194,7 +194,7 @@ Only publish after Wilson explicitly instructs production publish or confirms th
 
 ### Confidence Report
 
-Every production-push validation summary should include this table. Assign confidence per lane, not as a single vague score.
+Every production-push validation summary should include this table. Assign confidence per lane, not as a single vague score. Before the full/release regression stage, label planned Replit-only checks `Unvalidated / deferred`; do not claim them as passes or treat their planned deferral as a failed automated PR gate.
 
 | Lane | Confidence | Evidence | Limits / gaps |
 |---|---|---|---|
@@ -211,10 +211,11 @@ Use these meanings consistently:
 - `Medium`: the check passed but sample size is narrow, the provider is live but quality is not exhaustively evaluated, or the workspace is close to production but not the deployed custom domain.
 - `Low`: evidence is indirect, stale, local-only for a Replit/prod seam, or missing meaningful negative-path coverage.
 - `Blocked`: the check could not run, skipped unexpectedly, used the wrong SHA, lacked required secrets/config, or produced conflicting evidence.
+- `Unvalidated / deferred`: the Replit-only check has not run because the full/release regression stage has not begun; list its exact future scope and registry breadcrumb.
 
 ## What To Validate On Replit (Matrix)
 
-Use this as a checklist picker. If you did not touch a category, you generally do not need to re-test it in Replit. If a PR defers human Replit validation to a release/batch pass, copy only the relevant rows into the PR risk note or handoff.
+Use this as a checklist picker for the full/release regression stage. If you did not touch a category, you generally do not need to re-test it in Replit. During PR preparation, copy only the relevant rows into the deferred regression note or handoff and keep them unvalidated. Risk selects rows; only Wilson's explicit request moves their Replit execution earlier.
 
 | If your change touches… | Replit validation focus |
 |---|---|
@@ -232,10 +233,10 @@ Use this as a checklist picker. If you did not touch a category, you generally d
 
 ## Replit Validation Request Template (Copy/Paste)
 
-Use this in PR descriptions and handoffs only when manual Replit validation is required before merge or deliberately deferred to a release/batch pass. For future automated Replit-environment checks, use the same focus/coverage fields and replace human steps with the script/workflow/run provenance.
+Use this in PR descriptions and handoffs to record the default deferred full/release regression scope. If Wilson explicitly requests earlier Replit validation, record that request and its scope. For accepted automated Replit-environment checks, use the same focus/coverage fields and replace human steps with the script/workflow/run provenance; their timing follows the same rule.
 
 ```md
-## Replit validation request
+## Replit validation scope and status
 
 Validated locally:
 - [ ] npm ci
@@ -244,9 +245,12 @@ Validated locally:
 - [ ] manual localhost smoke (describe)
 
 Replit validation lane:
-- [ ] Human before PR merge
-- [ ] Human release/batch validation
-- [ ] Automated Replit-environment gate
+- [ ] Deferred to full/release regression (default; Replit-only behavior unvalidated)
+- [ ] Earlier validation explicitly requested by Wilson: <request/date and scope>
+- [ ] Accepted automated Replit-environment validation at the same scheduled stage
+
+Required exact-head CI/E2E: <head SHA, checks, results, and evidence limits>
+Production registry breadcrumb: <entry or existing active coverage>
 
 Replit validation target:
 - [ ] Workspace (replit.dev)
@@ -282,7 +286,8 @@ Steps to run on Replit (numbered, specific):
 2.
 3.
 
-Last Replit-validated at: <commit-sha> / deferred to release-batch validation
+Last Replit-validated at: <commit-sha>
+or Replit validation: deferred to full/release regression; Replit-only behavior unvalidated
 ```
 
 ## Updating This Doc

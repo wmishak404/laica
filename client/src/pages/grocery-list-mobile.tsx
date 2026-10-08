@@ -170,7 +170,7 @@ export default function GroceryListMobile() {
         ) : (
           <div className="space-y-4">
             {/* Quick Stats */}
-            <Card className="bg-gradient-to-r from-secondary/10 to-primary/10">
+            <Card className="bg-linear-to-r/srgb from-secondary/10 to-primary/10">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">

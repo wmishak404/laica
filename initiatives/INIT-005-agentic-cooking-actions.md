@@ -3,7 +3,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude / Replit
 **Created:** 2026-09-11
-**Current phase:** Phase 1 - Action Foundation and Guardrails; PR #369 awaiting Wilson review
+**Current phase:** Phase 1 merged; dependency remediation and #371 closeout precede Phase 2 private timer implementation
 **Planning foundation:** PR #363 merged as `b208ef28a686ae43045ee83712a7319d43a3e6f2`; execution authorized 2026-09-24; foundation branch started 2026-09-25
 
 ## Overview
@@ -36,6 +36,12 @@ The accepted plan was first published through PR #356 as a future Mobile Refresh
 
 Wilson selected a private production pilot using existing tap-to-talk on 2026-09-23, and authorized starting INIT-005 on 2026-09-24. PR #367 merged the reviewed plan and [Phase 1 specification](../product-decisions/features/agentic-cooking-actions/pd-phase-01-action-foundation.md) as `16b47bcc069d6ad2559a44a8a65236850762590b` on 2026-09-25 (Pacific). Phase 1 foundation is implemented on `codex/init-005-action-foundation`, based on merged closeout PR #368 (`45bd7e79`). No INIT-005 production behavior has shipped; the production registry has no executor. The first user-visible action remains Phase 2 direct timer start without a second confirmation.
 
+## Dependency prerequisite — 2026-10-08
+
+Phase 1 PR #369 is already merged as `96ec567a6f55639473d3209376fa180b2dd1f924`; the pending #371 documentation closeout owns its detailed merged status and handoffs. The compatible remediation candidate #372 (`codex/init-005-audit-remediation`) remains unmerged. Wilson selected preparation of a separate Tailwind 4 migration after that compatible slice left the audit gate blocked. The accepted browser floor is Safari 16.4+, Chrome 111+, and Firefox 128+, with mobile/WebKit visual comparison and exact-head automated regression required. Wilson subsequently directed that Replit validation wait until full regression/release validation; it is not a prerequisite for preparing or reviewing this migration. No audit exception is authorized.
+
+`codex/tailwind-4-audit-remediation` is stacked on #372 so the combined remediation is testable while the migration diff stays separate. Code/dependency merges, publication, pilot activation, and Replit Agent use still require explicit approval. After approved remediation reaches main, refresh and check #371 for the authorized mechanical closeout; then start Phase 2 from fresh main and repeat the #334/#281 ownership audit. The dated Phase 1 review checkpoints below are historical; #371 owns the detailed merged validation record and closeout handoffs.
+
 ## Source Docs
 
 - [Agentic Cooking Actions feature index](../product-decisions/features/agentic-cooking-actions/README.md)
@@ -55,7 +61,7 @@ No dedicated INIT-005 assets exist yet. Reuse current Live Cooking screenshots o
 
 | Phase | Status | Goal | Dependency |
 |---|---|---|---|
-| 1 - Action Foundation and Guardrails | Implemented; review/validation pending | Registry, transactional ledger, scoped capabilities, proposal/receipt contracts, privacy, and rollout controls; no cooking mutation | Runtime implementation and foundation evidence |
+| 1 - Action Foundation and Guardrails | Merged as `96ec567a`; mechanical closeout #371 blocked on audit remediation | Registry, transactional ledger, scoped capabilities, proposal/receipt contracts, privacy, and rollout controls; no cooking mutation | Runtime implementation and foundation evidence |
 | 2 - Timer Action Prototype | Planned | First direct `timer.start` action through `Ask a question`, without redundant confirmation | Phase 1 exit gate |
 | 3 - Session Facts and Pantry/Profile Corrections | Planned | Session-only facts and confirmed linked-user corrections | Phases 1-2; INIT-003 boundaries |
 | 4 - Localized Recipe Patching and Final History | Planned | Safe current/future guide patch and final patched History | Stable step/session shape; Phases 1-3 |
@@ -72,7 +78,7 @@ Guardrails and separate action evals are required exit evidence in every phase, 
 | [PR #356](https://github.com/wmishak404/laica/pull/356) | Merged as `d6300aa6` | Original action plan, then classified under INIT-001 Phase 4 |
 | [PR #363](https://github.com/wmishak404/laica/pull/363) | Merged as `b208ef28` | Reclassifies the plan as INIT-005 and adds the numbered phase system |
 
-[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. PR #368 merged the specification closeout as `45bd7e79`. Foundation review: [PR #369](https://github.com/wmishak404/laica/pull/369), branch `codex/init-005-action-foundation`.
+[PR #367](https://github.com/wmishak404/laica/pull/367) merged as `16b47bcc` from head `994a6c06`; specification task complete. PR #368 merged the specification closeout as `45bd7e79`. Foundation [PR #369](https://github.com/wmishak404/laica/pull/369) merged as `96ec567a6f55639473d3209376fa180b2dd1f924`. Detailed closeout [PR #371](https://github.com/wmishak404/laica/pull/371), branch `codex/init-005-phase1-merge-closeout`, remains blocked on dependency remediation. Compatible remediation [#372](https://github.com/wmishak404/laica/pull/372) is the base of the separate Tailwind 4 migration candidate.
 
 ## Efforts and Governance
 
@@ -98,7 +104,9 @@ The September 24 specification task is also docs-only; it does not inherit runti
 
 ## Current Resume Point
 
-Review [PR #369](https://github.com/wmishak404/laica/pull/369) and its final-head evidence. The specification (#367) and mechanical closeout (#368) are merged. Foundation implementation supplies strict contracts, a metadata-only transaction ledger, auth/scope gates, receipt reconciliation, disabled rollout, and separate synthetic evals. Local compile/build and 465 tests pass. Source-head CI passed 13 E2E cases; Replit schema/provider/auth-denial/retention checks passed, including a 3/3 positive and 0/5 forbidden-proposal canary. Local credentials still return `provider_auth`, while Replit works. See the foundation handoff for point-in-time proof and missing service evidence. Wilson must approve the code merge; Phase 2 timer work and pilot activation remain gated.
+Resolve the dependency prerequisite, then refresh and mechanically complete [#371](https://github.com/wmishak404/laica/pull/371). Phase 1 [#369](https://github.com/wmishak404/laica/pull/369) is already merged as `96ec567a6f55639473d3209376fa180b2dd1f924`; do not recreate it. The compatible remediation [#372](https://github.com/wmishak404/laica/pull/372) passed functional CI but still fails the high/critical audit gate. Wilson selected preparation of a separate Tailwind 4 migration with Safari 16.4+, Chrome 111+ and Firefox 128+ support; the combined candidate passes that unchanged audit gate locally. See the [migration handoff](../docs/handoffs/2026-10-08-codex-tailwind-4-audit-remediation.md) and its PR for final-head evidence and approval status. Code/dependency merges still require explicit Wilson approval.
+
+After approved remediation and #371 closeout, start the accepted Phase 2 timer plan from fresh main in an isolated branch, rechecking open #334/#281 ownership before overlapping edits. Replit shell/browser validation waits until full/release regression under Wilson's 2026-10-08 harness update; required full automated exact-head CI/E2E remains independent. Pilot activation and publishing remain separately approval-gated.
 
 The first deployment target is a private production pilot after Phase 2 and Replit validation, not a Replit-only prototype or an all-user launch. Initial eligibility is explicitly allowlisted linked accounts; actual enrollment happens privately at activation. PR #334/EFF-034 and PR #281 are shared-surface/contract coordination points before timer work, not hard prerequisites for the Phase 1 foundation.
 

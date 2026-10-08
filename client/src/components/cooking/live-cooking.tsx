@@ -2174,7 +2174,7 @@ export default function LiveCooking({
             </Alert>
           )}
 
-          <div className="live-cooking-ready-list space-y-3">
+          <div className="live-cooking-ready-list flex flex-col gap-3">
             {readyCheckItems.map((item) => (
               <div key={item.label} className="live-cooking-ready-row flex items-start gap-3 p-4">
                 <div className="mt-0.5">{item.icon}</div>
@@ -2268,7 +2268,7 @@ export default function LiveCooking({
         </header>
 
         {(isProcessing || isAnalyzing) && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--cooking-cream-deep)/0.82)] backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--cooking-cream-deep)/0.82)] backdrop-blur-xs">
             <div className="live-cooking-overlay-card rounded-lg px-8 py-6 text-center">
               <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
               <p className="text-sm font-medium">
@@ -2280,7 +2280,7 @@ export default function LiveCooking({
 
         {currentStep && (
           <Card
-            className="live-cooking-step-card sticky top-2 z-20 backdrop-blur"
+            className="live-cooking-step-card sticky top-2 z-20 backdrop-blur-sm"
             data-testid="current-step-panel"
           >
             <CardHeader className="space-y-2 p-3 sm:p-4">
@@ -2315,7 +2315,7 @@ export default function LiveCooking({
                   <button
                     type="button"
                     aria-label="Return to current step preview; more steps are to the left"
-                    className="absolute bottom-0 left-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-sm"
+                    className="absolute bottom-0 left-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-xs"
                     data-testid="step-preview-overflow-left"
                     onClick={() => scrollActiveStepPreviewIntoView()}
                   >
@@ -2326,7 +2326,7 @@ export default function LiveCooking({
                   <button
                     type="button"
                     aria-label="Return to current step preview; more steps are to the right"
-                    className="absolute bottom-0 right-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-sm"
+                    className="absolute bottom-0 right-1 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-white/95 text-slate-700 shadow-xs"
                     data-testid="step-preview-overflow-right"
                     onClick={() => scrollActiveStepPreviewIntoView()}
                   >
@@ -2531,7 +2531,7 @@ export default function LiveCooking({
             data-testid="assistance-status-issue"
             role="alert"
           >
-            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             <div className="min-w-0 space-y-1">
               <p className="text-sm font-extrabold leading-5">{assistanceIssue.title}</p>
               <p className="text-sm leading-5">{assistanceIssue.description}</p>
@@ -2539,7 +2539,7 @@ export default function LiveCooking({
           </section>
         )}
 
-        <div className="live-cooking-command-bar sticky bottom-0 z-30 -mx-4 mt-auto px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur">
+        <div className="live-cooking-command-bar sticky bottom-0 z-30 -mx-4 mt-auto px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 backdrop-blur-sm">
           <div className="grid grid-cols-[1fr_1.4fr_1fr] gap-2">
             <Button
               onClick={repeatStepInstructions}

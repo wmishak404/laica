@@ -337,7 +337,7 @@ export default function Cooking() {
   return (
     <>
       <main>
-        <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-6 md:py-8">
+        <section className="bg-linear-to-r/srgb from-primary/10 to-secondary/10 py-6 md:py-8">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center">
               <div>

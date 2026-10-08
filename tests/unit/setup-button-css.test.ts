@@ -3,7 +3,10 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 describe('setup CSS guards', () => {
-  const css = readFileSync('client/src/index.css', 'utf8');
+  const css = [
+    readFileSync('client/src/index.css', 'utf8'),
+    readFileSync('client/src/app-components.css', 'utf8'),
+  ].join('\n');
 
   it('keeps setup primary button text white in mobile tap states', () => {
     expect(css).toContain('.setup-primary-button:hover');

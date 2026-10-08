@@ -30,7 +30,7 @@ export function DomainInfo() {
         <div>
           <h4 className="font-semibold mb-2">Current Domain:</h4>
           <div className="flex items-center gap-2">
-            <code className="bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded text-sm flex-1">
+            <code className="bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-sm text-sm flex-1">
               {currentDomain}
             </code>
             <Button
@@ -64,7 +64,7 @@ export function DomainInfo() {
             <li>Click <strong>"Save"</strong></li>
             <li>Go to <strong>Authentication</strong> → <strong>Settings</strong> → <strong>Authorized domains</strong></li>
             <li>Click <strong>"Add domain"</strong></li>
-            <li>Paste: <code className="bg-white dark:bg-gray-800 px-1 rounded">{currentDomain}</code></li>
+            <li>Paste: <code className="bg-white dark:bg-gray-800 px-1 rounded-sm">{currentDomain}</code></li>
             <li>Click <strong>"Add"</strong></li>
             <li>Return here and try Google sign-in again</li>
           </ol>

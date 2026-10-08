@@ -77,7 +77,7 @@ export default function GroceryItem({ id, name, price, category, onCheck, checke
           </PopoverTrigger>
           <PopoverContent className="w-56 p-2">
             {!showAlternatives ? (
-              <div className="space-y-1">
+              <div className="[&>:not([hidden])~:not([hidden])]:mt-1 [&>:not([hidden])~:not([hidden])]:mb-0">
                 <h4 className="text-sm font-medium mb-2">Find alternatives:</h4>
                 <Button 
                   variant="ghost" 

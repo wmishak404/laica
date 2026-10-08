@@ -1236,7 +1236,7 @@ export default function MobileApp() {
           {isGuest && hasExistingProfile && (
             <button
               type="button"
-              className="mt-4 inline-flex max-w-sm items-center gap-2 rounded-full border-2 border-primary/20 bg-white/90 px-4 py-2 text-left text-xs font-extrabold text-[hsl(var(--returning-ink))] shadow-sm"
+              className="mt-4 inline-flex max-w-sm items-center gap-2 rounded-full border-2 border-primary/20 bg-white/90 px-4 py-2 text-left text-xs font-extrabold text-[hsl(var(--returning-ink))] shadow-xs"
               onClick={handleGuestSignUp}
               disabled={isPromotingGuest}
             >
@@ -1245,7 +1245,7 @@ export default function MobileApp() {
             </button>
           )}
           {!isGuest && guestPromotionConfirmation && (
-            <div className="mt-4 inline-flex max-w-sm items-center gap-2 rounded-full border-2 border-primary/20 bg-white/90 px-4 py-2 text-left text-xs font-extrabold text-[hsl(var(--returning-ink))] shadow-sm">
+            <div className="mt-4 inline-flex max-w-sm items-center gap-2 rounded-full border-2 border-primary/20 bg-white/90 px-4 py-2 text-left text-xs font-extrabold text-[hsl(var(--returning-ink))] shadow-xs">
               <CheckCircle className="h-4 w-4 shrink-0 text-primary" />
               <span>{guestPromotionConfirmation}</span>
             </div>
