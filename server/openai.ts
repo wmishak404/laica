@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { createOpenAIClient } from "./openai-client";
 import { cookingActionProposalPrompt } from "./cooking-actions/proposal-prompt";
 import { safeActionProviderError } from "./cooking-actions/provider-error";
 import { zodResponseFormat } from "openai/helpers/zod";
@@ -26,7 +26,6 @@ import { redactAiOutput, redactForAiLog, sanitizePromptInput } from "./ai-privac
 import { throwOpenAIProviderError } from "./ai-errors";
 import type { EvalFeatureType } from "./ai-feature-types";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 const MODEL_COMPLEX = "gpt-4.1";
 const MODEL_ASSISTANCE = "gpt-4.1-mini";
 const MODEL_UTILITY = "gpt-4o-mini";
@@ -261,7 +260,7 @@ export async function getSlopBowlRecipe(input: SlopBowlInput) {
       previousRecipe: sanitizedInput.previousRecipe || null,
     };
 
-    const response = await openai.chat.completions.create({
+    const response = await createOpenAIClient().chat.completions.create({
       model: MODEL_COMPLEX,
       messages: [
         {
@@ -319,7 +318,7 @@ export async function getRecipeSuggestions(
     const sanitizedIngredients = sanitizePromptInput(ingredients || []);
     const inputData = { preferences: sanitizedPreferences, ingredients: sanitizedIngredients };
 
-    const response = await openai.chat.completions.create({
+    const response = await createOpenAIClient().chat.completions.create({
       model: MODEL_COMPLEX,
       messages: [
         {
@@ -393,7 +392,7 @@ export async function getCookingSteps(
       .filter(Boolean)
       .join("\n");
 
-    const response = await openai.chat.completions.create({
+    const response = await createOpenAIClient().chat.completions.create({
       model: MODEL_COMPLEX,
       messages: [
         { role: "system", content: systemPrompt },
@@ -416,7 +415,7 @@ export async function getCookingSteps(
 
 export async function getGroceryList(recipes: string[], pantryItems?: string[]) {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await createOpenAIClient().chat.completions.create({
       model: MODEL_UTILITY,
       messages: [
         {
@@ -474,7 +473,7 @@ export async function getIngredientAlternatives(ingredient: string, reason: stri
   try {
     const sanitizedIngredient = sanitizePromptInput(ingredient);
     const sanitizedReason = sanitizePromptInput(reason);
-    const response = await openai.chat.completions.create({
+    const response = await createOpenAIClient().chat.completions.create({
       model: MODEL_UTILITY,
       messages: [
         {
@@ -509,7 +508,7 @@ export async function getCookingAssistance(step: string, question?: string, opti
         ? `Provide cooking assistance for this step: ${sanitizedStep} The user asked: ${sanitizedQuestion}`
         : `Provide cooking assistance for this step: ${sanitizedStep}`;
     const systemPrompt = options?.actionProposal ? cookingActionProposalPrompt(basePrompt) : basePrompt;
-    const response = await openai.chat.completions.create({
+    const response = await createOpenAIClient().chat.completions.create({
       model: MODEL_ASSISTANCE,
       messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userContent }],
       ...(options?.actionProposal ? {
@@ -556,7 +555,7 @@ export async function analyzeIngredientImage(base64Image: string) {
       sizeKb: Math.round(imageBuffer.length / 1024),
     });
 
-    const response = await openai.chat.completions.create({
+    const response = await createOpenAIClient().chat.completions.create({
       model: MODEL_COMPLEX,
       messages: [
         {

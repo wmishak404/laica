@@ -27,7 +27,7 @@ The durable learning is to verify the whole buffered request shape, installed-li
 
 - Fresh `origin/main`: `96ec567a6f55639473d3209376fa180b2dd1f924`.
 - Intended PR base: #373 / `codex/tailwind-4-audit-remediation`, `ea63835627bda8be40f93314a8e690e9bfc0044d`, itself stacked on #372.
-- Implementation commit: `d85ddd2e86ccb3707e1ceef00b55d3aa9ca72fbb`; final documentation/review head and exact-head run URLs live in the PR.
+- Initial implementation commit: `d85ddd2e86ccb3707e1ceef00b55d3aa9ca72fbb`; the startup correction below follows it. Final review head and exact-head run URLs live in [PR #374](https://github.com/wmishak404/laica/pull/374).
 - The new branch includes the existing remediation instead of recreating it. Review its incremental diff against #373; audit the eventual combined main scope with fresh `origin/main...HEAD`.
 - Lower PRs have not merged. After each approved lower merge, the owning upper branch must fetch/rebase onto its new intended base, push with lease, and rerun all required gates. Refresh against current main before the eventual main merge.
 - Human Replit validation: deferred to full/release regression under Wilson's accepted timing rule. No Replit Agent, deployment, secret or DB action occurred. Earlier foundation/provider validation is not claimed for the changed SDK/runtime candidate.
@@ -40,7 +40,7 @@ The durable learning is to verify the whole buffered request shape, installed-li
 
 - Clean `npm ci` passed. Full and production audit summaries each report **5 moderate, 0 high, 0 critical**. The same-date inherited #373 baseline reports 5 moderate / 6 high / 0 critical; earlier green audits are historical, not current proof. Scanner counts include propagated package entries and are not distinct exploitability findings.
 - `npm run check` passed TypeScript/UI lint; `npm run build` passed with existing mixed-import/chunk warnings.
-- `npm run test:unit` passed **60 files / 510 tests** after the final workflow tests. `phase0-security-routes.test.ts` and existing provider-boundary tests prove parser/status/provider-call contracts. The original parser was observed accepting unsupported fields; new contract cases fail before the patch and pass after it.
+- `npm run test:unit` passed **61 files / 513 tests** after the startup correction. `phase0-security-routes.test.ts` and existing provider-boundary tests prove parser/status/provider-call contracts. The original parser was observed accepting unsupported fields; new contract cases fail before the patch and pass after it.
 - `provider-schema-contracts.test.ts` explicitly uses the installed SDK: structured-output schema, audio helper bytes, actual transcription file-stream multipart construction through intercepted fetch, native error metadata, shared feedback/profile schemas. Provider traffic is synthetic and intercepted.
 - `eval-fixtures.test.ts` preserves sparse labels and rejects unknown labels; `npm run eval:fixtures` validates all 27 public fixtures.
 - Runtime boundary cases cover supported patch floors, unsupported/odd/prerelease versions and normal lifecycle hooks. The selected patched runtime passes the CLI check; the local older host runtime is rejected.
@@ -50,6 +50,14 @@ The durable learning is to verify the whole buffered request shape, installed-li
 **Required automation:** exact-head GitHub unit/build/coverage, full `e2e_guest_smoke`, dependency audit and PR secret scan are pending until push; the PR records their final run URLs and outcomes. The E2E lane must prepare a disposable schema-only Neon branch, apply/check schema, run all guest/linked/action-ledger cases and confirm deletion. Skipped/failed/stale gates are blockers. Default CodeQL setup does not run at the unprotected feature-branch stack level; fresh applicable CodeQL analyses remain required on the eventual main-targeting head after the approved stack merges. No scanner setting or threshold changes.
 
 **Evidence limits:** source inspection does not inventory all hosting infrastructure. Deterministic tests do not prove actual socket-abort cleanup, resource behavior under concurrent load, native image-decoder expansion, real provider quality, Firebase/App Check production configuration, autoscale DB-error fallback behavior or deployed runtime patch propagation. No compromise or production remediation is claimed.
+
+### First CI run and startup correction
+
+Review head `5cae1b38` passed unit/build/coverage, dependency audit and PR secret scan, but [CI run 40591534736](https://github.com/wmishak404/laica/actions/runs/40591534736) stopped before browser tests because the upgraded SDK rejected eager provider construction when the optional API key was absent. Schema preparation/health and disposable Neon cleanup succeeded. This was a real application compatibility regression, not a passing or skipped E2E result.
+
+The SDK constructor was hidden by global unit mocks. Provider construction is now lazy through one factory, with actual-SDK import/call tests for absent and empty credentials. Transcription retains its existing unavailable guard. No credential is fabricated and no optional secret is made mandatory at startup. The security workflow records this reusable lesson. A new exact-head E2E run is required after the correction; the PR is the current run-status source.
+
+Post-correction checks passed on patched Node `22.23.4`: TypeScript/UI lint, production build, the full 61-file/513-test suite and the focused installed-SDK startup cases. `openai-optional-startup.test.ts` proves imports succeed without a normal key, provider calls fail without network traffic, unrelated ambient admin credentials cannot activate them, and a normal key configured after import works through intercepted provider/evaluator calls.
 
 ## Impact on other agents
 

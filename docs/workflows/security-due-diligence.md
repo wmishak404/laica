@@ -62,6 +62,8 @@ For in-memory upload handlers, bound the complete supported multipart shape befo
 
 When a security fix requires a coordinated schema/SDK upgrade, preserve existing validation and provider contracts with the actual installed libraries. Include structured-output serialization, sparse records, shared insert schemas, upload construction, and native SDK error metadata where those seams are used. Mocked provider tests do not establish live-provider compatibility.
 
+Optional provider credentials must also remain optional during module import and server startup. Construct provider clients only when used, and test absent/empty credential imports with the actual installed SDK. A global SDK mock can hide new constructor validation; a passing mocked unit suite cannot prove the application starts without optional credentials. Preserve controlled unavailable/error behavior at the call boundary without fabricating a credential to satisfy a constructor.
+
 ## Secret Rotation After Exposure
 
 When a secret is exposed, suspected exposed, or rotated because a command, shell log, screenshot, CI log, provider console, or chat may have revealed it, the closeout must include an environment-propagation reminder. Do not stop after rotating the key in the place where the exposure was noticed.

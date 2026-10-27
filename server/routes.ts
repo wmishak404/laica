@@ -48,14 +48,15 @@ import fs from "fs/promises";
 import fsSync from "fs";
 import os from "node:os";
 import path from "node:path";
-import OpenAI from "openai";
+import type OpenAI from "openai";
+import { createOpenAIClient } from "./openai-client";
 import { AI_PROVIDER_QUOTA_EXHAUSTED, AIProviderQuotaError } from "./ai-errors";
 import { logAiError } from "./aiErrors";
 import { requestIdMiddleware } from "./requestId";
 
 function getTranscriptionClient(): OpenAI | null {
   const apiKey = process.env.OPENAI_API_KEY;
-  return apiKey ? new OpenAI({ apiKey }) : null;
+  return apiKey ? createOpenAIClient() : null;
 }
 
 function setPrivateResponseHeaders(res: Response) {

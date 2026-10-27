@@ -1,12 +1,11 @@
-import OpenAI, { toFile } from "openai";
+import { toFile } from "openai";
+import { createOpenAIClient } from "./openai-client";
 import { db } from "./db";
 import { aiInteractions } from "@shared/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { normalizeEvalFeatureType, type EvalFeatureType, type PromptFeatureType } from "./ai-feature-types";
 import { EVAL_CRITERIA } from "./eval-criteria";
 import { sanitizePromptInput, stripPromptMarkers } from "./ai-privacy";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 
 type EvalBatchCandidate = {
   featureType: string;
@@ -539,6 +538,7 @@ export async function submitEvalBatch(interactionIds?: number[]): Promise<{ batc
     })
   ).join('\n');
 
+  const openai = createOpenAIClient();
   const uploadedFile = await openai.files.create({
     file: await toFile(Buffer.from(lines, 'utf-8'), 'eval_batch.jsonl', { type: 'application/jsonl' }),
     purpose: 'batch',
@@ -562,6 +562,7 @@ export async function submitEvalBatch(interactionIds?: number[]): Promise<{ batc
 // Check the status of a previously submitted batch.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function checkBatchStatus(batchId: string) {
+  const openai = createOpenAIClient();
   const batch = await openai.batches.retrieve(batchId);
   return {
     id: batch.id,
@@ -577,6 +578,7 @@ export async function checkBatchStatus(batchId: string) {
 // Download and store results from a completed batch.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function processBatchResults(batchId: string): Promise<{ processed: number; passed: number; failed: number }> {
+  const openai = createOpenAIClient();
   const batch = await openai.batches.retrieve(batchId);
 
   if (batch.status !== 'completed') {
@@ -715,7 +717,7 @@ ${safeOutput}
     })
     .join("\n");
 
-  const response = await openai.chat.completions.create({
+  const response = await createOpenAIClient().chat.completions.create({
     model: "gpt-4o",
     messages: [
       {
