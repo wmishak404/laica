@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import express from "express";
+import fsSync from "fs";
 import { resetRateLimitBucketsForTest } from "../../server/rate-limit";
 import { requestHttp } from "./http-test-client";
 
@@ -70,13 +71,15 @@ vi.mock("../../server/db", () => ({
 }));
 
 vi.mock("openai", () => ({
-  default: vi.fn().mockImplementation(() => ({
-    audio: {
-      transcriptions: {
-        create: mocks.createTranscription,
+  default: vi.fn(function MockOpenAI() {
+    return {
+      audio: {
+        transcriptions: {
+          create: mocks.createTranscription,
+        },
       },
-    },
-  })),
+    };
+  }),
 }));
 
 async function startTestServer() {
@@ -87,6 +90,31 @@ async function startTestServer() {
   const server = await registerRoutes(app);
   return server;
 }
+
+type MultipartPart = {
+  name: string;
+  filename?: string;
+  mimetype?: string;
+  content: string;
+};
+
+function multipartBody(boundary: string, parts: MultipartPart[]) {
+  return parts.map((part) => [
+    `--${boundary}`,
+    `Content-Disposition: form-data; name="${part.name}"${part.filename ? `; filename="${part.filename}"` : ""}`,
+    ...(part.mimetype ? [`Content-Type: ${part.mimetype}`] : []),
+    "",
+    part.content,
+    "",
+  ].join("\r\n")).join("") + `--${boundary}--\r\n`;
+}
+
+const audioPart: MultipartPart = {
+  name: "audio",
+  filename: "question.wav",
+  mimetype: "audio/wav",
+  content: "mock audio bytes",
+};
 
 describe("Phase 0 protected routes", () => {
   afterEach(() => {
@@ -357,6 +385,154 @@ describe("Phase 0 protected routes", () => {
     expect(response.headers["vary"]).toContain("Authorization");
   });
 
+  describe("transcription upload contract", () => {
+    const boundary = "laica-upload-contract";
+    const headers = {
+      "Content-Type": `multipart/form-data; boundary=${boundary}`,
+      Authorization: "Bearer test-token",
+    };
+
+    beforeEach(() => {
+      vi.stubEnv("OPENAI_API_KEY", "test-key");
+      mocks.createTranscription.mockResolvedValue("A clear question.");
+      vi.spyOn(fsSync, "createReadStream").mockReturnValue({ path: "mock-audio-stream" } as any);
+    });
+
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it.each(["before", "after"])("accepts no text fields %s the audio file", async (position) => {
+      const server = await startTestServer();
+      const field: MultipartPart = { name: "unused", content: "unused text" };
+      const parts = position === "before" ? [field, audioPart] : [audioPart, field];
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers,
+        body: multipartBody(boundary, parts),
+      });
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "Invalid audio upload" });
+      expect(mocks.createTranscription).not.toHaveBeenCalled();
+      expect(fsSync.createReadStream).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      { label: "duplicate audio files", parts: [audioPart, audioPart] },
+      { label: "an unexpected file field", parts: [{ ...audioPart, name: "other" }] },
+    ])("accepts only one audio file: $label", async ({ parts }) => {
+      const server = await startTestServer();
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers,
+        body: multipartBody(boundary, parts),
+      });
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "Invalid audio upload" });
+      expect(mocks.createTranscription).not.toHaveBeenCalled();
+      expect(fsSync.createReadStream).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      { label: "just below", bytes: 10 * 1024 * 1024 - 1, status: 200 },
+      { label: "at", bytes: 10 * 1024 * 1024, status: 200 },
+      { label: "above", bytes: 10 * 1024 * 1024 + 1, status: 413 },
+    ])("preserves the upload byte boundary $label the limit", async ({ bytes, status }) => {
+      const server = await startTestServer();
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers,
+        body: multipartBody(boundary, [{ ...audioPart, content: "x".repeat(bytes) }]),
+      });
+
+      expect(response.status).toBe(status);
+      if (status === 200) {
+        expect(await response.json()).toEqual({ transcription: "A clear question.", success: true });
+        expect(mocks.createTranscription).toHaveBeenCalledOnce();
+      } else {
+        expect(await response.json()).toEqual({
+          error: "Audio file exceeds the 10 MB limit.",
+        });
+        expect(mocks.createTranscription).not.toHaveBeenCalled();
+        expect(fsSync.createReadStream).not.toHaveBeenCalled();
+      }
+    });
+
+    it.each([
+      { label: "a missing boundary", contentType: "multipart/form-data", body: "invalid upload" },
+      {
+        label: "an incomplete body",
+        contentType: headers["Content-Type"],
+        body: multipartBody(boundary, [audioPart]).replace(`--${boundary}--\r\n`, ""),
+      },
+      {
+        label: "an invalid part header",
+        contentType: headers["Content-Type"],
+        body: `--${boundary}\r\ninvalid header\r\n\r\ncontent\r\n--${boundary}--\r\n`,
+      },
+    ])("returns a controlled response for $label", async ({ contentType, body }) => {
+      const server = await startTestServer();
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers: { ...headers, "Content-Type": contentType },
+        body,
+      });
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "Invalid audio upload" });
+      expect(mocks.createTranscription).not.toHaveBeenCalled();
+      expect(fsSync.createReadStream).not.toHaveBeenCalled();
+    });
+
+    it("authenticates before parsing an upload", async () => {
+      const server = await startTestServer();
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers: { "Content-Type": "multipart/form-data" },
+        body: "invalid upload",
+      });
+
+      expect(response.status).toBe(401);
+      expect(mocks.createTranscription).not.toHaveBeenCalled();
+    });
+
+    it("handles an ordinary upload after rejected uploads on the same server", async () => {
+      const server = await startTestServer();
+      for (const parts of [
+        [{ name: "unused", content: "unused text" }],
+        [audioPart, audioPart],
+        [{ ...audioPart, mimetype: "text/plain" }],
+      ]) {
+        const rejected = await requestHttp(server, {
+          method: "POST",
+          path: "/api/speech/transcribe",
+          headers,
+          body: multipartBody(boundary, parts),
+        });
+        expect(rejected.status).toBe(400);
+      }
+      expect(mocks.createTranscription).not.toHaveBeenCalled();
+
+      const response = await requestHttp(server, {
+        method: "POST",
+        path: "/api/speech/transcribe",
+        headers,
+        body: multipartBody(boundary, [audioPart]),
+      });
+
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ transcription: "A clear question.", success: true });
+      expect(mocks.createTranscription).toHaveBeenCalledOnce();
+    });
+  });
+
   it("keeps transcription unavailable instead of blocking server startup when OPENAI_API_KEY is missing", async () => {
     const originalOpenAIKey = process.env.OPENAI_API_KEY;
     delete process.env.OPENAI_API_KEY;
@@ -481,6 +657,7 @@ describe("Phase 0 protected routes", () => {
   it("does not expose raw transcription provider errors to clients", async () => {
     const originalOpenAIKey = process.env.OPENAI_API_KEY;
     process.env.OPENAI_API_KEY = "test-key";
+    vi.spyOn(fsSync, "createReadStream").mockReturnValue({ path: "mock-audio-stream" } as any);
     mocks.createTranscription.mockRejectedValueOnce(new Error("sensitive provider detail"));
 
     try {

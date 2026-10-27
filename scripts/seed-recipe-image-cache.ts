@@ -10,7 +10,7 @@ const fixtureSchema = z.object({
   recipeName: z.string().trim().min(1),
   cuisine: z.string().trim().min(1).optional(),
   pantryIngredientsUsed: z.array(z.string().trim().min(1)).min(1),
-  accuracyResult: z.record(z.unknown()).optional(),
+  accuracyResult: z.record(z.string(), z.unknown()).optional(),
 });
 
 const fixtureListSchema = z.array(fixtureSchema);

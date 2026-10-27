@@ -7,6 +7,7 @@ import {
   loadPublicEvalFixtures,
   listEvalFeatureTypesForFixtures,
   validateEvalFixture,
+  evalFixtureSchema,
 } from "../../server/eval-fixtures";
 import { promptFeatureTypeSchema } from "../../server/ai-feature-types";
 
@@ -125,6 +126,16 @@ function stepPreviewFixture(overrides: Record<string, unknown> = {}) {
 }
 
 describe("INIT-004 eval fixture foundation", () => {
+  it("keeps fixture labels partial while rejecting unknown criteria", () => {
+    const fixture = baseFixture({ labels: { structure_contract: "pass" } });
+
+    expect(evalFixtureSchema.parse(fixture).labels).toEqual({ structure_contract: "pass" });
+    expect(evalFixtureSchema.parse(baseFixture({ labels: undefined })).labels).toEqual({});
+    expect(evalFixtureSchema.safeParse(baseFixture({ labels: { unknown_criterion: "pass" } })).success).toBe(false);
+    expect(evalFixtureSchema.safeParse(baseFixture({ labels: { structure_contract: "unknown" } })).success).toBe(false);
+    expect(evalFixtureSchema.parse(fixture).request).toEqual(fixture.request);
+  });
+
   it("separates eval/reporting feature ids from prompt-managed feature ids", () => {
     expect(listEvalFeatureTypesForFixtures()).toContain("chef_it_up_suggestions");
     expect(listEvalFeatureTypesForFixtures()).toContain("slop_bowl_suggestions");

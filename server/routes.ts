@@ -71,12 +71,6 @@ const privateResponseHeaders: RequestHandler = (_req, res, next) => {
   next();
 };
 
-// Multer for handling file uploads
-const upload = multer({ 
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }
-});
-
 const allowedTranscriptionMimeTypes = new Set([
   "audio/aac",
   "audio/flac",
@@ -99,6 +93,41 @@ function isAllowedTranscriptionMimeType(mimetype: string | undefined): boolean {
 
   return allowedTranscriptionMimeTypes.has(mimetype.toLowerCase().split(";")[0].trim());
 }
+
+class UnsupportedTranscriptionTypeError extends Error {}
+
+const parseTranscriptionUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 1,
+    fields: 0,
+    fieldNameSize: 64,
+    parts: 1,
+  },
+  fileFilter: (_req, file, callback) => {
+    if (!isAllowedTranscriptionMimeType(file.mimetype)) {
+      return callback(new UnsupportedTranscriptionTypeError());
+    }
+    callback(null, true);
+  },
+}).single("audio");
+
+const transcriptionUpload: RequestHandler = (req, res, next) => {
+  parseTranscriptionUpload(req, res, (error: unknown) => {
+    if (!error) return next();
+
+    if (error instanceof UnsupportedTranscriptionTypeError) {
+      return res.status(400).json({ error: "Unsupported audio file type" });
+    }
+    if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({
+        error: "Audio file exceeds the 10 MB limit.",
+      });
+    }
+    return res.status(400).json({ error: "Invalid audio upload" });
+  });
+};
 
 // Firebase/Google authentication middleware only
 const isAuthenticated: RequestHandler = async (req, res, next) => {
@@ -884,14 +913,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Speech transcription route using OpenAI Whisper
-  app.post('/api/speech/transcribe', isAuthenticated, speechUserHourLimit, speechUserDayLimit, upload.single('audio'), async (req, res) => {
+  app.post('/api/speech/transcribe', isAuthenticated, speechUserHourLimit, speechUserDayLimit, transcriptionUpload, async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'Audio file is required' });
-      }
-
-      if (!isAllowedTranscriptionMimeType(req.file.mimetype)) {
-        return res.status(400).json({ error: 'Unsupported audio file type' });
       }
 
       const transcriptionClient = getTranscriptionClient();
