@@ -52,6 +52,16 @@ When a future feature touches one of the focus areas, prefer adding a targeted r
 
 If the behavior depends on Replit-only services, real Firebase Google sign-in, Replit deployment secrets, production DB schema, ElevenLabs, OpenAI, or autoscale behavior, record the missing live-service proof instead of pretending local mocks fully prove it. That proof can be human Replit validation, accepted automated Replit-environment CI, a provider canary, or a deferred release-batch check under [`testing-and-acceptance.md`](testing-and-acceptance.md). Replit collection follows the full/release regression timing rule above; an uncovered seam narrows the supported claim or requires a concrete decision, rather than automatically triggering an earlier Replit check.
 
+## Runtime And Request-Boundary Maintenance
+
+Runtime patching requires both source preparation and deployed-image evidence. Keep `scripts/check-runtime.mjs`, the `package.json` engine range, `.nvmrc`, the Replit module major, and CI runtime selection aligned. Normal `dev`, `build`, and `start` commands run `check:runtime` first; run that check explicitly before an equivalent direct Node command. Package-manager engine warnings alone do not enforce a runtime floor.
+
+A Replit module name selects a major version; it does not establish which patch is running. At the authorized full/release regression stage, check the actual runtime version in the trusted workspace and selected deployment image, confirm the source/build correlation, and verify publication picked up the approved image. Record missing runtime evidence rather than assuming a source change or platform firewall proves deployment remediation. Runtime publication still needs Wilson's explicit authorization. See the [release validation routine](replit-validation-focus.md#production-publish-validation-routine).
+
+For in-memory upload handlers, bound the complete supported multipart shape before buffering: file count, text-field count, part count, and file bytes. Keep parser failures controlled and verify that a rejected or interrupted upload does not prevent a subsequent valid request. Limits are dependency-sensitive; test the installed parser's exact byte/part boundary rather than copying defaults or assuming exclusive/inclusive behavior.
+
+When a security fix requires a coordinated schema/SDK upgrade, preserve existing validation and provider contracts with the actual installed libraries. Include structured-output serialization, sparse records, shared insert schemas, upload construction, and native SDK error metadata where those seams are used. Mocked provider tests do not establish live-provider compatibility.
+
 ## Secret Rotation After Exposure
 
 When a secret is exposed, suspected exposed, or rotated because a command, shell log, screenshot, CI log, provider console, or chat may have revealed it, the closeout must include an environment-propagation reminder. Do not stop after rotating the key in the place where the exposure was noticed.

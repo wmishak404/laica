@@ -42,6 +42,8 @@ Phase 1 PR #369 is already merged as `96ec567a6f55639473d3209376fa180b2dd1f924`;
 
 `codex/tailwind-4-audit-remediation` is stacked on #372 so the combined remediation is testable while the migration diff stays separate. Code/dependency merges, publication, pilot activation, and Replit Agent use still require explicit approval. After approved remediation reaches main, refresh and check #371 for the authorized mechanical closeout; then start Phase 2 from fresh main and repeat the #334/#281 ownership audit. The dated Phase 1 review checkpoints below are historical; #371 owns the detailed merged validation record and closeout handoffs.
 
+The 2026-10-27 incident review adds `codex/php2shell-security-review` above #373 for focused runtime, request-boundary, and coordinated dependency remediation. It preserves the action contract and disabled pilot. Installed-library compatibility checks supplement the existing foundation tests; earlier live-provider/runtime evidence does not validate this new candidate. Exact-head automation, stack refresh, and the deferred full/release regression checks are recorded in the [security handoff](../docs/handoffs/2026-10-27-codex-runtime-request-security.md). Phase 2 remains after the approved remediation and #371 closeout.
+
 ## Source Docs
 
 - [Agentic Cooking Actions feature index](../product-decisions/features/agentic-cooking-actions/README.md)

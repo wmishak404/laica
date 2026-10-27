@@ -4,7 +4,7 @@
 **Status:** In Progress
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-05
-**Updated:** 2026-08-21
+**Updated:** 2026-10-27
 
 ## One-line summary
 
@@ -858,3 +858,9 @@ The shared high/critical audit gate is clear on the remediated graph. PR #363 ma
 The `codex/init-005-action-foundation` branch adds CI-only PostgreSQL tests to the existing disposable schema-only Neon E2E lane: concurrent idempotency, transaction rollback, retention, and session/event cascades. The linked dev-auth smoke also checks the production registry exposes no capabilities. This conforms to EFF-017 and adds a narrow service-backed evidence surface; it does not expand merge authority or replace Replit validation. Local OpenAI canary returned a sanitized `provider_auth` result, demonstrating why local credentials and mocked provider tests cannot establish Replit readiness. See the [foundation handoff](../docs/handoffs/2026-09-25-codex-init-005-action-foundation.md) for exact-head evidence and remaining checks.
 
 Source head `1f71b03e` in [PR #369](https://github.com/wmishak404/laica/pull/369) subsequently passed all 13 E2E cases, including the new PostgreSQL checks, and targeted Replit schema/provider/auth-denial/retention validation. Replit credentials succeeded where local dotenvx credentials returned 401. The model canary caught both a narrated-command false proposal and an over-conservative prompt that suppressed positives; the v3 refinement passed three positive and five negative cases while deterministic authorization stayed unchanged. Final review-head proof is tracked in the PR; this remains narrow evidence, not a new broad Replit automation merge lane or a speech-quality claim.
+
+## 2026-10-27 — Runtime floor and installed-library contract evidence
+
+The incident-triggered security candidate aligns `.nvmrc`, CI and the Replit module major with a supported runtime floor, then checks that floor before normal dev/build/start commands. Installed-library tests cover schema serialization, sparse fixtures, shared insert validation, native provider error headers and audio-stream request construction. These are deterministic compatibility checks; they do not establish the actual deployed runtime version, socket-abort lifecycle, live-provider behavior or platform patch propagation.
+
+This adds evidence without changing EFF-017's `In Progress` status or creating a new validation lane. Replit workspace/deployment checks remain deferred to full/release regression under Wilson's accepted timing rule. Source preparation is not a production remediation claim. Exact-head CI/E2E and the bounded deployment check are tracked in the [security handoff](../docs/handoffs/2026-10-27-codex-runtime-request-security.md).

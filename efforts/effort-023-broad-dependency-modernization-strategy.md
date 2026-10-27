@@ -3,7 +3,7 @@
 **Status:** Deferred
 **Owner:** Wilson / Codex / Claude
 **Created:** 2026-05-26
-**Updated:** 2026-10-07
+**Updated:** 2026-10-27
 
 ## One-line summary
 
@@ -222,3 +222,9 @@ Full and production audit results improve to five high and zero critical package
 Wilson selected a separate Tailwind 4 migration to resolve the remaining audit prerequisite, accepting Safari 16.4+, Chrome 111+, and Firefox 128+ as the minimum supported browsers. `codex/tailwind-4-audit-remediation` is stacked on compatible candidate #372; its package changes are limited to the stylesheet engine, Vite integration, compatible class merging and animation replacement. It preserves existing brand tokens, utility colors, layout and motion rather than introducing a design refresh.
 
 This is preparation authority only. The unchanged full high/critical audit gate, exact-head full regression, mobile Chromium/WebKit comparison remain required. Wilson's subsequent 2026-10-08 harness update defers Replit validation to the full regression/release stage; record its exact focused scope without blocking individual PR preparation on it. Explicit approval is needed before dependency/code merges, publication or pilot activation. The separate #371 documentation closeout and INIT-005 Phase 2 follow only after approved remediation lands. This narrow trigger does not reactivate broad dependency modernization; EFF-023 remains Deferred.
+
+## 2026-10-27 — Incident-triggered runtime and dependency remediation
+
+Wilson requested an applicability review and patches after the PHP2Shell reports. The checked-in app uses Node/Express rather than PHP. The focused security candidate `codex/php2shell-security-review` stacks above #373/#372, avoiding duplication of their existing remediation and stylesheet migration. A current high-severity trigger requires coordinated validation/provider-library updates in addition to compatible parser/tooling resolutions; an unused validation dependency is removed. Broad modernization remains `Deferred`.
+
+The same-date full and production audit gates on the prepared graph report zero high/critical entries, with five moderate entries monitored under the existing policy. The inherited #373 graph has new high findings under current registry metadata; its earlier passing audit is historical. Exact-head automation must run on the combined new candidate. Details remain in private/local scanner artifacts. No code/dependency merge or publication is authorized by this evidence. See the [security handoff](../docs/handoffs/2026-10-27-codex-runtime-request-security.md) for provenance, stack sequencing and deferred regression checks.
