@@ -139,6 +139,10 @@ function getHeaderValue(headers: unknown, headerName: string): unknown {
     return null;
   }
 
+  if (typeof headerRecord.get === "function") {
+    return headerRecord.get(headerName);
+  }
+
   const direct = headerRecord[headerName];
   if (typeof direct !== "undefined") {
     return direct;

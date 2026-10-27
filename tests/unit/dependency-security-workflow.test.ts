@@ -1,4 +1,7 @@
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import os from "node:os";
+import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -34,6 +37,44 @@ describe("dependency security automation", () => {
     expect(dependencyAudit).toContain('cron: "41 10 * * *"');
     expect(dependencyAudit).toContain("workflow_dispatch:");
     expect(dependencyAudit).toContain("npm audit --audit-level=high");
+    expect(dependencyAudit).toContain('node-version-file: ".nvmrc"');
+  });
+
+  const auditReport = (high = 0, critical = 0) => JSON.stringify({
+    metadata: { vulnerabilities: { low: 0, moderate: 5, high, critical } },
+  });
+
+  it.each([
+    { label: "moderate findings", report: auditReport(), scannerStatus: 0, expected: 0 },
+    { label: "high findings", report: auditReport(1), scannerStatus: 1, expected: 1 },
+    { label: "critical findings despite a zero scanner exit", report: auditReport(0, 1), scannerStatus: 0, expected: 1 },
+    { label: "scanner failure despite valid totals", report: auditReport(), scannerStatus: 13, expected: 13 },
+    { label: "invalid JSON despite a zero scanner exit", report: "private scanner diagnostic", scannerStatus: 0, expected: 1 },
+    { label: "missing totals", report: "{}", scannerStatus: 0, expected: 1 },
+    { label: "scanner error payload", report: JSON.stringify({ error: "private scanner diagnostic" }), scannerStatus: 0, expected: 1 },
+  ])("preserves the audit gate and private diagnostics for $label", ({ report, scannerStatus, expected }) => {
+    const directory = mkdtempSync(path.join(os.tmpdir(), "laica-audit-contract-"));
+    try {
+      writeFileSync(path.join(directory, "npm"), '#!/bin/sh\nprintf "%s" "$TEST_AUDIT_REPORT"\nprintf "%s" "private scanner diagnostic" >&2\nexit "$TEST_AUDIT_STATUS"\n', { mode: 0o700 });
+      const block = dependencyAudit.split("      - name: Audit (fail on high/critical)\n        run: |\n")[1];
+      expect(block).toBeDefined();
+      const script = block.split("\n").map(line => line.replace(/^ {10}/, "")).join("\n");
+      const result = spawnSync("/bin/bash", ["-e", "-c", script], {
+        encoding: "utf8",
+        env: {
+          PATH: `${directory}:${path.dirname(process.execPath)}:/usr/bin:/bin`,
+          RUNNER_TEMP: directory,
+          TEST_AUDIT_REPORT: report,
+          TEST_AUDIT_STATUS: String(scannerStatus),
+        },
+      });
+
+      expect(result.status).toBe(expected);
+      expect(result.stdout + result.stderr).not.toContain("private scanner diagnostic");
+      expect(readFileSync(path.join(directory, "laica-npm-audit.json"), "utf8")).toBe(report);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   it("opens npm security updates without routine npm version churn", () => {

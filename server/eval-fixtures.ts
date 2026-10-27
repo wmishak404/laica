@@ -63,7 +63,7 @@ export const evalFixtureSchema = z.object({
   roles: z.array(z.enum(["regression", "calibration-probe", "positive-guard"])).default([]),
   sourceRefs: z.array(fixtureIdSchema).default([]),
   derivedFrom: fixtureIdSchema.optional(),
-  request: z.record(z.unknown()),
+  request: z.record(z.string(), z.unknown()),
   constraints: z.object({
     maxTimeMinutes: z.number().int().nonnegative().nullable().optional(),
     cuisines: z.array(z.string()).optional(),
@@ -78,7 +78,7 @@ export const evalFixtureSchema = z.object({
     promptVersion: z.string().optional(),
     capturedAt: z.string().optional(),
   }).passthrough().optional(),
-  labels: z.record(criterionLabelSchema, labelValueSchema).default({}),
+  labels: z.partialRecord(criterionLabelSchema, labelValueSchema).default({}),
   labelProvenance: z.object({
     labeledBy: z.string().optional(),
     labeledAt: z.string().optional(),

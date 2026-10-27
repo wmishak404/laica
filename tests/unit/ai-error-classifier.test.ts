@@ -62,6 +62,20 @@ describe("classifyAiError", () => {
     });
   });
 
+  it("reads provider retry hints from Headers objects", () => {
+    const error = Object.assign(new Error("provider rate limited"), {
+      status: 429,
+      headers: new Headers({ "Retry-After": "90" }),
+    });
+
+    expect(classifyAiError(error, { vendor: "openai" })).toMatchObject({
+      errorClass: "rate_limit",
+      httpStatus: 429,
+      retryAfterSeconds: 90,
+      vendor: "openai",
+    });
+  });
+
   it("maps network-shaped provider failures without preserving raw messages", () => {
     const error = Object.assign(new Error("socket hang up while calling provider.example"), {
       code: "ECONNRESET",

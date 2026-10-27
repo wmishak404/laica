@@ -293,7 +293,7 @@ describe("provider-boundary route happy paths", () => {
       transcription: "Dice the onions more finely.",
       success: true,
     });
-    expect(mocks.openaiConstructor).toHaveBeenCalledWith({ apiKey: "test-openai-key" });
+    expect(mocks.openaiConstructor).toHaveBeenCalledWith({ apiKey: "test-openai-key", adminAPIKey: null });
     expect(String(readStreamSpy.mock.calls[0]?.[0])).toContain("laica-transcribe-");
     expect(String(readStreamSpy.mock.calls[0]?.[0])).toMatch(/audio\.wav$/);
     expect(String(readStreamSpy.mock.calls[0]?.[0])).not.toMatch(/audio_\d+\.wav$/);

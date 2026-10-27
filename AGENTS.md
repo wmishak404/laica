@@ -92,7 +92,7 @@ Codex may mark its own complete draft PRs ready for review and monitor CI withou
 
 ```
 client/          # React frontend (Vite, React 18, Tailwind, shadcn/ui)
-server/          # Express backend (Node 20.19+, Drizzle ORM, PostgreSQL)
+server/          # Express backend (supported patched Node; see .nvmrc/package.json, Drizzle ORM, PostgreSQL)
 shared/          # Shared types and schemas (Drizzle + Zod)
 tests/           # Playwright + Vitest tests
 docs/adr/        # Architecture decision records
